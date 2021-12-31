@@ -1,0 +1,3 @@
+[submodule "sorc/post_gtg.fd"]
+	path = sorc/post_gtg.fd
+	url = https://github.com/NCAR/UPP_GTG

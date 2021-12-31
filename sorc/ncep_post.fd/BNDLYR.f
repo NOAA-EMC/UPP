@@ -1,69 +1,49 @@
 !> @file
+!> @brief Subroutine that computes boundary layer fields.
 !
+!> Computes constant mass mean fields
 !>
-!!
-!! SUBPROGRAM:    BNDLYR      COMPUTES CONSTANT MASS MEAN FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-01-29
-!!     
-!! ABSTRACT:  THIS ROUTINE COMPUTES CONSTANT MASS (BOUNDARY LAYER)
-!!   FIELDS.  THE FIELDS ARE A MEAN OVER LAYERS PARAMETER DPBND
-!!   (PASCALS) THICK.  THERE ARE NBND CONSTANT MASS LAYERS, EACH
-!!   DPBND THICK STARTING FROM THE SURFACE UP.  COMPUTED BOUNDARY 
-!!   LAYER FIELDS ARE PRESSURE, TEMPERATURE, SPECIFIC HUMIDITY,
-!!   RELATIVE HUMIDITY, U AND V WINDS, VERTICAL VELOCITY,
-!!   AND PRECIPITABLE WATER.  GIVEN THESE FUNDAMENTAL VARIABLES
-!!   OTHER FIELDS MAY BE COMPUTED.
-!!
-!!   ***WARNING*** IF YOU CHANGE PARAMETER NBND IN THIS ROUTINE 
-!!                 DON'T FOREGET TO CHANGE IT ALSO IN THE CALLING
-!!                 SUBPROGRAM, MISCLN.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-01-29  RUSS TREADON
-!!   93-05-07  RUSS TREADON - ADDED DOC BLOCK AND MORE COMMENTS.
-!!   93-06-19  RUSS TREADON - ADDED LVLBND TO PARAMETER LIST.
-!!   96-03-07  MIKE BALDWIN - CHANGE PWTR CALC TO INCLUDE CLD WTR
-!!                            SPEED UP CODE
-!!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   98-08-18  MIKE BALDWIN - CHANGE QSBND TO RHBND IN CALL,
-!!                            COMPUTE RH OVER ICE
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   00-01-04  JIM TUCCILLO - MPI VERSION 
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!   21-08-20  Wen Meng     - Retrict computation fro undefined points.
-!!     
-!!     USAGE:    CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,
-!!                            WBND,OMGBND,PWTBND,QCNVBND)
-!!           
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PBND     - LAYER MEAN PRESSURE IN NBND BOUNDARY LAYERS (NBL).
-!!     TBND     - LAYER MEAN TEMPERATURE IN NBL.
-!!     QBND     - LAYER MEAN SPECIFIC HUMIDITY IN NBL.
-!!     RHBND    - LAYER MEAN RELATIVE HUM. (QBND/QSBND) IN  NBL.
-!!     UBND     - LAYER MEAN U WIND COMPONENT IN NBL.
-!!     VBND     - LAYER MEAN V WIND COMPONENT IN NBL.
-!!     WBND     - LAYER MEAN W WIND COMPONENT IN NBL.
-!!     OMGBND   - LAYER MEAN VERTICAL VELOCITY IN NBL.
-!!     PWTBND   - LAYER PRECIPITABLE WATER IN NBL.
-!!     LVLBND   - ETA LAYER AT MIDPOINT OF NBL.
-!!     QCNVBND  - LAYER MOISTURE CONVERGENCE IN NBL.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> This routine computes constant mass (boundary layer)
+!> fields.  The fields are a mean over layers parameter DPBND
+!> (pascals) thick.  There are NBND constant mass layers, each
+!> DPBND thick starting from the surface up.  Computed boundary 
+!> layer fields are pressure, temperature, specific humidity,
+!> relative humidity, U and V winds, vertical velocity,
+!> and precipitable water.  Given these fundamental variables
+!> other fields may be computed.
+!>
+!> @note If you change parameter NBND in this routine 
+!>       don't forget to change it also in the calling
+!>       subprogram, MISCLN.
+!>
+!> @param[out] PBND - Layer mean pressure in NBND boundary layers (NBL).
+!> @param[out] TBND - Layer mean temperature in NBL.
+!> @param[out] QBND - Layer mean specific humidity in NBL.
+!> @param[out] RHBND - Layer mean relative hum. (QBND/QSBND) in NBL.
+!> @param[out] UBND - Layer mean U wind component in NBL.
+!> @param[out] VBND - Layer mean V wind component in NBL.
+!> @param[out] WBND - Layer mean W wind component in NBL.
+!> @param[out] OMGBND - Layer mean vertical velocity in NBL.
+!> @param[out] PWTBND - Layer precipitable water in NBL.
+!> @param[out] QCNVBND - Layer moisture convergence in NBL.
+!> @param[out] LVLBND - ETA layer at midpoint of NBL.
+!>
+!> Program History
+!> - 93-01-29  RUSS TREADON
+!> - 93-05-07  RUSS TREADON - ADDED DOC BLOCK AND MORE COMMENTS.
+!> - 93-06-19  RUSS TREADON - ADDED LVLBND TO PARAMETER LIST.
+!> - 96-03-07  MIKE BALDWIN - CHANGE PWTR CALC TO INCLUDE CLD WTR
+!>                            SPEED UP CODE
+!> - 98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
+!> - 98-08-18  MIKE BALDWIN - CHANGE QSBND TO RHBND IN CALL,
+!>                            COMPUTE RH OVER ICE
+!> - 98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
+!> - 00-01-04  JIM TUCCILLO - MPI VERSION 
+!> - 02-01-15  MIKE BALDWIN - WRF VERSION
+!> - 20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!> - 21-08-20  Wen Meng     - Retrict computation fro undefined points.
+!>     
+!> @author Russ Treadon W/NP2 @date 1993-01-29
       SUBROUTINE BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,       &
                         WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
 

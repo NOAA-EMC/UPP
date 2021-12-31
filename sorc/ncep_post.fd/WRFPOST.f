@@ -42,6 +42,8 @@
 !!                       add gocart_on,d3d_on and popascal to namelist
 !!   20-03-25  J MENG  - remove grib1
 !!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
+!!   21-10-22  KaYee Wong - created formal fortran namelist for itag
+!!   21-11-03  Tracy Hertneky - Removed SIGIO option
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
@@ -147,13 +149,10 @@
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
-      use sigio_module,   only: sigio_head
-      use sigio_r_module, only: sigio_rropen, sigio_rrhead
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
       type(nemsio_gfile) :: nfile,ffile,rfile
-      type(sigio_head)   :: sighead
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -165,7 +164,7 @@
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,bbtim
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
-      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
+      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,ncid2d,varid
       integer      :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                       iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer      :: iostatusAER
@@ -174,7 +173,10 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp,rdaod,aqfcmaq_on
+                     ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits
+      integer      :: itag_ierr
+      namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
+                     ,fileNameFlux,fileNameFlat
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -215,42 +217,35 @@
         spval = 9.9e10
 !
 !**************************************************************************
-!read namelist
-        open(5,file='itag')
- 98     read(5,111,end=1000) fileName
-        if (me==0) print*,'fileName= ',fileName
-        read(5,113) IOFORM
-        if (me==0) print*,'IOFORM= ',IOFORM
-        read(5,120) grib
-        if (me==0) print*,'OUTFORM= ',grib
-        if(index(grib,"grib") == 0) then
-!          grib='grib1' !GRIB1 IS NOT SUPPORTED ANYMORE.
-          grib='grib2'
-          rewind(5,iostat=ierr)
-          read(5,111,end=1000) fileName
-          read(5,113) IOFORM
-        endif
-        if (me==0) print*,'OUTFORM2= ',grib
-        read(5,112) DateStr
-        read(5,114) FULLMODELNAME
-        MODELNAME=FULLMODELNAME(1:4)
-        SUBMODELNAME=FULLMODELNAME(5:)
-      IF(len_trim(FULLMODELNAME)<5) THEN
-         SUBMODELNAME='NONE'
-      ENDIF
-!      if(MODELNAME == 'NMM')then
+!KaYee: Read itag in Fortran Namelist format
+!Set default 
+       SUBMODELNAME='NONE'
+!open namelist
+       open(5,file='itag')
+       read(5,nml=model_inputs,iostat=itag_ierr,err=888)
+       !print*,'itag_ierr=',itag_ierr
+888    if (itag_ierr /= 0) then
+       print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
+       stop
+       endif
+       if (me==0) print*,'fileName= ',fileName
+         if (me==0) print*,'IOFORM= ',IOFORM
+         !if (me==0) print*,'OUTFORM= ',grib
+         if (me==0) print*,'OUTFORM= ',grib
+         if (me==0) print*,'DateStr= ',DateStr
+         if (me==0) print*,'MODELNAME= ',MODELNAME
+         if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
+!       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
 ! 1114   format(a4)
 !        if (me==0) print*,'VALID TIME UNITS = ', VTIMEUNITS
-!      endif
+!       endif
 !
- 303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
-              SUBMODELNAME="',A,'"')
+ 303  format('MODELNAME="',A,'" SUBMODELNAME="',A,'"')
 
-       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
-!         MODELNAME, SUBMODELNAME
+       write(0,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
 
-      if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
+      if (me==0) print 303,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         if (me==0) write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
@@ -270,18 +265,11 @@
  120    format(a5)
  121    format(a4)
 
+!KaYee: Read in GFS/FV3 runs in Fortran Namelist Format.
         if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
-!Chuang: If model is GFS, read in flux file name from unit5
         if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
-          read(5,111,end=117) fileNameFlux
           if (me == 0) print*,'first two file names in GFS or FV3= '  &
                                ,trim(fileName),trim(fileNameFlux)
- 117      continue
-
-          read(5,111,end=118) fileNameD3D
-          if (me == 0) print*,'D3D names in GFS= ',trim(fileNameD3D)
- 118      continue
-
         end if
 
 !
@@ -312,11 +300,13 @@
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
-        if(MODELNAME == 'RAPR') then
-          read(5,*,iostat=iret,end=119) kpo
-        else
+!set control file name
+        fileNameFlat='postxconfig-NT.txt'
+!KaYee        if(MODELNAME == 'RAPR') then
+!KaYee          read(5,*,iostat=iret,end=119) kpo
+!KaYee        else
           read(5,nampgb,iostat=iret,end=119)
-        endif
+!KaYee        endif
 !       if(kpo > komax)print*,'pressure levels cannot exceed ',komax; STOP
 !       if(kth > komax)print*,'isent levels cannot exceed ',komax; STOP
 !       if(kpv > komax)print*,'PV levels cannot exceed ',komax; STOP 
@@ -342,15 +332,15 @@
           if(me == 0) then
             print*,'using pressure levels from POSTGPVARS'
           endif
-          if(MODELNAME == 'RAPR')then
-            read(5,*) (po(l),l=1,kpo)
+!KaYee          if(MODELNAME == 'RAPR')then
+!KaYee            read(5,*) (po(l),l=1,kpo)
 ! CRA READ VALID TIME UNITS
-            read(5,121) VTIMEUNITS
-            if(me == 0) then
-              print*,'VALID TIME UNITS = ', VTIMEUNITS
-            endif
+!KaYee            read(5,121) VTIMEUNITS
+!KaYee            if(me == 0) then
+!KaYee              print*,'VALID TIME UNITS = ', VTIMEUNITS
+!KaYee            endif
 ! CRA
-          endif
+!KaYee          endif
           lsm = kpo
           if( .not. popascal ) then
             untcnvt = 100.
@@ -378,15 +368,13 @@
         end if
  115    format(f7.1)
  116    continue
-!set control file name
-        fileNameFlat='postxconfig-NT.txt'
-        if(MODELNAME == 'GFS') then
+!KaYee        if(MODELNAME == 'GFS') then
 !          read(5,*) line 
-          read(5,111,end=125) fileNameFlat
- 125    continue
+!KaYee          read(5,111,end=125) fileNameFlat
+!KaYee 125    continue
 !          if(len_trim(fileNameFlat)<5) fileNameFlat = 'postxconfig-NT.txt'
-          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
-        endif
+!KaYee          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
+!KaYee        endif
 ! set PTHRESH for different models
         if(MODELNAME == 'NMM')then
           PTHRESH = 0.000004
@@ -445,6 +433,27 @@
             print*,'error opening ',fileName, ' Status = ', Status 
             stop
           endif
+          Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
+          if ( Status /= 0 ) then
+            print*,'error opening ',fileNameFlux, ' Status = ', Status
+            stop
+          endif
+! read in LSM index and nsoil here
+          Status=nf90_get_att(ncid2d,nf90_global,'landsfcmdl', iSF_SURFACE_PHYSICS)
+          if(Status/=0)then
+            print*,'landsfcmdl not found; assigning to 2'
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+          endif
+          if(iSF_SURFACE_PHYSICS<2)then
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+          endif
+          Status=nf90_get_att(ncid2d,nf90_global,'nsoil', NSOIL)
+          if(Status/=0)then
+            print*,'nsoil not found; assigning to 4'
+            NSOIL=4 !set nsoil to 4 for NOAH
+          endif
+          if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
+          if(me==0)print*,'NSOIL= ',NSOIL
 ! get dimesions
           Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
           if ( Status /= 0 ) then
@@ -481,7 +490,7 @@
           IM_JM = IM*JM
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
-          NSOIL = 4
+!          NSOIL = 4
 
           print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
@@ -598,74 +607,6 @@
 
           END IF 
 
-        ELSE IF(TRIM(IOFORM) == 'sigio' )THEN
-
-          IF(MODELNAME == 'GFS') THEN
-            lusig = 32
-
-           !IF(ME == 0)THEN
-
-            call sigio_rropen(lusig,trim(filename),status)
-
-            if ( Status /= 0 ) then
-              print*,'error opening ',fileName, ' Status = ', Status ; stop
-            endif
-!---
-            call sigio_rrhead(lusig,sighead,status)
-            if ( Status /= 0 ) then
-              print*,'error finding GFS dimensions '; stop
-            else
-              idrt = 4 ! set default to Gaussian first
-              call getenv('IDRT',cgar) ! then read idrt to see if user request latlon
-              if(cgar /= " ")then
-                read(cgar,'(I1)',iostat=Status) idrt
-                !if(Status = =0)idrt = idum
-                call getenv('LONB',cdum)
-                read(cdum,'(I4)',iostat=Status) im
-                if(Status /= 0)then
-                  print*,'error reading user specified lonb for latlon grid, stopping'
-                  call mpi_abort()
-                  stop
-                end if
-                call getenv('LATB',cdum)
-                read(cdum,'(I4)',iostat=Status)jm
-                if(Status /= 0)then
-                  print*,'error reading user specified latb for latlon grid, stopping'
-                  call mpi_abort()
-                  stop
-                end if
-              else 
-                idrt = 4
-                im   = sighead%lonb
-                jm   = sighead%latb
-              endif
-              print*,'idrt=',idrt 
-              lm = sighead%levs 
-            end if  
-            nsoil = 4
-! opening GFS flux file	
-            if(me == 0)then 
-              iunit = 33
-              call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
-              if(iostatusFlux /= 0)print*,'flux file not opened'
-              iunitd3d = 34
-              call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
-!             iostatusD3D=-1
-            END IF
-!           CALL mpi_bcast(im,          1,MPI_INTEGER,0, mpi_comm_comp,status) 
-!           call mpi_bcast(jm,          1,MPI_INTEGER,0, mpi_comm_comp,status)
-!           call mpi_bcast(lm,          1,MPI_INTEGER,0, mpi_comm_comp,status)
-!           call mpi_bcast(nsoil,       1,MPI_INTEGER,0, mpi_comm_comp,status)
-            call mpi_bcast(iostatusFlux,1,MPI_INTEGER,0, mpi_comm_comp,status)
-            call mpi_bcast(iostatusD3D, 1,MPI_INTEGER,0, mpi_comm_comp,status)
-            print*,'im jm lm nsoil from GFS= ',im,jm, lm ,nsoil
-            LP1   = LM+1
-            LM1   = LM-1
-            IM_JM = IM*JM
-          ELSE
-            print*,'post only reads sigma files for GFS, stopping';stop    
-          END IF
-
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
@@ -713,7 +654,7 @@
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
-            CALL INITPOST_NETCDF(ncid3d)
+            CALL INITPOST_NETCDF(ncid2d,ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
             print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
@@ -766,13 +707,6 @@
             STOP 9999
 
           END IF 
-        ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
-          IF(MODELNAME == 'GFS') THEN
-            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
-          ELSE
-            PRINT*,'POST does not have sigio option for this model, STOPPING'
-            STOP 99981		
-          END IF 	
 
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'

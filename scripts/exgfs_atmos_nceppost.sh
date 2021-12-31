@@ -25,6 +25,11 @@ echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
+echo " Dec 20 - Meng - Add alert for special data file."
+echo " Mar 21 - Meng - Update POSTGRB2TBL default setting."
+echo " Jun 21 - Mao  - Instead of err_chk, catch err and print out"
+echo "                 WAFS failure warnings to avoid job crashing"
+echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -34,7 +39,7 @@ cd $DATA
 
 # specify model output format type: 4 for nemsio, 3 for sigio
 msg="HAS BEGUN on `hostname`"
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 
 export POSTGPSH=${POSTGPSH:-$USHgfs/gfs_nceppost.sh}
 export GFSDOWNSH=${GFSDOWNSH:-$USHgfs/fv3gfs_downstream_nems.sh}
@@ -201,27 +206,32 @@ then
       export PGIOUT=wafsifile
 
       $POSTGPSH
-      export err=$?; err_chk
+      export err=$?
 
-      # WAFS package doesn't process this part.
-      # Need to be saved for WAFS U/V/T verification, 
-      # resolution higher than WAFS 1.25 deg for future compatibility
-      wafsgrid="latlon 0:1440:0.25 90:721:-0.25"
-      $WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
+      if [ $err -ne 0 ] ; then
+	  echo " *** GFS POST WARNING: WAFS output failed for analysis, err=$err"
+      else
+
+        # WAFS package doesn't process this part.
+	# Need to be saved for WAFS U/V/T verification, 
+        # resolution higher than WAFS 1.25 deg for future compatibility
+        wafsgrid="latlon 0:1440:0.25 90:721:-0.25"
+	$WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
               -new_grid_interpolation bilinear -set_bitmap 1 \
 	      -new_grid $wafsgrid ${PGBOUT}.tmp
 
-      if test $SENDCOM = "YES"
-      then
+	if test $SENDCOM = "YES"
+	then
          cp ${PGBOUT}.tmp $COMOUT/${PREFIX}wafs.0p25.anl
          $WGRIB2 -s ${PGBOUT}.tmp > $COMOUT/${PREFIX}wafs.0p25.anl.idx
 
-         if [ $SENDDBN = YES ]; then
-            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
-            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2__WIDX $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
-         fi
+#         if [ $SENDDBN = YES ]; then
+#            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
+#            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2__WIDX $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
+#         fi
+	fi
+	rm $PGBOUT ${PGBOUT}.tmp
       fi
-      rm $PGBOUT ${PGBOUT}.tmp
    fi
   fi
 ##########################  WAFS U/V/T analysis end  ##########################
@@ -273,7 +283,7 @@ do
     set -x
 
     msg="Starting post for fhr=$fhr"
-    postmsg "$jlogfile" "$msg"
+    postmsg "$msg"
 
     ###############################
     # Put restart files into /nwges 
@@ -487,6 +497,10 @@ do
        mv goesfile $COMOUT/${SPECIALFL}f$fhr
        mv goesifile $COMOUT/${SPECIALFLIDX}f$fhr
 
+       if [ $SENDDBN = YES ]; then
+           $DBNROOT/bin/dbn_alert MODEL GFS_SPECIAL_GB2 $job $COMOUT/${SPECIALFL}f$fhr
+       fi
+
     fi
     fi
 # end of satellite processing
@@ -523,16 +537,20 @@ do
                $POSTGPSH
 	  fi
 
-          export err=$?; err_chk
+          export err=$?
 
-          if [ -e $PGBOUT ]
-          then
-          if test $SENDCOM = "YES"
-          then
-              cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
-              cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
-          fi
-          fi
+	  if [ $err -ne 0 ] ; then
+              echo " *** GFS POST WARNING: WAFS output failed for f${fhr}, err=$err"
+	  else
+              if [ -e $PGBOUT ]
+              then
+		  if test $SENDCOM = "YES"
+		  then
+		      cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
+		      cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
+		  fi
+              fi
+	  fi
       fi
       [[ -f wafsfile ]] && rm wafsfile ; [[ -f wafsifile ]] && rm wafsifile
     fi

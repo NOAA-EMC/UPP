@@ -3941,14 +3941,14 @@ spec_hgt_lvl_above_grnd
 ?
 ?
 487
-GSD_PRES_ON_CLOUD_BASE
+GSD_EXP_CEILING
 ?
 1
 tmpl4_0
-PRES
+CEIL
 ?
 ?
-cloud_base
+cloud_ceilng
 0
 ?
 0
