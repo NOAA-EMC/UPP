@@ -222,8 +222,15 @@
 !GWVx      ibl=max(ista-1,1)
 !GWVx      ibu=min(im,iend+1)
 
-      ibl=max(ista-1,0)
-      ibu=min(im+1,iend+1)
+!GWVXE      ibl=max(ista-1,0)
+!GWVXE      ibu=min(im+1,iend+1)
+       ibl=max(ista-1,1)
+       ibu=min(im,iend+1)
+       if(modelname == 'GFS') then
+         ibl=max(ista-1,0)
+         ibu=min(im+1,iend+1)
+       endif
+
       jbu=min(jm,jend+1)
       jbl=max(jsta-1,1)
 
