@@ -147,9 +147,12 @@ list(APPEND GTG_LIB_SRC
   gtg_smoothseams.F90)
 
 if(BUILD_WITH_GTG)
+  list(APPEND GTG_LIB_SRC
+    map_routines.F90)
   list(TRANSFORM GTG_LIB_SRC PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/../post_gtg.fd/)
-  list(APPEND LIB_SRC ${GTG_LIB_SRC})
 endif()
+
+list(APPEND LIB_SRC ${GTG_LIB_SRC})
 
 list(APPEND EXE_SRC
     ASSIGNNEMSIOVAR.f
