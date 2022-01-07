@@ -137,6 +137,20 @@ list(APPEND LIB_SRC
     xml_perl_data.f
     ZENSUN.f)
 
+list(APPEND GTG_LIB_SRC
+  gtg_algo.F90
+  gtg_compute.F90
+  gtg_config.F90
+  gtg_ctlblk.F90
+  gtg_filter.F90
+  gtg_indices.F90
+  gtg_smoothseams.F90)
+
+if(BUILD_WITH_GTG)
+  list(TRANSFORM GTG_LIB_SRC PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/../post_gtg.fd/)
+  list(APPEND LIB_SRC ${GTG_LIB_SRC})
+endif()
+
 list(APPEND EXE_SRC
     ASSIGNNEMSIOVAR.f
     GETNEMSNDSCATTER.f
