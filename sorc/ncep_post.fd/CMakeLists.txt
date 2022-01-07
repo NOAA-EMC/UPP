@@ -214,9 +214,13 @@ target_link_libraries(${LIBNAME} PUBLIC
   crtm::crtm
   g2::g2_4
   g2tmpl::g2tmpl
-  ip::ip_4
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
+
+if(BUILD_WITH_GTG)
+  target_link_libraries(${LIBNAME} PUBLIC
+  ip::ip_4)
+endif()
 
 if(OpenMP_Fortran_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
