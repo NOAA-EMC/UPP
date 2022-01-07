@@ -63,13 +63,6 @@ list(APPEND LIB_SRC
     GPVS.f
     grib2_module.f
     GRIDSPEC.f
-    gtg_algo.F90
-    gtg_compute.F90
-    gtg_config.F90
-    gtg_ctlblk.F90
-    gtg_filter.F90
-    gtg_indices.F90
-    gtg_smoothseams.F90
     ICAOHEIGHT.f
     kinds_mod.F
     LFMFLD.f
