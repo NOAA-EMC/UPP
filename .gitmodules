@@ -1,4 +1,4 @@
-[submodule "sorc/post_gtg.fd"]
-	path = sorc/ncep_post.fd/post_gtg.fd
-	url = https://github.com/NCAR/UPP_GTG
-        update = none
+[submodule "post_gtg.fd"]
+  path = sorc/ncep_post.fd/post_gtg.fd
+  url = https://github.com/NCAR/UPP_GTG
+  update = none
