@@ -69,7 +69,6 @@ list(APPEND LIB_SRC
     LFMFLD_GFS.f
     LOOKUP.f
     machine.f
-    map_routines.F90
     MAPSSLP.f
     MASKS_mod.f
     MDL2AGL.f
@@ -137,11 +136,10 @@ list(APPEND GTG_LIB_SRC
   gtg_ctlblk.F90
   gtg_filter.F90
   gtg_indices.F90
-  gtg_smoothseams.F90)
+  gtg_smoothseams.F90
+  map_routines.F90)
 
 if(BUILD_WITH_GTG)
-  list(APPEND GTG_LIB_SRC
-    map_routines.F90)
   list(TRANSFORM GTG_LIB_SRC PREPEND post_gtg.fd/)
 endif()
 
