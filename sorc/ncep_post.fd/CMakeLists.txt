@@ -142,7 +142,7 @@ list(APPEND GTG_LIB_SRC
 if(BUILD_WITH_GTG)
   list(APPEND GTG_LIB_SRC
     map_routines.F90)
-  list(TRANSFORM GTG_LIB_SRC PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/../post_gtg.fd/)
+  list(TRANSFORM GTG_LIB_SRC PREPEND post_gtg.fd/)
 endif()
 
 list(APPEND LIB_SRC ${GTG_LIB_SRC})
