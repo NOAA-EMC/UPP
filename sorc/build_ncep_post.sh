@@ -14,7 +14,7 @@ SHELL=/bin/sh
 
 
 # Lin Gan Module Load
-module purge
+module reset
 set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
@@ -54,7 +54,7 @@ moduledir=`dirname $(readlink -f ../modulefiles/post)`
 cd ncep_post.fd
 
 if [ $machine = wcoss2 ] ; then
-module purge
+module reset
 module use ${moduledir}/post
 module load post_${machine}
 module list
