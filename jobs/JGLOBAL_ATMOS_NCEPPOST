@@ -77,13 +77,8 @@ export FIXCRTM=${CRTM_FIX:-${HOMECRTM}/fix}
 export PARMpost=${PARMpost:-$HOMEgfs/parm/post}
 export INLINE_POST=${WRITE_DOPOST:-".false."}
 
-if [ $RUN_ENVIR = "nco" ]; then
-    export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
-    export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
-else
-    export COMIN="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
-    export COMOUT="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
-fi
+export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
+export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
 [[ ! -d $COMOUT ]] && mkdir -m 775 -p $COMOUT
 
 if [ $RUN = gfs ];then
