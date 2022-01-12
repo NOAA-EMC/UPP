@@ -1835,7 +1835,7 @@
 
 
 ! instantaneous 3D cloud fraction
-      VarName='cldfra'
+      VarName='cldfra_bl'
 !      do l=1,lm
         call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
