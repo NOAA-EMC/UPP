@@ -63,20 +63,12 @@ list(APPEND LIB_SRC
     GPVS.f
     grib2_module.f
     GRIDSPEC.f
-    gtg_algo.F90
-    gtg_compute.F90
-    gtg_config.F90
-    gtg_ctlblk.F90
-    gtg_filter.F90
-    gtg_indices.F90
-    gtg_smoothseams.F90
     ICAOHEIGHT.f
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
     LOOKUP.f
     machine.f
-    map_routines.F90
     MAPSSLP.f
     MASKS_mod.f
     MDL2AGL.f
@@ -104,11 +96,10 @@ list(APPEND LIB_SRC
     PMICRPH.f
     POLEAVG.f
     PROCESS.f
-    READCNTRL.F
     READ_xml.f
     retrieve_index.f
     RHGRD.f
-    RQSTFLD.F
+    RQSTFLD.f
     SCLFLD.f
     SELECT_CHANNELS.f
     SERVER.f
@@ -138,17 +129,31 @@ list(APPEND LIB_SRC
     xml_perl_data.f
     ZENSUN.f)
 
+list(APPEND GTG_LIB_SRC
+  gtg_algo.F90
+  gtg_compute.F90
+  gtg_config.F90
+  gtg_ctlblk.F90
+  gtg_filter.F90
+  gtg_indices.F90
+  gtg_smoothseams.F90
+  map_routines.F90)
+
+if(BUILD_WITH_GTG)
+  list(TRANSFORM GTG_LIB_SRC PREPEND post_gtg.fd/)
+endif()
+
+list(APPEND LIB_SRC ${GTG_LIB_SRC})
+
 list(APPEND EXE_SRC
     ASSIGNNEMSIOVAR.f
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS.f
     INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
     INITPOST_GFS_NETCDF_PARA.f
-    INITPOST_GFS_SIGIO.f
     INITPOST_NEMS.f
     INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
@@ -194,7 +199,7 @@ add_library(${PROJECT_NAME}::${LIBNAME} ALIAS ${LIBNAME})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
 
-target_include_directories(${LIBNAME} INTERFACE
+target_include_directories(${LIBNAME} PUBLIC
   $<BUILD_INTERFACE:${module_dir}>
   $<INSTALL_INTERFACE:include>)
 
@@ -203,9 +208,13 @@ target_link_libraries(${LIBNAME} PUBLIC
   crtm::crtm
   g2::g2_4
   g2tmpl::g2tmpl
-  ip::ip_4
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
+
+if(BUILD_WITH_GTG)
+  target_link_libraries(${LIBNAME} PUBLIC
+  ip::ip_4)
+endif()
 
 if(OpenMP_Fortran_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
@@ -215,7 +224,6 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    gfsio::gfsio
     w3nco::w3nco_4
     nemsio::nemsio
     sp::sp_4
@@ -236,29 +244,3 @@ install(
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
-
-### Package config
-include(CMakePackageConfigHelpers)
-set(CONFIG_INSTALL_DESTINATION lib/cmake/${PROJECT_NAME})
-
-export(EXPORT ${PROJECT_NAME}Exports
-  NAMESPACE ${PROJECT_NAME}::
-  FILE ${PROJECT_NAME}-targets.cmake)
-
-configure_package_config_file(
-  ${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION})
-install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  DESTINATION ${CONFIG_INSTALL_DESTINATION})
-
-write_basic_package_version_file(
-  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion)
-install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  DESTINATION ${CONFIG_INSTALL_DESTINATION})
-
-install(EXPORT ${PROJECT_NAME}Exports
-  NAMESPACE ${PROJECT_NAME}::
-  FILE ${PROJECT_NAME}-targets.cmake
-  DESTINATION ${CONFIG_INSTALL_DESTINATION})

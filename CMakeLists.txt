@@ -9,12 +9,13 @@ project(
   VERSION ${pVersion}
   LANGUAGES Fortran)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Handle user options.
 option(OPENMP "use OpenMP threading" ON)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
+option(BUILD_WITH_GTG   "Build NCEPpost with NCAR/GTG" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
@@ -47,10 +48,11 @@ find_package(bacio REQUIRED)
 find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)
 find_package(g2tmpl REQUIRED)
-find_package(ip REQUIRED)
+if(BUILD_WITH_GTG)
+  find_package(ip REQUIRED)
+endif()
 
 if(BUILD_POSTEXEC)
-  find_package(gfsio REQUIRED)
   find_package(nemsio REQUIRED)
   find_package(sfcio REQUIRED)
   find_package(sigio REQUIRED)
@@ -70,3 +72,28 @@ if(ENABLE_DOCS)
   add_subdirectory(docs)
 endif()
 
+### Package config
+include(CMakePackageConfigHelpers)
+set(CONFIG_INSTALL_DESTINATION lib/cmake/${PROJECT_NAME})
+
+export(EXPORT ${PROJECT_NAME}Exports
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${PROJECT_NAME}-targets.cmake)
+
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PackageConfig.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION})
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+write_basic_package_version_file(
+  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+install(EXPORT ${PROJECT_NAME}Exports
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${PROJECT_NAME}-targets.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})

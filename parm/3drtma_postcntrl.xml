@@ -633,7 +633,7 @@
        </param>
 
        <param>
-           <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
+           <shortname>GSD_EXP_CEILING</shortname>
            <scale>3.0</scale>
        </param>
 

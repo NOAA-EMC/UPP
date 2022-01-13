@@ -128,7 +128,7 @@ export SLEEP_INT=5
 # Run relevant exglobal script
 env
 msg="HAS BEGUN on `hostname`"
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 $LOGSCRIPT
 
 
@@ -148,7 +148,7 @@ if [ -e "$pgmout" ]; then
 fi
 
 msg="ENDED NORMALLY."
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 
 
 ##########################################

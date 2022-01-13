@@ -23,6 +23,8 @@
 #                  Remove legacy setting for reading non-nemsio model output
 #                  and generating grib1 data
 # 2019-06-02  Wen Meng: Remove the links of gfs fix files. 
+# 2021-06-11  Yali Mao: Instead of err_chk, 'exit $err' for wafsfile
+#                  if POSTGPEXEC fails
 #
 # Usage:  global_postgp.sh SIGINP FLXINP FLXIOUT PGBOUT PGIOUT IGEN
 #
@@ -311,13 +313,14 @@ export DD=`echo $VDATE | cut -c7-8`
 export HH=`echo $VDATE | cut -c9-10`
 
 cat > itag <<EOF
-$GFSOUT
-${MODEL_OUT_FORM}
-${GRIBVERSION}
-${YY}-${MM}-${DD}_${HH}:00:00
-GFS
-$FLXINP
-$D3DINP
+&model_inputs
+fileName='${GFSOUT}'
+IOFORM='${MODEL_OUT_FORM}'
+grib='${GRIBVERSION}'
+DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+MODELNAME='GFS'
+fileNameFlux='${FLXINP}'
+/
 EOF
 
 cat postgp.inp.nml$$ >> itag
@@ -350,6 +353,12 @@ ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
 export ERR=$?
 export err=$ERR
+
+if [ $err -ne 0 ] ; then
+    if [ $PGBOUT = "wafsfile" ] ; then
+        exit $err
+    fi
+fi
 $ERRSCRIPT||exit 2
 
 if [ $FILTER = "1" ] ; then

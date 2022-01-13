@@ -4282,9 +4282,9 @@
 
     <param>
        <post_avblfldidx>487</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
+       <shortname>GSD_EXP_CEILING</shortname>
+       <pname>CEIL</pname>
+       <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -4478,6 +4478,17 @@
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>10.</level>
        <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>508</post_avblfldidx>
+       <shortname>MAX_PRATE_ON_SURFACE</shortname>
+       <longname>Maximum Precipitation Rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -4706,6 +4717,14 @@
        <pname>EPOT</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>549</post_avblfldidx>
+       <shortname>FDNSSTMP_ON_SURFACE</shortname>
+       <pname>FDNSSTMP</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
     </param>
 
     <param>
@@ -6491,10 +6510,10 @@
 
     <param>
        <post_avblfldidx>711</post_avblfldidx>
-       <shortname>GSD1_HGT_ON_CLOUD_BASE</shortname>
-       <pname>HGT</pname>
+       <shortname>GSD_EXP_CEILING_2</shortname>
+       <pname>CEIL</pname>
        <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
-       <scale>6.0</scale>
+       <scale>3.0</scale>
     </param>
 
     <param>
@@ -7144,6 +7163,38 @@
     </param>
 
     <param>
+       <post_avblfldidx>825</post_avblfldidx>
+       <shortname>SSMS1715_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1715</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>826</post_avblfldidx>
+       <shortname>SSMS1716_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1716</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>827</post_avblfldidx>
+       <shortname>SSMS1717_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1717</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>828</post_avblfldidx>
+       <shortname>SSMS1718_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1718</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>890</post_avblfldidx>
        <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1</shortname>
        <longname>Hourly max relative vorticity on hybrid level 1</longname>
@@ -7162,6 +7213,106 @@
        <fixed_sfc1_type>isothermal</fixed_sfc1_type>
        <level>263.</level>
        <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>913</post_avblfldidx>
+       <shortname>1H_FFG_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>914</post_avblfldidx>
+       <shortname>ACM_FFG_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>915</post_avblfldidx>
+       <shortname>1H_2YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>916</post_avblfldidx>
+       <shortname>ACM_2YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>917</post_avblfldidx>
+       <shortname>1H_5YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>918</post_avblfldidx>
+       <shortname>ACM_5YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>919</post_avblfldidx>
+       <shortname>1H_10YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>920</post_avblfldidx>
+       <shortname>ACM_10YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>921</post_avblfldidx>
+       <shortname>1H_100YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>922</post_avblfldidx>
+       <shortname>ACM_100YARI_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
     </param>
 
     <param>
@@ -7697,7 +7848,92 @@
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
+    
+    <param>
+       <post_avblfldidx>994</post_avblfldidx>
+       <shortname>OZCON_ON_HYBRID_LVL</shortname>
+       <pname>OZCON</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>7.0</scale>
+    </param>
+    
+    <param>
+       <post_avblfldidx>995</post_avblfldidx>
+       <shortname>PM25TOT_ON_HYBRID_LVL</shortname>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>7.0</scale>
+    </param>
+    
+    <param>
+       <post_avblfldidx>996</post_avblfldidx>
+       <shortname>LAND_FRAC</shortname>
+       <pname>LANDFRC</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
 
+    <param>
+       <post_avblfldidx>997</post_avblfldidx>
+       <shortname>INST_PREC_ADVEC_HEAT</shortname>
+       <pname>PAHFLX</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
 
+    <param>
+       <post_avblfldidx>998</post_avblfldidx>
+       <shortname>WATER_AQUIFER</shortname>
+       <pname>WATERSA</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>999</post_avblfldidx>
+       <shortname>ACM_EIWATER_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>EIWATER</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1000</post_avblfldidx>
+       <shortname>ACM_PLANTTR_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PLANTTR</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1001</post_avblfldidx>
+       <shortname>ACM_SOILSE_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>SOILSE</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1002</post_avblfldidx>
+       <shortname>AVE_PREC_ADVEC_HEAT</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PAHFLX</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>  
   </post_avblflds>
 </postxml>

@@ -37,6 +37,7 @@
 !!   10-08-27  T. Smirnova  - added PFRZL to the output
 !!   16-01-21  C. Alexander - Generalized function for any isotherm
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!!   21-07-28  W. Meng      - Restrict compuatation from undefined grids
 !!
 !! USAGE:    CALL FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
 !!   INPUT ARGUMENT LIST:
@@ -95,6 +96,7 @@
 
       DO 20 J=JSTA,JEND
       DO 20 I=1,IM
+         IF(FIS(I,J)<spval)THEN
          HTSFC    = FIS(I,J)*GI
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00
@@ -238,6 +240,10 @@
                RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
                RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
+         ELSE
+               RHFRZ(I,J) = spval
+               ZFRZ(I,J)  = spval
+         ENDIF
  20   CONTINUE
 !     
 !     END OF ROUTINE.

@@ -902,6 +902,11 @@
         <scale>4.0</scale>
     </param>
 
+    <param>
+       <shortname>LAND_FRAC</shortname>
+       <scale>3.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 
@@ -955,6 +960,11 @@
 
     <param>
        <shortname>TMP_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>FDNSSTMP_ON_SURFACE</shortname>
        <scale>4.0</scale>
     </param>
 
@@ -1188,6 +1198,11 @@
        <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <level2>200.</level2>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>LAND_FRAC</shortname>
+       <scale>3.0</scale>
     </param>
 
     <!--  comments wherever I like -->

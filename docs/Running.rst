@@ -26,7 +26,7 @@ A script for running the UPP package is included in the **/scripts** directory:
 
        mkdir parm
 
-4. Optional: If desired, edit the control **XML** file(s) in **/EMC_post/parm** to reflect the fields
+4. Optional: If desired, edit the control **XML** file(s) in **/UPP/parm** to reflect the fields
    and levels you want UPP to output. It is recommended that you make copies of the original
    beforehand.
 
@@ -64,8 +64,8 @@ Run Script Overview
 
        | **TOP_DIR**: Top level directory for building and running UPP
        | **DOMAINPATH**: Working directory for this run
-       | **UNIPOST_HOME**: Location of the **EMC_post** directory
-       | **POSTEXEC**: Location of the **EMC_post** executable
+       | **UNIPOST_HOME**: Location of the **UPP** directory
+       | **POSTEXEC**: Location of the **UPP** executable
        | **modelDataPath**: Location of the model output data files to be processed
        | **txtCntrlFile**: Name and location of the flat text file that lists desired fields for
          output.
@@ -98,14 +98,14 @@ Run Script Overview
        | **RUN_COMMAND**: System run commands
 
        |     - The default execution command in the distributed scripts is for a single processor:
-       |       ``./ncep_post > upp.${fhr}.out 2>&1``
+       |       ``./upp.x > upp.${fhr}.out 2>&1``
 
        |     - To run UPP using mpi (dmpar compilation), the command line should be:
-       |       >> LINUX-MPI systems: ``mpirun -np N ncep_post > outpost 2>&1``
+       |       >> LINUX-MPI systems: ``mpirun -np N upp.x > outpost 2>&1``
        |          (Note: On some systems a host file also needs to be specified:
                   ``-machinefile "host"``)
-       |       >> IBM: ``mpirun.lsf ncep_post < itag > outpost``
-       |       >> SGI MPT: ``mpiexec_mpt ncep_post < itag > outpost``
+       |       >> IBM: ``mpirun.lsf upp.x < itag > outpost``
+       |       >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
 
 6. Set naming convention for prefix and extension of output file name
     - **comsp** is the initial string of the output file name. By default it is not set and the prefix
@@ -114,8 +114,7 @@ Run Script Overview
     - **tmmark** is used for the file extension (in :bolditalic:`run_upp`, *tmmark=tm00*; if not set,
       it is set to .GrbF)
 
-Upon a successful run, UPP will generate output files for each forecast hour in the
-**/postprd** directory.
+Upon a successful run, UPP will generate output files for each forecast hour in the **/postprd** directory.
 
 When executed with the provided run script, UPP provides log files in the post-processor working directory named
 :bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further

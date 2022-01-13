@@ -19,6 +19,7 @@
 !!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
 !!   20-03-25  J MENG   - remove grib1
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-07-26  W Meng - Restrict compuatation from undefined grids
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -185,7 +186,8 @@
               LLMH = NINT(LMH(I,J))
               PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO) 
               APSIGO=LOG(PSIGO)
-              IF(NL1X(I,J)<=LLMH)THEN
+              IF(NL1X(I,J)<=LLMH.and. &
+               (PMID(I,J,LL)-PMID(I,J,LL-1))/=0.)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)

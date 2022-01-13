@@ -323,13 +323,15 @@ fi
 if [[ ${outFormat} == "grib2" ]]; then
    if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
 cat > itag <<EOF
-${inFileName}
-${inFormat}
-${outFormat}
-${YY}-${MM}-${DD}_${HH}:00:00
-${tag}
-${flxFileName}
-postxconfig-NT.txt
+&model_inputs
+fileName='${inFileName}'
+IOFORM='${inFormat}'
+grib='${outFormat}'
+DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+MODELNAME='${tag}'
+fileNameFlux='${flxFileName}'
+fileNameFlat='postxconfig-NT.txt'
+/
 EOF
    fi
 fi
