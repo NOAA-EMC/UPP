@@ -221,8 +221,8 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    w3nco::w3nco_4
     nemsio::nemsio
+    w3nco::w3nco_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
