@@ -648,9 +648,6 @@
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
             print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
             CALL INITPOST
-          ELSE IF(MODELNAME == 'NMM') THEN
-            print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
-            CALL INITPOST_NMM
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
@@ -680,10 +677,6 @@
         ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
           IF(MODELNAME == 'NMM') THEN
             CALL INITPOST_NEMS(NREC,nfile)
-          ELSE IF(MODELNAME == 'GFS') THEN
-!           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
-            CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
-                                   nfile,ffile,rfile)
           ELSE
             PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
             STOP 9998
@@ -691,11 +684,7 @@
           END IF
        
         ELSE IF(TRIM(IOFORM) == 'binarynemsiompiio')THEN
-          IF(MODELNAME == 'NMM') THEN
-! close nemsio file for serial read 
-            call nemsio_close(nfile,iret=status)
-            CALL INITPOST_NEMS_MPIIO()
-          ELSE IF(MODELNAME == 'GFS') THEN
+          IF(MODELNAME == 'GFS') THEN
 ! close nemsio file for serial read
             call nemsio_close(nfile,iret=status)
             call nemsio_close(ffile,iret=status)
