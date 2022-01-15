@@ -44,6 +44,8 @@
 !!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
 !!   21-10-22  KaYee Wong - created formal fortran namelist for itag
 !!   21-11-03  Tracy Hertneky - Removed SIGIO option
+!!   22-01-14  W Meng  - Remove interfaces INITPOST_GS_NEMS, INITPOST_NEMS_MPIIO
+!!                       INITPOST_NMM and INITPOST_GFS_NETCDF.
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
@@ -272,11 +274,6 @@
                                ,trim(fileName),trim(fileNameFlux)
         end if
 
-!
-! set ndegr
-!      if(grib=='grib1') then
-!        gdsdegr = 1000.
-!      else if (grib=='grib2') then
       if(grib=='grib2') then
         gdsdegr = 1.d6
       endif
@@ -302,14 +299,7 @@
 
 !set control file name
         fileNameFlat='postxconfig-NT.txt'
-!KaYee        if(MODELNAME == 'RAPR') then
-!KaYee          read(5,*,iostat=iret,end=119) kpo
-!KaYee        else
-          read(5,nampgb,iostat=iret,end=119)
-!KaYee        endif
-!       if(kpo > komax)print*,'pressure levels cannot exceed ',komax; STOP
-!       if(kth > komax)print*,'isent levels cannot exceed ',komax; STOP
-!       if(kpv > komax)print*,'PV levels cannot exceed ',komax; STOP 
+        read(5,nampgb,iostat=iret,end=119)
  119    continue
         if(me == 0) then
           print*,'komax,iret for nampgb= ',komax,iret 
@@ -332,15 +322,6 @@
           if(me == 0) then
             print*,'using pressure levels from POSTGPVARS'
           endif
-!KaYee          if(MODELNAME == 'RAPR')then
-!KaYee            read(5,*) (po(l),l=1,kpo)
-! CRA READ VALID TIME UNITS
-!KaYee            read(5,121) VTIMEUNITS
-!KaYee            if(me == 0) then
-!KaYee              print*,'VALID TIME UNITS = ', VTIMEUNITS
-!KaYee            endif
-! CRA
-!KaYee          endif
           lsm = kpo
           if( .not. popascal ) then
             untcnvt = 100.
@@ -360,21 +341,8 @@
         LSMP1 = LSM+1
         if (me==0) print*,'LSM, SPL = ',lsm,spl(1:lsm)        
       
-!Chuang, Jun and Binbin: If model is RSM, read in precip accumulation frequency (sec) from unit5
-        if(MODELNAME == 'RSM') then
-          read(5,115)PRNTSEC
-          TPREC = PRNTSEC/3600.0
-          print*,'TPREC in RSM= ',TPREC
-        end if
- 115    format(f7.1)
  116    continue
-!KaYee        if(MODELNAME == 'GFS') then
-!          read(5,*) line 
-!KaYee          read(5,111,end=125) fileNameFlat
-!KaYee 125    continue
-!          if(len_trim(fileNameFlat)<5) fileNameFlat = 'postxconfig-NT.txt'
-!KaYee          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
-!KaYee        endif
+
 ! set PTHRESH for different models
         if(MODELNAME == 'NMM')then
           PTHRESH = 0.000004
@@ -652,9 +620,6 @@
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid2d,ncid3d)
-          ELSE IF (MODELNAME == 'GFS') THEN
-            print*,'CALLING INITPOST_GFS_NETCDF'
-            CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
             STOP 9998
