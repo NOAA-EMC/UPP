@@ -103,6 +103,8 @@ case $(hostname -f) in
   login4.stampede2.tacc.utexas.edu) MACHINE_ID=stampede ;; ### stampede4
 
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### S4
+
+  *) MACHINE_ID=unknown
 esac
 
 # Overwrite auto-detect with RT_MACHINE if set
