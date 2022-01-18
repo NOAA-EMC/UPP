@@ -261,8 +261,9 @@
           idsp2(i)=isumm2
               if(jsx .eq. 1 .or. jex .eq. jm)  isumm2=isumm2+(iex-isx+1)
          if ( me == 0 ) then
-           print 196, ' GWVXX i, icnt(i),idsp(i) = ',i,icnt(i),      &
-            idsp(i),icnt2(i),idsp2(i)
+!GWVXE           print 196, ' GWVXX i, icnt(i),idsp(i) = ',i,icnt(i),      &
+!GWVXE            idsp(i),icnt2(i),idsp2(i)
+         continue
          end if
  196    format(a36,15i10)
 !GWV  Create send buffer for scatter.  This is now needed because we are no
@@ -350,7 +351,7 @@
             end do
             allocate(ipoles(im,2),ipole(ista:iend))
             allocate(rpoles(im,2),rpole(ista:iend))
-             write (0,196) ' GWVX ISX IEX bounds',ista,iend,me,lbound(ipole),ubound(ipole)
+!GWVXE             write (0,196) ' GWVX ISX IEX bounds',ista,iend,me,lbound(ipole),ubound(ipole)
               ipole=9900000
                ipoles=-999999999
               
@@ -390,11 +391,12 @@
                 do i=1,im
                 ii=rpoles(i,j)/4000
                 jj=rpoles(i,j) -ii*4000
-                if(me .eq. 0) print 107,' GWVX IPOLES,i,j,ii,jj',i,j,ii,jj,ifix(rpoles(i,j))
+!GWVXE                if(me .eq. 0) print 107,' GWVX IPOLES,i,j,ii,jj',i,j,ii,jj,ifix(rpoles(i,j))
                 if(ii .ne. i .or.  jj .ne. 1 .and. jj .ne. jm ) then
                  write(0,169)'  GWVX IPOLES BAD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
                    else
-                 write(0,169)'  GWVX IPOLES GOOD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
+                    continue
+!                 write(0,169)'  GWVX IPOLES GOOD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
                  endif
  107    format(a20,10i10)
  169    format(a25,f20.1,3i10,a10,4i10)

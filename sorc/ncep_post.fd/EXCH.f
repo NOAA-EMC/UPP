@@ -49,21 +49,18 @@
        real,intent(inout) :: a ( ista_2l:iend_2u,jsta_2l:jend_2u )
        real, allocatable :: coll(:), colr(:)
        integer, allocatable :: icoll(:), icolr(:)
-       real, allocatable ::  rpole(:),rpoles(:,:) 
-      
-       
       integer status(MPI_STATUS_SIZE)
       integer ierr, jstam1, jendp1,j
       integer size,ubound,lbound
       integer msglenl, msglenr
       integer i,ii,jj, ibl,ibu,jbl,jbu,icc,jcc !GWV
       integer iwest,ieast
+      integer ifirst
+      data ifirst/0/
       allocate(coll(jm))
       allocate(colr(jm))
       allocate(icolr(jm)) !GWV
       allocate(icoll(jm)) !GWV
-      allocate(rpole(ista:iend)) !GWV
-      allocate(rpoles(im,2)) !GWV
       ibl=max(ista-1,1)
       ibu=min(im,iend+1)
       jbu=min(jm,jend+1)
@@ -78,7 +75,7 @@
 !  for global model apply cyclic boundary condition
 
                 IF(MODELNAME == 'GFS') then
-                  print *,' GWVX CYCLIC BC APPLIED'
+                  if(ifirst .le.  0 .and. me .eq. 0) print *,'  CYCLIC BC APPLIED'
                   if(ileft .eq. MPI_PROC_NULL)  iwest=1         ! get eastern bc from western boundary of full domain
                   if(iright .eq. MPI_PROC_NULL)  ieast=1        ! get western bc from eastern boundary of full domain
                   if(ileft .eq. MPI_PROC_NULL)  ileft=me+(numx-1) !GWVB
@@ -91,31 +88,32 @@
      &                  a(ista,jstam1),iend-ista+1,MPI_REAL,idn,1,           &
      &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with first  sendrecv in exch, ierr = ',ierr
+         stop 6661
       endif
+          if(ifirst .le. 0) then !IFIRST ONLY
           call mpi_sendrecv(ibcoords(ista,jend),iend-ista+1,MPI_INTEGER,iup,1,             &
          &                  ibcoords(ista,jstam1),iend-ista+1,MPI_INTEGER,idn,1,           &
          &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
          print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         stop 7661
       endif
             do i=ista,iend
             ii=ibcoords(i,jstam1)/10000
             jj=ibcoords(i,jstam1)-(ii*10000)
             if(ii .ne. i .or. jj .ne. jstam1 ) print *,' GWVX JEXCH CHECK FAIL ',ii,jj,ibcoords(i,jstam1),i
             end do
+      endif !IFIRST
 !  build the I columns to send and receive
  902  format(' GWVX EXCH BOUNDS ',18i8)
       msglenl=jend-jsta+1
       msglenr=jend-jsta+1
         if(iright .lt. 0) msglenr=1
         if(ileft .lt. 0) msglenl=1
-!gwv     write(0,902),lbound(a),ubound(a),lbound(coll),ubound(coll),ista,jsta,jend,jend-jsta+1,msglenl,msglenr
      do j=jsta,jend
      coll(j)=a(ista,j)
-       icoll(j)=icoords(ista,j) !GWV TMP
+     if(ifirst .le. 0)  icoll(j)=icoords(ista,j) !GWV TMP
      end do
       call mpi_barrier(mpi_comm_comp,ierr)
        
@@ -124,19 +122,25 @@
     &                  colr(jsta),msglenr    ,MPI_REAL,iright,1,           &
     &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with third  sendrecv in exch, ierr = ',ierr
+         stop 6662
       endif
+
+      if(ifirst .le. 0) then ! IFIRST ONLY
           call mpi_sendrecv(icoll(jsta),msglenl    ,MPI_INTEGER,ileft,1,             & !GWV TMP
         &                  icolr(jsta),msglenr    ,MPI_INTEGER,iright,1,           & !GWV TMP
         &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with fourth sendrecv in exch, ierr = ',ierr
+         stop 7662
       endif
+      endif !IFIRST
+
      if(iright .ge. 0) then
         do j=jsta,jend
         a(iend+1,j)=colr(j)
+
+        if(ifirst .le. 0) then !IFIRST ONLY
             ibcoords(iend+1,j)=icolr(j)  !GWV TMP
                ii=ibcoords(iend+1,j)/10000
                    jj=ibcoords( iend+1,j)-(ii*10000)
@@ -145,6 +149,7 @@
               if( j .ne. jj .or. ii .ne. iend+1 .and. ii .ne. im .and. ii .ne. 1) &
              write(0,921) j,iend+1,ii,jj,ibcoords(iend+1,j),' GWVX IEXCH COORD FAIL j,iend+1,ii,jj,ibcoord '
  921   format(5i10,a50)
+       endif !IFIRST
 ! 
         
         end do
@@ -152,58 +157,68 @@
      
 !      print *,'mype=',me,'in EXCH, after first mpi_sendrecv'
       if ( ierr /= 0 ) then
-         print *, ' problem with first sendrecv in exch, ierr = ',ierr
-         stop 6667
+         print *, ' problem with fifth sendrecv in exch, ierr = ',ierr
+         stop 6663
       end if
       jendp1 = min(jend+1,jend_2u)                          ! Moorthi
 !GWV.  change from full im row exchange to iend-ista+1 subrow exchange,
 !GWVt of 2D decomp
      do j=jsta,jend
      colr(j)=a(iend,j)
-     icolr(j)=icoords(iend,j) !GWV TMP
+     if(ifirst .le. 0) icolr(j)=icoords(iend,j) !GWV TMP
      end do
 !  send first row   to idown's last row+  and receive last row+  from iup's first row
       call mpi_sendrecv(a(ista,jsta),iend-ista+1,MPI_REAL,idn,1,             &
      &                  a(ista,jendp1),iend-ista+1,MPI_REAL,iup,1,           &
      &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with sixth  sendrecv in exch, ierr = ',ierr
+         stop 6664
       endif
+       if (ifirst .le. 0) then
       call mpi_sendrecv(ibcoords(ista,jsta),iend-ista+1,MPI_INTEGER,idn,1,             &
      &                  ibcoords(ista,jendp1),iend-ista+1,MPI_INTEGER,iup,1,           &
      &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with seventh sendrecv in exch, ierr = ',ierr
+         stop 7664
       endif
+      endif ! IFIRST
 !  send last col    to  iright first col-  and receive first col- from ileft last col 
       call mpi_sendrecv(colr(jsta),msglenr    ,MPI_REAL,iright,1 ,            &
     &                  coll(jsta),msglenl    ,MPI_REAL,ileft ,1,           &
     &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with eighth sendrecv in exch, ierr = ',ierr
+         stop 6665
       endif
+       if (ifirst .le. 0) then
           call mpi_sendrecv(icolr(jsta),msglenr    ,MPI_integer,iright,1 ,            &
         &                  icoll(jsta),msglenl    ,MPI_integer,ileft ,1,           &
         &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with ninth  sendrecv in exch, ierr = ',ierr
+         stop 7665
       endif
+      endif !IFIRST
      if(ileft .ge. 0) then
         do j=jsta,jend
         a(ista-1,j)=coll(j)
+                  if(ifirst .le. 0) then
+                  
                 ibcoords(ista-1,j)=icoll(j)  !GWV TMP
 !                write(0,*) ' GWVX IBCOLL SETT ',ista-1,j,icoll(j)
                ii=ibcoords(ista-1,j)/10000
                    jj=ibcoords( ista-1,j)-(ii*10000)
               if( j .ne. jj .or. ii .ne. ista-1 .and. ii .ne. im .and. ii .ne. 1) &
         write(0,921) j,ista-1,ii,jj,ibcoords(ista-1,j),' GWVX EXCH COORD FAIL j,ista-1,ii,jj,ibcoord '
+            endif !IFIRST
         end do
+  
      endif
 !  interior check
+
+                  if(ifirst .le. 0) then
               do j=jsta,jend
               do i=ista,iend
                ii=ibcoords(i,j)/10000
@@ -211,6 +226,7 @@
            if(ii .ne. i .or. jj .ne. j) write(0,151) 'GWVX INFAILED IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
             end do
             end do
+            endif !IFIRST
 
 !!   corner points.   After the exchanges above, corner points are replicated in
 !    neighbour halos so we can get them from the neighbors rather than
@@ -222,8 +238,6 @@
 !GWVx      ibl=max(ista-1,1)
 !GWVx      ibu=min(im,iend+1)
 
-!GWVXE      ibl=max(ista-1,0)
-!GWVXE      ibu=min(im+1,iend+1)
        ibl=max(ista-1,1)
        ibu=min(im,iend+1)
        if(modelname == 'GFS') then
@@ -238,35 +252,36 @@
     &                  a(ibl   ,jbl   ),1,   MPI_REAL,ileft ,1,           &
     &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with tenth  sendrecv in exch, ierr = ',ierr
+         stop 6771
          endif
 
       call mpi_sendrecv(a(iend,jbu   ),1,    MPI_REAL,iright,1 ,            &
     &                  a(ibl   ,jbu   ),1,   MPI_REAL,ileft ,1,           &
     &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with  eleventh sendrecv in exch, ierr = ',ierr
+         stop 6772
          endif
       call mpi_sendrecv(a(ista,jbl   ),1,    MPI_REAL,ileft ,1,            &
     &                  a(ibu   ,jbl   ),1,   MPI_REAL,iright,1,           &
     &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with twelft sendrecv in exch, ierr = ',ierr
+         stop 6773
          endif
 
       call mpi_sendrecv(a(ista,jbu   ),1,    MPI_REAL,ileft ,1 ,            &
     &                  a(ibu   ,jbu   ),1,   MPI_REAL,iright,1,           &
     &                  MPI_COMM_COMP,status,ierr)
       if ( ierr /= 0 ) then
-         print *, ' problem with second sendrecv in exch, ierr = ',ierr
-         stop
+         print *, ' problem with thirteenth  sendrecv in exch, ierr = ',ierr
+         stop 6774
       endif
 !GWV TEST       
  139    format(a20,5(i10,i6,i6,'<>'))
 
+                  if(ifirst .le. 0) then
       call mpi_sendrecv(ibcoords(iend,jbl   ),1    ,MPI_INTEGER,iright,1 ,            &
     &                  ibcoords(ibl   ,jbl   ),1   ,MPI_INTEGER,ileft ,1,           &
     &                  MPI_COMM_COMP,status,ierr)
@@ -360,14 +375,15 @@
                    jj=ibcoords( i,j)-(ii*10000)
            if(ii .ne. i .and. ii .ne. 1  .or. jj .ne. j) write(0,151) 'GWVX FAILED IBU ii i j ibcoords ibl,jbl,ibu,jbu',ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
             end do
+               if(me .eq. 0) write(0,*) '  IFIRST CHECK'
+             endif ! IFIRST
 ! end halo checks 
       if ( ierr /= 0 ) then
          print *, ' problem with second sendrecv in exch, ierr = ',ierr
          stop
       end if
            call mpi_barrier(mpi_comm_comp,ierr)
-!           write(0,*) ' GWVX END EXCHHH '
-!
+        ifirst=ifirst+1
       end
 
 !!@PROCESS NOCHECK
