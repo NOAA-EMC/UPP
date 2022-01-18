@@ -24,10 +24,19 @@ case $(hostname -f) in
   m72a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
   m72a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
 
-  alogin01.acorn.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2 ;; ### acorn
-  alogin02.acorn.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2 ;; ### acorn
+  alogin01.acorn.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2_a ;; ### acorn
+  alogin02.acorn.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2_a ;; ### acorn
   adecflow01.acorn.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### acorn
   adecflow02.acorn.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### acorn
+  dlogin01.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin02.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin03.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin04.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin05.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin06.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin07.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin08.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
+  dlogin09.dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood
 
   gaea9)                   MACHINE_ID=gaea ;; ### gaea9
   gaea10)                  MACHINE_ID=gaea ;; ### gaea10
