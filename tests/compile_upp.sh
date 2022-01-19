@@ -54,7 +54,11 @@ PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 
 #Load required modulefiles
 if [[ $MACHINE_ID != "unknown" ]]; then
-   module purge
+   if [[ $MACHINE_ID == "wcoss2" ]]; then
+      module reset
+   else
+      module purge
+   fi
    module use $PATHTR/modulefiles
    modulefile=${MACHINE_ID}
    module load $modulefile
