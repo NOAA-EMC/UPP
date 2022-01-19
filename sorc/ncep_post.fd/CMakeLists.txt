@@ -150,14 +150,11 @@ list(APPEND EXE_SRC
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
     INITPOST_GFS_NETCDF_PARA.f
     INITPOST_NEMS.f
-    INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
-    INITPOST_NMM.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
@@ -224,8 +221,8 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    w3nco::w3nco_4
     nemsio::nemsio
+    w3nco::w3nco_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
