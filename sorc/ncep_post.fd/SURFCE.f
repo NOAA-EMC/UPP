@@ -824,8 +824,12 @@
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(502))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+          if(ITSRFC>0) then
+            fld_info(cfld)%ntrange=1
+          else
+            fld_info(cfld)%ntrange=0
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -2313,12 +2317,6 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(505))
-           if(ITSRFC>0) then
-            fld_info(cfld)%ntrange=1
-           else
-            fld_info(cfld)%ntrange=0
-           endif
-           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
