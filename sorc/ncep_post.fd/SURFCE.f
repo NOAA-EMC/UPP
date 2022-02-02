@@ -6333,7 +6333,7 @@
             ID(20)     = 3
          if(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(500))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
             if(ITSRFC>0) then
               fld_info(cfld)%ntrange=1
             else
