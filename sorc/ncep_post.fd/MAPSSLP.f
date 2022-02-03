@@ -44,12 +44,14 @@
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
-            if(SPL(L) == 70000. .and. TPRES(I,J,L) <spval)THEN
-              T700(i,j)  = TPRES(I,J,L) 
-              TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
-            else
-              T700(i,j)  = spval
-              TH700(I,J) = spval
+            if(SPL(L) == 70000.)THEN
+              if(TPRES(I,J,L) <spval)THEN
+                T700(i,j)  = TPRES(I,J,L) 
+                TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
+              else
+                T700(i,j)  = spval
+                TH700(I,J) = spval
+              endif
             endif
           ENDDO
         ENDDO
