@@ -2748,8 +2748,6 @@
       VarName='lhtfl'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,qwbs)
-!wm      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-!wm       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,qwbs)
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
