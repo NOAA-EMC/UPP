@@ -2586,6 +2586,7 @@
 
       use netcdf
       use ctlblk_mod, only : me
+      use params_mod, only : small
       implicit none
       INCLUDE "mpif.h"
 
@@ -2597,7 +2598,6 @@
       integer            :: start(3), count(3), stride(3)
       real,parameter     :: spval_netcdf=9.99e+20
       real               :: fill_value
-      real,parameter     :: small=1.E-6
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
@@ -2633,6 +2633,7 @@
 
       use netcdf
       use ctlblk_mod, only : me
+      use params_mod, only : small
       implicit none
       INCLUDE "mpif.h"
 
@@ -2644,7 +2645,6 @@
       integer            :: start(2), count(2)
       real,parameter     :: spval_netcdf=9.99e+20
       real               :: fill_value
-      real,parameter     :: small=1.E-6
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
