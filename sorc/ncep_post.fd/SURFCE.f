@@ -90,7 +90,7 @@
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa,ACPCP
+                         tecan,tetran,tedir,twa,APCP
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -2741,9 +2741,9 @@
            DO J=JSTA,JEND
              DO I=1,IM
                IF(AVGPREC(I,J) < SPVAL)THEN
-                 ACPCP(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+                 APCP(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
                ELSE
-                 ACPCP(I,J) = SPVAL
+                 APCP(I,J) = SPVAL
                END IF 
              ENDDO
            ENDDO
@@ -2762,9 +2762,9 @@
            DO J=JSTA,JEND
              DO I=1,IM
               IF(ACPREC(I,J) < SPVAL)THEN
-               ACPCP(I,J) = ACPREC(I,J)*1000.
+               APCP(I,J) = ACPREC(I,J)*1000.
               ELSE
-               ACPCP(I,J) = SPVAL
+               APCP(I,J) = SPVAL
               ENDIF
              ENDDO
            ENDDO
@@ -2786,7 +2786,7 @@
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,im
-                datapd(i,j,cfld) = ACPCP(i,jj)
+                datapd(i,j,cfld) = APCP(i,jj)
               enddo
             enddo
 !! add continuous bucket

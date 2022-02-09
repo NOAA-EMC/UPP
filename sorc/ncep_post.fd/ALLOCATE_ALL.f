@@ -339,7 +339,7 @@
 !
       allocate(CAPE(im,jsta_2l:jend_2u))
       allocate(CIN(im,jsta_2l:jend_2u))
-      allocate(ACPCP(im,jsta_2l:jend_2u))
+      allocate(APCP(im,jsta_2l:jend_2u))
 ! SRD
       allocate(wspd10max(im,jsta_2l:jend_2u))
       allocate(w_up_max(im,jsta_2l:jend_2u))
@@ -362,7 +362,7 @@
         do i=1,im
           CAPE(i,j)=spval
           CIN(i,j)=spval
-          ACPCP(i,j)=spval
+          APCP(i,j)=spval
           wspd10max(i,j)=spval
           w_up_max(i,j)=spval
           w_dn_max(i,j)=spval

@@ -209,6 +209,7 @@ target_link_libraries(${LIBNAME} PUBLIC
 
 if(BUILD_WITH_IFI)
   target_link_libraries(${LIBNAME} PUBLIC IFI)
+  target_link_libraries(${LIBNAME} PUBLIC tdrp)
 endif()
 
 if(OpenMP_Fortran_FOUND)
@@ -226,6 +227,7 @@ if(BUILD_POSTEXEC)
     sigio::sigio)
   if(BUILD_WITH_IFI)
     target_link_libraries(${EXENAME} PRIVATE IFI)
+    target_link_libraries(${EXENAME} PRIVATE tdrp)
   endif()
   if(wrf_io_FOUND)
     target_link_libraries(${EXENAME} PRIVATE

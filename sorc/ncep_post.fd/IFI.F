@@ -3,9 +3,14 @@
 ! IFI stubs
 
 module upp_ifi_mod
+  use iso_c_binding, only: c_float
   implicit none
+
+  private
+  public run_ifi, set_ifi_dims, have_libIFI, ifi_real_t
+
   logical, parameter :: have_libIFI = .false.
-  integer, parameter :: ifi_real_t = 4
+  integer, parameter :: ifi_real_t = c_float
   
 contains !==============================================================
 
@@ -48,7 +53,7 @@ module upp_ifi_mod
 
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
-  logical, parameter :: write_ifi_netcdf_debug_files = .false.
+  logical, parameter :: write_ifi_netcdf_debug_files = .true.
   
 contains !==============================================================
 
@@ -157,11 +162,11 @@ contains !==============================================================
     allocate(ifi_flight_levels(ifi_nflight))
     ifi_flight_levels = config_flight_levels_feet
 
-    print '(A)','IFI flight levels:'
-38  format('  ifi_flight_level[',I0,'] = ',F15.5)
-    do i=1,ifi_nflight
-      print 38,i,ifi_flight_levels(i)
-    enddo
+!     print '(A)','IFI flight levels:'
+! 38  format('  ifi_flight_level[',I0,'] = ',F15.5)
+!     do i=1,ifi_nflight
+!       print 38,i,ifi_flight_levels(i)
+!     enddo
 
   end subroutine set_ifi_dims
 
@@ -235,11 +240,134 @@ contains !==============================================================
       endif
     enddo
   end subroutine send_data
+
+  ! --------------------------------------------------------------------
+
+      subroutine gather_ifi(local_buf_c,global_buf_c,receiving_rank) bind(C)
+      use iso_c_binding, only: c_float, c_double,c_int64_t,c_f_pointer
+      use mpi
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP, JSTA, JEND,  &
+     &                      IM, JM
+      implicit none
+
+      integer(kind=c_int64_t), value :: receiving_rank
+      type(c_ptr), value :: global_buf_c, local_buf_c
+      real(kind=ifi_real_t), pointer :: global_buf(:,:), local_buf(:,:)
+
+      integer :: rank, type, iret, imjm, zero, i, size
+
+      call c_f_pointer(local_buf_c,local_buf,(/ im, jend-jsta+1 /))
+      if(me==receiving_rank) then
+        call c_f_pointer(global_buf_c,global_buf,(/ im, jm /))
+      else
+        call c_f_pointer(global_buf_c,global_buf,(/ 1,1 /))
+      endif
+
+      print 9,me,im,(jend-jsta+1),im*(jend-jsta+1)
+ 9    format('UPP: Rank ',I0,' is ',I0,'x',I0,' = ',I0,' points')
+
+!      if(me==0) then
+         print 7,im,jm,im*jm
+ 7       format('UPP: Grid is ',I0,'x',I0,' = ',I0,' points')
+!      endif
+
+      rank=receiving_rank
+      imjm=im*jm
+      zero=0
+      
+      if(ifi_real_t==c_double) then
+        type=MPI_REAL8
+      else
+        type=MPI_REAL4
+      endif
+
+      if(icnt(me) /= im*(jend-jsta+1)) then
+         write(0,13) me,im,jsta,jend,icnt(me),im*(jend-jsta+1)
+ 13      format('Rank ',I0,' size mismatch: IM=',I0,' JSTA=',I0,        &
+     &          ' JEND=',I0,' icnt(me)=',I0,' /= im*(jend-jsta+1)=',I0)
+         call mpi_abort(mpi_comm_world,1,iret)
+      endif
+
+      global_buf = -456
+
+      write(0,86) me,icnt(me),idsp(me)
+ 86   format('Calling mpi_gatherv on rank ',I0,' icnt=',I0,' idsp=',I0)
+      if(me==rank) then
+        call MPI_Comm_size(MPI_COMM_COMP,size,iret)
+        do i=0,size-1
+          write(0,97) rank,i,icnt(i),idsp(i)
+97        format('Root rank ',I0,' sees rank ',I0,' has icnt=',I0,' idsp=',I0)
+        enddo
+      endif
+!$OMP MASTER
+      call mpi_gatherv(local_buf,icnt(me),type,global_buf,icnt,idsp,    &
+     &                 type,rank,MPI_COMM_COMP,iret);
+!$OMP END MASTER
+      write(0,87) me,iret
+ 87   format('Finished mpi_gatherv on rank ',I0,' with status ',I0)
+      
+
+!      global_buf = -789
+
+      end subroutine gather_ifi
+
+  ! --------------------------------------------------------------------
+
+      subroutine scatter_ifi(local_buf_c,global_buf_c,sending_rank)bind(C)
+      use iso_c_binding, only: c_float, c_double, c_int64_t, c_f_pointer
+      use mpi
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP, JSTA, JEND,  &
+     &                      IM, JM
+      implicit none
+
+      integer(kind=c_int64_t), value :: sending_rank
+      type(c_ptr), value :: global_buf_c, local_buf_c
+      real(kind=ifi_real_t), pointer :: global_buf(:,:), local_buf(:,:)
+
+      integer :: rank, type, iret
+
+      call c_f_pointer(local_buf_c,local_buf,(/ im, jend-jsta+1 /))
+      if(me==sending_rank) then
+        call c_f_pointer(global_buf_c,global_buf,(/ im, jm /))
+      else
+        call c_f_pointer(global_buf_c,global_buf,(/ 1,1 /))
+      endif
+
+      rank=sending_rank
+
+      if(ifi_real_t==c_double) then
+        type=MPI_REAL8
+      else
+        type=MPI_REAL4
+      endif
+
+      if(me<0 .or. me>1023) then
+         write(0,23) me
+ 23      format('Invalid rank ',I0,' is not within 0..1023')
+      endif
+
+      if(icnt(me) /= im*(jend-jsta+1)) then
+         write(0,13) me,im,jsta,jend,icnt(me),im*(jend-jsta+1)
+ 13      format('Rank ',I0,' size mismatch: IM=',I0,' JSTA=',I0,        &
+     &          ' JEND=',I0,' icnt(me)=',I0,' /= im*(jend-jsta+1)=',I0)
+         call mpi_abort(mpi_comm_world,1,iret)
+      endif
+
+      write(0,86) me,icnt(me),idsp(me)
+ 86   format('Calling mpi_scatterv on rank ',I0,' icnt=',I0,' idsp=',I0)
+!$OMP MASTER
+      call mpi_scatterv(global_buf,icnt,idsp,type,local_buf,icnt(me),   &
+     &                  type,rank,MPI_COMM_COMP,iret)
+!$OMP END MASTER
+      write(0,87) me
+ 87   format('Finished mpi_scatterv on rank ',I0)
+      
+      end subroutine scatter_ifi
   
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
-    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend, me
+    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend, me, num_procs, mpi_comm_comp
     use vrbls3d, only: &
          zmid, & ! = IFI "HGT"
          zint, & ! zint(:,:,LM+1) = IFI "HGT_surface"
@@ -253,7 +381,7 @@ contains !==============================================================
          QQS, & ! "SNMR"
          OMGA ! "VVEL"
     use vrbls2d, only : &
-         ACPCP, & ! IFI "APCP_surface" over ITPREC bucket time
+         APCP, & ! IFI "APCP_surface" over ITPREC bucket time
          CAPE, CIN
     use rqstfld_mod, only: IGET
     use iso_c_binding, only: c_bool, c_int64_t
@@ -278,7 +406,11 @@ contains !==============================================================
       return ! nothing to do
     endif
 
-    print '(A)','Running libIFI to get icing products.'
+    if(me==0) then
+      print '(A)','Running libIFI to get icing products.'
+      call ifi_print_copyright()
+    end if
+
 
     ! Read config and initialize input data structures:
 
@@ -296,11 +428,11 @@ contains !==============================================================
     if(ITPREC>1e-5) then
       call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(1,c_int64_t),int(im,c_int64_t),&
       int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
-           ACPCP/ITPREC),'could not send ACPCP to IFI')
+           APCP/ITPREC),'could not send APCP to IFI')
     else
       call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(1,c_int64_t),int(im,c_int64_t),&
            int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
-           ACPCP),'could not send ACPCP to IFI')
+           APCP),'could not send APCP to IFI')
     endif
     call ifi_check(hybr_vars%add_ij_var('CAPE_surface',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
          'could not send CAPE to IFI')
@@ -330,12 +462,16 @@ contains !==============================================================
     ! Initialize the IFI algorithm
 
     fhr=IFHR+IFMIN/60.0
-    call ifi_check(algo%init(ifi_config,fhr,hybr_vars), &
+    call ifi_check(algo%init(ifi_config,fhr,hybr_vars,ME,NUM_PROCS,MPI_COMM_COMP), &
          'could not initialize IFI algorithm')
     call ifi_check(algo%set_halo_callback(ifi_halo_callback), &
          'send halo callback function to IFI algorithm')
     call ifi_check(algo%set_minmax_callback(ifi_minmax_callback), &
          'send minmax callback function to IFI algorithm')
+    call ifi_check(algo%set_gather_callback(gather_ifi), &
+         'send gather callback function to IFI algorithm')
+    call ifi_check(algo%set_scatter_callback(scatter_ifi), &
+         'send scatter callback function to IFI algorithm')
 
     ! Change n>=spval to Config.MISSING in all input fields
     
