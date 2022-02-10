@@ -73,28 +73,44 @@
          IF (J > 2) then
 !$omp parallel do private(i)
            DO I=2,IX-1
-             FIELD(I,J-1) = HOLD(I,I2)
+             IF (HOLD(I,I2) < 9E10) THEN
+               FIELD(I,J-1) = HOLD(I,I2)
+             ENDIF
            ENDDO
          endif
        ENDDO
 
 !$omp parallel do private(i)
        DO I = 2,IX-1
-         FIELD (I,IY-1) = HOLD(I,I1)
+         IF (HOLD(I,I1) < 9E10) THEN
+           FIELD (I,IY-1) = HOLD(I,I1)
+         ENDIF
        ENDDO
 
        DO I = 2,IX-1
-         FIELD(I,1)  = SMTH4 * FIELD(I,1)                             &
-                     + SMTH5 * (FIELD(I-1,1) + FIELD(I+1,1))
-         FIELD(I,IY) = SMTH4 * FIELD(I,IY)                            &
+         IF (FIELD(I,1) < 9E10 .AND. FIELD(I-1,1) < 9E10 .AND.        &
+             FIELD(I+1,1) < 9E10) THEN
+           FIELD(I,1)  = SMTH4 * FIELD(I,1)                           &
+                       + SMTH5 * (FIELD(I-1,1) + FIELD(I+1,1))
+         ENDIF
+         IF (FIELD(I,IY) < 9E10 .AND. FIELD(I-1,IY) < 9E10 .AND.      &
+             FIELD(I+1,IY) < 9E10) THEN
+           FIELD(I,IY) = SMTH4 * FIELD(I,IY)                          &
                      + SMTH5 * (FIELD(I-1,IY) + FIELD(I+1,IY))
+         ENDIF
        ENDDO
 
        DO J = 2,IY-1
-         FIELD(1,J)  = SMTH4 * FIELD(1,J)                             &
-                     + SMTH5 * (FIELD(1,J-1) + FIELD(1,J+1))
-         FIELD(IX,J) = SMTH4 * FIELD(IX,J)                            &
-                     + SMTH5 * (FIELD(IX,J-1) + FIELD(IX,J+1))
+         IF (FIELD(1,J) < 9E10 .AND. FIELD(1,J-1) < 9E10 .AND.        &
+             FIELD(1,J+1) < 9E10) THEN
+           FIELD(1,J)  = SMTH4 * FIELD(1,J)                           &
+                       + SMTH5 * (FIELD(1,J-1) + FIELD(1,J+1))
+         ENDIF
+         IF (FIELD(IX,J) < 9E10 .AND. FIELD(IX,J-1) < 9E10 .AND.      &
+             FIELD(IX,J+1) < 9E10) THEN
+           FIELD(IX,J) = SMTH4 * FIELD(IX,J)                            &
+                       + SMTH5 * (FIELD(IX,J-1) + FIELD(IX,J+1))
+         ENDIF
        ENDDO
 
       RETURN
