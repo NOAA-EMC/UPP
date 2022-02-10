@@ -18,6 +18,7 @@ echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo " Mar 21 - Meng - Update POSTGRB2TBL default setting."
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
+echo " Feb 22 - Lin - Exception handling if anl input not found."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -178,6 +179,11 @@ then
 
    fi
    rm pgbfile.grib2 
+else
+  #### atmanl file not found need failing job
+  echo " *** FATAL ERROR: No model anl file output "
+  export err=9
+  err_chk
 fi
 
 #----------------------------------
