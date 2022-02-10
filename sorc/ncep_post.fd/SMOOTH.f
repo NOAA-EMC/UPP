@@ -44,6 +44,7 @@
 
 !**********************************************************************
 !**********************************************************************
+      use ctlblk_mod, only: SPVAL
 
       implicit none
 
@@ -73,7 +74,7 @@
          IF (J > 2) then
 !$omp parallel do private(i)
            DO I=2,IX-1
-             IF (HOLD(I,I2) < 9E10) THEN
+             IF (HOLD(I,I2) < SPVAL) THEN
                FIELD(I,J-1) = HOLD(I,I2)
              ENDIF
            ENDDO
@@ -82,32 +83,32 @@
 
 !$omp parallel do private(i)
        DO I = 2,IX-1
-         IF (HOLD(I,I1) < 9E10) THEN
+         IF (HOLD(I,I1) < SPVAL) THEN
            FIELD (I,IY-1) = HOLD(I,I1)
          ENDIF
        ENDDO
 
        DO I = 2,IX-1
-         IF (FIELD(I,1) < 9E10 .AND. FIELD(I-1,1) < 9E10 .AND.        &
-             FIELD(I+1,1) < 9E10) THEN
+         IF (FIELD(I,1) < SPVAL .AND. FIELD(I-1,1) < SPVAL .AND.        &
+             FIELD(I+1,1) < SPVAL) THEN
            FIELD(I,1)  = SMTH4 * FIELD(I,1)                           &
                        + SMTH5 * (FIELD(I-1,1) + FIELD(I+1,1))
          ENDIF
-         IF (FIELD(I,IY) < 9E10 .AND. FIELD(I-1,IY) < 9E10 .AND.      &
-             FIELD(I+1,IY) < 9E10) THEN
+         IF (FIELD(I,IY) < SPVAL .AND. FIELD(I-1,IY) < SPVAL .AND.      &
+             FIELD(I+1,IY) < SPVAL) THEN
            FIELD(I,IY) = SMTH4 * FIELD(I,IY)                          &
                      + SMTH5 * (FIELD(I-1,IY) + FIELD(I+1,IY))
          ENDIF
        ENDDO
 
        DO J = 2,IY-1
-         IF (FIELD(1,J) < 9E10 .AND. FIELD(1,J-1) < 9E10 .AND.        &
-             FIELD(1,J+1) < 9E10) THEN
+         IF (FIELD(1,J) < SPVAL .AND. FIELD(1,J-1) < SPVAL .AND.        &
+             FIELD(1,J+1) < SPVAL) THEN
            FIELD(1,J)  = SMTH4 * FIELD(1,J)                           &
                        + SMTH5 * (FIELD(1,J-1) + FIELD(1,J+1))
          ENDIF
-         IF (FIELD(IX,J) < 9E10 .AND. FIELD(IX,J-1) < 9E10 .AND.      &
-             FIELD(IX,J+1) < 9E10) THEN
+         IF (FIELD(IX,J) < SPVAL .AND. FIELD(IX,J-1) < SPVAL .AND.      &
+             FIELD(IX,J+1) < SPVAL) THEN
            FIELD(IX,J) = SMTH4 * FIELD(IX,J)                            &
                        + SMTH5 * (FIELD(IX,J-1) + FIELD(IX,J+1))
          ENDIF
