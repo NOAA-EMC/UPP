@@ -243,18 +243,17 @@ contains !==============================================================
 
   ! --------------------------------------------------------------------
 
-      subroutine gather_ifi(local_buf_c,global_buf_c,receiving_rank) bind(C)
+  subroutine gather_ifi(local_buf_c,global_buf_c,receiving_rank) bind(C)
       use iso_c_binding, only: c_float, c_double,c_int64_t,c_f_pointer
       use mpi
-      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP, JSTA, JEND,  &
-     &                      IM, JM
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, JSTA, JEND, IM, JM, ICNT, IDSP
       implicit none
 
       integer(kind=c_int64_t), value :: receiving_rank
       type(c_ptr), value :: global_buf_c, local_buf_c
       real(kind=ifi_real_t), pointer :: global_buf(:,:), local_buf(:,:)
 
-      integer :: rank, type, iret, imjm, zero, i, size
+      integer :: type, iret
 
       call c_f_pointer(local_buf_c,local_buf,(/ im, jend-jsta+1 /))
       if(me==receiving_rank) then
@@ -263,17 +262,31 @@ contains !==============================================================
         call c_f_pointer(global_buf_c,global_buf,(/ 1,1 /))
       endif
 
-      print 9,me,im,(jend-jsta+1),im*(jend-jsta+1)
- 9    format('UPP: Rank ',I0,' is ',I0,'x',I0,' = ',I0,' points')
+      call gather_for_write(local_buf,global_buf,receiving_rank)
+      
+      ! if(ifi_real_t==c_double) then
+      !   type=MPI_REAL8
+      ! else
+      !   type=MPI_REAL4
+      ! endif
 
-!      if(me==0) then
-         print 7,im,jm,im*jm
- 7       format('UPP: Grid is ',I0,'x',I0,' = ',I0,' points')
-!      endif
+      ! call MPI_Gatherv(local_buf,icnt(me),type,global_buf,icnt,idsp,type,receiving_rank,mpi_comm_comp,iret)
 
-      rank=receiving_rank
-      imjm=im*jm
-      zero=0
+  end subroutine gather_ifi
+
+  ! --------------------------------------------------------------------
+
+  subroutine gather_for_write(local_buf,global_buf,receiving_rank) bind(C)
+      use iso_c_binding, only: c_float, c_double,c_int64_t,c_f_pointer
+      use mpi
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, JSTA, JEND, IM, JM
+      implicit none
+
+      integer(kind=c_int64_t), value :: receiving_rank
+      real(kind=ifi_real_t) :: global_buf(:,:), local_buf(:,:)
+
+      integer :: type, iret, comm_size, count, i
+      integer, allocatable :: counts(:),displ(:)
       
       if(ifi_real_t==c_double) then
         type=MPI_REAL8
@@ -281,39 +294,27 @@ contains !==============================================================
         type=MPI_REAL4
       endif
 
-      if(icnt(me) /= im*(jend-jsta+1)) then
-         write(0,13) me,im,jsta,jend,icnt(me),im*(jend-jsta+1)
- 13      format('Rank ',I0,' size mismatch: IM=',I0,' JSTA=',I0,        &
-     &          ' JEND=',I0,' icnt(me)=',I0,' /= im*(jend-jsta+1)=',I0)
-         call mpi_abort(mpi_comm_world,1,iret)
-      endif
+      call MPI_Comm_size(MPI_COMM_COMP,comm_size,iret)
+      allocate(counts(comm_size))
+      allocate(displ(comm_size))
 
-      global_buf = -456
+      count = im*(jend-jsta+1)
+      call MPI_Allgather(count,1,MPI_INTEGER,counts,1,MPI_INTEGER,MPI_COMM_COMP,iret)
 
-      write(0,86) me,icnt(me),idsp(me)
- 86   format('Calling mpi_gatherv on rank ',I0,' icnt=',I0,' idsp=',I0)
-      if(me==rank) then
-        call MPI_Comm_size(MPI_COMM_COMP,size,iret)
-        do i=0,size-1
-          write(0,97) rank,i,icnt(i),idsp(i)
-97        format('Root rank ',I0,' sees rank ',I0,' has icnt=',I0,' idsp=',I0)
-        enddo
-      endif
-!$OMP MASTER
-      call mpi_gatherv(local_buf,icnt(me),type,global_buf,icnt,idsp,    &
-     &                 type,rank,MPI_COMM_COMP,iret);
-!$OMP END MASTER
-      write(0,87) me,iret
- 87   format('Finished mpi_gatherv on rank ',I0,' with status ',I0)
-      
+      displ(1)=0
+      do i=2,comm_size
+        displ(i) = displ(i-1) + counts(i-1)
+      enddo
 
-!      global_buf = -789
+      call MPI_Gatherv(local_buf,count,type,global_buf,counts,displ,type,receiving_rank,mpi_comm_comp,iret)
 
-      end subroutine gather_ifi
+      deallocate(counts,displ)
+
+  end subroutine gather_for_write
 
   ! --------------------------------------------------------------------
 
-      subroutine scatter_ifi(local_buf_c,global_buf_c,sending_rank)bind(C)
+  subroutine scatter_ifi(local_buf_c,global_buf_c,sending_rank)bind(C)
       use iso_c_binding, only: c_float, c_double, c_int64_t, c_f_pointer
       use mpi
       use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP, JSTA, JEND,  &
@@ -333,36 +334,16 @@ contains !==============================================================
         call c_f_pointer(global_buf_c,global_buf,(/ 1,1 /))
       endif
 
-      rank=sending_rank
-
       if(ifi_real_t==c_double) then
         type=MPI_REAL8
       else
         type=MPI_REAL4
       endif
 
-      if(me<0 .or. me>1023) then
-         write(0,23) me
- 23      format('Invalid rank ',I0,' is not within 0..1023')
-      endif
-
-      if(icnt(me) /= im*(jend-jsta+1)) then
-         write(0,13) me,im,jsta,jend,icnt(me),im*(jend-jsta+1)
- 13      format('Rank ',I0,' size mismatch: IM=',I0,' JSTA=',I0,        &
-     &          ' JEND=',I0,' icnt(me)=',I0,' /= im*(jend-jsta+1)=',I0)
-         call mpi_abort(mpi_comm_world,1,iret)
-      endif
-
-      write(0,86) me,icnt(me),idsp(me)
- 86   format('Calling mpi_scatterv on rank ',I0,' icnt=',I0,' idsp=',I0)
-!$OMP MASTER
       call mpi_scatterv(global_buf,icnt,idsp,type,local_buf,icnt(me),   &
-     &                  type,rank,MPI_COMM_COMP,iret)
-!$OMP END MASTER
-      write(0,87) me
- 87   format('Finished mpi_scatterv on rank ',I0)
+     &                  type,sending_rank,MPI_COMM_COMP,iret)
       
-      end subroutine scatter_ifi
+  end subroutine scatter_ifi
   
   ! --------------------------------------------------------------------
 
@@ -456,7 +437,7 @@ contains !==============================================================
 
     if(write_ifi_netcdf_debug_files) then
       write(outfile,308) 'hybr_vars',me
-      call write_fip_output(hybr_vars,trim(outfile))
+      call write_fip_output(hybr_vars,trim(outfile),.true.,'z0','z1')
     endif
     
     ! Initialize the IFI algorithm
@@ -501,7 +482,7 @@ contains !==============================================================
 
     if(write_ifi_netcdf_debug_files) then
       write(outfile,308) 'cat_vars',me
-      call write_fip_output(cat_vars,trim(outfile))
+      call write_fip_output(cat_vars,trim(outfile),.false.,'z1','z0')
     endif
     
     call send_data(cat_vars,'ICE_PROB',1100)
@@ -550,6 +531,8 @@ contains !==============================================================
 
   subroutine find_range(var,count,missing_value_is_set,missing_value,min_not_miss,max_not_miss,all_missing)
     USE ieee_arithmetic
+    use mpi
+    use ctlblk_mod, only: mpi_comm_comp
     implicit none
     real(kind=ifi_real_t), intent(in) :: var(*)
     real(kind=ifi_real_t), intent(in) :: missing_value
@@ -558,9 +541,9 @@ contains !==============================================================
     logical, intent(out) :: all_missing
     logical(c_bool), intent(in) :: missing_value_is_set
 
-    real(kind=ifi_real_t) :: minv,maxv,epsilon
+    real(kind=ifi_real_t) :: minv,maxv,epsilon, global_minv,global_maxv
     logical :: first
-    integer :: i
+    integer :: i,type,iret
     real(kind=ifi_real_t), parameter :: zero = 0
 
     if(missing_value_is_set) then
@@ -606,15 +589,27 @@ contains !==============================================================
       end do
     endif
 
+    if(ifi_real_t==c_double) then
+      type=MPI_REAL8
+    else
+      type=MPI_REAL4
+    endif
+
+    !call MPI_Allreduce(minv,global_minv,1,type,MPI_MIN,mpi_comm_comp,iret)
+    !call MPI_Allreduce(maxv,global_maxv,1,type,MPI_MAX,mpi_comm_comp,iret)
+    global_minv=minv
+    global_maxv=maxv
+    
     ! If min or max are inf, -inf, or NaN, assume all values are missing.
-    all_missing = (.not.(minv+1>minv) .or. .not.(maxv+1>maxv))
+    all_missing = (.not.(global_minv==global_minv) .or. .not.(global_maxv==global_maxv) &
+         .or. .not.(global_minv+1>global_minv) .or. .not.(global_maxv+1>global_maxv))
 
     if(all_missing) then
       min_not_miss=-1
       max_not_miss=1
     else
-      min_not_miss=minv
-      max_not_miss=maxv
+      min_not_miss=global_minv
+      max_not_miss=global_maxv
     endif
   end subroutine find_range
 
@@ -633,7 +628,7 @@ contains !==============================================================
     93 format(A,': ',A,': ',A,'(',I0,')')
   end subroutine nc_check
 
-  subroutine write_fip_output(ifi_data,output_file)
+  subroutine write_fip_output(ifi_data,output_file,rename,z2dname,z3dname)
     use ifi_mod
     use iso_c_binding
     use netcdf
@@ -641,13 +636,20 @@ contains !==============================================================
     implicit none
     integer, parameter :: maxname=80
     integer, parameter :: maxvars=999
+    logical :: rename
+    character(len=*), intent(in) :: z2dname,z3dname
     type var_info
-      character(len=maxname) :: varname
+      character(len=maxname) :: varname, outname
       integer :: varid, ndims, dims(4), dimids(4), count
       real(ifi_real_t), pointer :: data(:)
       integer :: ims,ime,jms,jme,kms,kme
       integer :: ids,ide,jds,jde,kds,kde
       integer :: ips,ipe,jps,jpe,kps,kpe
+      logical :: should_dealloc
+      real(kind=ifi_real_t) :: missing_value
+      real(kind=ifi_real_t) :: min_not_miss,max_not_miss
+      logical(c_bool) :: missing_value_is_set
+      logical :: all_missing
     end type var_info
     character(len=*), intent(in) :: output_file
 
@@ -666,9 +668,9 @@ contains !==============================================================
 
     call ifi_check(ifi_data%get_dims(ids,ide, jds,jde, kds,kde, ips,ipe, jps,jpe, kps,kpe),"get_dims")
 
-    nx0=ipe-ips+1
-    ny0=jpe-jps+1
-    nz0=kpe-kps+1
+    nx0=ide-ids+1
+    ny0=jde-jds+1
+    nz0=kde-kds+1
     ntime=1
 
     dims = (/nx0,ny0,nz0,ntime/)
@@ -677,6 +679,7 @@ contains !==============================================================
 
     ivar=0
     do while(ivar<maxvars)
+      write(0,*) 'bottom of loop rank ',me
       nextname='internal_error_nextname_was_not_updated'
       call ifi_check(ifi_data%next_varname(varname,nextname),"next_varname")
       varname=nextname
@@ -687,7 +690,7 @@ contains !==============================================================
         ivar=ivar+1
       endif
       
-      if(ivar==1) then
+      if(ivar==1 .and. me==0) then
 59      format(A,': write to file')
         print 59,output_file
         
@@ -696,15 +699,28 @@ contains !==============================================================
         
         call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
         call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
-        call nc_check(nf90_def_dim(ncid,"z0",nz0,dimids(3)),output_file,"nf90_def_dim z0")
+        call nc_check(nf90_def_dim(ncid,z3dname,nz0,dimids(3)),output_file,"nf90_def_dim "//z3dname)
         call nc_check(nf90_def_dim(ncid,"time",ntime,dimids(4)),output_file,"nf90_def_dim time")
       endif
 
       var_data(ivar)%varname = varname
-      var_data(ivar)%data => read_var(trim(varname))
-      call set_dims(var_data(ivar),dims,dimids)
-      var_data(ivar)%varid = def_var(var_data(ivar))
+      var_data(ivar)%outname = varname
+      var_data(ivar)%should_dealloc = .false.
+      write(0,*) 'before read_var ',me
+      var_data(ivar)%data => read_var(var_data(ivar),trim(varname),var_data(ivar)%should_dealloc)
+      write(0,*) 'after read_var ',me
+      if(me==0) then
+        write(0,*) 'rank 0 defines var'
+        call set_dims(var_data(ivar),dims,dimids)
+        var_data(ivar)%varid = def_var(var_data(ivar),rename)
+      endif
+      write(0,*) 'bottom of loop rank ',me
     enddo
+
+    if(me/=0) then
+      ! Ranks that are not writing are done now
+      return
+    endif
 
     nvars=ivar
 
@@ -712,16 +728,31 @@ contains !==============================================================
       write(0,"(A,A)") output_file,': no data to write!'
       return
     endif
-    
-    call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
 
+    if(me==0) then
+      call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
+    endif
+
+    write(0,*) 'before write loop ',me
     do ivar=1,nvars
 24    format('  put var ',A)
       print 24,trim(var_data(ivar)%varname)
-      call write_var(var_data(ivar))
+      if(me==0) then
+        call find_range(var_data(ivar)%data,var_data(ivar)%count, &
+             var_data(ivar)%missing_value_is_set,var_data(ivar)%missing_value,&
+             var_data(ivar)%min_not_miss,var_data(ivar)%max_not_miss, &
+             var_data(ivar)%all_missing)
+        call write_var(var_data(ivar))
+      endif
+      if(var_data(ivar)%should_dealloc) then
+        deallocate(var_data(ivar)%data)
+      endif
+      nullify(var_data(ivar)%data)
     enddo
 
-    call nc_check(nf90_close(ncid),output_file,"nf90_close")
+    if(me==0) then
+      call nc_check(nf90_close(ncid),output_file,"nf90_close")
+    endif
   contains
 
     subroutine set_dims(var,dims,dimids)
@@ -731,6 +762,11 @@ contains !==============================================================
       character(len=:), pointer :: varname
 
       varname=>var%varname(1:len_trim(var%varname))
+
+      if(me/=0) then
+        ! Ranks that are not writing are done now
+        return
+      endif
 
       ! These must also be in IFITest.cc IFITest::write_netcdf
 
@@ -742,7 +778,7 @@ contains !==============================================================
         var%dims=(/ny0,1,1,1/)
         var%dimids=(/dimids(2),-1,-1,-1/)
         var%ndims=1
-      else if(varname=='z' .or. varname=='z0' .or.  &
+      else if(varname=='z' .or. varname=='z0' .or.  varname=='z1' .or. &
            varname=='pressure_levels' .or. varname=='exner_levels') then
         var%dims=(/nz0,1,1,1/)
         var%dimids=(/dimids(3),-1,-1,-1/)
@@ -776,37 +812,48 @@ contains !==============================================================
       real(ifi_real_t) :: put(var%count)
       integer :: i,j,k,n,ilen,jlen,m,imlen,jmlen
 
-      ilen=var%ipe-var%ips+1
-      jlen=var%jpe-var%jps+1
-      imlen=var%ime-var%ims+1
-      jmlen=var%jme-var%jms+1
-      
-!$OMP PARALLEL DO PRIVATE(i,j,k,n) COLLAPSE(3)
-      do k=var%kps,var%kpe
-        do j=var%jps,var%jpe
-          do i=var%ips,var%ipe
-            n=((k-var%kps)*jlen + (j-var%jps))*ilen + i+1
-            m=((k-var%kms)*jmlen+ (j-var%jms))*imlen+ i+1
-            put(n)=var%data(m)
-          enddo
-        enddo
-      enddo
-
       ones = 1
       dims = var%dims(1:var%ndims)
+
+      if(me/=0) then
+        ! Ranks that are not writing are done now
+        return
+      endif
       
-      call nc_check(nf90_put_var(ncid=ncid,varid=var%varid,values=put, &
+      call nc_check(nf90_put_var(ncid=ncid,varid=var%varid,values=var%data, &
                                  start=ones,count=dims), &
-                    output_file,"nf90_put_var "//trim(varname))
+                    output_file,"nf90_put_var "//trim(var%outname))
+
     end subroutine write_var
 
-    integer function def_var(var)
+    integer function def_var(var,rename)
+      use iso_c_binding, only: c_float
       implicit none
+      logical :: rename
       type(var_info), intent(inout) :: var
 
       integer :: varid, xtype, dimids(var%ndims)
-      real(kind=ifi_real_t) :: max_not_miss, min_not_miss
-      logical :: all_missing
+      character(len=100) :: outname
+
+      if(rename) then
+        var%outname=var%varname
+        select case(trim(var%varname))
+          case('CIMIXR')
+            var%outname = 'ICMR'
+          case('SPFH')
+            var%outname = 'MIXR'
+          case('GRLE')
+            var%outname = 'GRMR'
+          case('CAPE_surface')
+            var%outname = 'CAPE'
+          case('CIN_surface')
+            var%outname = 'CIN'
+          case('CLMR')
+            var%outname = 'CLWMR'
+          case('APCP_surface')
+            var%outname = 'APCP1Hr'
+        end select
+      endif
 
       var%ims=ims ; var%ime=ime ; var%jms=jms ; var%jme=jme ; var%kms=kms ; var%kme=kme
       var%ids=ids ; var%ide=ide ; var%jds=jds ; var%jde=jde ; var%kds=kds ; var%kde=kde
@@ -814,52 +861,132 @@ contains !==============================================================
 
       dimids = var%dimids(1:var%ndims)
 
-      if(ifi_real_t==4) then
+      if(ifi_real_t==c_float) then
         xtype = NF90_FLOAT
       else
         xtype = NF90_DOUBLE
       endif
-      call find_range(var%data,var%count,missing_value_is_set,missing_value,min_not_miss,max_not_miss,all_missing)
 
-      call nc_check(nf90_def_var(ncid,trim(varname),xtype,dimids,def_var), &
-           output_file,"nf90_def_var "//trim(varname))
+      call nc_check(nf90_def_var(ncid,trim(var%outname),xtype,dimids,def_var), &
+           output_file,"nf90_def_var "//trim(var%outname))
 
-      call nc_check(nf90_put_att(ncid,def_var,"min_value",min_not_miss), &
-           output_file,"nf90_put_att "//trim(varname)//" min_value")
+      call nc_check(nf90_put_att(ncid,def_var,"min_value",var%min_not_miss), &
+           output_file,"nf90_put_att "//trim(var%outname)//" min_value")
 
-      call nc_check(nf90_put_att(ncid,def_var,"max_value",max_not_miss), &
-           output_file,"nf90_put_att "//trim(varname)//" max_value")
+      call nc_check(nf90_put_att(ncid,def_var,"max_value",var%max_not_miss), &
+           output_file,"nf90_put_att "//trim(var%outname)//" max_value")
 
-      if(missing_value_is_set) then
-        call nc_check(nf90_put_att(ncid,def_var,"_FillValue",missing_value), &
-             output_file,"nf90_put_att "//trim(varname)//" _FillValue")
+      if(var%missing_value_is_set) then
+        call nc_check(nf90_put_att(ncid,def_var,"_FillValue",-9999.0), &
+             output_file,"nf90_put_att "//trim(var%outname)//" _FillValue")
       end if
 
     end function def_var
 
-    function read_var(varname)
+    function read_var(var,varname,should_dealloc)
       implicit none
+      type(var_info), intent(inout) :: var
       real(kind=ifi_real_t), pointer :: read_var(:)
+      real(kind=ifi_real_t), pointer :: local_data_1D(:)
       character(len=*), intent(in) :: varname
+      logical, intent(out) :: should_dealloc
 
-      if(associated(read_var)) then
-        deallocate(read_var)
-        nullify(read_var)
-      end if
+      real(kind=ifi_real_t), allocatable :: local_data(:,:),global_data(:,:)
+      real(kind=ifi_real_t), pointer :: global_data_1D(:)
 
-      read_var => ifi_data%get_data(trim(varname),missing_value_is_set,missing_value, &
+      integer :: nxny_local,nxny_global,nz,count,i,j,k
+      integer :: local_ilen,local_jlen,local_klen,local_index
+      integer :: global_ilen,global_jlen,global_klen,global_index
+      type(c_ptr) :: global_cptr,local_cptr
+
+      local_data_1D => ifi_data%get_data(trim(varname),missing_value_is_set,missing_value, &
            ims,ime,jms,jme,kms,kme, ids,ide,jds,jde,kds,kde, ips,ipe,jps,jpe,kps,kpe)
 
-      if(.not.associated(read_var)) then
+      global_ilen=ide-ids+1
+      global_jlen=jde-jds+1
+      global_klen=kde-kds+1
+      local_ilen=ipe-ips+1
+      local_jlen=jpe-jps+1
+      local_klen=kpe-kps+1
+
+      if(.not.associated(local_data_1D)) then
         write(0,38) trim(varname)
 38      format("IFI did not produce ",A," variable.")
+        stop 19
       end if
 
-      count=(ipe-ips+1)*(jpe-jps+1)*(kpe-kps+1)
+      count=global_ilen*global_jlen*global_klen
       if(count<=0) then
         write(0,39) trim(varname),count
 39      format("IFI variable ",A," had no data (size=",I0,")")
+        stop 20
       endif
+
+      if(ids==ide .or. jds==jde) then
+        ! This is a 1D variable so we write it as is from rank 0
+        read_var => local_data_1D
+        should_dealloc = .false.
+        return
+      endif
+
+
+      if(global_ilen /= nx0) then
+        write(0,*) 'bad global_ilen: ',global_ilen,nx0
+        stop 31
+      endif
+
+      if(global_jlen /= ny0) then
+        write(0,*) 'bad global_jlen: ',global_jlen,ny0
+        stop 32
+      endif
+
+      if(global_klen/=1 .and. global_klen /= nz0) then
+        write(0,*) 'bad global_klen: ',global_klen,nz0
+        stop 33
+      endif
+
+
+      allocate(local_data(local_ilen,local_jlen))
+      if(me==0) then
+        allocate(global_data(global_ilen,global_jlen))
+        allocate(global_data_1D(global_ilen*global_jlen*global_klen))
+      else
+        allocate(global_data(1,1))
+        allocate(global_data_1D(1))
+      endif
+
+      do k=kds,kde
+        do j=jps,jpe
+          do i=ips,ipe
+            local_data(i-ips+1,j-jps+1) = local_data_1D( 1 + (i-ims) + ((j-jms) + (k-kms)*(jme-jms+1))*(ime-ims+1) )
+          enddo
+        enddo
+        call gather_for_write(local_data,global_data,0)
+        if(me==0) then
+          do j=1,global_jlen
+            do i=1,global_ilen
+              global_data_1D(1 + (i-1) + ((j-1) + (k-kds)*global_jlen)*global_ilen) = &
+                   global_data(i,j)
+            enddo
+          enddo
+        endif
+      enddo
+
+      ! Ranks that are not writing data are done.
+      if(me/=0) then
+        ! This rank does not have the global data, and will not use the data anyway,
+        ! but it wants an array, so we'll send it the local data that is managed
+        ! internally by libIFI.
+        read_var => local_data_1D
+        should_dealloc = .false.
+        deallocate(global_data_1D)
+      else
+        read_var => global_data_1D
+        should_dealloc = .true.
+      endif
+      
+      deallocate(global_data)
+      deallocate(local_data)
     end function read_var
   end subroutine write_fip_output
 
