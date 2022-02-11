@@ -79,41 +79,33 @@ with examples in the sections below.
             This flat file (instead of the xml file) is read in by UPP as it was much faster to read a text file
             than an xml file.
 
-2.  Define the new field: RQSTFLD.F
-
-    This file contains a list of all possible fields to be output by UPP, corresponding Grib1 key-word character
-    strings, UPP ID (Index) for internal code, and Grib1 IDs. Note that as of December 2020, EMC removed the Grib1
-    option from its repository as part of its re-reginnering effort. Users will continue to use UPP ID (Index) for
-    defining the new variable to be added. However, the character string and Grib1 ID in RQSTFLD.F will no longer
-    be used by UPP.
-
-3.  Allocate the field: ALLOCATE.f
+2.  Allocate the field: ALLOCATE.f
 
     This file is the instantiation or allocation of the variable. Note that the variables are defined
     based on the parallel processing capability of UPP - use an example from the file.
 
-4.  Deallocate the field: DEALLOCATE.f
+3.  Deallocate the field: DEALLOCATE.f
 
     All good programmers give back their resources when they are done. Please update this routine to
     return your resource to the system.
 
-5.  Declare the new variable: VRBLS2D_mod.f, VRBLS3D_mod.f, or VRBLS4D_mod.f
+4.  Declare the new variable: VRBLS2D_mod.f, VRBLS3D_mod.f, or VRBLS4D_mod.f
     
     The variable is declared in one of these modules defining files depending on its dimension.
 
-6.  Read model output if necessary: INITPOST_GFS_NETCDF_PARA.f (current operational netcdf output with GFS V16),
+5.  Read model output if necessary: INITPOST_GFS_NETCDF_PARA.f (current operational netcdf output with GFS V16),
     INITPOST_NETCDF.f (LAM FV3 netcdf)
 
     Check first to see if all variables needed to derive your new variable are already available in UPP. If not,
     you will need to use one of these files for reading the model output files. The appropriate one will need to
     be chosen based on the model and model output format.
 
-7.  Add to appropriate routine for filling the new variable: e.g. SURFCE.f, MDLFLD.f, MDL2P.f, etc
+6.  Add to appropriate routine for filling the new variable: e.g. SURFCE.f, MDLFLD.f, MDL2P.f, etc
 
     This is the place where you will derive your new variable and then fill the Grib2 array with the data to be
     written out later on.
 
-8. Build or rebuild the code for changes to take effect before running your UPP run script.
+7. Build or rebuild the code for changes to take effect before running your UPP run script.
 
 
 **Example Procedure: Steps for adding a new variable ‘TG3’**
@@ -180,7 +172,7 @@ with examples in the sections below.
             e) Add the new variable to the UPP/parm/post_avblflds.xml, which lists all fields available
                for output in GRIB2 format. This file is generally not modified unless adding a new field or
                modifying an existing one.
-                - Post_avblfldidx: the unique array number given in the RQSTFLD.f routine.
+                - Post_avblfldidx: the unique array index number used to store this variable.
                 - Shortname: name describing the variable and level type
                 - Pname: the abbreviation for your variable (should match what is used in params_grib2_tbl_new)
                 - Table info: table used if not standard WMO
@@ -229,49 +221,7 @@ with examples in the sections below.
           This flat file (instead of the xml file) is read in by UPP as it was much faster to read a text file
           than an xml file.
 
-2. Define the new variable in RQSTFLD.F which includes a list of all possible fields to be output by
-   UPP, corresponding Grib1 key-word character strings, UPP ID (Index) for internal code, and Grib1 IDs.
-   Ensure your code is up-to-date and pick a unique identifier that is not already used for the new variable.
-   Currently, the 900's are being used for new contributions.
-
-   Example Entry
-
-       | ! HWRF addition for v_flux as pass through variable:
-
-       |   DATA IFILV(901),AVBL(901),IQ(901),IS(901),AVBLGRB2(901) &
-       |   &            /1,'MODEL SFC V WIND STR’,125,001,         &
-       |   &            'V_FLX ON surface’/
-
-   Where:
-     - **IFILV** Identifies field as MASS/VELOCITY point (e.g. 1)
-     - **AVBL** is the model output character string variable name for Grib1 (e.g. MODEL SFC V WIND STR)
-     - **IQ** is the GRIB PDS OCTET 9 (table 2) - Indicator of parameter and units (e.g. 125)
-     - **IS** is the GRIB PDS OCTET 10 (table 3&3a) - Indicator of type of level or layer (e.g. 001)
-     - **AVBLGRB2** is the model output character string variable name for Grib2 (e.g. V_FLX ON surface)
-     - A UNIQUE array Index UPP uses to store this variable in parallel arrays (e.g. **901**)
-
-   User procedure
-    - Soil temperature (TSOIL) is found in the Grib1 parameter tables as parameter number 085, so this
-      can be used for the Grib1 ID.
-      http://www.nco.ncep.noaa.gov/pmb/docs/on388/table2.html
-    - Use level type 'depth below land surface', which is 111.
-      http://www.nco.ncep.noaa.gov/pmb/docs/on388/table3.html
-    - New variables are continuously being added to UPP, so be sure to check that the UPP Index 999 is
-      still available before using it to add your new variable. If it is already in use, pick the next
-      available Index.
-    - Add as:
-
-    ::
-
-     DATA IFILV(999),AVBL(999),IQ(999),IS(999),AVBLGRB2(999) &
-     &          /1,'DEEP SOIL TMP',085,111,                  &
-     &          'DEEP TSOIL ON depth_bel_land_sfc'/
-
-   .. note::
-      Since Grib1 is no longer supported, the variable character strings and Grib IDs for Grib1 are not
-      important, but still need to be included here for correct formatting.
-
-3. Allocate the new variable in ALLOCATE_ALL.f
+2. Allocate the new variable in ALLOCATE_ALL.f
    This file is the instantiation or allocation of the variable. Note that the variables are defined
    based on the parallel processing capability of UPP - use an example from the file.
 
@@ -282,7 +232,7 @@ with examples in the sections below.
 
       allocate(tg3(im,jsta_2l:jend_2u))
 
-4. De-allocate the variable to give the resources back in DEALLOCATE.f
+3. De-allocate the variable to give the resources back in DEALLOCATE.f
    All good programmers give back their resources when they are done. Please update this
    routine to return your resources to the system.
 
@@ -293,7 +243,7 @@ with examples in the sections below.
 
      deallocate(tg3)
 
-5. Declare the new variable in the appropriate file depending on its dimensions;
+4. Declare the new variable in the appropriate file depending on its dimensions;
    VRBLS2D_mod.f, VRBLS3D_mod.f or VRBLS4D_mod.f
 
    User procedure
@@ -304,7 +254,7 @@ with examples in the sections below.
 
      tg3(:,:)
 
-6. Read the field from the GFS model output file by adding the new variable into INITPOST_GFS_NETCDF_PARA.f.
+5. Read the field from the GFS model output file by adding the new variable into INITPOST_GFS_NETCDF_PARA.f.
    This file is used for reading the GFS model FV3 output files in netcdf format.
 
    User procedure
@@ -324,7 +274,7 @@ with examples in the sections below.
            call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
            spval,VarName,tg3)
 
-7. Determine the appropriate routine to add the new variable to (e.g. SURFCE.f, MDLFLD.f,
+6. Determine the appropriate routine to add the new variable to (e.g. SURFCE.f, MDLFLD.f,
    MDL2P.f, etc). This is the place that you will fill the Grib2 array with the data to be written out later on.
    The appropriate routine will depend on what your field is. For example, if you have a new diagnostic called foo,
    and you want it interpolated to pressure levels, you would need to add it to MDL2P.f. If foo was only a
@@ -365,7 +315,7 @@ with examples in the sections below.
        endiF
      ENDIF
 
-8. Build or rebuild the code for changes to take effect before running your UPP run script.
+7. Build or rebuild the code for changes to take effect before running your UPP run script.
    
    User procedure IF you already have the code built. Otherwise, see the User's Guide for instructions on building.
 
