@@ -30,6 +30,7 @@ echo " Mar 21 - Meng - Update POSTGRB2TBL default setting."
 echo " Jun 21 - Mao  - Instead of err_chk, catch err and print out"
 echo "                 WAFS failure warnings to avoid job crashing"
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
+echo " Feb 22 - Lin - Exception handling if anl input not found."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -235,7 +236,11 @@ then
    fi
   fi
 ##########################  WAFS U/V/T analysis end  ##########################
-
+else
+  #### atmanl file not found need failing job
+  echo " *** FATAL ERROR: No model anl file output "
+  export err=9
+  err_chk
 fi
 
 #----------------------------------

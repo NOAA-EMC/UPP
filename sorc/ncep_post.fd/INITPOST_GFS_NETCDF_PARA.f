@@ -2593,6 +2593,8 @@
       spval,varname,buf,lm)
 
       use netcdf
+      use ctlblk_mod, only : me
+      use params_mod, only : small
       implicit none
       INCLUDE "mpif.h"
 
@@ -2603,10 +2605,12 @@
       real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
       integer            :: varid,iret,ii,jj,i,j,l,kk
       integer            :: start(3), count(3), stride(3)
+      real,parameter     :: spval_netcdf=9.99e+20
+      real               :: fill_value
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
-        print*,VarName," not found -Assigned missing values"
+        if (me == 0) print*,VarName," not found -Assigned missing values"
 !$omp parallel do private(i,j,l)
           do l=1,lm
             do j=jsta,jend
@@ -2616,18 +2620,23 @@
             enddo
           enddo
       else
-!       start = (/1,jsta,1/)
-!       jj=jend-jsta+1
-!       count = (/im,jj,lm/)
-!       iret = nf90_get_var(ncid,varid,buf(1:im,jsta:jend,1:lm),start=start,count=count)
+        iret = nf90_get_att(ncid,varid,"_FillValue",fill_value)
+        if (iret /= 0) fill_value = spval_netcdf
         start = (/ista,jsta,1/)
-        jj=jend-jsta+1
         ii=iend-ista+1
+        jj=jend-jsta+1
         count = (/ii,jj,lm/)
         iret = nf90_get_var(ncid,varid,buf(ista:iend,jsta:jend,1:lm),start=start,count=count)
         if (iret /= 0) then
-          print*," iret /=0, not found -Assigned missing values",buf(30,30,2)
+          print*," iret /=0, Error in reading varid "
         endif
+        do l=1,lm
+          do j=jsta,jend
+            do i=ista,iend
+              if(abs(buf(i,j,l)-fill_value)<small)buf(i,j,l)=spval
+            end do
+          end do
+        end do
       endif
 
       end subroutine read_netcdf_3d_para
@@ -2636,6 +2645,8 @@
       spval,VarName,buf)
 
       use netcdf
+      use ctlblk_mod, only : me
+      use params_mod, only : small
       implicit none
       INCLUDE "mpif.h"
 
@@ -2646,11 +2657,13 @@
       real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
       integer            :: varid,iret,ii,jj,i,j
       integer            :: start(2), count(2)
+      real,parameter     :: spval_netcdf=9.99e+20
+      real               :: fill_value
 
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
-        print*,VarName," not found -Assigned missing values"
+        if (me==0) print*,VarName," not found -Assigned missing values"
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=ista,iend
@@ -2658,18 +2671,21 @@
           enddo
         enddo
       else
-!       start = (/1,jsta/)
-!       jj=jend-jsta+1
-!       count = (/im,jj/)
-!       iret = nf90_get_var(ncid,varid,buf(:,jsta),start=start,count=count)
+        iret = nf90_get_att(ncid,varid,"_FillValue",fill_value)
+        if (iret /= 0) fill_value = spval_netcdf
         start = (/ista,jsta/)
-        jj=jend-jsta+1
         ii=iend-ista+1
+        jj=jend-jsta+1
         count = (/ii,jj/)
         iret = nf90_get_var(ncid,varid,buf(ista:iend,jsta:jend),start=start,count=count)
         if (iret /= 0) then
-          print*," iret /=0, not found -Assigned missing values",buf(30,30)
+          print*," iret /=0, Error in reading varid "
         endif
+        do j=jsta,jend
+          do i=ista,iend
+            if(abs(buf(i,j)-fill_value)<small)buf(i,j)=spval
+          end do
+        end do
       endif
 
       end subroutine read_netcdf_2d_para
