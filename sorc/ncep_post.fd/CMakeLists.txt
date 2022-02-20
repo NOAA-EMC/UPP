@@ -230,7 +230,7 @@ if(BUILD_POSTEXEC)
     target_link_libraries(${EXENAME} PRIVATE
       wrf_io::wrf_io)
   endif()
-  install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
+  install(TARGETS ${EXENAME} RUNTIME DESTINATION ${exec_dir})
 endif()
 
 install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
@@ -238,6 +238,6 @@ install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(
   TARGETS ${LIBNAME}
   EXPORT ${PROJECT_NAME}Exports
-  RUNTIME DESTINATION bin
+  RUNTIME DESTINATION ${exec_dir}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
