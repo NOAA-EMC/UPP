@@ -56,6 +56,9 @@
       integer i,ii,jj, ibl,ibu,jbl,jbu,icc,jcc !GWV
       integer iwest,ieast
       integer ifirst
+
+      logical, parameter :: checkcoords = .false.
+
       data ifirst/0/
       allocate(coll(jm))
       allocate(colr(jm))
@@ -91,6 +94,8 @@
          print *, ' problem with first  sendrecv in exch, ierr = ',ierr
          stop 6661
       endif
+
+      if (checkcoords) then
           if(ifirst .le. 0) then !IFIRST ONLY
           call mpi_sendrecv(ibcoords(ista,jend),iend-ista+1,MPI_INTEGER,iup,1,             &
          &                  ibcoords(ista,jstam1),iend-ista+1,MPI_INTEGER,idn,1,           &
@@ -105,6 +110,8 @@
             if(ii .ne. i .or. jj .ne. jstam1 ) print *,' GWVX JEXCH CHECK FAIL ',ii,jj,ibcoords(i,jstam1),i
             end do
       endif !IFIRST
+      endif !checkcoords
+
 !  build the I columns to send and receive
  902  format(' GWVX EXCH BOUNDS ',18i8)
       msglenl=jend-jsta+1
@@ -113,7 +120,7 @@
         if(ileft .lt. 0) msglenl=1
      do j=jsta,jend
      coll(j)=a(ista,j)
-     if(ifirst .le. 0)  icoll(j)=icoords(ista,j) !GWV TMP
+!     if(ifirst .le. 0)  icoll(j)=icoords(ista,j) !GWV TMP
      end do
       call mpi_barrier(mpi_comm_comp,ierr)
        
@@ -140,7 +147,8 @@
         do j=jsta,jend
         a(iend+1,j)=colr(j)
 
-        if(ifirst .le. 0) then !IFIRST ONLY
+       if(checkcoords) then
+       if(ifirst .le. 0) then !IFIRST ONLY
             ibcoords(iend+1,j)=icolr(j)  !GWV TMP
                ii=ibcoords(iend+1,j)/10000
                    jj=ibcoords( iend+1,j)-(ii*10000)
@@ -150,6 +158,7 @@
              write(0,921) j,iend+1,ii,jj,ibcoords(iend+1,j),' GWVX IEXCH COORD FAIL j,iend+1,ii,jj,ibcoord '
  921   format(5i10,a50)
        endif !IFIRST
+       endif !checkcoords
 ! 
         
         end do
@@ -165,7 +174,7 @@
 !GWVt of 2D decomp
      do j=jsta,jend
      colr(j)=a(iend,j)
-     if(ifirst .le. 0) icolr(j)=icoords(iend,j) !GWV TMP
+!     if(ifirst .le. 0) icolr(j)=icoords(iend,j) !GWV TMP
      end do
 !  send first row   to idown's last row+  and receive last row+  from iup's first row
       call mpi_sendrecv(a(ista,jsta),iend-ista+1,MPI_REAL,idn,1,             &
@@ -175,7 +184,9 @@
          print *, ' problem with sixth  sendrecv in exch, ierr = ',ierr
          stop 6664
       endif
-       if (ifirst .le. 0) then
+      
+      if (checkcoords) then
+      if (ifirst .le. 0) then
       call mpi_sendrecv(ibcoords(ista,jsta),iend-ista+1,MPI_INTEGER,idn,1,             &
      &                  ibcoords(ista,jendp1),iend-ista+1,MPI_INTEGER,iup,1,           &
      &                  MPI_COMM_COMP,status,ierr)
@@ -184,6 +195,7 @@
          stop 7664
       endif
       endif ! IFIRST
+      endif ! checkcoords
 !  send last col    to  iright first col-  and receive first col- from ileft last col 
       call mpi_sendrecv(colr(jsta),msglenr    ,MPI_REAL,iright,1 ,            &
     &                  coll(jsta),msglenl    ,MPI_REAL,ileft ,1,           &
@@ -204,6 +216,7 @@
      if(ileft .ge. 0) then
         do j=jsta,jend
         a(ista-1,j)=coll(j)
+        if(checkcoords) then
                   if(ifirst .le. 0) then
                   
                 ibcoords(ista-1,j)=icoll(j)  !GWV TMP
@@ -213,11 +226,13 @@
               if( j .ne. jj .or. ii .ne. ista-1 .and. ii .ne. im .and. ii .ne. 1) &
         write(0,921) j,ista-1,ii,jj,ibcoords(ista-1,j),' GWVX EXCH COORD FAIL j,ista-1,ii,jj,ibcoord '
             endif !IFIRST
+        endif !checkcoords
         end do
   
      endif
 !  interior check
 
+        if(checkcoords) then
                   if(ifirst .le. 0) then
               do j=jsta,jend
               do i=ista,iend
@@ -227,6 +242,8 @@
             end do
             end do
             endif !IFIRST
+        endif !checkcoords
+
 
 !!   corner points.   After the exchanges above, corner points are replicated in
 !    neighbour halos so we can get them from the neighbors rather than
@@ -281,6 +298,7 @@
 !GWV TEST       
  139    format(a20,5(i10,i6,i6,'<>'))
 
+      if(checkcoords) then
                   if(ifirst .le. 0) then
       call mpi_sendrecv(ibcoords(iend,jbl   ),1    ,MPI_INTEGER,iright,1 ,            &
     &                  ibcoords(ibl   ,jbl   ),1   ,MPI_INTEGER,ileft ,1,           &
@@ -377,6 +395,8 @@
             end do
                if(me .eq. 0) write(0,*) '  IFIRST CHECK'
              endif ! IFIRST
+       endif !checkcoords
+
 ! end halo checks 
       if ( ierr /= 0 ) then
          print *, ' problem with second sendrecv in exch, ierr = ',ierr
