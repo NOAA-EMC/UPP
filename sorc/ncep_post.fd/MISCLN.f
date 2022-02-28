@@ -1728,7 +1728,7 @@
            (IGET(090)>0).OR.(IGET(075)>0).OR.       &
            (IGET(109)>0).OR.(IGET(110)>0).OR.       &
            (IGET(031)>0).OR.(IGET(032)>0).OR.       &
-           (IGET(573)>0).OR.  NEED_IFI   .OR.       &
+           (IGET(573)>0).OR.                        &
            (IGET(107)>0).OR.(IGET(091)>0).OR.       &
            (IGET(092)>0).OR.(IGET(093)>0).OR.       &
            (IGET(094)>0).OR.(IGET(095)>0).OR.       &
@@ -2129,7 +2129,7 @@
          !  LVLSXML(1,IGET(566)),'LVLSXML(1,IGET(567)=',               &
          !  LVLSXML(1,IGET(567)),'field1=',field1,'field2=',field2
 !
-         IF(FIELD1.OR.FIELD2.OR.NEED_IFI)THEN
+         IF(FIELD1.OR.FIELD2)THEN
            ITYPE = 2
 !
 !$omp parallel do private(i,j)
@@ -2162,7 +2162,7 @@
                         EGRID2,EGRID3,EGRID4,EGRID5) 
 
 !
-           IF(NEED_IFI .OR. IGET(566)>0) THEN
+           IF(IGET(566)>0) THEN
              print *,"STORE CAPE"
               GRID1=spval
 !$omp parallel do private(i,j)
@@ -2182,7 +2182,7 @@
               ENDDO
            ENDIF
 
-           IF(NEED_IFI .OR. IGET(567)>0) THEN
+           IF(IGET(567)>0) THEN
              print *,"STORE CIN"
              GRID1=spval
 !$omp parallel do private(i,j)
@@ -2195,17 +2195,6 @@
              ENDDO
 !
              CALL BOUND(GRID1,D00,H99999)
-!
-!$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 IF(GRID1(I,J)<spval) THEN
-                   CIN(I,J) = - GRID1(I,J)
-                 ELSE
-                   CIN(I,J) = spval
-                 ENDIF
-               ENDDO
-             ENDDO
            ENDIF
                         
            IF (IGET(566)>0) THEN
@@ -3284,7 +3273,7 @@
            FIELD2=.TRUE.
          ENDIF
 !
-         IF(FIELD1.OR.FIELD2)THEN
+         IF(FIELD1.OR.FIELD2.OR.NEED_IFI)THEN
            ITYPE = 1
 !
 !$omp parallel do private(i,j)
@@ -3299,15 +3288,15 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
            IF (SUBMODELNAME == 'RTMA') MUMIXR(I,J) = Q1D(I,J)
-           IF (IGET(584)>0) THEN
+           IF (IGET(584)>0 .or. NEED_IFI) THEN
 ! dong add missing value to cin
                GRID1 = spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=1,IM
                  IF(T1D(I,J) < spval) THEN
-                 GRID1(I,J) = EGRID1(I,J)
-                 IF (SUBMODELNAME == 'RTMA') MUCAPE(I,J)=GRID1(I,J)
+                    GRID1(I,J) = EGRID1(I,J)
+                    IF (SUBMODELNAME == 'RTMA') MUCAPE(I,J)=GRID1(I,J)
                  ENDIF
                  ENDDO
                ENDDO
@@ -3315,7 +3304,13 @@
 !               IF (SUBMODELNAME == 'RTMA') THEN
 !                    CALL BOUND(MUCAPE,D00,H99999)
 !               ENDIF
-               if(grib=='grib2') then
+!$omp parallel do private(i,j)
+              DO J=JSTA,JEND
+                 DO I=1,IM
+                    CAPE(I,J) = GRID1(I,J)
+                 ENDDO
+              ENDDO
+               if(IGET(584)>0 .and. grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(584))
                 fld_info(cfld)%lvl=LVLSXML(1,IGET(584))
@@ -3330,7 +3325,7 @@
 
            ENDIF
                 
-           IF (IGET(585)>0) THEN
+           IF (IGET(585)>0 .or. NEED_IFI) THEN
 ! dong add missing value to cin
                GRID1 = spval
 !$omp parallel do private(i,j)
@@ -3351,7 +3346,15 @@
                    ENDIF
                  ENDDO
                ENDDO
-               if(grib=='grib2') then
+
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=1,IM
+                    CIN(I,J) = GRID1(I,J)
+                 ENDDO
+               ENDDO
+
+               if(IGET(585)>0 .and. grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(585))
                  fld_info(cfld)%lvl=LVLSXML(1,IGET(585))

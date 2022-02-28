@@ -2715,7 +2715,7 @@
       ENDIF
 !     
 !     ACCUMULATED TOTAL PRECIPITATION.
-      IF (IGET(087)>0 .or. IGET(1100)>0 .or. IGET(1101>0) .or. IGET(1102)>0) THEN
+      IF (IGET(087)>0) THEN
          ID(1:25) = 0
          ITPREC     = NINT(TPREC)
 !mp
@@ -2741,9 +2741,9 @@
            DO J=JSTA,JEND
              DO I=1,IM
                IF(AVGPREC(I,J) < SPVAL)THEN
-                 APCP(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+                 GRID1(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
                ELSE
-                 APCP(I,J) = SPVAL
+                 GRID1(I,J) = SPVAL
                END IF 
              ENDDO
            ENDDO
@@ -2762,9 +2762,9 @@
            DO J=JSTA,JEND
              DO I=1,IM
               IF(ACPREC(I,J) < SPVAL)THEN
-               APCP(I,J) = ACPREC(I,J)*1000.
+               GRID1(I,J) = ACPREC(I,J)*1000.
               ELSE
-               APCP(I,J) = SPVAL
+               GRID1(I,J) = SPVAL
               ENDIF
              ENDDO
            ENDDO
@@ -2776,7 +2776,7 @@
 !	 END IF 
          IF (ID(18)<0) ID(18) = 0
 !	write(6,*) 'call gribit...total precip'
-         if(IGET(087)>0 .and. grib=='grib2') then
+         if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
             fld_info(cfld)%ntrange=1
@@ -2786,7 +2786,7 @@
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,im
-                datapd(i,j,cfld) = APCP(i,jj)
+                datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
 !! add continuous bucket
@@ -3571,14 +3571,14 @@
 
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET TOTAL PRECIP '
-         IF (IGET(434)>0.) THEN
+         IF (IGET(434)>0. .or. IGET(1100) .or. IGET(1101) .or. IGET(1102)) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
                IF (IFHR == 0) THEN
-                 GRID1(I,J) = 0.0
+                 APCP(I,J) = 0.0
                ELSE
-                 GRID1(I,J) = PCP_BUCKET(I,J)
+                 APCP(I,J) = PCP_BUCKET(I,J)
                ENDIF 
              ENDDO
            ENDDO
@@ -3604,7 +3604,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18)<0) ID(18) = 0
-           if(grib=='grib2') then
+           if(grib=='grib2' .and. IGET(434)) then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(434))
              if(ITPREC>0) then
@@ -3625,7 +3625,7 @@
              do j=1,jend-jsta+1
                jj = jsta+j-1
                do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
+                 datapd(i,j,cfld) = APCP(i,jj)
                enddo
              enddo
            endif
