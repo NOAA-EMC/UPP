@@ -451,6 +451,7 @@ LOOP320:DO KM=1,KMM
 !
         LMAP1 = LMHIJ+1
         DO L=LMAP1,LSM
+        IF(GZ1<spval .AND. P1(I,J)<spval .AND. TPRES(I,J,L)<spval .AND. TPRES(I,J,L-1)<spval) THEN
           P2            = SPL(L)
           TLYR          = 0.5*(TPRES(I,J,L)+TPRES(I,J,L-1))
           GZ2           = GZ1 + RD*TLYR*LOG(P1(I,J)/P2)
@@ -465,18 +466,20 @@ LOOP320:DO KM=1,KMM
           ENDIF
           P1(I,J) = P2
           GZ1     = GZ2
+        ENDIF
         ENDDO
 !HC EXPERIMENT
         LP = LSM
         SLOPE     = -6.6E-4 
+        IF(TPRES(I,J,LP)<spval .AND. FIPRES(I,J,LP)<spval .AND. SPL(LP)<spval ) THEN
         TLYR      = TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
         PSLP(I,J) = spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
+        ENDIF
         DONE(I,J) = .TRUE.
 !     if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
        end if ! spval
-
 ENDDO LOOP320
  320  CONTINUE
 !
@@ -520,18 +523,25 @@ ENDDO LOOP320
 !     & /(FIPRES(I,J,LP)-FIPRES(I,J,LP-1))     
 
           SLOPE = -6.6E-4
+     
           IF(PINT(I,J,NINT(LMH(I,J))+1) > SPL(LP))THEN
             LLMH      = NINT(LMH(I,J))
+            IF(T(I,J,LLMH)<spval .AND. Q(I,J,LLMH)<spval .AND. &
+               ZINT(I,J,LLMH)<spval .AND. ZINT(I,J,LLMH+1)<spval .AND. &
+               PINT(I,J,LLMH+1)<spval) THEN
             TVRT      = T(I,J,LLMH)*(H1+D608*Q(I,J,LLMH))
             DIS       = ZINT(I,J,LLMH+1)-ZINT(I,J,LLMH)+0.5*ZINT(I,J,LLMH+1)
             TLYR      = TVRT-DIS*G*SLOPE
             PSLP(I,J) = PINT(I,J,LLMH+1)*EXP(ZINT(I,J,LLMH+1)*G              &  
                          /(RD*TLYR))
+            ENDIF
 !           if(i==ii.and.j==jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
 !           1,PINT(I,J,LLMH+1),ZINT(I,J,LLMH+1),TLYR,PSLP(I,J)
           ELSE
+          IF(TPRES(I,J,LP)<spval .AND. FIPRES(I,J,LP)<spval .AND. SPL(LP)<spval ) THEN
             TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
             PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
+          ENDIF 
 !           if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='      &
 !          ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)
           END IF
