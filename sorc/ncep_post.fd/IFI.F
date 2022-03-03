@@ -377,11 +377,11 @@ contains !==============================================================
       END SUBROUTINE EXCH_IFI
     END INTERFACE
 
-    type(IFIData) :: hybr_vars, cat_vars
+    type(IFIData) :: hybr_vars, pres_vars, derived_vars, fip_algo_vars, flight_vars, cat_vars
     type(IFIAlgo) :: algo
     character(88) :: outfile
 
-    real(c_double) :: fhr
+    real(c_double) :: fcst_lead_sec
     
     if(grib/='grib2' .or. (IGET(1100)<=0 .and. IGET(1101)<=0 .and. IGET(1102)<=0)) then
       return ! nothing to do
@@ -435,15 +435,16 @@ contains !==============================================================
 
 308 format(A,'_',I0,'.nc')
 
+    fcst_lead_sec=IFHR*3600.0+IFMIN*60.0
+
     if(write_ifi_netcdf_debug_files) then
       write(outfile,308) 'hybr_vars',me
-      call write_fip_output(hybr_vars,trim(outfile),.true.,'z0','z1')
+      call write_fip_output(hybr_vars,fcst_lead_sec,trim(outfile),.true.,'z0','z1')
     endif
     
     ! Initialize the IFI algorithm
 
-    fhr=IFHR+IFMIN/60.0
-    call ifi_check(algo%init(ifi_config,fhr,hybr_vars,ME,NUM_PROCS,MPI_COMM_COMP), &
+    call ifi_check(algo%init(ifi_config,fcst_lead_sec,hybr_vars,ME,NUM_PROCS,MPI_COMM_COMP), &
          'could not initialize IFI algorithm')
     call ifi_check(algo%set_halo_callback(ifi_halo_callback), &
          'send halo callback function to IFI algorithm')
@@ -463,16 +464,50 @@ contains !==============================================================
     
     call ifi_check(algo%calc_exner(),'calc_exner() failed')
     call ifi_check(algo%hybrid_to_pressure(),'hybrid_to_pressure() failed')
+
+    call ifi_check(algo%get_pres_vars(pres_vars),'get_pres_vars()')
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'pres_vars',me
+      call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.true.,'z1','z0')
+    endif
+
     call ifi_check(algo%discard_hybrid_level_vars(),'discard_hybrid_level_vars() failed')
-    call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
-    call ifi_check(algo%imprecise_pressure_level_vars(),'imprecise_pressure_level_vars() failed')
+    !call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
+
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'smooth_vars',me
+      call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.true.,'z1','z0')
+    endif
+
+    !call ifi_check(algo%imprecise_pressure_level_vars(),'imprecise_pressure_level_vars() failed')
     call ifi_check(algo%derive_fields(),'derive_fields() failed')
-    call ifi_check(algo%imprecise_derived_vars(),'imprecise_derived_vars() failed')
+
+    call ifi_check(algo%get_derived_vars(derived_vars),'get_derived_vars()')
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'derived_vars',me
+      call write_fip_output(derived_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
+    endif
+
+    !call ifi_check(algo%imprecise_derived_vars(),'imprecise_derived_vars() failed')
     call ifi_check(algo%run_fip_algo(),'run_fip_algo() failed')
-    call ifi_check(algo%imprecise_fip_algo_vars(),'imprecise_fip_algo_vars() failed')
+
+    call ifi_check(algo%get_fip_algo_vars(pres_vars),'get_fip_algo_vars()')
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'fip_algo_vars',me
+      call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
+    endif
+
+    !call ifi_check(algo%imprecise_fip_algo_vars(),'imprecise_fip_algo_vars() failed')
     call ifi_check(algo%discard_pressure_level_vars(),'discard_pressure_level_vars() failed')
     call ifi_check(algo%discard_derived_vars(),'discard_derived_vars() failed')
     call ifi_check(algo%pressure_to_flight(),'pressure_to_flight() failed')
+
+    call ifi_check(algo%get_flight_vars(flight_vars),'get_flight_vars()')
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'flight_vars',me
+      call write_fip_output(flight_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
+    endif
+
     call ifi_check(algo%discard_fip_algo_vars(),'discard_fip_algo_vars() failed')
     call ifi_check(algo%make_icing_category(),'make_icing_category() failed')
 
@@ -482,7 +517,7 @@ contains !==============================================================
 
     if(write_ifi_netcdf_debug_files) then
       write(outfile,308) 'cat_vars',me
-      call write_fip_output(cat_vars,trim(outfile),.false.,'z1','z0')
+      call write_fip_output(cat_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
     
     call send_data(cat_vars,'ICE_PROB',1100)
@@ -628,7 +663,7 @@ contains !==============================================================
     93 format(A,': ',A,': ',A,'(',I0,')')
   end subroutine nc_check
 
-  subroutine write_fip_output(ifi_data,output_file,rename,z2dname,z3dname)
+  subroutine write_fip_output(ifi_data,fcst_lead_sec,output_file,rename,z2dname,z3dname)
     use ifi_mod
     use iso_c_binding
     use netcdf
@@ -636,7 +671,8 @@ contains !==============================================================
     implicit none
     integer, parameter :: maxname=80
     integer, parameter :: maxvars=999
-    logical :: rename
+    logical, intent(in) :: rename
+    double precision, intent(in) :: fcst_lead_sec
     character(len=*), intent(in) :: z2dname,z3dname
     type var_info
       character(len=maxname) :: varname, outname
@@ -696,6 +732,9 @@ contains !==============================================================
         
         call nc_check(nf90_create(output_file,ior(NF90_NOCLOBBER,NF90_64BIT_OFFSET),ncid),&
              output_file,'nf90_create')
+
+        call nc_check(nf90_put_att(ncid,NF90_GLOBAL,"fcst_lead_sec",fcst_lead_sec),&
+             output_file,"nf90_put_att fcst_lead_sec")
         
         call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
         call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
@@ -929,19 +968,20 @@ contains !==============================================================
         return
       endif
 
+40    format('var ',A,' has bad ',A,'. Got: ',I0,' but expected: ',I0)
 
       if(global_ilen /= nx0) then
-        write(0,*) 'bad global_ilen: ',global_ilen,nx0
+        write(0,40) trim(varname),'global_ilen',global_ilen,nx0
         stop 31
       endif
 
       if(global_jlen /= ny0) then
-        write(0,*) 'bad global_jlen: ',global_jlen,ny0
+        write(0,40) trim(varname),'global_jlen',global_jlen,ny0
         stop 32
       endif
 
       if(global_klen/=1 .and. global_klen /= nz0) then
-        write(0,*) 'bad global_klen: ',global_klen,nz0
+        write(0,40) trim(varname),'global_klen',global_klen,nz0
         stop 33
       endif
 
