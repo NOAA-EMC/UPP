@@ -872,8 +872,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
            (IGET(774).GT.0).OR.(IGET(747).GT.0).OR.      &
            (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
+           (IGET(470).GT.0).OR.(IGET(476).GT.0).OR.      &
            (IGET(629).GT.0).OR.(IGET(630).GT.0).OR.      &
-           (IGET(470).GT.0).OR.      &
            (IGET(909).GT.0).OR.(IGET(737).GT.0) ) THEN
 
       DO 190 L=1,LM
@@ -3624,7 +3624,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
             IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0)   &
             .OR. (IGET(245).GT.0)  .or. IGET(464)>0 .or. IGET(467)>0  &
-            .or. IGET(470)>0 ) THEN
+            .or. IGET(470)>0 .or. IGET(476)>0 ) THEN
 ! should only compute pblri if pblh from model is not computed based on Ri 
 ! post does not yet read pbl scheme used by model.  Will do this soon
 ! For now, compute PBLRI for non GFS models.
@@ -3855,7 +3855,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
 !	    
 ! CALCULATE Gust based on Ri PBL
-      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0) THEN
+      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
         IF(MODELNAME.EQ.'RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
@@ -4017,7 +4017,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0)THEN
+      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0 .or. IGET(476)>0)THEN
         i=IM/2
         j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
