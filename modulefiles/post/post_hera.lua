@@ -2,9 +2,9 @@ help([[
 Load environment to build post on HERA
 ]])
 
-prepend_path("MODULEPATH", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack")
+prepend_path("MODULEPATH", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack-gfsv16/modulefiles/stack")
 
-hpc_ver=os.getenv("hpc_ver") or "1.1.0"
+hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
 
 hpc_intel_ver=os.getenv("hpc_intel_ver") or "18.0.5.274"
@@ -19,12 +19,12 @@ load(pathJoin("netcdf", netcdf_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.25"
 load(pathJoin("jasper", jasper_ver))
-libpng_ver=os.getenv("libpng_ver") or "1.6.35"
-load(pathJoin("png", libpng_ver))
+libpng_ver=os.getenv("libpng_ver") or "1.6.37"
+load(pathJoin("libpng", libpng_ver))
 zlib_ver=os.getenv("zlib_ver") or "1.2.11"
 load(pathJoin("zlib", zlib_ver))
 
-g2_ver=os.getenv("g2_ver") or "3.4.1"
+g2_ver=os.getenv("g2_ver") or "3.4.5"
 load(pathJoin("g2", g2_ver))
 g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.9.1"
 load(pathJoin("g2tmpl", g2tmpl_ver))
@@ -40,7 +40,7 @@ sp_ver=os.getenv("sp_ver") or "2.3.3"
 load(pathJoin("sp", sp_ver))
 crtm_ver=os.getenv("crtm_ver") or "2.3.0"
 load(pathJoin("crtm", crtm_ver))
-w3emc_ver=os.getenv("w3emc_ver") or "2.9.1"
+w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
 nemsio_ver=os.getenv("nemsio_ver") or "2.5.2"
@@ -49,7 +49,7 @@ sigio_ver=os.getenv("sigio_ver") or "2.3.2"
 load(pathJoin("sigio", sigio_ver))
 sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
 load(pathJoin("sfcio", sfcio_ver))
-wrf_io_ver=os.getenv("wrf_io_ver") or "1.1.1"
+wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("wrf_io", wrf_io_ver))
 
 whatis("Description: post build environment")

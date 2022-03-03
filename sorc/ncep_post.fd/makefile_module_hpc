@@ -28,14 +28,8 @@ CPP = /lib/cpp -P
 CPPFLAGS = -DLINUX
 FREE     = -FR
 
-Z_LIB = ${ZLIB_LIBRARIES}/libz.a
-JASPER_LIB = ${JASPER_LIBRARIES}/libjasper.a
-LIBPNG_LIB = ${PNG_ROOT}/lib64/libpng.a
-
 NETCDF_INC = -I$(NETCDF)/include
-#NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf
-#NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf -L$(HDF5_LDFLAGS) $(Z_LIB)
-NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf -L$(HDF5_LIBRARIES) -lhdf5_hl -lhdf5 $(Z_LIB) 
+NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf -L$(HDF5_LIBRARIES) -lhdf5_hl -lhdf5 $(ZLIB_LIB) 
 
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
@@ -56,7 +50,7 @@ LIBS     = $(WRF_IO_LIB) \
            $(G2_LIB4) \
            $(JASPER_LIB) \
            $(LIBPNG_LIB) \
-           $(Z_LIB) \
+           $(ZLIB_LIB) \
            $(NEMSIO_LIB) \
            $(GFSIO_LIB) \
            $(SIGIO_LIB) \

@@ -2,24 +2,24 @@ help([[
 Load environment to build upp lib on HERA
 ]])
 
-prepend_path("MODULEPATH", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack")
+prepend_path("MODULEPATH", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack-gfsv16/modulefiles/stack")
 
-hpc_ver=os.getenv("hpc_ver") or "1.1.0"
+hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
 
-hpc_intel_ver=os.getenv("hpc_intel_ver") or "18.0.5.274"
+hpc_intel_ver=os.getenv("hpc_intel_ver") or "2022.1.2"
 load(pathJoin("hpc-intel",hpc_intel_ver))
-impi_ver=os.getenv("impi_ver") or "2018.0.4"
+impi_ver=os.getenv("impi_ver") or "2022.1.2"
 load(pathJoin("hpc-impi", impi_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.25"
 load(pathJoin("jasper", jasper_ver))
-libpng_ver=os.getenv("libpng_ver") or "1.6.35"
-load(pathJoin("png", libpng_ver))
+libpng_ver=os.getenv("libpng_ver") or "1.6.37"
+load(pathJoin("libpng", libpng_ver))
 zlib_ver=os.getenv("zlib_ver") or "1.2.11"
 load(pathJoin("zlib", zlib_ver))
 
-g2_ver=os.getenv("g2_ver") or "3.4.1"
+g2_ver=os.getenv("g2_ver") or "3.4.5"
 load(pathJoin("g2", g2_ver))
 ip_ver=os.getenv("ip_ver") or "3.3.3"
 load(pathJoin("ip", ip_ver))
@@ -35,7 +35,7 @@ sp_ver=os.getenv("sp_ver") or "2.3.3"
 load(pathJoin("sp", sp_ver))
 crtm_ver=os.getenv("crtm_ver") or "2.3.0"
 load(pathJoin("crtm", crtm_ver))
-w3emc_ver=os.getenv("w3emc_ver") or "2.9.1"
+w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
 whatis("Description: upp lib build environment")
