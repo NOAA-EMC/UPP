@@ -234,6 +234,7 @@
        print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
        stop
        endif
+       
        if (me==0) print*,'fileName= ',fileName
          if (me==0) print*,'IOFORM= ',IOFORM
          !if (me==0) print*,'OUTFORM= ',grib
@@ -306,6 +307,19 @@
         fileNameFlat='postxconfig-NT.txt'
         read(5,nampgb,iostat=iret,end=119)
  119    continue
+       if (me==0) print*,'in itag, mod(num_procs,numx)=', mod(num_procs,numx)
+       if(mod(num_procs,numx)/=0) then
+         if (me==0) then
+           print*,'total proces, num_procs=', num_procs 
+           print*,'number of subdomain in x direction, numx=', numx 
+           print*,'remainder of num_procs/numx = ', mod(num_procs,numx)
+           print*,'Warning!!! the remainder of num_procs/numx is not 0, reset numx=1 &
+     &             in this run or you adjust numx in the itag file to restart'
+         endif
+!        stop 9999
+         numx=1
+         if(me == 0) print*,'Warning!!!  Reset numx as 1, nunmx=',numx
+       endif
         if(me == 0) then
           print*,'komax,iret for nampgb= ',komax,iret 
           print*,'komax,kpo,kth,th,kpv,pv,fileNameAER,popascal= ',komax,kpo        &
