@@ -472,7 +472,7 @@ contains !==============================================================
     endif
 
     call ifi_check(algo%discard_hybrid_level_vars(),'discard_hybrid_level_vars() failed')
-    !call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
+    call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
 
     if(write_ifi_netcdf_debug_files) then
       write(outfile,308) 'smooth_vars',me
