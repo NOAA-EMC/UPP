@@ -33,7 +33,7 @@ moduledir=`dirname $(readlink -f ../../modulefiles/upp)`
 if [ $machine = wcoss2 ] ; then
 module use ${moduledir}/upp
 module load upp_${machine}
-elif [ $machine = hera -o $machine = orion -o $machine = jet ] ; then
+elif [ $machine = hera -o $machine = orion ] ; then
 module purge
 module use ${moduledir}/upp
 module load upp_${machine}
@@ -57,7 +57,7 @@ if [ $machine = wcoss2 ] ; then
 make -f makefile_lib_${machine} clean
 mkdir -m 775 -p include
 make -f makefile_lib_${machine}
-elif [ $machine = hera -o $machine = orion -o $machine = jet ] ; then
+elif [ $machine = hera -o $machine = orion ] ; then
 make -f makefile_lib_hpc clean
 mkdir -m 775 -p include
 make -f makefile_lib_hpc
