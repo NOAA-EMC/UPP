@@ -60,7 +60,7 @@ module load post_${machine}
 module list
 make -f makefile_module_${machine} clean
 make -f makefile_module_${machine}
-elif [ $machine = hera -o $machine = orion -o $machine = jet ] ; then
+elif [ $machine = hera -o $machine = orion ] ; then
 module purge
 module use ${moduledir}/post
 module load post_${machine}
