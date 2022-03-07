@@ -89,9 +89,9 @@ export EXT_FCST=NO
 ###########################################
 export cycle=t${cyc}z
 setpdy.sh
-. PDY
+. ./PDY
 
-export ROTDIR=${ROTDIR:-{COMROOT:?}/$NET/$envir}
+export ROTDIR=${ROTDIR:-${COMROOT:?}/$NET/$envir}
 export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
 export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
 

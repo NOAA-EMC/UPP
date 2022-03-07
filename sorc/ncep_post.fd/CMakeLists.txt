@@ -63,20 +63,12 @@ list(APPEND LIB_SRC
     GPVS.f
     grib2_module.f
     GRIDSPEC.f
-    gtg_algo.F90
-    gtg_compute.F90
-    gtg_config.F90
-    gtg_ctlblk.F90
-    gtg_filter.F90
-    gtg_indices.F90
-    gtg_smoothseams.F90
     ICAOHEIGHT.f
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
     LOOKUP.f
     machine.f
-    map_routines.F90
     MAPSSLP.f
     MASKS_mod.f
     MDL2AGL.f
@@ -137,19 +129,32 @@ list(APPEND LIB_SRC
     xml_perl_data.f
     ZENSUN.f)
 
+list(APPEND GTG_LIB_SRC
+  gtg_algo.F90
+  gtg_compute.F90
+  gtg_config.F90
+  gtg_ctlblk.F90
+  gtg_filter.F90
+  gtg_indices.F90
+  gtg_smoothseams.F90
+  map_routines.F90)
+
+if(BUILD_WITH_GTG)
+  list(TRANSFORM GTG_LIB_SRC PREPEND post_gtg.fd/)
+endif()
+
+list(APPEND LIB_SRC ${GTG_LIB_SRC})
+
 list(APPEND EXE_SRC
     ASSIGNNEMSIOVAR.f
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
     INITPOST_GFS_NETCDF_PARA.f
     INITPOST_NEMS.f
-    INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
-    INITPOST_NMM.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
@@ -200,9 +205,13 @@ target_link_libraries(${LIBNAME} PUBLIC
   crtm::crtm
   g2::g2_4
   g2tmpl::g2tmpl
-  ip::ip_4
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
+
+if(BUILD_WITH_GTG)
+  target_link_libraries(${LIBNAME} PUBLIC
+  ip::ip_4)
+endif()
 
 if(OpenMP_Fortran_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
@@ -212,8 +221,8 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    w3nco::w3nco_4
     nemsio::nemsio
+    w3nco::w3nco_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
@@ -221,7 +230,7 @@ if(BUILD_POSTEXEC)
     target_link_libraries(${EXENAME} PRIVATE
       wrf_io::wrf_io)
   endif()
-  install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
+  install(TARGETS ${EXENAME} RUNTIME DESTINATION ${exec_dir})
 endif()
 
 install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
@@ -229,6 +238,6 @@ install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(
   TARGETS ${LIBNAME}
   EXPORT ${PROJECT_NAME}Exports
-  RUNTIME DESTINATION bin
+  RUNTIME DESTINATION ${exec_dir}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
