@@ -7,9 +7,9 @@ prepend_path("MODULEPATH", "/apps/contrib/NCEP/libs/hpc-stack-gfsv16/modulefiles
 hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
 
-hpc_intel_ver=os.getenv("hpc_intel_ver") or "2022.1.2"
+hpc_intel_ver=os.getenv("hpc_intel_ver") or "2018.4"
 load(pathJoin("hpc-intel",hpc_intel_ver))
-impi_ver=os.getenv("impi_ver") or "2022.1.2"
+impi_ver=os.getenv("impi_ver") or "2018.4"
 load(pathJoin("hpc-impi", impi_ver))
 
 hdf5_ver=os.getenv("hdf5_ver") or "1.10.6"

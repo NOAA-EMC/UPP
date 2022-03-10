@@ -7,9 +7,9 @@ prepend_path("MODULEPATH", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack-gf
 hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
 
-hpc_intel_ver=os.getenv("hpc_intel_ver") or "2022.1.2"
+hpc_intel_ver=os.getenv("hpc_intel_ver") or "18.0.5.274"
 load(pathJoin("hpc-intel",hpc_intel_ver))
-impi_ver=os.getenv("impi_ver") or "2022.1.2"
+impi_ver=os.getenv("impi_ver") or "2018.0.4"
 load(pathJoin("hpc-impi", impi_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.25"
