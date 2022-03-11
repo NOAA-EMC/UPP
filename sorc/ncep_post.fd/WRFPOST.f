@@ -318,8 +318,18 @@
          endif
 !        stop 9999
          numx=1
-         if(me == 0) print*,'Warning!!!  Reset numx as 1, nunmx=',numx
+         if(me == 0) print*,'Warning!!!  Reset numx as 1, numx=',numx
        endif
+       if(numx>num_procs/2) then
+         if (me==0) then
+           print*,'total proces, num_procs=', num_procs
+           print*,'number of subdomain in x direction, numx=', numx
+           print*,'Warning!!! numx cannot exceed num_procs/2, reset numx=1 in this run'
+           print*,'or you adjust numx in the itag file to restart'
+         endif
+         numx=1
+         if(me == 0) print*,'Warning!!!  Reset numx as 1, numx=',numx
+       endif     
         if(me == 0) then
           print*,'komax,iret for nampgb= ',komax,iret 
           print*,'komax,kpo,kth,th,kpv,pv,fileNameAER,popascal= ',komax,kpo        &

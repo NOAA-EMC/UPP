@@ -447,9 +447,8 @@
       data iwest,ieast/0,0/
       allocate(rpole(ista:iend)) !GWV
       do i=ista,iend
-              if(me .lt. num_procs/2. .and. jsta_2l .le. 1 .and. icnt2(me) .gt. 0) rpole(i)=a(i,1)
-              if(me .gt. num_procs/2. .and. jend_2u .ge. jm .and. icnt2(me) .gt.0) rpole(i)=a(i,jm)
-
+              if(me .lt. num_procs/2. .and. jsta_2l .le. 1  .and. icnt2(me) .gt. 0) rpole(i)=a(i,1)
+              if(me .ge. num_procs/2. .and. jend_2u .ge. jm .and. icnt2(me) .gt. 0) rpole(i)=a(i,jm)
       end do
 
       call mpi_allgatherv(rpole(ista),icnt2(me),MPI_REAL,rpoles,icnt2,idsp2,MPI_REAL     ,MPI_COMM_WORLD, ierr )
