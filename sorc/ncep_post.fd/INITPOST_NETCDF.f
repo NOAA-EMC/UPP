@@ -11,6 +11,7 @@
 !!   2017-08-11 H Chuang   start from INITPOST_GFS_NEMS_MPIIO.f 
 !!   2021-03-11 Bo Cui     change local arrays to dimension (im,jsta:jend)
 !!   2022-02-07 Wen Meng   Changes for parallel netcdf read.
+!!   2022-03-15 Wen Meng   Unify regional and global interfaces.
 !!
 !! USAGE:    CALL INITPOST_NETCDF
 !!   INPUT ARGUMENT LIST:
@@ -50,7 +51,7 @@
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
-              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
+              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
               cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
@@ -58,12 +59,13 @@
               snopcx, sfcux, sfcvx, sfcuxi, sfcvxi, sfcuvx, gtaux, gtauy, potevp, u10, v10, smstav,             &
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
-              ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
+              ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
+              mintshltr, maxrhshltr, fdnsst,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
               up_heli_max,up_heli_min,up_heli_max03,up_heli_min03,rel_vort_max01,u10max, v10max,  &
-              avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
+              avgedir,avgecan,paha,pahi,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max
@@ -80,7 +82,7 @@
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
               nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,         &
-              iSF_SURFACE_PHYSICS,rdaod, aqfcmaq_on
+              iSF_SURFACE_PHYSICS,rdaod, aqfcmaq_on, modelname
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
@@ -160,7 +162,6 @@
       real,        allocatable :: wrk1(:,:), wrk2(:,:)
       real,        allocatable :: p2d(:,:),  t2d(:,:),  q2d(:,:),      &
                                   qs2d(:,:), cw2d(:,:), cfr2d(:,:)
-      real(kind=4),allocatable :: vcoord4(:,:,:)
       real, dimension(lm+1)    :: ak5, bk5
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
@@ -382,7 +383,7 @@
 
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i=1,im
+        do i= 1, im
           buf(i,j) = spval
         enddo
       enddo
@@ -617,9 +618,13 @@
           end if
 
           STANDLON = cenlon
-          print*,'lonstart,latstart,cenlon,cenlat,truelat1,truelat2,stadlon,dyval,dxval', &
+          print*,'lonstart,latstart,cenlon,cenlat,truelat1,truelat2, &
+                  stadlon,dyval,dxval', &
           lonstart,latstart,cenlon,cenlat,truelat1,truelat2,standlon,dyval,dxval
 
+        else if(trim(varcharval)=='gaussian')then
+         MAPTYPE=4
+         idrt=4
         else ! setting default maptype
          MAPTYPE=0
          idrt=0
@@ -677,7 +682,6 @@
 !     write(0,*)'nrec=',nrec
       !allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(jm),glon1d(im))
-      allocate(vcoord4(lm+1,3,2))
 
 ! hardwire idate for now
 !      idate=(/2017,08,07,00,0,0,0,0/)
@@ -712,7 +716,7 @@
 ! Jili Dong check output format for coordinate reading
       Status=nf90_inq_varid(ncid3d,'grid_xt',varid)
       Status=nf90_inquire_variable(ncid3d,varid,ndims = numDims)
-      if(numDims==1) then
+      if(numDims==1.and.modelname=="FV3R") then
         read_lonlat=.true.
       else
         read_lonlat=.false.
@@ -836,7 +840,7 @@
       if(debugprint)print*,'me sample gdlon gdlat= ' &
      ,me,gdlon(isa,jsa),gdlat(isa,jsa)
 
-! Specigy grid staggering type
+! Specify grid staggering type
       gridtype = 'A'
       maptype=idrt
       if (me == 0) print *, 'maptype and gridtype is ', &
@@ -859,21 +863,11 @@
         end if
       end if
 
-!
-!      if (hyb_sigp) then
-!        do l=1,lm+1
-!         ak5(l) = vcoord4(l,1,1)
-!         bk5(l) = vcoord4(l,2,1)
-!        enddo
-!      endif
-
-!--Fanglin Yang:  nemsio file created from FV3 does not have vcoord.
-!      if ( minval(ak5) <0 .or. minval(bk5) <0 ) then
 
       deallocate(glat1d,glon1d)
 
       print*,'idate = ',(idate(i),i=1,7)
-      print*,'nfhour = ',nfhour
+!      print*,'nfhour = ',nfhour
       
 ! sample print point
       ii = im/2
@@ -1013,8 +1007,6 @@
        spval,recname(13),qqs(1,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(14),qqg(1,jsta_2l,1),lm)
-!wm       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
-!wm     spval,recname(15),cfr(1,jsta_2l,1),lm)
 
 ! calculate CWM from FV3 output
        do l=1,lm
@@ -1029,6 +1021,21 @@
        if(debugprint)print*,'sample l cwm for FV3',l, &
           cwm(isa,jsa,l)
       end do 
+
+! instantaneous 3D cloud fraction
+      if ( imp_physics==11) then !JFDL MP
+        VarName='cld_amt'
+        call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,cfr(1,jsta_2l,1),lm)
+      else
+        VarName='cldfra'
+        call read_netcdf_3d_para(ncid2d,im,jm,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,cfr(1,jsta_2l,1),lm)
+      endif
+!      do l=1,lm
+!       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
+!          ,cfr(isa,jsa,l),isa,jsa,l
+!      enddo
 
 !=============================
 ! For AQF Chemical species
@@ -1515,12 +1522,13 @@
       endif     ! -- aqfcmaq_on
 !============================
 
+! read for regional FV3
+      if (modelname == 'FV3R') then
 ! max hourly updraft velocity
       VarName='upvvelmax'
       call read_netcdf_2d_para(ncid3d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,w_up_max)
      if(debugprint)print*,'sample ',VarName,' = ',w_up_max(isa,jsa)
-
 ! max hourly downdraft velocity
       VarName='dnvvelmax'
       call read_netcdf_2d_para(ncid3d,im,jsta,jsta_2l,jend,jend_2u, &
@@ -1562,6 +1570,8 @@
       call read_netcdf_2d_para(ncid3d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rel_vort_maxhy1)
      if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
+      endif
+
 ! surface pressure
       VarName='pressfc'
       call read_netcdf_2d_para(ncid3d,im,jsta,jsta_2l,jend,jend_2u, &
@@ -1666,10 +1676,6 @@
       end do
 
       
-      pt    = ak5(1) 
-
-
-      deallocate (vcoord4)
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !
@@ -1697,23 +1703,16 @@
       end if
       if (me == 0) print*,'novegtype= ',novegtype
 
-      Status=nf90_get_att(ncid2d,nf90_global,'imp_physics',imp_physics)
-      if (Status /= 0) then
-       print*,VarName,' not found-Assigned 11 GFDL as default'
-       imp_physics=11
-      end if
-      if (me == 0) print*,'MP_PHYSICS= ',imp_physics
-!
       Status=nf90_get_att(ncid2d,nf90_global,'fhzero',fhzero)
       if (Status /= 0) then
-       print*,VarName,' not found-Assigned 3 hours as default'
+       print*,'fhzero not found-Assigned 3 hours as default'
        fhzero=3
       end if
       if (me == 0) print*,'fhzero= ',fhzero
 !
       Status=nf90_get_att(ncid2d,nf90_global,'dtp',dtp)
       if (Status /= 0) then
-       print*,VarName,' not found-Assigned 90s as default'
+       print*,'dtp not found-Assigned 90s as default'
        dtp=90
       end if
       if (me == 0) print*,'dtp= ',dtp
@@ -1732,15 +1731,6 @@
         td3d    = tprec
         print*,'tprec = ',tprec
 
-
-! instantaneous 3D cloud fraction
-      VarName='cldfra'
-      call read_netcdf_3d_para(ncid2d,im,jm,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,cfr(1,jsta_2l,1),lm)
-!      do l=1,lm
-!       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
-!          ,cfr(isa,jsa,l),isa,jsa,l
-!      enddo
 
       VarName='refl_10cm'
       call read_netcdf_3d_para(ncid2d,im,jm,jsta,jsta_2l,jend,jend_2u, &
@@ -1877,6 +1867,12 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
 
+! foundation temperature
+      VarName='tref'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,fdnsst)
+      if(debugprint)print*,'sample ',VarName,' = ',fdnsst(isa,jsa)
+
           
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
@@ -1960,11 +1956,18 @@
       enddo
 
 ! convective precip rate in m per physics time step
-!      VarName='cnvprcp'
+      VarName='cnvprcp'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,cprate)
 !set cprate as 0.
       do j=jsta,jend
         do i=1,im
-           cprate(i,j) = 0.
+           if (cprate(i,j) /= spval) then
+            cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
+                 * 1000. / dtp
+          else
+            cprate(i,j) = 0.
+          endif
         enddo
       enddo
 
@@ -2004,10 +2007,10 @@
 
 
 ! 2m T using nemsio
-      VarName='tmp2m'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,tshltr)
-     if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
+!      VarName='tmp2m'
+!      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+!      spval,VarName,tshltr)
+!     if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
@@ -2115,14 +2118,11 @@
       VarName='snoalb'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,mxsnal)
-!     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
-!!$omp parallel do private(i,j)
-!      do j=jsta,jend
-!        do i=1,im
-!          if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
-!        enddo
-!      enddo
-!     if(debugprint)print*,'sample ',VarName,' = ',mxsnal(isa,jsa)
+
+! land fraction
+      VarName='lfrac'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,landfrac)
      
 ! GFS probably does not use sigt4, set it to sig*t^4
 !$omp parallel do private(i,j,tlmh)
@@ -2651,19 +2651,21 @@
       spval,VarName,rswin)
 
 ! time averaged model top incoming shortwave
-      VarName='dswrf_avetoa'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,aswintoa)
-!     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)
+!      VarName='dswrf_avetoa'
+!      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+!      spval,VarName,aswintoa)
+!!     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)
 
 ! inst incoming clear sky sfc shortwave
-! FV3 do not output instant incoming clear sky sfc shortwave
-      !$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=1,im
-          rswinc(i,j) = spval 
-        enddo
-      enddo
+      VarName='csdlf'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rswinc)
+!      !$omp parallel do private(i,j)
+!      do j=jsta_2l,jend_2u
+!        do i=1,im
+!          rswinc(i,j) = spval 
+!        enddo
+!      enddo
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
@@ -2694,6 +2696,12 @@
       VarName='uswrf'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswout)
+
+! time averaged model top incoming shortwave
+      VarName='dswrf_avetoa'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,aswintoa)
+!     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)
 
 ! time averaged model top outgoing shortwave
       VarName='uswrf_avetoa'
@@ -3052,63 +3060,63 @@
       end do
       if(debugprint)print*,'sample hbot = ',hbot(isa,jsa)
 ! retrieve time averaged low cloud top pressure using nemsio
-      VarName='pres_ave'
-      VcoordName='low cld top' 
-      l=1
+      VarName='pres_avelct'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ptopl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(isa,jsa)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
-      VarName='pres_ave'
-      VcoordName='low cld bot' 
-      l=1
+      VarName='pres_avelcb'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,pbotl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,pbotl(isa,jsa)
      
 ! retrieve time averaged low cloud top temperature using nemsio
-      VarName='tmp_ave'
-      VcoordName='low cld top' 
-      l=1
+      VarName='tmp_avelct'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,Ttopl)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopl(isa,jsa)
 
 ! retrieve time averaged middle cloud top pressure using nemsio
-      VarName='pres_ave'
-      VcoordName='mid cld top' 
-      l=1
+      VarName='pres_avemct'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ptopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptopm(isa,jsa)
                                                              
 ! retrieve time averaged middle cloud bottom pressure using  nemsio
-      VarName='pres_ave'
-      VcoordName='mid cld bot' 
-      l=1
+      VarName='pres_avemcb'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,pbotm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pbotm(isa,jsa)
       
 ! retrieve time averaged middle cloud top temperature using nemsio
-      VarName='tmp_ave'
-      VcoordName='mid cld top' 
-      l=1
+      VarName='tmp_avemct'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,Ttopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopm(isa,jsa)
       
 ! retrieve time averaged high cloud top pressure using nemsio *********
-      VarName='pres_ave'
-      VcoordName='high cld top' 
-      l=1
+      VarName='pres_avehct'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ptoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptoph(isa,jsa)
      
 ! retrieve time averaged high cloud bottom pressure using  nemsio
-      VarName='pres_ave'
-      VcoordName='high cld bot' 
-      l=1
+      VarName='pres_avehcb'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,pboth)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pboth(isa,jsa)
 
 ! retrieve time averaged high cloud top temperature using nemsio
-      VarName='tmp_ave'
-      VcoordName='high cld top' 
-      l=1
+      VarName='tmp_avehct'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,Ttoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
       VarName='tcdc_avebndcl'
-      VcoordName='bndary-layer cld' 
-      l=1
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,pblcfr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,pblcfr(isa,jsa)
 !     where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
@@ -3119,7 +3127,7 @@
       enddo
         
 ! retrieve cloud work function 
-      VarName='cwork_ave'
+      VarName='cwork_aveclm'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,cldwork)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,cldwork(isa,jsa)
@@ -3135,15 +3143,77 @@
           if (sm(i,j) /= 0.0) runoff(i,j) = spval
         enddo
       enddo
+
+! total water storage in aquifer
+      VarName='wa_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,twa)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) twa(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
+
+! accumulated evaporation of intercepted water
+      VarName='ecan_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,tecan)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) tecan(i,j) = spval
+        enddo
+      enddo
+
+! accumulated plant transpiration
+      VarName='etran_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,tetran)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) tetran(i,j) = spval
+        enddo
+      enddo
+
+! accumulated soil surface evaporation
+      VarName='edir_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,tedir)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) tedir(i,j) = spval
+        enddo
+      enddo
+
+! total water storage in aquifer
+!      VarName='wa_acc'
+!      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+!      spval,VarName,twa)
+!!     mask water areas
+!!$omp parallel do private(i,j)
+!      do j=jsta,jend
+!        do i=1,im
+!          if (sm(i,j) /= 0.0) twa(i,j) = spval
+!        enddo
+!      enddo
       
 ! retrieve shelter max temperature using nemsio
       VarName='t02max'
+      if(modelname=='GFS') VarName='tmax_max2m'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,maxtshltr)
 
 ! retrieve shelter min temperature using nemsio
       VarName='t02min'
+      if(modelname=='GFS') VarName='tmin_min2m'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,mintshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
@@ -3160,15 +3230,19 @@
       spval,VarName,minrhshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
 !     1,mintshltr(im/2,(jsta+jend)/2)
+
+! retrieve shelter max specific humidity using nemsio
+      VarName='spfhmax_max2m'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,maxqshltr)
+!     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',
+!     1,maxqshltr(isa,jsa)
+
+! retrieve shelter min temperature using nemsio
+      VarName='spfhmin_min2m'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,minqshltr)
  
-!!$omp parallel do private(i,j)
-!      do j=jsta_2l,jend_2u
-!        do i=1,im
-!          MAXRHSHLTR(i,j) = SPVAL
-!          MINRHSHLTR(i,j) = SPVAL
-!        enddo
-!      enddo
-      
 ! retrieve ice thickness using nemsio
       VarName='icetk'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
@@ -3258,18 +3332,6 @@
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswinc)
 
-! retrieve shelter max specific humidity using nemsio
-      VarName='spfhmax_max2m'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,maxqshltr)
-!     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',
-!     1,maxqshltr(isa,jsa)
-
-! retrieve shelter min temperature using nemsio
-      VarName='spfhmin_min2m'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,minqshltr)
-
 ! retrieve storm runoff using nemsio
       VarName='ssrun_acc'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
@@ -3303,6 +3365,30 @@
       do j=jsta,jend
         do i=1,im
           if (sm(i,j) /= 0.0) avgecan(i,j) = spval
+        enddo
+      enddo
+
+! retrieve AVERAGED PRECIP ADVECTED HEAT FLUX
+      VarName='pah_ave'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,paha)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) paha(i,j) = spval
+        enddo
+      enddo
+
+! retrieve instantaneous PRECIP ADVECTED HEAT FLUX
+      VarName='pahi'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,pahi)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) pahi(i,j) = spval
         enddo
       enddo
 

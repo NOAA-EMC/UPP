@@ -46,6 +46,7 @@
 !!   21-11-03  Tracy Hertneky - Removed SIGIO option
 !!   22-01-14  W Meng  - Remove interfaces INITPOST_GS_NEMS, INITPOST_NEMS_MPIIO
 !!                       INITPOST_NMM and INITPOST_GFS_NETCDF.
+!!   22-03-15  W Meng  - Unify FV3 based interfaces.
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
@@ -144,10 +145,10 @@
       use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
               spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,   &
-              lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
+              lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global, imp_physics,          &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
-              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
+              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
@@ -350,7 +351,7 @@
           PTHRESH = 0.000001
         end if  
 !Chuang: add dynamical allocation
-        if(TRIM(IOFORM) == 'netcdf') THEN
+        if(TRIM(IOFORM) == 'netcdf' .OR. TRIM(IOFORM) == 'netcdfpara') THEN
          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
           call ext_ncd_ioinit(SysDepInfo,Status)
           print*,'called ioinit', Status
@@ -394,14 +395,16 @@
 
           call ext_ncd_ioclose ( DataHandle, Status )
          ELSE
-! use netcdf lib directly to read FV3 output in netCDF
+! use parallel netcdf lib directly to read FV3 output in netCDF
           spval = 9.99e20
-          Status = nf90_open(trim(fileName),NF90_NOWRITE, ncid3d)
+          Status = nf90_open(trim(fileName),IOR(NF90_NOWRITE,NF90_MPIIO), &
+                   ncid3d,comm=mpi_comm_world,info=mpi_info_null)
           if ( Status /= 0 ) then
             print*,'error opening ',fileName, ' Status = ', Status 
             stop
           endif
-          Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
+          Status = nf90_open(trim(fileNameFlux),IOR(NF90_NOWRITE,NF90_MPIIO), &
+                   ncid2d,comm=mpi_comm_world,info=mpi_info_null)
           if ( Status /= 0 ) then
             print*,'error opening ',fileNameFlux, ' Status = ', Status
             stop
@@ -422,6 +425,13 @@
           endif
           if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
           if(me==0)print*,'NSOIL= ',NSOIL
+! read imp_physics
+          Status=nf90_get_att(ncid2d,nf90_global,'imp_physics',imp_physics)
+          if(Status/=0)then
+            print*,'imp_physics not found; assigning to GFDL 11'
+            imp_physics=11
+          endif
+          if (me == 0) print*,'MP_PHYSICS= ',imp_physics
 ! get dimesions
           Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
           if ( Status /= 0 ) then
@@ -462,53 +472,6 @@
 
           print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
-! use netcdf_parallel lib directly to read FV3 output in netCDF
-        ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
-          spval = 9.99e20
-          Status = nf90_open(trim(fileName),ior(nf90_nowrite, nf90_mpiio), &
-                             ncid3d, comm=mpi_comm_world, info=mpi_info_null)
-          if ( Status /= 0 ) then
-            print*,'error opening ',fileName, ' Status = ', Status
-            stop
-          endif
-! get dimesions
-          Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
-          if ( Status /= 0 ) then
-           print*,Status,varid
-           STOP 1
-          end if
-          Status = nf90_inquire_dimension(ncid3d,varid,len=im)
-          if ( Status /= 0 ) then
-           print*,Status
-           STOP 1
-          end if
-          Status = nf90_inq_dimid(ncid3d,'grid_yt',varid)
-          if ( Status /= 0 ) then
-           print*,Status,varid
-           STOP 1
-          end if
-          Status = nf90_inquire_dimension(ncid3d,varid,len=jm)
-          if ( Status /= 0 ) then
-           print*,Status
-           STOP 1
-          end if
-          Status = nf90_inq_dimid(ncid3d,'pfull',varid)
-          if ( Status /= 0 ) then
-           print*,Status,varid
-           STOP 1
-          end if
-          Status = nf90_inquire_dimension(ncid3d,varid,len=lm)
-          if ( Status /= 0 ) then
-           print*,Status
-           STOP 1
-          end if
-          LP1   = LM+1
-          LM1   = LM-1
-          IM_JM = IM*JM
-! set NSOIL to 4 as default for NOAH but change if using other
-! SFC scheme
-          NSOIL = 4
-          print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil
 
         ELSE IF(TRIM(IOFORM) == 'binary'       .OR.                       &
                 TRIM(IOFORM) == 'binarympiio' ) THEN
@@ -612,22 +575,18 @@
       
 ! Reading model output for different models and IO format     
  
-        IF(TRIM(IOFORM) == 'netcdf') THEN
+        IF(TRIM(IOFORM) == 'netcdf' .OR. TRIM(IOFORM) == 'netcdfpara') THEN
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
             print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
             CALL INITPOST
-          ELSE IF (MODELNAME == 'FV3R') THEN
-! use netcdf library to read output directly
+          ELSE IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
+! use parallel netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid2d,ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
             STOP 9998
           END IF
-! use netcdf_parallel library to read fv3 output
-        ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
-          print*,'CALLING INITPOST_GFS_NETCDF_PARA'
-          CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
             print*,'WRF BINARY IO FORMAT IS NO LONGER SUPPORTED, STOPPING'
