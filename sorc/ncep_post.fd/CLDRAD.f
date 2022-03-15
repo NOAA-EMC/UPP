@@ -107,11 +107,11 @@
                          HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH,  &
                          PBOT, PBOTL, PBOTM, PBOTH, CNVCFR, PTOP, PTOPL,      &
                          PTOPM, PTOPH, TTOPL, TTOPM, TTOPH, PBLCFR, CLDWORK,  &
-                         ASWIN, AUVBIN, AUVBINC, ASWIN, ASWOUT,ALWOUT, ASWTOA,&
+                         ASWIN, AUVBIN, AUVBINC, ASWOUT,ALWOUT, ASWTOA,       &
                          RLWTOA, CZMEAN, CZEN, RSWIN, ALWIN, ALWTOA, RLWIN,   &
                          SIGT4, RSWOUT, RADOT, RSWINC, ASWINC, ASWOUTC,       &
                          ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN,             &
-                         AVISDIFFSWIN, ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN,&
+                         AVISDIFFSWIN, ASWINTOA, ASWTOAC, AIRBEAMSWIN,        &
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
