@@ -2650,22 +2650,14 @@
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
 
-! time averaged model top incoming shortwave
-!      VarName='dswrf_avetoa'
-!      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-!      spval,VarName,aswintoa)
-!!     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)
-
 ! inst incoming clear sky sfc shortwave
-      VarName='csdlf'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,rswinc)
-!      !$omp parallel do private(i,j)
-!      do j=jsta_2l,jend_2u
-!        do i=1,im
-!          rswinc(i,j) = spval 
-!        enddo
-!      enddo
+! FV3 do not output instant incoming clear sky sfc shortwave
+      !$omp parallel do private(i,j)
+      do j=jsta_2l,jend_2u
+        do i=1,im
+          rswinc(i,j) = spval 
+        enddo
+      enddo
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
