@@ -1,42 +1,20 @@
 !> @file
-!
-!> SUBPROGRAM:    CALDRG      COMPUTE DRAG COEFFICIENT
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-09-01
-!!     
-!! ABSTRACT:  THIS ROUTINE COMPUTES A SURFACE LAYER DRAG
-!!   COEFFICIENT USING EQUATION (7.4.1A) IN "AN INTRODUCTION
-!!   TO BOUNDARY LAYER METEOROLOGY" BY STULL (1988, KLUWER
-!!   ACADEMIC PUBLISHERS).
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-09-01  RUSS TREADON
-!!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION           
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   05-02-22 H CHUANG - ADD WRF NMM COMPONENTS 
-!!     
-!! USAGE:    CALL CALDRG(DRAGCO)
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     DRAGCO   - SURFACE LAYER DRAG COEFFICIENT
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - LOOPS
-!!                  SRFDSP
-!!                  PVRBLS
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes drag cofficient.
+!     
+!> This rountine computes a surface layer drag coefficient using
+!> equation (7.4.1A) in "An introduction to boundary layer
+!> meteorology" by Stull (1988, Kluwer Academic Publishers).
+!>     
+!> @param[out] DRAGCO surface layer drag coefficient
+!>
+!> Program history
+!> - 93-09-01  Russ Treadon
+!> - 98-06-15  T Black - Conversion from 1-D to 2-D
+!> - 00-01-04  Jim Tuccillo - MPI version           
+!> - 02-01-15  Mike Baldwin - WRF version
+!> - 05-02-22  H Chuang - Add WRF NMM components 
+!>
+!> @author Russ Treadon W/NP2 @date 1993-09-01
       SUBROUTINE CALDRG(DRAGCO)
 
 !     

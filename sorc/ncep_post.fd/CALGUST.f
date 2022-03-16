@@ -1,46 +1,23 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CALGUST      COMPUTE MAX WIND LEVEL 
-!!   PRGRMMR: MANIKIN        ORG: W/NP2   DATE: 97-03-04       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES SURFACE WIND GUST BY MIXING
-!!  DOWN MOMENTUM FROM THE LEVEL AT THE HEIGHT OF THE PBL
-!!     
-!!     
-!! PROGRAM HISTORY LOG:
-!!   03-10-15 GEOFF MANIKIN
-!!   05-03-09 H CHUANG - WRF VERSION
-!!   05-07-07 BINBIN ZHOU - ADD RSM   
-!!   15-03-11 S Moorthi - set sfcwind to spval if u10 and v10 are spvals
-!!                        for A grid and set gust to just wind
-!!                        (in GSM with nemsio, it appears u10 & v10 have spval)
-!!   
-!! USAGE:    CALL CALGUST(GUST) 
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     GUST    - SPEED OF THE MAXIMUM SFC WIND GUST 
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       H2V     
-!!
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  LOOPS
-!!                  OPTIONS
-!!                  MASKS
-!!                  INDX
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes max wind level.
+!
+!> This routine computes surface wind gust by mixing
+!> down momentum from the level at the height of the PBL.
+!>     
+!> @param[out] GUST Speed of the maximum surface wind gust.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 03-10-15 | Geoff Manokin | Initial
+!> 05-03-09 | H Chuang      | WRF Version
+!> 05-07-07 | Binbin Zhou   | Add RSM   
+!> 15-03-11 | S Moorthi     | set sfcwind to spval if u10 and v10 are spvals
+!>                          | for A grid and set gust to just wind
+!>                          | (in GSM with nemsio, it appears u10 & v10 have spval)
+!>   
+!> @author Geoff Manikin W/NP2 @date 1997-03-04
+
       SUBROUTINE CALGUST(LPBL,ZPBL,GUST)
 
 !     

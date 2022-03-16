@@ -57,7 +57,7 @@
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
-              mintshltr, maxrhshltr,                                                            &
+              mintshltr, maxrhshltr, fdnsst,                                                    &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -82,7 +82,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
-      use rqstfld_mod,  only: igds, avbl, iq, is
+
       use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -1021,7 +1021,12 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
 
-          
+! foundation temperature 
+      VarName='tref'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,fdnsst)
+      if(debugprint)print*,'sample ',VarName,' = ',fdnsst(isa,jsa)          
+
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
 !      NPHS=1.
@@ -2580,6 +2585,8 @@
       spval,varname,buf,lm)
 
       use netcdf
+      use ctlblk_mod, only : me
+      use params_mod, only : small
       implicit none
       INCLUDE "mpif.h"
 
@@ -2589,10 +2596,12 @@
       real,intent(out)   :: buf(im,jsta_2l:jend_2u,lm)
       integer            :: varid,iret,jj,i,j,l,kk
       integer            :: start(3), count(3), stride(3)
+      real,parameter     :: spval_netcdf=9.99e+20
+      real               :: fill_value
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
-        print*,VarName," not found -Assigned missing values"
+        if (me == 0) print*,VarName," not found -Assigned missing values"
 !$omp parallel do private(i,j,l)
           do l=1,lm
             do j=jsta,jend
@@ -2602,10 +2611,19 @@
             enddo
           enddo
       else
+        iret = nf90_get_att(ncid,varid,"_FillValue",fill_value)
+        if (iret /= 0) fill_value = spval_netcdf
         start = (/1,jsta,1/)
         jj=jend-jsta+1
         count = (/im,jj,lm/)
         iret = nf90_get_var(ncid,varid,buf(1:im,jsta:jend,1:lm),start=start,count=count)
+        do l=1,lm
+          do j=jsta,jend
+            do i=1,im
+              if(abs(buf(i,j,l)-fill_value)<small)buf(i,j,l)=spval
+            end do
+          end do
+        end do
       endif
 
       end subroutine read_netcdf_3d_para
@@ -2614,6 +2632,8 @@
       spval,VarName,buf)
 
       use netcdf
+      use ctlblk_mod, only : me
+      use params_mod, only : small
       implicit none
       INCLUDE "mpif.h"
 
@@ -2623,10 +2643,12 @@
       real,intent(out)   :: buf(im,jsta_2l:jend_2u)
       integer            :: varid,iret,jj,i,j
       integer            :: start(2), count(2)
+      real,parameter     :: spval_netcdf=9.99e+20
+      real               :: fill_value
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
-        print*,VarName," not found -Assigned missing values"
+        if (me==0) print*,VarName," not found -Assigned missing values"
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=1,im
@@ -2634,10 +2656,17 @@
           enddo
         enddo
       else
+        iret = nf90_get_att(ncid,varid,"_FillValue",fill_value)
+        if (iret /= 0) fill_value = spval_netcdf
         start = (/1,jsta/)
         jj=jend-jsta+1
         count = (/im,jj/)
         iret = nf90_get_var(ncid,varid,buf(:,jsta),start=start,count=count)
+        do j=jsta,jend
+          do i=1,im
+            if(abs(buf(i,j)-fill_value)<small)buf(i,j)=spval
+          end do
+        end do
       endif
 
       end subroutine read_netcdf_2d_para

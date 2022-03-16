@@ -14,7 +14,7 @@ Input files
 ===========
 
 The UPP requires the following input files:
- - The itag namelist
+ - The itag namelist file
  - The GRIB2 control file
  - Additional data files (e.g. lookup tables, coefficient files for satellite)
 
@@ -22,10 +22,11 @@ The UPP requires the following input files:
 ITAG
 ----
 
-The :bolditalic:`itag` namelist that is read in by the :bolditalic:`upp.x` executable from stdin (unit 5) is
+The file called :bolditalic:`itag` is a text file that contains the fortran namelist &model_inputs. It is
+read in by the :bolditalic:`upp.x` executable from stdin (unit 5) and is
 generated automatically within the UFS application workflow or stand-alone run script based on
 user-defined options. It should not be necessary to edit this. For description purposes, the namelist
-(:bolditalic:`itag`) contains 7 lines for FV3:
+&model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3:
 
 #. Name of the FV3 (pressure level) output file to be posted.
 
