@@ -11,6 +11,7 @@
 !!   11-01-11  M Pyle - converted to F90 for unified post
 !!   11-04-05  H Chuang - added B grid option
 !!   20-11-06  J Meng - USE UPP_MATH MODULE
+!!   22-03-17  Wen Meng - Restrict computation from undefined grids.
 !!     
 !! USAGE:    CALL CALUPDHEL(UPDHEL)
 !!
@@ -101,6 +102,8 @@
       DO J=JSTA_M,JEND_M
         DO I=2,IM-1
 
+          IF (HTSFC(I,J) < spval) THEN
+
           R2DX   = 1./(2.*DX(I,J))
           R2DY   = 1./(2.*DY(I,J))
 
@@ -133,6 +136,11 @@
 
             ENDIF
           ENDDO l_loop
+
+          ELSE
+            UPDHEL(I,J) = spval
+          ENDIF
+
         ENDDO
       ENDDO
 
