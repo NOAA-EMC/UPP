@@ -1023,7 +1023,7 @@
       end do 
 
 ! instantaneous 3D cloud fraction
-      if ( imp_physics==11) then !JFDL MP
+      if ( imp_physics==11) then !GFDL MP
         VarName='cld_amt'
         call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
         spval,VarName,cfr(1,jsta_2l,1),lm)
@@ -1829,12 +1829,13 @@
       VarName='albdo_ave'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgalbedo)
-      if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
           if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
         enddo
       enddo
+      if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
 
 ! surface potential T  using getgb
       VarName='tmpsfc'
@@ -2079,19 +2080,6 @@
       spval,VarName,qshltr)
      if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
       
-! mid day avg albedo in fraction using nemsio
-      VarName='albdosfc'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,avgalbedo)
-!     where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=1,im
-          if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
-        enddo
-      enddo
-     if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
-     
 ! time averaged column cloud fractionusing nemsio
       VarName='tcdc_aveclm'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
