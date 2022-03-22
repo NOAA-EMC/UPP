@@ -118,7 +118,8 @@
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
                          AVGCPRATE,                                           &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
-                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
+                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
+                         PWAT
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -254,6 +255,7 @@
       data INDX_EXT       / 610, 611, 612, 613, 614  /
       data INDX_SCA       / 651, 652, 653, 654, 655  /
       logical, parameter :: debugprint = .false.
+      logical :: Model_Pwat
 !     
 !
 !*************************************************************************
@@ -417,12 +419,29 @@
       IF (IGET(080) > 0) THEN
 ! dong 
          GRID1 = spval
+         Model_Pwat = .false.
+         DO J=JSTA,JEND
+         DO I=1,IM
+           IF(ABS(PWAT(I,J)-SPVAL)>SMALL) THEN
+             Model_Pwat = .true.
+             exit
+           ENDIF
+         END DO
+         END DO
+         IF (Model_Pwat) THEN
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = PWAT(I,J)
+           END DO
+         END DO
+         ELSE
          CALL CALPW(GRID1(1,jsta),1)
           DO J=JSTA,JEND
             DO I=1,IM
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
             END DO
           END DO
+         ENDIF
         CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
