@@ -3175,18 +3175,6 @@
         enddo
       enddo
 
-! total water storage in aquifer
-!      VarName='wa_acc'
-!      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-!      spval,VarName,twa)
-!!     mask water areas
-!!$omp parallel do private(i,j)
-!      do j=jsta,jend
-!        do i=1,im
-!          if (sm(i,j) /= 0.0) twa(i,j) = spval
-!        enddo
-!      enddo
-      
 ! retrieve shelter max temperature using nemsio
       VarName='t02max'
       if(modelname=='GFS') VarName='tmax_max2m'
