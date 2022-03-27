@@ -2008,13 +2008,6 @@
       spval,VarName,wspd10max)
      if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
 
-
-! 2m T using nemsio
-!      VarName='tmp2m'
-!      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
-!      spval,VarName,tshltr)
-!     if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
-
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
