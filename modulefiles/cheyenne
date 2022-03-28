@@ -3,7 +3,7 @@
 proc ModulesHelp { } {
 puts stderr "Loads modules required for building upp"
 }
-module-whatis "Loads UPP prerequisites on Cheyenne for Intel 19.1.1"
+module-whatis "Loads UPP prerequisites on Cheyenne for Intel 2021.2"
 
 module purge
 
