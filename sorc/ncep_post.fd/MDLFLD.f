@@ -1514,7 +1514,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
+               CALL CALPOT(P1D(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1550,7 +1550,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
+               CALL CALPOT(P1D(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1639,7 +1639,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    Q1D(I,J) = Q(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALDWP(P1D(1,jsta),Q1D(1,jsta),EGRID3(1,jsta),T1D(1,jsta))
+               CALL CALDWP(P1D(ista:iend,jsta:jend),Q1D(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=ista,iend
@@ -1909,7 +1909,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    EGRID1(I,J) = ZMID(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALSTRM(EGRID1(1,jsta),EGRID2(1,jsta))
+               CALL CALSTRM(EGRID1(ista:iend,jsta:jend),EGRID2(ista:iend,jsta:jend))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=ista,iend

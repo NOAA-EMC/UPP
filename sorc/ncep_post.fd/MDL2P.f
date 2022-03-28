@@ -147,6 +147,8 @@
 !
 !     START MDL2P. 
 !
+    if(me==0) print*, 'MDL2P SMFLAG=',SMFLAG
+
       if (modelname == 'GFS') then
         zero = 0.0
        else
@@ -1374,7 +1376,7 @@
               ENDDO
             ENDDO
 !
-            CALL CALDWP(EGRID2(ista,jsta),QSL(ista,jsta),EGRID1(ista,jsta),TSL(ista,jsta))
+            CALL CALDWP(EGRID2(ista:iend,jsta:jend),QSL(ista:iend,jsta:jend),EGRID1(ista:iend,jsta:jend),TSL(ista:iend,jsta:jend))
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -1649,7 +1651,7 @@
               ENDIF
               ENDDO
             ENDDO
-            CALL CALSTRM(EGRID2(ista,jsta),EGRID1(ista,jsta))
+            CALL CALSTRM(EGRID2(ista:iend,jsta:jend),EGRID1(ista:iend,jsta:jend))
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -1948,7 +1950,7 @@
 !---  IN-FLIGHT ICING CONDITION: ADD BY B. ZHOU
         IF(IGET(257) > 0)THEN
           IF(LVLS(LP,IGET(257)) > 0)THEN
-            CALL CALICING(TSL(ista,jsta), SAVRH, OSL(ista,jsta), EGRID1(ista,jsta))
+            CALL CALICING(TSL(ista:iend,jsta:jend), SAVRH, OSL(ista:iend,jsta:jend), EGRID1(ista:iend,jsta:jend))
  
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND

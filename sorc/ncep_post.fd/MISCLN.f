@@ -1909,8 +1909,8 @@
 !           BOUNDARY LAYER DEWPOINT TEMPERATURE.
             IF (IGET(070)>0) THEN
               IF (LVLS(LBND,IGET(070))>0) THEN
-               CALL CALDWP(PBND(ista,jsta,LBND), QBND(ista,jsta,LBND),     &
-                           GRID1(ista:iend,jsta:jend), TBND(ista,jsta,LBND))
+               CALL CALDWP(PBND(ista:iend,jsta:jend,LBND), QBND(ista:iend,jsta:jend,LBND),     &
+                           GRID1(ista:iend,jsta:jend), TBND(ista:iend,jsta:jend,LBND))
                if(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(070))
