@@ -427,7 +427,7 @@
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
             END DO
           END DO
-        CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+        CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(080))
@@ -447,7 +447,7 @@
 !
       IF (IGET(735) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),19)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(735))
@@ -467,7 +467,7 @@
 !
       IF (IGET(736) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:iend),18)
-         CALL BOUND(GRID1(ista:iend,jsta:iend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(736))
@@ -510,7 +510,7 @@
         END IF ! GFS
        END IF ! RAPR
   
-        CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+        CALL BOUND(GRID1,D00,H99999)
         if(IGET(200) > 0) then
           if(grib == "grib2" )then
             cfld = cfld + 1
@@ -554,7 +554,7 @@
        ELSE
          CALL CALPW(GRID1(ista:iend,jsta:jend),3)
        END IF
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(201))
@@ -572,7 +572,7 @@
 !     TOTAL COLUMN RAIN 
       IF (IGET(202) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),4)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(202))
@@ -590,7 +590,7 @@
 !     TOTAL COLUMN SNOW 
       IF (IGET(203) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),5)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(203))
@@ -609,7 +609,7 @@
 !     TOTAL COLUMN GRAUPEL
       IF (IGET(428) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),16)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(428))
@@ -628,7 +628,7 @@
 !     TOTAL COLUMN CONDENSATE 
       IF (IGET(204) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),6)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(204))
@@ -646,7 +646,7 @@
 !     TOTAL COLUMN SUPERCOOLED (<0C) LIQUID WATER 
       IF (IGET(285) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),7)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(285))
@@ -664,7 +664,7 @@
 !     TOTAL COLUMN MELTING (>0C) ICE
       IF (IGET(286) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),8)
-         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+         CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(286))
@@ -955,7 +955,7 @@
         endif   
         DELY=14259./DY_m
         numr=NINT(DELY)
-  !     write (0,*) 'numr,dyval,DY_m=',numr,dyval,DY_m
+       write (0,*) 'numr,dyval,DY_m=',numr,dyval,DY_m
         DO L=LM,1,-1
           DO J=JSTA,JEND
             DO I=ISTA,IEND
@@ -5025,7 +5025,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             GRID1(i,j) = AOD(i,j)
           enddo
         enddo
-        CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+        CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(INDX))
@@ -5052,7 +5052,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDIF
           ENDDO
           ENDDO
-          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+          CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(649))
@@ -5076,7 +5076,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDIF
           ENDDO
           ENDDO
-          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+          CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(648))
@@ -5100,7 +5100,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=SCA2D(I,J)
           ENDDO
           ENDDO
-          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+          CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(650))
@@ -5123,7 +5123,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II == 5 ) GRID1(I,J) = AOD_BC(I,J)
           ENDDO
           ENDDO
-             CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+             CALL BOUND(GRID1,D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(JJ))
@@ -5144,7 +5144,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II == 5 ) GRID1(I,J) = SCA_BC(I,J)
           ENDDO
           ENDDO
-             CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+             CALL BOUND(GRID1,D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(JJ))
@@ -5175,7 +5175,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           if(debugprint)print *,'output angstrom exp,angst=',maxval(angst(ista:iend,jsta:jend)), &
             minval(angst(ista:iend,jsta:jend))
-          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
+          CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(656))
