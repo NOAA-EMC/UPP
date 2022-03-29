@@ -2292,6 +2292,7 @@
 ! assign soil depths for RUC LSM, hard wire 9 soil depths here
 ! so they aren't missing.
 
+       IF (NSOIL==9) THEN
          SLLEVEL(1) = 0.0
          SLLEVEL(2) = 0.01
          SLLEVEL(3) = 0.04
@@ -2301,6 +2302,7 @@
          SLLEVEL(7) = 1.0
          SLLEVEL(8) = 1.6
          SLLEVEL(9) = 3.0
+       END IF
  
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill1'

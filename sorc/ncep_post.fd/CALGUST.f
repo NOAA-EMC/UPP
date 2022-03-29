@@ -9,12 +9,10 @@
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
-!> 03-10-15 | Geoff Manokin | Initial
-!> 05-03-09 | H Chuang      | WRF Version
-!> 05-07-07 | Binbin Zhou   | Add RSM   
-!> 15-03-11 | S Moorthi     | set sfcwind to spval if u10 and v10 are spvals
-!>                          | for A grid and set gust to just wind
-!>                          | (in GSM with nemsio, it appears u10 & v10 have spval)
+!> 2003-10-15 | Geoff Manokin | Initial
+!> 2005-03-09 | H Chuang      | WRF Version
+!> 2005-07-07 | Binbin Zhou   | Add RSM   
+!> 2015-03-11 | S Moorthi     | Set sfcwind to spval if u10 and v10 are spvals for A grid and set gust to just wind (in GSM with nemsio, it appears u10 & v10 have spval)
 !>   
 !> @author Geoff Manikin W/NP2 @date 1997-03-04
 
