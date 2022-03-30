@@ -1,58 +1,37 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CALMIC      COMPUTES HYDROMETEORS 
-!!   PRGRMMR: JIN         ORG: W/NP2      DATE: 01-08-14       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES THE MIXING RATIOS OF CLOUD WATER,
-!!     CLOUD ICE, RAIN, AND SNOW.  THE CODE IS BASED ON SUBROUTINES
-!!     GSMDRIVE & GSMCOLUMN IN THE NMM MODEL. 
-!!     
-!! PROGRAM HISTORY LOG:
-!!   01-08-14  YI JIN 
-!!   02-02-11  Brad Ferrier - Minor changes for consistency w/ NMM model
-!!   04-11-10  Brad Ferrier - Removed cloud fraction algorithm
-!!   04-11-17  H CHUANG - WRF VERSION     
-!!   14-03-11  B Ferrier - Created new & old versions of this subroutine
-!!                         to process new & old versions of the microphysics
-!!
-!! USAGE:    CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL
-!!     &,                QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1)
-!!   INPUT ARGUMENT LIST:
-!!     P1D     - PRESSURE (PA)
-!!     T1D     - TEMPERATURE (K)
-!!     Q1D     - SPECIFIC HUMIDITY (KG/KG)
-!!     C1D     - TOTAL CONDENSATE (CWM, KG/KG)
-!!     FI1D    - F_ice (fraction of condensate in form of ice)
-!!     FR1D    - F_rain (fraction of liquid water in form of rain)
-!!     FS1D    - F_RimeF ("Rime Factor", ratio of total ice growth 
-!!                       to deposition growth)
-!!     CUREFL  - Radar reflectivity contribution from convection (mm**6/m**3)
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     QW1   - CLOUD WATER MIXING RATIO (KG/KG)
-!!     QI1   - CLOUD ICE MIXING RATIO (KG/KG)
-!!     QR1   - RAIN MIXING RATIO (KG/KG)
-!!     QS1   - "SNOW" (precipitation ice) MIXING RATIO (KG/KG)
-!!     DBZ1  - Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z)
-!!     DBZR  - Equivalent radar reflectivity factor from rain in dBZ
-!!     DBZI  - Equivalent radar reflectivity factor from ice (all forms) in dBZ
-!!     DBZC  - Equivalent radar reflectivity factor from parameterized convection in dBZ
-!!
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     FUNCTIONS:
-!!        FPVS
-!!     UTILITIES:
-!!     LIBRARY:
-!!       NONE
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM SP
-!!
+!> @brief Subroutine that computes hydrometeors.
+!>
+!> This routin computes the mixing ratios of cloud water,
+!> cloud ice, rain, and snow. The code is based on subroutines
+!> GSMDRIVE and GSMCOLUMN in the NMM model.
+!>
+!> @param[in] P1D Pressure (Pa).
+!> @param[in] T1D Temperature (K).
+!> @param[in] Q1D Specific humidity (kg/kg).
+!> @param[in] C1D Total condensate (CWM, kg/kg).
+!> @param[in] FI1D F_ice (fraction of condensate in form of ice).
+!> @param[in] FR1D F_rain (fraction of liquid water in form of rain).
+!> @param[in] FS1D F_RimeF ("Rime Factor", ratio of total ice growth to deposition growth).
+!> @param[in] CUREFL Radar reflectivity contribution from convection (mm**6/m**3).
+!> @param[out] QW1 Cloud water mixing ratio (kg/kg).
+!> @param[out] QI1 Cloud ice mixing ratio (kg/kg).
+!> @param[out] QR1 Rain mixing ratio (kg/kg).
+!> @param[out] QS1 "Snow" (precipitation ice) mixing ratio (kg/kg).
+!> @param[out] DBZ1 Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z).
+!> @param[out] DBZR Equivalent radar reflectivity factor from rain in dBZ.
+!> @param[out] DBZI Equivalent radar reflectivity factor from ice (all forms) in dBZ.
+!> @param[out] DBZC Equivalent radar reflectivity factor from parameterized convection in dBZ.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2001-08-14 | Yi Jin       | Initial
+!> 2002-02-11 | Brad Ferrier | Minor changes for consistency w/ NMM model
+!> 2004-11-10 | Brad Ferrier | Removed cloud fraction algorithm
+!> 2004-11-17 | H Chuang     | WRF VERSION     
+!> 2014-03-11 | Brad Ferrier | Created new & old versions of this subroutine to process new & old versions of the microphysics
+!>
+!> @author Yi Jin W/NP2 @date 2001-08-14
       SUBROUTINE CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
                         QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
 
@@ -320,66 +299,39 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !
       SUBROUTINE CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
                         QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM: CALMICT_old COMPUTES HYDROMETEORS FROM THE OLDER VERSION
-!                         OF THE MICROPHYSICS
-!
-!   PRGRMMR: JIN         ORG: W/NP2      DATE: 01-08-14
-!
-! ABSTRACT:
-!     THIS ROUTINE COMPUTES THE MIXING RATIOS OF CLOUD WATER, CLOUD ICE,
-!     RAIN, AND SNOW.  THE CODE IS BASED ON OPTION MP_PHYSICS==95 IN THE
-!     WRF NAMELIST AND OPTION MICRO='fer' in NMMB CONFIGURE FILES.
-!
-! PROGRAM HISTORY LOG:
-!   01-08-14  YI JIN
-!   02-02-11  Brad Ferrier - Minor changes for consistency w/ NMM model
-!   04-11-10  Brad Ferrier - Removed cloud fraction algorithm
-!   04-11-17  H CHUANG - WRF VERSION
-!   14-03-11  B Ferrier - Created new & old versions of this subroutine
-!                         to process new & old versions of the microphysics
-!
-! USAGE:    CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL
-!     &,                QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1)
-!
-!   INPUT ARGUMENT LIST:
-!     P1D     - PRESSURE (PA)
-!     T1D     - TEMPERATURE (K)
-!     Q1D     - SPECIFIC HUMIDITY (KG/KG)
-!     C1D     - TOTAL CONDENSATE (CWM, KG/KG)
-!     FI1D    - F_ice (fraction of condensate in form of ice)
-!     FR1D    - F_rain (fraction of liquid water in form of rain)
-!     FS1D    - F_RimeF ("Rime Factor", ratio of total ice growth
-!                       to deposition growth)
-!     CUREFL  - Radar reflectivity contribution from convection (mm**6/m**3)
-!
-!   OUTPUT ARGUMENT LIST:
-!     QW1   - CLOUD WATER MIXING RATIO (KG/KG)
-!     QI1   - CLOUD ICE MIXING RATIO (KG/KG)
-!     QR1   - RAIN MIXING RATIO (KG/KG)
-!     QS1   - "SNOW" (precipitation ice) MIXING RATIO (KG/KG)
-!     DBZ1  - Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z)
-!     DBZR  - Equivalent radar reflectivity factor from rain in dBZ
-!     DBZI  - Equivalent radar reflectivity factor from ice (all forms) in dBZ
-!     DBZC  - Equivalent radar reflectivity factor from parameterized convection
-!     in dBZ
-!
-!   OUTPUT FILES:
-!     NONE
-!
-!   SUBPROGRAMS CALLED:
-!     FUNCTIONS:
-!        FPVS
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM SP
-!$$$
-!
+!> CALMICT_old computes hydrometeors from the older version of the microphysics.
+!>
+!> This routin computes the mixing ratios of cloud water, cloud ice, 
+!> rain, and snow. The code is based on option MP_PHYSICS==95 in the
+!> WRF namelist and option MICRO='fer' in NMMB configure files.
+!>
+!> @param[in] P1D Pressure (Pa).
+!> @param[in] T1D Temperature (K).
+!> @param[in] Q1D Specific humidity (kg/kg).
+!> @param[in] C1D Total condensate (CWM, kg/kg).
+!> @param[in] FI1D F_ice (fraction of condensate in form of ice).
+!> @param[in] FR1D F_rain (fraction of liquid water in form of rain).
+!> @param[in] FS1D F_RimeF ("Rime Factor", ratio of total ice growth to deposition growth).
+!> @param[in] CUREFL Radar reflectivity contribution from convection (mm**6/m**3).
+!> @param[out] QW1 Cloud water mixing ratio (kg/kg).
+!> @param[out] QI1 Cloud ice mixing ratio (kg/kg).
+!> @param[out] QR1 Rain mixing ratio (kg/kg).
+!> @param[out] QS1 "Snow" (precipitation ice) mixing ratio (kg/kg).
+!> @param[out] DBZ1 Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z).
+!> @param[out] DBZR Equivalent radar reflectivity factor from rain in dBZ.
+!> @param[out] DBZI Equivalent radar reflectivity factor from ice (all forms) in dBZ.
+!> @param[out] DBZC Equivalent radar reflectivity factor from parameterized convection in dBZ.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2001-08-14 | Yi Jin       | Initial
+!> 2002-02-11 | Brad Ferrier | Minor changes for consistency w/ NMM model
+!> 2004-11-10 | Brad Ferrier | Removed cloud fraction algorithm
+!> 2004-11-17 | H Chuang     | WRF VERSION     
+!> 2014-03-11 | Brad Ferrier | Created new & old versions of this subroutine to process new & old versions of the microphysics
+!>
+!> @author Yi Jin W/NP2 @date 2001-08-14
       use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608, oneps, nlimin
       use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, im
       use rhgrd_mod, only: rhgrd
