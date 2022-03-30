@@ -177,6 +177,7 @@
 !
       real    dummy(ista:iend,jsta:jend)
       integer idummy(ista:iend,jsta:jend)
+      real    full_dummy(im,jm)
 !
 !     --- Revision added for GOCART ---
 
@@ -966,7 +967,10 @@
               endif
             ENDDO
           ENDDO
-          CALL AllGETHERV(FULL_CLD)
+!          CALL AllGETHERV(FULL_CLD)
+          full_dummy=spval
+          CALL COLLECT_ALL(FULL_CLD(ISTA:IEND,JSTA:JEND),full_dummy)
+          FULL_CLD=full_dummy
           DO J=JSTA,JEND
             DO I=ISTA,IEND
               NUMPTS=0
@@ -2216,8 +2220,15 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               full_fis(i,j)=fis(i,j)
             ENDDO
           ENDDO
-          CALL AllGETHERV(full_ceil)
-          CALL AllGETHERV(full_fis)
+!          CALL AllGETHERV(full_ceil)
+          full_dummy=spval
+          CALL COLLECT_ALL(full_ceil(ISTA:IEND,JSTA:JEND),full_dummy)
+          full_ceil=full_dummy
+!          CALL AllGETHERV(full_fis)
+          full_dummy=spval
+          CALL COLLECT_ALL(full_fis(ISTA:IEND,JSTA:JEND),full_dummy)
+          full_fis=full_dummy
+
           numr = 1
           DO J=JSTA,JEND
             DO I=ISTA,IEND
