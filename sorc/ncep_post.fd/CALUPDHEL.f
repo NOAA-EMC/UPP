@@ -1,39 +1,18 @@
 !> @file
-!
-!> SUBPROGRAM:    CALUPDHEL      COMPUTES UPDRAFT HELICITY
-!!   PRGRMMR: PYLE            ORG: W/NP2      DATE: 07-10-22       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES THE UPDRAFT HELICITY
-!!     
-!! PROGRAM HISTORY LOG:
-!!   07-10-22  M PYLE - based on SPC Algorithm courtesy of David Bright
-!!   11-01-11  M Pyle - converted to F90 for unified post
-!!   11-04-05  H Chuang - added B grid option
-!!   20-11-06  J Meng - USE UPP_MATH MODULE
-!!   22-03-17  Wen Meng - Restrict computation from undefined grids.
-!!     
-!! USAGE:    CALL CALUPDHEL(UPDHEL)
-!!
-!!   INPUT ARGUMENT LIST:
-!!     NONE
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     UPDHEL   - UPDRAFT HELICITY (M^2/S^2)
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes the updraft helicity.
+!>
+!> @param[out] UPDHEL Updraft helicity (m^2/s^2).
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-10-22 | M Pyle   | Initial
+!> 2007-10-22 | M Pyle   | based on SPC Algorithm courtesy of David Bright
+!> 2011-01-11 | M Pyle   | converted to F90 for unified post
+!> 2011-04-05 | H Chuang | added B grid option
+!> 2020-11-06 | J Meng   | Use UPP_MATH Module
+!>     
+!> @author M Pyle W/NP2 @date 2007-10-22
       SUBROUTINE CALUPDHEL(UPDHEL)
 
 !     
@@ -102,8 +81,6 @@
       DO J=JSTA_M,JEND_M
         DO I=2,IM-1
 
-          IF (HTSFC(I,J) < spval) THEN
-
           R2DX   = 1./(2.*DX(I,J))
           R2DY   = 1./(2.*DY(I,J))
 
@@ -136,11 +113,6 @@
 
             ENDIF
           ENDDO l_loop
-
-          ELSE
-            UPDHEL(I,J) = spval
-          ENDIF
-
         ENDDO
       ENDDO
 
