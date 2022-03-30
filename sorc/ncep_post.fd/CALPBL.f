@@ -1,34 +1,17 @@
 !> @file
-!
-!> SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
-!!     
-!! ABSTRACT:  
-!!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER
-!!   AND PBL HEIGHT ABOVE SURFACE
-!!     
-!! PROGRAM HISTORY LOG:
-!!   06-05-04  M TSIDULKO 
-!!   
-!! USAGE:    CALL CALPBL(PBLRI)
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PBLRI  - PBL HEIGHT ABOVE GROUND
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : 
-!!
+!> @brief Subroutine that computes PBL height based on bulk RCH number.
+!>
+!> This routine computes the bulk Richardson number
+!> and PBL height above surface.
+!>     
+!> @param[out] PBLRI PBL height above ground.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2006-05-04 | M Tsidulko | Initial
+!>   
+!> @author M Tsidulko @date 2006-05-04
       SUBROUTINE CALPBL(PBLRI)
 
 !
