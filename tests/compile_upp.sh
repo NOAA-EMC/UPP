@@ -64,7 +64,11 @@ if [[ $MACHINE_ID != "unknown" ]]; then
       module purge
    fi
    module use $PATHTR/modulefiles
-   modulefile=${MACHINE_ID}_${compiler}
+   if [[ $compiler == "intel" ]]; then
+      modulefile=${MACHINE_ID}
+   else
+      modulefile=${MACHINE_ID}_${compiler}
+   fi
    if [ -f "${PATHTR}/modulefiles/${modulefile}" ]; then
       echo "Building for machine ${MACHINE_ID}, compiler ${compiler}"
    else
