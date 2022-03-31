@@ -69,7 +69,7 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    else
       modulefile=${MACHINE_ID}_${compiler}
    fi
-   if [ -f "${PATHTR}/modulefiles/${modulefile}" ]; then
+   if [ -f "${PATHTR}/modulefiles/${modulefile}" -o -f "${PATHTR}/modulefiles/${modulefile}.lua" ]; then
       echo "Building for machine ${MACHINE_ID}, compiler ${compiler}"
    else
       echo "Modulefile does not exist for machine ${MACHINE_ID}, compiler ${compiler}"
