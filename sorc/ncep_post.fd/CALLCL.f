@@ -1,50 +1,32 @@
 !> @file
-!
-!> SUBPROGRAM:    CALLCL      COMPUTES LCL HEIGHTS AND PRESSURE
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-03-15
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES THE LIFTING CONDENSATION LEVEL 
-!!     PRESSURE AND HEIGHT IN EACH COLUMN AT MASS POINTS.
-!!     THE HEIGHT IS ABOVE GROUND LEVEL.  THE EQUATION USED
-!!     TO FIND THE LCL PRESSURE IS FROM BOLTAN (1980,MWR) 
-!!     AND IS THE SAME AS THAT USED IN SUBROUTINE CALCAPE.
-!!     
-!!     THIS ROUTINE IS A TEST VERSION.  STILL TO BE RESOLVED
-!!     IS THE "BEST" PARCEL TO LIFT.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-03-15  RUSS TREADON
-!!   98-06-16  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!!   02-04-24  MIKE BALDWIN - WRF VERSION            
-!!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
-!!   21-07-28  W Meng - Restriction compuatation from undefined grids
-!!     
-!! USAGE:    CALL CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
-!!   INPUT ARGUMENT LIST:
-!!     P1D      - ARRAY OF PARCEL PRESSURES (PA)
-!!     T1D      - ARRAY OF PARCEL TEMPERATURES (K)
-!!     Q1D      - ARRAY OF PARCEL SPECIFIC HUMIDITIES (KG/KG)
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PLCL     - PARCEL PRESSURE AT LCL (PA)
-!!     ZLCL     - PARCEL AGL HEIGHT AT LCL (M)
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - LOOPS
-!!                  OPTIONS
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes LCL heights and pressure.
+!>
+!> This routine computes the lifting condensation level
+!> pressure and height in each column at mass points.
+!> The height is above ground level. The equation used
+!> to find the LCL pressure is from Boltan (1980, MWR)
+!> and is the same as that used in subroutine CALCAPE.
+!> 
+!> This is a test version. Still to be resolved 
+!> is the "best" parcel to lift.
+!>
+!> @param[in] P1D Array of parcel pressures (Pa).
+!> @param[in] T1D Array of parcel temperatures (K).
+!> @param[in] Q1D Array of parcel specific humidities (kg/kg).
+!> @param[out] PLCL Parcel Pressure at LCL (Pa).
+!> @param[out] ZLCL Parcel AGL height at LCL (m).
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-03-15 | Russ Treadon | Initial
+!> 1998-06-16 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version            
+!> 2002-04-24 | Mike Baldwin | WRF Version            
+!> 2019-10-30 | Bo Cui       | Remove "GOTO" Statement
+!> 2021-07-28 | W Meng       | Restriction compuatation from undefined grids
+!>
+!> @author Russ Treadon W/NP2 @date 1993-03-15
       SUBROUTINE CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
 
 !     
