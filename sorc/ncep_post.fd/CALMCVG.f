@@ -1,53 +1,35 @@
 !> @file
-!
-!> SUBPROGRAM:    CALMCVG     COMPUTES MOISTURE CONVERGENCE
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-01-22       
-!!     
-!! ABSTRACT:
-!!     GIVEN SPECIFIC HUMIDITY, Q, AND THE U-V WIND COMPONENTS
-!!     THIS ROUTINE EVALUATES THE VECTOR OPERATION, 
-!!                      DEL DOT (Q*VEC)
-!!     WHERE,
-!!        DEL IS THE VECTOR GRADIENT OPERATOR,
-!!        DOT IS THE STANDARD DOT PRODUCT OPERATOR, AND
-!!        VEC IS THE VECTOR WIND.
-!!     MINUS ONE TIMES THE RESULTING SCALAR FIELD IS THE 
-!!     MOISTURE CONVERGENCE WHICH IS RETURNED BY THIS ROUTINE.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-01-22  RUSS TREADON
-!!   98-06-08  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION              
-!!   02-04-23  MIKE BALDWIN - WRF C-GRID VERSION     
-!!   05-07-07  BINBIN ZHOU - ADD RSM A GRID
-!!   06-04-25  H CHUANG - BUG FIXES TO CORECTLY COMPUTE MC AT BOUNDARIES 
-!!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
-!!   
-!! USAGE:    CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
-!!   INPUT ARGUMENT LIST:
-!!     Q1D      - SPECIFIC HUMIDITY AT P-POINTS (KG/KG)
-!!     U1D      - U WIND COMPONENT (M/S) AT P-POINTS
-!!     V1D      - V WIND COMPONENT (M/S) AT P-POINTS
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     QCNVG    - MOISTURE CONVERGENCE (1/S) AT P-POINTS
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - MASKS
-!!                  DYNAM
-!!                  OPTIONS
-!!                  INDX
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes moisture convergence.
+!>
+!><pre>
+!> Given specific humidity, Q, and the U-V wind components
+!> This routine evaluates the vector operation, 
+!>                  DEL DOT (Q*VEC)
+!> where,
+!>    DEL is the vector gradient operator,
+!>    DOT is the standard dot product operator, and
+!>    VEC is the vector wind.
+!> Minus one times the resulting scalar field is the 
+!> moisture convergence which is returned by this routine.
+!></pre>
+!>   
+!> @param[in] Q1D      - Specific humidity at P-points (kg/kg).
+!> @param[in] U1D      - U wind component (m/s) at P-points.
+!> @param[in] V1D      - V wind component (m/s) at P-points.
+!> @param[out] QCNVG    - Moisture convergence (1/s) at P-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-01-22 | Russ Treadon | Initial
+!> 1998-06-08 | T Black      | Conversion From 1-D To 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version              
+!> 2002-04-23 | Mike Baldwin | WRF C-Grid Version     
+!> 2005-07-07 | Binbin Zhou  | Add RSM A Grid
+!> 2006-04-25 | H Chuang     | Bug fixes to correctly compute MC at boundaries 
+!> 2021-04-01 | J Meng       | Computation on defined points only
+!>     
+!> @author Russ Treadon W/NP2 @date 1993-01-22
       SUBROUTINE CALMCVG(Q1D,U1D,V1D,QCNVG)
 
 !
