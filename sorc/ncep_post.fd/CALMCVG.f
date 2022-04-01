@@ -81,6 +81,10 @@
 !     
 !     INITIALIZE MOISTURE CONVERGENCE ARRAY.  LOAD TEMPORARY WIND ARRAYS.
 !     
+       CALL EXCH(Q1D)
+       CALL EXCH(U1D)
+       CALL EXCH(V1D)
+
 !$omp  parallel do private(i,j)
       DO J=JSTA_2L,JEND_2U
 !        DO I=1,IM
@@ -96,10 +100,6 @@
           IF (VWND(I,J) == SPVAL) VWND(I,J) = D00
         ENDDO
       ENDDO
-      
-      CALL EXCH(Q1D)
-      CALL EXCH(VWND)
-      CALL EXCH(UWND)
 !
       IF(gridtype == 'A')THEN
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
