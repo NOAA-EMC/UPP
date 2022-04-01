@@ -18,6 +18,7 @@
 !! -  21-04-06  Wen Meng - Initializing all allocated arrays
 !! -  21-04-16  Wen Meng - Initializing aextc55 and extc55 as 0. These
 !!                      two arrays are involved in GSL visibility computation.
+!! -  22-03-22  Wen Meng - Initializing pwat.
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -970,6 +971,7 @@
       allocate(tedir(im,jsta_2l:jend_2u))
       allocate(twa(im,jsta_2l:jend_2u))
       allocate(fdnsst(im,jsta_2l:jend_2u))
+      allocate(pwat(im,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -1020,6 +1022,7 @@
           tedir(i,j)=spval
           twa(i,j)=spval
           fdnsst(i,j)=spval
+          pwat(i,j)=spval
         enddo
       enddo
 !
