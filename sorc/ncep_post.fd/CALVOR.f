@@ -1,47 +1,28 @@
 !> @file
-!
-!> SUBPROGRAM:    CALVOR      COMPUTES ABSOLUTE VORTICITY
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES THE ABSOLUTE VORTICITY.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   98-06-08  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   02-01-15  MIKE BALDWIN - WRF VERSION C-GRID
-!!   05-03-01  H CHUANG - ADD NMM E GRID
-!!   05-05-17  H CHUANG - ADD POTENTIAL VORTICITY CALCULATION
-!!   05-07-07  B ZHOU   - ADD RSM IN COMPUTING DVDX, DUDY AND UAVG
-!!   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
-!!   16-08-05  S Moorthi - add zonal filetering
-!!   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
-!!   2020-11-06 J Meng - USE UPP_MATH MODULE
-
-
-!!     
-!! USAGE:    CALL CALVOR(UWND,VWND,ABSV)
-!!   INPUT ARGUMENT LIST:
-!!     UWND     - U WIND (M/S) MASS-POINTS
-!!     VWND     - V WIND (M/S) MASS-POINTS
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     ABSV     - ABSOLUTE VORTICITY (1/S) MASS-POINTS
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : WCOSS
-!!
+!> @brief Subroutine that computes absolute vorticity.
+!>
+!> This routine computes the absolute vorticity.
+!>
+!> @param[in] UWND U wind (m/s) mass-points.
+!> @param[in] VWND V wind (m/s) mass-points.
+!> @param[out] ABSV absolute vorticity (1/s) mass-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1998-06-08 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version            
+!> 2002-01-15 | Mike Baldwin | WRF Version C-grid
+!> 2005-03-01 | H Chuang     | Add NMM E grid
+!> 2005-05-17 | H Chuang     | Add Potential vorticity calculation
+!> 2005-07-07 | B Zhou       | Add RSM in computing DVDX, DUDY and UAVG
+!> 2013-08-09 | S Moorthi    | Optimize the vorticity loop including threading
+!> 2016-08-05 | S Moorthi    | add zonal filetering
+!> 2019-10-17 | Y Mao        | Skip calculation when U/V is SPVAL
+!> 2020-11-06 | J Meng       | Use UPP_MATH Module
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALVOR(UWND,VWND,ABSV)
 
 !     
@@ -411,43 +392,27 @@
       END
 
       SUBROUTINE CALDIV(UWND,VWND,DIV)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALDIV      COMPUTES DIVERGENCE
-!   PRGRMMR: SAJAL KAR         ORG: W/NP2      DATE: 16-05-05
-!     
-! ABSTRACT:  
-!     FOR GFS, THIS ROUTINE COMPUTES THE HORIZONTAL DIVERGENCE
-!     USING 2ND-ORDER CENTERED SCHEME ON A LAT-LON GRID     
-!
-! PROGRAM HISTORY LOG:
-!   16-05-05  SAJAL KAR MODIFIED CALVORT TO COMPUTE DIVERGENCE FROM
-!             WIND COMPONENTS
-!   16-07-22  S Moorthi modifying polar divergence calculation
-!     
-! USAGE:    CALL CALDIV(UWND,VWND,DIV)
-!   INPUT ARGUMENT LIST:
-!     UWND     - U WIND (M/S) MASS-POINTS
-!     VWND     - V WIND (M/S) MASS-POINTS
-!
-!   OUTPUT ARGUMENT LIST: 
-!     DIV     - DIVERGENCE (1/S) MASS-POINTS
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : WCOSS
-!$$$  
+!> CALDIV computes divergence.
+!>    
+!> For GFS, this routine copmutes the horizontal divergence
+!> using 2nd-order centered scheme on a lat-lon grid     
+!>
+!> @param[in] UWND U wind (m/s) mass-points.
+!> @param[in] VWND V wind (m/s) mass-points.
+!> @param[out] DIV divergence (1/s) mass-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2016-05-05 | Sajal Kar | Modified CALVORT to compute divergence from wind components
+!> 2016-07-22 | S Moorthi | Modified polar divergence calculation
+!>
+!> @author Sajal Kar W/NP2 @date 2016-05-05
+      SUBROUTINE CALVOR(UWND,VWND,ABSV)
+
 !     
 !
+      use vrbls2d,      only: f
       use masks,        only: gdlat, gdlon
       use params_mod,   only: d00, dtr, small, erad
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
@@ -683,41 +648,21 @@
       END SUBROUTINE CALDIV
 
       SUBROUTINE CALGRADPS(PS,PSX,PSY)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM: CALGRADPS COMPUTES GRADIENTS OF A SCALAR FIELD PS OR LNPS
-!   PRGRMMR: SAJAL KAR         ORG: W/NP2      DATE: 16-05-05
-!     
-! ABSTRACT:  
-!     FOR GFS, THIS ROUTINE COMPUTES  HRIZONTAL GRADIENTS OF PS OR LNPS
-!     USING 2ND-ORDER CENTERED SCHEME ON A LAT-LON GRID
-!     
-! PROGRAM HISTORY LOG:
-!   16-05-05  SAJAL KAR REDUCED FROM CALVORT TO ZONAL AND MERIDIONAL
-!             GRADIENTS OF GIVEN SURFACE PRESSURE PS, OR LNPS
-!     
-! USAGE:    CALL CALGRADPS(PS,PSX,PSY)
-!   INPUT ARGUMENT LIST:
-!     PS       - SURFACE PRESSURE (PA) MASS-POINTS
-!
-!   OUTPUT ARGUMENT LIST: 
-!     PSX     - ZONAL GRADIENT OF PS AT MASS-POINTS
-!     PSY     - MERIDIONAL GRADIENT OF PS AT MASS-POINTS
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : WCOSS
-!$$$  
-!     
+!> CALGRADPS computes gardients of a scalar field PS or LNPS.
+!>
+!> For GFS, this routine computes horizontal gradients of PS or LNPS.
+!> Using 2nd-order centered scheme on a lat-lon grid.
+!>
+!> @param[in] PS Surface pressure (Pa) mass-points.
+!> @param[out] PSX Zonal gradient of PS at mass-points.
+!> @param[out] PSY Meridional gradient of PS at mass-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2016-05-05 | Sajal Kar | Reduced from CALVORT to zonal and meridional gradients of given surface pressure PS, or LNPS
+!>
+!> @author Sajal Kar W/NP2 @date 2016-05-05
       use masks,        only: gdlat, gdlon
       use params_mod,   only: dtr, d00, small, erad
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &

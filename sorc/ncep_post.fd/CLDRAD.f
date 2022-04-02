@@ -1,99 +1,71 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CLDRAD       POST SNDING/CLOUD/RADTN FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-08-30       
-!!     
-!! ABSTRACT:  THIS ROUTINE COMPUTES/POSTS SOUNDING, CLOUD 
-!!   RELATED, AND RADIATION FIELDS.  UNDER THE HEADING OF 
-!!   SOUNDING FIELDS FALL THE THREE ETA MODEL LIFTED INDICES,
-!!   CAPE, CIN, AND TOTAL COLUMN PRECIPITABLE WATER.
-!!
-!!   THE THREE ETA MODEL LIFTED INDICES DIFFER ONLY IN THE
-!!   DEFINITION OF THE PARCEL TO LIFT.  ONE LIFTS PARCELS FROM
-!!   THE LOWEST ABOVE GROUND ETA LAYER.  ANOTHER LIFTS MEAN 
-!!   PARCELS FROM ANY OF NBND BOUNDARY LAYERS (SEE SUBROUTINE
-!!   BNDLYR).  THE FINAL TYPE OF LIFTED INDEX IS A BEST LIFTED
-!!   INDEX BASED ON THE NBND BOUNDARY LAYER LIFTED INDICES.
-!!
-!!   TWO TYPES OF CAPE/CIN ARE AVAILABLE.  ONE IS BASED ON PARCELS
-!!   IN THE LOWEST ETA LAYER ABOVE GROUND.  THE OTHER IS BASED 
-!!   ON A LAYER MEAN PARCEL IN THE N-TH BOUNDARY LAYER ABOVE 
-!!   THE GROUND.  SEE SUBROUTINE CALCAPE FOR DETAILS.
-!!
-!!   THE CLOUD FRACTION AND LIQUID CLOUD WATER FIELDS ARE DIRECTLY
-!!   FROM THE MODEL WITH MINIMAL POST PROCESSING.  THE LIQUID 
-!!   CLOUD WATER, 3-D CLOUD FRACTION, AND TEMPERATURE TENDENCIES
-!!   DUE TO PRECIPITATION ARE NOT POSTED IN THIS ROUTINE.  SEE
-!!   SUBROUTINE ETAFLD FOR THESE FIELDS.  LIFTING CONDENSATION
-!!   LEVEL HEIGHT AND PRESSURE ARE COMPUTED AND POSTED IN
-!!   SUBROUTINE MISCLN.  
-!!
-!!   THE RADIATION FIELDS POSTED BY THIS ROUTINE ARE THOSE COMPUTED
-!!   DIRECTLY IN THE MODEL.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-08-30  RUSS TREADON
-!!   94-08-04  MICHAEL BALDWIN - ADDED OUTPUT OF INSTANTANEOUS SFC
-!!                               FLUXES OF NET SW AND LW DOWN RADIATION
-!!   97-04-25  MICHAEL BALDWIN - FIX PDS FOR PRECIPITABLE WATER
-!!   97-04-29  GEOFF MANIKIN - MOVED CLOUD TOP TEMPS CALCULATION
-!!                               TO THIS SUBROUTINE.  CHANGED METHOD
-!!                               OF DETERMINING WHERE CLOUD BASE AND
-!!                               TOP ARE FOUND AND ADDED HEIGHT OPTION
-!!                               FOR TOP AND BASE.
-!!   98-04-29  GEOFF MANIKIN - CHANGED VALUE FOR CLOUD BASE/TOP PRESSURES
-!!                               AND HEIGHTS FROM SPVAL TO -500
-!!   98-06-15  T BLACK       - CONVERSION FROM 1-D TO 2-D
-!!   98-07-17  MIKE BALDWIN  - REMOVED LABL84
-!!   00-01-04  JIM TUCCILLO  - MPI VERSION
-!!   00-02-22  GEOFF MANIKIN - CHANGED VALUE FOR CLOUD BASE/TOP PRESSURES
-!!                               AND HEIGHTS FROM SPVAL TO -500 (WAS NOT IN
-!!                               PREVIOUS IBM VERSION)
-!!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   05-01-06  H CHUANG - ADD VARIOUS CLOUD FIELDS
-!!   05-07-07  BINBIN ZHOU - ADD RSM MODEL
-!!   05-08-30  BINBIN ZHOU - ADD CEILING and FLIGHT CONDITION RESTRICTION
-!!   10-09-09  GEOFF MANIKIN - REVISED CALL TO CALCAPE
-!!   11-02-06  Jun Wang - ADD GRIB2 OPTION
-!!   11-12-14  SARAH LU - ADD AEROSOL OPTICAL PROPERTIES
-!!   11-12-16  SARAH LU - ADD AEROSOL 2D DIAG FIELDS
-!!   11-12-23  SARAH LU - CONSOLIDATE ALL GOCART FIELDS TO BLOCK 4
-!!   11-12-23  SARAH LU - ADD AOD AT ADDITIONAL CHANNELS
-!!   12-04-03  Jun Wang - Add lftx and GFS convective cloud cover for grib2
-!!   13-05-06  Shrinivas Moorthi - Add cloud condensate to total precip water
-!!   13-12-23  LU/Wang  - READ AEROSOL OPTICAL PROPERTIES LUTS to compute dust aod,
-!!                        non-dust aod, and use geos5 gocart LUTS
-!!   15-??-??  S. Moorthi - threading, optimization, local dimension
-!!   19-07-24  Li(Kate) Zhang Merge and update ARAH Lu's work from NGAC into FV3-Chem
-!!   19-10-30  Bo CUI - Remove "GOTO" statement
-!!   20-03-25  Jesse Meng - remove grib1
-!!   20-05-20  Jesse Meng - CALRH unification with NAM scheme
-!!   20-11-10  Jesse Meng - USE UPP_PHYSICS MODULE
-!!   21-02-08  Anning Cheng, read aod550, aod550_du/su/ss/oc/bc
-!!             directly from fv3gfs and output to grib2 by setting rdaod
-!!   21-04-01  Jesse Meng - COMPUTATION ON DEFINED POINTS ONLY
-!!     
-!! USAGE:    CALL CLDRAD
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - RQSTFLD
-!!                  CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM SP
-!!
+!> @brief Subroutine that post SNDING/CLOUD/RADTN fields.
+!>
+!> This routine computes/posts sounding cloud
+!> related, and radiation fields. Under the heading of
+!> sounding fields fall the three ETA model lifted indices,
+!> CAPE, CIN, and total column precipitable water.
+!>
+!> The three ETA model lifted indices differ only in the
+!> definition of the parcel to lift. One lifts parcels from 
+!> the lowest above ground ETA layer. Another lifts mean  
+!> parcels from any of NBND boundary layers (See subroutine
+!> BNDLYR). The final type of lifted index is a best lifted 
+!> inden based on the NBND bouddary layer lifted indices.
+!>
+!> Two types of CAPE/CIN are available. One is based on parcels 
+!> in the lowest ETA layer above ground. The other is based  
+!> on a layer mean parcel in the N-th boundary layer above 
+!> the ground. See subroutine CALCAPE for details.
+!>
+!> The cloud fraction and liquid cloud water fields are directly
+!> from the model with minimal post processing. The liquid  
+!> cloud water, 3-D cloud fraction, and temperature tendencies
+!> due to precipotation are not posted in this routine. See 
+!> sunroutine ETAFLD for these fields.  Lifting condensation
+!> level height and pressure are computed and posted in
+!> subroutine MISCLN.  
+!>
+!> The radiation fields posted by this routine are those computed
+!> directly in the model.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-08-30 | Russ Treadon      | Initial
+!> 1994-08-04 | Mike Baldwin      | Added output of instantaneous SFC fluxes of net SW and LW down radiation
+!> 1997-04-25 | Mike Baldwin      | Fix PDS for precipitable water
+!> 1997-04-29 | Geoff Manikin     | Moved cloud top temps calculation to this subroutine. Changed method of determining where cloud base and top are found and added height option for top and base
+!> 1998-04-29 | Geoff Manikin     | Changed value for cloud base/top pressures and heights from SPVAL to -500
+!> 1998-06-15 | T Black           | Conversion from 1-D to 2-D
+!> 1998-07-17 | Mike Baldwin      | Removed LABL84
+!> 2000-01-04 | Jim Tuccillo      | MPI Version
+!> 2000-02-22 | Geoff Manikin     | Changed value for cloud base/top pressures and heights from SPVAL to -500 (was not in previous IBM version)
+!> 2001-10-22 | H Chuang          | Modified to process hybrid model output
+!> 2002-01-15 | Mike Baldwin      | WRF version
+!> 2005-01-06 | H Chuang          | Add various cloud fields
+!> 2005-07-07 | Binbin Zhou       | Add RSM model
+!> 2005-08-30 | Binbin Zhou       | Add ceiling and flight condition restriction
+!> 2010-09-09 | Geoff Manikin     | Revised call to CALCAPE
+!> 2011-02-06 | Jun Wang          | Add GRIB2 Option
+!> 2011-12-14 | Sarah Lu          | Add Aerosol optical properties
+!> 2011-12-16 | Sarah Lu          | Add Aerosol 2D DIAG fields
+!> 2011-12-23 | Sarah Lu          | Consolidate all GOCART fields to BLOCK 4
+!> 2011-12-23 | Sarah Lu          | Add AOD at additional channels
+!> 2012-04-03 | Jun Wang          | Add lftx and GFS convective cloud cover for grib2
+!> 2013-05-06 | Shrinivas Moorthi | Add cloud condensate to total precip water
+!> 2013-12-23 | Lu/Wang           | Read aerosol optical properties LUTS to compute dust aod, non-dust aod, and use geos5 gocart LUTS
+!> 2015-??-?? | S. Moorthi        | threading, optimization, local dimension
+!> 2019-07-24 | Li(Kate) Zhang    | Merge and update ARAH Lu's work from NGAC into FV3-Chem
+!> 2019-10-30 | Bo CUI            | Remove "GOTO" statement
+!> 2020-03-25 | Jesse Meng        | Remove grib1
+!> 2020-05-20 | Jesse Meng        | CALRH unification with NAM scheme
+!> 2020-11-10 | Jesse Meng        | Use UPP_PHYSICS Module
+!> 2021-02-08 | Anning Cheng      | read aod550, aod550_du/su/ss/oc/bc directly from fv3gfs and output to grib2 by setting rdaod
+!> 2021-04-01 | Jesse Meng        | Computation on defined points only
+!>
+!> @author Russ Treadon W/NP2 @date 1993-08-30
+
       SUBROUTINE CLDRAD
 
 !
@@ -107,19 +79,18 @@
                          HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH,  &
                          PBOT, PBOTL, PBOTM, PBOTH, CNVCFR, PTOP, PTOPL,      &
                          PTOPM, PTOPH, TTOPL, TTOPM, TTOPH, PBLCFR, CLDWORK,  &
-                         ASWIN, AUVBIN, AUVBINC, ASWOUT,ALWOUT, ASWTOA,       &
+                         ASWIN, AUVBIN, AUVBINC, ASWIN, ASWOUT,ALWOUT, ASWTOA,&
                          RLWTOA, CZMEAN, CZEN, RSWIN, ALWIN, ALWTOA, RLWIN,   &
                          SIGT4, RSWOUT, RADOT, RSWINC, ASWINC, ASWOUTC,       &
                          ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN,             &
-                         AVISDIFFSWIN, ASWINTOA, ASWTOAC, AIRBEAMSWIN,        &
+                         AVISDIFFSWIN, ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN,&
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
                          AVGCPRATE,                                           &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
-                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
-                         PWAT
+                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -255,7 +226,6 @@
       data INDX_EXT       / 610, 611, 612, 613, 614  /
       data INDX_SCA       / 651, 652, 653, 654, 655  /
       logical, parameter :: debugprint = .false.
-      logical :: Model_Pwat
 !     
 !
 !*************************************************************************
@@ -419,29 +389,12 @@
       IF (IGET(080) > 0) THEN
 ! dong 
          GRID1 = spval
-         Model_Pwat = .false.
-         DO J=JSTA,JEND
-         DO I=1,IM
-           IF(ABS(PWAT(I,J)-SPVAL)>SMALL) THEN
-             Model_Pwat = .true.
-             exit
-           ENDIF
-         END DO
-         END DO
-         IF (Model_Pwat) THEN
-         DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = PWAT(I,J)
-           END DO
-         END DO
-         ELSE
          CALL CALPW(GRID1(1,jsta),1)
           DO J=JSTA,JEND
             DO I=1,IM
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
             END DO
           END DO
-         ENDIF
         CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -5613,9 +5566,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       END
 
       subroutine cb_cover(cbcov)
-!     Calculate CB coverage by using fuzzy logic
-!     Evaluate membership of val in a fuzzy set fuzzy.
-!     Assume f is in x-log scale
+!> Calculate CB coverage by using fuzzy logic
+!> Evaluate membership of val in a fuzzy set fuzzy.
+!> Assume f is in x-log scale
       use ctlblk_mod, only: SPVAL,JSTA,JEND,IM
       implicit none
       real, intent(inout) :: cbcov(IM,JSTA:JEND)
