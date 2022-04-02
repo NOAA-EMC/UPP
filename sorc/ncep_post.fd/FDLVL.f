@@ -1,71 +1,45 @@
 !> @file
-!
-!> SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES TEMPERATURE, SPEC. HUM, U WIND COMPONENT,
-!!     AND V WIND COMPONENT ON THE NFD=6 FD LEVELS.  THE
-!!     HEIGHT OF THESE LEVELS (IN METERS) IS GIVEN IN THE 
-!!     DATA STATEMENT BELOW.  THE ALGORITHM PROCEEDS AS 
-!!     FOLLOWS. (AGL IN PARENTHESES)
-!!     
-!!     AT EACH MASS POINT MOVE UP VERTICALLY FROM THE LM-TH (LOWEST
-!!     ATMOSPHERIC) ETA LAYER.  FIND THE ETA LAYERS WHOSE 
-!!     HEIGHT (ABOVE GROUND) BOUNDS THE TARGET FD LEVEL HEIGHT.
-!!     VERTICALLY INTERPOLATE TO GET TEMPERATURE AT THIS FD
-!!     LEVEL.  AVERAGE THE FOUR SURROUNDING WINDS
-!!     TO GET A MASS POINT WIND.  VERTICALLY INTERPOLATE THESE
-!!     MASS POINT WINDS TO THE TARGET FD LEVEL.  CONTINUE THIS
-!!     PROCESS UNTIL ALL NFD=6 FD LEVELS HAVE BEEN PROCESSED.
-!!     MOVE ON TO THE NEXT MASS POINT.  
-!!     
-!!     AVERAGING THE FOUR ABOVE GROUND WINDS TO THE MASS POINT
-!!     WAS FOUND TO SMOOTH THE FIELD AND REDUCE THE OCCURRENCE
-!!     OF POINT PEAK WINDS FAR IN EXCESS OF THE WINDS AT 
-!!     ADJACENT POINTS.  MASS POINT VALUES ARE RETURNED.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   93-11-23  RUSS TREADON - CORRECTED ROUTINE TO COMPUTE
-!!             FD LEVELS WITH REPECT TO MEAN SEA LEVEL.
-!!   94-01-04  MICHAEL BALDWIN - INCLUDE OPTIONS FOR COMPUTING
-!!                               EITHER AGL OR MSL
-!!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
-!!     
-!! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
-!!   INPUT ARGUMENT LIST:
-!!     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
-!!                   LEVELS ARE USED.
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     TFD      - TEMPERATURE (K) ON FD LEVELS.
-!!     QFD      - SPEC HUM ON FD LEVELS.
-!!     UFD      - U WIND (M/S) ON FD LEVELS.
-!!     VFD      - V WIND (M/S) ON FD LEVELS.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  LOOPS
-!!                  MASKS
-!!                  OPTIONS
-!!                  INDX
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
-!      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
-!      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
+!> @brief Subroutine that computes FD level T, Q, U, V.
+!>
+!> This routine computes temperature, spec. hum, u wind component,
+!> and v wind component on the NFD=6 FD levels. The 
+!> height of these levels (in meters) is given in the 
+!> date statement below. The alogrithm proceeds as
+!> follows. (AGL in parentheses)
+!> 
+!> At each mass point move up vertically from the LM-TH (lowest
+!> atmospheric) ETA layer. Find the ETA layers whose  
+!> height (above ground) bounds the target FD level height.
+!> Vertically interpolate to get temperature at this FD
+!> level. Average the four surrounding winds 
+!> to get a mass point wind. Vertically interpolate these 
+!> mass point winds to the target FD level. Continue this 
+!> process until all NFD=6 FD levels have been processed.
+!> Move on to the next mass point.  
+!>     
+!> Averaging the four above ground winds to the mass point
+!> was found to smooth the field and reduce the occurrence
+!> of point peak winds far in excess of the winds at 
+!> adjacent points. Mass point values are returned.
+!>
+!> @param[in] ITYPE Flag that determines whether MSL (1) or AGL (2) Levels are used.
+!> @param[out] TFD Temperature (K) on FD levels.
+!> @param[out] QFD Spec hum on FD levels.
+!> @param[out] UFD U wind (m/s) on FD levels.
+!> @param[out] VFD V wind (m/s) on FD levels.
+!>     
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-11-23 | Russ Treadon | Corrected routine to compute FD levels with respect to mean sea level
+!> 1994-01-04 | Mike Baldwin | Include options for computing either AGL or MSL
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2002-01-15 | Mike Baldwin | WRF version           
+!> 2011-12-14 | Sarah Lu     | Add GOCART aerosol AERFD
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
 
 !     
@@ -468,74 +442,48 @@
       RETURN
       END
 
+!> Computes FD level u,v.
+!>
+!> This routine computes u/v wind component on NFD FD levels.
+!> The height of these levels (in meters) is passed as an 
+!> input parameter. The alogrithm proceeds as
+!> follows. (AGL in parentheses)
+!> 
+!> At each mass point move up vertically from the LM-TH (lowest
+!> atmospheric) ETA layer. Find the ETA layers whose  
+!> height (above ground) bounds the target FD level height.
+!> Vertically interpolate to get temperature at this FD
+!> level. Average the four surrounding winds 
+!> to get a mass point wind. Vertically interpolate these 
+!> mass point winds to the target FD level. Continue this 
+!> process until all NFD FD levels have been processed.
+!> Move on to the next mass point.  
+!>     
+!> Averaging the four above ground winds to the mass point
+!> was found to smooth the field and reduce the occurrence
+!> of point peak winds far in excess of the winds at 
+!> adjacent points. Mass point values are returned.
+!>
+!> @param[in] ITYPE Flag that determines whether MSL (1) or AGL (2) Levels are used.
+!> @param[in] NFD Number of FD levels.
+!> @param[in] HTFD FD levels.
+!> @param[out] UFD U wind (m/s) on FD levels.
+!> @param[out] VFD V wind (m/s) on FD levels.
+!>     
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-11-23 | Russ Treadon | Corrected routine to compute FD levels with respect to mean sea level
+!> 1994-01-04 | Mike Baldwin | Include options for computing either AGL or MSL
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2002-01-15 | Mike Baldwin | WRF version           
+!> 2011-12-14 | Sarah Lu     | Add GOCART aerosol AERFD
+!> 2019-09-25 | Y Mao        | Seperate U/V from mass
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FDLVL_UV(ITYPE,NFD,HTFD,UFD,VFD)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    FDLVL_UV       COMPUTES FD LEVEL U, V
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!     
-! ABSTRACT:
-!     THIS ROUTINE COMPUTES U/V WIND COMPONENT ON NFD FD LEVELS.
-!     THE HEIGHT OF THESE LEVELS (IN METERS) IS PASSED AS AN
-!     INPUT PARAMETER.  THE ALGORITHM PROCEEDS AS 
-!     FOLLOWS. (AGL IN PARENTHESES)
-!     
-!     AT EACH MASS POINT MOVE UP VERTICALLY FROM THE LM-TH (LOWEST
-!     ATMOSPHERIC) ETA LAYER.  FIND THE ETA LAYERS WHOSE 
-!     HEIGHT (ABOVE GROUND) BOUNDS THE TARGET FD LEVEL HEIGHT.
-!     VERTICALLY INTERPOLATE TO GET TEMPERATURE AT THIS FD
-!     LEVEL.  AVERAGE THE FOUR SURROUNDING WINDS
-!     TO GET A MASS POINT WIND.  VERTICALLY INTERPOLATE THESE
-!     MASS POINT WINDS TO THE TARGET FD LEVEL.  CONTINUE THIS
-!     PROCESS UNTIL ALL NFD FD LEVELS HAVE BEEN PROCESSED.
-!     MOVE ON TO THE NEXT MASS POINT.  
-!     
-!     AVERAGING THE FOUR ABOVE GROUND WINDS TO THE MASS POINT
-!     WAS FOUND TO SMOOTH THE FIELD AND REDUCE THE OCCURRENCE
-!     OF POINT PEAK WINDS FAR IN EXCESS OF THE WINDS AT 
-!     ADJACENT POINTS.  MASS POINT VALUES ARE RETURNED.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-22  RUSS TREADON
-!   93-11-23  RUSS TREADON - CORRECTED ROUTINE TO COMPUTE
-!             FD LEVELS WITH REPECT TO MEAN SEA LEVEL.
-!   94-01-04  MICHAEL BALDWIN - INCLUDE OPTIONS FOR COMPUTING
-!                               EITHER AGL OR MSL
-!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!   02-01-15  MIKE BALDWIN - WRF VERSION
-!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
-!   19-25-09  Y Mao - Seperate U/V from mass
-!     
-! USAGE:    CALL FDLVL_UV(ITYPE,NFD,HTFD,UFD,VFD)
-!   INPUT ARGUMENT LIST:
-!     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
-!                   LEVELS ARE USED.
-!     NFD      - NUMBER OF FD LEVELS
-!     HTFD     - FD LEVELS
-!
-!   OUTPUT ARGUMENT LIST: 
-!     UFD      - U WIND (M/S) ON FD LEVELS.
-!     VFD      - V WIND (M/S) ON FD LEVELS.
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       COMMON   - 
-!                  LOOPS
-!                  MASKS
-!                  OPTIONS
-!                  INDX
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
 !     
 !
       use vrbls3d,    only: ZMID, PMID, UH, VH
@@ -795,106 +743,76 @@
       RETURN
       END
 
-      SUBROUTINE FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    FDLVL_MASS       COMPUTES FD LEVEL FOR MASS VARIABLES
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!     
-! ABSTRACT:
-!     THIS ROUTINE COMPUTES MASS VARIABLES (TEMPERATURE, SPEC. HUM...)
-!     ON NFD FD LEVELS.  THE HEIGHT OF THESE LEVELS (IN METERS) IS
-!     PASSED AS AN INPUT PARAMETER.  THE ALGORITHM PROCEEDS AS 
-!     FOLLOWS. (AGL IN PARENTHESES)
-!     
-!     AT EACH MASS POINT MOVE UP VERTICALLY FROM THE LM-TH (LOWEST
-!     ATMOSPHERIC) ETA LAYER.  FIND THE ETA LAYERS WHOSE 
-!     HEIGHT (ABOVE GROUND) BOUNDS THE TARGET FD LEVEL HEIGHT.
-!     VERTICALLY INTERPOLATE TO GET TEMPERATURE AT THIS FD
-!     LEVEL.  AVERAGE THE FOUR SURROUNDING WINDS
-!     TO GET A MASS POINT WIND.  VERTICALLY INTERPOLATE THESE
-!     MASS POINT WINDS TO THE TARGET FD LEVEL.  CONTINUE THIS
-!     PROCESS UNTIL ALL NFD FD LEVELS HAVE BEEN PROCESSED.
-!     MOVE ON TO THE NEXT MASS POINT.  
-!     
-!     AVERAGING THE FOUR ABOVE GROUND WINDS TO THE MASS POINT
-!     WAS FOUND TO SMOOTH THE FIELD AND REDUCE THE OCCURRENCE
-!     OF POINT PEAK WINDS FAR IN EXCESS OF THE WINDS AT 
-!     ADJACENT POINTS.  MASS POINT VALUES ARE RETURNED.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-22  RUSS TREADON
-!   93-11-23  RUSS TREADON - CORRECTED ROUTINE TO COMPUTE
-!             FD LEVELS WITH REPECT TO MEAN SEA LEVEL.
-!   94-01-04  MICHAEL BALDWIN - INCLUDE OPTIONS FOR COMPUTING
-!                               EITHER AGL OR MSL
-!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!   02-01-15  MIKE BALDWIN - WRF VERSION
-!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
-!   17-06-01  Y Mao - ADD FD levels for GTG(EDPARM CATEDR MWTURB) and allow 
-!                     levels input from control file
-!   19-09-25  Y MAO - SEPERATE MASS FROM UV
-!                     ALLOW ARRAY OF MASS INPUT TO INTERPOLATE MULTIPLE FIELDS 
-!                     WITH THE SAME LEVELS AT ONE TIME
-!                     DUST=>AERFD CAN BE PROCESSED WHEN NIN=NBIN_DU
-!   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
-!     
-! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
-!   INPUT ARGUMENT LIST:
-!     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
-!                   LEVELS ARE USED.
-!     NFD      - NUMBER OF FD LEVELS
-!     PTFD     - FD PRESSURE LEVELS
-!     HTFD     - FD HEIGHT LEVELS
-!     NIN      - NUMBER OF INPUT FIELDS
-!     QIN      - ARRAY OF MASS POINT VALUE ON MODEL LEVELS
-!     QTYPE    - CHARACTER ARRAY OF VARIABLE TYPE TO DIFFERENTIATE UNDERGROUND INTERPOLATION 
+!> Computes FD level for mass variables.
+!>
+!> This routine computes mass variables (temperature, spec. hum...)
+!> on NFD FD levels. The height of these levels (in meters) is 
+!> passed as an input parameter. The alogrithm proceeds as
+!> follows. (AGL in parentheses)
+!> 
+!> At each mass point move up vertically from the LM-TH (lowest
+!> atmospheric) ETA layer. Find the ETA layers whose  
+!> height (above ground) bounds the target FD level height.
+!> Vertically interpolate to get temperature at this FD
+!> level. Average the four surrounding winds 
+!> to get a mass point wind. Vertically interpolate these 
+!> mass point winds to the target FD level. Continue this 
+!> process until all NFD FD levels have been processed.
+!> Move on to the next mass point.
+!>     
+!> Averaging the four above ground winds to the mass point
+!> was found to smooth the field and reduce the occurrence
+!> of point peak winds far in excess of the winds at 
+!> adjacent points. Mass point values are returned.
+!>
+!> NOTES for Q fields by Y Mao:
+!> The following safety check should be executed by the caller of FDLVL subroutines.
+!> Safety check to avoid tiny QFD values.
+!><pre>
+!>    KRF: Need NCAR and NMM WRF cores in this check as well?
+!>    IF(MODELNAME=='RAPR' .OR. MODELNAME=='NCAR' .OR. MODELNAME=='NMM') THEN   !
+!>      DO IFD = 1,NFD
+!>        DO J=JSTA,JEND
+!>        DO I=1,IM
+!>           if(QFD(I,J,IFD) < 1.0e-8) QFD(I,J,IFD)=0.0
+!>        ENDDO
+!>        ENDDO
+!>      ENDDO
+!>    endif
+!></pre>
+!>
+!> @param[in] ITYPE Flag that determines whether MSL (1) or AGL (2) Levels are used.
+!> @param[in] NFD Number of FD levels.
+!> @param[in] PTFD FD pressure levels.
+!> @param[in] HTFD FD height levels.
+!> @param[in] NIN Number of input fields.
+!> @param[in] QIN Array of mass point value on model levels.
+!> @param[in] QTYPE Charater array of variable type to differentiate underground interpolation.
+!><pre>
 !                    C-5 Cloud Species
 !                    K-TURBULENT KINETIC ENERGY
 !                    Q-Specific Humidity
 !                    T-Temperature, 
 !                    W-Vertical Velocity or Omega
-!                    
-!   OUTPUT ARGUMENT LIST: 
-!     QFD     - ARRAY OF MASS POINT VALUE ON FD LEVELS.
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       COMMON   - 
-!                  LOOPS
-!                  MASKS
-!                  OPTIONS
-!                  INDX
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
-!     
-!
-
-! NOTES for Q fields by Y Mao:
-! The following safety check should be executed by the caller of FDLVL subroutines.
-!  safety check to avoid tiny QFD values
-!     !KRF: Need NCAR and NMM WRF cores in this check as well?
-!     IF(MODELNAME=='RAPR' .OR. MODELNAME=='NCAR' .OR. MODELNAME=='NMM') THEN   !
-!       DO IFD = 1,NFD
-!         DO J=JSTA,JEND
-!         DO I=1,IM
-!            if(QFD(I,J,IFD) < 1.0e-8) QFD(I,J,IFD)=0.0
-!         ENDDO
-!         ENDDO
-!       ENDDO
-!     endif
-!
-
+!></pre>
+!> @param[out] QFD Array of mass point value on FD levels.
+!>     
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-11-23 | Russ Treadon | Corrected routine to compute FD levels with respect to mean sea level
+!> 1994-01-04 | Mike Baldwin | Include options for computing either AGL or MSL
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2002-01-15 | Mike Baldwin | WRF version           
+!> 2011-12-14 | Sarah Lu     | Add GOCART aerosol AERFD
+!> 2017-06-01 | Y Mao        | Add FD levels for GTG(EDPARM CATEDR MWTURB) and allow levels input from control file
+!> 2019-09-25 | Y Mao        | Seperate mass from UV allow array of mass input to interpolate multiple fields with the same levels at one time. Dust=> AERFD can be processed when NIN=NBIN_DU
+!> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
+      SUBROUTINE FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
       use vrbls3d,    only: T,Q,ZMID,PMID,PINT,ZINT
       use vrbls2d,    only: FIS
       use masks,      only: LMH

@@ -1,37 +1,21 @@
 !> @file
-!
-!> SUBPROGRAM:    EXCH        EXCHANGE ONE HALO ROW
-!!   PRGRMMR: TUCCILLO        ORG: IBM
-!!
-!! ABSTRACT:
-!!     EXCHANGE ONE HALO ROW
-!!
-!! PROGRAM HISTORY LOG:
-!!   00-01-06  TUCCILLO - ORIGINAL
-!!
-!! USAGE:    CALL EXCH(A)
-!!   INPUT ARGUMENT LIST:
-!!      A - ARRAY TO HAVE HALOS EXCHANGED
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!      A - ARRAY WITH HALOS EXCHANGED
-!!
-!!   OUTPUT FILES:
-!!     STDOUT  - RUN TIME STANDARD OUT.
-!!
-!!   SUBPROGRAMS CALLED:
-!!       MPI_SENDRECV
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON - CTLBLK.comm
-!!
-!@PROCESS NOCHECK
-!
-!--- The 1st line is an inlined compiler directive that turns off -qcheck
-!    during compilation, even if it's specified as a compiler option in the
-!    makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
-!
+!> @brief Subroutine that exchange one halo row.
+!>
+!> This routine is to exchange one halo row.
+!> 
+!> @param[in] A Array to have halos exchanged.
+!> @param[out] A Array with halos exchanged.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2000-01-06 | Jim Tuccillo | Initial
+!>
+!> Remarks: The 1st line is an inlined compiler directive that turns off -qcheck
+!> during compilation, even if it's specified as a compiler option in the
+!> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
+!>
+!> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE EXCH(A)
 
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&
