@@ -391,7 +391,6 @@
       RETURN
       END
 
-      SUBROUTINE CALDIV(UWND,VWND,DIV)
 !> CALDIV computes divergence.
 !>    
 !> For GFS, this routine copmutes the horizontal divergence
@@ -408,10 +407,7 @@
 !> 2016-07-22 | S Moorthi | Modified polar divergence calculation
 !>
 !> @author Sajal Kar W/NP2 @date 2016-05-05
-      SUBROUTINE CALVOR(UWND,VWND,ABSV)
-
-!     
-!
+      SUBROUTINE CALDIV(UWND,VWND,DIV)
       use vrbls2d,      only: f
       use masks,        only: gdlat, gdlon
       use params_mod,   only: d00, dtr, small, erad
