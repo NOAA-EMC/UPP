@@ -57,7 +57,7 @@
 !> 2013-12-23 | Lu/Wang           | Read aerosol optical properties LUTS to compute dust aod, non-dust aod, and use geos5 gocart LUTS
 !> 2015-??-?? | S. Moorthi        | threading, optimization, local dimension
 !> 2019-07-24 | Li(Kate) Zhang    | Merge and update ARAH Lu's work from NGAC into FV3-Chem
-!> 2019-10-30 | Bo CUI            | Remove "GOTO" statement
+!> 2019-10-30 | Bo Cui            | Remove "GOTO" statement
 !> 2020-03-25 | Jesse Meng        | Remove grib1
 !> 2020-05-20 | Jesse Meng        | CALRH unification with NAM scheme
 !> 2020-11-10 | Jesse Meng        | Use UPP_PHYSICS Module
@@ -65,7 +65,6 @@
 !> 2021-04-01 | Jesse Meng        | Computation on defined points only
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
-
       SUBROUTINE CLDRAD
 
 !
@@ -79,18 +78,19 @@
                          HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH,  &
                          PBOT, PBOTL, PBOTM, PBOTH, CNVCFR, PTOP, PTOPL,      &
                          PTOPM, PTOPH, TTOPL, TTOPM, TTOPH, PBLCFR, CLDWORK,  &
-                         ASWIN, AUVBIN, AUVBINC, ASWIN, ASWOUT,ALWOUT, ASWTOA,&
+                         ASWIN, AUVBIN, AUVBINC, ASWOUT,ALWOUT, ASWTOA,       &
                          RLWTOA, CZMEAN, CZEN, RSWIN, ALWIN, ALWTOA, RLWIN,   &
                          SIGT4, RSWOUT, RADOT, RSWINC, ASWINC, ASWOUTC,       &
                          ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN,             &
-                         AVISDIFFSWIN, ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN,&
+                         AVISDIFFSWIN, ASWINTOA, ASWTOAC, AIRBEAMSWIN,        &
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
                          AVGCPRATE,                                           &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
-                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
+                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
+                         PWAT
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -226,6 +226,7 @@
       data INDX_EXT       / 610, 611, 612, 613, 614  /
       data INDX_SCA       / 651, 652, 653, 654, 655  /
       logical, parameter :: debugprint = .false.
+      logical :: Model_Pwat
 !     
 !
 !*************************************************************************
@@ -389,12 +390,29 @@
       IF (IGET(080) > 0) THEN
 ! dong 
          GRID1 = spval
+         Model_Pwat = .false.
+         DO J=JSTA,JEND
+         DO I=1,IM
+           IF(ABS(PWAT(I,J)-SPVAL)>SMALL) THEN
+             Model_Pwat = .true.
+             exit
+           ENDIF
+         END DO
+         END DO
+         IF (Model_Pwat) THEN
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = PWAT(I,J)
+           END DO
+         END DO
+         ELSE
          CALL CALPW(GRID1(1,jsta),1)
           DO J=JSTA,JEND
             DO I=1,IM
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
             END DO
           END DO
+         ENDIF
         CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
