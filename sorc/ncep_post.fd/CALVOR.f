@@ -408,7 +408,6 @@
 !>
 !> @author Sajal Kar W/NP2 @date 2016-05-05
       SUBROUTINE CALDIV(UWND,VWND,DIV)
-      use vrbls2d,      only: f
       use masks,        only: gdlat, gdlon
       use params_mod,   only: d00, dtr, small, erad
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
