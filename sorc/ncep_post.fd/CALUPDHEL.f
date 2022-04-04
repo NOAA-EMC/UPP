@@ -81,6 +81,8 @@
       DO J=JSTA_M,JEND_M
         DO I=2,IM-1
 
+          IF (HTSFC(I,J) < spval) THEN
+
           R2DX   = 1./(2.*DX(I,J))
           R2DY   = 1./(2.*DY(I,J))
 
@@ -113,6 +115,11 @@
 
             ENDIF
           ENDDO l_loop
+
+          ELSE
+            UPDHEL(I,J) = spval
+          ENDIF
+
         ENDDO
       ENDDO
 
