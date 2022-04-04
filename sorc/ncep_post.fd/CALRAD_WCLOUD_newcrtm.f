@@ -12,7 +12,7 @@
 !> 2014-12-09 | WM Lewis       | added function EFFR to compute effective particle radii channel selection using LVLS from WRF_CNTRL.PARM
 !> 2019-04-01 | Sharon Nebuda  | Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
 !> 2020-04-09 | Tracy Hertneky | Added Himawari-8 AHI CH7-CH16
-!> 2021-01-10 | Web Meng       | Added checking points for skiping grids with filling value spval
+!> 2021-01-10 | Wen Meng       | Added checking points for skiping grids with filling value spval
 !> 2021-03-11 | Bo Cui         | improve local arrays memory
 !> 2021-08-31 | Lin Zhu        | added ssmis-f17 channels 15-18 grib2 output 
 !>
