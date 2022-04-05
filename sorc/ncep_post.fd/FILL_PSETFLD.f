@@ -1,12 +1,12 @@
 !> @file
-!> @brief READCNTRLgrb2_xml reads Post xml control file.
+!> @brief fill_psetfld reads post xml control file.
 !>
 !> This routine set the output field GRIB2 information such    
 !> as parameter name, level type etc from post available field
 !> table.
 !>
 !> @param[in] param_ofld output field.
-!> @param[in] param_afld available field in POST.
+!> @param[in] param_afld available field in post.
 !> @param[out] param_ofld output field.
 !>
 !> ### Program History Log

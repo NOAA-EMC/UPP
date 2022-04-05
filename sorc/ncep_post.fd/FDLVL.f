@@ -4,8 +4,8 @@
 !> This routine computes temperature, spec. hum, u wind component,
 !> and v wind component on the NFD=6 FD levels. The 
 !> height of these levels (in meters) is given in the 
-!> date statement below. The alogrithm proceeds as
-!> follows. (AGL in parentheses)
+!> data statement below. The alogrithm proceeds as
+!> follows. (AGL-Above ground level in parentheses)
 !> 
 !> At each mass point move up vertically from the LM-TH (lowest
 !> atmospheric) ETA layer. Find the ETA layers whose  
@@ -447,7 +447,7 @@
 !> This routine computes u/v wind component on NFD FD levels.
 !> The height of these levels (in meters) is passed as an 
 !> input parameter. The alogrithm proceeds as
-!> follows. (AGL in parentheses)
+!> follows. (AGL-Above ground level in parentheses)
 !> 
 !> At each mass point move up vertically from the LM-TH (lowest
 !> atmospheric) ETA layer. Find the ETA layers whose  
@@ -748,7 +748,7 @@
 !> This routine computes mass variables (temperature, spec. hum...)
 !> on NFD FD levels. The height of these levels (in meters) is 
 !> passed as an input parameter. The alogrithm proceeds as
-!> follows. (AGL in parentheses)
+!> follows. (AGL-Above ground level in parentheses)
 !> 
 !> At each mass point move up vertically from the LM-TH (lowest
 !> atmospheric) ETA layer. Find the ETA layers whose  
@@ -768,8 +768,8 @@
 !> NOTES for Q fields by Y Mao:
 !> The following safety check should be executed by the caller of FDLVL subroutines.
 !> Safety check to avoid tiny QFD values.
-!><pre>
-!>    KRF: Need NCAR and NMM WRF cores in this check as well?
+!> KRF: Need NCAR and NMM WRF cores in this check as well?
+!> @code
 !>    IF(MODELNAME=='RAPR' .OR. MODELNAME=='NCAR' .OR. MODELNAME=='NMM') THEN   !
 !>      DO IFD = 1,NFD
 !>        DO J=JSTA,JEND
@@ -779,7 +779,7 @@
 !>        ENDDO
 !>      ENDDO
 !>    endif
-!></pre>
+!> @endcode 
 !>
 !> @param[in] ITYPE Flag that determines whether MSL (1) or AGL (2) Levels are used.
 !> @param[in] NFD Number of FD levels.
@@ -789,11 +789,11 @@
 !> @param[in] QIN Array of mass point value on model levels.
 !> @param[in] QTYPE Charater array of variable type to differentiate underground interpolation.
 !><pre>
-!                    C-5 Cloud Species
-!                    K-TURBULENT KINETIC ENERGY
-!                    Q-Specific Humidity
-!                    T-Temperature, 
-!                    W-Vertical Velocity or Omega
+!>                   C-5 Cloud Species
+!>                   K-TURBULENT KINETIC ENERGY
+!>                   Q-Specific Humidity
+!>                   T-Temperature, 
+!>                   W-Vertical Velocity or Omega
 !></pre>
 !> @param[out] QFD Array of mass point value on FD levels.
 !>     

@@ -1,7 +1,7 @@
 !> @file
-!> @brief Subroutine that exchange one halo row.
+!> @brief Subroutines that exchange one halo row.
 !>
-!> This routine is to exchange one halo row.
+!> These routines are to exchange one halo row.
 !> 
 !> @param[in] A Array to have halos exchanged.
 !> @param[out] A Array with halos exchanged.
@@ -11,7 +11,7 @@
 !> -----|------------|---------
 !> 2000-01-06 | Jim Tuccillo | Initial
 !>
-!> Remarks: The 1st line is an inlined compiler directive that turns off -qcheck
+!> @note The 1st line is an inlined compiler directive that turns off -qcheck
 !> during compilation, even if it's specified as a compiler option in the
 !> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !>
@@ -56,11 +56,11 @@
       end
 
 !!@PROCESS NOCHECK
-!
-!--- The 1st line is an inlined compiler directive that turns off -qcheck
-!    during compilation, even if it's specified as a compiler option in the
-!    makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
-!
+!>
+!> @note The 1st line is an inlined compiler directive that turns off -qcheck
+!> during compilation, even if it's specified as a compiler option in the
+!> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
+!>
       subroutine exch_f(a)
  
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn,    &
