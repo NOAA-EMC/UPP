@@ -61,6 +61,7 @@
 !> during compilation, even if it's specified as a compiler option in the
 !> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !>
+!> @author Jim Tuccillo IBM @date 2000-01-06
       subroutine exch_f(a)
  
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn,    &

@@ -1,5 +1,5 @@
 !> @file
-!> @brief fill_psetfld reads post xml control file.
+!> @brief fill_psetfld() reads post xml control file.
 !>
 !> This routine set the output field GRIB2 information such    
 !> as parameter name, level type etc from post available field
