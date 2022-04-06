@@ -15,7 +15,7 @@
 !>               theta=t0*exp(s/cp)
 !>             the static stability
 !>               sigma=t/g*bvf2
-!!             and the potential vorticity in PV units
+!>             and the potential vorticity in PV units
 !>               pvu=10**-6*theta*pvn
 !></pre>
 !>
