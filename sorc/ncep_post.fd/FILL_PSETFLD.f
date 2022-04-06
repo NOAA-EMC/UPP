@@ -1,39 +1,22 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
-!!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE SET THE OUTPUT FIELD GRIB2 INFORMATION SUCH    
-!!     AS PARAMETER NAME, LEVEL TYPE ETC FROM POST AVAILABLE FIELD
-!!     TABLE
-!!     
-!! PROGRAM HISTORY LOG:
-!!   01_27_2012  Jun Wang - INITIAL CODE
-!!   04_03_2012  Jun Wang - Add table info
-!!   03_10_2015  Lin Gan  - Using flat file data
-!!     
-!! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
-!!   INPUT ARGUMENT LIST:
-!!     param_ofld: output field
-!!     param_afld: available field in POST
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     param_ofld: output field
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!       MODULE:   - xml_data_post_t
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM      
-!!
+!> @brief fill_psetfld() reads post xml control file.
+!>
+!> This routine set the output field GRIB2 information such    
+!> as parameter name, level type etc from post available field
+!> table.
+!>
+!> @param[in] param_ofld output field.
+!> @param[in] param_afld available field in post.
+!> @param[out] param_ofld output field.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2012-01-27 | Jun Wang | Initial
+!> 2012-04-03 | Jun Wang | Add table info
+!> 2015-03-10 | Lin Gan  | Using flat file data
+!>
+!> @author J. Wang NCEP/EMC @date 2012-01-27
       subroutine fill_psetfld(param_ofld,param_afld)
 !
 
