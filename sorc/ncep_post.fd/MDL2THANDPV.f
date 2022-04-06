@@ -1,5 +1,5 @@
 !> @file
-!> @brief MDL2THANDPV vert intrp of model lvls to isentropic and PV.
+!> @brief mdl2thandpv() vert intrp of model lvls to isentropic and PV.
 !>
 !> For most applications this routine is the workhorse
 !> of the post processor.  In a nutshell it interpolates

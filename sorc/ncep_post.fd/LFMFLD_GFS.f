@@ -1,5 +1,5 @@
 !> @file
-!> @brief LFMFLD_GFS computes layer mean LFM fields.
+!> @brief lfmfld_gfs() computes layer mean LFM fields.
 !>
 !> This routine computes three layer mean relative humidities
 !> and a precipitable water field from ETA level data.  The

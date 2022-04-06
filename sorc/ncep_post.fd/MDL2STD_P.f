@@ -1,5 +1,5 @@
 !> @file
-!> @brief  MDL2STD_P vert intrp of model lvls to standard atmospheric pressure.
+!> @brief  mdl2std_p() vert intrp of model lvls to standard atmospheric pressure.
 !>
 !> Originated from MISCLN.f. This routine interpolate to standard
 !> atmospheric pressure, instead of model pressure.

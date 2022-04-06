@@ -1,15 +1,15 @@
 !> @file
-!> @brief MDL2P computes vert intrp of model lvls to pressure.
+!> @brief mdl2p() computes vert intrp of model lvls to pressure.
 !>
 !> For most applications this routine is the workhorse of the post processor.
 !> In a nutshell it interpolates data from model to pressure surfaces.
 !> It origiaated from the vertical interpolation code in the old ETA
-!> post processor subroutine OUTMAP and is a revision of subroutine ETA2P.
+!> post processor subroutine outmap() and is a revision of subroutine eta2p().
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
-!> 1999-09-23 | T Black         | Rewritten from ETA2P
+!> 1999-09-23 | T Black         | Rewritten from eta2p()
 !> 2001-10-25 | H Chuang        | Modified to process hybrid model output
 !> 2002-06-12 | Mike Baldwin    | WRF Version
 !> 2002-07-29 | H Chuang        | Add underground fields and membrane SLP for WRF
@@ -18,7 +18,7 @@
 !> 2005--8-30 | B Zhou          | Add aviation products: ICING, CAT, LLWS computation
 !> 2008-01-01 | H Chuang        | Add GFS D3D fields to vertical interpolation
 !> 2010-07-01 | Smirnova and Hu | Add RR changes
-!> 2010-12-30 | H Chuang        | Add HAINES index to support fire weather
+!> 2010-12-30 | H Chuang        | Add Haines index to support fire weather
 !> 2011-02-06 | J Wang          | Add grib2 option to support fire weather
 !> 2012-01-11 | S Lu            | Add GOCART aerosols
 !> 2013-08-01 | S Moorthi       | Some optimization

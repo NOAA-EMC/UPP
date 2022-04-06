@@ -1,5 +1,5 @@
 !> @file
-!> @brief MSFPS computes the map scale factor for a polar stereographic grid at a give latitude.
+!> @brief msfps() computes the map scale factor for a polar stereographic grid at a give latitude.
 !>
 !> This subroutine computes the map scale factor for a polar stereographic grid at a give latitude.
 !>

@@ -1,5 +1,5 @@
 !> @file
-!> @brief GET_BITS computes number of bits and round field.
+!> @brief get_bits() computes number of bits and round field.
 !>
 !> The number of bits requited to pack a given field
 !> at a particular decimal scaling is computed using the field range.
@@ -82,7 +82,7 @@
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END
-!> FNDBIT computes the number of packing bits given the
+!> fndbit() computes the number of packing bits given the
 !> maximum number of significant digits to preserve or the binary
 !> precision to store the data.  The binary precision is given as a
 !> negative integer, ISCALE will always be zero in this case.

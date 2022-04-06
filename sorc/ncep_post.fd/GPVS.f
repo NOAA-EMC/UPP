@@ -1,5 +1,5 @@
 !> @file
-!> @brief GPVS computes saturation vapor pressure table.
+!> @brief gpvs() computes saturation vapor pressure table.
 !>
 !> Compute saturation vapor pressure table as a function of
 !> temperature for the table lookup function FPVS.
@@ -53,7 +53,7 @@
 !-----------------------------------------------------------------------
                            FUNCTION FPVS(T)
 !-----------------------------------------------------------------------
-!> FPVS computes saturation vapor pressure.
+!> fpvs() computes saturation vapor pressure.
 !>
 !> Compute saturation vapor pressure from the temperature.
 !> A linear interpolation is done between values in a lookup table
@@ -120,7 +120,7 @@
 !-----------------------------------------------------------------------
                          FUNCTION FPVSX(T)
 !-----------------------------------------------------------------------
-!> FPVSX computes saturation vapor pressure.
+!> fpvsx() computes saturation vapor pressure.
 !>
 !> Exactly compute saturation vapor pressure from temperature.
 !> The water model assumes a perfect gas, constant specific heats
