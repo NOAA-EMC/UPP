@@ -1,5 +1,5 @@
 !> @file
-!> @brief INITPOST_NEMS initializes post for run.
+!> @brief initpost_nems() initializes post for run.
 !>
 !> This routine initializes constants and
 !> variables at the start of an NEMS model or post

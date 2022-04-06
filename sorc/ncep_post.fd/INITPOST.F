@@ -1,5 +1,5 @@
 !> @file
-!> @brief INITPOST initializes post for run.
+!> @brief initpost() initializes post for run.
 !>
 !> This routine initializes constants and
 !> variables at the start of an ETA model or post
