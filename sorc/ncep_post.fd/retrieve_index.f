@@ -1,5 +1,5 @@
 !> @file
-!> @brief retrieve_index gets record number of desired variable.
+!> @brief retrieve_index() gets record number of desired variable.
 !>
 !> By examining previously generated inventory of wrf binary restart file,
 !> find record number that contains the header record for variable

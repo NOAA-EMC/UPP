@@ -1,5 +1,5 @@
 !> @file
-!> @brief PROCESS is a driver for major post routines.
+!> @brief process() is a driver for major post routines.
 !>
 !> This routine calls the major post processor routines.
 !> <pre>

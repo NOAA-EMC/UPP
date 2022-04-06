@@ -1,5 +1,5 @@
 !> @file
-!> @brief PARA_RANGE sets up decomposition values.
+!> @brief para_range() sets up decomposition values.
 !>
 !> This subroutine sets up decomposition values.
 !>

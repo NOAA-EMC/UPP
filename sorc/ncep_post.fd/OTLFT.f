@@ -1,5 +1,5 @@
 !> @file
-!> @brief OTLFT computes lifted index.
+!> @brief otlft() computes lifted index.
 !>
 !> This routine computes lifts a parcel specified by the
 !> passed pressure, temperature, and specific humidity to

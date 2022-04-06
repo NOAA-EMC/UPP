@@ -1,5 +1,5 @@
 !> @file
-!> @brief OTLIFT computes SFC to 500mb lifted index.
+!> @brief otlift() computes SFC to 500mb lifted index.
 !>
 !> This routine computes a surface to 500mb lifted index.
 !> The lifted parcel is from the first atmpspheric ETA

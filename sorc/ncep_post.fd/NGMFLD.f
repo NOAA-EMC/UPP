@@ -1,5 +1,5 @@
 !> @file
-!> @brief NGMFLD computes layer mean NGM fields
+!> @brief ngmfld() computes layer mean NGM fields
 !>
 !> This routine computes a handful of NGM layer mean 
 !> fields.  This is done to provide a fully complete 

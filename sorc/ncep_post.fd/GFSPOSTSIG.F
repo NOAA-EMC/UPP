@@ -1,6 +1,6 @@
 !> @file
 !>
-!> @brief rtsig reads and transforms sigma file.
+!> @brief rtsig() reads and transforms sigma file.
 !>
 !> This subprogram reads a sigma file and transforms
 !> the fields to a designated global grid.
@@ -225,7 +225,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 end subroutine  
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> modstuff computes model coordinate dependent functions.
+!> modstuff() computes model coordinate dependent functions.
 !>
 !> This subprogram computes fields which depend on the model coordinate
 !> such as pressure thickness and vertical velocity.
@@ -249,7 +249,7 @@ end subroutine
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 1999-10-18 | Mark Iredell | Initial
-!> 2013-04-19 | Jun Wang     | Add option to get pi by using 8byte real computation
+!> 2013-04-19 | Jun Wang     | Add option to get pi by using 8 byte real computation
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
   subroutine modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
@@ -300,7 +300,7 @@ end subroutine
   end subroutine
 
 !-------------------------------------------------------------------------------
-!> modstuff2 computes model coordinate dependent functions.
+!> modstuff2() computes model coordinate dependent functions.
 !>
 !> This subprogram computes fields which depend on the model coordinate
 !> such as pressure thickness and vertical velocity.
@@ -326,7 +326,7 @@ end subroutine
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 1999-10-18 | Mark Iredell      | Initial
-!> 2013-04-19 | Jun  Wang         | Add option to get pi by using 8byte real computation
+!> 2013-04-19 | Jun  Wang         | Add option to get pi by using 8 byte real computation
 !> 2013-08-13 | Shrinivas Moorthi | Modified to include im points and thread
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
@@ -404,7 +404,7 @@ end subroutine
   end subroutine
 
 !-----------------------------------------------------------------------
-!> trssc transforms sigma spectral fields to grid.
+!> trssc() transforms sigma spectral fields to grid.
 !>
 !> Transforms sigma spectral fields to grid and converts
 !> log surface pressure to surface pressure and virtual temperature
