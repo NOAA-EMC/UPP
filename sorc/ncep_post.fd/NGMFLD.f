@@ -3,20 +3,17 @@
 !>
 !> This routine computes a handful of NGM layer mean 
 !> fields.  This is done to provide a fully complete 
-!> ETA NGM look-alike output file.  The sigma (layer)
-!> fields computed bu this routine are tabulated below.
-!><pre>
-!>       Sigma (layer)         Field(s)
-!>      ---------------     --------------
-!>      0.47191-1.00000          RH
-!>      0.47171-0.96470          RH
-!>      0.18019-0.47191          RH
-!>      0.84368-0.98230          RH
-!>      0.85000-1.00000         MCONV
-!> where
-!>      RH    = Relative humidity
-!>      MCONV = Moisture convergence
-!></pre>
+!> ETA NGM look-alike output file.
+!> ### The sigma (layer) fields computed bu this routine are tabulated below.
+!> Sigma (layer) | Field(s) | 
+!> --------------|----------|
+!> 0.47191 - 1.00000 |  RH    |
+!> 0.47171 - 0.96470 |  RH    |
+!> 0.18019 - 0.47191 |  RH    |
+!> 0.84368 - 0.98230 |  RH    |
+!> 0.85000 - 1.00000 | MCONV  |
+!> where RH = Relative humidity and MCONV = Moisture convergence
+!>
 !> Layer means are a summation over ETA layers mapping into
 !> The pressure range corresponding to the sigma range above.
 !> The calculation of these bounding pressures is done at
