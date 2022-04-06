@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine that computes FD level T, Q, U, V.
+!> @brief Subroutine that computes T, Q, U, V on the flight levels (FD).
 !>
 !> This routine computes temperature, spec. hum, u wind component,
 !> and v wind component on the NFD=6 FD levels. The 
@@ -442,7 +442,7 @@
       RETURN
       END
 
-!> Computes FD level u,v.
+!> Computes FD level for u,v.
 !>
 !> This routine computes u/v wind component on NFD FD levels.
 !> The height of these levels (in meters) is passed as an 
