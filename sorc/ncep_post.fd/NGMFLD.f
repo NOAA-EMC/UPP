@@ -1,81 +1,47 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    NGMFLD      COMPUTES LAYER MEAN NGM FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES A HANDFUL OF NGM LAYER MEAN 
-!!     FIELDS.  THIS IS DONE TO PROVIDE A FULLY COMPLETE 
-!!     ETA NGM LOOK-ALIKE OUTPUT FILE.  THE SIGMA (LAYER)
-!!     FIELDS COMPUTED BY THIS ROUTINE ARE TABULATED BELOW.
-!!     
-!!           SIGMA (LAYER)         FIELD(S)
-!!          ---------------     --------------
-!!          0.47191-1.00000          RH
-!!          0.47171-0.96470          RH
-!!          0.18019-0.47191          RH
-!!          0.84368-0.98230          RH
-!!          0.85000-1.00000         MCONV
-!!     WHERE 
-!!          RH    = RELATIVE HUMIDITY
-!!          MCONV = MOISTURE CONVERGENCE
-!!
-!!     LAYER MEANS ARE A SUMMATION OVER ETA LAYERS MAPPING INTO
-!!     THE PRESSURE RANGE CORRESPONDING TO THE SIGMA RANGE ABOVE.
-!!     THE CALCULATION OF THESE BOUNDING PRESSURES IS DONE AT 
-!!     EACH HORIZONTAL GRID POINT BASED ON THE SURFACE PRESSURE.
-!!     EACH TERM IN THE SUMMATION IS WEIGHTED BY THE THICKNESS OF
-!!     THE ETA LAYER.  THE FINAL LAYER MEAN IS THIS SUM NORMALIZED
-!!     BY THE TOTAL DEPTH OF THE LAYER.
-
-!!
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   93-07-27  RUSS TREADON - MODIFIED SUMMATION LIMITS FROM
-!!                            0.66*PSFC TO 0.75*PSFC AND 0.33*PSFC 
-!!                            TO 0.50*PSFC, WHERE PSFC IS THE
-!!                            SURFACES PRESSURE.  THE REASON FOR
-!!                            THIS CHANGE WAS RECOGNITION THAT IN 
-!!                            THE LFM 0.33 AND 0.66 WERE MEASURED
-!!                            FROM THE SURFACE TO THE TROPOPAUSE,
-!!                            NOT THE TOP OF THE MODEL.
-!!   93-09-13  RUSS TREADON - RH CALCULATIONS WERE MADE INTERNAL
-!!                            TO THE ROUTINE.
-!!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   98-08-18  MIKE BALDWIN - COMPUTE RH OVER ICE
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   02-04-24  MIKE BALDWIN - WRF VERSION
-!!     
-!!     
-!! USAGE:    CALL NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
-!!   INPUT ARGUMENT LIST:
-!!     NONE
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     RH4710   - SIGMA LAYER 0.47-1.00 MEAN RELATIVE HUMIDITY.
-!!     RH4796   - SIGMA LAYER 0.47-0.96 MEAN RELATIVE HUMIDITY.
-!!     RH1847   - SIGMA LAYER 0.18-0.47 MEAN RELATIVE HUMIDITY.
-!!     RH8498   - SIGMA LAYER 0.84-0.98 MEAN RELATIVE HUMIDITY.
-!!     QM8510   - SIGMA LAYER 0.85-1.00 MEAN MOISTURE CONVERGENCE.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   LIBRARY:
-!!     COMMON   - 
-!!                MASKS
-!!                OPTIONS
-!!                LOOPS
-!!                MAPOT
-!!                DYNAMD
-!!                INDX
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief ngmfld() computes layer mean NGM fields
+!>
+!> This routine computes a handful of NGM layer mean 
+!> fields.  This is done to provide a fully complete 
+!> ETA NGM look-alike output file.
+!> ### The sigma (layer) fields computed bu this routine are tabulated below.
+!> Sigma (layer) | Field(s) | 
+!> --------------|----------|
+!> 0.47191 - 1.00000 |  RH    |
+!> 0.47171 - 0.96470 |  RH    |
+!> 0.18019 - 0.47191 |  RH    |
+!> 0.84368 - 0.98230 |  RH    |
+!> 0.85000 - 1.00000 | MCONV  |
+!> where RH = Relative humidity and MCONV = Moisture convergence
+!>
+!> Layer means are a summation over ETA layers mapping into
+!> The pressure range corresponding to the sigma range above.
+!> The calculation of these bounding pressures is done at
+!> each horizontal grid point based on the surface pressure.
+!> Each term in the summation is weighted by the thickness of
+!> the ETA layer.  The final layer mean is this sum normalized
+!> by the total depth of the layer.
+!>
+!> @param[out] RH4710 Sigma layer 0.47-1.00 mean relative humidity.
+!> @param[out] RH4796 Sigma layer 0.47-0.96 mean relative humidity.
+!> @param[out] RH1847 Sigma layer 0.18-0.47 mean relative humidity.
+!> @param[out] RH8498 Sigma layer 0.84-0.98 mean relative humidity.
+!> @param[out] QM8510 Sigma layer 0.85-1.00 mean moisture convergence.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-07-27 | Russ Treadon | Modified summation limits from 0.66*PSFC to 0.75*PSFC and 0.33*PSFC to 0.50*PSFC, where PSFC is the surfaces pressure.  The reason for this change was recognition that in the LFM 0.33 and 0.66 were measured from the surface to the tropopause not the top of the model.
+!> 1993-09-13 | Russ Treadon | RH calculations were made internal to the routine.
+!> 1996-03-04 | Mike Baldwin | Change PW CALC to include CLD WTR
+!> 1998-06-16 | T Black      | Conversion from 1-D to 2-D
+!> 1998-08-17 | Mike Baldwin | Compute RH over ice
+!> 1998-12-22 | Mike Baldwin | Back out RH over ice
+!> 2000-01-04 | Jim Tuccillo | MPI Version
+!> 2002-04-24 | Mike Baldwin | WRF Version
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
 
 !     
