@@ -1,40 +1,18 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    MDL2STD_P       VERT INTRP OF MODEL LVLS TO STANDARD ATMOSPEHRIC PRESSURE
-!!   PRGRMMR: Y Mao           ORG: W/NP22     DATE: Sep 2019
-!!     
-!! ABSTRACT:
-!!     ORIGINATED FROM MISCLN.f. THIS ROUTINE INTERPOLATE TO STANDARD
-!!     ATMOSPHERIC PRESSURE, INSTEAD OF MODEL PRESSURE
-!!     
-!! PROGRAM HISTORY LOG:
-!!   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
-!!   20-05-20  J MENG      - CALRH unification with NAM scheme
-!!   20-11-10  J MENG      - USE UPP_PHYSICS MODULE
-!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
-!!
-!! USAGE:    CALL MDL2STD_P
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE       
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       FDLVL_UV   - COMPUTE FD LEVEL WIND (AGL OR MSL).
-!!       FDLVL_MASS - COMPUTE FD LEVEL MASS (AGL OR MSL).
-!!
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  RQSTFLD
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : IBM SP
-!!
+!> @brief  MDL2STD_P vert intrp of model lvls to standard atmospheric pressure.
+!>
+!> Originated from MISCLN.f. This routine interpolate to standard
+!> atmospheric pressure, instead of model pressure.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2019-09-24 | Y Mao  | Rewritten from MISCLN.f
+!> 2020-05-20 | J Meng | CALRH unification with NAM scheme
+!> 2020-11-10 | J Meng | Use UPP_PHYSICS Module
+!> 2021-03-11 | B Cui  | Change local arrays to dimension (im,jsta:jend)
+!>
+!> @author Y Mao W/NP22 @date 2019-09-24
       SUBROUTINE MDL2STD_P()
 
 !

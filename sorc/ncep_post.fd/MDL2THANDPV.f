@@ -1,44 +1,23 @@
 !> @file
-!
-!> SUBPROGRAM:    MDL2THANDPV       VERT INTRP OF MODEL LVLS TO ISENTROPIC AND PV
-!!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 07-03-26       
-!!     
-!! ABSTRACT:
-!!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
-!!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
-!!     DATA FROM MODEL TO THETA AND PV SURFACES.  
-!!
-!!   PROGRAM HISTORY
-!!     11-02-06  J. WANG ADD GRIB2 OPTION
-!!     14-03-06  S. Moorthi - updated for threading and some optimization
-!!     16-12-19  G.P. Lou - Added A-grid regional models
-!!     20-03-25  J MENG - remove grib1
-!!     20-03-25  J MENG - remove grib1
-!!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
-!!     21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
-!!     
-!!
-!! USAGE:    CALL MDL2THANDPV
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE       
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       PVETC   - 
-!!       P2TH   - 
-!!       P2PV    - 
-!!       COMMON   - CTLBLK
-!!                  RQSTFLD
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : IBM SP
-!!
+!> @brief MDL2THANDPV vert intrp of model lvls to isentropic and PV.
+!>
+!> For most applications this routine is the workhorse
+!> of the post processor.  In a nutshell it interpolates
+!> data from model to THETA and PV surfaces.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-03-26 | Chuang     | Initial
+!> 2011-02-06 | J. Wang    | Add GRIB2 Option
+!> 2014-03-06 | S. Moorthi | Updated for threading and some optimization
+!> 2016-12-19 | G.P. Lou   | Added A-grid regional models
+!> 2020-03-25 | J Meng     | Remove grib1
+!> 2020-03-25 | J Meng     | Remove grib1
+!> 2020-11-10 | J Meng     | Use UPP_MATH and UPP_PHYSICS Modules
+!> 2021-03-11 | B Cui      | Change local arrays to dimension (im,jsta:jend)
+!>
+!> @author Chuang W/NP22 @date 2007-03-26
       SUBROUTINE MDL2THANDPV(kth,kpv,th,pv)
 
 !
