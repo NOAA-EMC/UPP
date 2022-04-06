@@ -1,46 +1,37 @@
 !> @file
-!
-!> SUBPROGRAM:    GET_BITS      COMPUTE NUMBER OF BITS AND ROUND FIELD.
-!!   PRGMMR: IREDELL          ORG: W/NP23     DATE: 92-10-31
-!!
-!! ABSTRACT: THE NUMBER OF BITS REQUIRED TO PACK A GIVEN FIELD
-!!   AT A PARTICULAR DECIMAL SCALING IS COMPUTED USING THE FIELD RANGE.
-!!   THE FIELD IS ROUNDED OFF TO THE DECIMAL SCALING FOR PACKING.
-!!   THE MINIMUM AND MAXIMUM ROUNDED FIELD VALUES ARE ALSO RETURNED.
-!!   GRIB BITMAP MASKING FOR VALID DATA IS OPTIONALLY USED.
-!!
-!! PROGRAM HISTORY LOG:
-!!   92-10-31  IREDELL
-!!   95-04-14  BALDWIN - MODIFY FOLLOWING KEITH BRILL'S CODE
-!!                       TO USE SIG DIGITS TO COMPUTE DEC SCALE
-!!
-!! USAGE:   CALL GET_BITS(IBM,ISGDS,LEN,MG,G,ISCALE,GROUND,GMIN,GMAX,NBIT)
-!!   INPUT ARGUMENT LIST:
-!!     IBM      - INTEGER BITMAP FLAG (=0 FOR NO BITMAP)
-!!     SGDS     - MAXIMUM SIGNIFICANT DIGITS TO KEEP
-!!                (E.G. SGDS=3.0 KEEPS 3 SIGNIFICANT DIGITS)
-!!                OR BINARY PRECISION IF <0
-!!                (E.G. SGDS=-2.0 KEEPS FIELD TO NEAREST 1/4
-!!                           -3.0 "                    " 1/8
-!!                         2**SGDS PRECISION)
-!!     LEN      - INTEGER LENGTH OF THE FIELD AND BITMAP
-!!     MG       - INTEGER (LEN) BITMAP IF IBM=1 (0 TO SKIP, 1 TO KEEP)
-!!     G        - REAL (LEN) FIELD
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     ISCALE   - INTEGER DECIMAL SCALING
-!!     GROUND   - REAL (LEN) FIELD ROUNDED TO DECIMAL SCALING
-!!     GMIN     - REAL MINIMUM VALID ROUNDED FIELD VALUE
-!!     GMAX     - REAL MAXIMUM VALID ROUNDED FIELD VALUE
-!!     NBIT     - INTEGER NUMBER OF BITS TO PACK
-!!
-!! SUBPROGRAMS CALLED:
-!!   ISRCHNE  - FIND FIRST VALUE IN AN ARRAY NOT EQUAL TO TARGET VALUE
-!!
-!! ATTRIBUTES:
-!!   LANGUAGE: FORTRAN
-!!
-!!
+!> @brief GET_BITS computes number of bits and round field.
+!>
+!> The number of bits requited to pack a given field
+!> at a particular decimal scaling is computed using the field range.
+!> The field is rounded off to the decimal scaling for packing.
+!> The minimum and maximum rounded field values are also returned.
+!> Grib bitmap masking for valid data is optionally used.
+!>
+!> @param[in] IBM Integer bitmap flag (=0 for no bitmap).
+!> @param[in] SGDS Maximum significant digits to keep.
+!><pre>
+!> (E.G. SGDS=3.0 keeps 3 significant digits)
+!>  or binary precision if <0
+!> (E.G. SGDS=-2.0 keeps field to nearest 1/4
+!>            -3.0 keeps field to nearest 1/8
+!>            2**SGDS precision)
+!></pre>
+!> @param[in] LEN Integer length of the field and bitmap.
+!> @param[in] MG Integet (LEN) bitmap if IBM=1 (0 to skip, 1 tp keep).
+!> @param[in] G Real (LEN) field.
+!> @param[out] ISCALE Integer decimal scaling.
+!> @param[out] GROUND Real (LEN) field rounded to decimal scaling.
+!> @param[out] GMIN Real minimum valid rounded field value.
+!> @param[out] GMAX Real maximum valid rounded field value.
+!> @param[out] NBIT Integer number of bits to pack.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-10-31 | Iredell | Initial
+!> 1995-04-14 | Baldwin | Modify following Keith Brill's code to use sig digits to compute DEC scale
+!>
+!> @author Iredell W/NP23 @date 1992-10-31
       SUBROUTINE GET_BITS(IBM,SGDS,LEN,MG,G,ISCALE,GROUND,           &
                           GMIN,GMAX,NBIT)
 
@@ -91,43 +82,36 @@
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END
-	SUBROUTINE FNDBIT  ( rmin, rmax, rdb, nmbts, iscale, iret )
-!************************************************************************
-!* FNDBIT								*
-!*									*
-!* This subroutine computes the number of packing bits given the	*
-!* maximum number of significant digits to preserve or the binary	*
-!* precision to store the data.  The binary precision is given as a	*
-!* negative integer, ISCALE will always be zero in this case.		*
-!*									*
-!* The binary precision translates as follows:				*
-!*     -1  =>  store data to nearest 1/2				*
-!*     -2  =>  store data to nearest 1/4				*
-!*     -3  =>  store data to nearest 1/8				*
-!*									*
-!* Note that a fractional number of significant digits is allowed.	*
-!*									*
-!* FNDBIT ( AMIN, AMAX, RDB, NBITS, ISCALE, IRET )			*
-!*									*
-!* Input parameters:							*
-!*	AMIN 		REAL		Minimum value			*
-!*	AMAX		REAL		Maximum value			*
-!*	RDB		REAL		Maximum # of significant digits	*
-!*					  OR binary precision if < 0	*
-!*									*
-!* Output parameters:							*
-!*	NBITS		INTEGER		Number of bits for packing	*
-!*	ISCALE		INTEGER		Power of 10 scaling to use	*
-!*	IRET		INTEGER		Return code			*
-!*					  0 = normal return		*
-!**									*
-!* Log:									*
-!* K. Brill/NMC		06/92						*
-!* K. Brill/EMC		12/95	Added binary precision			*
-!* M. Baldwin           10/96   Added fix for negative nmbts
-!************************************************************************
-!*
-!
+!> FNDBIT computes the number of packing bits given the
+!> maximum number of significant digits to preserve or the binary
+!> precision to store the data.  The binary precision is given as a
+!> negative integer, ISCALE will always be zero in this case.
+!>
+!> The binary precision translates as follows:
+!> <pre>
+!>     -1  =>  store data to nearest 1/2
+!>     -2  =>  store data to nearest 1/4
+!>     -3  =>  store data to nearest 1/8
+!> </pre>
+!>
+!> Note that a fractional number of significant digits is allowed.
+!>
+!> @param[in] AMIN Real Minimum value.
+!> @param[in] AMAX Real Maximum value.
+!> @param[in] RDB Real Maximum # of significant digits OR binary precision if < 0.
+!> @param[out] NBITS Integer Number of bits for packing.
+!> @param[out] ISCALE Integer Power of 10 scaling to use.
+!> @param[out] IRET Integer Return code. 0 = normal return.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-06-?? | K Brill   | Initial
+!> 1995-12-?? | K Brill   | Added binary precision
+!> 1996-10-?? | M Baldwin | Added fix for negative nmbts
+!>
+!> @author K. Brill NMC @date 1992-06-??
+    SUBROUTINE FNDBIT  ( rmin, rmax, rdb, nmbts, iscale, iret )
     implicit none
 !
     integer,intent(inout) ::  iscale,nmbts

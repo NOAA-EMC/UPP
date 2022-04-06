@@ -1,36 +1,24 @@
 !> @file
-!                .      .    .
-!> SUBPROGRAM:    GPVS        COMPUTE SATURATION VAPOR PRESSURE TABLE
-!!   AUTHOR: N PHILLIPS       W/NP2      DATE: 30 DEC 82
-!!
-!! ABSTRACT: COMPUTE SATURATION VAPOR PRESSURE TABLE AS A FUNCTION OF
-!!   TEMPERATURE FOR THE TABLE LOOKUP FUNCTION FPVS.
-!!   EXACT SATURATION VAPOR PRESSURES ARE CALCULATED IN SUBPROGRAM FPVSX.
-!!   THE CURRENT IMPLEMENTATION COMPUTES A TABLE WITH A LENGTH
-!!   OF 7501 FOR TEMPERATURES RANGING FROM 180.0 TO 330.0 KELVIN.
-!!
-!! PROGRAM HISTORY LOG:
-!!   91-05-07  IREDELL
-!!   94-12-30  IREDELL             EXPAND TABLE
-!!   96-02-19  HONG                ICE EFFECT
-!!
-!! USAGE:  CALL GPVS
-!!
-!! SUBPROGRAMS CALLED:
-!!   (FPVSX)  - INLINABLE FUNCTION TO COMPUTE SATURATION VAPOR PRESSURE
-!!
-!! COMMON BLOCKS:
-!!   COMPVS   - SCALING PARAMETERS AND TABLE FOR FUNCTION FPVS.
-!!
-!! ATTRIBUTES:
-!!   LANGUAGE: FORTRAN 90
-!!   MACHINE:  IBM SP
-!!
-!!
-!#######################################################################
-!-- Lookup tables for the saturation vapor pressure w/r/t water & ice --
-!#######################################################################
-!
+!> @brief GPVS computes saturation vapor pressure table.
+!>
+!> GPVS computes saturation vapor pressure table as a function of
+!> temperature for the table lookup function FPVS.
+!> Exact saturation vapor pressures are calculated in subprogram FPVSX.
+!> The current implementation computes a table with a length
+!> of 7501 for temperatures ranging from 180.0 to 330.0 Kelvin.
+!>
+!> @param[out] pvu real (km) potential vorticity (10**-6*K*m**2/kg/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1982-12-30 | N Phillips   | Initial
+!> 1991-05-07 | Mark Iredell | Made into inlinable function
+!> 1994-12-30 | Mark Iredell | Expand table
+!> 1996-02-19 | Hong         | Ice effect
+!>
+!> @note Lookup tables for the saturation vapor pressure w/r/t water & ice.
+!> @author N Phillips W/NP2 @date 1982-12-30
       SUBROUTINE GPVS
 !     ******************************************************************
 
@@ -65,40 +53,28 @@
 !-----------------------------------------------------------------------
                            FUNCTION FPVS(T)
 !-----------------------------------------------------------------------
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    FPVS        COMPUTE SATURATION VAPOR PRESSURE
-!   AUTHOR: N PHILLIPS            W/NP2      DATE: 30 DEC 82
-!
-! ABSTRACT: COMPUTE SATURATION VAPOR PRESSURE FROM THE TEMPERATURE.
-!   A LINEAR INTERPOLATION IS DONE BETWEEN VALUES IN A LOOKUP TABLE
-!   COMPUTED IN GPVS. SEE DOCUMENTATION FOR FPVSX FOR DETAILS.
-!   INPUT VALUES OUTSIDE TABLE RANGE ARE RESET TO TABLE EXTREMA.
-!   THE INTERPOLATION ACCURACY IS ALMOST 6 DECIMAL PLACES.
-!   ON THE CRAY, FPVS IS ABOUT 4 TIMES FASTER THAN EXACT CALCULATION.
-!   THIS FUNCTION SHOULD BE EXPANDED INLINE IN THE CALLING ROUTINE.
-!
-! PROGRAM HISTORY LOG:
-!   91-05-07  IREDELL             MADE INTO INLINABLE FUNCTION
-!   94-12-30  IREDELL             EXPAND TABLE
-!   96-02-19  HONG                ICE EFFECT
-!
-! USAGE:   PVS=FPVS(T)
-!
-!   INPUT ARGUMENT LIST:
-!     T        - REAL TEMPERATURE IN KELVIN
-!
-!   OUTPUT ARGUMENT LIST:
-!     FPVS     - REAL SATURATION VAPOR PRESSURE IN KILOPASCALS (CB)
-!
-! COMMON BLOCKS:
-!   COMPVS   - SCALING PARAMETERS AND TABLE COMPUTED IN GPVS.
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!   MACHINE:  IBM SP
-!
-!$$$
+!> FPVS computes saturation vapor pressure.
+!>
+!> FPVS computes saturation vapor pressure from the temperature.
+!> A linear interpolation is done between values in a lookup table
+!> computed in GPVS. See documentation for FPVSX for details.
+!> Input values outside table range are reset to table extrema.
+!> The interpolation accuracy is almost 6 decimal places.
+!> On the CRAY, FPVS is about 4 times faster than exact calculation.
+!> This function should be expanded inline in the calling routine.
+!>
+!> @param[in] T real temperature in Kelvin.
+!> @param[out] FPVS real saturation vapor pressure in kilopascals (CB).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1982-12-30 | N Phillips   | Initial
+!> 1991-05-07 | Mark Iredell | Made into inlinable function
+!> 1994-12-30 | Mark Iredell | Expand table
+!> 1996-02-19 | Hong         | Ice effect
+!>
+!> @author N Phillips W/NP2 @date 1982-12-30
 !-----------------------------------------------------------------------
       use svptbl_mod, only : NX,C1XPVS,C2XPVS,TBPVS
 !
@@ -144,41 +120,33 @@
 !-----------------------------------------------------------------------
                          FUNCTION FPVSX(T)
 !-----------------------------------------------------------------------
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    FPVSX       COMPUTE SATURATION VAPOR PRESSURE
-!   AUTHOR: N PHILLIPS            W/NP2      DATE: 30 DEC 82
-!
-! ABSTRACT: EXACTLY COMPUTE SATURATION VAPOR PRESSURE FROM TEMPERATURE.
-!   THE WATER MODEL ASSUMES A PERFECT GAS, CONSTANT SPECIFIC HEATS
-!   FOR GAS AND LIQUID, AND NEGLECTS THE VOLUME OF THE LIQUID.
-!   THE MODEL DOES ACCOUNT FOR THE VARIATION OF THE LATENT HEAT
-!   OF CONDENSATION WITH TEMPERATURE.  THE ICE OPTION IS NOT INCLUDED.
-!   THE CLAUSIUS-CLAPEYRON EQUATION IS INTEGRATED FROM THE TRIPLE POINT
-!   TO GET THE FORMULA
-!       PVS=PSATK*(TR**XA)*EXP(XB*(1.-TR))
-!   WHERE TR IS TTP/T AND OTHER VALUES ARE PHYSICAL CONSTANTS
-!   THIS FUNCTION SHOULD BE EXPANDED INLINE IN THE CALLING ROUTINE.
-!
-! PROGRAM HISTORY LOG:
-!   91-05-07  IREDELL             MADE INTO INLINABLE FUNCTION
-!   94-12-30  IREDELL             EXACT COMPUTATION
-!   96-02-19  HONG                ICE EFFECT 
-!
-! USAGE:   PVS=FPVSX(T)
-! REFERENCE:   EMANUEL(1994),116-117
-!
-!   INPUT ARGUMENT LIST:
-!     T        - REAL TEMPERATURE IN KELVIN
-!
-!   OUTPUT ARGUMENT LIST:
-!     FPVSX    - REAL SATURATION VAPOR PRESSURE IN KILOPASCALS (CB)
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!   MACHINE:  IBM SP
-!
-!$$$
+!> FPVSX computes saturation vapor pressure.
+!>
+!> FPVSX exactly computes saturation vapor pressure from temperature.
+!> The water model assumes a perfect gas, constant specific heats
+!> for gas and liquid, and neglects the volume of the liquid.
+!> The model does account for the variation of the latent heat
+!> of condensation with temperature.  The ice option is not included.
+!> The Clausius-Clapeyron equation is integrated from the triple point
+!> To get the formula
+!> @code
+!>     PVS=PSATK*(TR**XA)*exp(XB*(1.-TR))
+!> @endcode
+!> where TR is TTP/T and other values are physical constants
+!> This function should be expanded inline in the calling routine.
+!>
+!> @param[in] T real temperature in Kelvin.
+!> @param[out] FPVSX real saturation vapor pressure in kilopascals (CB).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1982-12-30 | N Phillips   | Initial
+!> 1991-05-07 | Mark Iredell | Made into inlinable function
+!> 1994-12-30 | Mark Iredell | Exact computation
+!> 1996-02-19 | Hong         | Ice effect
+!>
+!> @author N Phillips W/NP2 @date 1982-12-30
 !-----------------------------------------------------------------------
     implicit none
 !
