@@ -1,51 +1,29 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    INITPOST_GFS_NEMS_MPIIO  INITIALIZE POST FOR RUN
-!!   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
-!!     
-!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!!   VARIABLES AT THE START OF GFS MODEL OR POST 
-!!   PROCESSOR RUN.
-!!
-!! REVISION HISTORY
-!!   2011-02-07 Jun Wang    add grib2 option
-!!   2011-12-14 Sarah Lu    add aer option
-!!   2012-01-07 Sarah Lu    compute air density
-!!   2012-12-22 Sarah Lu    add aerosol zerout option
-!!   2015-03-16 S. Moorthi  adding gocart_on option
-!!   2015-03-18 S. Moorthi  Optimization including threading
-!!   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
-!!   2016-03-04 H CHUANG    Add MPI IO option to read GFS nems output
-!!   2016-05-16 S. KAR      Add computation of omega
-!!   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
-!!                          and reduce memory in divergence calculatiom
-!!   2016-07-21 Jun Wang    change averaged field name with suffix
-!!   2019-07-24 Li(Kate) Zhang - Merge and update NGAC UPP into FV3-Chem
-!!   2021-03-11 Bo Cui   change local arrays to dimension (im,jsta:jend)
-!!
-!! USAGE:    CALL INIT
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  LOOKUP
-!!                  SOILDEPTH
-!!
-!!    
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief INITPOST_GFS_NEMS_MPIIO initializes post for run.
+!>
+!> This routine initializes constants and
+!> variables at the start of GFS model or post
+!> processor run.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-03-04 | Hui-Ya Chuang  | Initial
+!> 2011-02-07 | Jun Wang       | Add grib2 option
+!> 2011-12-14 | Sarah Lu       | Add aer option
+!> 2012-01-07 | Sarah Lu       | Compute air density
+!> 2012-12-22 | Sarah Lu       | Add aerosol zerout option
+!> 2015-03-16 | S. Moorthi     | Adding gocart_on option
+!> 2015-03-18 | S. Moorthi     | Optimization including threading
+!> 2015-08-17 | S. Moorthi     | Add TKE for NEMS/GSM
+!> 2016-03-04 | H Chuang       | Add MPI IO option to read GFS nems output
+!> 2016-05-16 | S. Kar         | Add computation of omega
+!> 2016-07-21 | S. Moorthi     | Convert input upper air data from reduced to full grid and reduce memory in divergence calculatiom
+!> 2016-07-21 | Jun Wang       | Change averaged field name with suffix
+!> 2019-07-24 | Li(Kate) Zhang | Merge and update NGAC UPP into FV3-Chem
+!> 2021-03-11 | Bo Cui         | Change local arrays to dimension (im,jsta:jend)
+!>
+!> @author Hui-Ya Chuang @date 2007-03-04
       SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)
 
 

@@ -1,46 +1,24 @@
 !> @file
-!
-!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!!   PRGRMMR: RUSS TREADON    ORG: W/NP2      DATE: 93-11-10
-!!     
-!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
-!!   PROCESSOR RUN.
-!!
-!!   THIS ROUTINE ASSUMES THAT INTEGERS AND REALS ARE THE SAME SIZE
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-11-10  RUSS TREADON - ADDED DOCBLOC
-!!   98-05-29  BLACK - CONVERSION OF POST CODE FROM 1-D TO 2-D
-!!   99-01 20  TUCCILLO - MPI VERSION
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-19  MIKE BALDWIN - WRF VERSION
-!!   02-08-15  H CHUANG - UNIT CORRECTION AND GENERALIZE PROJECTION OPTIONS
-!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
-!!     
-!! USAGE:    CALL INIT
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  LOOKUP
-!!                  SOILDEPTH
-!!
-!!    
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief INITPOST initializes post for run.
+!>
+!> This routine initializes constants and
+!> variables at the start of an ETA model or post
+!> processor run.
+!>
+!> This routine assumes that integers and reals are the same size.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-11-10 | Russ Treadon | Initial. Added DOCBLOC
+!> 1998-05-29 | T Black      | Conversion from 1-D to 2-D
+!> 1999-01-20 | Jim Tuccillo | MPI Version           
+!> 2001-10-25 | H CHuang     | Modified to process hybrid model output
+!> 2002-06-19 | Mike Baldwin | WRF Version
+!> 2002-08-15 | H CHuang     | Unit correction and generalize projection options
+!> 2021-03-11 | Bo Cui       | Change local arrays to dimension (im,jsta:jend)
+!>
+!> @author Russ Treadon W/NP2 @date 1993-11-10
       SUBROUTINE INITPOST
 
       use vrbls4d, only: dust, smoke

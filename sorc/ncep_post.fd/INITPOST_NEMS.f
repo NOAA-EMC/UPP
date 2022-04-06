@@ -1,39 +1,20 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!!   PRGRMMR:  Hui-Ya Chuang    DATE: 2008-03-26
-!!     
-!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!!   VARIABLES AT THE START OF AN NEMS MODEL OR POST 
-!!   PROCESSOR RUN.
-!!     
-!! REVISION HISTORY
-!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
-!!
-!! USAGE:    CALL INITPOST_NEMS
-!!   INPUT ARGUMENT LIST:
-!!     NREC
-!!     NFILE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  LOOKUP
-!!                  SOILDEPTH
-!!
-!!    
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief INITPOST_NEMS initializes post for run.
+!>
+!> This routine initializes constants and
+!> variables at the start of an NEMS model or post
+!> processor run.
+!>
+!> @param[in] NREC.
+!> @param[in] NFILE.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-03-01 | Hui-Ya Chuang | Initial
+!> 2021-03-11 | Bo Cui        | Change local arrays to dimension (im,jsta:jend)
+!>
+!> @author Hui-Ya Chuang @date 2007-03-26
       SUBROUTINE INITPOST_NEMS(NREC,nfile)
 
       use vrbls3d, only: t, q, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, cfr, pint,&
