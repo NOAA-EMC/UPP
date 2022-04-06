@@ -1,31 +1,22 @@
 !> @file
-!                .      .    .                                       .
-!> subprogram:    retrieve_index  get record number of desired variable
-!!   prgmmr: parrish          org: np22                date: 2004-11-29
-!!
-!! abstract: by examining previously generated inventory of wrf binary restart file,
-!!             find record number that contains the header record for variable
-!!             identified by input character variable "string".
-!!
-!! program history log:
-!!   2004-11-29  parrish
-!!
-!!   input argument list:
-!!     string           - mnemonic for variable desired
-!!     varname_all      - list of all mnemonics obtained from inventory of file
-!!     nrecs            - total number of sequential records counted in wrf
-!!                        binary restart file
-!!
-!!   output argument list:
-!!     index            - desired record number
-!!     iret             - return status, set to 0 if variable was found,
-!!                        non-zero if not.
-!!
-!! attributes:
-!!   language: f90
-!!   machine:  ibm RS/6000 SP
-!!
-!!
+!> @brief retrieve_index gets record number of desired variable.
+!>
+!> By examining previously generated inventory of wrf binary restart file,
+!> find record number that contains the header record for variable
+!> identified by input character variable "string".
+!>
+!> @param[in] string Mnemonic for variable desired.
+!> @param[in] varname_all List of all mnemonics obtained from inventory of file.
+!> @param[in] nrecs Total number of sequential records counted in wrf binary restart file.
+!> @param[out] index Desired record number.
+!> @param[out] iret Return status, set to 0 if variable was found, non-zero if not.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2004-11-29 | Parrish | Initial
+!>
+!> @author Parrish np22 @date 2004-11-29
       subroutine retrieve_index(index,string,varname_all,nrecs,iret)
 
 
