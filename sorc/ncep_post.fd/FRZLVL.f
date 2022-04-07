@@ -1,67 +1,42 @@
 !> @file
-!
-!> SUBPROGRAM:    FRZLVL      COMPUTES FRZING LVL Z AND RH
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!! T. Smirnova - 8-27-2010 - added PFRZL to the output
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES THE FREEZING LEVEL HEIGHT AND RELATIVE
-!!     HUMIDITY AT THIS LEVEL FOR EACH MASS POINT ON THE ETA GRID.
-!!     THE COMPUTED FREEZING LEVEL HEIGHT IS THE MEAN SEA LEVEL
-!!     HEIGHT.  AT EACH MASS POINT WE MOVE UP FROM THE SURFACE TO 
-!!     FIND THE FIRST ETA LAYER WHERE THE TEMPERATURE IS LESS THAN
-!!     273.16K.  VERTICAL INTERPOLATION IN TEMPERATURE TO THE FREEZING
-!!     TEMPERATURE GIVES THE FREEZING LEVEL HEIGHT.  PRESSURE AND 
-!!     SPECIFIC HUMIDITY ARE INTERPOLATED TO THIS LEVEL AND ALONG WITH
-!!     THE TEMPERATURE PROVIDE THE FREEZING LEVEL RELATIVE HUMIDITY.
-!!     IF THE SURFACE (SKIN) TEMPERATURE IS BELOW FREEZING, THE ROUTINE
-!!     USES SURFACE BASED FIELDS TO COMPUTE THE RELATIVE HUMIDITY.
-!!     
-!!     NOTE THAT IN POSTING FREEZING LEVEL DATA THE LFM LOOK-ALIKE FILE
-!!     (IE, GRID 26), WE PACK 273.15K AS THE FREEZING TEMPERATURE.  ALL
-!!     OTHER OUTPUT GRIDS USE 273.16K
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   93-06-10  RUSS TREADON - CORRECTED FREEZING LEVEL HEIGHTS TO BE
-!!                            WITH REPSECT TO MEAN SEA LEVEL, NOT  
-!!                            ABOVE GROUND LEVEL.
-!!   98-06-15  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   98-08-17  MIKE BALDWIN - COMPUTE RH OVER ICE IF NECESSARY
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   01-10-25  H CHUANG     - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!     
-!! USAGE:    CALL FRZLVL(ZFRZ,RHFRZ)
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     ZFRZ     - ABOVE GROUND LEVEL FREEZING HEIGHT.
-!!     RHFRZ    - RELATIVE HUMIDITY AT FREEZING LEVEL.
-!!     PFRZL    - PRESSURE AT FREEZING LEVEL.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  LOOPS
-!!                  PVRBLS
-!!                  MASKS
-!!                  MAPOT
-!!                  POSTVAR
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes FRZING LVL, Z and RH.
+!>
+!> This routine computes the freezing level height and relative
+!> humidity at this level for each mass point on the ETA grid.
+!> The computed freezing level height is the mean sea level
+!> height. At each mass point we move up from the surface to  
+!> find the first ETA layer where the temperature is less than
+!> 273.16K. Vertical interpolation in temperature to the freezing 
+!> temperature gives the freezing level height. Pressure and   
+!> specific humidity are interpolated to this level and along with
+!> the temperature provide the freezing level relative humidity.
+!> If the surface (skin) temperature is below freezing, the routine
+!> uses surface based fields to compute the relative humidity.
+!> 
+!> Note that in posting freezing level data the LFM look-alike file
+!> (IE, GRID 26), we pack 273.15K as the freezing temperature. All 
+!> other output grids use 273.16K.
+!>
+!> @param[out] ZFRZ Above ground level freezing height.
+!> @param[out] RHFRZ Relative humidity at freezing level.
+!> @param[out] PFRZL pressure at freezing level.
+!> 
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-06-05 | Russ Treadon | Corrected freezing level heights to be with respect to mean sea level, not above ground level
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 1998-08-17 | Mike Baldwin | Compute RH over ice if necessary
+!> 1998-12-22 | Mike Baldwin | Back out RH over ice
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2001-10-25 | H Chuang     | Modified to process hybrid model output
+!> 2002-01-15 | Mike Baldwin | WRF version
+!> 2010-08-27 | T. Smirnova  | Added PFRZL to the output
+!> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
+!> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FRZLVL(ZFRZ,RHFRZ,PFRZL)
 
 !     
