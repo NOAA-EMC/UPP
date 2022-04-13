@@ -138,55 +138,42 @@
     enddo
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> p2pv interpolates to potential vorticity level.
+!>
+!> This subprogram interpolates fields to given potential vorticity
+!> levels within given pressure limits.
+!> The output level is the first  encountered from the top pressure limit.
+!> If the given potential vorticity level is not found, the outputs are zero
+!> and the bitmap is false. The interpolation is linear in potential vorticity.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] pvu real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s).
+!> @param[in] h real (km) height (m).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] kpv integer number of potential vorticity levels.
+!> @param[in] pv real (kpv) potential vorticity levels (10**-6*K*m**2/kg/s).
+!> @param[in] pvpt real (kpv) top pressures for PV search (Pa).
+!> @param[in] pvpb real (kpv) bottom pressures for PV search (Pa).
+!> @param[out] lpv logical*1 (kpv) bitmap.
+!> @param[out] upv real (kpv) x-component wind (m/s).
+!> @param[out] vpv real (kpv) y-component wind (m/s).
+!> @param[out] hpv real (kpv) temperature (K).
+!> @param[out] tpv real (kpv) temperature (K).
+!> @param[out] ppv real (kpv) pressure (Pa).
+!> @param[out] spv real (kpv) wind speed shear (1/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell  | Initial
+!> 2021-08-31 | Hui-ya Chuang | Increase depth criteria for identifying PV layer from 25 to 50 to avoid finding shallow high level PV layer in high latitudes
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
   subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
                   lpv,upv,vpv,hpv,tpv,ppv,spv)
-!$$$  Subprogram documentation block
-!
-! Subprogram: p2pv       Interpolate to potential vorticity level
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram interpolates fields to given potential vorticity
-!   levels within given pressure limits.
-!   The output level is the first  encountered from the top pressure limit.
-!   If the given potential vorticity level is not found, the outputs are zero
-!   and the bitmap is false. The interpolation is linear in potential vorticity.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2021-08-31  Hui-ya Chuang Increase depth criteria for identifying PV layer 
-!                             from 25 to 50 to avoid finding shallow high level
-!                             PV layer in high latitudes
-!
-! Usage:  call p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
-!                   lpv,upv,vpv,hpv,tpv,ppv,spv)
-!   Input argument list:
-!     km       integer number of levels
-!     pvu      real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s)
-!     h        real (km) height (m)
-!     t        real (km) temperature (K)
-!     p        real (km) pressure (Pa)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     kpv      integer number of potential vorticity levels
-!     pv       real (kpv) potential vorticity levels (10**-6*K*m**2/kg/s)
-!     pvpt     real (kpv) top pressures for PV search (Pa)
-!     pvpb     real (kpv) bottom pressures for PV search (Pa)
-!   Output argument list:
-!     lpv      logical*1 (kpv) bitmap
-!     upv      real (kpv) x-component wind (m/s)
-!     vpv      real (kpv) y-component wind (m/s)
-!     hpv      real (kpv) temperature (K)
-!     tpv      real (kpv) temperature (K)
-!     ppv      real (kpv) pressure (Pa)
-!     spv      real (kpv) wind speed shear (1/s)
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km,kpv
@@ -253,58 +240,33 @@
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
+!> rsearch1 searches for a surrounding real interval.
+!>
+!> This subprogram searches a monotonic sequences of real numbers
+!> for intervals that surround a given search set of real numbers.
+!> the sequences may be monotonic in either direction; the real numbers
+!> may be single or double precision.
+!>
+!> @param[in] km1 integer number of points in the sequence.
+!> @param[in] z1 real (km1) sequence values to search. (z1 must be monotonic in either direction)
+!> @param[in] km2 integer number of points to search for.
+!> @param[in] z2 real (km2) set of values to search for. (z2 need not be monotonic)
+!> @param[out] l2 integer (km2) interval locations from 0 to km1. (z2 will be between z1(l2) and z1(l2+1))
+!>
+!> @note
+!>  * Returned values of 0 or km1 indicate that the given search value is outside the range of the sequence.
+!>  * If a search value is identical to one of the sequence values then the location returned points to the identical value.
+!>  * If the sequence is not strictly monotonic and a search value is identical to more than one of the sequence values, then the location returned may point to any of the identical values.
+!>  * If l2(k)=0, then z2(k) is less than the start point z1(1) for ascending sequences (or greater than for descending sequences).
+!>  * If l2(k)=km1, then z2(k) is greater than or equal to the end point z1(km1) for ascending sequences (or less than or equal to for descending sequences).  Otherwise z2(k) is between the values z1(l2(k)) and z1(l2(k+1)) and may equal the former.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1998-05-01 | Mark Iredell  | Initial
+!>
+!> @author Mark Iredell w/nmc23 @date 1998-05-01
 subroutine rsearch1(km1,z1,km2,z2,l2)
-!$$$  subprogram documentation block
-!
-! subprogram:    rsearch1    search for a surrounding real interval
-!   prgmmr: iredell    org: w/nmc23     date: 98-05-01
-!
-! abstract: this subprogram searches a monotonic sequences of real numbers
-!   for intervals that surround a given search set of real numbers.
-!   the sequences may be monotonic in either direction; the real numbers
-!   may be single or double precision.
-!
-! program history log:
-! 1999-01-05  mark iredell
-!
-! usage:    call rsearch1(km1,z1,km2,z2,l2)
-!   input argument list:
-!     km1    integer number of points in the sequence
-!     z1     real (km1) sequence values to search
-!            (z1 must be monotonic in either direction)
-!     km2    integer number of points to search for
-!     z2     real (km2) set of values to search for
-!            (z2 need not be monotonic)
-!
-!   output argument list:
-!     l2     integer (km2) interval locations from 0 to km1
-!            (z2 will be between z1(l2) and z1(l2+1))
-!
-! subprograms called:
-!   sbsrch essl binary search
-!   dbsrch essl binary search
-!
-! remarks:
-!   returned values of 0 or km1 indicate that the given search value
-!   is outside the range of the sequence.
-!
-!   if a search value is identical to one of the sequence values
-!   then the location returned points to the identical value.
-!   if the sequence is not strictly monotonic and a search value is
-!   identical to more than one of the sequence values, then the
-!   location returned may point to any of the identical values.
-!
-!   if l2(k)=0, then z2(k) is less than the start point z1(1)
-!   for ascending sequences (or greater than for descending sequences).
-!   if l2(k)=km1, then z2(k) is greater than or equal to the end point
-!   z1(km1) for ascending sequences (or less than or equal to for
-!   descending sequences).  otherwise z2(k) is between the values
-!   z1(l2(k)) and z1(l2(k+1)) and may equal the former.
-!
-! attributes:
-!   language: fortran
-!
-!$$$
   implicit none
   integer,intent(in):: km1,km2
   real,intent(in):: z1(km1),z2(km2)
@@ -348,51 +310,38 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> tpause computes tropopause level fields.
+!>
+!> This subprogram finds the tropopause level and computes fields
+!> at the tropopause level.  The tropopause is defined as the lowest level
+!> above 500 mb which has a temperature lapse rate of less than 2 K/km.
+!> The lapse rate must average less than 2 K/km over a 2 km depth.
+!> If no such level is found below 50 mb, the tropopause is set to 50 mb.
+!> The tropopause fields are interpolated linearly in lapse rate.
+!> The tropopause pressure is found hydrostatically.
+!> The tropopause wind shear is computed as the partial derivative
+!> of wind speed with respect to height at the tropopause level.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] h real (km) height (m).
+!> @param[out] ptp real tropopause pressure (Pa).
+!> @param[out] utp real tropopause x-component wind (m/s).
+!> @param[out] vtp real tropopause y-component wind (m/s).
+!> @param[out] ttp real tropopause temperature (K).
+!> @param[out] htp real tropopause height (m).
+!> @param[out] shrtp real tropopause wind shear (1/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell  | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
   subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
-!$$$  Subprogram documentation block
-!
-! Subprogram: tpause     Compute tropopause level fields
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram finds the tropopause level and computes fields 
-!   at the tropopause level.  The tropopause is defined as the lowest level
-!   above 500 mb which has a temperature lapse rate of less than 2 K/km.
-!   The lapse rate must average less than 2 K/km over a 2 km depth.
-!   If no such level is found below 50 mb, the tropopause is set to 50 mb.
-!   The tropopause fields are interpolated linearly in lapse rate.
-!   The tropopause pressure is found hydrostatically.
-!   The tropopause wind shear is computed as the partial derivative
-!   of wind speed with respect to height at the tropopause level.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!
-! Usage:  call tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
-!   Input argument list:
-!     km       integer number of levels
-!     p        real (km) pressure (Pa)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     t        real (km) temperature (K)
-!     h        real (km) height (m)
-!   Output argument list:
-!     ptp      real tropopause pressure (Pa)
-!     utp      real tropopause x-component wind (m/s)
-!     vtp      real tropopause y-component wind (m/s)
-!     ttp      real tropopause temperature (K)
-!     htp      real tropopause height (m)
-!     shrtp    real tropopause wind shear (1/s)
-!
-! Files included:
-!   physcons.h     Physical constants
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
