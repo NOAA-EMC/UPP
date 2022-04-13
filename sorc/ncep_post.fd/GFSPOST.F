@@ -37,7 +37,7 @@
 !> 1999-10-18 | Mark Iredell | Initial
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
-      subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
+    subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
 
     use physcons_post, only: con_cp, con_g, con_rd, con_rocp
 !
@@ -106,7 +106,7 @@
 !> 1999-10-18 | Mark Iredell | Initial
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
-  subroutine p2th(km,theta,u,v,h,t,pvu,sigma,rh,omga,kth,th &
+    subroutine p2th(km,theta,u,v,h,t,pvu,sigma,rh,omga,kth,th &
                  ,lth,uth,vth,hth,tth,zth,sigmath,rhth,oth)
     implicit none
     integer,intent(in):: km,kth
@@ -172,7 +172,7 @@
 !> 2021-08-31 | Hui-ya Chuang | Increase depth criteria for identifying PV layer from 25 to 50 to avoid finding shallow high level PV layer in high latitudes
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
-  subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
+    subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
                   lpv,upv,vpv,hpv,tpv,ppv,spv)
     use physcons_post, only: con_rog
     implicit none
@@ -266,7 +266,7 @@
 !> 1998-05-01 | Mark Iredell  | Initial
 !>
 !> @author Mark Iredell w/nmc23 @date 1998-05-01
-subroutine rsearch1(km1,z1,km2,z2,l2)
+    subroutine rsearch1(km1,z1,km2,z2,l2)
   implicit none
   integer,intent(in):: km1,km2
   real,intent(in):: z1(km1),z2(km2)
@@ -341,7 +341,7 @@ end subroutine
 !> 1999-10-18 | Mark Iredell  | Initial
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
-  subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
+    subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
@@ -428,7 +428,7 @@ end subroutine
 !> 2005-02-02 | Mark Iredell | Changed upper limit to 100 mb
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
-  subroutine mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
+    subroutine mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
@@ -516,7 +516,7 @@ end subroutine
 !> 1999-02-12 | Mark Iredell | Initial
 !>
 !> @author Mark Iredell np23 @date 1999-02-12  
-subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
+  subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
   use machine_post,only:kint_mpi
   implicit none
   integer(kint_mpi),intent(in):: mpirank,mpisize,nd,jt1(nd),jt2(nd)
@@ -618,8 +618,8 @@ end subroutine
 !> 1999-02-12 | Mark Iredell | Initial
 !>
 !> @author Mark Iredell np23 @date 1999-02-12
-subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
-                    jm,jma,jmb,jda,km,kma,kmb,kdb,a,b,ta,tb)
+  subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
+                      jm,jma,jmb,jda,km,kma,kmb,kdb,a,b,ta,tb)
   use machine_post,only:kint_mpi
   implicit none
   include 'mpif.h'
