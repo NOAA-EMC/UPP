@@ -399,49 +399,36 @@ end subroutine
     shrtp=(spdu-spdd)/(h(ktp)-h(ktp+1))
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> mxwind computes maximum wind level fields.
+!>
+!> This subprogram finds the maximum wind level and computes fields
+!> at the maximum wind level. The maximum wind level is searched for
+!> between 500 mb and 100 mb. The height and wind speed at the maximum wind
+!> speed level is calculated by assuming the wind speed varies quadratically
+!> in height in the neighborhood of the maximum wind level.  The other fields
+!> are interpolated linearly in height to the maximum wind level.
+!> The maximum wind level pressure is found hydrostatically.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] h real (km) height (m).
+!> @param[out] pmw real maximum wind level pressure (Pa).
+!> @param[out] umw real maximum wind level x-component wind (m/s).
+!> @param[out] vmw real maximum wind level y-component wind (m/s).
+!> @param[out] tmw maximum wind level temperature (K).
+!> @param[out] hmw real maximum wind level height (m).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell | Initial
+!> 2005-02-02 | Mark Iredell | Changed upper limit to 100 mb
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
   subroutine mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
-!$$$  Subprogram documentation block
-!
-! Subprogram: mxwind     Compute maximum wind level fields
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram finds the maximum wind level and computes fields 
-!   at the maximum wind level.  The maximum wind level is searched for
-!   between 500 mb and 100 mb.  The height and wind speed at the maximum wind
-!   speed level is calculated by assuming the wind speed varies quadratically
-!   in height in the neighborhood of the maximum wind level.  The other fields
-!   are interpolated linearly in height to the maximum wind level.
-!   The maximum wind level pressure is found hydrostatically.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2005-02-02  Mark Iredell  changed upper limit to 100 mb
-!
-! Usage:  call mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
-!   Input argument list:
-!     km       integer number of levels
-!     p        real (km) pressure (Pa)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     t        real (km) temperature (K)
-!     h        real (km) height (m)
-!   Output argument list:
-!     pmw      real maximum wind level pressure (Pa)
-!     umw      real maximum wind level x-component wind (m/s)
-!     vmw      real maximum wind level y-component wind (m/s)
-!     tmw      real maximum wind level temperature (K)
-!     hmw      real maximum wind level height (m)
-!
-! Files included:
-!   physcons.h     Physical constants
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
@@ -502,40 +489,34 @@ end subroutine
     tmw=t(kmw)-wmw*(t(kmw)-t(kmw+1))
     pmw=p(kmw)*exp((h(kmw)-hmw)*(1-0.5*(tmw/t(kmw)-1))/(con_rog*t(kmw)))
   end subroutine 
-  
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> mptgen generates grid decomposition dimensions.
+!>
+!> This subprogram decomposes total dimensions of a problem
+!> into smaller domains to be managed on a distributed memory system.
+!> The last dimension given is decomposed first.  If more decompositions
+!> are possible, the next to last dimension is decomposed next, and so on.
+!> The transpositions between decompositions should be done by mptran*.
+!>
+!> @param[in] mpirank integer(kint_mpi) rank of the process (from mpi_comm_rank).
+!> @param[in] mpisize integer(kint_mpi) size of the process (from mpi_comm_size).
+!> @param[in] nd integer(kint_mpi) number of dimensions to decompose.
+!> @param[in] jt1 integer(kint_mpi) (nd) lower bounds of total dimensions.
+!> @param[in] jt2 integer(kint_mpi) (nd) upper bounds of total dimensions.
+!> @param[out] j1 integer(kint_mpi) (nd) lower bounds of local decompositions.
+!> @param[out] j2 integer(kint_mpi) (nd) upper bounds of local decompositions.
+!> @param[out] jx integer(kint_mpi) (nd) local size of decompositions.
+!> @param[out] jm integer(kint_mpi) (nd) maximum size of decompositions.
+!> @param[out] jn integer(kint_mpi) (nd) number of decompositions.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-02-12 | Mark Iredell | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-02-12  
 subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
-!$$$  Subprogram documentation block
-!
-! Subprogram:    mptgen      Generate grid decomposition dimensions
-!   Prgmmr: Iredell    Org: W/NP23      Date: 1999-02-12
-!
-! Abstract: This subprogram decomposes total dimensions of a problem
-!   into smaller domains to be managed on a distributed memory system.
-!   The last dimension given is decomposed first.  If more decompositions
-!   are possible, the next to last dimension is decomposed next, and so on.
-!   The transpositions between decompositions should be done by mptran*.
-!
-! Program history log:
-!   1999-02-12  Mark Iredell
-!
-! Usage:    call mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
-!   Input argument list:
-!     mpirank  integer(kint_mpi) rank of the process (from mpi_comm_rank)
-!     mpisize  integer(kint_mpi) size of the process (from mpi_comm_size)
-!     nd       integer(kint_mpi) number of dimensions to decompose
-!     jt1      integer(kint_mpi) (nd) lower bounds of total dimensions
-!     jt2      integer(kint_mpi) (nd) upper bounds of total dimensions
-!   Output argument list:
-!     j1       integer(kint_mpi) (nd) lower bounds of local decompositions
-!     j2       integer(kint_mpi) (nd) upper bounds of local decompositions
-!     jx       integer(kint_mpi) (nd) local size of decompositions
-!     jm       integer(kint_mpi) (nd) maximum size of decompositions
-!     jn       integer(kint_mpi) (nd) number of decompositions
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
   use machine_post,only:kint_mpi
   implicit none
   integer(kint_mpi),intent(in):: mpirank,mpisize,nd,jt1(nd),jt2(nd)
