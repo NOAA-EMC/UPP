@@ -1,35 +1,25 @@
 !> @file
-!           .      .    .                                       .
 !> module:   native_endianness
-!!   prgmmr: parrish          org: wx22                date: 2012-10-11
-!!
-!! abstract:  This module was written by Dusan Jovic and has been adapted to GSI for internal translation
-!!             of WRF ARW and NMM binary restart files as required to match the machine native 
-!!             endian storage format.  The original code only converted from big-endian to little-endian.
-!!             There are no restrictions in this version.
-!!             This is required for these two types of files, because they are read/written to using mpi-io,
-!!             which has no compiler option for automatic switching to machine native endian format
-!!             for fortran unformatted read/write.
-!!
-!! program history log:
-!!   2012-10-11  parrish - copy/modify original module native_endianness provided by Dusan Jovic, NCEP/EMC 2012
-!!   2012-10-19  parrish - additional modifications to improve efficiency.  Remove interface and make
-!!                          to_native_endianness to work only with integer(4) arguments.
-!!                          Put to_native_endianness_i4 outside module.
-!!
-!! subroutines included:
-!!
-!! functions included:
-!!   is_little_endian - no argument--returns true for little-endian machine, false for big-endian machine
-!!
-!! variables included:
-!!   byte_swap            - false if machine and wrf binary file are same endian, true if different
-!!
-!! attributes:
-!!   language: f90
-!!   machine:
-!!
-!!
+!>
+!> This module was written by Dusan Jovic and has been adapted to GSI for internal translation
+!> of WRF ARW and NMM binary restart files as required to match the machine native 
+!> endian storage format.  The original code only converted from big-endian to little-endian.
+!> There are no restrictions in this version.
+!> This is required for these two types of files, because they are read/written to using mpi-io,
+!> which has no compiler option for automatic switching to machine native endian format
+!> for fortran unformatted read/write.
+!>
+!> @note functions included: is_little_endian - no argument--returns true for little-endian machine, false for big-endian machine
+!>
+!> @note variables included: byte_swap - false if machine and wrf binary file are same endian, true if different
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2012-10-11 | Parrish | Initial. Copy/modify original module native_endianness provided by Dusan Jovic, NCEP/EMC 2012
+!> 2012-10-19 | parrish | Additional modifications to improve efficiency.  Remove interface and make to_native_endianness to work only with integer(4) arguments. Put to_native_endianness_i4 outside module.
+!>
+!> @author Parrish wx22 @date 2012-10-11
       module native_endianness
 
 
@@ -46,26 +36,14 @@
  contains
 
  logical function is_little_endian()
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    is_little_endian
-!   prgmmr: parrish          org: wx22                date: 2012-10-11
-!
-! abstract: test to see if machine is little-endian.  Returns true for little-endian, false for big-endian.
-!
-! program history log:
-!   2012-10-11  parrish - add doc block
-!
-!   input argument list:
-!
-!   output argument list:
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-
+!> is_little_endian() tests to see if machine is little-endian.  Returns true for little-endian, false for big-endian.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2012-10-11 | Parrish | Add doc block
+!>
+!> @author Parrish wx22 @date 2012-10-11
    implicit none
 
    integer(i_byte) :: i1
@@ -86,32 +64,19 @@
 !----------------------------------------------------------------------
 
  subroutine to_native_endianness_i4(i4,num)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    to_native_endianness_i4
-!   prgmmr: parrish          org: wx22                date: 2012-10-11
-!
-! abstract: swap bytes of argument.
-!
-! program history log:
-!   2012-10-11  parrish - add doc block
-!   2012-10-19  parrish - additional modifications to improve efficiency.  Remove interface and make
-!                          to_native_endianness to work only with integer(4) arguments.
-!                          Put to_native_endianness_i4 outside module.
-!
-!   input argument list:
-!    i4 - input 4 byte integer array
-!    num - length of array i4  (NOTE:  type of num must be i_llong (8 byte integer) )
-!
-!   output argument list:
-!    i4 - output 4 byte integer array with bytes in reverse order
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-
+!> to_native_endianness_i4() is to swap bytes of argument.
+!>
+!> @param[in] i4 Input 4 byte integer array.
+!> @param[in] num Length of array i4.  (NOTE:  type of num must be i_llong (8 byte integer) )
+!> @param[out] i4 Output 4 byte integer array with bytes in reverse order.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2012-10-11 | Parrish | Add doc block
+!> 2012-10-19 | Parrish | Additional modifications to improve efficiency.  Remove interface and make to_native_endianness to work only with integer(4) arguments. Put to_native_endianness_i4 outside module.
+!>
+!> @author Parrish wx22 @date 2012-10-11
  use kinds, only: i_byte,i_long,i_llong
  implicit none
 

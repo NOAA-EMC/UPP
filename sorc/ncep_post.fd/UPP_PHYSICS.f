@@ -1,37 +1,27 @@
 !> @file
-!
-!> SUBPROGRAM: UPP_PHYSICS
-!! @author JMENG @date 2020-05-20
-!!
-!! A collection of UPP subroutines for physics variables calculation.
-!!
-!! CALCAPE
-!! Compute CAPE/CINS and other storm related variables.
-!!
-!! CALCAPE2
-!! Compute additional storm related variables.
-!!
-!! CALRH
-!! CALRH_NAM
-!! CALRH_GFS
-!! CALRH_GSD
-!! Compute RH using various algorithms.
-!! The NAM v4.1.18 ALGORITHM (CALRH_NAM) is selected as default for 
-!! NMMB and FV3GFS, FV3GEFS, and FV3R for the UPP 2020 unification.
-!!
-!! CALRH_PW
-!! Algorithm use at GSD for RUC and Rapid Refresh
-!!
-!! FPVSNEW
-!! Compute saturation vapor pressure.
-!!
-!! TVIRTUAL
-!! Compute virtual temperature.
-!!
-!! PROGRAM HISTORY LOG:
-!!   MAY, 2020    Jesse Meng   Initial code
-!!-------------------------------------------------------------------------------------
-!!
+!> @brief module: upp_physics is a collection of UPP subroutines for physics variables calculation.
+!>
+!> calcape() computes CAPE/CINS and other storm related variables.
+!>
+!> calcape2() computes additional storm related variables.
+!>
+!> calrh(), calrh_nam(), calrh_gfs(), calrh_gsd() compute RH using various algorithms.
+!>
+!> The NAM v4.1.18 ALGORITHM (CALRH_NAM) is selected as default for 
+!> NMMB and FV3GFS, FV3GEFS, and FV3R for the UPP 2020 unification.
+!>
+!> calrh_pw() algorithm use at GSD for RUC and Rapid Refresh.
+!>
+!> fpvsnew() computes saturation vapor pressure.
+!>
+!> tvirtual() computes virtual temperature.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2020-05-20 | Jesse Meng | Initial
+!>
+!> @author Jesse Meng @date 2020-05-20
   module upp_physics
 
   implicit none
@@ -68,55 +58,35 @@
 !
 !-------------------------------------------------------------------------------------
 !
-      SUBROUTINE CALRH_NAM(P1,T1,Q1,RH)
-!      SUBROUTINE CALRH(P1,T1,Q1,RH)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALRH       COMPUTES RELATIVE HUMIDITY
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!     
-! ABSTRACT:  
-!     THIS ROUTINE COMPUTES RELATIVE HUMIDITY GIVEN PRESSURE, 
-!     TEMPERATURE, SPECIFIC HUMIDITY. AN UPPER AND LOWER BOUND
-!     OF 100 AND 1 PERCENT RELATIVE HUMIDITY IS ENFORCED.  WHEN
-!     THESE BOUNDS ARE APPLIED THE PASSED SPECIFIC HUMIDITY 
-!     ARRAY IS ADJUSTED AS NECESSARY TO PRODUCE THE SET RELATIVE
-!     HUMIDITY.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   ??-??-??  DENNIS DEAVEN
-!   92-12-22  RUSS TREADON - MODIFIED AS DESCRIBED ABOVE.
-!   98-06-08  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   98-08-18  MIKE BALDWIN - MODIFY TO COMPUTE RH OVER ICE AS IN MODEL
-!   98-12-16  GEOFF MANIKIN - UNDO RH COMPUTATION OVER ICE
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   02-06-11  MIKE BALDWIN - WRF VERSION
-!   06-03-19  Wen Meng     - MODIFY TOP PRESSURE to 1 PA
-!     
-! USAGE:    CALL CALRH(P1,T1,Q1,RH)
-!   INPUT ARGUMENT LIST:
-!     P1     - PRESSURE (PA)
-!     T1     - TEMPERATURE (K)
-!     Q1     - SPECIFIC HUMIDITY (KG/KG)
-!
-!   OUTPUT ARGUMENT LIST: 
-!     RH     - RELATIVE HUMIDITY  (DECIMAL FORM)
-!     Q1     - ADJUSTED SPECIFIC HUMIDITY (KG/KG)
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
-!
+!> calrh_nam() computes relative humidity.
+!>
+!> This routine computes relative humidity given pressure, 
+!> temperature, specific humidity. an upper and lower bound
+!> of 100 and 1 percent relative humidity is enforced.  When
+!> these bounds are applied the passed specific humidity 
+!> array is adjusted as necessary to produce the set relative
+!> humidity.
+!>
+!> @param[in] P1 Pressure (pa)
+!> @param[in] T1 Temperature (K)
+!> @param[in] Q1 Specific humidity (kg/kg)
+!> @param[out] RH Relative humidity  (decimal form)
+!> @param[out] Q1 Specific humidity (kg/kg)
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> ????-??-?? | DENNIS DEAVEN | Initial
+!> 1992-12-22 | Russ Treadon  | Modified as described above
+!> 1998-06-08 | T Black       | Conversion from 1-D to 2-D
+!> 1998-08-18 | Mike Baldwin  | Modify to compute RH over ice as in model
+!> 1998-12-16 | Geoff Manikin | undo RH computation over ice
+!> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2002-06-11 | Mike Baldwin  | WRF Version
+!> 2006-03-19 | Wen Meng      | Modify top pressure to 1 pa
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
+     SUBROUTINE CALRH_NAM(P1,T1,Q1,RH)
      use params_mod, only: PQ0, a2, a3, a4, rhmin
      use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -167,55 +137,36 @@
 !
 !-------------------------------------------------------------------------------------
 !
+!> calrh_gfs() computes relative humidity.
+!>
+!> This routine computes relative humidity given pressure, 
+!> temperature, specific humidity. an upper and lower bound
+!> of 100 and 1 percent relative humidity is enforced.  When
+!> these bounds are applied the passed specific humidity 
+!> array is adjusted as necessary to produce the set relative
+!> humidity.
+!>
+!> @param[in] P1 Pressure (pa)
+!> @param[in] T1 Temperature (K)
+!> @param[in] Q1 Specific humidity (kg/kg)
+!> @param[out] RH Relative humidity  (decimal form)
+!> @param[out] Q1 Specific humidity (kg/kg)
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> ????-??-?? | DENNIS DEAVEN | Initial
+!> 1992-12-22 | Russ Treadon  | Modified as described above
+!> 1998-06-08 | T Black       | Conversion from 1-D to 2-D
+!> 1998-08-18 | Mike Baldwin  | Modify to compute RH over ice as in model
+!> 1998-12-16 | Geoff Manikin | undo RH computation over ice
+!> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2002-06-11 | Mike Baldwin  | WRF Version
+!> 2013-08-13 | S. Moorthi    | Threading
+!> 2006-03-19 | Wen Meng      | Modify top pressure to 1 pa
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALRH_GFS(P1,T1,Q1,RH)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALRH       COMPUTES RELATIVE HUMIDITY
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!     
-! ABSTRACT:  
-!     THIS ROUTINE COMPUTES RELATIVE HUMIDITY GIVEN PRESSURE, 
-!     TEMPERATURE, SPECIFIC HUMIDITY. AN UPPER AND LOWER BOUND
-!     OF 100 AND 1 PERCENT RELATIVE HUMIDITY IS ENFORCED.  WHEN
-!     THESE BOUNDS ARE APPLIED THE PASSED SPECIFIC HUMIDITY 
-!     ARRAY IS ADJUSTED AS NECESSARY TO PRODUCE THE SET RELATIVE
-!     HUMIDITY.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   ??-??-??  DENNIS DEAVEN
-!   92-12-22  RUSS TREADON - MODIFIED AS DESCRIBED ABOVE.
-!   98-06-08  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   98-08-18  MIKE BALDWIN - MODIFY TO COMPUTE RH OVER ICE AS IN MODEL
-!   98-12-16  GEOFF MANIKIN - UNDO RH COMPUTATION OVER ICE
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   02-06-11  MIKE BALDWIN - WRF VERSION
-!   13-08-13  S. Moorthi   - Threading
-!   06-03-19  Wen Meng     - MODIFY TOP PRESSURE to 1 PA
-!     
-! USAGE:    CALL CALRH(P1,T1,Q1,RH)
-!   INPUT ARGUMENT LIST:
-!     P1     - PRESSURE (PA)
-!     T1     - TEMPERATURE (K)
-!     Q1     - SPECIFIC HUMIDITY (KG/KG)
-!
-!   OUTPUT ARGUMENT LIST: 
-!     RH     - RELATIVE HUMIDITY  (DECIMAL FORM)
-!     Q1     - ADJUSTED SPECIFIC HUMIDITY (KG/KG)
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
-!
       use params_mod, only: rhmin
       use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -386,37 +337,28 @@
 !-------------------------------------------------------------------------------------
 !
       elemental function fpvsnew(t)
-!$$$     Subprogram Documentation Block
-!
-! Subprogram: fpvsnew         Compute saturation vapor pressure
-!   Author: N Phillips            w/NMC2X2   Date: 30 dec 82
-!
-! Abstract: Compute saturation vapor pressure from the temperature.
-!   A linear interpolation is done between values in a lookup table
-!   computed in gpvs. See documentation for fpvsx for details.
-!   Input values outside table range are reset to table extrema.
-!   The interpolation accuracy is almost 6 decimal places.
-!   On the Cray, fpvs is about 4 times faster than exact calculation.
-!   This function should be expanded inline in the calling routine.
-!
-! Program History Log:
-!   91-05-07  Iredell             made into inlinable function
-!   94-12-30  Iredell             expand table
-! 1999-03-01  Iredell             f90 module
-! 2001-02-26  Iredell             ice phase
-!
-! Usage:   pvs=fpvsnew(t)
-!
-!   Input argument list:
-!     t          Real(krealfp) temperature in Kelvin
-!
-!   Output argument list:
-!     fpvsnew       Real(krealfp) saturation vapor pressure in Pascals
-!
-! Attributes:
-!   Language: Fortran 90.
-!
-!$$$
+!> fpvsnew() computes saturation vapor pressure.
+!>
+!> Compute saturation vapor pressure from the temperature.
+!> A linear interpolation is done between values in a lookup table
+!> computed in gpvs. See documentation for fpvsx for details.
+!> Input values outside table range are reset to table extrema.
+!> The interpolation accuracy is almost 6 decimal places.
+!> On the Cray, fpvs is about 4 times faster than exact calculation.
+!> This function should be expanded inline in the calling routine.
+!>
+!> @param[in] t Real(krealfp) Temperature in Kelvin.
+!> @param[out] fpvsnew Real(krealfp) Saturation vapor pressure in Pascals.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1991-05-07 | Iredell | Initial. Made into inlinable function
+!> 1994-12-30 | Iredell | Expand table
+!> 1999-03-01 | Iredell | F90 module
+!> 2001-02-26 | Iredell | Ice phase
+!>
+!> @author N Phillips w/NMC2X2 @date 1982-12-30
       implicit none
       integer,parameter:: nxpvs=7501
       real,parameter:: con_ttp     =2.7316e+2 ! temp at H2O 3pt
@@ -486,130 +428,98 @@
       end function fpvsnew
 !
 !-------------------------------------------------------------------------------------
-!
-
+!> calcape() computes CAPE and CINS.
+!>
+!> This routine computes CAPE and CINS given temperature,
+!> pressure, and specific humidty.  In "storm and cloud 
+!> dynamics" (1989, academic press) cotton and anthes define
+!> CAPE (equation 9.16, p501) as
+!>
+!> @code
+!>                  EL
+!>        CAPE =  SUM G * LN(THETAP/THETAA) DZ 
+!>                 LCL
+!>     
+!>     Where,
+!>      EL    = Equilibrium level,
+!>     LCL    = Lifting condenstation level,
+!>       G    = Gravitational acceleration,
+!>     THETAP = Lifted parcel potential temperature,
+!>     THETAA = Ambient potential temperature.
+!> @endcode
+!>     
+!>     Note that the integrand ln(THETAP/THETAA) approximately
+!>     equals (THETAP-THETAA)/THETAA.  This ratio is often used
+!>     in the definition of CAPE/CINS.
+!>     
+!>     Two types of CAPE/CINS can be computed by this routine.  The
+!>     summation process is the same For both cases.  What differs
+!>     is the definition of the parcel to lift.  FOR ITYPE=1 the
+!>     parcel with the warmest THETA-E in A DPBND pascal layer above
+!>     the model surface is lifted.  the arrays P1D, T1D, and Q1D
+!>     are not used.  For itype=2 the arrays P1D, T1D, and Q1D
+!>     define the parcel to lift in each column.  Both types of
+!>     CAPE/CINS may be computed in a single execution of the post
+!>     processor.
+!>     
+!>     This algorithm proceeds as follows.
+!>     For each column, 
+!>        (1)  Initialize running CAPE and CINS SUM TO 0.0
+!>        (2)  Compute temperature and pressure at the LCL using
+!>             look up table (PTBL).  Use either parcel that gives
+!>             max THETAE in lowest DPBND above ground (ITYPE=1)
+!>             or given parcel from t1D,Q1D,...(ITYPE=2).
+!>        (3)  Compute the temp of a parcel lifted from the LCL.
+!>             We know that the parcel's
+!>             equivalent potential temperature (THESP) remains
+!>             constant through this process.  we can
+!>             compute tpar using this knowledge using look
+!>             up table (subroutine TTBLEX).
+!>        (4)  Find the equilibrium level.  This is defined as the
+!>             highest positively buoyant layer.
+!>             (If there is no positively buoyant layer, CAPE/CINS
+!>              will be zero)
+!>        (5)  Compute CAPE/CINS.  
+!>             (A) Compute THETAP.  We know TPAR and P.
+!>             (B) Compute THETAA.  We know T and P.  
+!>        (6)  Add G*(THETAP-THETAA)*DZ to the running CAPE or CINS sum.
+!>             (A) If THETAP > THETAA, add to the CAPE sum.
+!>             (B) If THETAP < THETAA, add to the CINS sum.
+!>        (7)  Are we at equilibrium level? 
+!>             (A) If yes, stop the summation.
+!>             (b) if no, contiunue the summation.
+!>        (8)  Enforce limits on CAPE and CINS (i.e. no negative CAPE)
+!>
+!> @param[in] ITYPE INTEGER Flag specifying how parcel to lift is identified.  See comments above.
+!> @param[in] DPBND Depth over which one searches for most unstable parcel.
+!> @param[in] P1D Array of pressure of parcels to lift.
+!> @param[in] T1D Array of temperature of parcels to lift.
+!> @param[in] Q1D Array of specific humidity of parcels to lift.
+!> @param[in] L1D Array of model level of parcels to lift.
+!> @param[out] CAPE Convective available potential energy (J/kg).
+!> @param[out] CINS Convective inhibition (J/kg).
+!> @param[out] PPARC Pressure level of parcel lifted when one searches over a particular depth to compute CAPE/CIN.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-02-10 | Russ Treadon  | Initial
+!> 1993-06-19 | Russ Treadon  | Generalized routine to allow for type 2 CAPE/CINS calculations
+!> 1994-09-23 | Mike Baldwin  | Modified to use look up tables instead of complicated equations
+!> 1994-10-13 | Mike Baldwin  | Modified to continue CAPE/CINS calc up to at highest buoyant layer
+!> 1998-06-12 | T Black       | Conversion from 1-D TO 2-D
+!> 1998-08-18 | T Black       | Compute APE internally
+!> 2000-01-04 | Jim Tuccillo  | MPI Version              
+!> 2002-01-15 | Mike Baldwin  | WRF Version
+!> 2003-08-24 | G Manikin     | Added level of parcel being lifted as output from the routine and added the depth over which one searches for the most unstable parcel as input
+!> 2010-09-09 | G Manikin     | Changed computation to use virtual temp added eq lvl hght and thunder parameter    
+!> 2015-??-?? | S Moorthi     | Optimization and threading
+!> 2021-07-28 | W Meng        | Restrict computation from undefined grids
+!> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
+!>
+!> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
                          CINS,PPARC,ZEQL,THUND)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALCAPE     COMPUTES CAPE AND CINS
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-02-10      
-!     
-! ABSTRACT:  
-!     
-!     THIS ROUTINE COMPUTES CAPE AND CINS GIVEN TEMPERATURE,
-!     PRESSURE, AND SPECIFIC HUMIDTY.  IN "STORM AND CLOUD 
-!     DYNAMICS" (1989, ACADEMIC PRESS) COTTON AND ANTHES DEFINE
-!     CAPE (EQUATION 9.16, P501) AS
-!
-!                  EL
-!         CAPE =  SUM G * LN(THETAP/THETAA) DZ 
-!                 LCL
-!     
-!     WHERE,
-!      EL    = EQUILIBRIUM LEVEL,
-!     LCL    = LIFTING CONDENSTATION LEVEL,
-!       G    = GRAVITATIONAL ACCELERATION,
-!     THETAP = LIFTED PARCEL POTENTIAL TEMPERATURE,
-!     THETAA = AMBIENT POTENTIAL TEMPERATURE.
-!     
-!     NOTE THAT THE INTEGRAND LN(THETAP/THETAA) APPROXIMATELY
-!     EQUALS (THETAP-THETAA)/THETAA.  THIS RATIO IS OFTEN USED
-!     IN THE DEFINITION OF CAPE/CINS.
-!     
-!     TWO TYPES OF CAPE/CINS CAN BE COMPUTED BY THIS ROUTINE.  THE
-!     SUMMATION PROCESS IS THE SAME FOR BOTH CASES.  WHAT DIFFERS
-!     IS THE DEFINITION OF THE PARCEL TO LIFT.  FOR ITYPE=1 THE
-!     PARCEL WITH THE WARMEST THETA-E IN A DPBND PASCAL LAYER ABOVE
-!     THE MODEL SURFACE IS LIFTED.  THE ARRAYS P1D, T1D, AND Q1D
-!     ARE NOT USED.  FOR ITYPE=2 THE ARRAYS P1D, T1D, AND Q1D
-!     DEFINE THE PARCEL TO LIFT IN EACH COLUMN.  BOTH TYPES OF
-!     CAPE/CINS MAY BE COMPUTED IN A SINGLE EXECUTION OF THE POST
-!     PROCESSOR.
-!     
-!     THIS ALGORITHM PROCEEDS AS FOLLOWS.
-!     FOR EACH COLUMN, 
-!        (1)  INITIALIZE RUNNING CAPE AND CINS SUM TO 0.0
-!        (2)  COMPUTE TEMPERATURE AND PRESSURE AT THE LCL USING
-!             LOOK UP TABLE (PTBL).  USE EITHER PARCEL THAT GIVES
-!             MAX THETAE IN LOWEST DPBND ABOVE GROUND (ITYPE=1)
-!             OR GIVEN PARCEL FROM T1D,Q1D,...(ITYPE=2).
-!        (3)  COMPUTE THE TEMP OF A PARCEL LIFTED FROM THE LCL.
-!             WE KNOW THAT THE PARCEL'S
-!             EQUIVALENT POTENTIAL TEMPERATURE (THESP) REMAINS
-!             CONSTANT THROUGH THIS PROCESS.  WE CAN
-!             COMPUTE TPAR USING THIS KNOWLEDGE USING LOOK
-!             UP TABLE (SUBROUTINE TTBLEX).
-!        (4)  FIND THE EQUILIBRIUM LEVEL.  THIS IS DEFINED AS THE
-!             HIGHEST POSITIVELY BUOYANT LAYER.
-!             (IF THERE IS NO POSITIVELY BUOYANT LAYER, CAPE/CINS
-!              WILL BE ZERO)
-!        (5)  COMPUTE CAPE/CINS.  
-!             (A) COMPUTE THETAP.  WE KNOW TPAR AND P.
-!             (B) COMPUTE THETAA.  WE KNOW T AND P.  
-!        (6)  ADD G*(THETAP-THETAA)*DZ TO THE RUNNING CAPE OR CINS SUM.
-!             (A) IF THETAP > THETAA, ADD TO THE CAPE SUM.
-!             (B) IF THETAP < THETAA, ADD TO THE CINS SUM.
-!        (7)  ARE WE AT EQUILIBRIUM LEVEL? 
-!             (A) IF YES, STOP THE SUMMATION.
-!             (B) IF NO, CONTIUNUE THE SUMMATION.
-!        (8)  ENFORCE LIMITS ON CAPE AND CINS (I.E. NO NEGATIVE CAPE)
-!     
-! PROGRAM HISTORY LOG:
-!   93-02-10  RUSS TREADON
-!   93-06-19  RUSS TREADON - GENERALIZED ROUTINE TO ALLOW FOR 
-!                            TYPE 2 CAPE/CINS CALCULATIONS.     
-!   94-09-23  MIKE BALDWIN - MODIFIED TO USE LOOK UP TABLES
-!                            INSTEAD OF COMPLICATED EQUATIONS.
-!   94-10-13  MIKE BALDWIN - MODIFIED TO CONTINUE CAPE/CINS CALC
-!                            UP TO AT HIGHEST BUOYANT LAYER.
-!   98-06-12  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   98-08-18  T BLACK      - COMPUTE APE INTERNALLY
-!   00-01-04  JIM TUCCILLO - MPI VERSION              
-!   02-01-15  MIKE BALDWIN - WRF VERSION
-!   03-08-24  G MANIKIN    - ADDED LEVEL OF PARCEL BEING LIFTED
-!                            AS OUTPUT FROM THE ROUTINE AND ADDED
-!                            THE DEPTH OVER WHICH ONE SEARCHES FOR
-!                            THE MOST UNSTABLE PARCEL AS INPUT
-!   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
-!                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
-!   15-xx-xx  S MOORTHI    - optimization and threading
-!   21-07-28  W Meng       - Restrict computation from undefined grids.
-!   21-09-01  E COLON      - equivalent level height index for RTMA
-!
-! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
-!                                CINS,PPARC)
-!   INPUT ARGUMENT LIST:
-!     ITYPE    - INTEGER FLAG SPECIFYING HOW PARCEL TO LIFT IS
-!                IDENTIFIED.  SEE COMMENTS ABOVE.
-!     DPBND    - DEPTH OVER WHICH ONE SEARCHES FOR MOST UNSTABLE PARCEL
-!     P1D      - ARRAY OF PRESSURE OF PARCELS TO LIFT.
-!     T1D      - ARRAY OF TEMPERATURE OF PARCELS TO LIFT.
-!     Q1D      - ARRAY OF SPECIFIC HUMIDITY OF PARCELS TO LIFT.
-!     L1D      - ARRAY OF MODEL LEVEL OF PARCELS TO LIFT.
-!
-!   OUTPUT ARGUMENT LIST: 
-!     CAPE     - CONVECTIVE AVAILABLE POTENTIAL ENERGY (J/KG)
-!     CINS     - CONVECTIVE INHIBITION (J/KG)
-!     PPARC    - PRESSURE LEVEL OF PARCEL LIFTED WHEN ONE SEARCHES
-!                  OVER A PARTICULAR DEPTH TO COMPUTE CAPE/CIN
-!     
-!   OUTPUT FILES:
-!     STDOUT  - RUN TIME STANDARD OUT.
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       BOUND    - BOUND (CLIP) DATA BETWEEN UPPER AND LOWER LIMTS.
-!       TTBLEX   - LOOKUP TABLE ROUTINE TO GET T FROM THETAE AND P
-!
-!     LIBRARY:
-!       COMMON   - 
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : CRAY C-90
-!$$$  
-!
       use vrbls3d,    only: pmid, t, q, zint
       use vrbls2d,    only: teql,ieql
       use masks,      only: lmh
@@ -988,140 +898,104 @@
       END SUBROUTINE CALCAPE
 !
 !-------------------------------------------------------------------------------------
-!
+!> calcape2() computes CAPE and CINS.
+!>
+!> This routine computes CAPE and CINS given temperature,
+!> pressure, and specific humidty.  In "storm and cloud 
+!> dynamics" (1989, academic press) cotton and anthes define
+!> CAPE (equation 9.16, p501) as
+!>
+!> @code
+!>                  EL
+!>        CAPE =  SUM G * ln(THETAP/THETAA) DZ 
+!>                 LCL
+!>     
+!>     Where,
+!>      EL    = Equilibrium level,
+!>     LCL    = Lifting condenstation level,
+!>       G    = Gravitational acceleration,
+!>     THETAP = Lifted parcel potential temperature,
+!>     THETAA = Ambient potential temperature.
+!> @endcode
+!>     
+!>     Note that the integrand ln(THETAP/THETAA) approximately
+!>     equals (THETAP-THETAA)/THETAA.  This ratio is often used
+!>     in the definition of CAPE/CINS.
+!>     
+!>     Two types of CAPE/CINS can be computed by this routine.  The
+!>     summation process is the same For both cases.  What differs
+!>     is the definition of the parcel to lift.  FOR ITYPE=1 the
+!>     parcel with the warmest THETA-E in A DPBND pascal layer above
+!>     the model surface is lifted.  the arrays P1D, T1D, and Q1D
+!>     are not used.  For itype=2 the arrays P1D, T1D, and Q1D
+!>     define the parcel to lift in each column.  Both types of
+!>     CAPE/CINS may be computed in a single execution of the post
+!>     processor.
+!>     
+!>     This algorithm proceeds as follows.
+!>     For each column, 
+!>        (1)  Initialize running CAPE and CINS SUM TO 0.0
+!>        (2)  Compute temperature and pressure at the LCL using
+!>             look up table (PTBL).  Use either parcel that gives
+!>             max THETAE in lowest DPBND above ground (ITYPE=1)
+!>             or given parcel from t1D,Q1D,...(ITYPE=2).
+!>        (3)  Compute the temp of a parcel lifted from the LCL.
+!>             We know that the parcel's
+!>             equivalent potential temperature (THESP) remains
+!>             constant through this process.  we can
+!>             compute tpar using this knowledge using look
+!>             up table (subroutine TTBLEX).
+!>        (4)  Find the equilibrium level.  This is defined as the
+!>             highest positively buoyant layer.
+!>             (If there is no positively buoyant layer, CAPE/CINS
+!>              will be zero)
+!>        (5)  Compute CAPE/CINS.  
+!>             (A) Compute THETAP.  We know TPAR and P.
+!>             (B) Compute THETAA.  We know T and P.  
+!>        (6)  Add G*(THETAP-THETAA)*DZ to the running CAPE or CINS sum.
+!>             (A) If THETAP > THETAA, add to the CAPE sum.
+!>             (B) If THETAP < THETAA, add to the CINS sum.
+!>        (7)  Are we at equilibrium level? 
+!>             (A) If yes, stop the summation.
+!>             (b) if no, contiunue the summation.
+!>        (8)  Enforce limits on CAPE and CINS (i.e. no negative CAPE)
+!>
+!> @param[in] ITYPE INTEGER Flag specifying how parcel to lift is identified.  See comments above.
+!> @param[in] DPBND Depth over which one searches for most unstable parcel.
+!> @param[in] P1D Array of pressure of parcels to lift.
+!> @param[in] T1D Array of temperature of parcels to lift.
+!> @param[in] Q1D Array of specific humidity of parcels to lift.
+!> @param[in] L1D Array of model level of parcels to lift.
+!> @param[out] CAPE Convective available potential energy (J/kg).
+!> @param[out] CINS Convective inhibition (J/kg).
+!> @param[out] LFC level of free convection (m).
+!> @param[out] ESRHL Lower bound to account for effective helicity calculation.
+!> @param[out] ESRHH Upper bound to account for effective helicity calculation.
+!> @param[out] DCAPE downdraft CAPE (J/KG).
+!> @param[out] DGLD Dendritic growth layer depth (m).
+!> @param[out] ESP Enhanced stretching potential.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-02-10 | Russ Treadon  | Initial
+!> 1993-06-19 | Russ Treadon  | Generalized routine to allow for type 2 CAPE/CINS calculations
+!> 1994-09-23 | Mike Baldwin  | Modified to use look up tables instead of complicated equations
+!> 1994-10-13 | Mike Baldwin  | Modified to continue CAPE/CINS calc up to at highest buoyant layer
+!> 1998-06-12 | T Black       | Conversion from 1-D TO 2-D
+!> 1998-08-18 | T Black       | Compute APE internally
+!> 2000-01-04 | Jim Tuccillo  | MPI Version              
+!> 2002-01-15 | Mike Baldwin  | WRF Version
+!> 2003-08-24 | G Manikin     | Added level of parcel being lifted as output from the routine and added the depth over which one searches for the most unstable parcel as input
+!> 2010-09-09 | G Manikin     | Changed computation to use virtual temp added eq lvl hght and thunder parameter    
+!> 2015-??-?? | S Moorthi     | Optimization and threading
+!> 2021-09-03 | J Meng        | Modified to add 0-3km CAPE/CINS, LFC, effective helicity, downdraft CAPE, dendritic growth layer depth, ESP
+!> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
+!>
+!> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &  
                           CAPE,CINS,LFC,ESRHL,ESRHH,      &
                           DCAPE,DGLD,ESP)
-!      SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
-!                         CINS,PPARC,ZEQL,THUND)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALCAPE     COMPUTES CAPE AND CINS
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-02-10      
-!     
-! ABSTRACT:  
-!     
-!     THIS ROUTINE COMPUTES CAPE AND CINS GIVEN TEMPERATURE,
-!     PRESSURE, AND SPECIFIC HUMIDTY.  IN "STORM AND CLOUD 
-!     DYNAMICS" (1989, ACADEMIC PRESS) COTTON AND ANTHES DEFINE
-!     CAPE (EQUATION 9.16, P501) AS
-!
-!                  EL
-!         CAPE =  SUM G * LN(THETAP/THETAA) DZ 
-!                 LCL
-!     
-!     WHERE,
-!      EL    = EQUILIBRIUM LEVEL,
-!     LCL    = LIFTING CONDENSTATION LEVEL,
-!       G    = GRAVITATIONAL ACCELERATION,
-!     THETAP = LIFTED PARCEL POTENTIAL TEMPERATURE,
-!     THETAA = AMBIENT POTENTIAL TEMPERATURE.
-!     
-!     NOTE THAT THE INTEGRAND LN(THETAP/THETAA) APPROXIMATELY
-!     EQUALS (THETAP-THETAA)/THETAA.  THIS RATIO IS OFTEN USED
-!     IN THE DEFINITION OF CAPE/CINS.
-!     
-!     TWO TYPES OF CAPE/CINS CAN BE COMPUTED BY THIS ROUTINE.  THE
-!     SUMMATION PROCESS IS THE SAME FOR BOTH CASES.  WHAT DIFFERS
-!     IS THE DEFINITION OF THE PARCEL TO LIFT.  FOR ITYPE=1 THE
-!     PARCEL WITH THE WARMEST THETA-E IN A DPBND PASCAL LAYER ABOVE
-!     THE MODEL SURFACE IS LIFTED.  THE ARRAYS P1D, T1D, AND Q1D
-!     ARE NOT USED.  FOR ITYPE=2 THE ARRAYS P1D, T1D, AND Q1D
-!     DEFINE THE PARCEL TO LIFT IN EACH COLUMN.  BOTH TYPES OF
-!     CAPE/CINS MAY BE COMPUTED IN A SINGLE EXECUTION OF THE POST
-!     PROCESSOR.
-!     
-!     THIS ALGORITHM PROCEEDS AS FOLLOWS.
-!     FOR EACH COLUMN, 
-!        (1)  INITIALIZE RUNNING CAPE AND CINS SUM TO 0.0
-!        (2)  COMPUTE TEMPERATURE AND PRESSURE AT THE LCL USING
-!             LOOK UP TABLE (PTBL).  USE EITHER PARCEL THAT GIVES
-!             MAX THETAE IN LOWEST DPBND ABOVE GROUND (ITYPE=1)
-!             OR GIVEN PARCEL FROM T1D,Q1D,...(ITYPE=2).
-!        (3)  COMPUTE THE TEMP OF A PARCEL LIFTED FROM THE LCL.
-!             WE KNOW THAT THE PARCEL'S
-!             EQUIVALENT POTENTIAL TEMPERATURE (THESP) REMAINS
-!             CONSTANT THROUGH THIS PROCESS.  WE CAN
-!             COMPUTE TPAR USING THIS KNOWLEDGE USING LOOK
-!             UP TABLE (SUBROUTINE TTBLEX).
-!        (4)  FIND THE EQUILIBRIUM LEVEL.  THIS IS DEFINED AS THE
-!             HIGHEST POSITIVELY BUOYANT LAYER.
-!             (IF THERE IS NO POSITIVELY BUOYANT LAYER, CAPE/CINS
-!              WILL BE ZERO)
-!        (5)  COMPUTE CAPE/CINS.  
-!             (A) COMPUTE THETAP.  WE KNOW TPAR AND P.
-!             (B) COMPUTE THETAA.  WE KNOW T AND P.  
-!        (6)  ADD G*(THETAP-THETAA)*DZ TO THE RUNNING CAPE OR CINS SUM.
-!             (A) IF THETAP > THETAA, ADD TO THE CAPE SUM.
-!             (B) IF THETAP < THETAA, ADD TO THE CINS SUM.
-!        (7)  ARE WE AT EQUILIBRIUM LEVEL? 
-!             (A) IF YES, STOP THE SUMMATION.
-!             (B) IF NO, CONTIUNUE THE SUMMATION.
-!        (8)  ENFORCE LIMITS ON CAPE AND CINS (I.E. NO NEGATIVE CAPE)
-!     
-! PROGRAM HISTORY LOG:
-!   93-02-10  RUSS TREADON
-!   93-06-19  RUSS TREADON - GENERALIZED ROUTINE TO ALLOW FOR 
-!                            TYPE 2 CAPE/CINS CALCULATIONS.     
-!   94-09-23  MIKE BALDWIN - MODIFIED TO USE LOOK UP TABLES
-!                            INSTEAD OF COMPLICATED EQUATIONS.
-!   94-10-13  MIKE BALDWIN - MODIFIED TO CONTINUE CAPE/CINS CALC
-!                            UP TO AT HIGHEST BUOYANT LAYER.
-!   98-06-12  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   98-08-18  T BLACK      - COMPUTE APE INTERNALLY
-!   00-01-04  JIM TUCCILLO - MPI VERSION              
-!   02-01-15  MIKE BALDWIN - WRF VERSION
-!   03-08-24  G MANIKIN    - ADDED LEVEL OF PARCEL BEING LIFTED
-!                            AS OUTPUT FROM THE ROUTINE AND ADDED
-!                            THE DEPTH OVER WHICH ONE SEARCHES FOR
-!                            THE MOST UNSTABLE PARCEL AS INPUT
-!   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
-!                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
-!   15-xx-xx  S MOORTHI    - optimization and threading
-!   19-09-03  J MENG       - MODIFIED TO ADD 0-3KM CAPE/CINS, LFC, 
-!                            EFFECTIVE HELICITY, DOWNDRAFT CAPE,
-!                            DENDRITIC GROWTH LAYER DEPTH, ESP
-!   21-09-01  E COLON      - equivalent level height index for RTMA
-!
-! USAGE:    CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &
-!                          CAPE,CINS,LFC,ESRHL,ESRHH,     &
-!                          DCAPE,DGLD,ESP)
-!
-!   INPUT ARGUMENT LIST:
-!     ITYPE    - INTEGER FLAG SPECIFYING HOW PARCEL TO LIFT IS
-!                IDENTIFIED.  SEE COMMENTS ABOVE.
-!     DPBND    - DEPTH OVER WHICH ONE SEARCHES FOR MOST UNSTABLE PARCEL
-!     P1D      - ARRAY OF PRESSURE OF PARCELS TO LIFT.
-!     T1D      - ARRAY OF TEMPERATURE OF PARCELS TO LIFT.
-!     Q1D      - ARRAY OF SPECIFIC HUMIDITY OF PARCELS TO LIFT.
-!     L1D      - ARRAY OF MODEL LEVEL OF PARCELS TO LIFT.
-!
-!   OUTPUT ARGUMENT LIST: 
-!     CAPE     - CONVECTIVE AVAILABLE POTENTIAL ENERGY (J/KG)
-!     CINS     - CONVECTIVE INHIBITION (J/KG)
-!     LFC      - LEVEL OF FREE CONVECTION (M)
-!     ESRHL    - LOWER BOUND TO ACCOUNT FOR EFFECTIVE HELICITY CALCULATION
-!     ESRHH    - UPPER BOUND TO ACCOUNT FOR EFFECTIVE HELICITY CALCULATION
-!     DCAPE    - DOWNDRAFT CAPE (J/KG)
-!     DGLD     - DENDRITIC GROWTH LAYER DEPTH (M)
-!     ESP      - ENHANCED STRETCHING POTENTIAL
-!     
-!   OUTPUT FILES:
-!     STDOUT  - RUN TIME STANDARD OUT.
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       BOUND    - BOUND (CLIP) DATA BETWEEN UPPER AND LOWER LIMTS.
-!       TTBLEX   - LOOKUP TABLE ROUTINE TO GET T FROM THETAE AND P
-!
-!     LIBRARY:
-!       COMMON   - 
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : CRAY C-90
-!$$$  
-!
       use vrbls3d,    only: pmid, t, q, zint
       use vrbls2d,    only: fis,ieql
       use gridspec_mod, only: gridtype
