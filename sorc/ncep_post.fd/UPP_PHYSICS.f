@@ -1,13 +1,15 @@
 !> @file
-!> @brief module: upp_physics is a collection of UPP subroutines for physics variables calculation.
 !>
+!> @brief upp_physics is a collection of UPP subroutines for physics variables calculation.
+!> @author Jesse Meng @date 2020-05-20
+
 !> calcape() computes CAPE/CINS and other storm related variables.
 !>
 !> calcape2() computes additional storm related variables.
 !>
 !> calrh(), calrh_nam(), calrh_gfs(), calrh_gsd() compute RH using various algorithms.
 !>
-!> The NAM v4.1.18 ALGORITHM (CALRH_NAM) is selected as default for 
+!> The NAM v4.1.18 algorithm (calrh_nam()) is selected as default for 
 !> NMMB and FV3GFS, FV3GEFS, and FV3R for the UPP 2020 unification.
 !>
 !> calrh_pw() algorithm use at GSD for RUC and Rapid Refresh.

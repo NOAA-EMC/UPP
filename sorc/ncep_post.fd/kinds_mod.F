@@ -1,7 +1,6 @@
 !> @file
-!> @brief module: kinds
 !>
-!> Module to hold specification kinds for variable declaration.
+!> @brief This module is to hold specification kinds for variable declaration.
 !> This module is based on (copied from) Paul vanDelst's 
 !> type_kinds module found in the community radiative transfer model.
 !>

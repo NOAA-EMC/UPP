@@ -1,7 +1,6 @@
 !> @file
-!> module:   native_endianness
 !>
-!> This module was written by Dusan Jovic and has been adapted to GSI for internal translation
+!> @brief This module, native_endianness, was written by Dusan Jovic and has been adapted to GSI for internal translation
 !> of WRF ARW and NMM binary restart files as required to match the machine native 
 !> endian storage format.  The original code only converted from big-endian to little-endian.
 !> There are no restrictions in this version.
@@ -9,6 +8,8 @@
 !> which has no compiler option for automatic switching to machine native endian format
 !> for fortran unformatted read/write.
 !>
+!> @author Parrish wx22 @date 2012-10-11
+
 !> @note functions included: is_little_endian - no argument--returns true for little-endian machine, false for big-endian machine
 !>
 !> @note variables included: byte_swap - false if machine and wrf binary file are same endian, true if different

@@ -1,6 +1,8 @@
 !> @file
-!> @brief module: upp_math is a collection of UPP subroutines for numerical math functions calculation.
 !>
+!> @brief upp_math is a collection of UPP subroutines for numerical math functions calculation.
+!> @author Jesse Meng @date 2020-05-20
+
 !> dvdxdudy() computes dudy, dvdx, uwnd
 !>
 !> h2u(), h2v(), u2h(), v2h() interpolate variables between U, V, H, points
