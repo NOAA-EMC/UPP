@@ -1,52 +1,32 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    WETFRZLVL      COMPUTES LEVEL OF 0 WET BULB	 
-!! PRGRMMR: MANIKIN         ORG: W/NP2      DATE: 03-11-14     
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES THE LOWEST HEIGHT WITH A WET BULB
-!!     TEMPERATURE OF FREEZING FOR EACH MASS POINT ON THE ETA GRID.  
-!!     THE COMPUTED WET BULB ZERO HEIGHT IS THE MEAN SEA LEVEL
-!!     HEIGHT.  AT EACH MASS POINT WE MOVE UP FROM THE SURFACE TO 
-!!     FIND THE FIRST ETA LAYER WHERE THE TW IS LESS THAN
-!!     273.16K.  VERTICAL INTERPOLATION IN TEMPERATURE TO THE FREEZING
-!!     TEMPERATURE GIVES THE FREEZING LEVEL HEIGHT.  PRESSURE AND 
-!!     SPECIFIC HUMIDITY ARE INTERPOLATED TO THIS LEVEL AND ALONG WITH
-!!     THE TEMPERATURE PROVIDE THE FREEZING LEVEL RELATIVE HUMIDITY.
-!!     IF THE SURFACE (SKIN) TEMPERATURE IS BELOW FREEZING, THE ROUTINE
-!!     USES SURFACE BASED FIELDS TO COMPUTE THE RELATIVE HUMIDITY.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   03-11-14 GEOFF MANIKIN - NEW PROGRAM 
-!!   04-12-06  G MANIKIN    - CORRECTED COMPUTATION OF SFC TEMPERATURE
-!!   05-03-11  H CHUANG     - WRF VERSION
-!!   21-07-26  W Meng       - Restrict computation from undefined grids
-!!     
-!! USAGE:   CALL WETFRZLVL(TWET,ZWET) 
-!!   INPUT ARGUMENT LIST:
-!!     TWET     - WET BULB TEMPERATURES 
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     ZWET     - ABOVE GROUND LEVEL HEIGHT OF LEVEL WITH 0 WET BULB.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       REL_HUM
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  LOOPS
-!!                  PVRBLS
-!!                  MASKS
-!!                  MAPOT
-!!                  POSTVAR
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief wetfrzlvl() computes level of 0 wet bulb.
+!>
+!> @author Geoff Manikin W/NP2 @date 2003-11-14
+
+!> This routine computes the lowest height with a wet bulb
+!> temperature of freezing for each mass point on the eta grid.  
+!> The computed wet bulb zero height is the mean sea level
+!> height.  At each mass point we move up from the surface to 
+!> find the first eta layer where the tw is less than
+!> 273.16K.  Vertical interpolation in temperature to the freezing
+!> temperature gives the freezing level height.  Pressure and 
+!> specific humidity are interpolated to this level and along with
+!> the temperature provide the freezing level relative humidity.
+!> If the surface (skin) temperature is below freezing, the routine
+!> uses surface based fields to compute the relative humidity.
+!>
+!> @param[in] TWET Wet bulb temperatures.
+!> @param[out] ZWET Above ground level height of level with 0 wet bulb.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2003-11-14 | Geoff Manikin | Initial
+!> 2004-12-06 | Geoff Manikin | Corrected computation of SFC temperature
+!> 2005-03-11 | H CHUANG      | WRF Version
+!> 2021-07-26 | W Meng        | Restrict computation from undefined grids
+!>
+!> @author Geoff Manikin W/NP2 @date 2003-11-14
       SUBROUTINE WETFRZLVL(TWET,ZWET)
 
 !     

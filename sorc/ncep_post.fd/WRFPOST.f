@@ -1,71 +1,34 @@
 !> @file
-!                .      .    .     
-!> MAIN PROGRAM: WRFPOST
-!!   PRGMMR: BALDWIN          ORG: NSSL/SPC    DATE: 2002-06-18
-!!     
-!! ABSTRACT:  
-!!     THIS PROGRAM DRIVES THE EXTERNAL WRF POST PROCESSOR.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-24  RUSS TREADON - CODED ETAPOST AS STAND ALONE CODE
-!!   98-05-29  BLACK - CONVERSION OF POST CODE FROM 1-D TO 2-D
-!!   00-02-04  JIM TUCCILLO - PARALLEL VERSION VIA MPI
-!!   01-02-15  JIM TUCCILLO - MANY COMMON BLOCKS REPLACED WITH MODULES
-!!             TO SUPPORT FORTRAN "ALLOCATE"s FOR THE EXACT SIZE OF THE 
-!!             ARRAYS NEEDED BASED ON THE NUMBER OF MPI TASKS.
-!!             THIS WAS DONE TO REDUCE THE ADDRESS SPACE THAT THE LOADER SEES.
-!!             THESE CHANGES WERE NECESSARY FOR RUNNING LARGER DOMAINS SUCH AS
-!!             12 KMS
-!!   01-06-15  JIM TUCCILLO - ADDED ASYNCRONOUS I/O CAPABILITY. IF THERE ARE MORE
-!!             THAN ONE MPI TASK, THE IO WILL BE DONE AYNCHRONOUSLY BY THE LAST
-!!             MPI TASK.
-!!   02-06-17  MIKE BALDWIN - CONVERT ETAPOST TO WRFPOST.  INCLUDE WRF I/O API
-!!             FOR INPUT OF MODEL DATA.  MODIFY CODE TO DEAL WITH C-GRID
-!!             DATA.  STREAMLINE OUTPUT TO A CALL OF ONE SUBROUTINE INSTEAD OF THREE.
-!!             REPLACE COMMON BLOCKS WITH A LIMITED NUMBER OF MODULES.
-!!   04-01-01  H CHUANG - ADDED NMM IO MODULE AND BINARY OPTIONS
-!!   05-07-08  Binbin Zhou: Aadded RSM model
-!!   05-12-05  H CHUANG - ADDED CAPABILITY TO OUTPUT OFF-HOUR FORECAST WHICH HAS
-!!               NO IMPACTS ON ON-HOUR FORECAST
-!!   06-02-20  CHUANG, BLACK, AND ROGERS - FINALIZED COMPLETE LIST OF NAM
-!!             OPERATIONAL PRODUCTS FROM WRF
-!!   06-02-27  H CHUANG - MODIFIED TO POST MULTIPLE
-!!             FORECAST HOURS IN ONE EXECUTION
-!!   06-03-03  H CHUANG - ADDED PARRISH'S MPI BINARY IO TO READ BINARY
-!!             WRF FILE AS RANDOM ASSCESS SO THAT VARIABLES IN WRF OUTPUT
-!!             DON'T HAVE TO BE READ IN IN SPECIFIC ORDER 
-!!   11-02-06  J WANG  - ADD GRIB2 OPTION
-!!   11-12-14  SARAH LU - ADD THE OPTION TO READ NGAC AER FILE 
-!!   12-01-28  J WANG  - Use post available fields in xml file for grib2
-!!   13-06-25  S MOORTHI - add gocart_on logical option to save memory
-!!   13-10-03  J WANG  - add option for po to be pascal, and 
-!!                       add gocart_on,d3d_on and popascal to namelist
-!!   20-03-25  J MENG  - remove grib1
-!!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
-!!   21-10-22  KaYee Wong - created formal fortran namelist for itag
-!!   21-11-03  Tracy Hertneky - Removed SIGIO option
-!!   22-01-14  W Meng  - Remove interfaces INITPOST_GS_NEMS, INITPOST_NEMS_MPIIO
-!!                       INITPOST_NMM and INITPOST_GFS_NETCDF.
-!!   22-03-15  W Meng  - Unify FV3 based interfaces.
-!!  
-!! USAGE:    WRFPOST
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON - CTLBLK
-!!                RQSTFLD
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : IBM RS/6000 SP
-!!
+!> @brief wrfpost() drives the external wrf post processor.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-24 | Russ Treadon              | Coded etapost as stand alone code
+!> 1998-05-29 | Black                     | Conversion of post code from 1-D to 2-D
+!> 1900-02-04 | Jim Tuccillo              | Parallel version via MPI
+!> 2001-02-15 | Jim Tuccillo              | Many common blocks replaced with modules to support fortran "allocate"s for the exact size of the arrays needed based on the number of mpi tasks. This was done to reduce the address space that the loader sees. These changes were necessary for running larger domains such as 12 kms
+!> 2001-06-15 | JIM Tuccillo              | Added asyncronous I/O capability. if there are more than one mpi task, the io will be done aynchronously by the last MPI task.
+!> 2002-06-17 | Mike Baldwin              | Convert etapost to wrfpost. Include wrf I/O api for input of model data. Modify code to deal with C-grid data. Streamline output to a call of one subroutine instead of three. Replace common blocks with a limited number of modules.
+!> 2004-01-01 | H Chuang                  | Added nmm io module and binary options
+!> 2005-07-08 | Binbin Zhou               | Added RSM model
+!> 2005-12-05 | H Chuang                  | Added capability to output off-hour forecast which has no impacts on on-hour forecast
+!> 2006-02-20 | Chuang, Black, and Rogers | Finalized complete list of NAM operational products from WRF
+!> 2006-02-27 | H Chuang                  | Modified to post multiple forecast hours in one execution
+!> 2006-03-03 | H Chuang                  | Added parrish's mpi binary io to read binary WRF file as random asscess so that variables in WRF output don't have to be read in in specific order 
+!> 2011-02-06 | J Wang                    | Add grib2 option
+!> 2011-12-14 | Sarah Lu                  | Add the option to read ngac aer file 
+!> 2012-01-28 | J WANG                    | Use post available fields in xml file for grib2
+!> 2013-06-25 | S Moorthi                 | Add gocart_on logical option to save memory
+!> 2013-10-03 | J Wang                    |Add option for po to be pascal, and add gocart_on,d3d_on and popascal to namelist
+!> 2020-03-25 | J Meng                    | Remove grib1
+!> 2021-06-20 | W Meng                    | Remove reading grib1 and gfsio lib
+!> 2021-10-22 | KaYee Wong                | Created formal fortran namelist for itag
+!> 2021-11-03 | Tracy Hertneky            | Removed SIGIO option
+!> 2022-01-14 | W Meng                    | Remove interfaces INITPOST_GS_NEMS, INITPOST_NEMS_MPIIO, INITPOST_NMM and INITPOST_GFS_NETCDF
+!> 2022-03-15 | W Meng                    | Unify FV3 based interfaces
+!>
+!> @author Mike Bladwin NSSL/SPC @date 2002-06-18
       PROGRAM WRFPOST
 
 !
