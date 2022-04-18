@@ -1,15 +1,10 @@
 !> @file
 !> zensun() makes sun zenith and sun azimuth angle.
 !>
-!> Compute solar position information as a function of
+!> @author Paul Ricchiazzi Earth Space Research Group,UCSB @date 1992-10-23
+
+!> This subroutine computes solar position information as a function of
 !> geographic coordinates, date and time.
-!>
-!> @param[in] day Julian day (positive scalar or vector), (spring equinox =  80), (summer solstice= 171), (fall equinox   = 266), (winter solstice= 356).
-!> @param[in] time Universal Time in hours (scalar or vector).
-!> @param[in] lat Geographic latitude of point on earth's surface (degrees).
-!> @param[in] lon Geographic longitude of point on earth's surface (degrees).
-!> @param[out] sun_zenith  - solar zenith angle.
-!> @param[out] sun_azimuth - solar azimuth angle.
 !>
 !>
 !> @note Procedure:
@@ -48,6 +43,14 @@
 !>  Analemma information from Jeff Dozier
 !>
 !>  This data is characterized by 74 points.
+!>
+!>
+!> @param[in] day Julian day (positive scalar or vector), (spring equinox =  80), (summer solstice= 171), (fall equinox   = 266), (winter solstice= 356).
+!> @param[in] time Universal Time in hours (scalar or vector).
+!> @param[in] lat Geographic latitude of point on earth's surface (degrees).
+!> @param[in] lon Geographic longitude of point on earth's surface (degrees).
+!> @param[out] sun_zenith  - solar zenith angle.
+!> @param[out] sun_azimuth - solar azimuth angle.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments

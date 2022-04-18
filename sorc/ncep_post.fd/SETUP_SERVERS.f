@@ -1,7 +1,9 @@
 !> @file
-!> setup_servers() setups I/O servers.
+!> @brief setup_servers() setups I/O servers.
 !>
-!> Setup I/O servers.
+!> @author Jim Tuccillo IBM @date 2000-03-20
+
+!> This subroutine is to setup I/O servers.
 !>
 !> @param[out] MYPE My rank.
 !> @param[out] INUMQ Array that holds the number of servers in each group.

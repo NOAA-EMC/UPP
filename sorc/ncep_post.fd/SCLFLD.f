@@ -1,6 +1,8 @@
 !> @file
-!> sclfld() scale array element by constant.
+!> @brief sclfld() scale array element by constant.
 !>
+!> @author Russ Treadon W/NP2 @date 1992-09-13
+
 !> This routine multiples (scales) the first IMO*JMO
 !> elements of array fld by the real scalar scale.
 !> Array elements which equal a special value will

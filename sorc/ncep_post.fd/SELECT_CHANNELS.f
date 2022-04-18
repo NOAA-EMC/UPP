@@ -1,5 +1,9 @@
 !> @file
-!> select_channels() verifies channel information and print error to output file if
+!> @brief select_channels() verifies channel information.
+!>
+!> @author HWRF @date 2012-09-27
+
+!> This subroutine verifies channel information and print error to output file if
 !> detected, finally excuting a program STOP - which may cause
 !> a hang condifition if run on multiple processors.
 !>

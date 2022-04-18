@@ -1,6 +1,8 @@
 !> @file
-!> wetfrzlvl() computes level of 0 wet bulb.
+!> @brief wetfrzlvl() computes level of 0 wet bulb.
 !>
+!> @author Geoff Manikin W/NP2 @date 2003-11-14
+
 !> This routine computes the lowest height with a wet bulb
 !> temperature of freezing for each mass point on the eta grid.  
 !> The computed wet bulb zero height is the mean sea level

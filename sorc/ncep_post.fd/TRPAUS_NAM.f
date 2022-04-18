@@ -1,6 +1,8 @@
 !> @file
-!> trpaus() computes tropopause data.
+!> @brief trpaus() computes tropopause data.
 !>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
+
 !> This routine computes tropopause data.  At each mass
 !> point a surface up search is made for the first 
 !> occurrence of a three layer mean lapse rate less than

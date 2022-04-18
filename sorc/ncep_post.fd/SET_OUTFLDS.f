@@ -1,6 +1,8 @@
 !> @file
-!> set_outflds() reads post xml control file.
+!> @ brief set_outflds() reads post xml control file.
 !>
+!> @author J. Wang NCEP/EMC @date 2012-01-27
+
 !> This routine reads the control file in xml format specifying
 !> field(s) to post, and save all the field information in
 !> a datatype array PSET.
