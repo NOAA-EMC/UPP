@@ -1,5 +1,5 @@
 !> @file
-!> @brief pvetc() computes potential vorticity, etc.
+!> pvetc() computes potential vorticity, etc.
 !>
 !> This subprogram computes
 !> computation | equation
@@ -78,7 +78,7 @@
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> @brief p2th() interpolates to isentropic level.
+!> p2th() interpolates to isentropic level.
 !>
 !> This subprogram interpolates fields to given isentropic levels.
 !> The interpolation is linear in entropy.
@@ -138,7 +138,7 @@
     enddo
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> @brief p2pv() interpolates to potential vorticity level.
+!> p2pv() interpolates to potential vorticity level.
 !>
 !> This subprogram interpolates fields to given potential vorticity
 !> levels within given pressure limits.
@@ -240,7 +240,7 @@
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
-!> @brief rsearch1() searches for a surrounding real interval.
+!> rsearch1() searches for a surrounding real interval.
 !>
 !> This subprogram searches a monotonic sequences of real numbers
 !> for intervals that surround a given search set of real numbers.
@@ -310,7 +310,7 @@
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> @brief tpause() computes tropopause level fields.
+!> tpause() computes tropopause level fields.
 !>
 !> This subprogram finds the tropopause level and computes fields
 !> at the tropopause level.  The tropopause is defined as the lowest level
@@ -399,7 +399,7 @@ end subroutine
     shrtp=(spdu-spdd)/(h(ktp)-h(ktp+1))
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> @brief mxwind() computes maximum wind level fields.
+!> mxwind() computes maximum wind level fields.
 !>
 !> This subprogram finds the maximum wind level and computes fields
 !> at the maximum wind level. The maximum wind level is searched for
@@ -491,7 +491,7 @@ end subroutine
   end subroutine 
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> @brief mptgen() generates grid decomposition dimensions.
+!> mptgen() generates grid decomposition dimensions.
 !>
 !> This subprogram decomposes total dimensions of a problem
 !> into smaller domains to be managed on a distributed memory system.
@@ -549,7 +549,7 @@ end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
 !-------------------------------------------------------------------------------
-!> @brief mptranr4() transposes grid decompositions.
+!> mptranr4() transposes grid decompositions.
 !>
 !> This subprogram transposes an array of data from one
 !> grid decomposition to another by using message passing.
