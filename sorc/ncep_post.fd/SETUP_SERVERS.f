@@ -1,56 +1,22 @@
 !> @file
-!                .      .    .
-!>   SUBROUTINE:  SETUP_SERVERS   SETUP I/O SERVERS      
-!!   PRGRMMR: TUCCILLO        ORG:  IBM       DATE: 00-03-20
-!!
-!! ABSTRACT:  SETUP I/O SERVERS
-!!
-!! PROGRAM HISTORY LOG:
-!!   00-03-11  TUCCILLO - ORIGINATOR
-!!
-!! USAGE:  CALL SETUP_SERVERS(MYPE,
-!!    *                       NPES,
-!!    *                       INUMQ,
-!!    *                       MPI_COMM_COMP,
-!!    *                       MPI_COMM_INTER)
-!!
-!!   INPUT ARGUMENT LIST:
-!!     NONE
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     MYPE - MY RANK
-!!     INUMQ - ARRAY THAT HOLDS THE NUMBER OF SERVERS IN EACH GROUP
-!!     NPES - NUMBER OF MPI TASKS FOR POSTING
-!!     MPI_COMM_COMP - THE NEW INTRACOMMUNICATOR FOR ALL TASKS
-!!     MPI_COMM_INTER - THE INTERCOMMUNICATOR FOR THE I/O SERVERS
-!!
-!!   INPUT FILES:  NONE
-!!
-!!   OUTPUT FILES:  
-!!
-!!   SUBPROGRAMS CALLED:
-!!     UNIQUE:
-!!            PARA_RANGE
-!!            MPI_INIT
-!!            MPI_COMM_RANK
-!!            MPI_COMM_SIZE
-!!            MPI_COMM_DUP
-!!            MPI_COMM_SPLIT
-!!            MPI_COMM_GROUP
-!!            MPI_GROUP_EXCL
-!!            MPI_COMM_CREATE
-!!            MPI_GROUP_FREE
-!!            MPI_INTERCOMM_CREATE
-!!            MPI_BARRIER
-!!
-!!   EXIT STATES:
-!!     COND =   0 - NORMAL EXIT
-!!
-!! ATTRIBUTES:
-!!   LANGUAGE: FORTRAN 90
-!!   MACHINE : IBM SP
-!!
-!!
+!> @brief setup_servers() setups I/O servers.
+!>
+!> @author Jim Tuccillo IBM @date 2000-03-20
+
+!> This subroutine is to setup I/O servers.
+!>
+!> @param[out] MYPE My rank.
+!> @param[out] INUMQ Array that holds the number of servers in each group.
+!> @param[out] NPES Number of MPI tasks for posting.
+!> @param[out] MPI_COMM_COMP The new intracommunicator for all tasks.
+!> @param[out] MPI_COMM_INTER The intercommunicator for the I/O servers.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2000-03-20 | Jim Tuccillo | Initial
+!>
+!> @author Jim Tuccillo IBM @date 2000-03-20
       SUBROUTINE SETUP_SERVERS(MYPE,                         &
      &                         NPES,                         &
      &                         INUMQ,                        &

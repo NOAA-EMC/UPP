@@ -1,27 +1,21 @@
 !> @file
-!
-!> SELECT_CHANNEL
-!! @author HWRF @date 20120927
-!!
-!! Verify channel information and print error to output file if
-!! detected, finally excuting a program STOP - which may cause
-!! a hang condifition if run on multiple processors.
-!! If data passed validation the channel indices passed in via
-!! the "channels" array are stored in the structure defining
-!! the channel object
-!!
-!! @param[inout] channelinfo - structure defining channel object
-!! @param[in] nchannels - number of channels for sensor
-!! @param[in] channels 
-!!
-!!   OUTPUT FILES:
-!!     NONE
-!!
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES: NONE
-!!
-!!     LIBRARY: NONE
-!!
+!> @brief select_channels() verifies channel information.
+!>
+!> @author HWRF @date 2012-09-27
+
+!> This subroutine verifies channel information and print error to output file if
+!> detected, finally excuting a program STOP - which may cause
+!> a hang condifition if run on multiple processors.
+!>
+!> If data passed validation the channel indices passed in via
+!> the "channels" array are stored in the structure defining
+!> the channel object.
+!>
+!> @param[inout] channelinfo structure defining channel object.
+!> @param[in] nchannels  number of channels for sensor.
+!> @param[in] channels.
+!>
+!> @author HWRF @date 2012-09-27
       subroutine SELECT_CHANNELS(channelinfo,nchannels,channels)
 
       use crtm_channelinfo_define, only: crtm_channelinfo_type

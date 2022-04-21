@@ -1,66 +1,47 @@
 !> @file
-!
-!> SUBPROGRAM:    FRZLVL      COMPUTES FRZING LVL Z AND RH
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES THE ISOTHERMAL LEVEL HEIGHT AND RELATIVE
-!!     HUMIDITY AT THIS LEVEL FOR EACH MASS POINT ON THE ETA GRID.
-!!     THE COMPUTED ISOTHERMAL LEVEL HEIGHT IS THE MEAN SEA LEVEL
-!!     HEIGHT.  AT EACH MASS POINT WE MOVE UP FROM THE SURFACE TO 
-!!     FIND THE LAST ETA LAYER WHERE THE TEMPERATURE IS LESS THAN
-!!     ISOTHERM AND THE TEMP IN THE LAYER BELOW IS ABOVE ISOTHERM.
-!!     VERTICAL INTERPOLATION IN TEMPERATURE TO THE ISOTHERMAL
-!!     TEMPERATURE GIVES THE ISOTHERMAL LEVEL HEIGHT.  PRESSURE AND 
-!!     SPECIFIC HUMIDITY ARE INTERPOLATED TO THIS LEVEL AND ALONG WITH
-!!     THE TEMPERATURE PROVIDE THE ISOTHERMAL LEVEL RELATIVE HUMIDITY.
-!!     IF THE ENTIRE ATMOSPHERE IS BELOW ISOTHERM, THE ROUTINE
-!!     USES SURFACE BASED FIELDS TO COMPUTE THE RELATIVE HUMIDITY.
-!!     
-!!     NOTE THAT IN POSTING FREEZING LEVEL DATA THE LFM LOOK-ALIKE FILE
-!!     (IE, GRID 26), WE PACK 273.15K AS THE FREEZING TEMPERATURE.  ALL
-!!     OTHER OUTPUT GRIDS USE 273.16K
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   93-06-10  RUSS TREADON - CORRECTED FREEZING LEVEL HEIGHTS TO BE
-!!                            WITH REPSECT TO MEAN SEA LEVEL, NOT  
-!!                            ABOVE GROUND LEVEL.
-!!   95-03-10  MIKE BALDWIN - GET HIGHEST FREEZING LEVEL.
-!!   98-06-15  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   98-08-17  MIKE BALDWIN - COMPUTE RH OVER ICE IF NECESSARY
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   01-10-25  H CHUANG     - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   10-08-27  T. Smirnova  - added PFRZL to the output
-!!   16-01-21  C. Alexander - Generalized function for any isotherm
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!   21-07-28  W. Meng      - Restrict compuatation from undefined grids
-!!
-!! USAGE:    CALL FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
-!!   INPUT ARGUMENT LIST:
-!!     ISOTHERM - ISOTHERMAL VALUE OF HEIGHT TO BE OUTPUT. 
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     ZFRZ     - ABOVE GROUND LEVE/ZFL AT ISOTHERM HEIGHT.
-!!     RHFRZ    - RELATIVE HUMIDITY AT ISOTHERM LEVEL.
-!!     PFRZL    - PRESSURE AT ISOTHERM LEVEL.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - 
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes FRZING LVL, Z and RH.
+!>
+!> This routine computes the isothermal level height and relative
+!> humidity at this level for each mass point on the ETA grid.
+!> The computed isothermal level height is the mean sea level
+!> height. At each mass point we move up from the surface to  
+!> find the last ETA layer where the temperature is less than
+!> isotherm and the temp in the layer below is above isotherm.
+!> Vertical interpolation in temperature to the isotherm
+!> temperature gives the isothermal level height. Pressure and   
+!> specific humidity are interpolated to this level and along with
+!> the temperature provide the isothermal level relative humidity.
+!> If the entire atmosphere is below isotherm, the routine
+!> uses surface based fields to compute the relative humidity.
+!> 
+!> Note that in posting freezing level data the LFM look-alike file
+!> (IE, GRID 26), we pack 273.15K as the freezing temperature. All 
+!> other output grids use 273.16K.
+!>
+!> @param[in] isotherm isothermal value of height to be output.
+!> @param[out] ZFRZ Above ground level/ZFL at isotherm height.
+!> @param[out] RHFRZ Relative humidity at isotherm level.
+!> @param[out] PFRZL pressure at isotherm level.
+!> 
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-06-05 | Russ Treadon | Corrected freezing level heights to be with respect to mean sea level, not above ground level
+!> 1995-03-10 | Mike Baldwin | Get highest freezing level
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 1998-08-17 | Mike Baldwin | Compute RH over ice if necessary
+!> 1998-12-22 | Mike Baldwin | Back out RH over ice
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2001-10-25 | H Chuang     | Modified to process hybrid model output
+!> 2002-01-15 | Mike Baldwin | WRF version
+!> 2010-08-27 | T. Smirnova  | Added PFRZL to the output
+!> 2016-01-21 | C. Alexander | Generalized function for any isotherm
+!> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
+!> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!> 2021-07-28 | W. Meng      | Restrict compuatation from undefined grids
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
 
 !     

@@ -1,64 +1,36 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    MDL2P       VERT INTRP OF MODEL LVLS TO PRESSURE
-!!   PRGRMMR: BLACK           ORG: W/NP22     DATE: 99-09-23       
-!!     
-!! ABSTRACT:
-!!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE OF THE POST PROCESSOR.
-!!     IN A NUTSHELL IT INTERPOLATES DATA FROM MODEL TO PRESSURE SURFACES.
-!!     IT ORIGINATED FROM THE VERTICAL INTERPOLATION CODE IN THE OLD ETA
-!!     POST PROCESSOR SUBROUTINE OUTMAP AND IS A REVISION OF SUBROUTINE ETA2P.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   99-09-23  T BLACK       - REWRITTEN FROM ETA2P
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-12  MIKE BALDWIN - WRF VERSION
-!!   02-07-29  H CHUANG - ADD UNDERGROUND FIELDS AND MEMBRANE SLP FOR WRF
-!!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
-!!   05-07-07  B ZHOU   - ADD RSM MODEL for SLP  
-!!   05--8-30  B ZHOU   - ADD AVIATION PRODUCTS: ICING, CAT, LLWS COMPUTATION
-!!   08-01-01  H CHUANG - ADD GFS D3D FIELDS TO VERTICAL INTERPOLATION
-!!   10-07-01  SMIRNOVA AND HU - ADD RR CHANGES
-!!   10-12-30  H CHUANG - ADD HAINES INDEX TO SUPPORT FIRE WEATHER
-!!   11-02-06  J Wang   - ADD grib2 option TO SUPPORT FIRE WEATHER
-!!   12-01-11  S LU     - ADD GOCART AEROSOLS
-!!   13-08-01  S Moorthi - some optimization
-!!   14-02-26  S Moorthi - threading datapd assignment
-!!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
-!!   20-03-25  J MENG   - remove grib1
-!!   20-05-20  J MENG   - CALRH unification with NAM scheme
-!!   20-11-10  J MENG   - USE UPP_PHYSICS MODULE
-!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
-!!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
-!!
-!! USAGE:    CALL MDL2P
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE       
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       SCLFLD   - SCALE ARRAY ELEMENTS BY CONSTANT.
-!!       CALPOT   - COMPUTE POTENTIAL TEMPERATURE.
-!!       CALRH    - COMPUTE RELATIVE HUMIDITY.
-!!       CALDWP   - COMPUTE DEWPOINT TEMPERATURE.
-!!       BOUND    - BOUND ARRAY ELEMENTS BETWEEN LOWER AND UPPER LIMITS.
-!!       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
-!!       CALVOR   - COMPUTE ABSOLUTE VORTICITY.
-!!       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
-!!
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  RQSTFLD
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : IBM SP
-!!
+!> @brief mdl2p() computes vert intrp of model lvls to pressure.
+!>
+!> For most applications this routine is the workhorse of the post processor.
+!> In a nutshell it interpolates data from model to pressure surfaces.
+!> It origiaated from the vertical interpolation code in the old ETA
+!> post processor subroutine outmap() and is a revision of subroutine eta2p().
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-09-23 | T Black         | Rewritten from eta2p()
+!> 2001-10-25 | H Chuang        | Modified to process hybrid model output
+!> 2002-06-12 | Mike Baldwin    | WRF Version
+!> 2002-07-29 | H Chuang        | Add underground fields and membrane SLP for WRF
+!> 2004-11-24 | H Chuang        | Add FERRIER's hydrometeor field
+!> 2005-07-07 | B Zhou          | Add RSM model for SLP
+!> 2005--8-30 | B Zhou          | Add aviation products: ICING, CAT, LLWS computation
+!> 2008-01-01 | H Chuang        | Add GFS D3D fields to vertical interpolation
+!> 2010-07-01 | Smirnova and Hu | Add RR changes
+!> 2010-12-30 | H Chuang        | Add Haines index to support fire weather
+!> 2011-02-06 | J Wang          | Add grib2 option to support fire weather
+!> 2012-01-11 | S Lu            | Add GOCART aerosols
+!> 2013-08-01 | S Moorthi       | Some optimization
+!> 2014-02-26 | S Moorthi       | Threading datapd assignment
+!> 2019-10-30 | B Cui           | Remove "GOTO" statement
+!> 2020-03-25 | J Meng          | Remove grib1
+!> 2020-05-20 | J Meng          | CALRH unification with NAM scheme
+!> 2020-11-10 | J Meng          | Use UPP_PHYSICS module
+!> 2021-03-11 | B Cui           | Change local arrays to dimension (im,jsta:jend)
+!> 2021-04-01 | J Meng          | Computation on defined points only
+!>
+!> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
 
 !
