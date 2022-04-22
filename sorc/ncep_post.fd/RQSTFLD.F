@@ -2085,12 +2085,13 @@
       DATA IFILV(684),AVBL(684),IQ(684),IS(684),AVBLGRB2(684)      &
      &                      /1,'SEAS25 SFC MASS CON ',159,200,     &
                              'seas pm25 sfc mass concentration  '/
-!      DATA IFILV(685),AVBL(685),IQ(685),IS(685),AVBLGRB2(685)      &
-!     &                      /1,'DU CR SFC MASS CON  ',160,001,     &
-!                             'dust cr sfc mass con              '/
+      DATA IFILV(685),AVBL(685),IQ(685),IS(685),AVBLGRB2(685)      &
+     &                      /1,'DUST10 SFC MASS CON  ',160,001,     &
+                             'dust pm10 sfc mass con              '/
       DATA IFILV(686),AVBL(686),IQ(686),IS(686),AVBLGRB2(686)      &
      &                      /1,'DUST25 SFC MASS CON ',161,001,     &
                              'dust pm25 sfc mass con            '/
+#if 0
       DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
      &                      /1,'BC SFC MASS CON     ',162,001,     &
                              'black carbon sfc mass con         '/
@@ -2127,6 +2128,10 @@
       DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
      &                      /1,'INST AER FN SMASS   ',164,001,     &
                              'instn aer fine mode sfc mass con  '/
+#endif
+      DATA IFILV(699),AVBL(699),IQ(699),IS(699),AVBLGRB2(699)      &
+     &                      /1,'MIE OPT DEP AT 550  ',129,200,     &
+                             'mie aerosol optical depth at 550  '/
 ! Reserving Index 601-700 for GOCART
 !
 

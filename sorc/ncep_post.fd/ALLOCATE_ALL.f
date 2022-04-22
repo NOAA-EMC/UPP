@@ -525,7 +525,9 @@
         allocate(dustallcb(im,jsta_2l:jend_2u))
         allocate(ssallcb(im,jsta_2l:jend_2u))
         allocate(dustpm(im,jsta_2l:jend_2u))
+        allocate(dustpm10(im,jsta_2l:jend_2u))
         allocate(sspm(im,jsta_2l:jend_2u))
+        allocate(maod(im,jsta_2l:jend_2u))
       endif
 ! HWRF RRTMG output 
       allocate(acswupt(im,jsta_2l:jend_2u))
