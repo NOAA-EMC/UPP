@@ -110,9 +110,9 @@ Builds include:
 ```
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install 
-make 
-make test
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install
+(or cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install -DEMC_EXEC_DIR=ON)
+make -j 4
 make install
 ```
 

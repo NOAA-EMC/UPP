@@ -1,48 +1,30 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
-!!     
-!! ABSTRACT:  
-!!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER BASED ON ALGORITHMS
-!!   FROM WRF SURFACE LAYER AND THEN DERIVE PBL REGIME AS FOLLOWS:
-!!        1. BR >= 0.2;
-!!               REPRESENTS NIGHTTIME STABLE CONDITIONS (REGIME=1),
-!!
-!!        2. BR < 0.2 .AND. BR > 0.0;
-!!               REPRESENTS DAMPED MECHANICAL TURBULENT CONDITIONS
-!!               (REGIME=2),
-!!
-!!        3. BR == 0.0
-!!               REPRESENTS FORCED CONVECTION CONDITIONS (REGIME=3),
-!!
-!!        4. BR < 0.0
-!!               REPRESENTS FREE CONVECTION CONDITIONS (REGIME=4).    
-!!   .     
-!!     
-!! PROGRAM HISTORY LOG:
-!!   07-04-27  H CHUANG 
-!!   21-09-02  Bo Cui - Decompose UPP in X direction
-!!   
-!! USAGE:    CALL CALPBLREGIME(PBLREGIME)
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PBLRI  - PBL HEIGHT ABOVE GROUND
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : 
-!!
+!> @brief Subroutine that computes PBL height based on bulk RCH number.
+!>
+!> This routine computes the bulk Richardson number based on algorithms
+!> from WRF surface layer and then derive PBL regime as follows:
+!> 1. BR >= 0.2;
+!> Represents nighttime stable conditions (Regime=1),
+!>
+!> 2. BR < 0.2 .AND. BR > 0.0;
+!> Represents damped mechanical turbulent conditions
+!> (Regime=2),
+!>
+!> 3. BR == 0.0
+!> Represents forced convection conditions (Regime=3),
+!>
+!> 4. BR < 0.0
+!> Represnets free convection conditions (Regime=4).    
+!>     
+!> @param[out] PBLRI PBL Height above ground.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-04-27 | H Chuang | Initial
+!> 2021-09-02 | Bo Cui   | Decompose UPP in X direction          
+!>   
+!> @author H Chuang @date 2007-04-27
       SUBROUTINE CALPBLREGIME(PBLREGIME)
 
 !

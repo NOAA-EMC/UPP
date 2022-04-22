@@ -1,69 +1,55 @@
 !> @file
-!
-!> Subprogram: calwxt_bourg    Calculate precipitation type (Bourgouin)
-!!   Prgmmr: Baldwin      Org: np22        Date: 1999-07-06
-!!
-!! Abstract: This routine computes precipitation type
-!!    using a decision tree approach that uses the so-called
-!!    "energy method" of Bourgouin of AES (Canada) 1992
-!!
-!! Program history log:
-!!   1999-07-06  M Baldwin
-!!   1999-09-20  M Baldwin  make more consistent with bourgouin (1992)
-!!   2005-08-24  G Manikin  added to wrf post
-!!   2007-06-19  M Iredell  mersenne twister, best practices
-!!   2015-00-00  S Moorthi  changed random number call and optimization and cleanup
-!!   2021-10-31  J Meng     2D DECOMPOSITION
-!!
-!! Usage:    call calwxt_bourg(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
-!!    &                        iseed,g,pthresh,                          &
-!!    &                        t,q,pmid,pint,lmh,prec,zint,ptype)
-!!   Input argument list:
-!!     im       integer i dimension
-!!     jm       integer j dimension
-!!     jsta_2l  integer j dimension start point (including haloes)
-!!     jend_2u  integer j dimension end point (including haloes)
-!!     jsta     integer j dimension start point (excluding haloes)
-!!     jend     integer j dimension end point (excluding haloes)
-!!     lm       integer k dimension
-!!     lp1      integer k dimension plus 1
-!!     iseed    integer random number seed
-!!     g        real gravity (m/s**2)
-!!     pthresh  real precipitation threshold (m)
-!!     t        real(im,jsta_2l:jend_2u,lm) mid layer temp (K)
-!!     q        real(im,jsta_2l:jend_2u,lm) specific humidity (kg/kg)
-!!     pmid     real(im,jsta_2l:jend_2u,lm) mid layer pressure (Pa)
-!!     pint     real(im,jsta_2l:jend_2u,lp1) interface pressure (Pa)
-!!     lmh      real(im,jsta_2l:jend_2u) max number of layers
-!!     prec     real(im,jsta_2l:jend_2u) precipitation (m)
-!!     zint     real(im,jsta_2l:jend_2u,lp1) interface height (m)
-!!   Output argument list:
-!!     ptype    integer(im,jm) instantaneous weather type ()
-!!              acts like a 4 bit binary
-!!                1111 = rain/freezing rain/ice pellets/snow
-!!                where the one's digit is for snow
-!!                      the two's digit is for ice pellets
-!!                      the four's digit is for freezing rain
-!!                  and the eight's digit is for rain
-!!              in other words...
-!!                ptype=1 snow
-!!                ptype=2 ice pellets/mix with ice pellets
-!!                ptype=4 freezing rain/mix with freezing rain
-!!                ptype=8 rain
-!!
-!! Modules used:
-!!   mersenne_twister pseudo-random number generator
-!!
-!! Subprograms called:
-!!   random_number    pseudo-random number generator
-!!
-!! Attributes:
-!!   Language: Fortran 90
-!!
-!! Remarks: vertical order of arrays must be layer   1 = top
-!!                                       and layer lmh = bottom
-!!
-!!
+!> @brief Subroutine that calculate precipitation type (Bourgouin).
+!>
+!> This routine computes precipitation type.
+!> using a decision tree approach that uses the so-called
+!> "energy method" of Bourgouin of AES (Canada) 1992.
+!>
+!> @param[in] im integer i dimension.
+!> @param[in] jm integer j dimension.
+!> @param[in] jsta_2l integer j dimension start point (including haloes).
+!> @param[in] jend_2u integer j dimension end point (including haloes).
+!> @param[in] jsta integer j dimension start point (excluding haloes).
+!> @param[in] jend integer j dimension end point (excluding haloes).
+!> @param[in] lm integer k dimension.
+!> @param[in] lp1 integer k dimension plus 1.
+!> @param[in] iseed integer random number seed.
+!> @param[in] g real gravity (m/s**2).
+!> @param[in] pthresh real precipitation threshold (m).
+!> @param[in] t real(im,jsta_2l:jend_2u,lm) mid layer temp (K).
+!> @param[in] q real(im,jsta_2l:jend_2u,lm) specific humidity (kg/kg).
+!> @param[in] pmid real(im,jsta_2l:jend_2u,lm) mid layer pressure (Pa).
+!> @param[in] pint real(im,jsta_2l:jend_2u,lp1) interface pressure (Pa).
+!> @param[in] lmh real(im,jsta_2l:jend_2u) max number of layers.
+!> @param[in] prec real(im,jsta_2l:jend_2u) precipitation (m).
+!> @param[in] zint real(im,jsta_2l:jend_2u,lp1) interface height (m).
+!> @param[out] ptype integer(im,jm) instantaneous weather type () acts like a 4 bit binary 1111 = rain/freezing rain/ice pellets/snow.
+!><pre>
+!>                   where the one's digit is for snow
+!>                         the two's digit is for ice pellets
+!>                         the four's digit is for freezing rain
+!>                         and the eight's digit is for rain
+!>                         in other words...
+!>                         ptype=1 snow
+!>                         ptype=2 ice pellets/mix with ice pellets
+!>                         ptype=4 freezing rain/mix with freezing rain
+!>                         ptype=8 rain
+!></pre>
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-07-06 | M Baldwin | Initial
+!> 1999-09-20 | M Baldwin | make more consistent with bourgouin (1992)
+!> 2005-08-24 | G Manikin | added to wrf post
+!> 2007-06-19 | M Iredell | mersenne twister, best practices
+!> 2015-??-?? | S Moorthi | changed random number call and optimization and cleanup
+!> 2021-10-31 | J Meng    | 2D DECOMPOSITION
+!>
+!> Remarks: vertical order of arrays must be layer   1 = top
+!>          and layer lmh = bottom
+!>
+!> @author M Baldwin np22 @date 1999-07-06
 
       subroutine calwxt_bourg_post(im,ista_2l,iend_2u,ista,iend,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                             iseed,g,pthresh,                          &

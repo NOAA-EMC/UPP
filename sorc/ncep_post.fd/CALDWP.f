@@ -1,21 +1,21 @@
 !> @file
 !> @brief Subroutine related to dewpoint temperature.
 !
-!> Computes dewpoint from P, T, and Q
+!> Computes dewpoint from P, T, and Q.
 !>     
-!> @param[in] P1D Pressure (Pa)
-!> @param[in] Q1D Specific humidity (kg/kg)
-!> @param[in] T1D Temperature (K)
-!> @param[out] TDWP Dewpoint temperature (K)
+!> @param[in] P1D Pressure (Pa).
+!> @param[in] Q1D Specific humidity (kg/kg).
+!> @param[in] T1D Temperature (K).
+!> @param[out] TDWP Dewpoint temperature (K).
 !>
-!> Program history
-!> - 92-12-22  Russ Treadon
-!> - 93-10-04  Russ Treadon - Added check to bound dewpoint
-!>                            temperature to not exceed the
-!>                            ambient temperature.
-!> - 98-06-08  T BLACK      - Conversion from 1-D to 2-D
-!> - 00-01-04  Jim Tuccillo - MPI version                
-!> - 21-07-23  Wen Meng     - Retrict computation from undefined points
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-10-04 | Russ Treadon | Added check to bound dewpoint temperature to not exceed the ambient temperature.
+!> 1998-06-08 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI version                
+!> 2021-07-23 | Wen Meng     | Retrict computation from undefined points
 !>     
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALDWP(P1D,Q1D,TDWP,T1D)

@@ -1,47 +1,30 @@
 !> @file
-!
-!> SUBPROGRAM:    CALTAU      COMPUTE U AND V WIND STRESSES
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-09-01
-!!     
-!! ABSTRACT:  THIS ROUTINE COMPUTES SURFACE LAYER U AND V
-!!   WIND COMPONENT STRESSES USING K THEORY AS PRESENTED
-!!   IN SECTION 8.4 OF "NUMBERICAL PREDICTION AND DYNAMIC
-!!   METEOROLOGY" BY HALTINER AND WILLIAMS (1980, JOHN WILEY
-!!   & SONS).
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-09-01  RUSS TREADON
-!!   98-06-11  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID OUTPUT
-!!   02-01-15  MIKE BALDWIN - WRF VERSION, OUTPUT IS ON MASS-POINTS
-!!   05-02-23  H CHUANG - COMPUTE STRESS FOR NMM ON WIND POINTS
-!!   05-07-07  BINBIN ZHOU - ADD RSM STRESS for A GRID     
-!!   21-07-26  W Meng - Restrict computation from undefined grids
-!!   21-09-02  Bo Cui - Decompose UPP in X direction
-!! USAGE:    CALL CALTAU(TAUX,TAUY)
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     TAUX     - SUFACE LAYER U COMPONENT WIND STRESS.
-!!     TAUY     - SUFACE LAYER V COMPONENT WIND STRESS.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       CLMAX
-!!       MIXLEN
-!!
-!!     LIBRARY:
-!!       COMMON   - 
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes U and V wind stresses.
+!>
+!> This routine computes surface layer U and V
+!> wind component stresses using K theory as presented
+!> in section 8.4 of "Numerical prediction and dynamic
+!> meteorology" by Haltiner and Williams (1980, John Wiley
+!> & Sons).
+!>
+!> @param[out] TAUX Suface layer U component wind stress.
+!> @param[out] TAUY Suface layer V component wind stress.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-09-01 | Russ Treadon | Initial
+!> 1998-06-11 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version            
+!> 2001-10-25 | H Chuang     | Modified to process hybrid output
+!> 2002-01-15 | Mike Baldwin | WRF Version, output is on mass-points
+!> 2005-02-23 | H Chuang     | Compute stress for NMM on wind points
+!> 2005-07-07 | Binbin Zhou  | Add RSM stress for A Grid     
+!> 2021-07-26 | W Meng       | Restrict computation from undefined grids
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
+!>
+!> @author Russ Treadon W/NP2 @date 1993-09-01
+
       SUBROUTINE CALTAU(TAUX,TAUY)
 
 !     

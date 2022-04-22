@@ -1,31 +1,23 @@
 !> @file
-!
-!> THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
-!! USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
-!!     
-!! PROGRAM HISTORY LOG:
-!! -  11-02-06 Jun WANG   - addgrib2 option 
-!! -  14-12-09 WM LEWIS ADDED:
-!!            FUNCTION EFFR TO COMPUTE EFFECTIVE PARTICLE RADII 
-!!            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
-!! -  19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
-!! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
-!! -  21-01-10 Web Meng - Added checking points for skiping grids with filling value spval
-!! -  21-03-11 Bo Cui - improve local arrays memory
-!! -  21-08-31 Lin Zhu - added ssmis-f17 channels 15-18 grib2 output 
-!! -  21-09-02 Bo Cui - Decompose UPP in X direction
-!!
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!     /nwprod/lib/sorc/crtm2
-!!
-!! @author CHUANG @date 07-01-17       
-!!     
+!> @brief Subroutine that computes model derived brightness temperature.
+!>
+!> This routine computes model derived brightness temperature
+!> using CRTM. It is patterned after GSI setuprad with Treadon's help.
+!>     
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-01-17 | H Chuang       | Initial
+!> 2011-02-06 | Jun Wang       | add grib2 option
+!> 2014-12-09 | WM Lewis       | added function EFFR to compute effective particle radii channel selection using LVLS from WRF_CNTRL.PARM
+!> 2019-04-01 | Sharon Nebuda  | Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
+!> 2020-04-09 | Tracy Hertneky | Added Himawari-8 AHI CH7-CH16
+!> 2021-01-10 | Wen Meng       | Added checking points for skiping grids with filling value spval
+!> 2021-03-11 | Bo Cui         | improve local arrays memory
+!> 2021-08-31 | Lin Zhu        | added ssmis-f17 channels 15-18 grib2 output 
+!> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
+!>
+!> @author Chuang @date 2007-01-17       
       SUBROUTINE CALRAD_WCLOUD
 
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &

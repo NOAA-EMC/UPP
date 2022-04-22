@@ -1,62 +1,43 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CALPW       COMPUTES 
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-24       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES PRECIPITABLE WATER IN A COLUMN
-!!     EXTENDING FROM THE FIRST ATMOSPHERIC ETA LAYER TO THE
-!!     MODEL TOP.  THE DEFINITION USED IS
-!!                                 TOP
-!!            PRECIPITABLE WATER = SUM (Q+CLDW) DP*HTM/G
-!!                                 BOT
-!!     WHERE,
-!!        BOT IS THE FIRST ETA LAYER,
-!!        TOP IS THE MODEL TOP,
-!!        Q IS THE SPECIFIC HUMIDITY (KG/KG) IN THE LAYER
-!!        CLDW IS THE CLOUD WATER (KG/KG) IN THE LAYER
-!!        DP (Pa) IS THE LAYER THICKNESS.
-!!        HTM IS THE HEIGHT MASK AT THAT LAYER (=0 IF BELOW GROUND)
-!!        G IS THE GRAVITATIONAL CONSTANT
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-24  RUSS TREADON
-!!   96-03-04  MIKE BALDWIN - ADD CLOUD WATER AND SPEED UP CODE
-!!   98-06-15  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION                 
-!!   02-06-19  MIKE BALDWIN - WRF VERSION 
-!!   04-12-30  H CHUANG      - UPDATE TO CALCULATE TOTAL COLUMN FOR OTHER
-!!                                     HYDROMETEORS                
-!!   14-11-12  SARAH LU     - UPDATE TO CALCULATE AEROSOL OPTICAL DEPTH
-!!   15-07-02  SARAH LU     - UPDATE TO CALCULATE SCATTERING AEROSOL
-!!                            OPTICAL DEPTH (18)
-!!   15-07-04  SARAH LU     - CORRECT PW INTEGRATION FOR AOD (17)
-!!   15-07-10  SARAH LU     - UPDATE TO CALCULATE ASYMETRY PARAMETER
-!!   19-07-25  Li(Kate) Zhang - MERGE SARHA LU's update for FV3-Chem
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!   21-09-02  Bo Cui - Decompose UPP in X direction
-!!     
-!! USAGE:    CALL CALPW(PW)
-!!   INPUT ARGUMENT LIST:
-!!     PW       - ARRAY OF PRECIPITABLE WATER.
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE     
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - LOOPS
-!!                  MASKS
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes precipitable water.
+!>
+!><pre>
+!> This routine computes precipitable water in a column
+!> extending from the first atmospheric ETA layer to the
+!> model top. The definition used is
+!>                      TOP
+!> precipitable water = sum (Q+CLDW) DP*HTM/G
+!>                      BOT
+!> where,
+!> BOT is the first ETA layer,
+!> TOP is the model top,
+!> Q is the specific humidity (kg/kg) in the layer
+!> CLDW is the cloud water (kg/kg) in the layer
+!> DP (Pa) is the layer thickness.
+!> HTM is the height mask at that layer (=0 if below ground)
+!> G is the gravitational constant.
+!></pre>
+!>     
+!> @param[in] PW Array of precipitable water.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-24 | Russ Treadon   | Initial
+!> 1996-03-04 | Mike Baldwin   | Add cloud water and speed up code
+!> 1998-06-15 | T Black        | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo   | MPI Version            
+!> 2002-06-19 | Mike Baldwin   | WRF Version 
+!> 2004-12-30 | H Chuang       | Update to calculate total column for other hydrometeors
+!> 2014-11-12 | Sarah Lu       | Update tp calculate aerosol optical depth
+!> 2015-07-02 | Sarah Lu       | Update to calculate scattering aerosal optical depth (18)
+!> 2015-07-04 | Sarah Lu       | Correct PW integration for AOD (17)
+!> 2015-07-10 | Sarah Lu       | Update to calculate asymetry parameter
+!> 2019-07-25 | Li(Kate) Zhang | Merge Sarah Lu's update for FV3-Chem
+!> 2020-11-10 | Jesse Meng     | Use UPP_PHYSICS Module
+!> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
+!>     
+!> @author Russ Treadon W/NP2 @date 1992-12-24
       SUBROUTINE CALPW(PW,IDECID)
 
 !     

@@ -1,40 +1,23 @@
 !> @file
-!
-!> SUBPROGRAM:    CALPOT      COMPUTES POTENTIAL TEMPERATURE
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-24
-!!     
-!! ABSTRACT: 
-!!     GIVEN PRESSURE AND TEMPERATURE THIS ROUTINE RETURNS
-!!     THE POTENTIAL TEMPERATURE.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-24  RUSS TREADON
-!!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!!   02-04-24  MIKE BALDWIN - WRF VERSION         
-!!   21-09-02  Bo Cui - Decompose UPP in X direction
-!!     
-!! USAGE:    CALL CALPOT(P1D,T1D,THETA)
-!!   INPUT ARGUMENT LIST:
-!!     P1D      - PRESSURE (PA)
-!!     T1D      - TEMPERATURE (K)
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     THETA    - POTENTIAL TEMPERATURE (K)
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       NONE      
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes potential temperature.
+!>
+!> Given pressure and temperature this routine returns
+!> the potential temperature.
+!>
+!> @param[in] P1D pressures (Pa).
+!> @param[in] T1D temperatures (K).
+!> @param[out] THETA potential temperatures (K).
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-24 | Russ Treadon | Initial
+!> 1998-06-15 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version            
+!> 2002-04-24 | Mike Baldwin | WRF Version      
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-24
       SUBROUTINE CALPOT(P1D,T1D,THETA)
 
 !     

@@ -1,35 +1,17 @@
 !> @file
-!
-!> SUBPROGRAM:    COLLECT     GATHERS FROM ALL MPI TASKS
-!!   PRGRMMR: TUCCILLO        ORG: IBM
-!!
-!! ABSTRACT:
-!!     GATHER "A" FROM ALL MPI TASKS ONTO TASK 0
-!!
-!! PROGRAM HISTORY LOG:
-!!   00-01-06  TUCCILLO - ORIGINAL
-!!
-!! USAGE:    CALL COLLECT(A)
-!!   INPUT ARGUMENT LIST:
-!!     A        - ARRAY BEING GATHERED
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     A        - GATHERED ARRAY - ONLY VALID ON TASK 0
-!!
-!!   OUTPUT FILES:
-!!     STDOUT  - RUN TIME STANDARD OUT.
-!!
-!!   SUBPROGRAMS CALLED:
-!!       MPI_GATHERV
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK.comm
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM RS/6000 SP
-!!
+!> @brief Subroutine that collect gathers from all MPI tasks.
+!>
+!> @param[in] A Array being gathered.
+!> @param[out] A gathered array - only valid on task 0.
+!>
+!> Gather "A" from all MPI tasks onto task 0.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2000-01-06 | Jim Tuccillo | Initial
+!>
+!> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE COLLECT (A, B) 
 
 
