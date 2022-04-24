@@ -1,53 +1,30 @@
 !> @file
-!
-!> SUBPROGRAM:    PROCESS     DRIVER FOR MAJOR POST ROUTINES.
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-21
-!!
-!! ABSTRACT:
-!!     THIS ROUTINE CALLS THE MAJOR POST PROCESSOR ROUTINES.
-!!     THESE ROUTINES ARE
-!!        MDLFLD  - CALCULATE NMC SLP, SET BELOW SURFACE FIELDS,
-!!                  AND POSTS DATA ON MODEL SURFACES.
-!!        MDL2P   - POSTS DATA ON ISOBARIC SURFACES.
-!!        SURFCE  - POSTS SOUNDING DATA, SURFACE BASED FIELDS,
-!!                  AND STATIC OR FIXED FIELDS.
-!!        CLDRAD  - POST SOUNDING/CLOUD/RADIATION FIELDS.
-!!        MISCLN  - POST MISCELLANEOUS (SPECIAL) FIELDS.
-!!        FIXED   - POST FIXED FIELDS.
-!!
-!! PROGRAM HISTORY LOG:
-!!   92-12-21  RUSS TREADON
-!!   98-06-01  T BLACK - CONVERSION OF POST FROM 1-D TO 2-D
-!!   00-01-05  JIM TUCCILLO - MPI VERSION
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-19  MIKE BALDWIN - WRF VERSION
-!!   11-02-04  Jun Wang - add grib2 option
-!!
-!! USAGE:    CALL PROCESS
-!!   INPUT ARGUMENT LIST:
-!!     NONE
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     NONE
-!!
-!!   OUTPUT FILES:
-!!     NONE
-!!
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       MDLFLD   - POST DATA MDL SURFACES.
-!!       MDL2P    - POST DATA ON PRESSURE SURFACES.
-!!       SURFCE   - POST SURFACE BASED FIELDS.
-!!       CLDRAD   - POST SOUNDING/CLOUD/RADIATION FIELDS.
-!!       MISCLN   - POST MISCELLANEOUS FIELDS.
-!!       FIXED    - POST FIXED FIELDS.
-!!     LIBRARY:
-!!       COMMON   - OUTGRD
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief process() is a driver for major post routines.
+!>
+!> This routine calls the major post processor routines.
+!> <pre>
+!> These routines are
+!> MDLFLD  - Calculate NMC SLP, set below surface fields,
+!>           and posts data on model surfaces.
+!> MDL2P   - Posts data on isobaric surfaces.
+!> SURFCE  - Posts sounding data  surface based fields,
+!>           and static or fixed fields.
+!> CLDRAD  - Post sounding/cloud/radiation fields.
+!> MISCLN  - Post miscellaneous (special) fields.
+!> FIXED   - Post fixed fields.
+!> </pre>
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-21 | Russ Treadon | Initial
+!> 1998-06-01 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-05 | Jim Tuccillo | MPI Version
+!> 2001-10-25 | H CHUANG     | Modified to process hybrid model output
+!> 2002-06-19 | Mike Baldwin | WRF Version
+!> 2011-02-04 | Jun Wang     | Add grib2 option
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-21
       SUBROUTINE PROCESS(kth,kpv,th,pv,iostatusD3D)
 !
 !----------------------------------------------------------------------------

@@ -17,7 +17,7 @@
 !> 1998-06-16 | T Black      | Convesion from 1-D to 2-D
 !> 2000-01-04 | Jim Tuccillo | MPI Version  
 !> 2021-07-28 | W Meng       | Restrict computation from undefined grids
-!> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>     
 !> @author Russ Treadon W/NP2 @date 1993-06-18
 

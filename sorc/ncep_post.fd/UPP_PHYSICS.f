@@ -172,7 +172,6 @@
 !> 2006-03-19 | Wen Meng      | Modify top pressure to 1 pa
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
-
       SUBROUTINE CALRH_GFS(P1,T1,Q1,RH)
       use params_mod, only: rhmin
       use ctlblk_mod, only: ista, iend, jsta, jend, spval
@@ -904,7 +903,6 @@
       DEALLOCATE(TPAR)
 !     
       END SUBROUTINE CALCAPE
-!
 !
 !-------------------------------------------------------------------------------------
 !> calcape2() computes CAPE and CINS.
