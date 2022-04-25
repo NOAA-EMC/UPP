@@ -48,6 +48,7 @@ by the Developmental Testbed Center (DTC).
 
 ## Documentation 
 User Guide for latest public release: https://upp.readthedocs.io/en/latest/.
+
 Technical code-level documentation: https://noaa-emc.github.io/UPP/.
 
 ## Developer Information
@@ -57,7 +58,7 @@ Please see review the [wiki](https://github.com/NOAA-EMC/UPP/wiki)
 
 NCEP/EMC Developers
 
-Code Manager: Wen Meng, Huiya Chuang, Kate Fossell
+Code Managers: Wen Meng, Huiya Chuang, Kate Fossell
 
 ## Prerequisites
 
@@ -76,9 +77,9 @@ the HPC-Stack project.
 Also required to build NCEPpost executable (cmake option
 BUILD_POSTEXEC):
 
-- [NCEPLIBS-sigio](https://github.com/NOAA-EMC/NCEPLIBS-sigio) -
-- [NCEPLIBS-sfcio](https://github.com/NOAA-EMC/NCEPLIBS-sfcio) -
-- [NCEPLIBS-nemsio](https://github.com/NOAA-EMC/NCEPLIBS-nemsio) -
+- [NCEPLIBS-sigio](https://github.com/NOAA-EMC/NCEPLIBS-sigio)
+- [NCEPLIBS-sfcio](https://github.com/NOAA-EMC/NCEPLIBS-sfcio)
+- [NCEPLIBS-nemsio](https://github.com/NOAA-EMC/NCEPLIBS-nemsio)
 - [NCEPLIBS-gfsio](https://github.com/NOAA-EMC/NCEPLIBS-gfsio)
 
 The [NCEPLIBS-wrf_io](https://github.com/NOAA-EMC/NCEPLIBS-wrf_io)
