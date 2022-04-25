@@ -10,7 +10,7 @@ System (GFS), GFS Ensemble Forecast System (GEFS), North American
 Mesoscale (NAM), Rapid Refresh (RAP), High Resolution Rapid Refresh
 (HRRR), Short Range Ensemble Forecast (SREF), Hurricane WRF (HWRF)
 applications, and is also used in Unified Forecasting System (UFS)
-applications.
+applications (MRW, SRW, and HAFS).
 
 The UPP provides the capability to compute a variety of diagnostic
 fields and interpolate to pressure levels or other vertical
@@ -41,13 +41,17 @@ Examples of UPP products include:
 - Radar reflectivity products
 - Satellite look-alike products
 
-Support for the UFS UPP is provided through the UFS Forum by the
-Developmental Testbed Center (DTC) for FV3-based applications.
 
-For full documentation see https://noaa-emc.github.io/UPP/.
+## User Support
+Support for the UFS UPP is provided through the [UFS Forum](https://forums.ufscommunity.org/)
+by the Developmental Testbed Center (DTC). 
 
-The UPP uses some of the [NCEPLIBS](https://github.com/NOAA-EMC/NCEPLIBS)
-project. 
+## Documentation 
+User Guide for latest public release: https://upp.readthedocs.io/en/latest/.
+Technical code-level documentation: https://noaa-emc.github.io/UPP/.
+
+## Developer Information
+Please see review the [wiki](https://github.com/NOAA-EMC/UPP/wiki)
 
 ## Authors
 
@@ -57,7 +61,8 @@ Code Manager: Wen Meng, Huiya Chuang, Kate Fossell
 
 ## Prerequisites
 
-This package requires the following NCEPLIBS packages:
+The UPP requires certain NCEPLIB packages to be installed via
+the HPC-Stack project.  
 
 - [NCEPLIBS-g2](https://github.com/NOAA-EMC/NCEPLIBS-g2)
 - [NCEPLIBS-g2tmpl](https://github.com/NOAA-EMC/NCEPLIBS-g2tmpl)
@@ -92,29 +97,18 @@ The following third-party libraries are required:
 
 Builds include:
 
-- Operational use GNC build as Wen described for both library and
-  executable (library used for GFS only at this time)
+- Inline post (UPP library): Currently only supported for the GFS
+  and MRW Application.
 
-- MRW App uses UPP packaged with nceplibs and cmake to build/run with
-  executable (via release/public-v1 branch).
+- Offline post (UPP executable): Supported for Regional applications
+  including SRW, RRFS, HAFS, and standalone applications of UPP.
 
-- SRW App uses UPP repo branch/tag directly and uses cmake to
-  build/run with executable (via release/public-v2 branch).
 
-- Community standalone uses UPP repo branch/tag directly and uses
-  cmake to build/run with executable (via release/public-v2
-  branch). For these procedures, we add a
-  -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} where INSTALL_PREFIX is the
-  location of the nceplibs installation as a dependency requirement.
+CMake is used to manage all builds of the UPP. 
+The script `UPP/tests/compile_upp.sh` can be used to automatically
+build UPP on fully supported platforms where HPC-stack is supported.
+Details in this script can be used to build on new platforms.
 
-```
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install
-(or cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install -DEMC_EXEC_DIR=ON)
-make -j 4
-make install
-```
 
 ## Disclaimer
 
