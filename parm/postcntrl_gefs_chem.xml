@@ -227,7 +227,7 @@
     <param>
        <shortname>DUST10_SFC_MASS_CON</shortname>
        <table_info>NCEP</table_info>
-       <scale> 9.0</scale>
+       <scale>9.0</scale>
     </param>
 
     <param>
