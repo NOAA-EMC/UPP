@@ -3073,7 +3073,7 @@
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=1,im
-            smstav(i,j) = 0.01*buf(i,j)
+            smstav(i,j) = buf(i,j)
           enddo
         enddo
 !$omp parallel do private(i,j)
