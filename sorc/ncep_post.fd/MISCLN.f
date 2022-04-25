@@ -3276,7 +3276,6 @@
            DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
-           IF (SUBMODELNAME == 'RTMA') MUMIXR(I,J) = Q1D(I,J)
            IF (IGET(584)>0) THEN
 ! dong add missing value to cin
                GRID1 = spval
