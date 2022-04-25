@@ -1,82 +1,46 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CALHEL       COMPUTES STORM RELATIVE HELICITY
-!!   PRGRMMR: BALDWIN         ORG: W/NP2      DATE: 94-08-22       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES ESTIMATED STORM MOTION AND
-!!     STORM-RELATIVE ENVIRONMENTAL HELICITY.  
-!!     (DAVIES-JONES ET AL 1990) THE ALGORITHM PROCEEDS AS 
-!!     FOLLOWS.
-!!     
-!!     THE STORM MOTION COMPUTATION NO LONGER EMPLOYS THE DAVIES AND
-!!     JOHNS (1993) METHOD WHICH DEFINED STORM MOTION AS 30 DEGREES TO
-!!     THE RIGHT OF THE 0-6 KM MEAN WIND AT 75% OF THE SPEED FOR MEAN
-!!     SPEEDS LESS THAN 15 M/S AND 20 DEGREES TO THE RIGHT FOR SPEEDS
-!!     GREATER THAN 15 M/S.   INSTEAD, WE NOW USE THE DYNAMIC METHOD
-!!     (BUNKERS ET AL. 1998) WHICH HAS BEEN FOUND TO DO BETTER IN
-!!     CASES WITH 'NON-CLASSIC' HODOGRAPHS (SUCH AS NORTHWEST-FLOW
-!!     EVENTS) AND DO AS WELL OR BETTER THAN THE OLD METHOD IN MORE
-!!     CLASSIC SITUATIONS. 
-!!     
-!! PROGRAM HISTORY LOG:
-!!   94-08-22  MICHAEL BALDWIN
-!!   97-03-27  MICHAEL BALDWIN - SPEED UP CODE
-!!   98-06-15  T BLACK         - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO    - MPI VERSION
-!!   00-01-10  G MANIKIN       - CHANGED TO BUNKERS METHOD
-!!   02-05-22  G MANIKIN       - NOW ALLOW CHOICE OF COMPUTING
-!!                               HELICITY OVER TWO DIFFERENT
-!!                               (0-1 and 0-3 KM) DEPTHS
-!!   03-03-25  G MANIKIN       - MODIFIED CODE TO COMPUTE MEAN WINDS
-!!                               USING ARITHMETIC AVERAGES INSTEAD OF
-!!                               MASS WEIGHTING;  DIFFERENCES ARE MINOR
-!!                               BUT WANT TO BE CONSISTENT WITH THE
-!!                               BUNKERS METHOD
-!!   04-04-16  M PYLE          - MINIMAL MODIFICATIONS, BUT PUT INTO
-!!                                NMM WRFPOST CODE
-!!   05=02-25  H CHUANG        - ADD COMPUTATION FOR ARW A GRID
-!!   05-07-07  BINBIN ZHOU     - ADD RSM FOR A GRID  
-!!   19-09-03  J MENG          - MODIFIED TO COMPUTE EFFECTIVE HELICITY
-!!                               AND CRITICAL ANGLE
-!!   21-03-15  E COLON         - CALHEL2 MODIFIED TO COMPUTE EFFECTIVE
-!!                               RATHER THAN FIXED LAYER HELICITY
-!! USAGE:    CALHEL3(UST,VST,HELI)
-!!   INPUT ARGUMENT LIST:
-!!     LLOW      - LOWER BOUND CAPE>=100 AND CINS>=-250
-!!     LUPP      - UPPER BOUND CAPE< 100  OR CINS< -250
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     UST      - ESTIMATED U COMPONENT (M/S) OF STORM MOTION.
-!!     VST      - ESTIMATED V COMPONENT (M/S) OF STORM MOTION.
-!!     HELI     - STORM-RELATIVE HELICITY (M**2/S**2)
-!! CRA
-!!     USHR1    - U COMPONENT (M/S) OF 0-1 KM SHEAR
-!!     VSHR1    - V COMPONENT (M/S) OF 0-1 KM SHEAR
-!!     USHR6    - U COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
-!!     VSHR6    - V COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
-!! CRA
-
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!       COMMON   - VRBLS
-!!                  LOOPS
-!!                  PHYS 
-!!                  EXTRA
-!!                  MASKS
-!!                  OPTIONS
-!!                  INDX
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : IBM SP
-!!
+!> @brief Subroutine that computes storm relative helicity.
+!
+!> This routine computes estimated storm motion and storm-relative
+!> environmental helicity. (Davies-Jones et al 1990) the algorithm
+!> processd as follows.
+!>     
+!> The storm motion computation no longer employs the Davies and Johns (1993)
+!> method which defined storm motion as 30 degress to the right of the 0-6 km
+!> mean wind at 75% of the speed for mean speeds less than 15 m/s and 20 degrees
+!> to the right for speeds greater than 15 m/s. Instead, we now use the dynamic
+!> method (Bunkers et al. 1988) which has been found to do better in cases with
+!> 'non-classic' hodographs (such as Northwest-flow events) and do as well or 
+!> better than the old method in more classic situations.
+!> 
+!> @param[in] LLOW Lower bound CAPE>=100 and CINS>=-250.
+!> @param[in] LUPP Upper bound CAPE< 100  or CINS< -250; allows one to distinguish 0-3 km and 0-1 km values.
+!> @param[out] UST Estimated U Component (m/s) Of Storm motion.
+!> @param[out] VST Estimated V Component (m/s) Of Storm motion.
+!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
+!> @param[out] CANGLE Critical angle.
+!> @param[out] USHR1 U Component (m/s) Of 0-1 km shear.
+!> @param[out] VSHR1 V Component (m/s) Of 0-1 km shear.
+!> @param[out] USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> @param[out] VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!>     
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1994-08-22 | Michael Baldwin | Initial
+!> 1997-03-27 | Michael Baldwin | Speed up code
+!> 1998-06-15 | T Black         | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo    | MPI Version
+!> 2000-01-10 | G Manikin       | Changed to Bunkers method
+!> 2002-05-22 | G Manikin       | Now allow choice of computing helicity over two different (0-1 and 0-3 km) depths
+!> 2003-03-25 | G Manikin       | Modified code to compute mean winds using arithmetic averages instead of mass weighting; differences are minor but want to be consistent with the Bunkers method
+!> 2004-04-16 | M Pyle          | Minimal modifications but put into NMM WRFPOST code
+!> 2005-02-25 | H Chuang        | Add computation for ARW A grid
+!> 2005-07-07 | Binbin Zhou     | Add RSM for A grid  
+!> 2019-09-03 | J Meng          | Modified to compute effective helicity and critical angle
+!> 2021-03-15 | E Colon         | CALHEL2 modified to compute effective rather than fixed layer helicity
+!>   
+!> @author Michael Baldwin W/NP2 @date 1994-08-22
       SUBROUTINE CALHEL3(LLOW,LUPP,UST,VST,HELI)
 
 !

@@ -1,35 +1,16 @@
 !> @file
-!
-!> SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
-!!   PRGRMMR: TUCCILLO        ORG: IBM
-!!
-!! ABSTRACT:
-!!     SETS UP MESSAGE PASSING INFO
-!!
-!! PROGRAM HISTORY LOG:
-!!   00-01-06  TUCCILLO - ORIGINAL
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-19  MIKE BALDWIN - WRF VERSION
-!!
-!! USAGE:    CALL MPI_FIRST
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!
-!!   OUTPUT FILES:
-!!     STDOUT  - RUN TIME STANDARD OUT.
-!!
-!!   SUBPROGRAMS CALLED:
-!!       PARA_RANGE
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON - CTLBLK.comm
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM RS/6000 SP
-!!
+!> @brief MPI_FIRST set up message passing info.
+!>
+!> This routine sets up message passing info.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2000-01-06 | Jim Tuccillo | Initial
+!> 2001-10-25 | H Chuang     | Modified to process hybrid model output
+!> 2002-06-19 | Mike Baldwin | WRF version
+!>
+!> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 
 !
@@ -386,6 +367,7 @@
       deallocate(tedir)
       deallocate(twa)
       deallocate(fdnsst)
+      deallocate(pwat)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainc_bucket1)

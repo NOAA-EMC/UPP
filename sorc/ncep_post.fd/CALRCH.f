@@ -1,43 +1,25 @@
 !> @file
-!
-!> SUBPROGRAM:    CALRCH      COMPUTES GRD RCH NUMBER
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-10-11
-!!     
-!! ABSTRACT:  
-!!   THIS ROUTINE COMPUTES THE GRADIENT RICHARDSON NUMBER
-!!   AS CODED IN ETA MODEL SUBROUTINE PROFQ2.F.
-!!   FIX TO AVOID UNREASONABLY SMALL ANEMOMETER LEVEL WINDS.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-10-11  RUSS TREADON
-!!   98-06-17  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   05-02-25  H CHUANG - ADD COMPUTATION FOR NMM E GRID
-!!   05-07-07  BINBIN ZHOU - ADD RSM FOR A GRID  
-!!   
-!! USAGE:    CALL CALRCH(EL,RICHNO)
-!!   INPUT ARGUMENT LIST:
-!!     EL      - MIXING LENGTH SCALE.
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     RICHNO  - GRADIENT RICHARDSON NUMBER.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes GRD RCH number.
+!>
+!> This routine computes the gradient Richardson number
+!> as coded in ETA model subroutine PROFQ2.F.
+!> Fix to avoid unreasonably small anemometer level winds.
+!> 
+!> @param[in] EL Mixing length scale.
+!> @param[out] RICHNO Gradient Richardson number. 
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-10-11 | Russ Treadon | Initial
+!> 1998-06-17 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version
+!> 2001-10-22 | H Chuang     | Modified to process hybrid model output
+!> 2002-01-15 | Mike Baldwin | WRF Version
+!> 2005-02-25 | H Chuang     | Add computation for NMM E grid
+!> 2005-07-07 | Binbin Zhou  | Add RSM for A Grid  
+!>
+!> @author Russ Treadon W/NP2 @date 1993-10-11
       SUBROUTINE CALRCH(EL,RICHNO)
 
 !

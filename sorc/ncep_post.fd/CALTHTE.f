@@ -1,41 +1,25 @@
 !> @file
-!
-!> SUBPROGRAM:    CALTHTE      COMPUTES THETA-E
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-06-18
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES THE EQUIVALENT POTENTIAL TEMPERATURE
-!!     GIVEN PRESSURE, TEMPERATURE, AND SPECIFIC HUMIDITY.  THE
-!!     EQUATIONS OF BOLTON (MWR,1980) ARE USED.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-06-18  RUSS TREADON
-!!   98-06-16  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   21-07-28  W Meng - Restrict computation from undefined grids
-!!     
-!! USAGE:    CALL CALTHTE(P1D,T1D,Q1D,THTE)
-!!   INPUT ARGUMENT LIST:
-!!     P1D      - PRESSURE (PA)
-!!     T1D      - TEMPERATURE (K)
-!!     Q1D      - SPECIFIC HUMIDITY (KG/KG)
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     THTE     - THETA-E (K)
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       VAPOR    - FUNCTION TO CALCULATE VAPOR PRESSURE.
-!!     LIBRARY:
-!!       NONE
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes Theta-E.
+!>
+!> This routine computes the equivalent potential temperature
+!> given pressure, temperature, and specific humidity. The 
+!> equations of Bolton (MWR,1980) are used.
+!>
+!> @param[in] P1D pressure (Pa).
+!> @param[in] T1D temperature (K).
+!> @param[in] Q1D specific humidity(kg/kg).
+!> @param[out] THTE Theta-E (K).
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-06-18 | Russ Treadon | Initial
+!> 1998-06-16 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version  
+!> 2021-07-28 | W Meng       | Restrict computation from undefined grids
+!>     
+!> @author Russ Treadon W/NP2 @date 1993-06-18
+
       SUBROUTINE CALTHTE(P1D,T1D,Q1D,THTE)
 
 !
