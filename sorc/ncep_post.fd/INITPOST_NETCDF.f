@@ -3067,7 +3067,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(isa,jsa)
       
       IF(MODELNAME == 'FV3R')THEN
-        VarName='wetness'
+        VarName='wet1'
         call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,buf)
 !$omp parallel do private(i,j)
