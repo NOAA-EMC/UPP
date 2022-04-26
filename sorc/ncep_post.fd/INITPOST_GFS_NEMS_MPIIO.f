@@ -1,6 +1,8 @@
 !> @file
 !> @brief initpost_gfs_nems_mpiio() initializes post for run.
 !>
+!> @author Hui-Ya Chuang @date 2007-03-04
+
 !> This routine initializes constants and
 !> variables at the start of GFS model or post
 !> processor run.

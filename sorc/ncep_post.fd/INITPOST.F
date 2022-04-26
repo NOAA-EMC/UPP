@@ -1,6 +1,8 @@
 !> @file
 !> @brief initpost() initializes post for run.
 !>
+!> @author Russ Treadon W/NP2 @date 1993-11-10
+
 !> This routine initializes constants and
 !> variables at the start of an ETA model or post
 !> processor run.

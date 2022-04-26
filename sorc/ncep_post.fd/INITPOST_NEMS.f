@@ -1,6 +1,8 @@
 !> @file
 !> @brief initpost_nems() initializes post for run.
 !>
+!> @author Hui-Ya Chuang @date 2007-03-26
+
 !> This routine initializes constants and
 !> variables at the start of an NEMS model or post
 !> processor run.
