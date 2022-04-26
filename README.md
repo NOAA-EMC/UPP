@@ -8,9 +8,11 @@ output.
 The UPP is currently used in operations with the Global Forecast
 System (GFS), GFS Ensemble Forecast System (GEFS), North American
 Mesoscale (NAM), Rapid Refresh (RAP), High Resolution Rapid Refresh
-(HRRR), Short Range Ensemble Forecast (SREF), Hurricane WRF (HWRF)
-applications, and is also used in Unified Forecasting System (UFS)
-applications (MRW, SRW, and HAFS).
+(HRRR), Short Range Ensemble Forecast (SREF), and Hurricane WRF (HWRF)
+applications. It is also used in the Unified Forecasting System (UFS),
+including the Rapid Refresh Forecast System (RRFS), Hurricane Application
+Forecasting System (HAFS), and the Medium Range Weather (MRW) and Short 
+Range Weather (SRW) Applications.
 
 The UPP provides the capability to compute a variety of diagnostic
 fields and interpolate to pressure levels or other vertical
