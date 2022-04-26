@@ -1,5 +1,5 @@
 !> @file
-!> !brief initpost_netcdf() initializes post for run.
+!> @brief initpost_netcdf() initializes post for run.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 
