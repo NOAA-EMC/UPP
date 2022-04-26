@@ -98,8 +98,8 @@ The following third-party libraries are required:
 
 Builds include:
 
-- Inline post (UPP library): Currently only supported for the GFS
-  and MRW Application.
+- Inline post (UPP library): Currently only supported for the GFS, RRFS,
+  HAFS, and the UFS-MRW Application.
 
 - Offline post (UPP executable): Supported for Regional applications
   including SRW, RRFS, HAFS, and standalone applications of UPP.
