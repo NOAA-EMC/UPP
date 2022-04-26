@@ -8,9 +8,11 @@ output.
 The UPP is currently used in operations with the Global Forecast
 System (GFS), GFS Ensemble Forecast System (GEFS), North American
 Mesoscale (NAM), Rapid Refresh (RAP), High Resolution Rapid Refresh
-(HRRR), Short Range Ensemble Forecast (SREF), Hurricane WRF (HWRF)
-applications, and is also used in Unified Forecasting System (UFS)
-applications.
+(HRRR), Short Range Ensemble Forecast (SREF), and Hurricane WRF (HWRF)
+applications. It is also used in the Unified Forecasting System (UFS),
+including the Rapid Refresh Forecast System (RRFS), Hurricane Application
+Forecasting System (HAFS), and the Medium Range Weather (MRW) and Short 
+Range Weather (SRW) Applications.
 
 The UPP provides the capability to compute a variety of diagnostic
 fields and interpolate to pressure levels or other vertical
@@ -41,23 +43,29 @@ Examples of UPP products include:
 - Radar reflectivity products
 - Satellite look-alike products
 
-Support for the UFS UPP is provided through the UFS Forum by the
-Developmental Testbed Center (DTC) for FV3-based applications.
 
-For full documentation see https://noaa-emc.github.io/UPP/.
+## User Support
+Support for the UFS UPP is provided through the [UFS Forum](https://forums.ufscommunity.org/)
+by the Developmental Testbed Center (DTC). 
 
-The UPP uses some of the [NCEPLIBS](https://github.com/NOAA-EMC/NCEPLIBS)
-project. 
+## Documentation 
+User Guide for latest public release: https://upp.readthedocs.io/en/latest/.
+
+Technical code-level documentation: https://noaa-emc.github.io/UPP/.
+
+## Developer Information
+Please see review the [wiki](https://github.com/NOAA-EMC/UPP/wiki)
 
 ## Authors
 
 NCEP/EMC Developers
 
-Code Manager: Wen Meng, Huiya Chuang, Kate Fossell
+Code Managers: Wen Meng, Huiya Chuang, Kate Fossell
 
 ## Prerequisites
 
-This package requires the following NCEPLIBS packages:
+The UPP requires certain NCEPLIB packages to be installed via
+the HPC-Stack project.  
 
 - [NCEPLIBS-g2](https://github.com/NOAA-EMC/NCEPLIBS-g2)
 - [NCEPLIBS-g2tmpl](https://github.com/NOAA-EMC/NCEPLIBS-g2tmpl)
@@ -71,9 +79,9 @@ This package requires the following NCEPLIBS packages:
 Also required to build NCEPpost executable (cmake option
 BUILD_POSTEXEC):
 
-- [NCEPLIBS-sigio](https://github.com/NOAA-EMC/NCEPLIBS-sigio) -
-- [NCEPLIBS-sfcio](https://github.com/NOAA-EMC/NCEPLIBS-sfcio) -
-- [NCEPLIBS-nemsio](https://github.com/NOAA-EMC/NCEPLIBS-nemsio) -
+- [NCEPLIBS-sigio](https://github.com/NOAA-EMC/NCEPLIBS-sigio)
+- [NCEPLIBS-sfcio](https://github.com/NOAA-EMC/NCEPLIBS-sfcio)
+- [NCEPLIBS-nemsio](https://github.com/NOAA-EMC/NCEPLIBS-nemsio)
 - [NCEPLIBS-gfsio](https://github.com/NOAA-EMC/NCEPLIBS-gfsio)
 
 The [NCEPLIBS-wrf_io](https://github.com/NOAA-EMC/NCEPLIBS-wrf_io)
@@ -92,29 +100,18 @@ The following third-party libraries are required:
 
 Builds include:
 
-- Operational use GNC build as Wen described for both library and
-  executable (library used for GFS only at this time)
+- Inline post (UPP library): Currently only supported for the GFS, RRFS,
+  HAFS, and the UFS-MRW Application.
 
-- MRW App uses UPP packaged with nceplibs and cmake to build/run with
-  executable (via release/public-v1 branch).
+- Offline post (UPP executable): Supported for Regional applications
+  including SRW, RRFS, HAFS, and standalone applications of UPP.
 
-- SRW App uses UPP repo branch/tag directly and uses cmake to
-  build/run with executable (via release/public-v2 branch).
 
-- Community standalone uses UPP repo branch/tag directly and uses
-  cmake to build/run with executable (via release/public-v2
-  branch). For these procedures, we add a
-  -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} where INSTALL_PREFIX is the
-  location of the nceplibs installation as a dependency requirement.
+CMake is used to manage all builds of the UPP. 
+The script `UPP/tests/compile_upp.sh` can be used to automatically
+build UPP on fully supported platforms where HPC-stack is supported.
+Details in this script can be used to build on new platforms.
 
-```
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install
-(or cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install -DEMC_EXEC_DIR=ON)
-make -j 4
-make install
-```
 
 ## Disclaimer
 
