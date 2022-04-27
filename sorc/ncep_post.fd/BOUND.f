@@ -1,45 +1,30 @@
 !> @file
-!
+!> @brief bound() clips data in passed array.
+!> 
+!> @author Russ Treadon W/NP2 @date 1993-01-18
+
+!> This routine bounds data in the passed array 
+!> FLD (im x jm elements long) and clips data values such 
+!> that on exiting the routine
+!> @code
+!>              FMIN <= FLD(I,J) <= FMAX
+!> @endcode
+!> for all points.
 !>
-!!                .      .    .     
-!! SUBPROGRAM:    BOUND       CLIPS DATA IN PASSED ARRAY
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-01-18
-!!     
-!! ABSTRACT:  THIS ROUTINE BOUNDS DATA IN THE PASSED ARRAY 
-!!   FLD (IMxJM ELEMENTS LONG) AND CLIPS DATA VALUES SUCH 
-!!   THAT ON EXITING THE ROUTINE 
-!!                FMIN <= FLD(I,J) <= FMAX
-!!   FOR ALL POINTS.
-!!
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-01-18  RUSS TREADON
-!!   93-05-07  RUSS TREADON - ADDED DOCBLOC
-!!   98-05-29  BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION        
-!!   02-04-24  MIKE BALDWIN - WRF VERSION        
-!!     
-!! USAGE:    CALL bound(fld,fmin,fmax)
-!!   INPUT ARGUMENT LIST:
-!!     FMIN     - LOWER (INCLUSIVE) BOUND FOR DATA.
-!!     FMAX     - UPPER (INCLUSIVE) BOUND FOR DATA.
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     FLD      - ARRAY WHOSE ELEMENTS ARE BOUNDED BY [FMIN,FMAX].
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       NONE
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @param[in] FMIN Lower (inclusive) bound for data.
+!> @param[in] FMAX Upper (inclusive) bound for data.
+!> @param[out] FLD Array whose elements are bounded by [FMIN,FMAX].
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-01-18 | Russ Treadon | Initial
+!> 1993-05-07 | Russ Treadon | Added DOCBLOC
+!> 1998-05-29 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version           
+!> 2002-04-24 | Mike Baldwin | WRF Version
+!>
+!> @author Russ Treadon W/NP2 @date 1993-01-18
       SUBROUTINE BOUND(FLD,FMIN,FMAX)
 
 !     
