@@ -7733,7 +7733,7 @@
 
     <param>
        <post_avblfldidx>979</post_avblfldidx>
-       <shortname>EFSH_ON_LFC</shortname>
+       <shortname>EFSH_ON_EFBL</shortname>
        <pname>EFSH</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
@@ -7742,7 +7742,7 @@
 
     <param>
        <post_avblfldidx>980</post_avblfldidx>
-       <shortname>EFSH_ON_EQUIL_LVL</shortname>
+       <shortname>EFSH_ON_EFTL</shortname>
        <pname>EFSH</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>equil_lvl</fixed_sfc1_type>
@@ -7751,7 +7751,7 @@
 
     <param>
        <post_avblfldidx>982</post_avblfldidx>
-       <shortname>ELMELT_ON_EQUIL_LVL</shortname>
+       <shortname>ELMELT_ON_EFTL</shortname>
        <pname>ELMELT</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>equil_lvl</fixed_sfc1_type>
@@ -7760,7 +7760,7 @@
 
     <param>
        <post_avblfldidx>983</post_avblfldidx>
-       <shortname>UESH_ON_LFC</shortname>
+       <shortname>UESH_ON_EFL</shortname>
        <pname>UESH</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
@@ -7769,7 +7769,7 @@
 
     <param>
        <post_avblfldidx>984</post_avblfldidx>
-       <shortname>VESH_ON_LFC</shortname>
+       <shortname>VESH_ON_EFL</shortname>
        <pname>VESH</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
@@ -7778,7 +7778,7 @@
 
     <param>
        <post_avblfldidx>985</post_avblfldidx>
-       <shortname>ESHR_ON_LFC</shortname>
+       <shortname>ESHR_ON_EFL</shortname>
        <pname>ESHR</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
@@ -7787,7 +7787,7 @@
 
     <param>
        <post_avblfldidx>986</post_avblfldidx>
-       <shortname>UEID_ON_LFC</shortname>
+       <shortname>UEID_ON_EFL</shortname>
        <pname>UEID</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7795,7 +7795,7 @@
 
     <param>
        <post_avblfldidx>987</post_avblfldidx>
-       <shortname>VEID_ON_LFC</shortname>
+       <shortname>VEID_ON_EFL</shortname>
        <pname>VEID</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7803,7 +7803,7 @@
 
     <param>
        <post_avblfldidx>988</post_avblfldidx>
-       <shortname>E3KH_ON_LFC</shortname>
+       <shortname>E3KH_ON_EFL</shortname>
        <pname>E3KH</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7811,7 +7811,7 @@
 
     <param>
        <post_avblfldidx>989</post_avblfldidx>
-       <shortname>STPC_ON_LFC</shortname>
+       <shortname>STPC_ON_EFL</shortname>
        <pname>STPC</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7819,7 +7819,7 @@
 
     <param>
        <post_avblfldidx>990</post_avblfldidx>
-       <shortname>SIGT_ON_LFC</shortname>
+       <shortname>SIGT_ON_EFL</shortname>
        <pname>SIGT</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7827,7 +7827,7 @@
 
     <param>
        <post_avblfldidx>991</post_avblfldidx>
-       <shortname>SCCP_ON_LFC</shortname>
+       <shortname>SCCP_ON_EFL</shortname>
        <pname>SCCP</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7835,7 +7835,7 @@
 
     <param>
        <post_avblfldidx>992</post_avblfldidx>
-       <shortname>MLFC_ON_LFC</shortname>
+       <shortname>MLFC_ON_EFL</shortname>
        <pname>MLFC</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -7843,7 +7843,7 @@
 
     <param>
        <post_avblfldidx>993</post_avblfldidx>
-       <shortname>SIGH_ON_LFC</shortname>
+       <shortname>SIGH_ON_EFL</shortname>
        <pname>SIGH</pname>
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
