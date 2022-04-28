@@ -5992,10 +5992,11 @@
 
     <param>
        <post_avblfldidx>685</post_avblfldidx>
-       <shortname>DU_CR_AER_SFC_MASS_CON</shortname>
+       <shortname>DUST10_SFC_MASS_CON</shortname>
        <stats_proc>AVE</stats_proc>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSDEN</pname>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <aerosol_type>dust_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
