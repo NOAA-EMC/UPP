@@ -5206,7 +5206,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
                 GRID1(I,J) = MAOD(I,J)
-               END DO
             END DO
          END DO
          if(grib=='grib2') then
