@@ -95,7 +95,7 @@
       ,SSSMASS(:,:),SSCMASS(:,:),SSSMASS25(:,:),SSCMASS25(:,:)               &
       ,DUSTCB(:,:),SSCB(:,:),OCCB(:,:),BCCB(:,:),SULFCB(:,:)                 &
       ,DUSTALLCB(:,:),SSALLCB(:,:),DUSTPM(:,:),SSPM(:,:),PP25CB(:,:)         &
-      ,PP10CB(:,:)!lzhang, add for FV3-Chem
+      ,DUSTPM10(:,:),PP10CB(:,:),maod(:,:)!lzhang, add for FV3-Chem
  
 !
       end module vrbls2d

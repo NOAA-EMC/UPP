@@ -1260,7 +1260,9 @@
         allocate(dustallcb(im,jsta_2l:jend_2u))
         allocate(ssallcb(im,jsta_2l:jend_2u))
         allocate(dustpm(im,jsta_2l:jend_2u))
+        allocate(dustpm10(im,jsta_2l:jend_2u))	
         allocate(sspm(im,jsta_2l:jend_2u))
+	allocate(maod(im,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
        do j=jsta_2l,jend_2u
@@ -1295,7 +1297,9 @@
            dustallcb(i,j)=spval
            ssallcb(i,j)=spval
            dustpm(i,j)=spval
+	   dustpm10(i,j)=spval
            sspm(i,j)=spval
+	   maod(i,j)=spval
          enddo
        enddo
       endif
