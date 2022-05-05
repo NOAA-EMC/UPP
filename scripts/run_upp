@@ -39,7 +39,7 @@ set -x
 #----------------------------------------------------------------------------------
 # TOP_DIR       : Top level directory for building and running UPP
 # DOMAINPATH    : Working directory for this run.
-# UPP_HOME  : Location of the UPP directory
+# UPP_HOME      : Location of the UPP directory
 # POSTEXEC      : Location of the UPP executable
 # modelDataPath : Location of the model output data files to be post-processed
 # txtCntrlFile  : Name and location of the flat text file that lists desired fields for output
