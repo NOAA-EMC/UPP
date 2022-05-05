@@ -44,7 +44,7 @@ set -x
 #                 LAM (Limited Area Model): postxconfig-NT-fv3lam.txt
 # model         : What model is used? GFS or LAM (Limited Area Model)
 # inFormat      : Format of the model data 
-#                 GFS - "binarynemsiompiio" or "netcdf"
+#                 GFS - "netcdf" or "netcdfpara"
 #                 LAM - "netcdf"
 # outFormat     : Format of output from UPP 
 #                 grib2 
@@ -64,8 +64,8 @@ set -x
 # as recommended in the users guide where UPP will output.
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/test_case
-export UNIPOST_HOME=${TOP_DIR}/EMC_post
-export POSTEXEC=${UNIPOST_HOME}/bin
+export UNIPOST_HOME=${TOP_DIR}/UPP
+export POSTEXEC=${UNIPOST_HOME}/tests/install/bin
 export modelDataPath=/path/to/model/data
 export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-GFS.txt
 
@@ -136,11 +136,12 @@ fi
 
 if [ ${model} == "GFS" ]; then
    if [[ ${inFormat} == "binarynemsiompiio" ]]; then
-      echo "Check: You are using 'model' 'inFormat'!"
-   elif [[ ${inFormat} == "netcdf" ]]; then
+      echo "ERROR: 'inFormat' must be 'netcdf' or 'netcdfpara' for GFS model output. Exiting... "
+      exit 1
+   elif [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
       echo "Check: You are using 'model' 'inFormat'!"
    else
-      echo "ERROR: 'inFormat' must be 'binarynemsiompiio' or 'netcdf' for GFS model output. Exiting... "
+      echo "ERROR: 'inFormat' must be 'netcdf' or 'netcdfpara' for GFS model output. Exiting... "
       exit 1
    fi
 elif [[ ${model} == "LAM" ]]; then
@@ -289,10 +290,7 @@ echo 'YY' $YY
 
 # Create model file name (inFileName)
 if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "binarynemsiompiio" ]]; then
-      inFileName=${modelDataPath}/atmf${fhour}.nemsio
-      flxFileName=${modelDataPath}/sfcf${fhour}.nemsio
-   elif [ ${inFormat} == "netcdf" ]; then
+   if [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
       inFileName=${modelDataPath}/atmf${fhour}.nc
       flxFileName=${modelDataPath}/sfcf${fhour}.nc
    fi
