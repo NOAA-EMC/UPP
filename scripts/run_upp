@@ -297,7 +297,7 @@ if [ ${model} == "GFS" ]; then
 elif [ ${model} == "LAM" ]; then
    if [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
       inFileName=${modelDataPath}/dynf${fhour}.nc
-      flxFileName=${modelDataPath}/dynf${fhour}.nc
+      flxFileName=${modelDataPath}/phyf${fhour}.nc
    fi
 fi
 
