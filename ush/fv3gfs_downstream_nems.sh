@@ -29,6 +29,8 @@ set -x
 #  1. Use bilinear interpolation for LAND. It can trancate land-sea mask as 1 or 0.
 #-Wen Meng, November 2019
 #  1. Modify sea icea cover via land-sea mask.
+#-Wen Meng, April 2022
+#  1. Add wgne dataset generation from f000 to f180 at 3-hour interval.
 #-----------------------------------------------------------------------
 
 
@@ -261,6 +263,9 @@ date
       if [ "$PGB1F" = 'YES' ]; then
         cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
         $GRBINDEX $COMOUT/${PREFIX}pgrb.1p00.f${fhr3} $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}.idx
+      fi
+      if [ $fhr3 -gt 0 -a $fhr3 -le 180 ]; then
+        $WGRIB2 pgb2file_${fhr3}_0p25 -d 597 -grib $COMOUT/${PREFIX}wgne.f${fhr3}
       fi
     fi
    fi

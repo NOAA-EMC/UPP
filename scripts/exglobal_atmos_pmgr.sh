@@ -40,7 +40,7 @@ postjobs=`cat posthours`
 # Wait for all fcst hours to finish 
 #
 icnt=1
-while [ $icnt -lt 1000 ]
+while [ $icnt -lt 1080 ]
 do
   for fhr in $postjobs
   do 
