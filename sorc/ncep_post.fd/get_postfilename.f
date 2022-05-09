@@ -80,6 +80,9 @@
               if(me==0)PRINT*,' FNAME FROM IPVOUT=',trim(FNAME)
           ELSE IF(PGBOUT(1:4).NE.BLANK)THEN
             FNAME = PGBOUT
+            if (IGET(464) >0 ) then
+               FNAME=trim(FNAME) // DATSET(1:KDAT)
+            endif
             if(me==0)PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
           ELSE
               NDIG=MAX(LOG10(IHR+0.5)+1.,2.)

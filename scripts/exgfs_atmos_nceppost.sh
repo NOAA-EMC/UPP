@@ -199,6 +199,9 @@ then
     if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
       export OUTTYP=${OUTTYP:-4}
 
+      #For MDL2P.f, WAFS pressure levels are different from master file
+      export POSTGPVARS="KPO=56,PO=84310.,81200.,78190.,75260.,72430.,69680.,67020.,64440.,61940.,59520.,57180.,54920.,52720.,50600.,48550.,46560.,44650.,42790.,41000.,39270.,37600.,35990.,34430.,32930.,31490.,30090.,28740.,27450.,26200.,25000.,23840.,22730.,21660.,20650.,19680.,18750.,17870.,17040.,16240.,15470.,14750.,14060.,13400.,12770.,12170.,11600.,11050.,10530.,10040.,9570.,9120.,8700.,8280.,7900.,7520.,7170.,popascal=.true.,"
+
       export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-ANL.txt
       export CTLFILE=$PARMpost/postcntrl_gfs_wafs_anl.xml
 
@@ -512,9 +515,17 @@ do
        if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
           export OUTTYP=${OUTTYP:-4}
 
+	  #For MDL2P.f, WAFS pressure levels are different from master file
+	  export POSTGPVARS="KPO=56,PO=84310.,81200.,78190.,75260.,72430.,69680.,67020.,64440.,61940.,59520.,57180.,54920.,52720.,50600.,48550.,46560.,44650.,42790.,41000.,39270.,37600.,35990.,34430.,32930.,31490.,30090.,28740.,27450.,26200.,25000.,23840.,22730.,21660.,20650.,19680.,18750.,17870.,17040.,16240.,15470.,14750.,14060.,13400.,12770.,12170.,11600.,11050.,10530.,10040.,9570.,9120.,8700.,8280.,7900.,7520.,7170.,popascal=.true.,"
+
 	  # Extend WAFS icing and gtg up to 120 hours
-          export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
-          export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
+          if [  $fhr -le 48  ] ; then
+              export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
+              export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
+	  else
+              export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-EXT.txt
+              export CTLFILE=$PARMpost/postcntrl_gfs_wafs_ext.xml
+	  fi
 
           # gtg has its own configurations
           cp $PARMpost/gtg.config.gfs gtg.config
@@ -547,12 +558,24 @@ do
 		  if test $SENDCOM = "YES"
 		  then
 		      cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
-		      cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
+		      $WGRIB2 -s $PGBOUT > $PGIOUT # WAFS products exist from ush/gfs_nceppost.sh before running anything else
+		      cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2f$fhr.idx
+		  fi
+              fi
+	      # Will remove when GFSv17
+              if [ -e ${PGBOUT}GFSSTD ]
+              then
+		  if test $SENDCOM = "YES"
+		  then
+		      cp ${PGBOUT}GFSSTD $COMOUT/${PREFIX}wafs_icao.grb2f$fhr
+		      $WGRIB2 -s ${PGBOUT}GFSSTD > $PGIOUT # WAFS products exist from ush/gfs_nceppost.sh before running anything else
+		      cp $PGIOUT $COMOUT/${PREFIX}wafs_icao.grb2f$fhr.idx
 		  fi
               fi
 	  fi
       fi
       [[ -f wafsfile ]] && rm wafsfile ; [[ -f wafsifile ]] && rm wafsifile
+      [[ -f wafsfileGFSSTD ]] && rm wafsfileGFSSTD
     fi
 ###########################  WAFS  end ###########################
 

@@ -1088,9 +1088,7 @@
                       endif
                    END IF       ! endif loop for deducing T and Q differently for GFS  
 
-                   if(QTYPE(N) == "W") QFD(I,J,IFD,N)=QIN(I,J,LM,N) ! W OMGA
                    if(QTYPE(N) == "K") QFD(I,J,IFD,N)= max(0.0,0.5*(QIN(I,J,LM,N)+QIN(I,J,LM-1,N))) ! TKE
-                   if(QTYPE(N) == "C") QFD(I,J,IFD,N)=0.0 ! Hydrometeor fields
                  END DO
 
               ENDIF ! Underground

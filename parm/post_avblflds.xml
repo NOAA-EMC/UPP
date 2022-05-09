@@ -4591,7 +4591,7 @@
        <scale>6.0</scale>
     </param>
 
-<!-- 518-525 on std_isobaric_sfc for WAFS products  -->
+<!-- 518-522 on std_isobaric_sfc for WAFS products  -->
     <param>
        <post_avblfldidx>518</post_avblfldidx>
        <shortname>HGT_ON_ICAO_STD_SFC</shortname>
@@ -4630,30 +4630,6 @@
        <pname>RH</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>2.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>523</post_avblfldidx>
-       <shortname>VVEL_ON_ICAO_STD_SFC</shortname>
-       <pname>VVEL</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>5.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>524</post_avblfldidx>
-       <shortname>ABSV_ON_ICAO_STD_SFC</shortname>
-       <pname>ABSV</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>525</post_avblfldidx>
-       <shortname>CLWMR_ON_ICAO_STD_SFC</shortname>
-       <pname>CLWMR</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>4.0</scale>
     </param>
 
     <param>

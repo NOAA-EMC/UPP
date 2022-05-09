@@ -870,6 +870,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+           (IGET(479).GT.0).OR.(IGET(481).GT.0).OR.      &
            (IGET(774).GT.0).OR.(IGET(747).GT.0).OR.      &
            (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
            (IGET(470).GT.0).OR.(IGET(476).GT.0).OR.      &
@@ -1598,7 +1599,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           RELATIVE HUMIDITY ON MDL SURFACES.
             item = -1
             IF (IGET(006) > 0) item = LVLS(L,IGET(006))
-            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0) THEN
+            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0 .OR. &
+                IGET(479) > 0 .OR. IGET(481) > 0 ) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -4103,7 +4105,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       end IF
 
 ! COMPUTE NCAR FIP
-      IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
+      IF(IGET(450)>0 .or. IGET(480)>0 .or. IGET(479)>0 .or. IGET(481)>0)THEN
 
 !       cape and cin
         ITYPE  = 1
