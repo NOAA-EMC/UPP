@@ -43,7 +43,7 @@ set -xa
 # Convert the sflux file to grib2 format:
 ############################################
 #cp $COMIN/${RUN}.${cycle}.sfluxgrbf$fhr sfluxgrbf$fhr
-#if [ `expr $fhr % 3` -eq 0 ]; then
+#if [ $(expr $fhr % 3) -eq 0 ]; then
 #$CNVGRIB -g12 -p40 $COMIN/${RUN}.${cycle}.sfluxgrbf$fhr sfluxgrbf${fhr}.grib2
 #$WGRIB2 sfluxgrbf${fhr}.grib2 -s> sfluxgrbf${fhr}.grib2.idx
 
@@ -58,25 +58,21 @@ set -xa
 # DBNet Alerts for gfs suite
 #
 
-if test "$SENDDBN" = 'YES' -a "$RUN" = 'gfs' 
-then
-  #if [ `expr $fhr % 3` -eq 0 ]; then
+if [ "$SENDDBN" = 'YES' -a "$RUN" = 'gfs' ]; then
+  #if [ $(expr $fhr % 3) -eq 0 ]; then
   #echo $DBNROOT/bin/dbn_alert MODEL GFS_SGB $job $COMOUT/${RUN}.${cycle}.sfluxgrbf$fhr
   #echo $DBNROOT/bin/dbn_alert MODEL GFS_SGBI $job $COMOUT/${RUN}.${cycle}.sfluxgrbif$fhr
   #echo $DBNROOT/bin/dbn_alert MODEL GFS_SGB_GB2 $job $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2
   #echo $DBNROOT/bin/dbn_alert MODEL GFS_SGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2.idx
   #fi
 
-  fhr=`printf "%03d" $fhr`
+  fhr=$(printf "%03d" $fhr)
   $DBNROOT/bin/dbn_alert MODEL GFS_SF $job $COMOUT/${RUN}.t${cyc}z.atmf$fhr.nc
-
  
-  if [[ $fhr -gt 0  && $fhr -le 84  ]]
-  then
+  if [[ $fhr -gt 0  && $fhr -le 84  ]]; then
      $DBNROOT/bin/dbn_alert MODEL GFS_BF $job $COMOUT/${RUN}.t${cyc}z.sfcf$fhr.nc
   fi
-  if [[ $fhr -eq 120  ]]
-  then
+  if [[ $fhr -eq 120  ]]; then
      $DBNROOT/bin/dbn_alert MODEL GFS_BF $job $COMOUT/${RUN}.t${cyc}z.sfcf$fhr.nc
   fi
 fi

@@ -115,58 +115,58 @@ export MP_LABELIO=yes
 # Do some checks for directory/executable existence, user input, etc.
 #----------------------------------------------------------------------
 if [ ! -d ${POSTEXEC} ]; then
-  echo "ERROR: POSTEXEC, '${POSTEXEC}', does not exist"
-  exit 1
+	echo "ERROR: POSTEXEC, '${POSTEXEC}', does not exist"
+	exit 1
 fi
 
 if [ ! -x ${POSTEXEC}/upp.x ]; then
-  echo "ERROR: upp.x, '${POSTEXEC}/upp.x', does not exist or is not executable."
-  exit 1
+	echo "ERROR: upp.x, '${POSTEXEC}/upp.x', does not exist or is not executable."
+	exit 1
 fi
 
 # Set tag based on user defined model (GFS or LAM)
 if [ $model = "GFS" ]; then
-   export tag=GFS
+	export tag=GFS
 elif [ $model = "LAM" ]; then
-   export tag=FV3R
+	export tag=FV3R
 else
-   echo "${model} is not supported. Edit script to choose 'GFS' or 'LAM' model."
-   exit
+	echo "${model} is not supported. Edit script to choose 'GFS' or 'LAM' model."
+	exit
 fi
 
 if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "binarynemsiompiio" ]]; then
-      echo "Check: You are using 'model' 'inFormat'!"
-   elif [[ ${inFormat} == "netcdf" ]]; then
-      echo "Check: You are using 'model' 'inFormat'!"
-   else
-      echo "ERROR: 'inFormat' must be 'binarynemsiompiio' or 'netcdf' for GFS model output. Exiting... "
-      exit 1
-   fi
+	if [[ ${inFormat} == "binarynemsiompiio" ]]; then
+		echo "Check: You are using 'model' 'inFormat'!"
+	elif [[ ${inFormat} == "netcdf" ]]; then
+		echo "Check: You are using 'model' 'inFormat'!"
+	else
+		echo "ERROR: 'inFormat' must be 'binarynemsiompiio' or 'netcdf' for GFS model output. Exiting... "
+		exit 1
+	fi
 elif [[ ${model} == "LAM" ]]; then
-   if [[ ${inFormat} != "netcdf" ]]; then
-      echo "ERROR: 'inFormat' must be 'netcdf' for LAM  model output. Exiting... "
-      exit 1
-   fi
+	if [[ ${inFormat} != "netcdf" ]]; then
+		echo "ERROR: 'inFormat' must be 'netcdf' for LAM  model output. Exiting... "
+		exit 1
+	fi
 fi
 
 if [[ ${outFormat} == "grib2" ]]; then
-   if [ ! -e ${txtCntrlFile} ]; then
-      echo "ERROR: 'txtCntrlFile' not found in '${txtCntrlFile}'.  Exiting... "
-      exit 1
-   fi
+	if [ ! -e ${txtCntrlFile} ]; then
+		echo "ERROR: 'txtCntrlFile' not found in '${txtCntrlFile}'.  Exiting... "
+		exit 1
+	fi
 else
-   echo "${outFormat} is not supported. Edit script to choose 'grib2' for 'outFormat'. Exiting... "
+	echo "${outFormat} is not supported. Edit script to choose 'grib2' for 'outFormat'. Exiting... "
 fi
  
 if [ ! -d ${DOMAINPATH}/postprd ]; then
-  echo "ERROR: DOMAINPATH/postprd, '${DOMAINPATH}/postprd', does not exist. Exiting..."
-  exit 1
+	echo "ERROR: DOMAINPATH/postprd, '${DOMAINPATH}/postprd', does not exist. Exiting..."
+	exit 1
 fi
 
 if [ ${incrementhr} -eq 0 ]; then
-  echo "ERROR: increment hour (incrementhr) cannot be zero. Inifinite loop will result. Please modify. Exiting..."
-  exit 1
+	echo "ERROR: increment hour (incrementhr) cannot be zero. Inifinite loop will result. Please modify. Exiting..."
+	exit 1
 fi
 
 #----------------------------------------------------------------------
@@ -180,10 +180,10 @@ fi
 # cd to working directory
 cd ${DOMAINPATH}/postprd
 err1=$?
-if test "$err1" -ne 0; then
-    echo "ERROR: Could not 'cd' to working directory. Did you create directory: '${DOMAINPATH}/postprd'?  \
-    Does '${DOMAINPATH}' exist?  Exiting... "
-    exit 1
+if [ "$err1" -ne 0 ]; then
+	echo "ERROR: Could not 'cd' to working directory. Did you create directory: '${DOMAINPATH}/postprd'?  \
+	Does '${DOMAINPATH}' exist?  Exiting... "
+	exit 1
 fi
 
 # For GRIB2 the code reads a flat text tile to select variables for output.
@@ -193,9 +193,9 @@ fi
 #   program directory - this is true for params_grib2_tbl_new also - a
 #   file which defines the GRIB2 table values
 if [[ ${outFormat} == "grib2" ]]; then
-   ln -fs ${txtCntrlFile} postxconfig-NT.txt
-   ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
-   ln -fs ${UNIPOST_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
+	ln -fs ${txtCntrlFile} postxconfig-NT.txt
+	ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
+	ln -fs ${UNIPOST_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
 # Link microphysics tables - code will use based on mp_physics option
@@ -265,124 +265,122 @@ ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ahi_himawari8.SpcCoeff.bin   ./
 
 export NEWDATE=$startdate
 
-YYY=`echo $startdate | cut -c1-4`
-MMM=`echo $startdate | cut -c5-6`
-DDD=`echo $startdate | cut -c7-8`
-HHH=`echo $startdate | cut -c9-10`
+YYY=$(echo $startdate | cut -c1-4)
+MMM=$(echo $startdate | cut -c5-6)
+DDD=$(echo $startdate | cut -c7-8)
+HHH=$(echo $startdate | cut -c9-10)
 
 while [ $((10#${fhr})) -le $((10#${lastfhr})) ]; do
+	# Formatted fhr for filenames
+	fhr=$(printf "%02i" ${fhr#0})
+	fhour=$(printf "%03i" ${fhr##0})
 
-# Formatted fhr for filenames
-fhr=`printf "%02i" ${fhr#0}`
-fhour=`printf "%03i" ${fhr##0}`
+	NEWDATE=$(date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour")
 
-NEWDATE=`date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour"`
+	YY=$(echo $NEWDATE | cut -c1-4)
+	MM=$(echo $NEWDATE | cut -c5-6)
+	DD=$(echo $NEWDATE | cut -c7-8)
+	HH=$(echo $NEWDATE | cut -c9-10)
+	iHH=$(echo $startdate | cut -c9-10)
 
-YY=`echo $NEWDATE | cut -c1-4`
-MM=`echo $NEWDATE | cut -c5-6`
-DD=`echo $NEWDATE | cut -c7-8`
-HH=`echo $NEWDATE | cut -c9-10`
-iHH=`echo $startdate | cut -c9-10`
+	echo 'NEWDATE' $NEWDATE
+	echo 'YY' $YY
 
-echo 'NEWDATE' $NEWDATE
-echo 'YY' $YY
+	# Create model file name (inFileName)
+	if [ ${model} == "GFS" ]; then
+		if [[ ${inFormat} == "binarynemsiompiio" ]]; then
+			inFileName=${modelDataPath}/atmf${fhour}.nemsio
+			flxFileName=${modelDataPath}/sfcf${fhour}.nemsio
+		elif [ ${inFormat} == "netcdf" ]; then
+			inFileName=${modelDataPath}/atmf${fhour}.nc
+			flxFileName=${modelDataPath}/sfcf${fhour}.nc
+		fi
+	elif [ ${model} == "LAM" ]; then
+		if [ ${inFormat} == "netcdf" ]; then
+			inFileName=${modelDataPath}/dynf${fhour}.nc
+			flxFileName=${modelDataPath}/dynf${fhour}.nc
+		fi
+	fi
 
-# Create model file name (inFileName)
-if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "binarynemsiompiio" ]]; then
-      inFileName=${modelDataPath}/atmf${fhour}.nemsio
-      flxFileName=${modelDataPath}/sfcf${fhour}.nemsio
-   elif [ ${inFormat} == "netcdf" ]; then
-      inFileName=${modelDataPath}/atmf${fhour}.nc
-      flxFileName=${modelDataPath}/sfcf${fhour}.nc
-   fi
-elif [ ${model} == "LAM" ]; then
-   if [ ${inFormat} == "netcdf" ]; then
-      inFileName=${modelDataPath}/dynf${fhour}.nc
-      flxFileName=${modelDataPath}/dynf${fhour}.nc
-   fi
-fi
+	# Check if the files exist
+	if [[ ! -e ${inFileName} ]]; then
+		echo "ERROR: Can't find 'inFileName': ${inFileName}. Directory or file does not exist.  Exiting..."
+		echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
+		exit 1
+	fi
 
-# Check if the files exist
-if [[ ! -e ${inFileName} ]]; then
-   echo "ERROR: Can't find 'inFileName': ${inFileName}. Directory or file does not exist.  Exiting..."
-   echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
-   exit 1
-fi
+	if [[ ! -e ${flxFileName} ]]; then
+		echo "ERROR: Can't find 'flxFileName': ${flxFileName}. Directory or file does not exist.  Exiting..."
+		echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
+		exit 1
+	fi
 
-if [[ ! -e ${flxFileName} ]]; then
-   echo "ERROR: Can't find 'flxFileName': ${flxFileName}. Directory or file does not exist.  Exiting..."
-   echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
-   exit 1
-fi
+	# Create itag based on user provided info. 
+	# Output format now set by user so if-block below uses this
+	# to generate the correct itag. 
 
-# Create itag based on user provided info. 
-# Output format now set by user so if-block below uses this
-# to generate the correct itag. 
+	if [[ ${outFormat} == "grib2" ]]; then
+		if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
+			cat > itag <<-EOF
+				&model_inputs
+				fileName='${inFileName}'
+				IOFORM='${inFormat}'
+				grib='${outFormat}'
+				DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+				MODELNAME='${tag}'
+				fileNameFlux='${flxFileName}'
+				fileNameFlat='postxconfig-NT.txt'
+				/
+			EOF
+		fi
+	fi
 
-if [[ ${outFormat} == "grib2" ]]; then
-   if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
-cat > itag <<EOF
-&model_inputs
-fileName='${inFileName}'
-IOFORM='${inFormat}'
-grib='${outFormat}'
-DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
-MODELNAME='${tag}'
-fileNameFlux='${flxFileName}'
-fileNameFlat='postxconfig-NT.txt'
-/
-EOF
-   fi
-fi
+	#-----------------------------------------------------------------------
+	#   Run UPP.
+	#-----------------------------------------------------------------------
 
-#-----------------------------------------------------------------------
-#   Run UPP.
-#-----------------------------------------------------------------------
+	#----------------------------------------------------------------------
+	# There are two environment variables tmmark and COMSP
+	# RUN the upp.x executable. 
+	#----------------------------------------------------------------------
 
-#----------------------------------------------------------------------
-# There are two environment variables tmmark and COMSP
-# RUN the upp.x executable. 
-#----------------------------------------------------------------------
+	if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
+		${RUN_COMMAND} > upp.f${fhour}.out 2>&1
+	fi
 
-if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
-     ${RUN_COMMAND} > upp.f${fhour}.out 2>&1
-fi
+	# The prefixes are given in the postcntrl.xml file datset variable (GRIB2)
 
-# The prefixes are given in the postcntrl.xml file datset variable (GRIB2)
+	if [[ ${model} == "GFS" ]]; then
+		mv GFSPRS.GrbF${fhr} GFSPRS.${fhour}
+	elif [ ${model} == "LAM" ]; then
+		mv NATLEV${fhr}.tm00 NATLEV.${fhour}
+		mv PRSLEV${fhr}.tm00 PRSLEV.${fhour}
+	fi
 
-if [[ ${model} == "GFS" ]]; then
-   mv GFSPRS.GrbF${fhr} GFSPRS.${fhour}
-elif [ ${model} == "LAM" ]; then
-   mv NATLEV${fhr}.tm00 NATLEV.${fhour}
-   mv PRSLEV${fhr}.tm00 PRSLEV.${fhour}
-fi
+	#
+	#----------------------------------------------------------------------
+	#   End of upp job
+	#----------------------------------------------------------------------
 
-#
-#----------------------------------------------------------------------
-#   End of upp job
-#----------------------------------------------------------------------
+	# check to make sure UPP was successful
+	if [[ ${model} == "GFS" ]]; then
+		ls -l GFSPRS.${fhour}
+		err1=$?
+	elif [ ${model} == "LAM" ]; then
+		ls -l NATLEV.${fhour}
+		err1=$? 
+		ls -l PRSLEV.${fhour}
+		err2=$? 
+	fi
 
-# check to make sure UPP was successful
-if [[ ${model} == "GFS" ]]; then
-    ls -l GFSPRS.${fhour}
-    err1=$?
-elif [ ${model} == "LAM" ]; then
-    ls -l NATLEV.${fhour}
-    err1=$? 
-    ls -l PRSLEV.${fhour}
-    err2=$? 
-fi
+	if [[ ${err1} -ne 0 || ${err2} -ne 0 ]]; then
+		echo 'UPP FAILED, EXITTING'
+		exit
+	fi 
 
-if [[ ${err1} -ne 0 || ${err2} -ne 0 ]]; then
-    echo 'UPP FAILED, EXITTING'
-    exit
-fi 
+	fhr=$((10#${fhr}+$((${incrementhr}))))
 
-fhr=$((10#${fhr}+$((${incrementhr}))))
-
-NEWDATE=`date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour"`
-
+	NEWDATE=$(date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour")
 done
 
 date
