@@ -35,7 +35,7 @@ set -x
 #----------------------------------------------------------------------------------
 #--- USER EDIT DESCIPTIONS --------------------------------------------------------
 # See UPP User's Guide for more information
-# https://upp.readthedocs.io/en/ufs-v2.0.0/
+# https://upp.readthedocs.io/en/latest/
 #----------------------------------------------------------------------------------
 # TOP_DIR       : Top level directory for building and running UPP
 # DOMAINPATH    : Working directory for this run.
