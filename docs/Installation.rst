@@ -16,11 +16,11 @@ Software Requirements
 
 The UPP is tested on a variety of research platforms, including NOAA HPC systems (e.g. Hera, Orion) and
 the NCAR HPC Cheyenne. These supported platforms are pre-configured for building and running the UPP and already
-have the required libraries available via `HPC-Stack<https://github.com/NOAA-EMC/hpc-stack>`_ in a centralized
+have the required libraries available via `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`_ in a centralized
 location. The HPC-Stack is a script-based build system that builds the software stack required by UFS components.
 
 Users working on unsupported platforms will need to install the HPC-Stack on their system and can do so following
-the instructions in the `HPC-Stack User's Guide<https://hpc-stack.readthedocs.io/en/latest/>`_.
+the instructions in the `HPC-Stack User's Guide <https://hpc-stack.readthedocs.io/en/latest/>`_.
 
 ============================
 Obtaining and Installing UPP
@@ -48,6 +48,7 @@ Move to the directory where you want to install UPP and clone the repository.
 
 where, ``branch-or-tag-name`` is the release branch or tag you wish to clone.
 
+Move to the directory with the build script and build the UPP.
 
 .. code-block:: console
 
@@ -88,8 +89,8 @@ directory that exists only after the build is complete):
 
      | **exec***: Contains the :bolditalic:`upp.x` executable after successful compilation
 
-     | **modulefiles**: Contains modulefiles for specific platforms and compilers for building on pre-
-       configured machines.
+     | **modulefiles**: Contains modulefiles for specific platforms and compilers for building on
+       pre-configured machines.
 
      | **parm**: Contains parameter files, which can be modified by the user to control how the post
        processing is performed.
