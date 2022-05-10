@@ -317,12 +317,12 @@ with examples in the sections below.
 
 7. Build or rebuild the code for changes to take effect before running your UPP run script.
    
-   User procedure IF you already have the code built. Otherwise, see the User's Guide for instructions on building.
+   User procedure for building on pre-configured machines. Otherwise, see the User's Guide for instructions on building.
 
     ::
 
-    >> cd UPP/build
-    >> make install
+    >> cd UPP/tests
+    >> ./compile_upp.sh
 
    Assuming the modified code built successfully and you were able to produce Grib2 output, you can check the Grib2
    file for your new variable.
@@ -343,4 +343,3 @@ with examples in the sections below.
          number of latitudes between pole-equator=96 #points=73728
          lat 89.284225 to -89.284225
          lon 0.000000 to 359.062500 by 0.937500
-
