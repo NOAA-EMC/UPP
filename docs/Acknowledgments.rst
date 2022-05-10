@@ -18,4 +18,4 @@ acknowledge the Developmental Testbed Center UPP Team.
 
 For referencing this document please use:
 
-UPP Users Guide V9.0.0, 24 pp.
+UPP Users Guide V10.0.12, 24 pp.
