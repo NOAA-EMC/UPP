@@ -103,4 +103,4 @@ directory that exists only after the build is complete):
 
      | **tests**: Contains the scripts used to install UPP
      |   - **build***: Contains the UPP build
-     |   - **install***: Contains the installed executable, modules, and libraries
+     |   - **install***: Contains the installed executable (bin/upp.x), modules, and libraries

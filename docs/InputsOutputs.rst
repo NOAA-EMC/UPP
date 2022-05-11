@@ -25,7 +25,7 @@ Model Forecast
 
 The UPP ingests FV3 write component files in netCDF and parallel netCDF format.
 
-The table below is a list of the unified model variables available from the UFS applications. Whether a
+The table below is a list of the unified model variables available from the FV3 model core. Whether a
 specific variable is able to be read by UPP relies on dependencies such as physics options and model.
 This table does not include variables that are diagnosed when running the UPP.
 
@@ -112,7 +112,7 @@ levels are currently available for output:
 - For PBL layer averages, the levels correspond to 6 layers with a thickness of 30 hPa each.
 - For flight level, the levels are 30 m, 50 m, 80 m, 100 m, 305 m, 457 m, 610 m, 914 m, 1524 m, 1829 m,
   2134 m, 2743 m, 3658 m, 4572 m, 6000 m, 7010 m.
-- For AGL radar reflectivity, the levels are 4000 and 1000 m (see Appendix A for details).
+- For AGL radar reflectivity, the levels are 4000 and 1000 m.
 - For surface or shelter-level output, the <level> is not necessary.
 
 .. _create_txt_file:
