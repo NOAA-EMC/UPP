@@ -90,7 +90,7 @@
                          AVGCPRATE,                                           &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
-                         PWAT
+                         PWAT,DUSTPM10,MAOD
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -5205,6 +5205,26 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
+      
+!! Multiply by 1.E-6 to revert these fields back
+      IF (IGET(667)>0) THEN
+         GRID1=SPVAL
+!$omp parallel do private(i,j)
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               IF(BCEM(I,J,1)<SPVAL) GRID1(I,J) = BCEM(I,J,1)
+               DO K=2,NBIN_BC
+               IF(BCEM(I,J,K)<SPVAL)&
+                GRID1(I,J) = GRID1(I,J) + BCEM(I,J,K)
+               END DO
+            END DO
+         END DO
+         if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(667))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
 
       IF (IGET(660)>0) THEN
          GRID1=SPVAL
@@ -5222,6 +5242,21 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(660))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+         endif
+      ENDIF
+      
+      IF (IGET(699)>0) THEN
+         GRID1=SPVAL
+!$omp parallel do private(i,j)
+         DO J = JSTA,JEND
+            DO I = 1,IM
+                GRID1(I,J) = MAOD(I,J)
+            END DO
+         END DO
+         if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(699))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
 !! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
@@ -5262,6 +5297,20 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 
+      IF (IGET(685)>0 ) THEN
+!$omp parallel do private(i,j)
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUSTPM10(I,J)   !ug/m3 
+            END DO
+         END DO
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(685))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+      
 !! ADD DUST WET DEPOSITION FLUXES (kg/m2/sec)
 !      IF (IGET(662)>0) THEN
 !         DO J = JSTA,JEND
@@ -5475,7 +5524,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(674)>0) call wrt_aero_diag(674,nbin_oc,ocwt)
       IF (IGET(682)>0) call wrt_aero_diag(682,nbin_oc,ocsv)
 !      print *,'aft wrt disg ocwt'
-
+!! wrt MIE AOD at 550nm
+      IF (IGET(699).GT.0) call wrt_aero_diag(699,1,maod)
+      print *,'aft wrt disg maod'
+      
 !! wrt SU diag field
 !      IF (IGET(675)>0) call wrt_aero_diag(675,nbin_su,suem)
 !      IF (IGET(676)>0) call wrt_aero_diag(676,nbin_su,susd)

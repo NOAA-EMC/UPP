@@ -1,44 +1,24 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    INITPOST_NETCDF  INITIALIZE POST FOR RUN
-!!   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
-!!     
-!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!!   VARIABLES AT THE START OF GFS MODEL OR POST 
-!!   PROCESSOR RUN.
-!!
-!! REVISION HISTORY
-!!   2017-08-11 H Chuang   start from INITPOST_GFS_NEMS_MPIIO.f 
-!!   2021-03-11 Bo Cui     change local arrays to dimension (im,jsta:jend)
-!!   2022-02-07 Wen Meng   Changes for parallel netcdf read.
-!!   2022-03-15 Wen Meng   Unify regional and global interfaces.
-!!   2022-03-22 Wen Meng   Read PWAT from model.
-!!   2021-10-26 J Meng     2D DECOMPOSITION
-!!   2022-04-08 B Cui      2D decomposition for unified fv3 read interfaces
-!!
-!! USAGE:    CALL INITPOST_NETCDF
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  LOOKUP
-!!                  SOILDEPTH
-!!
-!!    
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief initpost_netcdf() initializes post for run.
+!>
+!> @author Hui-Ya Chuang @date 2016-03-04
+
+!> This routine initializes constants and
+!> variables at the start of GFS model or post
+!> processor run.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2007-03-01 | Hui-Ya Chuang | Initial. Start from INITPOST_GFS_NEMS_MPIIO.f
+!> 2021-03-11 | Bo Cui        | Change local arrays to dimension (im,jsta:jend)
+!> 2021-10-26 | Jesse Meng    | 2D DECOMPOSITION
+!> 2022-02-07 | Wen Meng      | Changes for parallel netcdf read
+!> 2022-03-15 | Wen Meng      | Unify regional and global interfaces
+!> 2022-03-22 | Wen Meng      | Read PWAT from model
+!> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
+!>
+!> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
 
 
