@@ -553,15 +553,6 @@ do
 	  if [ $err -ne 0 ] ; then
               echo " *** GFS POST WARNING: WAFS output failed for f${fhr}, err=$err"
 	  else
-              if [ -e $PGBOUT ]
-              then
-		  if test $SENDCOM = "YES"
-		  then
-		      cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
-		      $WGRIB2 -s $PGBOUT > $PGIOUT # WAFS products exist from ush/gfs_nceppost.sh before running anything else
-		      cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2f$fhr.idx
-		  fi
-              fi
 	      # Will remove when GFSv17
               if [ -e ${PGBOUT}GFSSTD ]
               then
@@ -570,6 +561,16 @@ do
 		      cp ${PGBOUT}GFSSTD $COMOUT/${PREFIX}wafs_icao.grb2f$fhr
 		      $WGRIB2 -s ${PGBOUT}GFSSTD > $PGIOUT # WAFS products exist from ush/gfs_nceppost.sh before running anything else
 		      cp $PGIOUT $COMOUT/${PREFIX}wafs_icao.grb2f$fhr.idx
+		  fi
+              fi
+
+              if [ -e $PGBOUT ]
+              then
+		  if test $SENDCOM = "YES"
+		  then
+		      cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
+		      $WGRIB2 -s $PGBOUT > $PGIOUT # WAFS products exist from ush/gfs_nceppost.sh before running anything else
+		      cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2f$fhr.idx
 		  fi
               fi
 	  fi
