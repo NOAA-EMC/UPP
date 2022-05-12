@@ -23,7 +23,7 @@ The UPP requires the following input files:
 Model Forecast
 --------------
 
-The UPP ingests FV3 write component files in netCDF and parallel netCDF format.
+The UPP ingests FV3 write component files in parallel netCDF format.
 
 The table below is a list of the unified model variables available from the FV3 model core. Whether a
 specific variable is able to be read by UPP relies on dependencies such as physics options and model.

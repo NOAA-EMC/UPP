@@ -6,8 +6,8 @@ Temperature,tmp,t,3d,dyn,
 Ozone mixing ratio,o3mr,o3,3d,dyn,
 Geometric vertical velocity,dzdt,wh,3d,dyn,
 Cloud water mixing ratio,clwmr,qqw,3d,dyn,
-Layer thickness on hybrid levels,dpres,dpres,3d,dyn,
-Pressure vertical velocity (omega),delz,buf3d > omga,3d,dyn,compute omega
+Layer thickness in pressure on hybrid levels,dpres,dpres,3d,dyn,
+Layer thickness in height,delz,na,3d,dyn,
 Ice mixing ratio,icmr,qqi,3d,dyn,
 Rain mixing ratio,rwmr,qqr,3d,dyn,
 Snow mixing ratio,snmr,qqs,3d,dyn,
@@ -23,8 +23,7 @@ Min hourly 0-3km updraft helicity,uhmin03,up_heli_min03,2d,dyn,regional FV3
 Max 0-1km relative vorticity max,maxvort01,rel_vort_max01,2d,dyn,regional FV3
 Max 0-2km relative vorticity max,maxvort02,rel_vort_max,2d,dyn,regional FV3
 Max hybrid level 1 relative vorticity max,maxvorthy1,rel_vort_maxhy1,2d,dyn,regional FV3
-Surface pressure,pressfc,pint,2d,dyn,
-Surface height,hgtsfc,zint,2d,dyn,
+Surface height,hgtsfc,zint(:,:,LM+1),2d,dyn,
 Reflectivity,refl_10cm,REF_10CM,3d,phy,
 Turbulence kinetic energy,qke,q2,3d,phy,
 Ice-friendly aerosol number concentration,nifa,qqnwfa,3d,phy,
@@ -68,9 +67,9 @@ Plant canopy sfc water in m,cnwat,cmc,2d,phy,
 Frozen precip fraction,cpofp,sr,2d,phy,
 Sea ice skin temperature,tisfc,ti,2d,phy,
 Vegetation fraction,veg,vegfrc,2d,phy,
-Liquid volumetric soil moisture,soill1/soill2/soill3/soill4,sh2o,2d,phy,all soil levels read into array
-Volumetric soil moisture,soilw1/soilw2/soilw3/soilw4.....,smc,2d,phy,"all soil levels read into array, L5-9 RUC only"
-Soil temperature,soilt1/soilt2/soilt3/soilt4.....,stc,2d,phy,"all soil levels read into array, L5-9 RUC only"
+Liquid volumetric soil moisture,soill1/soill2/soill3/soill4,sh2o,2d>3d,phy,all soil levels read into array
+Volumetric soil moisture,soilw1/soilw2/soilw3/soilw4.....,smc,2d>3d,phy,"all soil levels read into array, L5-9 RUC only"
+Soil temperature,soilt1/soilt2/soilt3/soilt4.....,stc,2d>3d,phy,"all soil levels read into array, L5-9 RUC only"
 Time averaged incoming surface longwave,dlwrf_ave,alwin,2d,phy,
 Instantaneous incoming surface longwave,dlwrf,rlwin,2d,phy,
 Time averaged outgoing surface longwave,ulwrf_ave,alwout,2d,phy,
