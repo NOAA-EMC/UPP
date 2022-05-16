@@ -77,7 +77,7 @@ export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-GFS.txt
 export model="GFS"
 
 # Set input format from model and ouput format from UPP
-export inFormat="netcdf"
+export inFormat="netcdfpara"
 export outFormat="grib2"
 
 # Set date/time information
