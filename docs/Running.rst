@@ -82,7 +82,7 @@ Run Script Overview
 
 3. Specify the format for the input model files and output UPP files
 
-       | **inFormat**: Format of the model data ("netcdf" or "netcdfpara")
+       | **inFormat**: Format of the model data ("netcdfpara")
        | **outFormat**: Format of output from UPP ("grib2")
 
 4. Specify the forecast cycles to be post-processed

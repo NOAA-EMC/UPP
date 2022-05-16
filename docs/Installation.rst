@@ -26,7 +26,7 @@ the instructions in the `HPC-Stack User's Guide <https://hpc-stack.readthedocs.i
 Obtaining and Installing UPP
 ============================
 
-Building and running UPP V10.0.12 has been tested and is supported on the following pre-configured platforms.
+Building and running UPP V10.1.0 has been tested and is supported on the following pre-configured platforms.
 
 +---------------+----------------------+
 | System        | Compiler and Version |
@@ -65,14 +65,14 @@ Move to the directory with the build script and build the UPP.
 
 Move back to the top level UPP directory and create a directory for the CRTM fix files to be unpacked
 in. Download the fix files from the Github `release page
-<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v10.0.12>`_ or use the wget command. Unpack the
+<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v10.1.0>`_ or use the wget command. Unpack the
 tar file.
 
 .. code-block:: console
 
     cd ../
     mkdir crtm && cd crtm
-    wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v10.0.12/fix.tar.gz
+    wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v10.1.0/fix.tar.gz
     tar -xzf fix.tar.gz
 
 .. note::

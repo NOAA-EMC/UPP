@@ -93,8 +93,7 @@ with examples in the sections below.
     
     The variable is declared in one of these modules defining files depending on its dimension.
 
-5.  Read model output if necessary: INITPOST_GFS_NETCDF_PARA.f (current operational netcdf output with GFS V16),
-    INITPOST_NETCDF.f (LAM FV3 netcdf)
+5.  Read model output if necessary: INITPOST_NETCDF.f
 
     Check first to see if all variables needed to derive your new variable are already available in UPP. If not,
     you will need to use one of these files for reading the model output files. The appropriate one will need to
@@ -254,8 +253,8 @@ with examples in the sections below.
 
      tg3(:,:)
 
-5. Read the field from the GFS model output file by adding the new variable into INITPOST_GFS_NETCDF_PARA.f.
-   This file is used for reading the GFS model FV3 output files in netcdf format.
+5. Read the field from the GFS model output file by adding the new variable into INITPOST_NETCDF.f.
+   This file is used for reading the GFS model FV3 output files in parallel netcdf format.
 
    User procedure
     - Add to top section of the routine in ‘use vrbls2d’ to initiate the new variable as:

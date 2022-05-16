@@ -44,7 +44,7 @@ user-defined options. It should not be necessary to edit this. For description p
 
 #. Name of the FV3 (pressure level) output file to be post-processed.
 
-#. Format of FV3 model output (netcdf, netcdfpara).
+#. Format of FV3 model output (netcdfpara).
 
 #. Format of UPP output (GRIB2)
 
