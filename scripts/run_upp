@@ -23,7 +23,7 @@ set -x
 #               Updates for cmake build, Change exec name             
 #
 # May 2022: Modified to remove binarynemsiompiio; 
-#           Added netcdfpara;
+#           Added netcdfpara; Removed netcdf;
 #           Changed UPP directory name and path             
 #
 #--------------------------------------------------------
@@ -48,8 +48,8 @@ set -x
 #                 LAM (Limited Area Model): postxconfig-NT-fv3lam.txt
 # model         : What model is used? GFS or LAM (Limited Area Model)
 # inFormat      : Format of the model data 
-#                 GFS - "netcdf" or "netcdfpara"
-#                 LAM - "netcdf" or "netcdfpara"
+#                 GFS - "netcdfpara"
+#                 LAM - "netcdfpara"
 # outFormat     : Format of output from UPP 
 #                 grib2 
 # startdate     : Forecast start date (YYYYMMDDHH)
@@ -77,7 +77,7 @@ export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-GFS.txt
 export model="GFS"
 
 # Set input format from model and ouput format from UPP
-export inFormat="netcdf"
+export inFormat="netcdfpara"
 export outFormat="grib2"
 
 # Set date/time information
@@ -136,17 +136,17 @@ else
 fi
 
 if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
+   if [ ${inFormat} == "netcdfpara" ]; then
       echo "Check: You are using 'model' 'inFormat'!"
    else
-      echo "ERROR: 'inFormat' must be 'netcdf' or 'netcdfpara' for GFS model output. Exiting... "
+      echo "ERROR: 'inFormat' must be 'netcdfpara' for GFS model output. Exiting... "
       exit 1
    fi
-elif [[ ${model} == "LAM" ]]; then
-   if [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
+elif [ ${model} == "LAM" ]; then
+   if [ ${inFormat} == "netcdfpara" ]; then
       echo "Check: You are using 'model' 'inFormat'!"
    else
-      echo "ERROR: 'inFormat' must be 'netcdf' or 'netcdfpara' for LAM  model output. Exiting... "
+      echo "ERROR: 'inFormat' must be 'netcdfpara' for LAM  model output. Exiting... "
       exit 1
    fi
 fi
@@ -290,12 +290,12 @@ echo 'YY' $YY
 
 # Create model file name (inFileName)
 if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
-      inFileName=${modelDataPath}/atmf${fhour}.nc
-      flxFileName=${modelDataPath}/sfcf${fhour}.nc
+   if [ ${inFormat} == "netcdfpara" ]; then
+      inFileName=${modelDataPath}/gfs.t00z.atmf${fhour}.nc
+      flxFileName=${modelDataPath}/gfs.t00z.sfcf${fhour}.nc
    fi
 elif [ ${model} == "LAM" ]; then
-   if [[ ${inFormat} == "netcdf" || ${inFormat} == "netcdfpara" ]]; then
+   if [ ${inFormat} == "netcdfpara" ]; then
       inFileName=${modelDataPath}/dynf${fhour}.nc
       flxFileName=${modelDataPath}/phyf${fhour}.nc
    fi
