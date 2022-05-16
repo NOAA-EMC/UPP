@@ -64,7 +64,7 @@ Run Script Overview
 
        | **TOP_DIR**: Top level directory for building and running UPP
        | **DOMAINPATH**: Working directory for this run
-       | **UNIPOST_HOME**: Location of the **UPP** directory
+       | **UPP_HOME**: Location of the **UPP** directory
        | **POSTEXEC**: Location of the **UPP** executable
        | **modelDataPath**: Location of the model output data files to be processed
        | **txtCntrlFile**: Name and location of the flat text file that lists desired fields for
@@ -82,7 +82,7 @@ Run Script Overview
 
 3. Specify the format for the input model files and output UPP files
 
-       | **inFormat**: Format of the model data ("binarynemsiompiio": GFS only or "netcdf": GFS/LAM)
+       | **inFormat**: Format of the model data ("netcdfpara")
        | **outFormat**: Format of output from UPP ("grib2")
 
 4. Specify the forecast cycles to be post-processed
