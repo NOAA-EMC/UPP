@@ -131,11 +131,14 @@
 
               UPDHEL(I,J)=UPDHEL(I,J)+(DVDX-DUDY)*WH(I,J,L)*DZ
 
+              IF (UPDHEL(I,J) < -9E10 .OR. UPDHEL(I,J) > 9E10) THEN
+                 UPDHEL(I,J) = spval
+              ENDIF
+
             ENDIF
           ENDDO l_loop
         ENDDO
       ENDDO
-
 !
 !      print*,'jsta_m, jend_m in calupdhel= ',jsta_m,jend_m
 !     
