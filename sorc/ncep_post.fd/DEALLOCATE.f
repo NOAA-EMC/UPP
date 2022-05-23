@@ -532,7 +532,9 @@
         deallocate(dustallcb)
         deallocate(ssallcb)
         deallocate(dustpm)
+	deallocate(dustpm10)
         deallocate(sspm)
+	deallocate(maod)
       endif
 !
 ! HWRF RRTMG output 
