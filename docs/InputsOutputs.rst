@@ -14,9 +14,23 @@ Input files
 ===========
 
 The UPP requires the following input files:
+ - The model forecast file
  - The itag namelist file
  - The GRIB2 control file
  - Additional data files (e.g. lookup tables, coefficient files for satellite)
+
+--------------
+Model Forecast
+--------------
+
+The UPP ingests FV3 write component files in parallel netCDF format.
+
+The table below is a list of the unified model variables available from the FV3 model core. Whether a
+specific variable is able to be read by UPP relies on dependencies such as physics options and model.
+This table does not include variables that are diagnosed when running the UPP.
+
+UFS Unified Model Variables
+ - :doc:`UFS_unified_variables_table`
 
 ----
 ITAG
@@ -28,9 +42,9 @@ generated automatically within the UFS application workflow or stand-alone run s
 user-defined options. It should not be necessary to edit this. For description purposes, the namelist
 &model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3:
 
-#. Name of the FV3 (pressure level) output file to be posted.
+#. Name of the FV3 (pressure level) output file to be post-processed.
 
-#. Format of FV3 model output (netcdf, binarynemsiompiio).
+#. Format of FV3 model output (netcdfpara).
 
 #. Format of UPP output (GRIB2)
 
@@ -54,22 +68,12 @@ which fields and levels to process.
 A default control file, :bolditalic:`postxconfig-NT.txt`, is provided and read by the UPP. For users
 wishing to customize the control file to add or remove fields and/or levels, they may do so by
 modifying the :bolditalic:`postcntrl.xml` and then remaking the text file as described in the later section
-:ref:`Creating the Flat Text File`.
+:ref:`create_txt_file`.
 
 .. Note::
    The control file names :bolditalic:`postxconfig-NT.txt` and :bolditalic:`postcntrl.xml` are generic
-   names and are different depending on the application used.
-
-The tables below list all fields that are included in the control files for the various UFS
-applications. All fields in the tables may not be present in your output depending on whether the field
-dependencies are available in your model output.
-
-UFS MRW Table (GFS model)
- - :doc:`MRW_GFSPRS_table`
-
-UFS SRW Tables (LAM - Limited Area Model)
- - :doc:`SRW_BGDAWP_table`
- - :doc:`SRW_BGRD3D_table`
+   names and are different depending on the application used. Control files for various operational
+   models are located in the :bolditalic:`UPP/parm` directory.
 
 Controlling which variables the UPP outputs
 -------------------------------------------
@@ -108,8 +112,10 @@ levels are currently available for output:
 - For PBL layer averages, the levels correspond to 6 layers with a thickness of 30 hPa each.
 - For flight level, the levels are 30 m, 50 m, 80 m, 100 m, 305 m, 457 m, 610 m, 914 m, 1524 m, 1829 m,
   2134 m, 2743 m, 3658 m, 4572 m, 6000 m, 7010 m.
-- For AGL radar reflectivity, the levels are 4000 and 1000 m (see Appendix A for details).
+- For AGL radar reflectivity, the levels are 4000 and 1000 m.
 - For surface or shelter-level output, the <level> is not necessary.
+
+.. _create_txt_file:
 
 Creating the Flat Text File
 ---------------------------
@@ -131,14 +137,15 @@ run-time failures with UPP. To run the validation:
     xmllint --noout --schema EMC_POST_CTRL_Schema.xsd postcntrl.xml
     xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds.xml
 
-Once the xmls are validated, the user will need to generate the flat file. The makefile will call the
-perl program :bolditalic:`parm/POSTXMLPreprocessor.pl` to regenerate any post flat files
-:bolditalic:`postxconfig-NT.txt` where modifications were made since it was last run. Generate the flat
+Once the xmls are validated, the user will need to generate the flat file. The below command will run the
+perl program :bolditalic:`parm/POSTXMLPreprocessor.pl` to generate the post flat file. Generate the flat
 file:
 
 .. code-block:: console
 
-    make
+    /usr/bin/perl POSTXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
+
+where *your_user_defined_xml* is your modified xml and *your_user_defined_flat* is the output text file.
 
 ============
 Output Files
