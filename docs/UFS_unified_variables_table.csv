@@ -23,7 +23,7 @@ Min hourly 0-3km updraft helicity,uhmin03,up_heli_min03,2d,dyn,regional FV3
 Max 0-1km relative vorticity max,maxvort01,rel_vort_max01,2d,dyn,regional FV3
 Max 0-2km relative vorticity max,maxvort02,rel_vort_max,2d,dyn,regional FV3
 Max hybrid level 1 relative vorticity max,maxvorthy1,rel_vort_maxhy1,2d,dyn,regional FV3
-Surface height,hgtsfc,zint(:,:,LM+1),2d,dyn,
+Surface height,hgtsfc,"zint(:,:,LM+1)",2d,dyn,
 Reflectivity,refl_10cm,REF_10CM,3d,phy,
 Turbulence kinetic energy,qke,q2,3d,phy,
 Ice-friendly aerosol number concentration,nifa,qqnwfa,3d,phy,
