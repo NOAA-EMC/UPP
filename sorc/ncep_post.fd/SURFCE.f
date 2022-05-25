@@ -825,7 +825,7 @@
             jj = jsta+j-1
             do i=1,iend-ista+1
             ii = ista+i-1
-              datapd(i,j,cfld) = PSFCAVG(i,jj)
+              datapd(i,j,cfld) = PSFCAVG(ii,jj)
             enddo
           enddo
         endif
@@ -5678,7 +5678,7 @@
 ! dong add missing value
         GRID1 = spval
          IF(MODELNAME /= 'FV3R') &
-         CALL CALTAU(EGRID1(ista,jsta),EGRID2(ista,jsta))
+         CALL CALTAU(EGRID1(ista:iend,jsta:jend),EGRID2(ista:iend,jsta:jend))
 !     
 !        SURFACE U COMPONENT WIND STRESS.
 ! dong for FV3, directly use model output

@@ -5211,7 +5211,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
-            DO I = 1,IM
+            DO I = ISTA,IEND
                IF(BCEM(I,J,1)<SPVAL) GRID1(I,J) = BCEM(I,J,1)
                DO K=2,NBIN_BC
                IF(BCEM(I,J,K)<SPVAL)&
@@ -5222,7 +5222,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(667))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 
@@ -5249,14 +5249,14 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
-            DO I = 1,IM
+            DO I = ISTA,IEND
                 GRID1(I,J) = MAOD(I,J)
             END DO
          END DO
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(699))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
@@ -5300,14 +5300,14 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(685)>0 ) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
-            DO I = 1,IM
+            DO I = ISTA,IEND
                GRID1(I,J) = DUSTPM10(I,J)   !ug/m3 
             END DO
          END DO
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(685))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
       
