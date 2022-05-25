@@ -40,6 +40,7 @@
 !   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
 !   15-xx-xx  S. Moorthi - reduced memory version
 !   15-11-03  S Moorthi - fix a bug in "RELATIVE HUMIDITY ON MDLSURFACES" sectio logic
+!   2022-05-25 | Y Mao           | Add WAFS icing/turbulence on pressure levels
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:

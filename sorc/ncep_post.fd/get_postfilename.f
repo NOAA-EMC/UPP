@@ -5,6 +5,7 @@
 !
 !  Program log:
 !     11-02        Jun Wang   generate code from subroutine gribit
+!     2022-05-25 | Y Mao           | For WAFS, output multi paramsets to different files
 !
       use ctlblk_mod,  only : ifhr, me, modelname, ifmin
       use rqstfld_mod, only : ritehd, datset, iget

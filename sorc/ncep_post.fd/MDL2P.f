@@ -25,6 +25,7 @@
 !   12-01-11  S LU     - ADD GOCART AEROSOLS
 !   13-08-01  S Moorthi - some optimization
 !   14-02-26  S Moorthi - threading datapd assignment
+!   2022-05-25 | Y Mao           | Add WAFS icing/turbulence
 !
 ! USAGE:    CALL MDL2P
 !   INPUT ARGUMENT LIST:
@@ -2112,11 +2113,7 @@
                  GRID1(I,J) = ICINGFSL(I,J)
                ENDDO
              ENDDO
-            ID(1:25)=0
-            ID(02)=140    ! Parameter Table 140
-            if(grib == 'grib1')then
-              CALL GRIBIT(IGET(481),LP,GRID1,IM,JM) 
-            elseif(grib == 'grib2') then
+            if(grib == 'grib2') then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(481))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(481))
@@ -2139,11 +2136,7 @@
                  GRID1(I,J) = ICINGVSL(I,J)
                ENDDO
              ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               ID(02)=129       ! Parameter Table 129
-               CALL GRIBIT(IGET(479),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
+             if(grib == 'grib2') then
               cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(479))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(479))
@@ -2166,10 +2159,7 @@
                  GRID1(I,J) = GTGSL(I,J)
                ENDDO
              ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(476),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
+             if(grib == 'grib2') then
               cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(476))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(476))
@@ -2192,10 +2182,7 @@
                  GRID1(I,J) = CATSL(I,J)
                ENDDO
              ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(477),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
+             if(grib == 'grib2') then
               cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(477))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(477))
@@ -2218,10 +2205,7 @@
                  GRID1(I,J) = MWTSL(I,J)
                ENDDO
              ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(478),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
+             if(grib == 'grib2') then
               cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(478))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(478))

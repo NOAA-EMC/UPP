@@ -10,6 +10,7 @@
 !     
 ! PROGRAM HISTORY LOG:
 !   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
+!   2022-05-25 | Y Mao           | Remove interpolation of VVEL/ABSV/CLWMR
 !
 ! USAGE:    CALL MDL2STD_P
 !   INPUT ARGUMENT LIST:
