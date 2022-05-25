@@ -30,6 +30,9 @@ echo " Jun 21 - Mao  - Instead of err_chk, catch err and print out"
 echo "                 WAFS failure warnings to avoid job crashing"
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
 echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition."
+echo " May 22 - Mao  - Set KPO for WAFS on different pressure levels"
+echo " May 22 - Mao  - Three diff WAFS control files for anl, F000-F048, F054-F120"
+echo " May 22 - Mao  - Add processing two paramsets for WAFS"
 echo "-----------------------------------------------------"
 #####################################################################
 
