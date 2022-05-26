@@ -1,4 +1,4 @@
 var TRPAUS_8f =
 [
-    [ "trpaus", "TRPAUS_8f.html#ab40f57a6017323fb979c9ffdee30ff65", null ]
+    [ "TRPAUS", "TRPAUS_8f.html#a7ea345631e81ad27735501b26734523b", null ]
 ];

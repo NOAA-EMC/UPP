@@ -1,5 +1,5 @@
 var GET__BITS_8f =
 [
-    [ "fndbit", "GET__BITS_8f.html#abdd1034ed0952821ec648b176e59cc02", null ],
-    [ "get_bits", "GET__BITS_8f.html#ad4c588d9bac048462fdd37057d9ce2c3", null ]
+    [ "FNDBIT", "GET__BITS_8f.html#ac7e1b0c61d46f5c328bbe1bbacd2c09c", null ],
+    [ "GET_BITS", "GET__BITS_8f.html#a3772dbb699cbf839367a435b98bdb9f5", null ]
 ];

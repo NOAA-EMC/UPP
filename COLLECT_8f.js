@@ -1,4 +1,4 @@
 var COLLECT_8f =
 [
-    [ "collect", "COLLECT_8f.html#a19ad5be382b226a985f74f4f8ebb2980", null ]
+    [ "COLLECT", "COLLECT_8f.html#a7acd4a580218cb8e3a4cc01e4278c25b", null ]
 ];

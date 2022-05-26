@@ -1,4 +1,4 @@
 var MPI__LAST_8f =
 [
-    [ "mpi_last", "MPI__LAST_8f.html#a8ffe13037d5710319d083c0deaa48472", null ]
+    [ "MPI_LAST", "MPI__LAST_8f.html#aa891c55ce722965c61c8fb68ecc19699", null ]
 ];
