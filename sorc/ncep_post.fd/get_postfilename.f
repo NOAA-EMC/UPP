@@ -5,6 +5,7 @@
 !
 !  Program log:
 !     11-02        Jun Wang   generate code from subroutine gribit
+!     2022-05-25 | Y Mao           | For WAFS, output multi paramsets to different files
 !
       use ctlblk_mod,  only : ifhr, me, modelname, ifmin
       use rqstfld_mod, only : ritehd, datset, iget
@@ -80,6 +81,9 @@
               if(me==0)PRINT*,' FNAME FROM IPVOUT=',trim(FNAME)
           ELSE IF(PGBOUT(1:4).NE.BLANK)THEN
             FNAME = PGBOUT
+            if (IGET(464) >0 ) then
+               FNAME=trim(FNAME) // DATSET(1:KDAT)
+            endif
             if(me==0)PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
           ELSE
               NDIG=MAX(LOG10(IHR+0.5)+1.,2.)

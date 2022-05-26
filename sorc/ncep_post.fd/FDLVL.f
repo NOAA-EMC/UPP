@@ -839,6 +839,7 @@
 !                     ALLOW ARRAY OF MASS INPUT TO INTERPOLATE MULTIPLE FIELDS 
 !                     WITH THE SAME LEVELS AT ONE TIME
 !                     DUST=>AERFD CAN BE PROCESSED WHEN NIN=NBIN_DU
+!   2022-05-25 | Y Mao           | Remove interpolation of w/omega/Hydrometeor fields on FD levels
 !     
 ! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
 !   INPUT ARGUMENT LIST:
@@ -1088,9 +1089,7 @@
                       endif
                    END IF       ! endif loop for deducing T and Q differently for GFS  
 
-                   if(QTYPE(N) == "W") QFD(I,J,IFD,N)=QIN(I,J,LM,N) ! W OMGA
                    if(QTYPE(N) == "K") QFD(I,J,IFD,N)= max(0.0,0.5*(QIN(I,J,LM,N)+QIN(I,J,LM-1,N))) ! TKE
-                   if(QTYPE(N) == "C") QFD(I,J,IFD,N)=0.0 ! Hydrometeor fields
                  END DO
 
               ENDIF ! Underground

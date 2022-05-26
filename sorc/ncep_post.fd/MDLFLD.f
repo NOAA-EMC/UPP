@@ -40,6 +40,7 @@
 !   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
 !   15-xx-xx  S. Moorthi - reduced memory version
 !   15-11-03  S Moorthi - fix a bug in "RELATIVE HUMIDITY ON MDLSURFACES" sectio logic
+!   2022-05-25 | Y Mao           | Add WAFS icing/turbulence on pressure levels
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -870,10 +871,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+           (IGET(479).GT.0).OR.(IGET(481).GT.0).OR.      &
            (IGET(774).GT.0).OR.(IGET(747).GT.0).OR.      &
            (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
+           (IGET(470).GT.0).OR.(IGET(476).GT.0).OR.      &
            (IGET(629).GT.0).OR.(IGET(630).GT.0).OR.      &
-           (IGET(470).GT.0).OR.      &
            (IGET(909).GT.0).OR.(IGET(737).GT.0) ) THEN
 
       DO 190 L=1,LM
@@ -1598,7 +1600,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           RELATIVE HUMIDITY ON MDL SURFACES.
             item = -1
             IF (IGET(006) > 0) item = LVLS(L,IGET(006))
-            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0) THEN
+            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0 .OR. &
+                IGET(479) > 0 .OR. IGET(481) > 0 ) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3624,7 +3627,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
             IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0)   &
             .OR. (IGET(245).GT.0)  .or. IGET(464)>0 .or. IGET(467)>0  &
-            .or. IGET(470)>0 ) THEN
+            .or. IGET(470)>0 .or. IGET(476)>0 ) THEN
 ! should only compute pblri if pblh from model is not computed based on Ri 
 ! post does not yet read pbl scheme used by model.  Will do this soon
 ! For now, compute PBLRI for non GFS models.
@@ -3855,7 +3858,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
 !	    
 ! CALCULATE Gust based on Ri PBL
-      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0) THEN
+      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
         IF(MODELNAME.EQ.'RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
@@ -4017,7 +4020,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0)THEN
+      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0 .or. IGET(476)>0)THEN
         i=IM/2
         j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
@@ -4103,7 +4106,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       end IF
 
 ! COMPUTE NCAR FIP
-      IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
+      IF(IGET(450)>0 .or. IGET(480)>0 .or. IGET(479)>0 .or. IGET(481)>0)THEN
 
 !       cape and cin
         ITYPE  = 1

@@ -10,6 +10,7 @@
 !     
 ! PROGRAM HISTORY LOG:
 !   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
+!   2022-05-25 | Y Mao           | Remove interpolation of VVEL/ABSV/CLWMR
 !
 ! USAGE:    CALL MDL2STD_P
 !   INPUT ARGUMENT LIST:
@@ -86,17 +87,13 @@
 !     520 UGRD
 !     521 VGRD
 !     522 RH
-!     523 VVEL
-!     524 ABSV
-!     525 CLWMR=QQW+QQR+QQS+QQG+QQI
       IF(IGET(450)>0 .or. IGET(480)>0 .or. &
          IGET(464)>0 .or. IGET(465)>0 .or. IGET(466)>0 .or. &
          IGET(518)>0 .or. IGET(519)>0 .or. IGET(520)>0 .or. &
-         IGET(521)>0 .or. IGET(522)>0 .or. IGET(523)>0 .or. &
-         IGET(524)>0 .or. IGET(525)>0) then
+         IGET(521)>0 .or. IGET(522)>0) then
 
 !        STEP 1 -- U V (POSSIBLE FOR ABSV) INTERPLOCATION
-         IF(IGET(520)>0 .or. IGET(521)>0 .or. IGET(524) > 0 ) THEN
+         IF(IGET(520)>0 .or. IGET(521)>0 ) THEN
 !           U/V are always paired, use any for HTFDCTL          
             iID=520
             N = IAVBLFLD(IGET(iID))
@@ -164,30 +161,6 @@
                      enddo
                   endif
                ENDIF
-               ! ABSV
-               IF (LVLS(IFD,IGET(524)) > 0) THEN
-                  EGRID1=VAR3D1(1:IM,JSTA_2L:JEND_2U,IFD)
-                  EGRID2=VAR3D2(1:IM,JSTA_2L:JEND_2U,IFD)
-                  call CALVOR(EGRID1,EGRID2,EGRID3)
-!$omp parallel do private(i,j)
-                  DO J=JSTA,JEND
-                  DO I=1,IM
-                     GRID1(I,J)=EGRID3(I,J)
-                  ENDDO
-                  ENDDO
-                  if(grib=='grib2') then
-                     cfld=cfld+1
-                     fld_info(cfld)%ifld=IAVBLFLD(IGET(524))
-                     fld_info(cfld)%lvl=LVLSXML(IFD,IGET(524))
-!$omp parallel do private(i,j,jj)
-                     do j=1,jend-jsta+1
-                        jj = jsta+j-1
-                        do i=1,im
-                           datapd(i,j,cfld) = GRID1(i,jj)
-                        enddo
-                     enddo
-                  endif
-               ENDIF
             ENDDO
 
             deallocate(VAR3D1)
@@ -242,22 +215,6 @@
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=T(1:IM,JSTA:JEND,1:LM)
             QTYPE(nFDS)="T"
          end if
-         IF(IGET(523) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 523
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=OMGA(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="W"
-         end if
-         IF(IGET(525) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 525
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQR(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQS(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQG(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQI(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="C"
-         end if
 
 !        FOR WAFS, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, USE ANY
          iID=IDS(1)
@@ -295,20 +252,6 @@
                      if(QFD(I,J,IFD,N) < SPVAL) then
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                         QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
-                     endif
-                  ENDDO
-                  ENDDO
-               ENDDO
-            endif
-
-
-            if(iID==525) then
-               N1=N
-               DO IFD = 1,NFDCTL
-                  DO J=JSTA,JEND
-                  DO I=1,IM
-                     if(QFD(I,J,IFD,N) < SPVAL) then
-                        QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                      endif
                   ENDDO
                   ENDDO
@@ -523,7 +466,7 @@
 
          ! Relabel the pressure level to reference levels
 !         IDS = 0
-         IDS = (/ 450,480,464,465,466,518,519,520,521,522,523,524,525,(0,I=14,50) /)
+         IDS = (/ 450,480,464,465,466,518,519,520,521,522,(0,I=11,50) /)
          do i = 1, NFDMAX
             iID=IDS(i)
             if(iID == 0) exit
