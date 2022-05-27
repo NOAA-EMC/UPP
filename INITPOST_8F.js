@@ -1,4 +1,4 @@
 var INITPOST_8F =
 [
-    [ "initpost", "INITPOST_8F.html#ade20f4d822e605984beda816c7c7eb46", null ]
+    [ "INITPOST", "INITPOST_8F.html#a5529d1a57140f08faed3a6d3c8e6fa6c", null ]
 ];

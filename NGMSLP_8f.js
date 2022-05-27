@@ -1,4 +1,4 @@
 var NGMSLP_8f =
 [
-    [ "ngmslp", "NGMSLP_8f.html#a428e94a8184f28c14d9936ac04781115", null ]
+    [ "NGMSLP", "NGMSLP_8f.html#a3bbc3c4c1fd35d05057a91db94588c85", null ]
 ];
