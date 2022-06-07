@@ -59,12 +59,18 @@
 !!     MACHINE : IBM RS/6000 SP
 !!
      subroutine para_range2(im,jm,nx,ny,nrank,ista,iend,jsta,jend)
+
+      implicit none
+      integer,intent(in)  ::  im,jm,nx,ny,nrank
+      integer,intent(out) ::  ista,iend,jsta,jend
+      integer             ::  ix,jx
+
          jx=nrank/nx
          ix=nrank-(jx*nx)
            call para_range(1,im,nx,ix,ista,iend)
            call para_range(1,jm,ny,jx,jsta,jend)
-            print 101,n,ix,jx,ista,iend,jsta,jend
- 101   format(16i8)
+!            print 101,n,ix,jx,ista,iend,jsta,jend
+! 101   format(16i8)
           return
           end
 
