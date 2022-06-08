@@ -55,7 +55,7 @@
 
      ij=0
      do j=1,JM
-        do i=1,IM             
+        do i=1,IM
            ij=ij+1
            GRID1(i,j)=ibufrecv(ij)
         enddo
