@@ -57,15 +57,17 @@
 !
 ! 2021-05  Wen Meng  -Add checking for undfined points invloved in 
 !                     computation.
+! 2021-10-31 Jesse Meng - 2D DECOMPOSITION
 !------------------------------------------------------------------
     use params_mod, only: h1, d608, rd
-    use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, spval
+    use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, spval, &
+                          ista, iend,     ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     implicit none
 !
 
-      real,dimension(IM,jsta_2l:jend_2u),intent(in)    :: QV,QC,QR,QI,QS,TT,PP
-      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: VIS
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in)    :: QV,QC,QR,QI,QS,TT,PP
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: VIS
  
       CHARACTER METH*1
       real CELKEL,TICE,COEFLC,COEFLP,COEFFC,COEFFP,EXPONLC,      &
@@ -90,7 +92,7 @@
       RHOWAT=1000.
 !
       DO J=JSTA,JEND
-      DO I=1,IM
+      DO I=ISTA,IEND
         VIS(I,J)=SPVAL
 !       IF(IICE==0)THEN
 !         QPRC=QR

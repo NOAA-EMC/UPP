@@ -15,12 +15,13 @@
 !> 1998-06-15 | T Black      | Convesion from 1-D to 2-D
 !> 2000-01-04 | Jim Tuccillo | MPI Version            
 !> 2002-04-24 | Mike Baldwin | WRF Version      
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-24
       SUBROUTINE CALPOT(P1D,T1D,THETA)
 
 !     
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: jsta, jend, spval, im,  ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !     
@@ -29,8 +30,8 @@
 !
 !     DECLARE VARIABLES.
 !     
-      real,dimension(IM,jsta:jend),intent(in)    :: P1D,T1D
-      real,dimension(IM,jsta:jend),intent(inout) :: THETA
+      real,dimension(ista:iend,jsta:jend),intent(in)    :: P1D,T1D
+      real,dimension(ista:iend,jsta:jend),intent(inout) :: THETA
 
       integer I,J
 !     
@@ -41,7 +42,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(T1D(I,J) < SPVAL) THEN
 !           IF(ABS(P1D(I,J)) > 1.0) THEN
             IF(P1D(I,J) > 1.0) THEN

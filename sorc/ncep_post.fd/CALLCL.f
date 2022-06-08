@@ -25,6 +25,7 @@
 !> 2002-04-24 | Mike Baldwin | WRF Version            
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" Statement
 !> 2021-07-28 | W Meng       | Restriction compuatation from undefined grids
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1993-03-15
       SUBROUTINE CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
@@ -35,7 +36,8 @@
       use vrbls2d, only: fis
       use masks, only: lmh
       use params_mod, only: eps, oneps, d01, h1m12, gi, d00
-      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im
+      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im, &
+                            ista, iend, ista_m, iend_m
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -44,9 +46,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,jsta:jend), intent(in)    :: P1D,T1D,Q1D
-      REAL,dimension(IM,jsta:jend), intent(inout) :: PLCL,ZLCL
-      REAL TLCL(IM,jsta:jend)
+      REAL,dimension(ista:iend,jsta:jend), intent(in)    :: P1D,T1D,Q1D
+      REAL,dimension(ista:iend,jsta:jend), intent(inout) :: PLCL,ZLCL
+      REAL TLCL(ista:iend,jsta:jend)
       integer I,J,L,LLMH
       real DLPLCL,ZSFC,DZ,DALP,ALPLCL,RMX,EVP,ARG,RKAPA
 !     
@@ -57,7 +59,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           PLCL(I,J) = SPVAL
           TLCL(I,J) = SPVAL
           ZLCL(I,J) = SPVAL
@@ -69,8 +71,7 @@
 ! Bo Cui 10/30/2019, remove "GOTO" statement
 
       DO 30 J=JSTA_M,JEND_M
-      DO 30 I=2,IM-1
-!     DO 30 I=1,IM
+      DO 30 I=ISTA_M,IEND_M
       IF(P1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
       EVP       = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
       RMX       = EPS*EVP/(P1D(I,J)-EVP)

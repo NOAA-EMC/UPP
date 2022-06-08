@@ -21,6 +21,7 @@
 !> 2005-02-23 | H Chuang     | Compute stress for NMM on wind points
 !> 2005-07-07 | Binbin Zhou  | Add RSM stress for A Grid     
 !> 2021-07-26 | W Meng       | Restrict computation from undefined grids
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1993-09-01
 
@@ -33,7 +34,7 @@
       use masks,        only: lmh
       use params_mod,   only:  d00, d50, h1, d608, rd, d25
       use ctlblk_mod,   only: jsta_2l, jend_2u, lm, jsta, jend, spval, jsta_m,&
-                            jm, im, jend_m
+                            jm, im, jend_m, ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
 
       implicit none
@@ -41,9 +42,9 @@
 !     DECLARE VARIABLES.
       INTEGER, dimension(4)  :: KK(4)
       INTEGER, dimension(jm) :: ive, ivw
-      REAL, dimension(im,jsta:jend), intent(inout) :: TAUX, TAUY
+      REAL, dimension(ista:iend,jsta:jend), intent(inout) :: TAUX, TAUY
       REAL, ALLOCATABLE :: EL(:,:,:)
-      REAL, dimension(im,jsta:jend) ::  EGRIDU,EGRIDV,EGRID4,EGRID5, EL0
+      REAL, dimension(ista:iend,jsta:jend) ::  EGRIDU,EGRIDV,EGRID4,EGRID5, EL0
       REAL UZ0V,VZ0V
       CHARACTER*1 AGRID
       integer I,J,LMHK,IE,IW,ii,jj
@@ -53,7 +54,7 @@
 !********************************************************************
 !     START CALTAU HERE.
 !    
-      ALLOCATE (EL(IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE (EL(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
 !
 !     COMPUTE MASTER LENGTH SCALE.
 !
@@ -63,7 +64,7 @@
 !     INITIALIZE OUTPUT AND WORK ARRAY TO ZERO.
 !     
       DO J=JSTA,JEND
-      DO I=1,IM
+      DO I=ISTA,IEND
         EGRIDU(I,J) = D00
         EGRIDV(I,J) = D00
         TAUX(I,J)   = SPVAL
@@ -80,7 +81,7 @@
        CALL MIXLEN(EL0,EL)
 
        DO J=JSTA,JEND
-       DO I=1,IM
+       DO I=ISTA,IEND
 !
         LMHK = NINT(LMH(I,J))
         IF(EL(I,J,LMHK-1)<spval.and.Z0(I,J)<spval.and. &
@@ -138,7 +139,7 @@
        ENDDO
  
        DO J=JSTA_M,JEND_M
-       DO I=2,IM-1
+       DO I=ISTA_M,IEND_M
 !
         LMHK = NINT(LMH(I,J)) 
         IE=I+IVE(J)
@@ -188,7 +189,7 @@
 ! PUT TAUX AND TAUY ON MASS POINTS      
        call exch(VH(1,jsta_2l,LM))
        DO J=JSTA_M,JEND_M
-       DO I=2,IM-1
+       DO I=ISTA_M,IEND_M
 !
         LMHK = NINT(LMH(I,J))
 !

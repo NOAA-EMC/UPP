@@ -40,6 +40,7 @@
 !> 1998-12-22 | Mike Baldwin | Back out RH over ice
 !> 2000-01-04 | Jim Tuccillo | MPI Version
 !> 2002-04-24 | Mike Baldwin | WRF Version
+!> 2021-09-30 | JESSE MENG   | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
@@ -51,7 +52,8 @@
       use masks,      only: lmh
       use params_mod, only: d00, d50, h1m12, pq0, a2, a3, a4, h1, d01, small
       use ctlblk_mod, only: jsta, jend, lm, jsta_2l, jend_2u, jsta_m2, jend_m2,&
-                            spval, im
+                            spval, im, &
+                            ista, iend, ista_2l, iend_2u, ista_m2, iend_m2, ista_m, iend_m
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -62,10 +64,10 @@
 !     
 !     DECLARE VARIABLES.
       LOGICAL GOT8510,GOT4710,GOT4796,GOT1847,GOT8498
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(out) :: QM8510,RH4710,RH8498, &
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(out) :: QM8510,RH4710,RH8498, &
                                                         RH4796,RH1847
-      REAL,dimension(im,jsta_2l:jend_2u) :: Z8510,Z4710,Z8498,Z4796,Z1847
-      real,dimension(im,jsta_2l:jend_2u) ::  Q1D, U1D, V1D, QCNVG
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: Z8510,Z4710,Z8498,Z4796,Z1847
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) ::  Q1D, U1D, V1D, QCNVG
 !
       integer I,J,L
       real P100,P85,P98,P96,P84,P47,P18,ALPM,DE,PM,TM,QM,     &
@@ -76,7 +78,7 @@
 !     INITIALIZE ARRAYS.
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
            QM8510(I,J) = D00
            RH4710(I,J) = D00
            RH8498(I,J) = D00
@@ -103,7 +105,7 @@
 !          COMPUTE MOISTURE CONVERGENCE
 !$omp parallel do private(i,j)
        DO J=JSTA_2L,JEND_2U
-         DO I=1,IM
+         DO I=ISTA_2L,IEND_2U
            Q1D(I,J) = Q(I,J,L)
            U1D(I,J) = UH(I,J,L)
            V1D(I,J) = VH(I,J,L)
@@ -112,7 +114,7 @@
        CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
 !          COMPUTE MOISTURE CONVERGENCE
       DO J=JSTA_M2,JEND_M2
-      DO I=2,IM-1
+      DO I=ISTA_M,IEND_M
 !
 !        SET TARGET PRESSURES.
          
@@ -186,7 +188,7 @@
       ENDDO
 !     
       DO J=JSTA_M2,JEND_M2
-      DO I=2,IM-1
+      DO I=ISTA_M,IEND_M
 !        NORMALIZE TO GET LAYER MEAN VALUES.
          IF (Z8510(I,J)>0) THEN
             QM8510(I,J) = QM8510(I,J)/Z8510(I,J)

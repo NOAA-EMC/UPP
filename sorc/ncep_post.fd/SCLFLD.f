@@ -20,6 +20,7 @@
 !> -----|------------|---------
 !> 1992-09-13 | Russ Treadon  | Initial
 !> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2021-09-29 | JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-09-13
       SUBROUTINE SCLFLD(FLD,SCALE,IMO,JMO)
@@ -27,7 +28,7 @@
 
 !
       use params_mod, only: small
-      use ctlblk_mod, only: jsta, jend, spval
+      use ctlblk_mod, only: jsta, jend, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -35,7 +36,7 @@
 !     
       integer,intent(in) :: IMO,JMO
       REAL,intent(in) ::  SCALE
-      REAL,dimension(imo,jmo),intent(inout) :: FLD
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: FLD
       integer I,J
 !     
 !     
@@ -46,7 +47,7 @@
 !     
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IMO
+      DO I=ISTA,IEND
         IF(ABS(FLD(I,J)-SPVAL)>SMALL) FLD(I,J)=SCALE*FLD(I,J)
       ENDDO
       ENDDO

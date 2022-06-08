@@ -26,7 +26,6 @@ list(APPEND LIB_SRC
     CALVESSEL.f
     CALVIS.f
     CALVIS_GSD.f
-    CALVOR.f
     CALWXT_BOURG.f
     CALWXT_DOMINANT.f
     CALWXT_EXPLICIT.f
@@ -46,7 +45,6 @@ list(APPEND LIB_SRC
     DEWPOINT.f
     ETCALC.f
     ETAMP_Q2F.f
-    EXCH2.f
     EXCH.f
     FDLVL.f
     FGAMMA.f
@@ -107,7 +105,6 @@ list(APPEND LIB_SRC
     SET_OUTFLDS.f
     SETUP_SERVERS.f
     SLP_new.f
-    SLP_NMM.f
     SMOOTH.f
     SNFRAC.f
     SNFRAC_GFS.f

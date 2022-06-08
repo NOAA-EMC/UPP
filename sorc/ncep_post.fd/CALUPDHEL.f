@@ -11,6 +11,7 @@
 !> 2011-01-11 | M Pyle   | converted to F90 for unified post
 !> 2011-04-05 | H Chuang | added B grid option
 !> 2020-11-06 | J Meng   | Use UPP_MATH Module
+!> 2021-10-31 | J Meng   | 2D DECOMPOSITION
 !>     
 !> @author M Pyle W/NP2 @date 2007-10-22
       SUBROUTINE CALUPDHEL(UPDHEL)
@@ -22,7 +23,8 @@
       use masks,        only: lmh, dx, dy
       use params_mod,   only: d00
       use ctlblk_mod,   only: lm, jsta_2l, jend_2u, jsta_m, jend_m,   &
-                              global, spval, im, jm
+                              global, spval, im, jm, &
+                              ista_2l, iend_2u, ista_m, iend_m
       use gridspec_mod, only: gridtype
       use upp_math,     only: DVDXDUDY, DDVDX, DDUDY
 
@@ -34,7 +36,7 @@
       REAL, PARAMETER:: HLOWER=2000., HUPPER=5000.
       REAL ZMIDLOC
       real :: r2dx, r2dy, dz, dcdx, dudy, dvdx
-      REAL :: HTSFC(IM,jsta_2l:jend_2u),UPDHEL(IM,jsta_2l:jend_2u)
+      REAL :: HTSFC(ista_2l:iend_2u,jsta_2l:jend_2u),UPDHEL(ista_2l:iend_2u,jsta_2l:jend_2u)
       integer :: l, j, i 
       INTEGER, dimension(jm) :: IHE,IHW
 !        INTEGER DXVAL,DYVAL,CENLAT,CENLON,TRUELAT1,TRUELAT2
@@ -47,16 +49,16 @@
 !                                          maxval(WH(:,:,20))
 
       DO L=1,LM
-        CALL EXCH(UH(1,jsta_2l,L))
+        CALL EXCH(UH(ista_2l,jsta_2l,L))
       END DO 
       IF (GRIDTYPE == 'B')THEN
         DO L=1,LM
-          CALL EXCH(VH(1,jsta_2l,L))
+          CALL EXCH(VH(ista_2l,jsta_2l,L))
         END DO
       END IF
 !$omp parallel do private(i,j)
       DO J=JSTA_2L,JEND_2U
-        DO I=1,IM
+        DO I=ISTA_2L,IEND_2U
           UPDHEL(I,J) = D00
         ENDDO
       ENDDO
@@ -73,13 +75,13 @@
 
 !$omp parallel do private(i,j)
       DO J=JSTA_M,JEND_M
-        DO I=1,IM
+        DO I=ISTA_M,IEND_M
           HTSFC(I,J) = ZINT(I,J,NINT(LMH(I,J))+1)
         ENDDO
       ENDDO
 
       DO J=JSTA_M,JEND_M
-        DO I=2,IM-1
+        DO I=ISTA_M,IEND_M
 
           IF (HTSFC(I,J) < spval) THEN
 

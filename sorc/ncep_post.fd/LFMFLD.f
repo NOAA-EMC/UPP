@@ -38,6 +38,7 @@
 !> 2002-04-24 | Mike Baldwin | WRF Version
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS Module
+!> 2021-10-14 | JESSE MENG   | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE LFMFLD(RH3310,RH6610,RH3366,PW3310)
@@ -47,7 +48,7 @@
       use vrbls3d, only: pint, alpint, zint, t, q, cwm
       use masks, only: lmh
       use params_mod, only: d00, d50, pq0, a2, a3, a4, h1, d01, gi
-      use ctlblk_mod, only: jsta, jend, modelname, spval, im
+      use ctlblk_mod, only: jsta, jend, modelname, spval, im, ista, iend
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
       use upp_physics, only: FPVSNEW
 
@@ -60,8 +61,8 @@
 !     DECLARE VARIABLES.
 !     
       REAL ALPM, DZ, ES, PM, PWSUM, QM, QS, TM, DP, RH
-      REAL,dimension(IM,jsta:jend),intent(inout) :: RH3310, RH6610, RH3366
-      REAL,dimension(IM,jsta:jend),intent(inout) :: PW3310
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: RH3310, RH6610, RH3366
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: PW3310
       real Z3310,Z6610,Z3366,P10,P33,P66
       integer I,J,L,LLMH
 !
@@ -72,7 +73,7 @@
 !     LOOP OVER HORIZONTAL GRID.
 !     
       DO 30 J=JSTA,JEND
-      DO 30 I=1,IM
+      DO 30 I=ISTA,IEND
 !     
 !        ZERO VARIABLES.
          RH3310(I,J) = D00

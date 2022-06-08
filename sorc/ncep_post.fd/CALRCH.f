@@ -18,6 +18,7 @@
 !> 2002-01-15 | Mike Baldwin | WRF Version
 !> 2005-02-25 | H Chuang     | Add computation for NMM E grid
 !> 2005-07-07 | Binbin Zhou  | Add RSM for A Grid  
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1993-10-11
       SUBROUTINE CALRCH(EL,RICHNO)
@@ -27,15 +28,16 @@
       use masks,      only: vtm
       use params_mod, only: h10e5, capa, d608,h1, epsq2, g, beta
       use ctlblk_mod, only: jsta, jend, spval, lm1, jsta_m, jend_m, im, &
-                            jsta_2l, jend_2u, lm
+                            jsta_2l, jend_2u, lm,                       &
+                            ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,intent(in)    ::  EL(IM,jsta_2l:jend_2u,LM)
-      REAL,intent(inout) ::  RICHNO(IM,jsta_2l:jend_2u,LM)
+      REAL,intent(in)    ::  EL(ista_2l:iend_2u,jsta_2l:jend_2u,LM)
+      REAL,intent(inout) ::  RICHNO(ista_2l:iend_2u,jsta_2l:jend_2u,LM)
 !
       REAL, ALLOCATABLE :: THV(:,:,:)
       integer I,J,L,IW,IE
@@ -48,13 +50,13 @@
 !*************************************************************************
 !     START CALRCH HERE.
 !     
-      ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
+      ALLOCATE ( THV(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM) )
 !     INITIALIZE ARRAYS.
 !     
 !$omp  parallel do
       DO L = 1,LM
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           RICHNO(I,J,L)=SPVAL
         ENDDO
         ENDDO
@@ -65,7 +67,7 @@
 !$omp  parallel do private(i,j,ape)
       DO L=LM,1,-1
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             APE        = (H10E5/PMID(I,J,L))**CAPA
             THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
           ENDDO
@@ -90,7 +92,7 @@
         end if  
          
         DO J=JSTA_M,JEND_M
-          DO I=2,IM-1
+          DO I=ISTA_M,IEND_M
 !
             IF(GRIDTYPE == 'A')THEN
               UHKL = UH(I,J,L)

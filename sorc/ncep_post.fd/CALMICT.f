@@ -30,6 +30,7 @@
 !> 2004-11-10 | Brad Ferrier | Removed cloud fraction algorithm
 !> 2004-11-17 | H Chuang     | WRF VERSION     
 !> 2014-03-11 | Brad Ferrier | Created new & old versions of this subroutine to process new & old versions of the microphysics
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Yi Jin W/NP2 @date 2001-08-14
       SUBROUTINE CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
@@ -37,7 +38,8 @@
 
 !
       use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608
-      use ctlblk_mod, only: jsta, jend, jsta_2l,jend_2u,im
+      use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u,im,             &
+                            ista, iend, ista_2l, iend_2u
       use cmassi_mod, only: t_ice, rqr_drmin, n0rmin, cn0r_dmrmin,      &
               mdrmin, rqr_drmax, cn0r_dmrmax, mdrmax, n0r0, xmrmin,     &
               xmrmax, massi, cn0r0, mdimin, xmimax, mdimax 
@@ -49,9 +51,9 @@
       REAL, PARAMETER :: Cice=1.634e13, Cwet=1./.189, Cboth=Cice/.224,   &
      &  NLI_min=1.E3, RFmax=45.259, RQmix=0.1E-3,NSI_max=250.E3
 !aligo
-      real,dimension(IM,jsta_2l:jend_2u),intent(in)    :: P1D,T1D,Q1D,C1D,FI1D,FR1D, &
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in)    :: P1D,T1D,Q1D,C1D,FI1D,FR1D, &
                                                           FS1D,CUREFL
-      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
                                                           DBZI1,DBZC1,NLICE1,NRAIN1
       
       integer I,J
@@ -67,7 +69,7 @@
 !
       Zmin=10.**(0.1*DBZmin)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           QW1(I,J)=0.
           QI1(I,J)=0.
           QR1(I,J)=0.
@@ -81,7 +83,7 @@
         ENDDO
       ENDDO
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           Ztot=0.             !--- Total radar reflectivity
           Zrain=0.            !--- Radar reflectivity from rain
           Zice=0.             !--- Radar reflectivity from ice
@@ -333,7 +335,8 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !>
 !> @author Yi Jin W/NP2 @date 2001-08-14
       use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608, oneps, nlimin
-      use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, im
+      use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, im,              &
+                            ista, iend, ista_2l, iend_2u
       use rhgrd_mod, only: rhgrd
       use cmassi_mod, only: t_ice, rqr_drmin, n0rmin, cn0r_dmrmin, mdrmin, &
               rqr_drmax,cn0r_dmrmax, mdrmax, n0r0, xmrmin, xmrmax,flarge2, &
@@ -344,9 +347,9 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
       INTEGER INDEXS, INDEXR
       REAL, PARAMETER :: Cice=1.634e13
 
-      real,dimension(IM,jsta_2l:jend_2u),intent(in)    :: P1D,T1D,Q1D,C1D,FI1D,FR1D, &
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in)    :: P1D,T1D,Q1D,C1D,FI1D,FR1D, &
                                                           FS1D,CUREFL
-      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
                                                           DBZI1,DBZC1,NLICE1,NRAIN1
 
       REAL N0r,Ztot,Zrain,Zice,Zconv,Zmin
@@ -361,7 +364,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !
       Zmin=10.**(0.1*DBZmin)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           QW1(I,J)=0.
           QI1(I,J)=0.
           QR1(I,J)=0.
@@ -375,7 +378,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
         ENDDO
       ENDDO
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           Zrain=0.            !--- Radar reflectivity from rain
           Zice=0.             !--- Radar reflectivity from ice
           Zconv=CUREFL(I,J)   !--- Radar reflectivity from convection

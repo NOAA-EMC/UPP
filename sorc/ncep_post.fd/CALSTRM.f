@@ -19,6 +19,7 @@
 !> 1998-06-08 | T Black      | Conversion from 1-D TO 2-D
 !> 2000-01-05 | Jim Tuccillo | MPI Version
 !> 2002-06-13 | Mike Baldwin | WRF Version
+!> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALSTRM(Z1D,STRM)
@@ -31,7 +32,7 @@
 !     
 !      use vrbls2d, only:
       use params_mod, only: g
-      use ctlblk_mod, only: jsta, jend, im
+      use ctlblk_mod, only: jsta, jend, im, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -40,8 +41,8 @@
 !     DECLARE VARIABLES.
 !     
 !      LOGICAL FIRST,OLDRD,RESTRT,RUN,SIGMA,STRD
-      REAL, dimension(im,jsta:jend), intent(in)    ::  Z1D
-      REAL, dimension(im,jsta:jend), intent(inout) ::  STRM
+      REAL, dimension(ista:iend,jsta:jend), intent(in)    ::  Z1D
+      REAL, dimension(ista:iend,jsta:jend), intent(inout) ::  STRM
 !
       LOGICAL OLDRD,STRD
       integer IMID,I,J
@@ -59,7 +60,7 @@
 !     COMPUTE GEOSTROPHIC STREAMFUNCTION.
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           STRM(I,J) = GOF0*Z1D(I,J)
         ENDDO
       ENDDO

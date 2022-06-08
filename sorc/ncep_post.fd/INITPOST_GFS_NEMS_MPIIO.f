@@ -76,7 +76,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use nemsio_module_mpi
-      use upp_physics, only: fpvsnew
+      use upp_physics, only: fpvsnew, caldiv, calgradps
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -355,7 +355,8 @@
       
       print *,me,'max(gdlat)=', maxval(gdlat),  &
                  'max(gdlon)=', maxval(gdlon)
-      CALL EXCH(gdlat(1,JSTA_2L))
+      CALL EXCH(gdlat)
+      CALL EXCH(gdlon)
       print *,'after call EXCH,me=',me
 
 !$omp parallel do private(i,j,ip1)

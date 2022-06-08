@@ -18,15 +18,15 @@
 !   Language:           Fortran 90
 !   Software Standards: UMDP3 v6
 
-use ctlblk_mod, only: jsta, jend, spval, im
+use ctlblk_mod, only: jsta, jend, spval, im, ista, iend
 use physcons_post, only: con_g, con_rd
 IMPLICIT None
 
 ! Subroutine Arguments:
 !REAL, INTENT(IN) :: SPVAL
-REAL, INTENT(IN) :: MAXWP(IM,jsta:jend)       !P field for conversion
+REAL, INTENT(IN) :: MAXWP(ista:iend,jsta:jend)       !P field for conversion
 
-REAL, INTENT(INOUT) :: MAXWICAOZ(IM,jsta:jend)   !ICAO height in m
+REAL, INTENT(INOUT) :: MAXWICAOZ(ista:iend,jsta:jend)   !ICAO height in m
 !INTEGER, INTENT(INOUT) :: ErrorStatus
 
 ! Local Constants:
@@ -62,7 +62,7 @@ REAL :: Pressure    ! Local pressure
 
 
 DO J=JSTA,JEND
-  DO I=1,IM
+  DO I=ISTA,IEND
     pressure = MAXWP(i,j)
     IF ( (pressure <= 1000.) .AND. (pressure >= 0.) ) THEN
       pressure = 1000.

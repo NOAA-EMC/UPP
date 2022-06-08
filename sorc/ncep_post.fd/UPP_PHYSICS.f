@@ -31,9 +31,13 @@
   private
 
   public :: CALCAPE, CALCAPE2
+  public :: CALDIV
+  public :: CALGRADPS
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
+  public :: CALVOR
+
   public :: FPVSNEW
   public :: TVIRTUAL
 
@@ -43,12 +47,12 @@
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
-      use ctlblk_mod, only: im, jsta, jend, MODELNAME
+      use ctlblk_mod, only: ista, iend, jsta, jend, MODELNAME
       implicit none
 
-      REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
-      REAL,dimension(IM,jsta:jend),intent(inout) :: Q1
-      REAL,dimension(IM,jsta:jend),intent(out)   :: RH
+      REAL,dimension(ista:iend,jsta:jend),intent(in)    :: P1,T1
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: Q1
+      REAL,dimension(ista:iend,jsta:jend),intent(out)   :: RH
 
       IF(MODELNAME == 'RAPR')THEN
          CALL CALRH_GSD(P1,T1,Q1,RH)
@@ -90,7 +94,7 @@
 !> @author Russ Treadon W/NP2 @date 1992-12-22
      SUBROUTINE CALRH_NAM(P1,T1,Q1,RH)
      use params_mod, only: PQ0, a2, a3, a4, rhmin
-     use ctlblk_mod, only: jsta, jend, spval, im
+     use ctlblk_mod, only: ista, iend, jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -98,9 +102,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
-      REAL,dimension(IM,jsta:jend),intent(inout) :: Q1
-      REAL,dimension(IM,jsta:jend),intent(out)   :: RH
+      REAL,dimension(ista:iend,jsta:jend),intent(in)    :: P1,T1
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: Q1
+      REAL,dimension(ista:iend,jsta:jend),intent(out)   :: RH
       REAL QC
       integer I,J
 !***************************************************************
@@ -108,7 +112,7 @@
 !     START CALRH.
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (T1(I,J) < spval) THEN
             IF (ABS(P1(I,J)) >= 1) THEN
               QC = PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
@@ -170,7 +174,7 @@
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALRH_GFS(P1,T1,Q1,RH)
       use params_mod, only: rhmin
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: ista, iend, jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -187,8 +191,8 @@
 !        END FUNCTION FPVSNEW
 !      END INTERFACE
 !
-      REAL,dimension(IM,jsta:jend),intent(in)   :: P1,T1
-      REAL,dimension(IM,jsta:jend),intent(inout):: Q1,RH
+      REAL,dimension(ista:iend,jsta:jend),intent(in)   :: P1,T1
+      REAL,dimension(ista:iend,jsta:jend),intent(inout):: Q1,RH
       REAL ES,QC
       integer :: I,J
 !***************************************************************
@@ -197,7 +201,7 @@
 !
 !$omp parallel do private(i,j,es,qc)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (T1(I,J) < spval .AND. P1(I,J) < spval.AND.Q1(I,J)/=spval) THEN
 !           IF (ABS(P1(I,J)) > 1.0) THEN
 !            IF (P1(I,J) > 1.0) THEN
@@ -237,17 +241,17 @@
 !------------------------------------------------------------------
 !
 
-      use ctlblk_mod, only: jsta, jend, im, spval
+      use ctlblk_mod, only: ista, iend, jsta, jend, spval
 
       implicit none
 
       integer :: j, i
       real :: tx, pol, esx, es, e
-      real, dimension(im,jsta:jend) :: P1, T1, Q1, RHB
+      real, dimension(ista:iend,jsta:jend) :: P1, T1, Q1, RHB
 
 
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (T1(I,J) < spval .AND. P1(I,J) < spval .AND. Q1(I,J) < spval) THEN
 ! - compute relative humidity
           Tx=T1(I,J)-273.15
@@ -279,13 +283,13 @@
 
       use vrbls3d, only: q, pmid, t
       use params_mod, only: g
-      use ctlblk_mod, only: lm, jsta, jend, lm, im, spval
+      use ctlblk_mod, only: lm, ista, iend, jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 
       real,PARAMETER :: svp1=6.1153,svp2=17.67,svp3=29.65
 
-      REAL, dimension(im,jsta:jend):: PW, PW_SAT, RHPW
+      REAL, dimension(ista:iend,jsta:jend):: PW, PW_SAT, RHPW
       REAL deltp,sh,qv,temp,es,qs,qv_sat
       integer i,j,l,k,ka,kb
 
@@ -296,7 +300,7 @@
       DO L=1,LM
         k=lm-l+1
        DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 ! -- use specific humidity for PW calculation
          if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
            sh = q(i,j,k)
@@ -530,7 +534,8 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval, &
+                            ista_2l, iend_2u, ista, iend
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -542,16 +547,16 @@
 !
       integer,intent(in) :: ITYPE
       real,intent(in)    :: DPBND
-      integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
-      real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
-      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+      integer, dimension(ista:iend,Jsta:jend),intent(in)    :: L1D
+      real,    dimension(ista:iend,Jsta:jend),intent(in)    :: P1D,T1D
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
 !     
-      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(ista:iend,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
-      real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
+      real,    dimension(ista:iend,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       REAL, ALLOCATABLE :: TPAR(:,:,:)
 
-      LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
+      LOGICAL THUNDER(ista:iend,jsta:jend), NEEDTHUN 
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
            BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,GDZKL,THETAP, &
            THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
@@ -563,7 +568,7 @@
 !**************************************************************
 !     START CALCAPE HERE.
 !     
-      ALLOCATE(TPAR(IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
 !
 !     COMPUTE CAPE/CINS
 !
@@ -587,7 +592,7 @@
 ! 
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J)    = D00
           CAPE20(I,J)  = D00
           CINS(I,J)    = D00
@@ -604,7 +609,7 @@
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             TPAR(I,J,L) = D00
           ENDDO
         ENDDO
@@ -617,7 +622,7 @@
       IF (ITYPE == 2) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             Q1D(I,J) = MIN(MAX(H1M12,Q1D(I,J)),H99999)
           ENDDO
         ENDDO
@@ -634,7 +639,7 @@
 !$omp &         p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,              &
 !$omp &         sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
               IF(PSFCK<spval.and.PKL<spval)THEN
@@ -726,7 +731,7 @@
 !----FIND THE PRESSURE OF THE PARCEL THAT WAS LIFTED
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PPARC(I,J) = PMID(I,J,PARCEL(I,J))
           ENDDO
         ENDDO
@@ -737,14 +742,14 @@
       DO L=1,LM
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF (PMID(I,J,L) < PSP(I,J))    LCL(I,J) = L+1
           ENDDO
         ENDDO
       ENDDO
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
           IF (ITYPE  > 2) THEN
             IF (T(I,J,LCL(I,J)) < 263.15) THEN
@@ -762,7 +767,7 @@
         KNUML = 0
         KNUMH = 0
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             KLRES(I,J) = 0
             KHRES(I,J) = 0
             IF(L <= LCL(I,J)) THEN
@@ -780,23 +785,23 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
         IF(KNUML > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(ISTA_2L,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
                     , RDTHE,THESP,IPTB,ITHTB)
         ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
         IF(KNUMH > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(ISTA_2L,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
                      ,THE0Q,STHEQ,RDTHEQ,THESP,IPTB,ITHTB)
         ENDIF
 
 !------------SEARCH FOR EQ LEVEL----------------------------------------
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KHRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
             ENDIF
@@ -805,7 +810,7 @@
 !
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KLRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L) .AND. &
                PMID(I,J,L)>100.) IEQL(I,J) = L
@@ -818,7 +823,7 @@
       LBEG = 1000
       LEND = 0
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LBEG = MIN(IEQL(I,J),LBEG)
           LEND = MAX(LCL(I,J),LEND)
         ENDDO
@@ -826,7 +831,7 @@
 !
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(T(I,J,IEQL(I,J)) > 255.65) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF
@@ -837,7 +842,7 @@
 
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IDX(I,J) = 0
             IF(L >= IEQL(I,J).AND.L <= LCL(I,J)) THEN
               IDX(I,J) = 1
@@ -847,7 +852,7 @@
 !
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL   = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
@@ -878,7 +883,7 @@
 !
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J) = MAX(D00,CAPE(I,J))
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! add equillibrium height
@@ -1007,7 +1012,8 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval,&
+                            ista_2l, iend_2u,     ista, iend,             ista_m, iend_m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1019,25 +1025,25 @@
 !
       integer,intent(in) :: ITYPE
       real,intent(in)    :: DPBND
-      integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
-      real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
-!      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
-      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS
-      real,    dimension(IM,jsta:jend)               :: PPARC,ZEQL
-      real,    dimension(IM,jsta:jend),intent(inout) :: LFC,ESRHL,ESRHH
-      real,    dimension(IM,jsta:jend),intent(inout) :: DCAPE,DGLD,ESP
-      integer, dimension(im,jsta:jend) ::L12,L17,L3KM
+      integer, dimension(ista:iend,Jsta:jend),intent(in)    :: L1D
+      real,    dimension(ista:iend,Jsta:jend),intent(in)    :: P1D,T1D
+!      real,    dimension(ista:iend,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: Q1D,CAPE,CINS
+      real,    dimension(ista:iend,jsta:jend)               :: PPARC,ZEQL
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: LFC,ESRHL,ESRHH
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: DCAPE,DGLD,ESP
+      integer, dimension(ista:iend,jsta:jend) ::L12,L17,L3KM
 !     
-      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(ista:iend,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
-      real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
-      integer, dimension(im,jsta:jend) :: PARCEL2 
-      real,    dimension(im,jsta:jend) :: THESP2,PSP2
-      real,    dimension(im,jsta:jend) :: CAPE4,CINS4 
+      real,    dimension(ista:iend,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
+      integer, dimension(ista:iend,jsta:jend) :: PARCEL2 
+      real,    dimension(ista:iend,jsta:jend) :: THESP2,PSP2
+      real,    dimension(ista:iend,jsta:jend) :: CAPE4,CINS4 
       REAL, ALLOCATABLE :: TPAR(:,:,:)
       REAL, ALLOCATABLE :: TPAR2(:,:,:)
 
-      LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
+      LOGICAL THUNDER(ista:iend,jsta:jend), NEEDTHUN 
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
            BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,GDZKL,THETAP, &
            THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
@@ -1046,15 +1052,15 @@
       integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ, KB,ITTBK
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
       integer ISTART,ISTOP,JSTART,JSTOP
-      real,    dimension(IM,jsta:jend) :: HTSFC
+      real,    dimension(ista:iend,jsta:jend) :: HTSFC
 
 !     integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ,IT,LMHK, KB,ITTBK
 !     
 !**************************************************************
 !     START CALCAPE HERE.
 !     
-      ALLOCATE(TPAR(IM,JSTA_2L:JEND_2U,LM))
-      ALLOCATE(TPAR2(IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
 !
 !     COMPUTE CAPE/CINS
 !
@@ -1078,7 +1084,7 @@
 ! 
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J)    = D00
           CAPE20(I,J)  = D00
           CAPE4(I,J)   = D00
@@ -1106,7 +1112,7 @@
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             TPAR(I,J,L) = D00
             TPAR2(I,J,L) = D00
           ENDDO
@@ -1122,8 +1128,8 @@
           IVE(J) = MOD(J,2)
           IVW(J) = IVE(J)-1
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE IF(gridtype == 'B')THEN
@@ -1133,8 +1139,8 @@
           IVE(J)=1
           IVW(J)=0
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
@@ -1144,13 +1150,13 @@
           IVE(J) = 0
           IVW(J) = 0
         enddo
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND
       END IF
 !!$omp  parallel do private(htsfc,ie,iw)
-      IF(gridtype /= 'A') CALL EXCH(FIS(1:IM,JSTA:JEND))
+      IF(gridtype /= 'A') CALL EXCH(FIS(ISTA:IEND,JSTA:JEND))
         DO J=JSTART,JSTOP
           DO I=ISTART,ISTOP
             IE = I+IVE(J)
@@ -1175,7 +1181,7 @@
       IF (ITYPE == 2) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             Q1D(I,J) = MIN(MAX(H1M12,Q1D(I,J)),H99999)
           ENDDO
         ENDDO
@@ -1192,7 +1198,7 @@
 !$omp &         p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,              &
 !$omp &         sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
 
@@ -1288,7 +1294,7 @@
 !----FIND THE PRESSURE OF THE PARCEL THAT WAS LIFTED
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PPARC(I,J) = PMID(I,J,PARCEL(I,J))
           ENDDO
         ENDDO
@@ -1299,14 +1305,14 @@
       DO L=1,LM
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF (PMID(I,J,L) < PSP(I,J))    LCL(I,J) = L+1
           ENDDO
         ENDDO
       ENDDO
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
           IF (ITYPE  > 2) THEN
             IF (T(I,J,LCL(I,J)) < 263.15) THEN
@@ -1323,7 +1329,7 @@
         KNUML = 0
         KNUMH = 0
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             KLRES(I,J) = 0
             KHRES(I,J) = 0
             IF(L <= LCL(I,J)) THEN
@@ -1341,23 +1347,23 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
         IF(KNUML > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(ISTA_2L,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
                     , RDTHE,THESP,IPTB,ITHTB)
         ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
         IF(KNUMH > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(ISTA_2L,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
                      ,THE0Q,STHEQ,RDTHEQ,THESP,IPTB,ITHTB)
         ENDIF
 
 !------------SEARCH FOR EQ LEVEL----------------------------------------
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KHRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
             ENDIF
@@ -1366,7 +1372,7 @@
 !
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KLRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
             ENDIF
@@ -1378,7 +1384,7 @@
       LBEG = 1000
       LEND = 0
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LBEG = MIN(IEQL(I,J),LBEG)
           LEND = MAX(LCL(I,J),LEND)
         ENDDO
@@ -1386,7 +1392,7 @@
 !
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(T(I,J,IEQL(I,J)) > 255.65) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF
@@ -1402,7 +1408,7 @@
 
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IDX(I,J) = 0
             IF(L >= IEQL(I,J).AND.L <= LCL(I,J)) THEN
               IDX(I,J) = 1
@@ -1413,7 +1419,7 @@
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv,&
 !$omp &                    presk2,esatp2,qsatp2,tvp2,thetap2,tv2,thetaa2)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL  = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
@@ -1474,7 +1480,7 @@
 
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
               IF(ESRHH(I,J) > ESRHL(I,J)) ESRHH(I,J)=IEQL(I,J)
           ENDDO
         ENDDO
@@ -1485,7 +1491,7 @@
 !
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J) = MAX(D00,CAPE(I,J))
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! equillibrium height
@@ -1513,7 +1519,7 @@
         KNUML = 0
         KNUMH = 0
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             KLRES(I,J) = 0
             KHRES(I,J) = 0
             PSFCK  = PMID(I,J,NINT(LMH(I,J)))
@@ -1533,16 +1539,16 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
         IF(KNUML > 0) THEN
-          CALL TTBLEX(TPAR2(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+          CALL TTBLEX(TPAR2(ISTA_2L,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(ISTA_2L,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
                     , RDTHE,THESP2,IPTB,ITHTB)
         ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
         IF(KNUMH > 0) THEN
-          CALL TTBLEX(TPAR2(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+          CALL TTBLEX(TPAR2(ISTA_2L,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(ISTA_2L,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
                     , THE0Q,STHEQ,RDTHEQ,THESP2,IPTB,ITHTB)
         ENDIF
       ENDDO                  ! end of do l=lm,1,-1 loop
@@ -1553,7 +1559,7 @@
       DO L=LBEG,LEND
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IDX(I,J) = 0
             IF(L >= PARCEL2(I,J).AND.L < NINT(LMH(I,J))) THEN
               IDX(I,J) = 1
@@ -1563,7 +1569,7 @@
 !
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL  = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
@@ -1585,7 +1591,7 @@
 
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           DCAPE(I,J) = MIN(D00,DCAPE(I,J))
         ENDDO
       ENDDO
@@ -1601,7 +1607,7 @@
       DO L=LM,1,-1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(T(I,J,L) <= TFRZ-12. .AND. L12(I,J)==LM) L12(I,J)=L
             IF(T(I,J,L) <= TFRZ-17. .AND. L17(I,J)==LM) L17(I,J)=L
           ENDDO
@@ -1609,7 +1615,7 @@
       ENDDO
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
            IF(L12(I,J)/=LM .AND. L17(I,J)/=LM) THEN
              DGLD(I,J)=ZINT(I,J,L17(I,J))-ZINT(I,J,L12(I,J))
              DGLD(I,J)=MAX(DGLD(I,J),0.)
@@ -1625,14 +1631,14 @@
       DO L=LM,1,-1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(ZINT(I,J,L)-HTSFC(I,J) <= 3000.) L3KM(I,J)=L
           ENDDO
         ENDDO
       ENDDO     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
              ESP(I,J) = (CAPE(I,J) / 50.) * (T(I,J,LM) - T(I,J,L3KM(I,J)) - 7.0)
              IF((T(I,J,LM) - T(I,J,L3KM(I,J))) < 7.0) ESP(I,J) = 0.
 !             IF(CAPE(I,J) < 250.) ESP(I,J) = 0.
@@ -1663,4 +1669,966 @@
 !
 !-------------------------------------------------------------------------------------
 !
+!> @file
+!> @brief Subroutine that computes absolute vorticity.
+!>
+!> This routine computes the absolute vorticity.
+!>
+!> @param[in] UWND U wind (m/s) mass-points.
+!> @param[in] VWND V wind (m/s) mass-points.
+!> @param[out] ABSV absolute vorticity (1/s) mass-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1998-06-08 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version            
+!> 2002-01-15 | Mike Baldwin | WRF Version C-grid
+!> 2005-03-01 | H Chuang     | Add NMM E grid
+!> 2005-05-17 | H Chuang     | Add Potential vorticity calculation
+!> 2005-07-07 | B Zhou       | Add RSM in computing DVDX, DUDY and UAVG
+!> 2013-08-09 | S Moorthi    | Optimize the vorticity loop including threading
+!> 2016-08-05 | S Moorthi    | add zonal filetering
+!> 2019-10-17 | Y Mao        | Skip calculation when U/V is SPVAL
+!> 2020-11-06 | J Meng       | Use UPP_MATH Module
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
+      SUBROUTINE CALVOR(UWND,VWND,ABSV)
+
+!     
+!
+      use vrbls2d,      only: f
+      use masks,        only: gdlat, gdlon, dx, dy
+      use params_mod,   only: d00, dtr, small, erad
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+                              jsta, jend, im, jm, jsta_m, jend_m, gdsdegr,&
+                              ista, iend, ista_m, iend_m, ista_2l, iend_2u, me, num_procs
+      use gridspec_mod, only: gridtype, dyval
+      use upp_math,     only: DVDXDUDY, DDVDX, DDUDY, UUAVG
+
+      implicit none
+!
+!     DECLARE VARIABLES.
+!     
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: UWND, VWND
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: ABSV
+      REAL, dimension(IM,2) :: GLATPOLES, COSLPOLES, UPOLES, AVPOLES
+      REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, AVTEMP
+!
+      real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
+!
+      integer, parameter :: npass2=2, npass3=3
+      integer I,J,ip1,im1,ii,iir,iil,jj,JMT2,imb2, npass, nn, jtem
+      real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI, tx1(im+2), tx2(im+2)
+!     
+!***************************************************************************
+!     START CALVOR HERE.
+!     
+!     LOOP TO COMPUTE ABSOLUTE VORTICITY FROM WINDS.
+!     
+      IF(MODELNAME  == 'RAPR') then
+!$omp  parallel do private(i,j)
+        DO J=JSTA_2L,JEND_2U
+          DO I=ISTA_2L,IEND_2U
+            ABSV(I,J) = D00
+          ENDDO
+        ENDDO
+      else
+!$omp  parallel do private(i,j)
+        DO J=JSTA_2L,JEND_2U
+          DO I=ISTA_2L,IEND_2U
+            ABSV(I,J) = SPVAL
+          ENDDO
+        ENDDO
+      endif
+
+!      print*,'dyval in CALVOR= ',DYVAL 
+  
+      CALL EXCH(UWND)
+      CALL EXCH(VWND)
+!
+      IF (MODELNAME == 'GFS' .or. global) THEN
+        CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+        CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
+
+        allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
+     &            wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
+        allocate(iw(im),ie(im))
+
+        imb2 = im/2
+!$omp  parallel do private(i)
+      do i=ista,iend
+        ie(i) = i+1
+        iw(i) = i-1
+      enddo
+!      iw(1)  = im
+!      ie(im) = 1
+
+!       if(1>=jsta .and. 1<=jend)then
+!        if(cos(gdlat(1,1)*dtr)<small)poleflag=.T.
+!       end if 	
+!       call mpi_bcast(poleflag,1,MPI_LOGICAL,0,mpi_comm_comp,iret)
+
+!$omp  parallel do private(i,j,ip1,im1)
+        DO J=JSTA,JEND
+          do i=ista,iend
+            ip1 = ie(i)
+            im1 = iw(i)
+            cosl(i,j) = cos(gdlat(i,j)*dtr)
+            IF(cosl(i,j) >= SMALL) then
+              wrk1(i,j) = 1.0 / (ERAD*cosl(i,j))
+            else
+              wrk1(i,j) = 0.
+            end if    
+            if(i == im .or. i == 1) then
+              wrk2(i,j) = 1.0 / ((360.+GDLON(ip1,J)-GDLON(im1,J))*DTR) !1/dlam
+            else
+              wrk2(i,j) = 1.0 / ((GDLON(ip1,J)-GDLON(im1,J))*DTR)      !1/dlam
+            end if
+          enddo
+        enddo
+!       CALL EXCH(cosl(1,JSTA_2L))
+        CALL EXCH(cosl)
+
+        call fullpole( cosl(ista_2l:iend_2u,jsta_2l:jend_2u),coslpoles)
+        call fullpole(gdlat(ista_2l:iend_2u,jsta_2l:jend_2u),glatpoles)
+
+        if(me==0          ) print*,'CALVOR ',me,glatpoles(ista,1),glatpoles(ista,2)
+        if(me==num_procs-1) print*,'CALVOR ',me,glatpoles(ista,1),glatpoles(ista,2)
+
+!$omp  parallel do private(i,j,ii)
+        DO J=JSTA,JEND
+          if (j == 1) then
+           if(gdlat(ista,j) > 0.) then ! count from north to south
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+          !     wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+                wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GLATPOLES(ii,1))*DTR) !1/dphi
+              enddo
+            else ! count from south to north
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+          !     wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+                wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GLATPOLES(ii,1))*DTR) !1/dphi
+!
+              enddo
+            end if      
+          elseif (j == JM) then
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+          !      wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+                wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GLATPOLES(ii,2))*DTR)
+              enddo
+            else ! count from south to north
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+          !     wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+                wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GLATPOLES(ii,2))*DTR)
+              enddo
+            end if  
+          else
+            do i=ista,iend
+              wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR) !1/dphi
+            enddo
+          endif
+        enddo  
+
+        npass = 0
+
+        jtem = jm / 18 + 1
+      
+        call fullpole(uwnd(ista_2l:iend_2u,jsta_2l:jend_2u),upoles)
+
+!$omp  parallel do private(i,j,ip1,im1,ii,jj,tx1,tx2)
+        DO J=JSTA,JEND
+!         npass = npass2
+!         if (j > jm-jtem+1 .or. j < jtem) npass = npass3
+          IF(J == 1) then                            ! Near North or South pole
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+!                    UWND(II,J)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
+                     UPOLES(II,1)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
+!    &                      +  (UWND(II,J)*COSL(II,J)                            &
+     &                      +  (upoles(II,1)*coslpoles(II,1)                            &
+     &                      +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
+     &                      + F(I,J)
+                enddo
+              ELSE                                   !pole point, compute at j=2
+                jj = 2
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,J)==SPVAL .or. UWND(I,jj+1)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)               &
+     &                      -  (UWND(I,J)*COSL(I,J)                                 &
+                            -   UWND(I,jj+1)*COSL(I,Jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            else
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+!                    UWND(II,J)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
+                     UPOLES(II,1)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
+!    &                      -  (UWND(II,J)*COSL(II,J)                            &
+     &                      -  (upoles(II,1)*coslpoles(II,1)                            &
+     &                      +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
+     &                      + F(I,J)
+                enddo
+              ELSE                                   !pole point, compute at j=2
+                jj = 2
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,J)==SPVAL .or. UWND(I,jj+1)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)               &
+     &                      +  (UWND(I,J)*COSL(I,J)                                 &
+                            -   UWND(I,jj+1)*COSL(I,Jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            endif
+          ELSE IF(J == JM) THEN                      ! Near North or South Pole
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+!                    UWND(I,J-1)==SPVAL .or. UWND(II,J)==SPVAL) cycle
+                     UWND(I,J-1)==SPVAL .or. UPOLES(II,2)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
+     &                      -  (UWND(I,J-1)*COSL(I,J-1)                         &
+!    &                      +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      +   upoles(II,2)*coslpoles(II,2))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      + F(I,J)
+                enddo
+              ELSE                                   !pole point,compute at jm-1
+                jj = jm-1
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,jj-1)==SPVAL .or. UWND(I,J)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)         &
+     &                      -  (UWND(I,jj-1)*COSL(I,Jj-1)                     &
+     &                      -   UWND(I,J)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            else
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+!                    UWND(I,J-1)==SPVAL .or. UWND(II,J)==SPVAL) cycle
+                     UWND(I,J-1)==SPVAL .or. UPOLES(II,2)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
+     &                      +  (UWND(I,J-1)*COSL(I,J-1)                         &
+!    &                      +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      +   upoles(II,2)*coslpoles(II,2))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      + F(I,J)
+                enddo
+              ELSE                                   !pole point,compute at jm-1
+                jj = jm-1
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,jj-1)==SPVAL .or. UWND(I,J)==SPVAL) cycle
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)         &
+     &                      +  (UWND(I,jj-1)*COSL(I,Jj-1)                     &
+     &                      -   UWND(I,J)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            endif
+          ELSE
+            DO I=ISTA,IEND
+              ip1 = ie(i)
+              im1 = iw(i)
+              if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+                 UWND(I,J-1)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
+              ABSV(I,J)   = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
+     &                    -  (UWND(I,J-1)*COSL(I,J-1)                          &
+                          -   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
+                          + F(I,J)
+            ENDDO
+          END IF
+!          if(ABSV(I,J)>1.0)print*,'Debug CALVOR',i,j,VWND(ip1,J),VWND(im1,J), &
+!          wrk2(i,j),UWND(I,J-1),COSL(I,J-1),UWND(I,J+1),COSL(I,J+1),wrk3(i,j),cosl(i,j),F(I,J),ABSV(I,J)
+          if (npass > 0) then
+            do i=ista,iend
+              tx1(i) = absv(i,j)
+            enddo
+            do nn=1,npass
+              do i=ista,iend
+                tx2(i+1) = tx1(i)
+              enddo
+              tx2(1)    = tx2(im+1)
+              tx2(im+2) = tx2(2)
+              do i=2,im+1
+                tx1(i-1) = 0.25 * (tx2(i-1) + tx2(i+1)) + 0.5*tx2(i)
+              enddo
+            enddo
+            do i=ista,iend
+              absv(i,j) = tx1(i)
+            enddo
+          endif
+        END DO                               ! end of J loop
+
+!       deallocate (wrk1, wrk2, wrk3, cosl)
+! GFS use lon avg as one scaler value for pole point
+
+      ! call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,ABSV(1,jsta))
+
+        call exch(absv(ista_2l:iend_2u,jsta_2l:jend_2u))
+        call fullpole(absv(ista_2l:iend_2u,jsta_2l:jend_2u),avpoles)     
+
+        cosltemp=spval
+        if(jsta== 1) cosltemp(1:im, 1)=coslpoles(1:im,1)
+        if(jend==jm) cosltemp(1:im,jm)=coslpoles(1:im,2)
+        avtemp=spval
+        if(jsta== 1) avtemp(1:im, 1)=avpoles(1:im,1)
+        if(jend==jm) avtemp(1:im,jm)=avpoles(1:im,2)
+        
+        call poleavg(IM,JM,JSTA,JEND,SMALL,cosltemp(1,jsta),SPVAL,avtemp(1,jsta))
+
+        if(jsta== 1) absv(ista:iend, 1)=avtemp(ista:iend, 1)
+        if(jend==jm) absv(ista:iend,jm)=avtemp(ista:iend,jm)
+    
+        deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+
+      ELSE !(MODELNAME == 'GFS' .or. global)
+
+      IF (GRIDTYPE == 'B')THEN
+        CALL EXCH(VWND)
+        CALL EXCH(UWND)
+      ENDIF
+     
+      CALL DVDXDUDY(UWND,VWND)
+
+      IF(GRIDTYPE == 'A')THEN
+!$omp parallel do  private(i,j,jmt2,tphi,r2dx,r2dy,dvdx,dudy,uavg)
+        DO J=JSTA_M,JEND_M
+          JMT2 = JM/2+1
+          TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
+          DO I=ISTA_M,IEND_M
+            IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
+     &         UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
+              UAVG   = UUAVG(I,J) 
+!  is there a (f+tan(phi)/erad)*u term?
+              IF(MODELNAME  == 'RAPR') then
+                 ABSV(I,J) = DVDX - DUDY + F(I,J)   ! for run RAP over north pole      
+              else
+                 ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(GDLAT(I,J)*DTR)/ERAD  ! not sure about this???
+              endif
+            END IF
+          END DO
+        END DO
+
+      ELSE IF (GRIDTYPE == 'E')THEN
+       allocate(ihw(JSTA_2L:JEND_2U), IHE(JSTA_2L:JEND_2U))
+!$omp  parallel do private(j)
+        DO J=JSTA_2L,JEND_2U
+          IHW(J) = -MOD(J,2)
+          IHE(J) = IHW(J)+1
+        ENDDO
+!$omp parallel do  private(i,j,jmt2,tphi,r2dx,r2dy,dvdx,dudy,uavg)
+        DO J=JSTA_M,JEND_M
+          JMT2 = JM/2+1
+          TPHI = (J-JMT2)*(DYVAL/1000.)*DTR
+          TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
+          DO I=ISTA_M,IEND_M
+            IF(VWND(I+IHE(J),J) < SPVAL.AND.VWND(I+IHW(J),J) < SPVAL .AND.   &
+     &         UWND(I,J+1) < SPVAL     .AND.UWND(I,J-1) < SPVAL) THEN
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
+              UAVG   = UUAVG(I,J)
+!  is there a (f+tan(phi)/erad)*u term?
+              ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD 
+            END IF
+          END DO
+        END DO
+       deallocate(ihw, IHE)
+      ELSE IF (GRIDTYPE == 'B')THEN
+!        CALL EXCH(VWND)      !done before dvdxdudy() Jesse 20200520
+        DO J=JSTA_M,JEND_M
+          JMT2 = JM/2+1
+          TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
+          DO I=ISTA_M,IEND_M         
+            if(VWND(I,  J)==SPVAL .or. VWND(I,  J-1)==SPVAL .or. &
+               VWND(I-1,J)==SPVAL .or. VWND(I-1,J-1)==SPVAL .or. &
+               UWND(I,  J)==SPVAL .or. UWND(I-1,J)==SPVAL .or. &
+               UWND(I,J-1)==SPVAL .or. UWND(I-1,J-1)==SPVAL) cycle
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
+              UAVG   = UUAVG(I,J)
+!  is there a (f+tan(phi)/erad)*u term?
+           ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD 
+          END DO
+        END DO 
+      END IF 
+      END IF
+!     
+!     END OF ROUTINE.
+!     
+      RETURN
+      END
+
+!> CALDIV computes divergence.
+!>    
+!> For GFS, this routine copmutes the horizontal divergence
+!> using 2nd-order centered scheme on a lat-lon grid     
+!>
+!> @param[in] UWND U wind (m/s) mass-points.
+!> @param[in] VWND V wind (m/s) mass-points.
+!> @param[out] DIV divergence (1/s) mass-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2016-05-05 | Sajal Kar | Modified CALVORT to compute divergence from wind components
+!> 2016-07-22 | S Moorthi | Modified polar divergence calculation
+!>
+!> @author Sajal Kar W/NP2 @date 2016-05-05
+      SUBROUTINE CALDIV(UWND,VWND,DIV)
+      use masks,        only: gdlat, gdlon
+      use params_mod,   only: d00, dtr, small, erad
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+                              jsta, jend, im, jm, jsta_m, jend_m, lm,     &
+                              ista, iend, ista_m, iend_m, ista_2l, iend_2u
+      use gridspec_mod, only: gridtype
+
+      implicit none
+!
+!     DECLARE VARIABLES.
+!     
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm), intent(in)    :: UWND,VWND
+      REAL, dimension(ista:iend,jsta:jend,lm),       intent(inout) :: DIV
+      REAL, dimension(IM,2)         :: GLATPOLES, COSLPOLES, UPOLES, VPOLES, DIVPOLES
+      REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, DIVTEMP
+!
+      real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
+!
+      real                 :: dnpole, dspole, tem
+      integer I,J,ip1,im1,ii,iir,iil,jj,imb2, l
+!     
+!***************************************************************************
+!     START CALDIV HERE.
+!     
+!     LOOP TO COMPUTE DIVERGENCE FROM WINDS.
+!     
+      CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+      CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
+
+      allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
+     &          wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(iw(im),ie(im))
+
+      imb2 = im/2
+!$omp  parallel do private(i)
+      do i=ista,iend
+        ie(i) = i+1
+        iw(i) = i-1
+      enddo
+!      iw(1)  = im
+!      ie(im) = 1
+
+
+!$omp  parallel do private(i,j,ip1,im1)
+      DO J=JSTA,JEND
+        do i=ista,iend
+          ip1 = ie(i)
+          im1 = iw(i)
+          cosl(i,j) = cos(gdlat(i,j)*dtr)
+          IF(cosl(i,j) >= SMALL) then
+            wrk1(i,j) = 1.0 / (ERAD*cosl(i,j))
+          else
+            wrk1(i,j) = 0.
+          end if    
+          if(i == im .or. i == 1) then
+            wrk2(i,j) = 1.0 / ((360.+GDLON(ip1,J)-GDLON(im1,J))*DTR) !1/dlam
+          else
+            wrk2(i,j) = 1.0 / ((GDLON(ip1,J)-GDLON(im1,J))*DTR)      !1/dlam
+          end if
+        enddo
+      ENDDO
+
+      CALL EXCH(cosl)
+      CALL FULLPOLE(cosl,coslpoles)
+      CALL FULLPOLE(gdlat(ista_2l:iend_2u,jsta_2l:jend_2u),glatpoles)
+       
+!$omp  parallel do private(i,j,ii)
+      DO J=JSTA,JEND
+        if (j == 1) then
+          if(gdlat(ista,j) > 0.) then ! count from north to south
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !   wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GLATPOLES(II,1))*DTR) !1/dphi
+            enddo
+          else ! count from south to north
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !   wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GLATPOLES(II,1))*DTR) !1/dphi
+            enddo
+          end if      
+        elseif (j == JM) then
+          if(gdlat(ista,j) < 0.) then ! count from north to south
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !   wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GLATPOLES(II,2))*DTR)
+            enddo
+          else ! count from south to north
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !   wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GLATPOLES(II,2))*DTR)
+            enddo
+          end if  
+        else
+          do i=ista,iend
+            wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR) !1/dphi
+          enddo
+        endif
+      enddo  
+      
+      do l=1,lm
+!$omp  parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            DIV(I,J,l) = SPVAL
+          ENDDO
+        ENDDO
+
+        CALL EXCH(VWND(ista_2l,jsta_2l,l))
+        CALL EXCH(UWND(ista_2l,jsta_2l,l))
+
+        CALL FULLPOLE(VWND(ista_2l:iend_2u,jsta_2l:jend_2u,l),VPOLES)
+        CALL FULLPOLE(UWND(ista_2l:iend_2u,jsta_2l:jend_2u,l),UPOLES)
+
+!$omp  parallel do private(i,j,ip1,im1,ii,jj)
+        DO J=JSTA,JEND
+          IF(J == 1) then                          ! Near North pole
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     !&                    !  -  (VWND(II,J,l)*COSL(II,J)                          &
+     &                       -  (VPOLES(II,1)*COSLPOLEs(II,1)                          &
+     &                       +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+                enddo
+!--
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                do i=ista,iend
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,jj,l)-UWND(im1,jj,l))*wrk2(i,jj)         &
+     &                       +  (VWND(I,J,l)*COSL(I,J)                             &
+                             -   VWND(I,jj+1,l)*COSL(I,jj+1))*wrk3(i,jj)) * wrk1(i,jj)
+                enddo
+!--
+              ENDIF
+            else
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     !&                    !  +  (VWND(II,J,l)*COSL(II,J)                          &
+     &                       +  (VPOLES(II,1)*COSLPOLES(II,1)                          &
+     &                       +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+                enddo
+!--
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                do i=ista,iend
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,jj,l)-UWND(im1,jj,l))*wrk2(i,jj)         &
+     &                       -  (VWND(I,J,l)*COSL(I,J)                             &
+                             -   VWND(I,jj+1,l)*COSL(I,jj+1))*wrk3(i,jj)) * wrk1(i,jj)
+                enddo
+              ENDIF
+            endif
+          ELSE IF(J == JM) THEN                    ! Near South pole
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
+     &                       +  (VWND(I,J-1,l)*COSL(I,J-1)                       &
+     !&                    !  +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+     &                       +   VPOLES(II,2)*COSLPOLES(II,2))*wrk3(i,j)) * wrk1(i,j)
+                enddo
+!--
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                do i=ista,iend
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,JJ,l)-UWND(im1,JJ,l))*wrk2(i,jj)       &
+     &                       +  (VWND(I,jj-1,l)*COSL(I,Jj-1)                     &
+     &                       -   VWND(I,J,l)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj)
+
+                enddo
+              ENDIF
+            else
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
+     &                       -  (VWND(I,J-1,l)*COSL(I,J-1)                       &
+     !&                    !  +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+     &                       +   VPOLES(II,2)*COSLPOLES(II,2))*wrk3(i,j)) * wrk1(i,j)
+                enddo
+!--
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                do i=ista,iend
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,JJ,l)-UWND(im1,JJ,l))*wrk2(i,jj)       &
+     &                       -  (VWND(I,jj-1,l)*COSL(I,Jj-1)                     &
+     &                       -   VWND(I,J,l)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj)
+
+                enddo
+              ENDIF
+            endif
+          ELSE
+            DO I=ISTA,IEND
+              ip1 = ie(i)
+              im1 = iw(i)
+              DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     &                   +  (VWND(I,J-1,l)*COSL(I,J-1)                        &
+                         -   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+!sk06132016
+              if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
+     &           wrk2(i,j),VWND(I,J-1,l),COSL(I,J-1),VWND(I,J+1,l),COSL(I,J+1),         &
+     &           wrk3(i,j),wrk1(i,j),DIV(I,J,l)
+!--
+            ENDDO
+          ENDIF
+        ENDDO                               ! end of J loop
+
+! GFS use lon avg as one scaler value for pole point
+!        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,DIV(1,jsta,l))
+
+        call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u,l))
+        call fullpole(div(ista_2l:iend_2u,jsta_2l:jend_2u,l),divpoles)       
+
+        COSLTEMP=SPVAL
+        IF(JSTA== 1) COSLTEMP(1:IM, 1)=COSLPOLES(1:IM,1)
+        IF(JEND==JM) COSLTEMP(1:IM,JM)=COSLPOLES(1:IM,2)
+        DIVTEMP=SPVAL
+        IF(JSTA== 1) DIVTEMP(1:IM, 1)=DIVPOLES(1:IM,1)
+        IF(JEND==JM) DIVTEMP(1:IM,JM)=DIVPOLES(1:IM,2)
+                
+        call poleavg(IM,JM,JSTA,JEND,SMALL,COSLTEMP(1:IM,JSTA:JEND)  &
+                    ,SPVAL,DIVTEMP(1:IM,JSTA:JEND))
+
+        IF(JSTA== 1) DIV(ISTA:IEND, 1,L)=DIVTEMP(ISTA:IEND, 1)
+        IF(JEND==JM) DIV(ISTA:IEND,JM,L)=DIVTEMP(ISTA:IEND,JM)
+
+!sk06142016e
+        if(DIV(ista,jsta,l)>1.0)print*,'Debug in CALDIV',jsta,DIV(ista,jsta,l)
+!       print*,'Debug in CALDIV',' jsta= ',jsta,DIV(1,jsta,l)
+
+      enddo                        ! end of l looop
+!--
+      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+     
+
+      END SUBROUTINE CALDIV
+
+      SUBROUTINE CALGRADPS(PS,PSX,PSY)
+!> CALGRADPS computes gardients of a scalar field PS or LNPS.
+!>
+!> For GFS, this routine computes horizontal gradients of PS or LNPS.
+!> Using 2nd-order centered scheme on a lat-lon grid.
+!>
+!> @param[in] PS Surface pressure (Pa) mass-points.
+!> @param[out] PSX Zonal gradient of PS at mass-points.
+!> @param[out] PSY Meridional gradient of PS at mass-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2016-05-05 | Sajal Kar | Reduced from CALVORT to zonal and meridional gradients of given surface pressure PS, or LNPS
+!>
+!> @author Sajal Kar W/NP2 @date 2016-05-05
+      use masks,        only: gdlat, gdlon
+      use params_mod,   only: dtr, d00, small, erad
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+                              jsta, jend, im, jm, jsta_m, jend_m,         &
+                              ista, iend, ista_m, iend_m, ista_2l, iend_2u
+
+      use gridspec_mod, only: gridtype
+
+      implicit none
+!
+!     DECLARE VARIABLES.
+!     
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: PS
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: PSX,PSY 
+!
+      real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
+!
+      integer I,J,ip1,im1,ii,iir,iil,jj,imb2
+!     
+!***************************************************************************
+!     START CALGRADPS HERE.
+!     
+!     LOOP TO COMPUTE ZONAL AND MERIDIONAL GRADIENTS OF PS OR LNPS
+!     
+!sk06162016   DO J=JSTA_2L,JEND_2U
+!$omp  parallel do private(i,j)
+      DO J=JSTA,JEND
+        DO I=ISTA,IEND
+          PSX(I,J) = SPVAL
+          PSY(I,J) = SPVAL
+!sk       PSX(I,J) = D00
+!sk       PSY(I,J) = D00
+        ENDDO
+      ENDDO
+
+      CALL EXCH(PS)
+
+!     IF (MODELNAME == 'GFS' .or. global) THEN
+        CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+        CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
+
+        allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
+     &            wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
+        allocate(iw(im),ie(im))
+
+        imb2 = im/2
+!$omp  parallel do private(i)
+        do i=ista,iend
+          ie(i) = i+1
+          iw(i) = i-1
+        enddo
+!        iw(1)  = im
+!        ie(im) = 1
+
+
+!$omp  parallel do private(i,j,ip1,im1)
+        DO J=JSTA,JEND
+          do i=ista,iend
+            ip1 = ie(i)
+            im1 = iw(i)
+            cosl(i,j) = cos(gdlat(i,j)*dtr)
+            if(cosl(i,j) >= SMALL) then
+              wrk1(i,j) = 1.0 / (ERAD*cosl(i,j))
+            else
+              wrk1(i,j) = 0.
+            end if    
+            if(i == im .or. i == 1) then
+              wrk2(i,j) = 1.0 / ((360.+GDLON(ip1,J)-GDLON(im1,J))*DTR) !1/dlam
+            else
+              wrk2(i,j) = 1.0 / ((GDLON(ip1,J)-GDLON(im1,J))*DTR)      !1/dlam
+            end if
+          enddo
+        ENDDO
+
+        CALL EXCH(cosl)
+       
+!$omp  parallel do private(i,j,ii)
+        DO J=JSTA,JEND
+          if (j == 1) then
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+              enddo
+            else ! count from south to north
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+              enddo
+            end if      
+          elseif (j == JM) then
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+              enddo
+            else ! count from south to north
+              do i=ista,iend
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+              enddo
+            end if  
+          else
+            do i=ista,iend
+              wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR) !1/dphi
+            enddo
+          endif
+        ENDDO  
+
+!$omp  parallel do private(i,j,ip1,im1,ii,jj)
+        DO J=JSTA,JEND
+          IF(J == 1) then                            ! Near North pole
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = (PS(II,J)-PS(I,J+1))*wrk3(i,j)/ERAD 
+                enddo
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,jj)-PS(im1,jj))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = (PS(I,J)-PS(I,jj+1))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            else
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = - (PS(II,J)-PS(I,J+1))*wrk3(i,j)/ERAD
+                enddo
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,jj)-PS(im1,jj))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = - (PS(I,J)-PS(I,jj+1))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            endif
+          ELSE IF(J == JM) THEN                      ! Near South pole
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = (PS(I,J-1)-PS(II,J))*wrk3(i,j)/ERAD
+                enddo
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,JJ)-PS(im1,JJ))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = (PS(I,jj-1)-PS(I,J))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            else
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = - (PS(I,J-1)-PS(II,J))*wrk3(i,j)/ERAD
+                enddo
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                DO I=ISTA,IEND
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,JJ)-PS(im1,JJ))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = - (PS(I,jj-1)-PS(I,J))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            endif
+          ELSE
+            DO I=ISTA,IEND
+              ip1 = ie(i)
+              im1 = iw(i)
+              PSX(I,J)   = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+              PSY(I,J)   = (PS(I,J-1)-PS(I,J+1))*wrk3(i,j)/ERAD
+!sk06142016A
+              if(PSX(I,J)>100.0)print*,'Debug in CALGRADPS: PSX',i,j,PS(ip1,J),PS(im1,J), &
+!             print*,'Debug in CALGRADPS',i,j,PS(ip1,J),PS(im1,J), &
+     &           wrk2(i,j),wrk1(i,j),PSX(I,J)
+              if(PSY(I,J)>100.0)print*,'Debug in CALGRADPS: PSY',i,j,PS(i,J-1),PS(i,J+1), &
+!             print*,'Debug in CALGRADPS',i,j,PS(i,J-1),PS(i,J+1), &
+     &           wrk3(i,j),ERAD,PSY(I,J)
+!--
+            ENDDO
+          END IF
+!
+        ENDDO                               ! end of J loop
+
+        deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+     
+!     END IF 
+
+      END SUBROUTINE CALGRADPS
+!
+!-------------------------------------------------------------------------------------
+!
   end module upp_physics
+

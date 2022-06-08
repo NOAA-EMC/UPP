@@ -23,12 +23,13 @@
 !> 1998-05-29 | T Black      | Conversion from 1-D to 2-D
 !> 2000-01-04 | Jim Tuccillo | MPI Version           
 !> 2002-04-24 | Mike Baldwin | WRF Version
+!> 2021-09002 | Bo Cui       | Decompose UPP in X direction
 !>
 !> @author Russ Treadon W/NP2 @date 1993-01-18
       SUBROUTINE BOUND(FLD,FMIN,FMAX)
 
 !     
-     use ctlblk_mod, only: jsta, jend, spval, im, jm
+     use ctlblk_mod, only: jsta, jend, spval, im, jm, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
      implicit none
 !     
@@ -44,7 +45,7 @@
 !     BOUND ARRAY.
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           if(fld(i,j) /= spval) then
             FLD(I,J) = min(FMAX, MAX(FMIN,FLD(I,J)))
           end if

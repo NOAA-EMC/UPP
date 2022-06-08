@@ -39,6 +39,7 @@
 !> 2016-01-21 | C. Alexander | Generalized function for any isotherm
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!> 2021-10-15 | JESSE MENG   | 2D DECOMPOSITION
 !> 2021-07-28 | W. Meng      | Restrict compuatation from undefined grids
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
@@ -49,7 +50,7 @@
       use vrbls2d, only: fis, tshltr, pshltr, qz0, qs, qshltr
       use masks, only: lmh, sm
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4, d50
-      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
+      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, ista, iend
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
       use upp_physics, only: FPVSNEW
 
@@ -62,7 +63,7 @@
 !
       REAL,PARAMETER::PUCAP=300.0E2
       real,intent(in)                   ::  ISOTHERM
-      REAL,dimension(im,jsta:jend),intent(out) ::  RHFRZ, ZFRZ, PFRZL
+      REAL,dimension(ista:iend,jsta:jend),intent(out) ::  RHFRZ, ZFRZ, PFRZL
 !jw
       integer I,J,L,LICE,LLMH
       real HTSFC,PSFC,QSFC,RHSFC,QW,QSAT,DELZ,DELT,DELQ,DELALP,DELZP,  &
@@ -76,7 +77,7 @@
 !     
 
       DO 20 J=JSTA,JEND
-      DO 20 I=1,IM
+      DO 20 I=ISTA,IEND
          IF(FIS(I,J)<spval)THEN
          HTSFC    = FIS(I,J)*GI
          LLMH     = NINT(LMH(I,J))

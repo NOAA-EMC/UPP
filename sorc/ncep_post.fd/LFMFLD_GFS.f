@@ -39,6 +39,7 @@
 !> 2006-11-06 | H CHUANG     | Modify to output GFS LFM fields which have different thickness as MESO and use DP rather than DZ
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS Module
+!> 2021-10-14 | JESSE MENG   | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE LFMFLD_GFS(RH4410,RH7294,RH4472,RH3310)
@@ -48,7 +49,7 @@
       use vrbls3d, only: pint, q, t, pmid
       use masks, only: lmh
       use params_mod, only: d00
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: jsta, jend, spval, im, ista, iend
       use upp_physics, only: FPVSNEW
 !     
     implicit none
@@ -64,7 +65,7 @@
 !     DECLARE VARIABLES.
 !     
       REAL ALPM, DZ, ES, PM, PWSUM, QM, QS
-      REAL,dimension(IM,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
+      REAL,dimension(ista:iend,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
                                                  ,RH3310    
 !
       integer I,J,L,LLMH
@@ -78,7 +79,7 @@
 !     LOOP OVER HORIZONTAL GRID.
 !     
       DO 30 J=JSTA,JEND
-      DO 30 I=1,IM
+      DO 30 I=ISTA,IEND
 !     
 !        ZERO VARIABLES.
          RH4410(I,J) = D00

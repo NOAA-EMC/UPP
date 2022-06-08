@@ -67,7 +67,7 @@
 !
       USE vrbls2d, only: fis, u10, v10
       use params_mod, only: gi
-      use ctlblk_mod, only: jsta, jend, im, jm, lsm, spval
+      use ctlblk_mod, only: jsta, jend, im, jm, lsm, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -84,7 +84,7 @@
 !
 
       DO 100 J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
  
           Z1 = 10.0 + FIS(I,J)*GI                              !Height of 10m levels geographic height (from sea level)
           
@@ -158,20 +158,65 @@
 !>     
 !> @author Binbin Zhou NCEP/EMC  @date 2005-08-16       
       SUBROUTINE CALICING (T1,RH,OMGA, ICING)
-      use ctlblk_mod, only: jsta, jend, im, spval
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .     
+! SUBPROGRAM:    CALICING       COMPUTES In-Flight Icing
+!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
+!     
+! ABSTRACT:  
+!    This program computes the in-flight icing condition
+!    with the T-RH-OMGA algorithm provided by S. Silberberg of
+!    NCEP/AWC (improved new version)
+! 
+!    According to S. Silberberg, Icing happens in following 
+!    situation:
+!       (1) -22C < T < 0C to      
+!       (2)  RH > 70 %
+!       (3) Ascent air, OMGA < 0 
+!       (4) Equivalent Potential Vorticity (EPV) < 0
+!       (5) Cloud water if SLD (supercooled large droplet)
+!
+!    Current version dosn't consider SLD, so cloud water           
+!    is not used. EPV computation is not available for current
+!    NCEP/EMC models(NAM, WRF, RSM), so EPV is also not
+!    used
+!
+! USAGE:    CALL CALICING(T1,RH,OMGA,ICING)
+!   INPUT ARGUMENT LIST:
+!     T1     - TEMPERATURE (K)
+!     RH     - RELATIVE HUMIDITY  (DECIMAL FORM)
+!     OMGA   - Vertical velocity (Pa/sec)
+!
+!   OUTPUT ARGUMENT LIST: 
+!     ICING     - ICING CONDITION (1 or 0)
+!     
+!   OUTPUT FILES:
+!     NONE
+!     
+!   SUBPROGRAMS CALLED:
+!     UTILITIES:
+!     LIBRARY:
+!       NONE
+!     
+!   ATTRIBUTES:
+!     LANGUAGE: FORTRAN 90/77
+!     MACHINE : BLUE AT NCEP
+!$$$  
+!
+      use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL, DIMENSION(IM,jsta:jend), INTENT(IN)    :: T1,RH,OMGA
-      REAL, DIMENSION(IM,jsta:jend), INTENT(INOUT) :: ICING 
+      REAL, DIMENSION(ista:iend,jsta:jend), INTENT(IN)    :: T1,RH,OMGA
+      REAL, DIMENSION(ista:iend,jsta:jend), INTENT(INOUT) :: ICING 
       integer I,J
 !***************************************************************
 !
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
         IF(OMGA(I,J)<SPVAL.AND.T1(I,J)<SPVAL.AND.RH(I,J)<SPVAL) THEN
          IF(OMGA(I,J) < 0.0 .AND.                       &
             (T1(I,J) <= 273.0 .AND. T1(I,J) >= 251.0)   &
@@ -219,7 +264,7 @@
       SUBROUTINE CALCAT(U,V,H,U_OLD,V_OLD,H_OLD,CAT)
       use masks, only: dx, dy
       use ctlblk_mod, only: spval, jsta_2l, jend_2u, jsta_m, jend_m, &
-              im, jm
+              im, jm, ista_2l, iend_2u, ista_m, iend_m, ista, iend
       use gridspec_mod, only: gridtype
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -228,10 +273,10 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,DIMENSION(IM,jsta_2l:jend_2u),INTENT(IN)    :: U,V,H, &
+      REAL,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),INTENT(IN)    :: U,V,H, &
                                                 U_OLD,V_OLD,H_OLD
 !      INTEGER,INTENT(IN)                      :: L
-      REAL,DIMENSION(IM,jsta_2l:jend_2u),INTENT(INOUT) :: CAT
+      REAL,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),INTENT(INOUT) :: CAT
 
       REAL  DSH, DST, DEF, CVG, VWS, TRBINDX
       INTEGER  IHE(JM),IHW(JM)
@@ -247,22 +292,22 @@
        IF(GRIDTYPE == 'A')THEN
         IHW(J)=-1
         IHE(J)=1 
-	ISTART=2
-        ISTOP=IM-1
+	ISTART=ISTA_M
+        ISTOP=IEND_M
         JSTART=JSTA_M
         JSTOP=JEND_M
        ELSE IF(GRIDTYPE=='E')THEN
         IHW(J)=-MOD(J,2)
         IHE(J)=IHW(J)+1
-	ISTART=2
-        ISTOP=IM-1
+	ISTART=ISTA_M
+        ISTOP=IEND_M
         JSTART=JSTA_M
         JSTOP=JEND_M
        ELSE IF(GRIDTYPE=='B')THEN
         IHW(J)=-1
         IHE(J)=0 
-	ISTART=2
-        ISTOP=IM-1
+	ISTART=ISTA_M
+        ISTOP=IEND_M
         JSTART=JSTA_M
         JSTOP=JEND_M
        ELSE	
@@ -271,12 +316,12 @@
        END IF	
       ENDDO
 
-      call exch_f(U)
-      call exch_f(V)
-      call exch_f(U_OLD)
-      call exch_f(V_OLD)
-      call exch_f(H)
-      call exch_f(H_OLD)
+      call exch(U)
+      call exch(V)
+      call exch(U_OLD)
+      call exch(V_OLD)
+      call exch(H)
+      call exch(H_OLD)
 
       DO 100 J=JSTART,JSTOP
         DO I=ISTART,ISTOP
@@ -451,20 +496,20 @@
       SUBROUTINE CALCEILING (CLDZ,TCLD,CEILING)
       USE vrbls2d, only: fis
       use params_mod, only: small, gi
-      use ctlblk_mod, only: jsta, jend, spval, im, modelname
+      use ctlblk_mod, only: jsta, jend, spval, im, modelname, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL, DIMENSION(IM,jsta:jend), INTENT(IN)    :: CLDZ, TCLD
-      REAL, DIMENSION(IM,jsta:jend), INTENT(INOUT) :: CEILING
+      REAL, DIMENSION(ista:iend,jsta:jend), INTENT(IN)    :: CLDZ, TCLD
+      REAL, DIMENSION(ista:iend,jsta:jend), INTENT(INOUT) :: CEILING
       integer I,J
 !***************************************************************
 !
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(ABS(TCLD(I,J)-SPVAL) <= SMALL) THEN
             CEILING(I,J)=SPVAL
           ELSE IF(TCLD(I,J) >= 50.) THEN
@@ -504,14 +549,14 @@
 !> @author Binbin Zhou NCEP/EMC @date 2005-08-18       
       SUBROUTINE CALFLTCND (CEILING,FLTCND)
       use vrbls2d, only: vis
-      use ctlblk_mod, only: jsta, jend, im, spval
+      use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL, DIMENSION(IM,jsta:jend), INTENT(IN)    :: CEILING
-      REAL, DIMENSION(IM,jsta:jend), INTENT(INOUT) :: FLTCND
+      REAL, DIMENSION(ista:iend,jsta:jend), INTENT(IN)    :: CEILING
+      REAL, DIMENSION(ista:iend,jsta:jend), INTENT(INOUT) :: FLTCND
       REAL  CEIL,VISI
       integer I,J
 !
@@ -519,7 +564,7 @@
 !
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
  
         IF(CEILING(I,J)<spval.and.VIS(I,J)<spval)THEN
           CEIL = CEILING(I,J) * 3.2808               !from m -> feet

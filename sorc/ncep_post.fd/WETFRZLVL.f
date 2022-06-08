@@ -25,6 +25,7 @@
 !> 2004-12-06 | Geoff Manikin | Corrected computation of SFC temperature
 !> 2005-03-11 | H CHUANG      | WRF Version
 !> 2021-07-26 | W Meng        | Restrict computation from undefined grids
+!> 2021-09-13 | J Meng        | 2D DECOMPOSITION
 !>
 !> @author Geoff Manikin W/NP2 @date 2003-11-14
       SUBROUTINE WETFRZLVL(TWET,ZWET)
@@ -35,14 +36,15 @@
       use vrbls2d, only:  fis, thz0, ths
       use masks, only: lmh, sm
       use params_mod, only: gi, p1000, capa, tfrz, d0065, d50
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, spval
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, spval, &
+                            ista, iend, ista_2l, iend_2u 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,intent(in) :: TWET(IM,JSTA_2L:JEND_2U,LM)
-      REAL,intent(out) :: ZWET(IM,jsta:jend)
+      REAL,intent(in) :: TWET(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM)
+      REAL,intent(out) :: ZWET(ista:iend,jsta:jend)
 !     
       integer I,J,LLMH,L
       real HTSFC,THSFC,PSFC,TSFC,DELZ,DELT,ZL,ZU
@@ -55,7 +57,7 @@
 !!$omp& private(delt,delz,htsfc,l,llmh
 !!$omp&         tsfc,zl,zu)
       DO J=JSTA,JEND
-      DO I=1,IM
+      DO I=ISTA,IEND
          IF(FIS(I,J)==spval)THEN
            ZWET(I,J)=spval
            CYCLE

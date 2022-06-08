@@ -38,11 +38,12 @@
 !> 1998-06-12 | T Black      | Conversion from 1-D to 2-D
 !> 2000-01-04 | Jim Tuccillo | MPI Version
 !> 2021-07-26 | W Meng       | Restrict computation from undefined grids
+!> 2021-10-31 | J Meng       | 2D Decomposition
 !>
 !> @author Jim Tuccillo W/NP2 @date 1990-05-19
       SUBROUTINE DEWPOINT( VP, TD)
 
-       use ctlblk_mod, only: jsta, jend, im, spval
+       use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -50,8 +51,8 @@
       integer,PARAMETER :: NT=2000
 !...TRANSLATED BY FPP 3.00Z36 11/09/90  14:48:53  
 !...SWITCHES: OPTON=I47,OPTOFF=VAE0
-      real,intent(out) :: TD(IM,jsta:jend)
-      real,intent(in) ::  VP(IM,jsta:jend)
+      real,intent(out) :: TD(ista:iend,jsta:jend)
+      real,intent(in) ::  VP(ista:iend,jsta:jend)
       real TDP(NT)
 !jw
       integer NN,I,J,JNT
@@ -127,7 +128,7 @@
 !
 !$omp parallel do private(i,j,w1,w2,jnt)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(VP(I,J)<spval)THEN
           W1  = MIN(MAX((A*VP(I,J)+B),1.0),DNTM1)
           W2  = AINT(W1)

@@ -187,6 +187,7 @@
       deallocate(tsnow)
       deallocate(qvg)
       deallocate(qv2m)
+      deallocate(qvl1)
       deallocate(rswin)
       deallocate(swddni)
       deallocate(swddif)

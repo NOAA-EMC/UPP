@@ -39,6 +39,7 @@
 !> 2005-07-07 | Binbin Zhou     | Add RSM for A grid  
 !> 2019-09-03 | J Meng          | Modified to compute effective helicity and critical angle
 !> 2021-03-15 | E Colon         | CALHEL2 modified to compute effective rather than fixed layer helicity
+!> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
       SUBROUTINE CALHEL3(LLOW,LUPP,UST,VST,HELI)
@@ -50,7 +51,8 @@
       use params_mod, only: g
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
-                            lm, im, jm, me, spval
+                            lm, im, jm, me, spval, &
+                            ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -68,15 +70,15 @@
 !     
 !     DECLARE VARIABLES
 !     
-      integer,dimension(IM,jsta_2l:jend_2u),intent(in) :: LLOW, LUPP
-      REAL,dimension(IM,jsta_2l:jend_2u),  intent(out) :: UST,VST
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(out) :: HELI
+      integer,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in) :: LLOW, LUPP
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),  intent(out) :: UST,VST
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(out) :: HELI
 !
-      real, dimension(im,jsta_2l:jend_2u) :: HTSFC, UST6, VST6, UST5, VST5,   &
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: HTSFC, UST6, VST6, UST5, VST5,   &
                                              UST1,  VST1, USHR1, VSHR1,       &
                                              USHR6, VSHR6, U1, V1, U2, V2,    &
                                              HGT1,  HGT2, UMEAN, VMEAN
-      real, dimension(im,jsta_2l:jend_2u) :: USHR05,VSHR05,ELT,ELB
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: USHR05,VSHR05,ELT,ELB
 
 !     REAL HTSFC(IM,JM)
 !
@@ -89,7 +91,7 @@
 !     REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
 ! CRA
 
-      integer, dimension(im,jsta_2l:jend_2u) :: COUNT6, COUNT5, COUNT1, L1, L2
+      integer, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: COUNT6, COUNT5, COUNT1, L1, L2
 !     INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
 ! CRA
 !     INTEGER L1(IM,JM),L2(IM,JM)
@@ -108,7 +110,7 @@
 !     
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           UST(I,J)    = 0.0
           VST(I,J)    = 0.0
           HELI(I,J) = 0.0
@@ -149,8 +151,8 @@
           IVE(J) = MOD(J,2)
           IVW(J) = IVE(J)-1
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE IF(gridtype == 'B')THEN
@@ -160,8 +162,8 @@
           IVE(J)=1
           IVW(J)=0
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
@@ -171,8 +173,8 @@
           IVE(J) = 0
           IVW(J) = 0
         enddo
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND 
       END IF 
@@ -187,9 +189,9 @@
 !      END DO
 ! 
 !!$omp  parallel do private(htsfc,ie,iw)
-      IF(gridtype /= 'A') CALL EXCH(FIS(1:IM,JSTA_2L:JEND_2U))
+      IF(gridtype /= 'A') CALL EXCH(FIS(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U))
       DO L = 1,LM
-        IF(gridtype /= 'A') CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L)) 
+        IF(gridtype /= 'A') CALL EXCH(ZMID(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,L)) 
         DO J=JSTART,JSTOP
           DO I=ISTART,ISTOP
             IE = I+IVE(J)

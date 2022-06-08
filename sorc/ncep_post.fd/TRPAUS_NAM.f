@@ -29,6 +29,7 @@
 !> 2000-01-04 | Jim Tuccillo  | MPI Version
 !> 2002-04-23 | Mike Baldwin  | WRF Version
 !> 2019-10-30 | Bo Cui        | ReMOVE "GOTO" STATEMENT
+!> 2021-09-13 | JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE TRPAUS(PTROP,TTROP,ZTROP,UTROP,VTROP,SHTROP)
@@ -52,8 +53,8 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL PTROP(IM,JM),TTROP(IM,JM),ZTROP(IM,JM),UTROP(IM,JM)
-      REAL VTROP(IM,JM),SHTROP(IM,JM)
+      REAL PTROP(ISTA:IEND,JSTA:JEND),TTROP(ISTA:IEND,JSTA:JEND),ZTROP(ISTA:IEND,JSTA:JEND),UTROP(ISTA:IEND,JSTA:JEND)
+      REAL VTROP(ISTA:IEND,JSTA:JEND),SHTROP(ISTA:IEND,JSTA:JEND)
       REAL TLAPSE(LM),DZ2(LM),DELT2(LM),TLAPSE2(LM)
 !
       integer I,J
@@ -65,7 +66,7 @@
 !     LOOP OVER THE HORIZONTAL GRID.
 !    
       DO J=JSTA,JEND
-      DO I=1,IM
+      DO I=ISTA,IEND
          PTROP(I,J)  = SPVAL
          TTROP(I,J)  = SPVAL
          ZTROP(I,J)  = SPVAL
@@ -80,7 +81,7 @@
 !$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !$omp&         v0,v0l,vh,vh0)
        DO J=JSTA,JEND
-       loopI:DO I=1,IM
+       loopI:DO I=ISTA,IEND
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER

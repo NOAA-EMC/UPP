@@ -20,6 +20,7 @@
 !> 2002-06-11 | Mike Baldwin  | WRF Version
 !> 2011-04-12 | Geoff Manikin | Use virtual temperature
 !> 2020-11-10 | Jesse Meng    | Use UPP_PHYSICS Module
+!> 2021-09-30 | JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1993-03-10
       SUBROUTINE OTLIFT(SLINDX)
@@ -30,7 +31,7 @@
       use masks,      only: LMH
       use lookup_mod, only: THL, RDTH, JTB, QS0, SQS, RDQ,ITB, PTBL, PL, &
                             RDP, THE0, STHE, RDTHE, TTBL
-      use ctlblk_mod, only: JSTA, JEND, IM, SPVAL
+      use ctlblk_mod, only: JSTA, JEND, IM, SPVAL, ISTA, IEND
       use params_mod, only: D00,H10E5, CAPA, ELOCP, EPS, ONEPS
       use upp_physics, only: FPVSNEW
 !
@@ -43,7 +44,7 @@
 
 !     
 !     DECLARE VARIABLES.
-      real,intent(out) :: SLINDX(IM,jsta:jend)
+      real,intent(out) :: SLINDX(ista:iend,jsta:jend)
       REAL :: TVP, ESATP, QSATP
       REAL :: TTH, TP, APESP, PARTMP, THESP, TPSP
       REAL :: BQS00, SQS00, BQS10, SQS10, BQ, SQ, TQ
@@ -60,13 +61,13 @@
 !     INTIALIZE LIFTED INDEX ARRAY TO ZERO.
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           SLINDX(I,J) = D00
         ENDDO
       ENDDO
 !--------------FIND EXNER AT LOWEST LEVEL-------------------------------
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LBTM=NINT(LMH(I,J))
           IF(T(I,J,LBTM)<SPVAL .AND. Q(I,J,LBTM)<SPVAL) THEN
           TBT = T(I,J,LBTM)
