@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -132,67 +132,67 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="memname">subroutine BNDLYR </td>
           <td>(</td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>PBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>TBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>QBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>RHBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>UBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>VBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>WBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>OMGBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>PWTBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>QCNVBND</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer, dimension(im,jsta:jend,nbnd), intent(inout)&#160;</td>
+          <td class="paramtype">integer, dimension(ista:iend,jsta:jend,nbnd), intent(inout)&#160;</td>
           <td class="paramname"><em>LVLBND</em>&#160;</td>
         </tr>
         <tr>
@@ -235,13 +235,14 @@ Functions/Subroutines</h2></td></tr>
 <li>02-01-15 MIKE BALDWIN - WRF VERSION</li>
 <li>20-11-10 JESSE MENG - USE UPP_PHYSICS MODULE</li>
 <li>21-08-20 Wen Meng - Retrict computation fro undefined points.</li>
+<li>21-09-02 Bo Cui - Decompose UPP in X direction.</li>
 </ul>
 <dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>1993-01-29 </dd></dl>
 
-<p>Definition at line <a class="el" href="BNDLYR_8f_source.html#l00047">47</a> of file <a class="el" href="BNDLYR_8f_source.html">BNDLYR.f</a>.</p>
+<p>Definition at line <a class="el" href="BNDLYR_8f_source.html#l00048">48</a> of file <a class="el" href="BNDLYR_8f_source.html">BNDLYR.f</a>.</p>
 
-<p>References <a class="el" href="UPP__PHYSICS_8f_source.html#l00341">upp_physics::fpvsnew()</a>.</p>
+<p>References <a class="el" href="UPP__PHYSICS_8f_source.html#l00345">upp_physics::fpvsnew()</a>.</p>
 
 </div>
 </div>

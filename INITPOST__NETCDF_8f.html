@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -119,18 +119,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a971bb48de0c3d20a20e6aa8577c608ea"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NETCDF_8f.html#a971bb48de0c3d20a20e6aa8577c608ea">INITPOST_NETCDF</a> (ncid2d, ncid3d)</td></tr>
 <tr class="memdesc:a971bb48de0c3d20a20e6aa8577c608ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine initializes constants and variables at the start of GFS model or post processor run.  <a href="#a971bb48de0c3d20a20e6aa8577c608ea">More...</a><br/></td></tr>
 <tr class="separator:a971bb48de0c3d20a20e6aa8577c608ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27c4820163379b4e5d240c04ed09b469"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27c4820163379b4e5d240c04ed09b469"></a>
-subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_2d_para</b> (ncid, im, jsta, jsta_2l, jend, jend_2u, spval, VarName, buf)</td></tr>
-<tr class="separator:a27c4820163379b4e5d240c04ed09b469"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3c261fccb584ef4a850814e640d30ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3c261fccb584ef4a850814e640d30ec"></a>
-subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_2d_scatter</b> (me, ncid, ifhr, im, jm, jsta, jsta_2l, jend_2u, MPI_COMM_COMP, icnt, idsp, spval, VarName, buf)</td></tr>
-<tr class="separator:ab3c261fccb584ef4a850814e640d30ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd80b4dc865642afb3c09565c086ff76"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd80b4dc865642afb3c09565c086ff76"></a>
-subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_3d_para</b> (ncid, im, jm, jsta, jsta_2l, jend, jend_2u, spval, varname, buf, lm)</td></tr>
-<tr class="separator:abd80b4dc865642afb3c09565c086ff76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac20db1268bffaf0a6d68b6d676962afc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac20db1268bffaf0a6d68b6d676962afc"></a>
-subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_3d_scatter</b> (me, ncid, ifhr, im, jm, jsta, jsta_2l, jend_2u, MPI_COMM_COMP, icnt, idsp, spval, VarName, lm, buf)</td></tr>
-<tr class="separator:ac20db1268bffaf0a6d68b6d676962afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31497cd81970b2e4cc731de8c5d6864a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a31497cd81970b2e4cc731de8c5d6864a"></a>
+subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_2d_para</b> (ncid, ista, ista_2l, iend, iend_2u, jsta, jsta_2l, jend, jend_2u, spval, VarName, buf)</td></tr>
+<tr class="separator:a31497cd81970b2e4cc731de8c5d6864a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1694290dc62d68715191b0c3ce589162"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1694290dc62d68715191b0c3ce589162"></a>
+subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_3d_para</b> (ncid, im, jm, ista, ista_2l, iend, iend_2u, jsta, jsta_2l, jend, jend_2u, spval, varname, buf, lm)</td></tr>
+<tr class="separator:a1694290dc62d68715191b0c3ce589162"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>initpost_netcdf() initializes post for run. </p>
@@ -173,18 +167,22 @@ subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>read_netcdf_3d_
 <tr>
 <td>2021-03-11 </td><td>Bo Cui </td><td>Change local arrays to dimension (im,jsta:jend) </td></tr>
 <tr>
+<td>2021-10-26 </td><td>Jesse Meng </td><td>2D DECOMPOSITION </td></tr>
+<tr>
 <td>2022-02-07 </td><td>Wen Meng </td><td>Changes for parallel netcdf read </td></tr>
 <tr>
 <td>2022-03-15 </td><td>Wen Meng </td><td>Unify regional and global interfaces </td></tr>
 <tr>
 <td>2022-03-22 </td><td>Wen Meng </td><td>Read PWAT from model </td></tr>
+<tr>
+<td>2022-04-08 </td><td>Bo Cui </td><td>2D decomposition for unified fv3 read interfaces </td></tr>
 </table>
 <dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2016-03-04 </dd></dl>
 
-<p>Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l00020">20</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
+<p>Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l00022">22</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
-<p>References <a class="el" href="UPP__PHYSICS_8f_source.html#l00341">upp_physics::fpvsnew()</a>.</p>
+<p>References <a class="el" href="UPP__PHYSICS_8f_source.html#l00345">upp_physics::fpvsnew()</a>.</p>
 
 </div>
 </div>

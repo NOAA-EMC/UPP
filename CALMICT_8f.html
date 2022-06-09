@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -160,6 +160,8 @@ subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>CALMICT_new</b>
 <td>2004-11-17 </td><td>H Chuang </td><td>WRF VERSION </td></tr>
 <tr>
 <td>2014-03-11 </td><td>Brad Ferrier </td><td>Created new &amp; old versions of this subroutine to process new &amp; old versions of the microphysics </td></tr>
+<tr>
+<td>2021-09-02 </td><td>Bo Cui </td><td>Decompose UPP in X direction </td></tr>
 </table>
 <dl class="section author"><dt>Author</dt><dd>Yi Jin W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2001-08-14 </dd></dl>
@@ -173,109 +175,109 @@ subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>CALMICT_new</b>
         <tr>
           <td class="memname">subroutine CALMICT_old </td>
           <td>(</td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>P1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>T1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>Q1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>C1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>FI1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>FR1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>FS1D</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>CUREFL</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>QW1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>QI1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>QR1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>QS1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>DBZ1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>DBZR1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>DBZI1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>DBZC1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>NLICE1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(inout)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout)&#160;</td>
           <td class="paramname"><em>NRAIN1</em>&#160;</td>
         </tr>
         <tr>
@@ -326,7 +328,7 @@ subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>CALMICT_new</b>
 <dl class="section author"><dt>Author</dt><dd>Yi Jin W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2001-08-14 </dd></dl>
 
-<p>Definition at line <a class="el" href="CALMICT_8f_source.html#l00300">300</a> of file <a class="el" href="CALMICT_8f_source.html">CALMICT.f</a>.</p>
+<p>Definition at line <a class="el" href="CALMICT_8f_source.html#l00302">302</a> of file <a class="el" href="CALMICT_8f_source.html">CALMICT.f</a>.</p>
 
 </div>
 </div>

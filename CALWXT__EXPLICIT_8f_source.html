@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -113,76 +113,79 @@ $(document).ready(function(){initNavTree('CALWXT__EXPLICIT_8f_source.html','');}
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">!</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment">!     ROUTINE TO COMPUTE PRECIPITATION TYPE USING EXPLICIT FIELDS</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment">!       FROM THE MODEL MICROPHYSICS</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: p1000, capa</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;      <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, modelname, pthresh, im, jsta_2l,  &amp;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;                            jend_2u, lm</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;      <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">!  LIST OF VARIABLES NEEDED</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">!    PARAMETERS:</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment">!     PROGRAM HISTORY LOG:</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment">!     21-10-31  JESSE MENG - 2D DECOMPOSITION</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: p1000, capa</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;      <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, modelname, pthresh, im, jsta_2l,  &amp;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;                            jend_2u, lm, ista, iend, ista_2l, iend_2u</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;      <span class="keywordtype">implicit none</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">!    INPUT:</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;      <span class="keywordtype">real</span>,<span class="keywordtype">dimension(im,jsta_2l:jend_2u,lm)</span>,<span class="keywordtype">intent(in)</span>    :: f_rimef, pmid</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(im,jsta_2l:jend_2u)</span>,   <span class="keywordtype">intent(in)</span>    :: lmh, prec, ths, sr</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;      <span class="keywordtype">integer</span>,<span class="keywordtype">dimension(im,jsta:jend)</span>,      <span class="keywordtype">intent(inout)</span> :: iwx</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;      <span class="keywordtype">integer</span> i,j,lmhk</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      <span class="keywordtype">real</span> psfc,tskin,snow</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">!     ALLOCATE LOCAL STORAGE</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">!$omp  parallel do private(i,j)</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <span class="keywordflow">DO</span> i=1,im</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;          iwx(i,j) = 0</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        <span class="keywordflow">ENDDO</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;      <span class="keywordflow">ENDDO</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">!$omp  parallel do private(j,i,lmhk,psfc,tskin)</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keywordflow">DO</span> i=1,im</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;          lmhk=lmh(i,j)</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">!   SKIP THIS POINT IF NO PRECIP THIS TIME STEP </span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;          <span class="keywordflow">IF</span> (prec(i,j) &lt;= pthresh) cycle</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">!  A SNOW RATIO LESS THAN 0.5 ELIMINATES SNOW AND SLEET</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">!   USE THE SKIN TEMPERATURE TO DISTINGUISH RAIN FROM FREEZING RAIN</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">!   NOTE THAT 2-M TEMPERATURE MAY BE A BETTER CHOICE IF THE MODEL</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">!   HAS A COLD BIAS FOR SKIN TEMPERATURE</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">! </span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;          <span class="keywordflow">IF</span> (sr(i,j) &lt; 0.5) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">!        SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;            psfc  = pmid(i,j,lmhk)</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;            tskin = ths(i,j)*(psfc/p1000)**capa </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">IF</span> (tskin &lt; 273.15) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">!          FREEZING RAIN = 4</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;              iwx(i,j) = iwx(i,j)+4</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            <span class="keywordflow">ELSE</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">!          RAIN = 8</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;              iwx(i,j) = iwx(i,j)+8</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          <span class="keywordflow">ELSE</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">!  </span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">!  DISTINGUISH SNOW FROM SLEET WITH THE RIME FACTOR</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">! </span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;            <span class="keywordflow">IF</span>(f_rimef(i,j,lmhk) &gt;= 10) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">!          SLEET = 2</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;              iwx(i,j) = iwx(i,j)+2</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;            <span class="keywordflow">ELSE</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">!              SNOW = 1</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;              iwx(i,j) = iwx(i,j)+1 </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;            <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;          <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        <span class="keywordflow">enddo</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      <span class="keywordflow">enddo</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      <span class="keywordflow">RETURN</span> </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      <span class="keywordflow">END</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">!  LIST OF VARIABLES NEEDED</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">!    PARAMETERS:</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">!    INPUT:</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;      <span class="keywordtype">real</span>,<span class="keywordtype">dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm)</span>,<span class="keywordtype">intent(in)</span>    :: f_rimef, pmid</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(ista_2l:iend_2u,jsta_2l:jend_2u)</span>,   <span class="keywordtype">intent(in)</span>    :: lmh, prec, ths, sr</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;      <span class="keywordtype">integer</span>,<span class="keywordtype">dimension(ista:iend,jsta:jend)</span>,      <span class="keywordtype">intent(inout)</span> :: iwx</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;      <span class="keywordtype">integer</span> i,j,lmhk</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;      <span class="keywordtype">real</span> psfc,tskin,snow</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">!     ALLOCATE LOCAL STORAGE</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">!$omp  parallel do private(i,j)</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        <span class="keywordflow">DO</span> i=ista,iend</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;          iwx(i,j) = 0</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="keywordflow">ENDDO</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      <span class="keywordflow">ENDDO</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">!$omp  parallel do private(j,i,lmhk,psfc,tskin)</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <span class="keywordflow">DO</span> i=ista,iend</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;          lmhk=lmh(i,j)</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!   SKIP THIS POINT IF NO PRECIP THIS TIME STEP </span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;          <span class="keywordflow">IF</span> (prec(i,j) &lt;= pthresh) cycle</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">!  A SNOW RATIO LESS THAN 0.5 ELIMINATES SNOW AND SLEET</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">!   USE THE SKIN TEMPERATURE TO DISTINGUISH RAIN FROM FREEZING RAIN</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">!   NOTE THAT 2-M TEMPERATURE MAY BE A BETTER CHOICE IF THE MODEL</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">!   HAS A COLD BIAS FOR SKIN TEMPERATURE</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">! </span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;          <span class="keywordflow">IF</span> (sr(i,j) &lt; 0.5) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">!        SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            psfc  = pmid(i,j,lmhk)</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;            tskin = ths(i,j)*(psfc/p1000)**capa </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            <span class="keywordflow">IF</span> (tskin &lt; 273.15) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">!          FREEZING RAIN = 4</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;              iwx(i,j) = iwx(i,j)+4</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            <span class="keywordflow">ELSE</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">!          RAIN = 8</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;              iwx(i,j) = iwx(i,j)+8</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          <span class="keywordflow">ELSE</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">!  </span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">!  DISTINGUISH SNOW FROM SLEET WITH THE RIME FACTOR</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">! </span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;            <span class="keywordflow">IF</span>(f_rimef(i,j,lmhk) &gt;= 10) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">!          SLEET = 2</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;              iwx(i,j) = iwx(i,j)+2</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;            <span class="keywordflow">ELSE</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">!              SNOW = 1</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;              iwx(i,j) = iwx(i,j)+1 </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;          <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <span class="keywordflow">enddo</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      <span class="keywordflow">enddo</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      <span class="keywordflow">RETURN</span> </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      <span class="keywordflow">END</span></div>
 <div class="ttc" id="classparams__mod_html"><div class="ttname"><a href="classparams__mod.html">params_mod</a></div><div class="ttdef"><b>Definition:</b> <a href="params_8F_source.html#l00001">params.F:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

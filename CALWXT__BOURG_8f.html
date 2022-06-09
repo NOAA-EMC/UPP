@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -116,9 +116,9 @@ $(document).ready(function(){initNavTree('CALWXT__BOURG_8f.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a9b277744a68d43f3e14ba951fd88b844"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b277744a68d43f3e14ba951fd88b844"></a>
-subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>calwxt_bourg_post</b> (im, jm, jsta_2l, jend_2u, jsta, jend, lm, lp1, iseed, g, pthresh, t, q, pmid, pint, lmh, prec, zint, ptype, me)</td></tr>
-<tr class="separator:a9b277744a68d43f3e14ba951fd88b844"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad114fb7d1faa42da3b293ea5aeeb6c98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad114fb7d1faa42da3b293ea5aeeb6c98"></a>
+subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>calwxt_bourg_post</b> (im, ista_2l, iend_2u, ista, iend, jm, jsta_2l, jend_2u, jsta, jend, lm, lp1, iseed, g, pthresh, t, q, pmid, pint, lmh, prec, zint, ptype, me)</td></tr>
+<tr class="separator:ad114fb7d1faa42da3b293ea5aeeb6c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Subroutine that calculate precipitation type (Bourgouin). </p>
@@ -171,6 +171,8 @@ subroutine&#160;</td><td class="memItemRight" valign="bottom"><b>calwxt_bourg_po
 <td>2007-06-19 </td><td>M Iredell </td><td>mersenne twister, best practices </td></tr>
 <tr>
 <td>2015-??-?? </td><td>S Moorthi </td><td>changed random number call and optimization and cleanup </td></tr>
+<tr>
+<td>2021-10-31 </td><td>J Meng </td><td>2D DECOMPOSITION </td></tr>
 </table>
 <p>Remarks: vertical order of arrays must be layer 1 = top and layer lmh = bottom</p>
 <dl class="section author"><dt>Author</dt><dd>M Baldwin np22 </dd></dl>

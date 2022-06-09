@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -108,96 +108,97 @@ $(document).ready(function(){initNavTree('WETFRZLVL_8f_source.html','');});
 <div class="contents">
 <a href="WETFRZLVL_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="WETFRZLVL_8f.html#a659d19a6670b345dc619c99f970f92b9">   30</a></span>&#160;<span class="keyword">      SUBROUTINE </span>wetfrzlvl(TWET,ZWET)</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="WETFRZLVL_8f.html#a659d19a6670b345dc619c99f970f92b9">   31</a></span>&#160;<span class="keyword">      SUBROUTINE </span>wetfrzlvl(TWET,ZWET)</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls3d.html">vrbls3d</a><span class="keywordtype">, only</span>: pint, zint, t</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls2d.html">vrbls2d</a><span class="keywordtype">, only</span>:  fis, thz0, ths</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classmasks.html">masks</a><span class="keywordtype">, only</span>: lmh, sm</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: gi, p1000, capa, tfrz, d0065, d50</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, im, jsta_2l, jend_2u, lm, spval</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">!     DECLARE VARIABLES.</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">intent(in)</span> :: twet(im,jsta_2l:jend_2u,lm)</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">intent(out)</span> :: zwet(im,jsta:jend)</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="keywordtype">integer</span> i,j,llmh,l</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keywordtype">real</span> htsfc,thsfc,psfc,tsfc,delz,delt,zl,zu</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">!*********************************************************************</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">!     START FRZLVL.</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">!     LOOP OVER HORIZONTAL GRID.</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">!!$omp  parallel do</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">!!$omp&amp; private(delt,delz,htsfc,l,llmh</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">!!$omp&amp;         tsfc,zl,zu)</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;      <span class="keywordflow">DO</span> i=1,im</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;         <span class="keywordflow">IF</span>(fis(i,j)==spval)<span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;           zwet(i,j)=spval</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;           cycle</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;         <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;         htsfc     = fis(i,j)*gi</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;         llmh      = nint(lmh(i,j))</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;         zwet(i,j) = htsfc</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">!        CHECK IF FREEZING LEVEL IS AT THE GROUND.</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">!        IF YES, ESTIMATE UNDERGROUND FREEZING LEVEL USING 6.5C/KM LAPSE RATE</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">!        AND ASSUME RH TO BE EQUAL TO RH AT SFC</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;         thsfc = (sm(i,j)*thz0(i,j)+(1.-sm(i,j))*ths(i,j))</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;         psfc  = pint(i,j,llmh+1)</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;         tsfc  = thsfc*(psfc/p1000)**capa</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;         <span class="keywordflow">IF</span> (tsfc&lt;=tfrz) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">!            ZWET(I,J) = HTSFC</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            zwet(i,j) = htsfc+(tsfc-tfrz)/d0065</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;            cycle   </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;         <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">!        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;         loopl:<span class="keywordflow">DO</span> l = llmh,1,-1</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            <span class="keywordflow">IF</span> (twet(i,j,l)&lt;=tfrz) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;               <span class="keywordflow">IF</span> (l&lt;llmh-1) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                  delz = d50*(zint(i,j,l)-zint(i,j,l+2))</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                  zl   = d50*(zint(i,j,l+1)+zint(i,j,l+2))</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                  delt = twet(i,j,l)-twet(i,j,l+1)</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                  zwet(i,j) = zl + (tfrz-twet(i,j,l+1))/delt*delz</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;               <span class="keywordflow">ELSE</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                  zu      = d50*(zint(i,j,l)+zint(i,j,l+1))</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                  zl      = htsfc</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                  delz    = zu-zl</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                  tsfc    = sm(i,j)*thz0(i,j)+(1.-sm(i,j))*ths(i,j)    &amp;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                   *(pint(i,j,nint(lmh(i,j))+1)/p1000)**capa</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                  delt    = t(i,j,l)-tsfc</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;          <span class="keywordflow">IF</span>(delt /= 0.)<span class="keywordflow">THEN</span>  </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                   zwet(i,j) = zl + (tfrz-tsfc)/delt*delz</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;          <span class="keywordflow">ELSE</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;           zwet(i,j) = htsfc+(tsfc-twet(i,j,l))/d0065</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;          <span class="keywordflow">END IF</span>  </div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                  <span class="keywordflow">IF</span> (zwet(i,j) &gt; zu) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                    zwet(i,j)=zu</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                  <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                   <span class="keywordflow">IF</span> ((-1*zwet(i,j)) &gt; zu) <span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                    zwet(i,j)=zu</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                  <span class="keywordflow">endif</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;               <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;               <span class="keywordflow">EXIT</span> loopl </div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;            <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;         <span class="keywordflow">ENDDO</span> loopl</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;      <span class="keywordflow">ENDDO</span> <span class="comment">!end I</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;      <span class="keywordflow">ENDDO</span> <span class="comment">!end J</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment">!     END OF ROUTINE.</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls3d.html">vrbls3d</a><span class="keywordtype">, only</span>: pint, zint, t</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls2d.html">vrbls2d</a><span class="keywordtype">, only</span>:  fis, thz0, ths</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classmasks.html">masks</a><span class="keywordtype">, only</span>: lmh, sm</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: gi, p1000, capa, tfrz, d0065, d50</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, im, jsta_2l, jend_2u, lm, spval, &amp;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                            ista, iend, ista_2l, iend_2u </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="keywordtype">implicit none</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">!     DECLARE VARIABLES.</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">intent(in)</span> :: twet(ista_2l:iend_2u,jsta_2l:jend_2u,lm)</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">intent(out)</span> :: zwet(ista:iend,jsta:jend)</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordtype">integer</span> i,j,llmh,l</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <span class="keywordtype">real</span> htsfc,thsfc,psfc,tsfc,delz,delt,zl,zu</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">!*********************************************************************</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">!     START FRZLVL.</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">!     LOOP OVER HORIZONTAL GRID.</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">!!$omp  parallel do</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">!!$omp&amp; private(delt,delz,htsfc,l,llmh</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">!!$omp&amp;         tsfc,zl,zu)</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;      <span class="keywordflow">DO</span> i=ista,iend</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;         <span class="keywordflow">IF</span>(fis(i,j)==spval)<span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;           zwet(i,j)=spval</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;           cycle</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;         <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;         htsfc     = fis(i,j)*gi</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;         llmh      = nint(lmh(i,j))</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;         zwet(i,j) = htsfc</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">!        CHECK IF FREEZING LEVEL IS AT THE GROUND.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">!        IF YES, ESTIMATE UNDERGROUND FREEZING LEVEL USING 6.5C/KM LAPSE RATE</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">!        AND ASSUME RH TO BE EQUAL TO RH AT SFC</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;         thsfc = (sm(i,j)*thz0(i,j)+(1.-sm(i,j))*ths(i,j))</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;         psfc  = pint(i,j,llmh+1)</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;         tsfc  = thsfc*(psfc/p1000)**capa</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;         <span class="keywordflow">IF</span> (tsfc&lt;=tfrz) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">!            ZWET(I,J) = HTSFC</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            zwet(i,j) = htsfc+(tsfc-tfrz)/d0065</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            cycle   </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;         <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">!        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;         loopl:<span class="keywordflow">DO</span> l = llmh,1,-1</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            <span class="keywordflow">IF</span> (twet(i,j,l)&lt;=tfrz) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;               <span class="keywordflow">IF</span> (l&lt;llmh-1) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                  delz = d50*(zint(i,j,l)-zint(i,j,l+2))</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                  zl   = d50*(zint(i,j,l+1)+zint(i,j,l+2))</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                  delt = twet(i,j,l)-twet(i,j,l+1)</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                  zwet(i,j) = zl + (tfrz-twet(i,j,l+1))/delt*delz</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;               <span class="keywordflow">ELSE</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                  zu      = d50*(zint(i,j,l)+zint(i,j,l+1))</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                  zl      = htsfc</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                  delz    = zu-zl</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                  tsfc    = sm(i,j)*thz0(i,j)+(1.-sm(i,j))*ths(i,j)    &amp;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                   *(pint(i,j,nint(lmh(i,j))+1)/p1000)**capa</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                  delt    = t(i,j,l)-tsfc</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;          <span class="keywordflow">IF</span>(delt /= 0.)<span class="keywordflow">THEN</span>  </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                   zwet(i,j) = zl + (tfrz-tsfc)/delt*delz</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;          <span class="keywordflow">ELSE</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;           zwet(i,j) = htsfc+(tsfc-twet(i,j,l))/d0065</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;          <span class="keywordflow">END IF</span>  </div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                  <span class="keywordflow">IF</span> (zwet(i,j) &gt; zu) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                    zwet(i,j)=zu</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                  <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                   <span class="keywordflow">IF</span> ((-1*zwet(i,j)) &gt; zu) <span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                    zwet(i,j)=zu</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                  <span class="keywordflow">endif</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;               <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;               <span class="keywordflow">EXIT</span> loopl </div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;         <span class="keywordflow">ENDDO</span> loopl</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      <span class="keywordflow">ENDDO</span> <span class="comment">!end I</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;      <span class="keywordflow">ENDDO</span> <span class="comment">!end J</span></div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;      <span class="keywordflow">RETURN</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;      <span class="keywordflow">END</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">!     END OF ROUTINE.</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;      <span class="keywordflow">RETURN</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;      <span class="keywordflow">END</span></div>
 <div class="ttc" id="classvrbls2d_html"><div class="ttname"><a href="classvrbls2d.html">vrbls2d</a></div><div class="ttdef"><b>Definition:</b> <a href="VRBLS2D__mod_8f_source.html#l00001">VRBLS2D_mod.f:1</a></div></div>
 <div class="ttc" id="classmasks_html"><div class="ttname"><a href="classmasks.html">masks</a></div><div class="ttdef"><b>Definition:</b> <a href="MASKS__mod_8f_source.html#l00001">MASKS_mod.f:1</a></div></div>
 <div class="ttc" id="classparams__mod_html"><div class="ttname"><a href="classparams__mod.html">params_mod</a></div><div class="ttdef"><b>Definition:</b> <a href="params_8F_source.html#l00001">params.F:1</a></div></div>

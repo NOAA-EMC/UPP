@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -114,16 +114,16 @@ $(document).ready(function(){initNavTree('CALDWP_8f_source.html','');});
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">!</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">!     SET PARAMETERS.</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;     <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: eps, oneps, d001, h1m12</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;     <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, im, spval</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;     <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, im, spval, ista, iend</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      <span class="keywordtype">implicit none</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">!     </span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">!     DECLARE VARIABLES.</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;     <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(IM,jsta:jend)</span>,<span class="keywordtype">intent(in)</span>    ::  p1d,q1d,t1d</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;     <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(IM,jsta:jend)</span>,<span class="keywordtype">intent(inout)</span> ::  tdwp</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;     <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(ista:iend,jsta:jend)</span>,<span class="keywordtype">intent(in)</span>    ::  p1d,q1d,t1d</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;     <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(ista:iend,jsta:jend)</span>,<span class="keywordtype">intent(inout)</span> ::  tdwp</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;     <span class="keywordtype">REAL</span> evp(im,jsta:jend)</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;     <span class="keywordtype">REAL</span> evp(ista:iend,jsta:jend)</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;     <span class="keywordtype">integer</span> i,j</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">!     </span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">!****************************************************************************</span></div>
@@ -133,7 +133,7 @@ $(document).ready(function(){initNavTree('CALDWP_8f_source.html','');});
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!     </span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">!$omp parallel do private(i,j)</span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <span class="keywordflow">DO</span> i=1,im</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <span class="keywordflow">DO</span> i=ista,iend</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;          <span class="keywordflow">IF</span>(p1d(i,j)&lt;spval .and. q1d(i,j)&lt;spval) <span class="keywordflow">THEN</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;          evp(i,j) = p1d(i,j)*q1d(i,j)/(eps+oneps*q1d(i,j))</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;          evp(i,j) = max(h1m12,evp(i,j)*d001)</div>
@@ -151,7 +151,7 @@ $(document).ready(function(){initNavTree('CALDWP_8f_source.html','');});
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">!     </span></div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">!$omp parallel do private(i,j)</span></div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">DO</span> i=1,im</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">DO</span> i=ista,iend</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          tdwp(i,j) = min(tdwp(i,j),t1d(i,j))</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        <span class="keywordflow">ENDDO</span></div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      <span class="keywordflow">ENDDO</span></div>

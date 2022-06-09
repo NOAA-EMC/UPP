@@ -1,4 +1,5 @@
 var COLLECT__LOC_8f =
 [
+    [ "COLLECT_ALL", "COLLECT__LOC_8f.html#a1f09decbbe543765dcf25e1757470324", null ],
     [ "COLLECT_LOC", "COLLECT__LOC_8f.html#af0001b5525164948585bfe20582202e5", null ]
 ];

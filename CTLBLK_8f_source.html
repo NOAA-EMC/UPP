@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -117,98 +117,113 @@ $(document).ready(function(){initNavTree('CTLBLK_8f_source.html','');});
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment">!  2011-02    Jun Wang  - ADD variables for grib2</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment">!  2011-12-14 SARAH LU  - ADD AER FILENAME</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment">!  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">!-----------------------------------------------------------------------</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classCTLBLK__mod.html">   16</a></span>&#160;  <span class="keyword">type</span> field_info</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keywordtype">integer</span> ifld</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">integer</span> lvl</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">integer</span> lvl1,lvl2</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">integer</span> ntrange</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">integer</span> tinvstat</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">  end type</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: komax=70</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: lsmdef=46             <span class="comment">! default number of p levels</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  <span class="keywordtype">integer</span>,<span class="keywordtype">PARAMETER</span>  :: nfd=18,nbnd=6</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  <span class="keywordtype">REAL</span>,  <span class="keywordtype">PARAMETER</span>   :: qmin = 1.e-15</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keywordtype">integer</span> :: novegtype <span class="comment">! max number of veg type</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keywordtype">character(len=256)</span> :: filename,filenameflux,filenamed3d,filenameaer, &amp;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                        filenameflat</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keywordtype">character(len=19)</span>  :: datestr</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keywordtype">character(len=4)</span>   :: modelname, submodelname</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keywordtype">character(len=8)</span>   :: fullmodelname</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordtype">character(len=20)</span>  :: ioform</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">character(len=4)</span>   :: vtimeunits</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">!      </span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">character(5)</span> :: grib</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">type(</span>field_info<span class="keywordtype">)</span>,<span class="keywordtype">allocatable</span> :: fld_info(:)</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">integer</span> :: cfld,ntlfld,npset</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">real*8</span> :: gdsdegr</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">real</span>,<span class="keywordtype">allocatable</span> :: datapd(:,:,:)</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keywordtype">logical</span> :: gocart_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">logical</span> :: sigma,run,first,restrt</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">logical</span> :: global</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">logical</span> :: smflag</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">integer</span> :: idat(5),ihrst, nfcst,nbc,list,iout,ifhr,ntstm,            &amp;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;             nddamp,nprec,idtad,nboco,nshde,ncp,imdlty,nphs,           &amp;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;             nrads,nradl,imin,ifmin,datahandle,imp_physics,            &amp;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;             icu_physics,isf_surface_physics,isec,icount_calmict,      &amp;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;             ivegsrc</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordtype">real</span> :: dt,sdat(3),avrain,avcnvc,dtq2,pt,pdtop,                      &amp;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;          spl(komax),alsl(komax),prec_acc_dt,pt_tbl,prec_acc_dt1,spval</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">! real :: SPVAL=9.9e10                                     ! Moorthi</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keywordtype">integer</span> :: num_procs,me,jsta,jend,jsta_m,jend_m,                     &amp;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;             jsta_m2,jend_m2,iup,idn,icnt(0:1023),idsp(0:1023),        &amp;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;             jsta_2l, jend_2u,jvend_2u,num_servers, mpi_comm_inter,    &amp;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;             mpi_comm_comp, im,jm,lm,nsoil,lp1,lm1,im_jm,              &amp;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;             lsm,lsmp1                                    <span class="comment">!comm mpi</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">real</span> :: ardsw, ardlw, asrfc, tsrfc,trdlw,trdsw,tclod,theat,          &amp;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          tprec,tmaxmin,td3d                              <span class="comment">!comm rad</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">real</span> pthresh <span class="comment">! moved from params because it is defined differently for NAM</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">!  </span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">real(kind=8)</span> :: etafld2_tim=0.,eta2p_tim=0.,surfce2_tim=0.,          &amp;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;                  cldrad_tim=0.,miscln_tim=0.,fixed_tim=0.,            &amp;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;                  mdl2sigma_tim=0.,readxml_tim=0.,mdl2agl_tim=0.,      &amp;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                  mdl2std_tim=0.,mdl2thandpv_tim=0.,calrad_wcloud_tim=0.<span class="comment">!comm tim_info</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keywordtype">real(kind=8)</span> :: time_output=0., time_e2out=0.           <span class="comment">!comm jjt</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keywordtype">real</span> :: spldef(lsmdef) =                                             &amp;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      (/200.,500.,700.,1000.,2000.,3000.                               &amp;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      ,5000.,7000.,7500.,10000.,12500.,15000.,17500.,20000.,22500.     &amp;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      ,25000.,27500.,30000.,32500.,35000.,37500.,40000.,42500.,45000.  &amp;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      ,47500.,50000.,52500.,55000.,57500.,60000.,62500.,65000.         &amp;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      ,67500.,70000.,72500.,75000.,77500.,80000.,82500.,85000.         &amp;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      ,87500.,90000.,92500.,95000.,97500.,100000./)</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">REAL</span> htfd(nfd),petabnd(nbnd),sigbnd(nbnd)</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">! Add GOCART aerosol specification</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_du = 5         <span class="comment">! dust</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_ss = 5         <span class="comment">! sea salt</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_oc = 2         <span class="comment">! organic carbon</span></div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_bc = 2         <span class="comment">! black carbon</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_su = 1         <span class="comment">! sulfate</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_sm = 1             <span class="comment">! smoke</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">!     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;      <span class="keyword">DATA</span> htfd  / 20.e0,30.e0,40.e0,50.e0,80.e0,100.e0,305.e0,457.e0,610.e0,   &amp;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;           914.e0,1524.e0,1829.e0,2134.e0,2743.e0,3658.e0,4572.e0, &amp;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;       6000.e0,7010.e0/</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">!  2021-09-30 JESSE MENG- 2D DECOMPOSITION</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">!-----------------------------------------------------------------------</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="classCTLBLK__mod.html">   17</a></span>&#160;  <span class="keyword">type</span> field_info</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">integer</span> ifld</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">integer</span> lvl</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">integer</span> lvl1,lvl2</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">integer</span> ntrange</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">integer</span> tinvstat</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">  end type</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: komax=70</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: lsmdef=46             <span class="comment">! default number of p levels</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  <span class="keywordtype">integer</span>,<span class="keywordtype">PARAMETER</span>  :: nfd=18,nbnd=6</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keywordtype">REAL</span>,  <span class="keywordtype">PARAMETER</span>   :: qmin = 1.e-15</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keywordtype">integer</span> :: novegtype <span class="comment">! max number of veg type</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordtype">character(len=256)</span> :: filename,filenameflux,filenamed3d,filenameaer, &amp;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                        filenameflat</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keywordtype">character(len=19)</span>  :: datestr</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keywordtype">character(len=4)</span>   :: modelname, submodelname</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordtype">character(len=8)</span>   :: fullmodelname</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">character(len=20)</span>  :: ioform</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">character(len=4)</span>   :: vtimeunits</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">!      </span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">character(5)</span> :: grib</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">type(</span>field_info<span class="keywordtype">)</span>,<span class="keywordtype">allocatable</span> :: fld_info(:)</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">integer</span> :: cfld,ntlfld,npset</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">real*8</span> :: gdsdegr</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordtype">real</span>,<span class="keywordtype">allocatable</span> :: datapd(:,:,:)</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">logical</span> :: gocart_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">logical</span> :: sigma,run,first,restrt</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">logical</span> :: global</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">logical</span> :: smflag</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="keywordtype">integer</span> :: idat(5),ihrst, nfcst,nbc,list,iout,ifhr,ntstm,            &amp;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;             nddamp,nprec,idtad,nboco,nshde,ncp,imdlty,nphs,           &amp;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;             nrads,nradl,imin,ifmin,datahandle,imp_physics,            &amp;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;             icu_physics,isf_surface_physics,isec,icount_calmict,      &amp;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;             ivegsrc</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keywordtype">real</span> :: dt,sdat(3),avrain,avcnvc,dtq2,pt,pdtop,                      &amp;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;          spl(komax),alsl(komax),prec_acc_dt,pt_tbl,prec_acc_dt1,spval</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">! real :: SPVAL=9.9e10                                     ! Moorthi</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">integer</span> :: num_procs,me,jsta,jend,ista,iend,                         &amp;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;               jsta_m,jend_m, jsta_m2,jend_m2,                         &amp;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;               ista_m,iend_m,ista_m2,iend_m2,                          &amp;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;             iup,idn,icnt(0:1023),idsp(0:1023),  icnt2(0:1023),idsp2(0:1023),                      &amp; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;             jsta_2l, jend_2u,jvend_2u,                                &amp;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;             ista_2l, iend_2u,ivend_2u,                                &amp;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;             num_servers, mpi_comm_inter,    &amp;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;             mpi_comm_comp, im,jm,lm,nsoil,lp1,lm1,im_jm,              &amp;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;             ileft,iright,                                             &amp;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;                ileftb,irightb ,                                       &amp; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;             ibsize,ibsum,                                             &amp;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;             lsm,lsmp1                                    <span class="comment">!comm mpi</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: icoords(:,:),ibcoords(:,:)</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <span class="keywordtype">real</span>   , <span class="keywordtype">allocatable</span> :: rcoords(:,:),rbcoords(:,:)</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keywordtype">real</span>, <span class="keywordtype">allocatable</span> :: bufs(:),buff(:)                           </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        <span class="keywordtype">integer</span> , <span class="keywordtype">allocatable</span> :: isxa(:),iexa(:),jsxa(:),jexa(:)       </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordtype">integer</span> numx</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: ibufs(:)</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <span class="keywordtype">real</span>, <span class="keywordtype">allocatable</span> :: rbufs(:)</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="keywordtype">real</span> :: ardsw, ardlw, asrfc, tsrfc,trdlw,trdsw,tclod,theat,          &amp;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;          tprec,tmaxmin,td3d                              <span class="comment">!comm rad</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordtype">real</span> pthresh <span class="comment">! moved from params because it is defined differently for NAM</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">!  </span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">real(kind=8)</span> :: etafld2_tim=0.,eta2p_tim=0.,surfce2_tim=0.,          &amp;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                  cldrad_tim=0.,miscln_tim=0.,fixed_tim=0.,            &amp;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                  mdl2sigma_tim=0.,readxml_tim=0.,mdl2agl_tim=0.,      &amp;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                  mdl2std_tim=0.,mdl2thandpv_tim=0.,calrad_wcloud_tim=0.<span class="comment">!comm tim_info</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="keywordtype">real(kind=8)</span> :: time_output=0., time_e2out=0.           <span class="comment">!comm jjt</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keywordtype">real</span> :: spldef(lsmdef) =                                             &amp;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;      (/200.,500.,700.,1000.,2000.,3000.                               &amp;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;      ,5000.,7000.,7500.,10000.,12500.,15000.,17500.,20000.,22500.     &amp;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;      ,25000.,27500.,30000.,32500.,35000.,37500.,40000.,42500.,45000.  &amp;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;      ,47500.,50000.,52500.,55000.,57500.,60000.,62500.,65000.         &amp;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;      ,67500.,70000.,72500.,75000.,77500.,80000.,82500.,85000.         &amp;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;      ,87500.,90000.,92500.,95000.,97500.,100000./)</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">!     SET MIDPOINT &quot;SIGMA&quot; VALUES FOR ETA BOUNDARY LAYERS.</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;      <span class="keyword">DATA</span> sigbnd / 0.985,0.955,0.925,0.895,0.865,0.835 /</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      <span class="keyword">DATA</span> petabnd / 15.,45.,75.,105.,135.,165./</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">!-----------------------------------------------------------------------</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">  end module </span>ctlblk_mod</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="keywordtype">REAL</span> htfd(nfd),petabnd(nbnd),sigbnd(nbnd)</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">! Add GOCART aerosol specification</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_du = 5         <span class="comment">! dust</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_ss = 5         <span class="comment">! sea salt</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_oc = 2         <span class="comment">! organic carbon</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_bc = 2         <span class="comment">! black carbon</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_su = 1         <span class="comment">! sulfate</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: nbin_sm = 1             <span class="comment">! smoke</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">!     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;      <span class="keyword">DATA</span> htfd  / 20.e0,30.e0,40.e0,50.e0,80.e0,100.e0,305.e0,457.e0,610.e0,   &amp;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;           914.e0,1524.e0,1829.e0,2134.e0,2743.e0,3658.e0,4572.e0, &amp;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;       6000.e0,7010.e0/</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment">!     SET MIDPOINT &quot;SIGMA&quot; VALUES FOR ETA BOUNDARY LAYERS.</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;      <span class="keyword">DATA</span> sigbnd / 0.985,0.955,0.925,0.895,0.865,0.835 /</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      <span class="keyword">DATA</span> petabnd / 15.,45.,75.,105.,135.,165./</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">!-----------------------------------------------------------------------</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="keyword">  end module </span>ctlblk_mod</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -107,77 +107,77 @@ $(document).ready(function(){initNavTree('CALLCL_8f_source.html','');});
 </div><!--header-->
 <div class="contents">
 <a href="CALLCL_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">      SUBROUTINE </span>callcl(P1D,T1D,Q1D,PLCL,ZLCL)</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">      SUBROUTINE </span>callcl(P1D,T1D,Q1D,PLCL,ZLCL)</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls3d.html">vrbls3d</a><span class="keywordtype">, only</span>: alpint, zint</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls2d.html">vrbls2d</a><span class="keywordtype">, only</span>: fis</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classmasks.html">masks</a><span class="keywordtype">, only</span>: lmh</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: eps, oneps, d01, h1m12, gi, d00</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, spval, jsta_m, jend_m, im</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="keywordtype">real</span>,<span class="keywordtype">PARAMETER</span> :: d35=3.5, d4805=4.805,  h2840=2840.</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      <span class="keywordtype">real</span>,<span class="keywordtype">PARAMETER</span> :: h55=55., d2845=0.2845, d28=0.28</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">!     DECLARE VARIABLES.</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(IM,jsta:jend)</span>, <span class="keywordtype">intent(in)</span>    :: p1d,t1d,q1d</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(IM,jsta:jend)</span>, <span class="keywordtype">intent(inout)</span> :: plcl,zlcl</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordtype">REAL</span> tlcl(im,jsta:jend)</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <span class="keywordtype">integer</span> i,j,l,llmh</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="keywordtype">real</span> dlplcl,zsfc,dz,dalp,alplcl,rmx,evp,arg,rkapa</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">!**********************************************************************</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">!     START CALLCL HERE.</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">!     LOAD OUTPUT ARRAYS WITH SPECIAL VALUE.</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls3d.html">vrbls3d</a><span class="keywordtype">, only</span>: alpint, zint</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classvrbls2d.html">vrbls2d</a><span class="keywordtype">, only</span>: fis</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classmasks.html">masks</a><span class="keywordtype">, only</span>: lmh</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      <span class="keywordtype">use </span><a class="code" href="classparams__mod.html">params_mod</a><span class="keywordtype">, only</span>: eps, oneps, d01, h1m12, gi, d00</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      <span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, spval, jsta_m, jend_m, im, &amp;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                            ista, iend, ista_m, iend_m</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="keywordtype">implicit none</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <span class="keywordtype">real</span>,<span class="keywordtype">PARAMETER</span> :: d35=3.5, d4805=4.805,  h2840=2840.</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="keywordtype">real</span>,<span class="keywordtype">PARAMETER</span> :: h55=55., d2845=0.2845, d28=0.28</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">!     DECLARE VARIABLES.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(ista:iend,jsta:jend)</span>, <span class="keywordtype">intent(in)</span>    :: p1d,t1d,q1d</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <span class="keywordtype">REAL</span>,<span class="keywordtype">dimension(ista:iend,jsta:jend)</span>, <span class="keywordtype">intent(inout)</span> :: plcl,zlcl</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="keywordtype">REAL</span> tlcl(ista:iend,jsta:jend)</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      <span class="keywordtype">integer</span> i,j,l,llmh</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      <span class="keywordtype">real</span> dlplcl,zsfc,dz,dalp,alplcl,rmx,evp,arg,rkapa</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">!**********************************************************************</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">!     START CALLCL HERE.</span></div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">!$omp parallel do private(i,j)</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keywordflow">DO</span> i=1,im</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          plcl(i,j) = spval</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;          tlcl(i,j) = spval</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;          zlcl(i,j) = spval</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">ENDDO</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;      <span class="keywordflow">ENDDO</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">!     COMPUTE PRESSURE, TEMPERATURE AND AGL HEIGHT AT LCL.</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">! Bo Cui 10/30/2019, remove &quot;GOTO&quot; statement</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;      <span class="keywordflow">DO</span> 30 j=jsta_m,jend_m</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      <span class="keywordflow">DO</span> 30 i=2,im-1</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">!     DO 30 I=1,IM</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      <span class="keywordflow">IF</span>(p1d(i,j)&lt;spval.and.q1d(i,j)&lt;spval)<span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;      evp       = p1d(i,j)*q1d(i,j)/(eps+oneps*q1d(i,j))</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      rmx       = eps*evp/(p1d(i,j)-evp)</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      rkapa     = 1.0 / (d2845*(1.0-d28*rmx))</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      arg       = max(h1m12,evp*d01)</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      tlcl(i,j) = h55 + h2840 / (d35*log(t1d(i,j))-log(arg)-d4805)</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      plcl(i,j) = p1d(i,j)*(tlcl(i,j)/t1d(i,j))**rkapa</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      alplcl    = log(plcl(i,j))</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      llmh      = nint(lmh(i,j))</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      zsfc      = fis(i,j)*gi</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;      <span class="keywordflow">DO</span> 20 l=llmh,1,-1</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      <span class="keywordflow">IF</span>(alpint(i,j,l) &lt; alplcl)<span class="keywordflow">THEN</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        dlplcl    = alplcl        - alpint(i,j,l+1)</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        dalp      = alpint(i,j,l) - alpint(i,j,l+1)</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        dz        = zint(i,j,l)   - zint(i,j,l+1)</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        zlcl(i,j) = max(d00, zint(i,j,l+1) + dz*dlplcl/dalp - zsfc)</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        <span class="keywordflow">EXIT</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;      <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; 20   <span class="keywordflow">CONTINUE</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;      <span class="keywordflow">ENDIF</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; 30   <span class="keywordflow">CONTINUE</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">!     END OF ROUTINE.</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">!     </span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;      <span class="keywordflow">RETURN</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      <span class="keywordflow">END</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">!     LOAD OUTPUT ARRAYS WITH SPECIAL VALUE.</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">!$omp parallel do private(i,j)</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;      <span class="keywordflow">DO</span> j=jsta,jend</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        <span class="keywordflow">DO</span> i=ista,iend</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;          plcl(i,j) = spval</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          tlcl(i,j) = spval</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          zlcl(i,j) = spval</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        <span class="keywordflow">ENDDO</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      <span class="keywordflow">ENDDO</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">!     COMPUTE PRESSURE, TEMPERATURE AND AGL HEIGHT AT LCL.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">! Bo Cui 10/30/2019, remove &quot;GOTO&quot; statement</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;      <span class="keywordflow">DO</span> 30 j=jsta_m,jend_m</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      <span class="keywordflow">DO</span> 30 i=ista_m,iend_m</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;      <span class="keywordflow">IF</span>(p1d(i,j)&lt;spval.and.q1d(i,j)&lt;spval)<span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      evp       = p1d(i,j)*q1d(i,j)/(eps+oneps*q1d(i,j))</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      rmx       = eps*evp/(p1d(i,j)-evp)</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      rkapa     = 1.0 / (d2845*(1.0-d28*rmx))</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      arg       = max(h1m12,evp*d01)</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      tlcl(i,j) = h55 + h2840 / (d35*log(t1d(i,j))-log(arg)-d4805)</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      plcl(i,j) = p1d(i,j)*(tlcl(i,j)/t1d(i,j))**rkapa</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      alplcl    = log(plcl(i,j))</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      llmh      = nint(lmh(i,j))</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      zsfc      = fis(i,j)*gi</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">!</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      <span class="keywordflow">DO</span> 20 l=llmh,1,-1</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      <span class="keywordflow">IF</span>(alpint(i,j,l) &lt; alplcl)<span class="keywordflow">THEN</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        dlplcl    = alplcl        - alpint(i,j,l+1)</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        dalp      = alpint(i,j,l) - alpint(i,j,l+1)</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        dz        = zint(i,j,l)   - zint(i,j,l+1)</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        zlcl(i,j) = max(d00, zint(i,j,l+1) + dz*dlplcl/dalp - zsfc)</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <span class="keywordflow">EXIT</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;      <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; 20   <span class="keywordflow">CONTINUE</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;      <span class="keywordflow">ENDIF</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; 30   <span class="keywordflow">CONTINUE</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">!     END OF ROUTINE.</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">!     </span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      <span class="keywordflow">RETURN</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      <span class="keywordflow">END</span></div>
 <div class="ttc" id="classvrbls2d_html"><div class="ttname"><a href="classvrbls2d.html">vrbls2d</a></div><div class="ttdef"><b>Definition:</b> <a href="VRBLS2D__mod_8f_source.html#l00001">VRBLS2D_mod.f:1</a></div></div>
 <div class="ttc" id="classmasks_html"><div class="ttname"><a href="classmasks.html">masks</a></div><div class="ttdef"><b>Definition:</b> <a href="MASKS__mod_8f_source.html#l00001">MASKS_mod.f:1</a></div></div>
 <div class="ttc" id="classparams__mod_html"><div class="ttname"><a href="classparams__mod.html">params_mod</a></div><div class="ttdef"><b>Definition:</b> <a href="params_8F_source.html#l00001">params.F:1</a></div></div>
