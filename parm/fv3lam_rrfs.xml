@@ -3428,5 +3428,59 @@
        <scale>3.0</scale>
        </param>
 
+       <param>
+       <shortname>SBTA188_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA188</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA189_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA189</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1810_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1810</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1811_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1811</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1812_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1812</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1813_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1813</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1814_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1814</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1815_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1815</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1816_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1816</pname>
+       <scale>4.0</scale>
+       </param>
+
     </paramset>
    </postxml>
