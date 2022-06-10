@@ -17,6 +17,7 @@
 !> 2022-03-15 | Wen Meng      | Unify regional and global interfaces
 !> 2022-03-22 | Wen Meng      | Read PWAT from model
 !> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
+!> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -872,8 +873,16 @@
         do i = ista, iend_m
           ip1 = i + 1
 !          if (ip1 > im) ip1 = ip1 - im
-          DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
-          DY (i,j) = ERAD*(GDLAT(I,J+1)-GDLAT(I,J))*DTR  ! like A*DPH
+          if(MAPTYPE==207)then
+            DX(i,j) = erad*dxval*dtr/gdsdegr
+          else
+            DX(i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
+          endif
+          if(MAPTYPE==207)then
+            DY(i,j)= erad*dyval*dtr/gdsdegr
+          else
+            DY(i,j) = ERAD*(GDLAT(I,J+1)-GDLAT(I,J))*DTR  ! like A*DPH
+          endif
 !	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)         ! 2*omeg*sin(phi)
 !     if (i == ii .and. j == jj) print*,'sample LATLON, DY, DY='    &
 !           ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
