@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -126,15 +126,15 @@ $(document).ready(function(){initNavTree('ICAOHEIGHT_8f_source.html','');});
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">!   Language:           Fortran 90</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">!   Software Standards: UMDP3 v6</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, spval, im</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keywordtype">use </span>ctlblk_mod<span class="keywordtype">, only</span>: jsta, jend, spval, im, ista, iend</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keywordtype">use </span><a class="code" href="classphyscons__post.html">physcons_post</a><span class="keywordtype">, only</span>: con_g, con_rd</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keywordtype">IMPLICIT None</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">! Subroutine Arguments:</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">!REAL, INTENT(IN) :: SPVAL</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">REAL</span>, <span class="keywordtype">INTENT(IN)</span> :: maxwp(im,jsta:jend)       <span class="comment">!P field for conversion</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">REAL</span>, <span class="keywordtype">INTENT(IN)</span> :: maxwp(ista:iend,jsta:jend)       <span class="comment">!P field for conversion</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">REAL</span>, <span class="keywordtype">INTENT(INOUT)</span> :: maxwicaoz(im,jsta:jend)   <span class="comment">!ICAO height in m</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">REAL</span>, <span class="keywordtype">INTENT(INOUT)</span> :: maxwicaoz(ista:iend,jsta:jend)   <span class="comment">!ICAO height in m</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">!INTEGER, INTENT(INOUT) :: ErrorStatus</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">! Local Constants:</span></div>
@@ -170,7 +170,7 @@ $(document).ready(function(){initNavTree('ICAOHEIGHT_8f_source.html','');});
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordflow">DO</span> j=jsta,jend</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordflow">DO</span> i=1,im</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordflow">DO</span> i=ista,iend</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    pressure = maxwp(i,j)</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">IF</span> ( (pressure &lt;= 1000.) .AND. (pressure &gt;= 0.) ) <span class="keywordflow">THEN</span></div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      pressure = 1000.</div>

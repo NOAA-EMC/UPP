@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -138,6 +138,12 @@ real&#160;</td><td class="memItemRight" valign="bottom"><b>avcnvc</b></td></tr>
 <tr class="memitem:a18b44684d926535d77d831d52df5c56c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18b44684d926535d77d831d52df5c56c"></a>
 real&#160;</td><td class="memItemRight" valign="bottom"><b>avrain</b></td></tr>
 <tr class="separator:a18b44684d926535d77d831d52df5c56c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a4cf9af8ce5f302a16088b2d652ffbd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a4cf9af8ce5f302a16088b2d652ffbd"></a>
+real, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>buff</b></td></tr>
+<tr class="separator:a1a4cf9af8ce5f302a16088b2d652ffbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b9860663f4a8994b1be65bd439b67ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b9860663f4a8994b1be65bd439b67ae"></a>
+real, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>bufs</b></td></tr>
+<tr class="separator:a0b9860663f4a8994b1be65bd439b67ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fd85d219788f11718abe44ad16fd298"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4fd85d219788f11718abe44ad16fd298"></a>
 real(kind=8)&#160;</td><td class="memItemRight" valign="bottom"><b>calrad_wcloud_tim</b> =0.</td></tr>
 <tr class="separator:a4fd85d219788f11718abe44ad16fd298"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -217,9 +223,29 @@ real, dimension(nfd)&#160;</td><td class="memItemRight" valign="bottom"><b>htfd<
 <tr class="memitem:a04d85bf354ce846653191f5d406984d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04d85bf354ce846653191f5d406984d8"></a>
 logical&#160;</td><td class="memItemRight" valign="bottom"><b>hyb_sigp</b></td></tr>
 <tr class="separator:a04d85bf354ce846653191f5d406984d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af801b97d0c7baa44052fc4afb5bb2634"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af801b97d0c7baa44052fc4afb5bb2634"></a>
+integer, dimension(:,:), <br class="typebreak"/>
+allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>ibcoords</b></td></tr>
+<tr class="separator:af801b97d0c7baa44052fc4afb5bb2634"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5cbd7cbec46ca2342feac346c939d16"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5cbd7cbec46ca2342feac346c939d16"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ibsize</b></td></tr>
+<tr class="separator:ab5cbd7cbec46ca2342feac346c939d16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3eee0175523475894a56c7405587c32"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3eee0175523475894a56c7405587c32"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ibsum</b></td></tr>
+<tr class="separator:ae3eee0175523475894a56c7405587c32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac589cdd443bb52836c5bb4788bdd7b75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac589cdd443bb52836c5bb4788bdd7b75"></a>
+integer, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>ibufs</b></td></tr>
+<tr class="separator:ac589cdd443bb52836c5bb4788bdd7b75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab860fc59fcc320956b90c757e124c02c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab860fc59fcc320956b90c757e124c02c"></a>
 integer, dimension(0:1023)&#160;</td><td class="memItemRight" valign="bottom"><b>icnt</b></td></tr>
 <tr class="separator:ab860fc59fcc320956b90c757e124c02c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff5a193523db8269f7d0c208c02e4100"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff5a193523db8269f7d0c208c02e4100"></a>
+integer, dimension(0:1023)&#160;</td><td class="memItemRight" valign="bottom"><b>icnt2</b></td></tr>
+<tr class="separator:aff5a193523db8269f7d0c208c02e4100"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a014389fbc02fa94eed4e598544f93286"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a014389fbc02fa94eed4e598544f93286"></a>
+integer, dimension(:,:), <br class="typebreak"/>
+allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>icoords</b></td></tr>
+<tr class="separator:a014389fbc02fa94eed4e598544f93286"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7796916ef3e55bbef99a2b51df4e46ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7796916ef3e55bbef99a2b51df4e46ec"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>icount_calmict</b></td></tr>
 <tr class="separator:a7796916ef3e55bbef99a2b51df4e46ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -235,9 +261,27 @@ integer&#160;</td><td class="memItemRight" valign="bottom"><b>idn</b></td></tr>
 <tr class="memitem:a79135c06c618fc8d86bc0a91ea660862"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79135c06c618fc8d86bc0a91ea660862"></a>
 integer, dimension(0:1023)&#160;</td><td class="memItemRight" valign="bottom"><b>idsp</b></td></tr>
 <tr class="separator:a79135c06c618fc8d86bc0a91ea660862"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b1a4dc1eee5730d15dc20e4a3a6944c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b1a4dc1eee5730d15dc20e4a3a6944c"></a>
+integer, dimension(0:1023)&#160;</td><td class="memItemRight" valign="bottom"><b>idsp2</b></td></tr>
+<tr class="separator:a8b1a4dc1eee5730d15dc20e4a3a6944c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07abf1c7a4ca3983e8359b9c018b004e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07abf1c7a4ca3983e8359b9c018b004e"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>idtad</b></td></tr>
 <tr class="separator:a07abf1c7a4ca3983e8359b9c018b004e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa24e9a791ed37db0364132eab4696183"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa24e9a791ed37db0364132eab4696183"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>iend</b></td></tr>
+<tr class="separator:aa24e9a791ed37db0364132eab4696183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a803a5a89b680c8aee64e9f3a3aade4cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a803a5a89b680c8aee64e9f3a3aade4cc"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>iend_2u</b></td></tr>
+<tr class="separator:a803a5a89b680c8aee64e9f3a3aade4cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4df26a818c2cd26db46a04188fb4801a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4df26a818c2cd26db46a04188fb4801a"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>iend_m</b></td></tr>
+<tr class="separator:a4df26a818c2cd26db46a04188fb4801a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a247a54515f528e443d873161f135d2d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a247a54515f528e443d873161f135d2d1"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>iend_m2</b></td></tr>
+<tr class="separator:a247a54515f528e443d873161f135d2d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad71364c99994beb02974e66863e8b5ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad71364c99994beb02974e66863e8b5ae"></a>
+integer, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>iexa</b></td></tr>
+<tr class="separator:ad71364c99994beb02974e66863e8b5ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefb1330227885a54804eb64f61c31358"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefb1330227885a54804eb64f61c31358"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>ifhr</b></td></tr>
 <tr class="separator:aefb1330227885a54804eb64f61c31358"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,6 +291,12 @@ integer&#160;</td><td class="memItemRight" valign="bottom"><b>ifmin</b></td></tr
 <tr class="memitem:a742c800e28817f96677758d5ce25b975"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a742c800e28817f96677758d5ce25b975"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>ihrst</b></td></tr>
 <tr class="separator:a742c800e28817f96677758d5ce25b975"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46864e052b7e2704bd2f6e2ca7ff42a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46864e052b7e2704bd2f6e2ca7ff42a6"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ileft</b></td></tr>
+<tr class="separator:a46864e052b7e2704bd2f6e2ca7ff42a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab55160e5e9cb0a4c7154b2d8c6f25121"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab55160e5e9cb0a4c7154b2d8c6f25121"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ileftb</b></td></tr>
+<tr class="separator:ab55160e5e9cb0a4c7154b2d8c6f25121"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28ed379b4b3bbb3431e825054d4e95ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28ed379b4b3bbb3431e825054d4e95ba"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>im</b></td></tr>
 <tr class="separator:a28ed379b4b3bbb3431e825054d4e95ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -268,18 +318,42 @@ character(len=20)&#160;</td><td class="memItemRight" valign="bottom"><b>ioform</
 <tr class="memitem:a00a50efdc8d0132529ca3d7325389e58"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00a50efdc8d0132529ca3d7325389e58"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>iout</b></td></tr>
 <tr class="separator:a00a50efdc8d0132529ca3d7325389e58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf8af8c16d4102df03a4263a5ae6162b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf8af8c16d4102df03a4263a5ae6162b"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>iright</b></td></tr>
+<tr class="separator:adf8af8c16d4102df03a4263a5ae6162b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a192e3764661c4d7f8c8f9bdf87529f96"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a192e3764661c4d7f8c8f9bdf87529f96"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>irightb</b></td></tr>
+<tr class="separator:a192e3764661c4d7f8c8f9bdf87529f96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b04ca56e2521568f7b4f38bad12b0e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b04ca56e2521568f7b4f38bad12b0e7"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>isec</b></td></tr>
 <tr class="separator:a0b04ca56e2521568f7b4f38bad12b0e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a019f9a916ffb837869d66a6d3ca5b61f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a019f9a916ffb837869d66a6d3ca5b61f"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>isf_surface_physics</b></td></tr>
 <tr class="separator:a019f9a916ffb837869d66a6d3ca5b61f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae649c57fb48cee6b8c36c490f466f3dd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae649c57fb48cee6b8c36c490f466f3dd"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ista</b></td></tr>
+<tr class="separator:ae649c57fb48cee6b8c36c490f466f3dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfa7d23ae1595fa1801b2c7a8208ac7a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abfa7d23ae1595fa1801b2c7a8208ac7a"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ista_2l</b></td></tr>
+<tr class="separator:abfa7d23ae1595fa1801b2c7a8208ac7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad042c4febb77fad434696bea76982bb4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad042c4febb77fad434696bea76982bb4"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ista_m</b></td></tr>
+<tr class="separator:ad042c4febb77fad434696bea76982bb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09d3d1acb4b06200658206e59c186503"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a09d3d1acb4b06200658206e59c186503"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ista_m2</b></td></tr>
+<tr class="separator:a09d3d1acb4b06200658206e59c186503"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b2bfc94d549efcc201d536b553f865d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7b2bfc94d549efcc201d536b553f865d"></a>
+integer, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>isxa</b></td></tr>
+<tr class="separator:a7b2bfc94d549efcc201d536b553f865d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a716cf06187a41562396050850cadeaa6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a716cf06187a41562396050850cadeaa6"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>iup</b></td></tr>
 <tr class="separator:a716cf06187a41562396050850cadeaa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b6d72bfe5413514ab3c86495cb299b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b6d72bfe5413514ab3c86495cb299b7"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>ivegsrc</b></td></tr>
 <tr class="separator:a4b6d72bfe5413514ab3c86495cb299b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0eda3cd634742723436cc03b82399708"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0eda3cd634742723436cc03b82399708"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>ivend_2u</b></td></tr>
+<tr class="separator:a0eda3cd634742723436cc03b82399708"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac76963fad0d8192299afc85f742e4efa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac76963fad0d8192299afc85f742e4efa"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>jend</b></td></tr>
 <tr class="separator:ac76963fad0d8192299afc85f742e4efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -292,6 +366,9 @@ integer&#160;</td><td class="memItemRight" valign="bottom"><b>jend_m</b></td></t
 <tr class="memitem:ac40cf8ea21b56cf7beb7de59039ac868"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac40cf8ea21b56cf7beb7de59039ac868"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>jend_m2</b></td></tr>
 <tr class="separator:ac40cf8ea21b56cf7beb7de59039ac868"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfc643b25ceb2fdc1031310cc5064c98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acfc643b25ceb2fdc1031310cc5064c98"></a>
+integer, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>jexa</b></td></tr>
+<tr class="separator:acfc643b25ceb2fdc1031310cc5064c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a616e298bb94d2dc01edc52e9375b14eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a616e298bb94d2dc01edc52e9375b14eb"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>jm</b></td></tr>
 <tr class="separator:a616e298bb94d2dc01edc52e9375b14eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -307,6 +384,9 @@ integer&#160;</td><td class="memItemRight" valign="bottom"><b>jsta_m</b></td></t
 <tr class="memitem:ad2db805855df165faa7f913ac7c4eac0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2db805855df165faa7f913ac7c4eac0"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>jsta_m2</b></td></tr>
 <tr class="separator:ad2db805855df165faa7f913ac7c4eac0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a993238edad2df4a42dffcada30482409"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a993238edad2df4a42dffcada30482409"></a>
+integer, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>jsxa</b></td></tr>
+<tr class="separator:a993238edad2df4a42dffcada30482409"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84280d7439ff073746418421b03f5f7f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84280d7439ff073746418421b03f5f7f"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>jvend_2u</b></td></tr>
 <tr class="separator:a84280d7439ff073746418421b03f5f7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -436,6 +516,9 @@ integer&#160;</td><td class="memItemRight" valign="bottom"><b>num_procs</b></td>
 <tr class="memitem:adc8bfdbed2c2dc05e1de7d518383f644"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc8bfdbed2c2dc05e1de7d518383f644"></a>
 integer&#160;</td><td class="memItemRight" valign="bottom"><b>num_servers</b></td></tr>
 <tr class="separator:adc8bfdbed2c2dc05e1de7d518383f644"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f1f26720930469689c9dcb4576143ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f1f26720930469689c9dcb4576143ad"></a>
+integer&#160;</td><td class="memItemRight" valign="bottom"><b>numx</b></td></tr>
+<tr class="separator:a6f1f26720930469689c9dcb4576143ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad962d27fe5c03704932109ef90ece42b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad962d27fe5c03704932109ef90ece42b"></a>
 real&#160;</td><td class="memItemRight" valign="bottom"><b>pdtop</b></td></tr>
 <tr class="separator:ad962d27fe5c03704932109ef90ece42b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -460,6 +543,15 @@ real&#160;</td><td class="memItemRight" valign="bottom"><b>pthresh</b></td></tr>
 <tr class="memitem:add6c66edd2e4a8809ba7af877186f113"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add6c66edd2e4a8809ba7af877186f113"></a>
 real, parameter&#160;</td><td class="memItemRight" valign="bottom"><b>qmin</b> = 1.E-15</td></tr>
 <tr class="separator:add6c66edd2e4a8809ba7af877186f113"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa003d2bec4dc8b7cfe96e31505630bed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa003d2bec4dc8b7cfe96e31505630bed"></a>
+real, dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>rbcoords</b></td></tr>
+<tr class="separator:aa003d2bec4dc8b7cfe96e31505630bed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d29690dc39ed84fb5973f7fa77a6a50"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d29690dc39ed84fb5973f7fa77a6a50"></a>
+real, dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>rbufs</b></td></tr>
+<tr class="separator:a0d29690dc39ed84fb5973f7fa77a6a50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6535bf756904a6e25e37ee7d65b5b9b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6535bf756904a6e25e37ee7d65b5b9b2"></a>
+real, dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><b>rcoords</b></td></tr>
+<tr class="separator:a6535bf756904a6e25e37ee7d65b5b9b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61085e48ced21c928702db8e3b06d07b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61085e48ced21c928702db8e3b06d07b"></a>
 logical&#160;</td><td class="memItemRight" valign="bottom"><b>rdaod</b></td></tr>
 <tr class="separator:a61085e48ced21c928702db8e3b06d07b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -547,7 +639,7 @@ character(len=4)&#160;</td><td class="memItemRight" valign="bottom"><b>vtimeunit
       </table>
 </div><div class="memdoc">
 <div class="textblock">
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00016">16</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00017">17</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Data Fields</th></tr>
 <tr><td class="fieldtype">
@@ -601,7 +693,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -615,7 +707,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00044">44</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -629,7 +721,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -643,7 +735,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -657,7 +749,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -671,7 +763,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -685,7 +777,35 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1a4cf9af8ce5f302a16088b2d652ffbd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">real, dimension(:), allocatable CTLBLK_mod::buff</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00072">72</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a0b9860663f4a8994b1be65bd439b67ae"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">real, dimension(:), allocatable CTLBLK_mod::bufs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00072">72</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -699,7 +819,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -713,7 +833,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00040">40</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00041">41</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -727,7 +847,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -741,7 +861,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00044">44</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -755,7 +875,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -769,7 +889,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00042">42</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00043">43</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -783,7 +903,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00032">32</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00033">33</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -797,7 +917,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -811,7 +931,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -825,7 +945,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -839,7 +959,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -853,7 +973,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00030">30</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00031">31</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -867,7 +987,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00030">30</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00031">31</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -881,7 +1001,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00030">30</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00031">31</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -895,7 +1015,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00030">30</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00031">31</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -909,7 +1029,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00030">30</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00031">31</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -923,7 +1043,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00046">46</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -937,7 +1057,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -951,7 +1071,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00039">39</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00040">40</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -965,7 +1085,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00034">34</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00035">35</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -979,7 +1099,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00041">41</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00042">42</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -993,7 +1113,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00046">46</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00047">47</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1007,7 +1127,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00044">44</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1021,7 +1141,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00038">38</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00039">39</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1035,7 +1155,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00098">98</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1049,7 +1169,63 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00044">44</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af801b97d0c7baa44052fc4afb5bb2634"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:,:), allocatable CTLBLK_mod::ibcoords</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00070">70</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab5cbd7cbec46ca2342feac346c939d16"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ibsize</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae3eee0175523475894a56c7405587c32"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ibsum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac589cdd443bb52836c5bb4788bdd7b75"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:), allocatable CTLBLK_mod::ibufs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00075">75</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1063,7 +1239,35 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aff5a193523db8269f7d0c208c02e4100"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(0:1023) CTLBLK_mod::icnt2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a014389fbc02fa94eed4e598544f93286"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:,:), allocatable CTLBLK_mod::icoords</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00070">70</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1077,7 +1281,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1091,7 +1295,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1105,7 +1309,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1119,7 +1323,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1133,7 +1337,21 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8b1a4dc1eee5730d15dc20e4a3a6944c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(0:1023) CTLBLK_mod::idsp2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1365,77 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa24e9a791ed37db0364132eab4696183"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::iend</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a803a5a89b680c8aee64e9f3a3aade4cc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::iend_2u</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a4df26a818c2cd26db46a04188fb4801a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::iend_m</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a247a54515f528e443d873161f135d2d1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::iend_m2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ad71364c99994beb02974e66863e8b5ae"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:), allocatable CTLBLK_mod::iexa</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00073">73</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1161,7 +1449,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1175,7 +1463,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1189,7 +1477,35 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a46864e052b7e2704bd2f6e2ca7ff42a6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ileft</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab55160e5e9cb0a4c7154b2d8c6f25121"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ileftb</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1203,7 +1519,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1217,7 +1533,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1231,7 +1547,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1245,7 +1561,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1259,7 +1575,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1273,7 +1589,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00035">35</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00036">36</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1287,7 +1603,35 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="adf8af8c16d4102df03a4263a5ae6162b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::iright</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a192e3764661c4d7f8c8f9bdf87529f96"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::irightb</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1301,7 +1645,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1315,7 +1659,77 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae649c57fb48cee6b8c36c490f466f3dd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ista</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="abfa7d23ae1595fa1801b2c7a8208ac7a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ista_2l</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ad042c4febb77fad434696bea76982bb4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ista_m</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a09d3d1acb4b06200658206e59c186503"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ista_m2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a7b2bfc94d549efcc201d536b553f865d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:), allocatable CTLBLK_mod::isxa</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00073">73</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1329,7 +1743,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1343,7 +1757,21 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a0eda3cd634742723436cc03b82399708"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::ivend_2u</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1357,7 +1785,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1371,7 +1799,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1385,7 +1813,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1399,7 +1827,21 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="acfc643b25ceb2fdc1031310cc5064c98"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:), allocatable CTLBLK_mod::jexa</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00073">73</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1413,7 +1855,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1427,7 +1869,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1441,7 +1883,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1455,7 +1897,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1469,7 +1911,21 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a993238edad2df4a42dffcada30482409"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer, dimension(:), allocatable CTLBLK_mod::jsxa</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00073">73</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1483,7 +1939,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1497,7 +1953,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00023">23</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00024">24</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1511,7 +1967,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1525,7 +1981,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1539,7 +1995,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1553,7 +2009,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1567,7 +2023,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1581,7 +2037,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00024">24</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00025">25</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1595,7 +2051,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1609,7 +2065,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1623,7 +2079,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1637,7 +2093,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1651,7 +2107,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1665,7 +2121,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1679,7 +2135,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1693,7 +2149,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00033">33</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00034">34</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1707,7 +2163,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1721,7 +2177,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1735,7 +2191,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1749,7 +2205,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00089">89</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00104">104</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1763,7 +2219,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00086">86</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00101">101</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1777,7 +2233,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00088">88</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00103">103</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1791,7 +2247,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00091">91</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00106">106</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1805,7 +2261,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00087">87</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00102">102</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1819,7 +2275,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00090">90</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00105">105</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1833,7 +2289,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00025">25</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00026">26</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1847,7 +2303,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1861,7 +2317,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1875,7 +2331,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1889,7 +2345,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1903,7 +2359,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00025">25</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00026">26</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1917,7 +2373,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00028">28</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00029">29</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1931,7 +2387,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1945,7 +2401,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1959,7 +2415,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00040">40</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00041">41</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1973,7 +2429,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -1987,7 +2443,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2001,7 +2457,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2015,7 +2471,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2029,7 +2485,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00040">40</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00041">41</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2043,7 +2499,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00049">49</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2057,7 +2513,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2071,7 +2527,21 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00057">57</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00058">58</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6f1f26720930469689c9dcb4576143ad"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer CTLBLK_mod::numx</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00074">74</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2085,7 +2555,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2099,7 +2569,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00098">98</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2113,7 +2583,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2127,7 +2597,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2141,7 +2611,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2155,7 +2625,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2169,7 +2639,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00066">66</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00081">81</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2183,7 +2653,49 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00026">26</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00027">27</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa003d2bec4dc8b7cfe96e31505630bed"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">real, dimension(:,:), allocatable CTLBLK_mod::rbcoords</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00071">71</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a0d29690dc39ed84fb5973f7fa77a6a50"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">real, dimension(:), allocatable CTLBLK_mod::rbufs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00076">76</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6535bf756904a6e25e37ee7d65b5b9b2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">real, dimension(:,:), allocatable CTLBLK_mod::rcoords</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00071">71</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2197,7 +2709,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00044">44</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2211,7 +2723,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2225,7 +2737,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00046">46</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2239,7 +2751,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00046">46</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2253,7 +2765,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2267,7 +2779,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00098">98</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2281,7 +2793,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00045">45</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00046">46</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2295,7 +2807,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00047">47</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00048">48</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2309,7 +2821,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2323,7 +2835,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00075">75</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00090">90</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2337,7 +2849,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00053">53</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00054">54</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2351,7 +2863,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00033">33</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00034">34</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2365,7 +2877,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00068">68</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00083">83</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2379,7 +2891,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2393,7 +2905,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2407,7 +2919,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2421,7 +2933,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00073">73</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00088">88</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2435,7 +2947,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00073">73</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00088">88</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2449,7 +2961,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2463,7 +2975,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2477,7 +2989,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2491,7 +3003,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2505,7 +3017,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00063">63</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00078">78</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>
@@ -2519,7 +3031,7 @@ tinvstat</td>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00036">36</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
+<p>Definition at line <a class="el" href="CTLBLK_8f_source.html#l00037">37</a> of file <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>.</p>
 
 </div>
 </div>

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">UPP
-   &#160;<span id="projectnumber">001</span>
+   &#160;<span id="projectnumber">V11.0.0</span>
    </div>
   </td>
  </tr>
@@ -132,31 +132,31 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="memname">subroutine CALHEL3 </td>
           <td>(</td>
-          <td class="paramtype">integer, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">integer, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>LLOW</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer, dimension(im,jsta_2l:jend_2u), intent(in)&#160;</td>
+          <td class="paramtype">integer, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)&#160;</td>
           <td class="paramname"><em>LUPP</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(out)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(out)&#160;</td>
           <td class="paramname"><em>UST</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(out)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(out)&#160;</td>
           <td class="paramname"><em>VST</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">real, dimension(im,jsta_2l:jend_2u), intent(out)&#160;</td>
+          <td class="paramtype">real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(out)&#160;</td>
           <td class="paramname"><em>HELI</em>&#160;</td>
         </tr>
         <tr>
@@ -213,11 +213,13 @@ Functions/Subroutines</h2></td></tr>
 <td>2019-09-03 </td><td>J Meng </td><td>Modified to compute effective helicity and critical angle </td></tr>
 <tr>
 <td>2021-03-15 </td><td>E Colon </td><td>CALHEL2 modified to compute effective rather than fixed layer helicity </td></tr>
+<tr>
+<td>2021-09-02 </td><td>Bo Cui </td><td>Decompose UPP in X direction </td></tr>
 </table>
 <dl class="section author"><dt>Author</dt><dd>Michael Baldwin W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>1994-08-22 </dd></dl>
 
-<p>Definition at line <a class="el" href="CALHEL3_8f_source.html#l00044">44</a> of file <a class="el" href="CALHEL3_8f_source.html">CALHEL3.f</a>.</p>
+<p>Definition at line <a class="el" href="CALHEL3_8f_source.html#l00045">45</a> of file <a class="el" href="CALHEL3_8f_source.html">CALHEL3.f</a>.</p>
 
 </div>
 </div>

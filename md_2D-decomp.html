@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>UPP: SOIL_mod.f Source File</title>
+<title>UPP: 2-D Decomposition Overview</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -45,9 +45,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li class="current"><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Types&#160;List</span></a></li>
-      <li class="current"><a href="files.html"><span>Files</span></a></li>
+      <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -66,12 +66,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
-  <div id="navrow2" class="tabs2">
-    <ul class="tablist">
-      <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>Globals</span></a></li>
-    </ul>
-  </div>
 </div><!-- top -->
 <div id="side-nav" class="ui-resizable side-nav-resizable">
   <div id="nav-tree">
@@ -84,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('SOIL__mod_8f_source.html','');});
+$(document).ready(function(){initNavTree('md_2D-decomp.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -103,23 +97,24 @@ $(document).ready(function(){initNavTree('SOIL__mod_8f_source.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">SOIL_mod.f</div>  </div>
+<div class="title">2-D Decomposition Overview </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="classsoil.html">    1</a></span>&#160;      <span class="keyword">module</span> <a class="code" href="classsoil.html">soil</a></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">!</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;      <span class="keywordtype">real</span>, <span class="keywordtype">allocatable</span> :: stc(:,:,:),smc(:,:,:),sh2o(:,:,:)      &amp;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;             ,sldpth(:),rtdpth(:),sllevel(:)</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">      end module </span><a class="code" href="classsoil.html">soil</a></div>
-<div class="ttc" id="classsoil_html"><div class="ttname"><a href="classsoil.html">soil</a></div><div class="ttdef"><b>Definition:</b> <a href="SOIL__mod_8f_source.html#l00001">SOIL_mod.f:1</a></div></div>
-</div><!-- fragment --></div><!-- contents -->
+<div class="textblock"><p><b>Author:</b> George Vandenberghe</p>
+<p><b>Date:</b> June 2022</p>
+<h2>Comparison of 1D vs. 2D Decomposition</h2>
+<p>The 1D decomposition can read state from a model forecast file, either by reading on rank 0 and scattering, or by doing MPI_IO on the model history file using either nemsio, sigio, or netcdf serial or parallel I/O. Very old post tags also implement the more primitive full state broadcast or (a performance bug rectified 10/17) read the entire state on all tasks. This is mentioned in case a very old tag is encountered.</p>
+<p>The 2D decomposition only supports MPI_IO, namely NetCDF Parallel I/O. But the code is backwards compatible and all I/O methods remain supported for the 1D decomposition cases and works for all cases currently supported by older 1D tags and branches.</p>
+<h2>2D Decomposition Design</h2>
+<p>The 2D decomposition operates on subdomains with some latitudes and some longitudes. The subdomains are lon-lat rectangles rather than strips. This means state must be chopped into pieces in any scatter operation and the pieces reassembled in any gather operation that requires a continuous in memory state. I/O and halo exchanges both require significantly more bookkeeping.</p>
+<p>The structural changes needed for the 2D decomposition are implemented in <a class="el" href="MPI__FIRST_8f.html">MPI_FIRST.f</a> and <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>. The <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> routine contains numerous additional variables describing left and right domain boundaries. Many additional changes are also implemented in <a class="el" href="EXCH_8f.html" title="Subroutines that exchange one halo row. ">EXCH.f</a> to support 2D halos. Many additional routines required addition of the longitude subdomain limits but changes to the layouts are handled in <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> and the "many additional routines" do not require additional changes when subdomain shapes are changed and have not been a trouble point.</p>
+<p>Both <a class="el" href="MPI__FIRST_8f.html">MPI_FIRST.f</a> and <a class="el" href="EXCH_8f.html" title="Subroutines that exchange one halo row. ">EXCH.f</a> contain significant additional test code to exchange arrays containing grid coordinates and ensure EXACT matches for all exchanges before the domain exchanges are performed. This is intended to trap errors in the larger variety of 2D decomposition layouts that are possible and most of it can eventually be removed or made conditional at build and run time.</p>
+<p>Indices and variables to facilitate the 2D decomposition are found in <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> and shared in the rest of UPP through use of CTLBLK.mod. </p>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d8b772108138bf796aaa3f7fe4e09294.html">sorc</a></li><li class="navelem"><a class="el" href="dir_29f0049402def9fd0d109199f2d306c2.html">ncep_post.fd</a></li><li class="navelem"><b>SOIL_mod.f</b></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
