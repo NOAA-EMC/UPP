@@ -96,6 +96,9 @@ export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/upp.x "
 #export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/upp.x "
 #export RUN_COMMAND="mpiexec_mpt ${POSTEXEC}/upp.x "
 
+# The number of subdomains used for 2d decomposition
+export numx=2
+
 # Shouldn't need to edit these.
 # tmmark is an variable used as the file extention of the output
 # filename .GrbF is used if this variable is not set
@@ -329,6 +332,9 @@ DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='${tag}'
 fileNameFlux='${flxFileName}'
 fileNameFlat='postxconfig-NT.txt'
+/
+&nampgb
+numx=${numx}
 /
 EOF
    fi
