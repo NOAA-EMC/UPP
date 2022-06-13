@@ -43,7 +43,7 @@ the namelist &model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3 an
 
 &model_inputs
 
-#. filName: Name of the FV3 (pressure level) output file to be post-processed.
+#. fileName: Name of the FV3 (pressure level) output file to be post-processed.
 
 #. IOFORM: Format of FV3 model output (netcdfpara).
 
