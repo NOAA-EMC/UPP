@@ -79,7 +79,7 @@ with examples in the sections below.
             This flat file (instead of the xml file) is read in by UPP as it was much faster to read a text file
             than an xml file.
 
-2.  Allocate the field: ALLOCATE.f
+2.  Allocate and initialize the field: ALLOCATE.f
 
     This file is the instantiation or allocation of the variable. Note that the variables are defined
     based on the parallel processing capability of UPP - use an example from the file.
@@ -171,7 +171,8 @@ with examples in the sections below.
             e) Add the new variable to the UPP/parm/post_avblflds.xml, which lists all fields available
                for output in GRIB2 format. This file is generally not modified unless adding a new field or
                modifying an existing one.
-                - Post_avblfldidx: the unique array index number used to store this variable.
+                - Post_avblfldidx: the unique array index number used to store this variable. The number chosen here
+                  is just an example and it is important to pick one that is not yet in use.
                 - Shortname: name describing the variable and level type
                 - Pname: the abbreviation for your variable (should match what is used in params_grib2_tbl_new)
                 - Table info: table used if not standard WMO
@@ -185,7 +186,7 @@ with examples in the sections below.
                 ::
 
                  <param>
-                   <post_avblfldidx>999</post_avblfldidx>
+                   <post_avblfldidx>1003</post_avblfldidx>
                    <shortname>DEEP_TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
                    <pname>TG3</pname>
                    <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
@@ -220,16 +221,21 @@ with examples in the sections below.
           This flat file (instead of the xml file) is read in by UPP as it was much faster to read a text file
           than an xml file.
 
-2. Allocate the new variable in ALLOCATE_ALL.f
+2. Allocate and initialize the new variable in ALLOCATE_ALL.f
    This file is the instantiation or allocation of the variable. Note that the variables are defined
    based on the parallel processing capability of UPP - use an example from the file.
 
    User Procedure
-    - Add in VRBLS2D GFS section as:
+    - Allocate in VRBLS2D GFS section as:
 
     ::
 
-      allocate(tg3(im,jsta_2l:jend_2u))
+      allocate(tg3(ista_2l:iend_2u,jsta_2l:jend_2u))
+    - Initialize in the initialization section that comes after the allocations section you added to.
+
+    ::
+
+      tg3(i,j)=spval
 
 3. De-allocate the variable to give the resources back in DEALLOCATE.f
    All good programmers give back their resources when they are done. Please update this
@@ -270,7 +276,7 @@ with examples in the sections below.
 
      ! deep soil temperature
            VarName='tg3'
-           call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+           call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
            spval,VarName,tg3)
 
 6. Determine the appropriate routine to add the new variable to (e.g. SURFCE.f, MDLFLD.f,
@@ -299,16 +305,17 @@ with examples in the sections below.
     ::
 
      ! DEEP SOIL TEMPERATURE
-     IF ( IGET(999).GT.0 ) THEN
+     IF ( IGET(1003).GT.0 ) THEN
        ID(1:25) = 0
        If(grib=='grib2') then
          cfld=cfld+1
-         fld_info(cfld)%ifld=IAVBLFLD(IGET(999))
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(1003))
      !$omp parallel do private(i,j,jj)
          do j=1,jend-jsta+1
            jj = jsta+j-1
-           do i=1,im
-             datapd(i,j,cfld) = TG3(i,jj)
+           do i=1,iend-ista+1
+           ii = ista+i-1
+             datapd(i,j,cfld) = TG3(ii,jj)
            enddo
          enddo
        endiF
