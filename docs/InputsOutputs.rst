@@ -39,7 +39,7 @@ ITAG
 The file called :bolditalic:`itag` is a text file that contains the fortran namelist &model_inputs as
 well as the 2D decomposition specification in &nampgb. It is read in by the :bolditalic:`upp.x` executable
 from stdin (unit 5) and is generated automatically within the UFS application workflow or stand-alone run script based on user-defined options. It should not be necessary to edit this. For description purposes,
-the namelist &model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3 and one line for &nampgb:
+the namelist &model_inputs and &nampgb (:bolditalic:`itag` file) contain the following lines for FV3:
 
 &model_inputs
 
