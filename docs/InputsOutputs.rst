@@ -42,6 +42,7 @@ from stdin (unit 5) and is generated automatically within the UFS application wo
 the namelist &model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3 and one line for &nampgb:
 
 &model_inputs
+
 #. filName: Name of the FV3 (pressure level) output file to be post-processed.
 
 #. IOFORM: Format of FV3 model output (netcdfpara).
@@ -58,6 +59,7 @@ the namelist &model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3 an
 #. fileNameFlat: Name of configuration file (postxconfig-NT.txt)
 
 &nampgb
+
 #. numx: Number of subdomains in the x-direction used for 2D decomposition. 
 
 ------------
