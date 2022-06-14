@@ -138,7 +138,7 @@
 !  factors of num_procs.
 !
 !  for the special case of 1D decomposition, numx is set to 1 and the
-!  fourth argument becumes the number of MPI ranks for the job. numx=1
+!  fourth argument becomes the number of MPI ranks for the job. numx=1
 !   makes the code fully compatible with the old 1D decomposition. 
 
 
