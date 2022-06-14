@@ -130,14 +130,17 @@
  
 !     global loop ranges
 !
-!  para_range2 supports a 2D decomposition.  The rest of the post
-!  supports 1D still and the call here is the special case where each
-!  processor gets all of the longitudes in the latitude 1D subdomain
-!  jsta:jend.  The X decomposition will be specified by the third
-!  argument (currently 1) and the Y decoposition will be specified by
-!  the fourth argument (currently all of the ranks)   When X is
-!  subdivided the third and fourth arguments will have to be integral
-!  factors of num_procs 
+!  para_range2 supports a 2D decomposition.  
+!  The X decomposition is  specified by the third
+!  argument  and the Y decoposition is  specified by
+!  the fourth argument.  The product of the third and fourth arguments
+!  must be num_procs and the third and fourth arguments must be integral
+!  factors of num_procs.
+!
+!  for the special case of 1D decomposition, numx is set to 1 and the
+!  fourth argument becomes the number of MPI ranks for the job. numx=1
+!   makes the code fully compatible with the old 1D decomposition. 
+
 
       call para_range2(im,jm,numx,num_procs/numx,me,ista,iend,jsta,jend)
 
