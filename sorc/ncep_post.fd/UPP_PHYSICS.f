@@ -1692,6 +1692,7 @@
 !> 2016-08-05 | S Moorthi    | add zonal filetering
 !> 2019-10-17 | Y Mao        | Skip calculation when U/V is SPVAL
 !> 2020-11-06 | J Meng       | Use UPP_MATH Module
+!> 2022-05-26 | H Chuang     | Use GSL approach for FV3R
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALVOR(UWND,VWND,ABSV)
@@ -2041,13 +2042,14 @@
           JMT2 = JM/2+1
           TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=ISTA_M,IEND_M
-            IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
+            IF(DDVDX(I,J)<SPVAL.AND.DDUDY(I,J)<SPVAL.AND. &
+               UUAVG(I,J)<SPVAL.AND.UWND(I,J)<SPVAL.AND.  &
      &         UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
               DVDX   = DDVDX(I,J)
               DUDY   = DDUDY(I,J)
               UAVG   = UUAVG(I,J) 
 !  is there a (f+tan(phi)/erad)*u term?
-              IF(MODELNAME  == 'RAPR') then
+              IF(MODELNAME  == 'RAPR' .OR. MODELNAME  == 'FV3R') then
                  ABSV(I,J) = DVDX - DUDY + F(I,J)   ! for run RAP over north pole      
               else
                  ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(GDLAT(I,J)*DTR)/ERAD  ! not sure about this???

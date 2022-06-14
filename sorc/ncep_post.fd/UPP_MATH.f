@@ -12,6 +12,7 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
+!> 2022-06-10 | Wen Meng   | Modify dvdxdudy to retrict computation on undefined grids  
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_math
@@ -49,13 +50,24 @@
       integer i, j
       real r2dx, r2dy
       INTEGER, allocatable ::  IHE(:),IHW(:)
-!
+
+!Initializing
+      DO J=JSTA_M,JEND_M
+        DO I=ISTA_M,IEND_M
+           DDVDX(I,J)=SPVAL
+           DDUDY(I,J)=SPVAL
+           UUAVG(I,J)=SPVAL
+        ENDDO
+      ENDDO
+
       IF(GRIDTYPE == 'A')THEN
 !$omp parallel do  private(i,j,r2dx,r2dy)
         DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
-           IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
-     &        UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
+           IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.      &
+              UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL.AND.      &
+              UWND(I,J)<SPVAL.AND.VWND(I,J)<SPVAL.AND.          &
+              ABS(DX(I,J))>1.E-5.AND.ABS(DY(I,J))>1.E-5) THEN
               R2DX   = 1./(2.*DX(I,J))
               R2DY   = 1./(2.*DY(I,J))
               DDVDX(I,J)   = (VWND(I+1,J)-VWND(I-1,J))*R2DX
