@@ -125,8 +125,54 @@ $(document).ready(function(){initNavTree('2D-decomp_8md.html','');});
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;Both <a class="code" href="MPI__FIRST_8f.html#a3c87461a64bfc3b6b0be8ee84fee4fc9">MPI_FIRST</a>.f and EXCH.f contain significant additional test code to exchange arrays containing grid coordinates and ensure EXACT matches <span class="keywordflow">for</span> all exchanges before the domain exchanges are performed. This is intended to trap errors in the larger variety of 2D decomposition layouts that are possible and most of it can eventually be removed or made conditional at build and run time.</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;Indices and variables to facilitate the 2D decomposition are found in CTLBLK.f and shared in the rest of UPP through use of CTLBLK.mod.</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;The following is found in CTLBLK.f and shared in the rest of UPP through use of CTLBLK.mod:</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;| Variable | Type | Description |</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;|---------|------|-------------|</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;| im | integer |  full longitude domain|</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;| jm | integer |  full latitude domain|</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;| | | | </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;| jsta | integer |  start latitude on a task subdomain|</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;| jend | integer |   end  latitude on a task subdomain|</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;| ista | integer  | start longitude on a task subdomain|</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;| iend  | integer |  end   longitude on a task subdomain|</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;| | | | </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;| ista_2l | integer |start longitude -2 of the subdomain|</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;| iend_2u | integer |end   longitude +2 of the subdomain|</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;| jsta_2l | integer |start latitude  -2 of the subdomain|</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;| jend_2u | integer |end   latitude  +2 of the subdomain|</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;The shape of the subdomain is ista_2l:iend_2u,jsta_2l:jend_2u so it includes the halos although the halos are not populated until exchange is done in EXCH.f.  Because of halos we need more bounds defined:</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;| Variable | Type | Description |</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;|---------|------|-------------|</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;| jsta_m |  integer |  Beginning latitude loop index in subdomain <span class="keywordflow">for</span> halo depth 1 |</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;| jend_m |   integer |   ending latitude loop index in subdomain <span class="keywordflow">for</span> halo depth 1      |</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;| jsta_m2 |  integer |   second latitude below begin latitude of subdomain <span class="keywordflow">for</span> halo depth 2 (in NGMFLD.f) |</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;| jend_m2 |   integer |  second latitude above end latitude of subdomain <span class="keywordflow">for</span> halo depth 2 ( in NGMFLD.f) |</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;Note:&lt;ul&gt;&lt;li&gt;In interior subdomains these are the same as jsta and jend.&lt;/li&gt;&lt;li&gt;In boundary subdomains these loop indices define a smaller subset of the subdomain since halos are not defined on the full domain boundaries and stencils must be restricted to valid full domain points. &lt;/li&gt;&lt;/ul&gt;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;| Variable | Type | Description |</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;|---------|------|-------------| </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;|  ista_m |  integer  |  begining longitude loop index in subdomain <span class="keywordflow">for</span> halo depth 1|</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;|  iend_m |  integer  |  end longitude loop index in subdomain  <span class="keywordflow">for</span> halo depth 1 |</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;|  ista_m2 |  integer  |  second longitude before begin longitude <span class="keywordflow">for</span> halo depth 2  (not used as of 6/22)|</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;|  iend_m2 |  integer  | second longitude after end  longitude    <span class="keywordflow">for</span> halo depth 2  (not used as of 6/22) |</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;Note:&lt;ul&gt;&lt;li&gt;In interior subdomains these are the same as ista and iend.&lt;/li&gt;&lt;li&gt;In boundary subdomains these loop indices define a smaller subset of the subdomain since halos are not defined on the full domain boundaries and stencils must be restricted to valid full domain points.&lt;/li&gt;&lt;/ul&gt;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;| Variable | Type | Description |</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;|---------|------|-------------| </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;|  ileft |  integer |  MPI rank containing the last longitude before ista </div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;|  iright |  integer |  MPI rank containing the first longitude after iend</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;|  iup   |  integer |   MPI rank containing the first latitude after jend</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;|  idn |  integer |     MPI rank containing the  last latitude before  jsta</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;| | | |</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;|  ileftb  | integer |MPI rank containing the last longitude before ista but <span class="keywordflow">for</span> cyclic boundary conditions where <span class="stringliteral">&quot;last&quot;</span> at the beginning is the other end of the domain (apparently unused and replaced with local calculation) |</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;|  irightb | integer |  MPI rank containing the first longitude after iend but <span class="keywordflow">for</span> cyclic boundary conditions where <span class="stringliteral">&quot;first&quot;</span> at the beginning is the other end of the domain (apparently unused and replaced with local calculation) |</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
 <div class="ttc" id="MPI__FIRST_8f_html_a3c87461a64bfc3b6b0be8ee84fee4fc9"><div class="ttname"><a href="MPI__FIRST_8f.html#a3c87461a64bfc3b6b0be8ee84fee4fc9">MPI_FIRST</a></div><div class="ttdeci">subroutine MPI_FIRST()</div><div class="ttdoc">SUBPROGRAM: MPI_FIRST SET UP MESSGAE PASSING INFO PRGRMMR: TUCCILLO ORG: IBM. </div><div class="ttdef"><b>Definition:</b> <a href="MPI__FIRST_8f_source.html#l00038">MPI_FIRST.f:38</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
