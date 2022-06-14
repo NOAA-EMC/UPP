@@ -57,11 +57,11 @@ Note:<ul><li>In interior subdomains these are the same as ista and iend.</li><li
 
 | Variable | Type | Description |
 |---------|------|-------------| 
-|  ileft |  integer |  MPI rank containing the last longitude before ista_m 
-|  iright |  integer |  MPI rank containing the first longitude after iend_m
+|  ileft |  integer |  MPI rank containing the last longitude before ista 
+|  iright |  integer |  MPI rank containing the first longitude after iend
 |  iup   |  integer |   MPI rank containing the first latitude after jend
 |  idn |  integer |     MPI rank containing the  last latitude before  jsta
 | | | |
-|  ileftb  | integer |MPI rank containing the last longitude before ista_m but for cyclic boundary conditions where "last" at the beginning is the other end of the domain (apparently unused and replaced with local calculation) |
-|  irightb | integer |  MPI rank containing the first longitude after iend_m but for cyclic boundary conditions where "first" at the beginning is the other end of the domain (apparently unused and replaced with local calculation) |
+|  ileftb  | integer |MPI rank containing the last longitude before ista but for cyclic boundary conditions where "last" at the beginning is the other end of the domain (apparently unused and replaced with local calculation) |
+|  irightb | integer |  MPI rank containing the first longitude after iend but for cyclic boundary conditions where "first" at the beginning is the other end of the domain (apparently unused and replaced with local calculation) |
 
