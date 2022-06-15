@@ -109,7 +109,92 @@ $(document).ready(function(){initNavTree('md_2D-decomp.html','');});
 <p>The 2D decomposition operates on subdomains with some latitudes and some longitudes. The subdomains are lon-lat rectangles rather than strips. This means state must be chopped into pieces in any scatter operation and the pieces reassembled in any gather operation that requires a continuous in memory state. I/O and halo exchanges both require significantly more bookkeeping.</p>
 <p>The structural changes needed for the 2D decomposition are implemented in <a class="el" href="MPI__FIRST_8f.html">MPI_FIRST.f</a> and <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a>. The <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> routine contains numerous additional variables describing left and right domain boundaries. Many additional changes are also implemented in <a class="el" href="EXCH_8f.html" title="Subroutines that exchange one halo row. ">EXCH.f</a> to support 2D halos. Many additional routines required addition of the longitude subdomain limits but changes to the layouts are handled in <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> and the "many additional routines" do not require additional changes when subdomain shapes are changed and have not been a trouble point.</p>
 <p>Both <a class="el" href="MPI__FIRST_8f.html">MPI_FIRST.f</a> and <a class="el" href="EXCH_8f.html" title="Subroutines that exchange one halo row. ">EXCH.f</a> contain significant additional test code to exchange arrays containing grid coordinates and ensure EXACT matches for all exchanges before the domain exchanges are performed. This is intended to trap errors in the larger variety of 2D decomposition layouts that are possible and most of it can eventually be removed or made conditional at build and run time.</p>
-<p>Indices and variables to facilitate the 2D decomposition are found in <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> and shared in the rest of UPP through use of CTLBLK.mod. </p>
+<p>The following is found in <a class="el" href="CTLBLK_8f_source.html">CTLBLK.f</a> and shared in the rest of UPP through use of CTLBLK.mod:</p>
+<table class="doxtable">
+<tr>
+<th>Variable </th><th>Type </th><th>Description  </th></tr>
+<tr>
+<td>im </td><td>integer </td><td>full longitude domain </td></tr>
+<tr>
+<td>jm </td><td>integer </td><td>full latitude domain </td></tr>
+<tr>
+<td></td><td></td><td></td></tr>
+<tr>
+<td>jsta </td><td>integer </td><td>start latitude on a task subdomain </td></tr>
+<tr>
+<td>jend </td><td>integer </td><td>end latitude on a task subdomain </td></tr>
+<tr>
+<td>ista </td><td>integer </td><td>start longitude on a task subdomain </td></tr>
+<tr>
+<td>iend </td><td>integer </td><td>end longitude on a task subdomain </td></tr>
+<tr>
+<td></td><td></td><td></td></tr>
+<tr>
+<td>ista_2l </td><td>integer </td><td>start longitude -2 of the subdomain </td></tr>
+<tr>
+<td>iend_2u </td><td>integer </td><td>end longitude +2 of the subdomain </td></tr>
+<tr>
+<td>jsta_2l </td><td>integer </td><td>start latitude -2 of the subdomain </td></tr>
+<tr>
+<td>jend_2u </td><td>integer </td><td>end latitude +2 of the subdomain </td></tr>
+</table>
+<p>The shape of the subdomain is ista_2l:iend_2u,jsta_2l:jend_2u so it includes the halos although the halos are not populated until exchange is done in <a class="el" href="EXCH_8f.html" title="Subroutines that exchange one halo row. ">EXCH.f</a>. Because of halos we need more bounds defined:</p>
+<table class="doxtable">
+<tr>
+<th>Variable </th><th>Type </th><th>Description  </th></tr>
+<tr>
+<td>jsta_m </td><td>integer </td><td>Beginning latitude loop index in subdomain for halo depth 1 </td></tr>
+<tr>
+<td>jend_m </td><td>integer </td><td>ending latitude loop index in subdomain for halo depth 1 </td></tr>
+<tr>
+<td>jsta_m2 </td><td>integer </td><td>second latitude below begin latitude of subdomain for halo depth 2 (in <a class="el" href="NGMFLD_8f.html" title="ngmfld() computes layer mean NGM fields ">NGMFLD.f</a>) </td></tr>
+<tr>
+<td>jend_m2 </td><td>integer </td><td>second latitude above end latitude of subdomain for halo depth 2 ( in <a class="el" href="NGMFLD_8f.html" title="ngmfld() computes layer mean NGM fields ">NGMFLD.f</a>) </td></tr>
+</table>
+<p>Note:</p>
+<ul>
+<li>
+In interior subdomains these are the same as jsta and jend.</li>
+<li>
+In boundary subdomains these loop indices define a smaller subset of the subdomain since halos are not defined on the full domain boundaries and stencils must be restricted to valid full domain points. </li>
+</ul>
+<table class="doxtable">
+<tr>
+<th>Variable </th><th>Type </th><th>Description  </th></tr>
+<tr>
+<td>ista_m </td><td>integer </td><td>begining longitude loop index in subdomain for halo depth 1 </td></tr>
+<tr>
+<td>iend_m </td><td>integer </td><td>end longitude loop index in subdomain for halo depth 1 </td></tr>
+<tr>
+<td>ista_m2 </td><td>integer </td><td>second longitude before begin longitude for halo depth 2 (not used as of 6/22) </td></tr>
+<tr>
+<td>iend_m2 </td><td>integer </td><td>second longitude after end longitude for halo depth 2 (not used as of 6/22) </td></tr>
+</table>
+<p>Note:</p>
+<ul>
+<li>
+In interior subdomains these are the same as ista and iend.</li>
+<li>
+In boundary subdomains these loop indices define a smaller subset of the subdomain since halos are not defined on the full domain boundaries and stencils must be restricted to valid full domain points.</li>
+</ul>
+<table class="doxtable">
+<tr>
+<th>Variable </th><th>Type </th><th>Description  </th></tr>
+<tr>
+<td>ileft </td><td>integer </td><td>MPI rank containing the last longitude before ista </td></tr>
+<tr>
+<td>iright </td><td>integer </td><td>MPI rank containing the first longitude after iend </td></tr>
+<tr>
+<td>iup </td><td>integer </td><td>MPI rank containing the first latitude after jend </td></tr>
+<tr>
+<td>idn </td><td>integer </td><td>MPI rank containing the last latitude before jsta </td></tr>
+<tr>
+<td></td><td></td><td></td></tr>
+<tr>
+<td>ileftb </td><td>integer </td><td>MPI rank containing the last longitude before ista but for cyclic boundary conditions where "last" at the beginning is the other end of the domain (apparently unused and replaced with local calculation) </td></tr>
+<tr>
+<td>irightb </td><td>integer </td><td>MPI rank containing the first longitude after iend but for cyclic boundary conditions where "first" at the beginning is the other end of the domain (apparently unused and replaced with local calculation) </td></tr>
+</table>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
