@@ -1779,13 +1779,15 @@
        ifield3(15) = latlast
        ifield3(16) = lonlast
 !       ifield3(17) = NINT(360./(IM)*1.0E6)
-       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+!       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+       ifield3(17) = DXVAL
 !       if(mod(jm,2) == 0 ) then
 !        ifield3(18) = NINT(180./JM*1.0E6) 
 !       else
 !        ifield3(18) = NINT(180./(JM-1)*1.0E6)
-        ifield3(18) = abs(latlast-latstart)/(JM-1)
+!        ifield3(18) = abs(latlast-latstart)/(JM-1)
 !       endif
+       ifield3(18) = DYVAL
        if( latstart < latlast ) then
         ifield3(19) = 64      !for SN scan   
        else
