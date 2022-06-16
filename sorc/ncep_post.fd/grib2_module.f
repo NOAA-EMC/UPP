@@ -11,7 +11,7 @@
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
 !   July,  2021    Jesse Meng 2D decomsition
-!   June,  2011    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
+!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
