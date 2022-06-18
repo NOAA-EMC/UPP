@@ -3673,7 +3673,44 @@
           CUPPT(i,j) = SPVAL 
         enddo
       enddo
+      
+! done with flux file, close it for now      
+      call nemsio_close(ffile,iret=status)
+      deallocate(tmp,recname,reclevtyp,reclev)
 
+
+
+! Retrieve aer fields if it's listed (GOCART)
+      print *, 'iostatus for aer file=', iostatusAER
+      if(iostatusAER == 0) then ! start reading aer file
+       call nemsio_open(rfile,trim(fileNameAER),'read',mpi_comm_comp &
+                       ,iret=status)
+       if ( Status /= 0 ) then
+        print*,'error opening ',fileNameAER, ' Status = ', Status
+       endif
+       call nemsio_getfilehead(rfile,iret=status,nrec=nrec)
+       print*,'nrec for aer file=',nrec
+       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
+       call nemsio_getfilehead(rfile,iret=iret,recname=recname       &
+                              ,reclevtyp=reclevtyp,reclev=reclev)
+       if(debugprint)then
+         if (me == 0)then
+           do i=1,nrec
+             print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
+                      trim(reclevtyp(i)),reclev(i)
+           end do
+         end if
+       end if
+! start reading nemsio aer files using parallel read
+      fldsize=(jend-jsta+1)*im
+      allocate(tmp(fldsize*nrec))
+      print*,'allocate tmp successfully'
+      tmp=0.
+      call nemsio_denseread(rfile,1,im,jsta,jend,tmp,iret=iret)
+      if(iret/=0)then
+        print*,"fail to read aer file using mpi io read, stopping"
+        stop 
+      end if
 
 ! retrieve dust emission fluxes
       do K = 1, nbin_du
@@ -3684,11 +3721,11 @@
        if ( K == 5) VarName='duem005'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,duem(1,jsta_2l,K))
-!     if(debugprint)print*,'sample ',VarName,' = ',duem(isa,jsa,k)
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u     &
+             ,l,nrec,fldsize,spval,tmp                       &
+             ,recname,reclevtyp,reclev,VarName,VcoordName    &
+             ,duem(1,jsta_2l,K))
+     if(debugprint)print*,'sample ',VarName,' = ',duem(isa,jsa,k)
       enddo
 
 ! retrieve dust sedimentation fluxes
@@ -3700,10 +3737,10 @@
        if ( K == 5) VarName='dust5sd'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,dusd(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u     &
+             ,l,nrec,fldsize,spval,tmp                       &
+             ,recname,reclevtyp,reclev,VarName,VcoordName    &
+             ,dusd(1,jsta_2l,K))
 !      if(debugprint)print*,'sample ',VarName,' = ',dusd(isa,jsa,k)
       enddo
 
@@ -3716,10 +3753,10 @@
        if ( K == 5) VarName='dust5dp'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,dudp(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u     &
+             ,l,nrec,fldsize,spval,tmp                       &
+             ,recname,reclevtyp,reclev,VarName,VcoordName    &
+             ,dudp(1,jsta_2l,K))
         print *,'dudp,ck=',maxval(dudp(1:im,jsta:jend,k)), &
                  minval(dudp(1:im,jsta:jend,k))
 !      if(debugprint)print*,'sample ',VarName,' = ',dudp(isa,jsa,k)
@@ -3734,10 +3771,10 @@
        if ( K == 5) VarName='dust5wtl'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,duwt(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,duwt(1,jsta_2l,K))
       enddo
 ! retrieve dust scavenging fluxes
       do K = 1, nbin_du
@@ -3748,10 +3785,10 @@
        if ( K == 5) VarName='dust5wtc'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,dusv(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,dusv(1,jsta_2l,K))
       enddo
 
 ! retrieve seasalt emission fluxes
@@ -3763,10 +3800,10 @@
        if ( K == 5) VarName='ssem005'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ssem(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ssem(1,jsta_2l,K))
       enddo
 
 ! retrieve seasalt emission fluxes
@@ -3778,10 +3815,10 @@
        if ( K == 5) VarName='seas5sd'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,sssd(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,sssd(1,jsta_2l,K))
       enddo
 
 ! retrieve seasalt dry deposition fluxes
@@ -3793,10 +3830,10 @@
        if ( K == 5) VarName='seas5dp'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ssdp(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ssdp(1,jsta_2l,K))
       enddo
 
 ! retrieve seasalt wet deposition fluxes
@@ -3808,10 +3845,10 @@
        if ( K == 5) VarName='seas5wtl'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,sswt(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,sswt(1,jsta_2l,K))
       enddo
 
 ! retrieve seasalt scavenging fluxes
@@ -3823,10 +3860,10 @@
        if ( K == 5) VarName='seas1wtc'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,sssv(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,sssv(1,jsta_2l,K))
       enddo
 
 ! retrieve bc emission fluxes
@@ -3835,10 +3872,10 @@
        if ( K == 2) VarName='bcembb'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,bcem(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,bcem(1,jsta_2l,K))
       enddo
 
 ! retrieve bc sedimentation fluxes
@@ -3847,10 +3884,10 @@
        if ( K == 2) VarName='bc2sd'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,bcsd(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,bcsd(1,jsta_2l,K))
       enddo
 
 ! retrieve bc dry deposition fluxes
@@ -3859,10 +3896,10 @@
        if ( K == 2) VarName='bc2dp'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,bcdp(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,bcdp(1,jsta_2l,K))
       enddo
 
 ! retrieve bc large wet deposition fluxes
@@ -3871,10 +3908,10 @@
        if ( K == 2) VarName='bc2wtl'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,bcwt(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,bcwt(1,jsta_2l,K))
       enddo
 
 ! retrieve bc convective wet deposition fluxes
@@ -3883,10 +3920,10 @@
        if ( K == 2) VarName='bc2wtc'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,bcsv(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,bcsv(1,jsta_2l,K))
       enddo
 
 ! retrieve oc emission fluxes
@@ -3895,10 +3932,10 @@
        if ( K == 2) VarName='ocembb'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ocem(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ocem(1,jsta_2l,K))
       enddo
 
 ! retrieve oc sedimentation fluxes
@@ -3907,10 +3944,10 @@
        if ( K == 2) VarName='oc2sd'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ocsd(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ocsd(1,jsta_2l,K))
       enddo
 
 ! retrieve oc dry deposition fluxes
@@ -3919,10 +3956,10 @@
        if ( K == 2) VarName='oc2dp'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ocdp(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ocdp(1,jsta_2l,K))
       enddo
 
 ! retrieve oc large wet deposition fluxes
@@ -3931,10 +3968,10 @@
        if ( K == 2) VarName='oc2wtl'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ocwt(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ocwt(1,jsta_2l,K))
       enddo
 
 ! retrieve oc convective wet deposition fluxes
@@ -3943,24 +3980,24 @@
        if ( K == 2) VarName='oc2wtc'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,ocsv(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,ocsv(1,jsta_2l,K))
       enddo
 ! retrieve MIE AOD
        VarName='maod'
        VcoordName='sfc'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
-                            ,l,nrec,fldsize,spval,tmp                   &
-                            ,recname,reclevtyp,reclev,VarName,VcoordName&
-                            ,maod(1,jsta_2l))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u    &
+             ,l,nrec,fldsize,spval,tmp                      &
+             ,recname,reclevtyp,reclev,VarName,VcoordName   &
+             ,maod(1,jsta_2l))
 
 
 ! done with flux file, close it for now
-      call nemsio_close(ffile,iret=status)
-      deallocate(tmp,recname,reclevtyp,reclev)
+!      call nemsio_close(ffile,iret=status)
+!      deallocate(tmp,recname,reclevtyp,reclev)
 
 !lzhang
 !! retrieve sfc mass concentration
@@ -4005,6 +4042,12 @@
 !                          ,recname,reclevtyp,reclev,VarName,VcoordName &
 !                          ,ducmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',ducmass25(isa,jsa)
+
+        if (me == 0) print *,'after aer files reading,mype=',me
+       call nemsio_close(rfile,iret=status)
+       deallocate(tmp,recname,reclevtyp,reclev)
+      end if ! end of aer file read
+      
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me == 0)then
