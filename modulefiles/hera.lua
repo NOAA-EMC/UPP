@@ -53,8 +53,8 @@ load(pathJoin("sfcio", sfcio_ver))
 wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("wrf_io", wrf_io_ver))
 
-setenv("CC","cc")
-setenv("CXX","CC")
+setenv("CC","mpiicc")
+setenv("CXX","mpiicpc")
 setenv("FC","mpiifort")
 
 whatis("Description: post build environment")
