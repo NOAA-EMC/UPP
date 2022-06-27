@@ -217,7 +217,7 @@ if(BUILD_POSTEXEC)
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
     nemsio::nemsio
-    w3nco::w3nco_4
+    w3emc::w3emc_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
