@@ -63,12 +63,6 @@ if(BUILD_POSTEXEC)
   endif()
 endif()
 
-### Switch RUNTIME DESTINATION DIR between bin and exec
-set(exec_dir bin)
-if(EMC_EXEC_DIR)
-  set(exec_dir exec)
-endif()
-
 add_subdirectory(sorc)
 add_subdirectory(parm)
 
