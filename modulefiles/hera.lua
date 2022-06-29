@@ -31,8 +31,6 @@ g2_ver=os.getenv("g2_ver") or "3.4.5"
 load(pathJoin("g2", g2_ver))
 g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.0"
 load(pathJoin("g2tmpl", g2tmpl_ver))
-w3nco_ver=os.getenv("w3nco_ver") or "2.4.1"
-load(pathJoin("w3nco", w3nco_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
 ip_ver=os.getenv("ip_ver") or "3.3.3"
@@ -44,7 +42,7 @@ load(pathJoin("crtm", crtm_ver))
 w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
-nemsio_ver=os.getenv("nemsio_ver") or "2.5.2"
+nemsio_ver=os.getenv("nemsio_ver") or "2.5.4"
 load(pathJoin("nemsio", nemsio_ver))
 sigio_ver=os.getenv("sigio_ver") or "2.3.2"
 load(pathJoin("sigio", sigio_ver))

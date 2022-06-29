@@ -57,16 +57,10 @@ if(BUILD_POSTEXEC)
   find_package(sfcio REQUIRED)
   find_package(sigio REQUIRED)
   find_package(sp REQUIRED)
-  find_package(w3nco REQUIRED)
+  find_package(w3emc REQUIRED)
   if(BUILD_WITH_WRFIO)
     find_package(wrf_io REQUIRED)
   endif()
-endif()
-
-### Switch RUNTIME DESTINATION DIR between bin and exec
-set(exec_dir bin)
-if(EMC_EXEC_DIR)
-  set(exec_dir exec)
 endif()
 
 add_subdirectory(sorc)
