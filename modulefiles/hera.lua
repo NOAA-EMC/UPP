@@ -42,7 +42,7 @@ load(pathJoin("crtm", crtm_ver))
 w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
-nemsio_ver=os.getenv("nemsio_ver") or "2.5.2"
+nemsio_ver=os.getenv("nemsio_ver") or "2.5.4"
 load(pathJoin("nemsio", nemsio_ver))
 sigio_ver=os.getenv("sigio_ver") or "2.3.2"
 load(pathJoin("sigio", sigio_ver))
