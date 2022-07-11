@@ -18,6 +18,7 @@
 !> 2022-03-22 | Wen Meng      | Read PWAT from model
 !> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
 !> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
+!> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -3549,6 +3550,13 @@
           WRITE(igdout)0
           WRITE(igdout)0
           WRITE(igdout)0
+         ELSE IF(MAPTYPE == 207)THEN !Rotated lat-lon grid
+           open(112,file='latlons_corners.txt',form='formatted', &
+             status='unknown')
+           write(112,1001)LATSTART/1000,LONSTART/1000,&
+             LATLAST/1000,LONLAST/1000
+     1001 format(2(I6,I7,X))
+           close(112)
         END IF
       end if
 !     
