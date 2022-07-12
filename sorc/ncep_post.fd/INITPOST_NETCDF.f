@@ -72,7 +72,8 @@
               ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
-              latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
+              latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
+              latse,lonse,latnw,lonnw
       use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -469,8 +470,8 @@
           dyval=dum_const*gdsdegr
          end if
 
-         print*,'lonstart,latstart,cenlon,cenlat,dyval,dxval', &
-         lonstart,latstart,cenlon,cenlat,dyval,dxval
+!         print*,'lonstart,latstart,cenlon,cenlat,dyval,dxval', &
+!         lonstart,latstart,cenlon,cenlat,dyval,dxval
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
         else if(trim(varcharval)=='latlon')then
@@ -764,9 +765,13 @@
         if(convert_rad_to_deg)then
          lonstart = nint(dummy(1,1)*gdsdegr)*180./pi
          lonlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+         lonse    = nint(dummy(im,1)*gdsdegr)*180./pi
+         lonnw    = nint(dummy(1,jm)*gdsdegr)*180./pi
         else
          lonstart = nint(dummy(1,1)*gdsdegr)
          lonlast  = nint(dummy(im,jm)*gdsdegr)
+         lonse    = nint(dummy(im,1)*gdsdegr)
+         lonnw    = nint(dummy(1,jm)*gdsdegr)
         end if
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
@@ -821,9 +826,13 @@
         if(convert_rad_to_deg)then
          latstart = nint(dummy(1,1)*gdsdegr)*180./pi
          latlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+         latse    = nint(dummy(im,1)*gdsdegr)*180./pi
+         latnw    = nint(dummy(1,jm)*gdsdegr)*180./pi
         else
          latstart = nint(dummy(1,1)*gdsdegr)
          latlast  = nint(dummy(im,jm)*gdsdegr)
+         latse    = nint(dummy(im,1)*gdsdegr)
+         latnw    = nint(dummy(1,jm)*gdsdegr)
         end if
       end if
       print*,'laststart,latlast = ',latstart,latlast
@@ -3554,8 +3563,9 @@
            open(112,file='latlons_corners.txt',form='formatted', &
              status='unknown')
            write(112,1001)LATSTART/1000,LONSTART/1000,&
+             LATSE/1000,LONSE/1000,LATNW/1000,LONNW/1000,&
              LATLAST/1000,LONLAST/1000
-     1001 format(2(I6,I7,X))
+     1001 format(4(I6,I7,X))
            close(112)
         END IF
       end if
