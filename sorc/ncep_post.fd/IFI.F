@@ -7,9 +7,8 @@ module upp_ifi_mod
   implicit none
 
   private
-  public run_ifi, set_ifi_dims, have_libIFI, ifi_real_t
+  public run_ifi, set_ifi_dims, ifi_real_t
 
-  logical, parameter :: have_libIFI = .false.
   integer, parameter :: ifi_real_t = c_float
   
 contains !==============================================================
@@ -17,18 +16,70 @@ contains !==============================================================
   subroutine set_ifi_dims()
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
     implicit none
+    integer :: i
 
     ! Bogus fill value for flight levels to prevent a crash
-    ifi_nflight = 0
-    allocate(ifi_flight_levels(1))
-    ifi_flight_levels = 10000
+    ifi_nflight = 60
+    allocate(ifi_flight_levels(ifi_nflight))
+    do i=1,ifi_nflight
+      ifi_flight_levels(i) = 500*i
+    enddo
   end subroutine set_ifi_dims
 
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
-    write(0,*) 'This post cannot produce IFI icing products because it was not compiled with IFI.'
+    ! Fill any requested IFI fields with missing data.
+    call send_missing_data(1100)  ! ICE_PROB = missing
+    call send_missing_data(1101)  ! SLD = missing
+    call send_missing_data(1102)  ! ICE_SEV_CAT = missing
   end subroutine run_ifi
+
+  ! --------------------------------------------------------------------
+
+  subroutine send_missing_data(ient)
+    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
+    use ctlblk_mod, only: spval, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
+    use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
+    implicit none
+
+    integer, intent(in) :: ient
+
+    ! Locals
+    integer :: i,j,k, ista,iend
+
+    logical, save :: wrote_message = .false. ! guarded by an OMP CRITICAL below
+
+    ! FIXME: Once the post is i-decomposed, replace these.
+    ista=1
+    iend=im
+
+    ! Go level-by-level writing grib2 if requested
+    do k=1,ifi_nflight
+      if(LVLS(k,IGET(ient))>0) then
+
+        if(.not.wrote_message) then
+          !$OMP CRITICAL
+          if(.not.wrote_message) then
+            write(0,'(A)') 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
+            wrote_message = .true.
+          endif
+          !$OMP END CRITICAL
+        endif
+
+        cfld = cfld+1
+        fld_info(cfld)%ifld = IAVBLFLD(IGET(ient))
+        fld_info(cfld)%lvl  = k
+
+        !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)
+        do j=jsta,jend
+          do i=ista,iend
+            datapd(i-ista+1,j-jsta+1,cfld) = spval
+          enddo
+        enddo
+      endif
+    enddo
+  end subroutine send_missing_data
 end module upp_ifi_mod
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -46,9 +97,8 @@ module upp_ifi_mod
   implicit none
 
   private
-  public run_ifi, set_ifi_dims, have_libIFI, ifi_real_t
+  public run_ifi, set_ifi_dims, ifi_real_t
 
-  logical, parameter :: have_libIFI = .true.
   real, parameter :: feet2meters = 0.3048
 
   type(IFIConfig) :: ifi_config
@@ -222,7 +272,7 @@ contains !==============================================================
         cfld = cfld+1
         fld_info(cfld)%ifld = IAVBLFLD(IGET(ient))
         fld_info(cfld)%lvl  = k ! ifi_flight_levels(k)*feet2meters
-        !$OMP PARALLEL DO PRIVATE(i,j,k,iloc,jstartm1) COLLAPSE(2)
+        !$OMP PARALLEL DO PRIVATE(i,j,iloc,jstartm1) COLLAPSE(2)
         do j=jps,jpe
           do i=ips,ipe
             jstartm1 = kstartm1 + (j-jms)*ilen
@@ -382,6 +432,8 @@ contains !==============================================================
     character(88) :: outfile
 
     real(c_double) :: fcst_lead_sec
+
+    ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
     if(grib/='grib2' .or. (IGET(1100)<=0 .and. IGET(1101)<=0 .and. IGET(1102)<=0)) then
       return ! nothing to do

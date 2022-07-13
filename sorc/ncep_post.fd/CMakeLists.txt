@@ -207,7 +207,7 @@ target_link_libraries(${LIBNAME} PUBLIC
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
 
-if(BUILD_WITH_IFI)
+if(IFI_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC IFI)
   target_link_libraries(${LIBNAME} PUBLIC tdrp)
 endif()
@@ -225,7 +225,7 @@ if(BUILD_POSTEXEC)
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
-  if(BUILD_WITH_IFI)
+  if(IFI_FOUND)
     target_link_libraries(${EXENAME} PRIVATE IFI)
     target_link_libraries(${EXENAME} PRIVATE tdrp)
   endif()
