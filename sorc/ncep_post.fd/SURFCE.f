@@ -107,7 +107,7 @@
                             ista, iend, ista_2l, iend_2u
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: read_grib2_head, read_grib2_sngle
-      use upp_physics, only: fpvsnew, CALRH
+      use upp_physics, only: fpvsnew, CALRH, calslr_roebber
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -953,6 +953,29 @@
           enddo
         endif
       ENDIF      
+! ADD SNOW DESITY SOLID-LIQUID-RATION SLR
+      IF ( IGET(1003)>0 .AND. IGET(119)>0 .AND. IGET(224)>0 ) THEN
+        grid1=spval
+        egrid1=spval
+        call calslr_roebber(sno(ista:iend,jsta:jend),si(ista:iend,jsta:jend),egrid1(ista:iend,jsta:jend))
+        do j=jsta,jend
+        do i=ista,iend
+           grid1(i,j)=egrid1(i,j)
+        enddo
+        enddo 
+        if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(1003))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+            ii = ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
 ! ADD POTENTIAL EVAPORATION
       IF ( IGET(242)>0 ) THEN
         if(grib=='grib2') then

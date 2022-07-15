@@ -36,6 +36,7 @@
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
+  public :: CALSLR_ROEBBER
   public :: CALVOR
 
   public :: FPVSNEW
@@ -2629,6 +2630,37 @@
 !     END IF 
 
       END SUBROUTINE CALGRADPS
+
+!> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2022-07-11 | Jesse Meng | Initial
+!>
+!> @author Jesse Meng @date 2022-07-11
+
+      SUBROUTINE CALSLR_ROEBBER(sno,si,slr)
+
+      use ctlblk_mod, only: ista, iend, jsta, jend, spval
+
+      real,dimension(ista:iend,jsta:jend),intent(in)    :: sno !weasd
+      real,dimension(ista:iend,jsta:jend),intent(in)    :: si  !snod
+      real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !sden
+
+      integer :: i,j
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+      do i=ista,iend
+         slr(i,j)=spval
+         if(sno(i,j) /= spval .and. si(i,j) /= spval .and. si(i,j) > 0.) then
+            slr(i,j) = si(i,j)*0.001*0.01       ! SI comes out of WRF in mm 
+         endif
+      enddo
+      enddo
+
+      END SUBROUTINE CALSLR_ROEBBER
 !
 !-------------------------------------------------------------------------------------
 !
