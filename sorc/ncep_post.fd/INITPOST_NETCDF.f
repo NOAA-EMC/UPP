@@ -106,7 +106,7 @@
       character(len=20)  :: VarName, VcoordName
       integer            :: Status, fldsize, fldst, recn, recn_vvel
       character             startdate*19,SysDepInfo*80,cgar*1
-      character             startdate2(19)*4
+      character             startdate2(19)*4, flatlon*40
       logical            :: read_lonlat=.true.
 ! 
 !     NOTE: SOME INTEGER VARIABLES ARE READ INTO DUMMY ( A REAL ). THIS IS OK
@@ -3560,12 +3560,14 @@
           WRITE(igdout)0
           WRITE(igdout)0
          ELSE IF(MAPTYPE == 207)THEN !Rotated lat-lon grid
-           open(112,file='latlons_corners.txt',form='formatted', &
+           write(flatlon,1001)ifhr
+           open(112,file=trim(flatlon),form='formatted', &
              status='unknown')
-           write(112,1001)LATSTART/1000,LONSTART/1000,&
+           write(112,1002)LATSTART/1000,LONSTART/1000,&
              LATSE/1000,LONSE/1000,LATNW/1000,LONNW/1000,&
              LATLAST/1000,LONLAST/1000
-     1001 format(4(I6,I7,X))
+     1001 format('latlons_corners.txt.f',I3.3)
+     1002 format(4(I6,I7,X))
            close(112)
         END IF
       end if
