@@ -1,69 +1,50 @@
 !> @file
+!> @brief Subroutine that computes boundary layer fields.
 !
+!> Computes constant mass mean fields
 !>
-!!
-!! SUBPROGRAM:    BNDLYR      COMPUTES CONSTANT MASS MEAN FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-01-29
-!!     
-!! ABSTRACT:  THIS ROUTINE COMPUTES CONSTANT MASS (BOUNDARY LAYER)
-!!   FIELDS.  THE FIELDS ARE A MEAN OVER LAYERS PARAMETER DPBND
-!!   (PASCALS) THICK.  THERE ARE NBND CONSTANT MASS LAYERS, EACH
-!!   DPBND THICK STARTING FROM THE SURFACE UP.  COMPUTED BOUNDARY 
-!!   LAYER FIELDS ARE PRESSURE, TEMPERATURE, SPECIFIC HUMIDITY,
-!!   RELATIVE HUMIDITY, U AND V WINDS, VERTICAL VELOCITY,
-!!   AND PRECIPITABLE WATER.  GIVEN THESE FUNDAMENTAL VARIABLES
-!!   OTHER FIELDS MAY BE COMPUTED.
-!!
-!!   ***WARNING*** IF YOU CHANGE PARAMETER NBND IN THIS ROUTINE 
-!!                 DON'T FOREGET TO CHANGE IT ALSO IN THE CALLING
-!!                 SUBPROGRAM, MISCLN.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-01-29  RUSS TREADON
-!!   93-05-07  RUSS TREADON - ADDED DOC BLOCK AND MORE COMMENTS.
-!!   93-06-19  RUSS TREADON - ADDED LVLBND TO PARAMETER LIST.
-!!   96-03-07  MIKE BALDWIN - CHANGE PWTR CALC TO INCLUDE CLD WTR
-!!                            SPEED UP CODE
-!!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   98-08-18  MIKE BALDWIN - CHANGE QSBND TO RHBND IN CALL,
-!!                            COMPUTE RH OVER ICE
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   00-01-04  JIM TUCCILLO - MPI VERSION 
-!!   02-01-15  MIKE BALDWIN - WRF VERSION
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!   21-08-20  Wen Meng     - Retrict computation fro undefined points.
-!!     
-!!     USAGE:    CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,
-!!                            WBND,OMGBND,PWTBND,QCNVBND)
-!!           
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PBND     - LAYER MEAN PRESSURE IN NBND BOUNDARY LAYERS (NBL).
-!!     TBND     - LAYER MEAN TEMPERATURE IN NBL.
-!!     QBND     - LAYER MEAN SPECIFIC HUMIDITY IN NBL.
-!!     RHBND    - LAYER MEAN RELATIVE HUM. (QBND/QSBND) IN  NBL.
-!!     UBND     - LAYER MEAN U WIND COMPONENT IN NBL.
-!!     VBND     - LAYER MEAN V WIND COMPONENT IN NBL.
-!!     WBND     - LAYER MEAN W WIND COMPONENT IN NBL.
-!!     OMGBND   - LAYER MEAN VERTICAL VELOCITY IN NBL.
-!!     PWTBND   - LAYER PRECIPITABLE WATER IN NBL.
-!!     LVLBND   - ETA LAYER AT MIDPOINT OF NBL.
-!!     QCNVBND  - LAYER MOISTURE CONVERGENCE IN NBL.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> This routine computes constant mass (boundary layer)
+!> fields.  The fields are a mean over layers parameter DPBND
+!> (pascals) thick.  There are NBND constant mass layers, each
+!> DPBND thick starting from the surface up.  Computed boundary 
+!> layer fields are pressure, temperature, specific humidity,
+!> relative humidity, U and V winds, vertical velocity,
+!> and precipitable water.  Given these fundamental variables
+!> other fields may be computed.
+!>
+!> @note If you change parameter NBND in this routine 
+!>       don't forget to change it also in the calling
+!>       subprogram, MISCLN.
+!>
+!> @param[out] PBND - Layer mean pressure in NBND boundary layers (NBL).
+!> @param[out] TBND - Layer mean temperature in NBL.
+!> @param[out] QBND - Layer mean specific humidity in NBL.
+!> @param[out] RHBND - Layer mean relative hum. (QBND/QSBND) in NBL.
+!> @param[out] UBND - Layer mean U wind component in NBL.
+!> @param[out] VBND - Layer mean V wind component in NBL.
+!> @param[out] WBND - Layer mean W wind component in NBL.
+!> @param[out] OMGBND - Layer mean vertical velocity in NBL.
+!> @param[out] PWTBND - Layer precipitable water in NBL.
+!> @param[out] QCNVBND - Layer moisture convergence in NBL.
+!> @param[out] LVLBND - ETA layer at midpoint of NBL.
+!>
+!> Program History
+!> - 93-01-29  RUSS TREADON
+!> - 93-05-07  RUSS TREADON - ADDED DOC BLOCK AND MORE COMMENTS.
+!> - 93-06-19  RUSS TREADON - ADDED LVLBND TO PARAMETER LIST.
+!> - 96-03-07  MIKE BALDWIN - CHANGE PWTR CALC TO INCLUDE CLD WTR
+!>                            SPEED UP CODE
+!> - 98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
+!> - 98-08-18  MIKE BALDWIN - CHANGE QSBND TO RHBND IN CALL,
+!>                            COMPUTE RH OVER ICE
+!> - 98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
+!> - 00-01-04  JIM TUCCILLO - MPI VERSION 
+!> - 02-01-15  MIKE BALDWIN - WRF VERSION
+!> - 20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!> - 21-08-20  Wen Meng     - Retrict computation fro undefined points.
+!> - 21-09-02  Bo Cui       - Decompose UPP in X direction.
+!>     
+!> @author Russ Treadon W/NP2 @date 1993-01-29
       SUBROUTINE BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,       &
                         WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
 
@@ -73,7 +54,7 @@
       use masks,      only: lmh
       use params_mod, only: d00, gi, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, modelname,      &
-                            jsta_m, jend_m, im, nbnd, spval
+                            jsta_m, jend_m, im, nbnd, spval, ista_2l, iend_2u, ista_m, iend_m, ista, iend
       use physcons_post,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
       use upp_physics, only: FPVSNEW
@@ -83,12 +64,12 @@
 !     DECLARE VARIABLES.
 !
       real,PARAMETER :: DPBND=30.E2
-      integer, dimension(IM,jsta:jend,NBND),intent(inout) :: LVLBND
-      real,    dimension(IM,jsta:jend,NBND),intent(inout) :: PBND,TBND,  &
+      integer, dimension(ista:iend,jsta:jend,NBND),intent(inout) :: LVLBND
+      real,    dimension(ista:iend,jsta:jend,NBND),intent(inout) :: PBND,TBND,  &
                QBND,RHBND,UBND,VBND,WBND,OMGBND,PWTBND,QCNVBND
 
-      REAL Q1D(IM,JSTA_2L:JEND_2U),V1D(IM,JSTA_2L:JEND_2U),              &
-           U1D(IM,JSTA_2L:JEND_2U),QCNV1D(IM,JSTA_2L:JEND_2U)
+      REAL Q1D(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),V1D(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),              &
+           U1D(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),QCNV1D(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U)
 !
       REAL, ALLOCATABLE :: PBINT(:,:,:),QSBND(:,:,:)
       REAL, ALLOCATABLE :: PSUM(:,:,:), QCNVG(:,:,:)
@@ -101,19 +82,19 @@
 !*****************************************************************************
 !     START BNDLYR HERE
 !
-      ALLOCATE (PBINT(IM,JSTA_2L:JEND_2U,NBND+1))
-      ALLOCATE (QSBND(IM,JSTA_2L:JEND_2U,NBND))
-      ALLOCATE (PSUM(IM,JSTA_2L:JEND_2U,NBND))
-      ALLOCATE (QCNVG(IM,JSTA_2L:JEND_2U,LM))
-      ALLOCATE (PVSUM(IM,JSTA_2L:JEND_2U,NBND))
-      ALLOCATE (NSUM(IM,JSTA_2L:JEND_2U,NBND))
+      ALLOCATE (PBINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NBND+1))
+      ALLOCATE (QSBND(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NBND))
+      ALLOCATE (PSUM(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NBND))
+      ALLOCATE (QCNVG(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
+      ALLOCATE (PVSUM(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NBND))
+      ALLOCATE (NSUM(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NBND))
 !
 !     LOOP OVER HORIZONTAL GRID.  AT EACH MASS POINT COMPUTE
 !     PRESSURE AT THE INTERFACE OF EACH BOUNDARY LAYER.
 !     
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           PBINT(I,J,1) = PINT(I,J,NINT(LMH(I,J))+1)
         ENDDO
       ENDDO
@@ -121,7 +102,7 @@
       DO LBND=2,NBND+1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PBINT(I,J,LBND) = PBINT(I,J,LBND-1) - DPBND
           ENDDO
         ENDDO
@@ -131,7 +112,7 @@
       DO L=1,LM
 !$omp  parallel do private(i,j)
         DO J=JSTA_2L,JEND_2U
-          DO I=1,IM
+          DO I=ISTA_2L,IEND_2U
             Q1D(I,J) = Q(I,J,L)
             U1D(I,J) = UH(I,J,L)
             V1D(I,J) = VH(I,J,L)
@@ -140,7 +121,7 @@
         CALL CALMCVG(Q1D,U1D,V1D,QCNV1D)
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             QCNVG(I,J,L)=QCNV1D(I,J)
           ENDDO
         ENDDO
@@ -156,7 +137,7 @@
       DO LBND=1,NBND
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PBND(I,J,LBND)   = D00
             TBND(I,J,LBND)   = D00
             QBND(I,J,LBND)   = D00
@@ -179,7 +160,7 @@
         DO L=1,LM
 !$omp  parallel do private(i,j,dp,pm,es,qsat)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
 !
               PM = PMID(I,J,L)
               IF(PM<SPVAL)THEN
@@ -227,12 +208,12 @@
 
 
         IF(gridtype=='E')THEN
-          CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,1))
+          CALL EXCH(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,1))
           DO L=1,LM
-            CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,L+1))
+            CALL EXCH(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,L+1))
 !$omp  parallel do private(i,j,ie,iw,dp,pv1,pv2,pmv)
             DO J=JSTA_M,JEND_M
-              DO I=2,IM-1
+              DO I=ISTA_M,IEND_M
                 IE = I+MOD(J,2)
                 IW = I+MOD(J,2)-1
                 PV1 = 0.25*(PINT(IW,J,L)    + PINT(IE,J,L)    &
@@ -252,12 +233,12 @@
             ENDDO
           ENDDO
         ELSE IF (gridtype=='B')THEN
-          CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,1))
+          CALL EXCH(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,1))
           DO L=1,LM
-            CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,L+1))
+            CALL EXCH(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,L+1))
 !$omp  parallel do private(i,j,ie,iw,dp,pv1,pv2,pmv)
             DO J=JSTA_M,JEND_M
-              DO I=2,IM-1
+              DO I=ISTA_M,IEND_M
                 IE = I+1
                 IW = I
                 PV1 = 0.25*(PINT(IW,J,L)     + PINT(IE,J,L)      &
@@ -284,7 +265,7 @@
 !$omp  parallel do private(i,j,lbnd,rpsum,rpvsum)
       DO LBND=1,NBND
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(PSUM(I,J,LBND)/=0..AND.TBND(I,J,LBND)<SPVAL)THEN
               RPSUM           = 1./PSUM(I,J,LBND)
               LVLBND(I,J,LBND)= LVLBND(I,J,LBND)/NSUM(I,J,LBND)
@@ -306,7 +287,7 @@
 
         IF(gridtype=='E' .or. gridtype=='B')THEN
           DO J=JSTA_M,JEND_M
-            DO I=2,IM-1
+            DO I=ISTA_M,IEND_M
               IF(PVSUM(I,J,LBND)/=0.)THEN
                 RPVSUM         = 1./PVSUM(I,J,LBND)
                 UBND(I,J,LBND) = UBND(I,J,LBND)*RPVSUM
@@ -325,7 +306,7 @@
 !$omp&                     qsat,pmv,delpv,lv)
       DO LBND=1,NBND
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(PSUM(I,J,LBND)==0..AND.PBND(I,J,LBND)<SPVAL)THEN
               L    = LM
               PMIN = 9999999.
@@ -381,7 +362,7 @@
 !
         IF(gridtype == 'E')THEN
           DO J=JSTA_M,JEND_M
-            DO I=2,IM-1
+            DO I=ISTA_M,IEND_M
               IF(PVSUM(I,J,LBND)==0.)THEN
               LV = LM
               PMINV = 9999999.
@@ -411,7 +392,7 @@
 
         ELSE IF(gridtype=='B')THEN
           DO J=JSTA_M,JEND_M
-            DO I=2,IM-1
+            DO I=ISTA_M,IEND_M
               IF(PVSUM(I,J,LBND)==0.)THEN
                 LV=LM
                 PMINV=9999999.

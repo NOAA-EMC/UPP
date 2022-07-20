@@ -22,6 +22,10 @@ set -x
 # October 2020: Modified to remove WRF and grib1; Add FV3LAM
 #               Updates for cmake build, Change exec name             
 #
+# May 2022: Modified to remove binarynemsiompiio; 
+#           Added netcdfpara; Removed netcdf;
+#           Changed UPP directory name and path             
+#
 #--------------------------------------------------------
 #
 # This script runs the stand-alone community version of UPP
@@ -31,11 +35,11 @@ set -x
 #----------------------------------------------------------------------------------
 #--- USER EDIT DESCIPTIONS --------------------------------------------------------
 # See UPP User's Guide for more information
-# https://upp.readthedocs.io/en/ufs-v2.0.0/
+# https://upp.readthedocs.io/en/latest/
 #----------------------------------------------------------------------------------
 # TOP_DIR       : Top level directory for building and running UPP
 # DOMAINPATH    : Working directory for this run.
-# UNIPOST_HOME  : Location of the EMC-post directory
+# UPP_HOME      : Location of the UPP directory
 # POSTEXEC      : Location of the UPP executable
 # modelDataPath : Location of the model output data files to be post-processed
 # txtCntrlFile  : Name and location of the flat text file that lists desired fields for output
@@ -44,8 +48,8 @@ set -x
 #                 LAM (Limited Area Model): postxconfig-NT-fv3lam.txt
 # model         : What model is used? GFS or LAM (Limited Area Model)
 # inFormat      : Format of the model data 
-#                 GFS - "binarynemsiompiio" or "netcdf"
-#                 LAM - "netcdf"
+#                 GFS - "netcdfpara"
+#                 LAM - "netcdfpara"
 # outFormat     : Format of output from UPP 
 #                 grib2 
 # startdate     : Forecast start date (YYYYMMDDHH)
@@ -64,8 +68,8 @@ set -x
 # as recommended in the users guide where UPP will output.
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/test_case
-export UNIPOST_HOME=${TOP_DIR}/EMC_post
-export POSTEXEC=${UNIPOST_HOME}/bin
+export UPP_HOME=${TOP_DIR}/UPP
+export POSTEXEC=${UPP_HOME}/tests/install/bin
 export modelDataPath=/path/to/model/data
 export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-GFS.txt
 
@@ -73,7 +77,7 @@ export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-GFS.txt
 export model="GFS"
 
 # Set input format from model and ouput format from UPP
-export inFormat="netcdf"
+export inFormat="netcdfpara"
 export outFormat="grib2"
 
 # Set date/time information
@@ -91,9 +95,6 @@ export incrementhr=03
 export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/upp.x "
 #export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/upp.x "
 #export RUN_COMMAND="mpiexec_mpt ${POSTEXEC}/upp.x "
-
-# DEBUG command example found further below, search "DEBUG" 
-
 
 # Shouldn't need to edit these.
 # tmmark is an variable used as the file extention of the output
@@ -135,17 +136,17 @@ else
 fi
 
 if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "binarynemsiompiio" ]]; then
-      echo "Check: You are using 'model' 'inFormat'!"
-   elif [[ ${inFormat} == "netcdf" ]]; then
+   if [ ${inFormat} == "netcdfpara" ]; then
       echo "Check: You are using 'model' 'inFormat'!"
    else
-      echo "ERROR: 'inFormat' must be 'binarynemsiompiio' or 'netcdf' for GFS model output. Exiting... "
+      echo "ERROR: 'inFormat' must be 'netcdfpara' for GFS model output. Exiting... "
       exit 1
    fi
-elif [[ ${model} == "LAM" ]]; then
-   if [[ ${inFormat} != "netcdf" ]]; then
-      echo "ERROR: 'inFormat' must be 'netcdf' for LAM  model output. Exiting... "
+elif [ ${model} == "LAM" ]; then
+   if [ ${inFormat} == "netcdfpara" ]; then
+      echo "Check: You are using 'model' 'inFormat'!"
+   else
+      echo "ERROR: 'inFormat' must be 'netcdfpara' for LAM  model output. Exiting... "
       exit 1
    fi
 fi
@@ -194,17 +195,17 @@ fi
 #   file which defines the GRIB2 table values
 if [[ ${outFormat} == "grib2" ]]; then
    ln -fs ${txtCntrlFile} postxconfig-NT.txt
-   ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
-   ln -fs ${UNIPOST_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
+   ln -fs ${UPP_HOME}/parm/post_avblflds.xml post_avblflds.xml
+   ln -fs ${UPP_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
 # Link microphysics tables - code will use based on mp_physics option
 # found in data
-ln -fs ${UNIPOST_HOME}/parm/nam_micro_lookup.dat .
-ln -fs ${UNIPOST_HOME}/parm/hires_micro_lookup.dat .
+ln -fs ${UPP_HOME}/parm/nam_micro_lookup.dat .
+ln -fs ${UPP_HOME}/parm/hires_micro_lookup.dat .
 
 # link coefficients for crtm2 (simulated synthetic satellites)
-CRTMDIR=${UNIPOST_HOME}/crtm/fix
+CRTMDIR=${UPP_HOME}/crtm/fix
 ln -fs $CRTMDIR/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM4.MWwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM5.MWwater.EmisCoeff.bin           ./
@@ -289,17 +290,14 @@ echo 'YY' $YY
 
 # Create model file name (inFileName)
 if [ ${model} == "GFS" ]; then
-   if [[ ${inFormat} == "binarynemsiompiio" ]]; then
-      inFileName=${modelDataPath}/atmf${fhour}.nemsio
-      flxFileName=${modelDataPath}/sfcf${fhour}.nemsio
-   elif [ ${inFormat} == "netcdf" ]; then
-      inFileName=${modelDataPath}/atmf${fhour}.nc
-      flxFileName=${modelDataPath}/sfcf${fhour}.nc
+   if [ ${inFormat} == "netcdfpara" ]; then
+      inFileName=${modelDataPath}/gfs.t00z.atmf${fhour}.nc
+      flxFileName=${modelDataPath}/gfs.t00z.sfcf${fhour}.nc
    fi
 elif [ ${model} == "LAM" ]; then
-   if [ ${inFormat} == "netcdf" ]; then
+   if [ ${inFormat} == "netcdfpara" ]; then
       inFileName=${modelDataPath}/dynf${fhour}.nc
-      flxFileName=${modelDataPath}/dynf${fhour}.nc
+      flxFileName=${modelDataPath}/phyf${fhour}.nc
    fi
 fi
 
@@ -323,13 +321,15 @@ fi
 if [[ ${outFormat} == "grib2" ]]; then
    if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
 cat > itag <<EOF
-${inFileName}
-${inFormat}
-${outFormat}
-${YY}-${MM}-${DD}_${HH}:00:00
-${tag}
-${flxFileName}
-postxconfig-NT.txt
+&model_inputs
+fileName='${inFileName}'
+IOFORM='${inFormat}'
+grib='${outFormat}'
+DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+MODELNAME='${tag}'
+fileNameFlux='${flxFileName}'
+fileNameFlat='postxconfig-NT.txt'
+/
 EOF
    fi
 fi

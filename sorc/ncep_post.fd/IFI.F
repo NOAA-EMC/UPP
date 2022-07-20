@@ -39,20 +39,16 @@ contains !==============================================================
 
   subroutine send_missing_data(ient)
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
-    use ctlblk_mod, only: spval, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
+    use ctlblk_mod, only: spval, ista, iend, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
     use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
     implicit none
 
     integer, intent(in) :: ient
 
     ! Locals
-    integer :: i,j,k, ista,iend
+    integer :: i,j,k
 
     logical, save :: wrote_message = .false. ! guarded by an OMP CRITICAL below
-
-    ! FIXME: Once the post is i-decomposed, replace these.
-    ista=1
-    iend=im
 
     ! Go level-by-level writing grib2 if requested
     do k=1,ifi_nflight
@@ -103,9 +99,274 @@ module upp_ifi_mod
 
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
-  logical, parameter :: write_ifi_netcdf_debug_files = .true.
+  logical, parameter :: write_ifi_netcdf_debug_files = .false.
+
+  ! Communication-related variables for gathers and
+  ! scatters. Gathering is done in the i direction first, all to one
+  ! rank in each row. Then that rank in each row gathers to the
+  ! destination rank. Scatter follows the same process, in reverse.
+
+  integer :: ifi_mpi_real_kind
+  integer :: icomm ! communicator for i-direction messages
+  integer :: jcomm ! communicator for j-direction messages
+  integer :: icomm_rank, jcomm_rank ! Rank in the i & j comm communicators
+  integer :: icomm_size, jcomm_size ! Size of the i & j comm communicators
+
+  integer, allocatable :: ista_grid(:) ! ista for each rank in mpi_comm_comp in i direction
+  integer, allocatable :: jsta_grid(:) ! jsta for each rank in mpi_comm_comp in j direction
+
+  real, allocatable :: rearrange(:,:) ! for rearranging data on local processor
+  integer, allocatable :: recvcount_i(:) ! scatterv&gatherv receive counts for i-direction collectives
+  integer, allocatable :: recvdispl_i(:) ! scatterv&gatherv displacements for i-direction collectives
+  integer, allocatable :: recv_ista(:) ! i starts for rearranging data (icomm_size)
+  integer, allocatable :: recv_iend(:) ! i ends for rearranging data (icomm_size)
+  real, allocatable :: rearrange_i1(:) ! for rearranging data for an entire row (roots of icomm communicators)
+
+  real, allocatable :: rearrange_i2(:,:) ! for rearranging data for an entire row (roots of icomm communicators)
+  integer, allocatable :: recvcount_j(:) ! scatterv&gatherv receive counts for j-direction collectives
+  integer, allocatable :: recvdispl_j(:) ! scatterv&gatherv displacements for j-direction collectives
+  integer, allocatable :: recv_jsta(:) ! j starts for rearranging data (jcomm_size)
+  integer, allocatable :: recv_jend(:) ! j ends for rearranging data (jcomm_size)
+
+  integer, allocatable :: isize_grid(:) ! iend-ista+1 for each gridpoint
   
 contains !==============================================================
+
+  subroutine make_communicators
+    use ctlblk_mod, only: jsta, jend, ista, iend, mpi_comm_comp, im, jm
+    use mpi
+    use iso_c_binding, only: c_sizeof
+    implicit none
+
+    integer, allocatable :: key(:) ! ensure ranks are in a consistent order
+
+    integer :: rank, size, ierr, local_count, accum, irank, i
+    real(kind=ifi_real_t) :: testreal
+
+    ! Use the right MPI type for the ifi real kind
+    if(c_sizeof(testreal)==4) then
+      ifi_mpi_real_kind=MPI_REAL4
+    else
+      ifi_mpi_real_kind=MPI_REAL8
+    endif
+
+    ! Get the correct size of the communicator before we try to split it.
+    call MPI_Comm_size(mpi_comm_comp,size,ierr)
+    call MPI_Comm_rank(mpi_comm_comp,rank,ierr)
+
+    ! Ensure ranks are arranged in a consistent order.
+    allocate(ista_grid(size))
+    allocate(jsta_grid(size))
+    call MPI_Allgather(ista,1,MPI_INTEGER,ista_grid,1,MPI_INTEGER,mpi_comm_comp,ierr)
+    call MPI_Allgather(jsta,1,MPI_INTEGER,jsta_grid,1,MPI_INTEGER,mpi_comm_comp,ierr)
+    allocate(key(size))
+    do i=1,size
+      key(i) = ista_grid(i) + im*(jsta_grid(i)-1)
+    enddo
+
+    ! Create a communicator for i-direction gather/scatter
+    call mpi_comm_split(mpi_comm_comp,ista_grid(rank),key(rank),icomm,ierr)
+    call mpi_comm_rank(icomm,icomm_rank,ierr)
+    call mpi_comm_size(icomm,icomm_size,ierr)
+
+    ! Create a communicator for j-direction gather/scatter
+    call mpi_comm_split(mpi_comm_comp,jsta_grid(rank),key(rank),jcomm,ierr)
+    call mpi_comm_rank(jcomm,jcomm_rank,ierr)
+    call mpi_comm_size(jcomm,jcomm_size,ierr)
+
+    ! Done with the key.
+    deallocate(key)
+
+    ! Allocate the arrays used to rearrange data. These are only needed on some ranks.
+    allocate(rearrange(iend-ista+1,jend-jsta+1))
+    allocate(rearrange_i1(im*(jend-jsta+1)))
+    allocate(rearrange_i2(im,(jend-jsta+1)))
+
+    ! Calculate information for i-direction MPI_Gatherv and MPI_Scatterv calls.
+    allocate(recv_ista(icomm_size))
+    call MPI_Allgather(ista,1,MPI_INTEGER,recv_ista,1,MPI_INTEGER,mpi_comm_comp,ierr)
+    allocate(recv_iend(icomm_size))
+    call MPI_Allgather(iend,1,MPI_INTEGER,recv_iend,1,MPI_INTEGER,mpi_comm_comp,ierr)
+    allocate(recvcount_i(icomm_size))
+    allocate(recvcount_j(jcomm_size))
+    call get_count_and_displ(icomm,icomm_size,(iend-ista+1)*(jend-jsta+1),recvcount_i,recvdispl_i)
+
+    ! Calculate information for j-direction MPI_Gatherv and MPI_Scatterv calls.
+    allocate(recv_jsta(jcomm_size))
+    call MPI_Allgather(jsta,1,MPI_INTEGER,recv_jsta,1,MPI_INTEGER,mpi_comm_comp,ierr)
+    allocate(recv_jend(jcomm_size))
+    call MPI_Allgather(jend,1,MPI_INTEGER,recv_jend,1,MPI_INTEGER,mpi_comm_comp,ierr)
+    allocate(recvdispl_i(icomm_size))
+    allocate(recvdispl_j(jcomm_size))
+    call get_count_and_displ(jcomm,jcomm_size,im*(jend-jsta+1),recvcount_j,recvdispl_j)
+
+  end subroutine make_communicators
+
+  ! --------------------------------------------------------------------
+
+  subroutine get_count_and_displ(comm,comm_size,here,counts,displacements)
+    use mpi
+    implicit none
+    integer, intent(in) :: comm,comm_size,here
+    integer, intent(inout) :: counts(comm_size),displacements(comm_size)
+    integer :: accum, ierr, i
+
+    ! Get counts from all ranks
+    call MPI_Allgather(here,1,MPI_INTEGER,counts,1,MPI_INTEGER,comm,ierr)
+
+    ! Displacements are a cumulative sum starting at 0 for rank 0
+    accum=0
+    do i=1,icomm_size
+      displacements(i) = accum
+      accum = accum+counts(i)
+    end do
+  end subroutine get_count_and_displ
+
+  ! --------------------------------------------------------------------
+
+  subroutine find_comm_roots(global_rank,i_root,j_root)
+    ! Find the roots of the i and j direction communicators for a
+    ! gather or scatter with the specified rank as the location of the
+    ! global array.
+    implicit none
+
+    integer, intent(in) :: global_rank
+    integer, intent(inout) :: i_root, j_root
+    integer :: r, destination_ista, destination_jsta
+
+    destination_ista=ista_grid(global_rank)
+    destination_jsta=jsta_grid(global_rank)
+
+    i_root=-1
+    do r=1,icomm_size
+      if(recv_ista(r)==destination_ista) then
+        i_root=r
+        exit
+      endif
+    enddo
+
+    j_root=-1
+    do r=1,jcomm_size
+      if(recv_jsta(r)==destination_jsta) then
+        j_root=r
+        exit
+      endif
+    enddo
+    
+    if(j_root==-1) then
+      write(0,'(A,I0)') 'ABORT: Could not find j-direction root rank for rank ',global_rank
+      stop 43
+    endif
+    if(i_root==-1) then
+      write(0,'(A,I0)') 'ABORT: Could not find i-direction root rank for rank ',global_rank
+      stop 34
+    endif
+  end subroutine find_comm_roots
+
+  ! --------------------------------------------------------------------
+
+  subroutine global_gather(local,global,global_rank,ista_local,iend_local,jsta_local,jend_local)
+    ! Gather from local arrays on all ranks to global array on specified rank
+    use mpi
+    use ctlblk_mod, only: jsta, jend, ista, iend, im, jm
+    use iso_c_binding, only: c_sizeof
+    implicit none
+
+    real(kind=ifi_real_t), intent(in) :: local(ista_local:iend_local,jsta_local:jend_local)
+    real(kind=ifi_real_t), intent(out) :: global(im,jm)
+    integer, intent(in) :: global_rank,ista_local,iend_local,jsta_local,jend_local
+
+    integer :: i,j,r,inindex,i_root,j_root, destination_ista, destination_jsta,ni_rank,nj_rank,idxstart, ierr
+
+    ! Find out who is the root of the i and j direction communications.
+    call find_comm_roots(global_rank,i_root,j_root)
+
+    ! Store the data in a contiguous local array
+    !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(i,j)
+    do j=jsta,jend
+      do i=ista,iend
+        rearrange(i,j) = local(i,j)
+      enddo
+    enddo
+
+    ! Gather across all ranks in I direction
+    call MPI_Gatherv(rearrange,(jend-jsta+1)*(iend-ista+1),ifi_mpi_real_kind, &
+         rearrange_i1,recvcount_i,recvdispl_i,ifi_mpi_real_kind,i_root,icomm,ierr)
+
+    ! Rearrange from i-j-rank dimensions to i-j dimensions.
+    idxstart=0
+    do r=1,icomm_size
+
+      ni_rank=recv_iend(r)-recv_ista(r)+1
+      nj_rank=jend-jsta+1
+
+      !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(inindex)
+      do j=jsta,jend
+        do i=recv_ista(r),recv_iend(r)
+          inindex = idxstart + i + ni_rank*j
+          rearrange_i2(i,j) = rearrange_i1(inindex)
+        enddo
+      enddo
+
+      idxstart = idxstart + ni_rank*nj_rank
+    enddo
+
+    ! Gather in J direction.
+    call MPI_Gatherv(rearrange_i2,im*(jend-jsta+1),ifi_mpi_real_kind, &
+         global,recvcount_j,recvdispl_j,ifi_mpi_real_kind,j_root,jcomm,ierr)
+  end subroutine global_gather
+
+  ! --------------------------------------------------------------------
+
+  subroutine global_scatter(local,global,global_rank,ista_local,iend_local,jsta_local,jend_local)
+    ! Scatter from global array at specified rank to local arrays on all ranks.
+    ! NOTE: Does NOT update halo regions!
+    use mpi
+    use ctlblk_mod, only: jsta, jend, ista, iend, im, jm
+    use iso_c_binding, only: c_sizeof
+    implicit none
+
+    real(kind=ifi_real_t), intent(out) :: local(ista_local:iend_local,jsta_local:jend_local)
+    real(kind=ifi_real_t), intent(in) :: global(im,jm)
+    integer, intent(in) :: global_rank,ista_local,iend_local,jsta_local,jend_local
+
+    integer :: i,j,r,outindex,idxstart,ni_rank,nj_rank,i_root,j_root,ierr
+
+    ! Distribute in J direction.
+    call MPI_Scatterv(global,recvcount_j,recvdispl_j,ifi_mpi_real_kind, &
+         rearrange_i2,im*(jend-jsta+1),ifi_mpi_real_kind,j_root,jcomm,ierr)
+
+    ! Rearrange from i-j dimensions to i-j-rank dimensions
+    idxstart=0
+    do r=1,icomm_size
+
+      ni_rank=recv_iend(r)-recv_ista(r)+1
+      nj_rank=jend-jsta+1
+
+      !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(outindex)
+      do j=jsta,jend
+        do i=recv_ista(r),recv_iend(r)
+          outindex = idxstart + i + ni_rank*j
+          rearrange_i1(outindex) = rearrange_i2(i,j)
+        enddo
+      enddo
+    enddo
+
+    ! Distribute in I direction
+    call MPI_Gatherv(rearrange_i1,recvcount_i,recvdispl_i,ifi_mpi_real_kind, &
+         rearrange,(iend-ista+1)*(jend-jsta+1),ifi_mpi_real_kind,i_root,icomm,ierr)
+
+    ! Copy back to contiguous local array.
+    ! NOTE: Does NOT update the halo!
+    !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(i,j)
+    do j=jsta,jend
+      do i=ista,iend
+        local(i,j) = rearrange(i,j)
+      enddo
+    enddo
+  end subroutine global_scatter
+
+  ! --------------------------------------------------------------------
 
   subroutine ifi_check(status,error_message)
     use mpi, only: MPI_Abort, MPI_COMM_WORLD
@@ -156,7 +417,7 @@ contains !==============================================================
   subroutine ifi_halo_callback(d,ims1,ime1,jms1,jme1, &
                                  ids1,ide1,jds1,jde1, &
                                  ips1,ipe1,jps1,jpe1) BIND(C)
-    use ctlblk_mod, only: jsta,jend,im,jsta_2l,jend_2u
+    use ctlblk_mod, only: jsta,jend,im,jsta_2l,jend_2u,ista,iend,ista_2l,iend_2u
     implicit none
     real(kind=ifi_real_t) :: d(*)
     integer(kind=c_int64_t), value :: &
@@ -173,8 +434,8 @@ contains !==============================================================
     ids=ids1+1 ; ide=ide1+1 ; jds=jds1+1 ; jde=jde1+1
     ips=ips1+1 ; ipe=ipe1+1 ; jps=jps1+1 ; jpe=jpe1+1
 
-    if(jms/=jsta_2l .or. jme/=jend_2u .or. jsta/=jps .or. jend/=jpe &
-         .or. ips/=1 .or. ipe/=im .or. ims/=1 .or. ime/=im) then
+    if(   jms/=jsta_2l .or. jme/=jend_2u .or. jsta/=jps .or. jend/=jpe &
+     .or. ims/=ista_2l .or. ime/=iend_2u .or. ista/=ips .or. iend/=ipe ) then
 94    format('   ',A,' = ',I0,', ',I0)
 95    format('   ',A,' = ',I0,', ',I0,', ',I0)
       print '(A)','Warning: IFI halo callback j bounds do not match UPP j bounds'
@@ -182,11 +443,13 @@ contains !==============================================================
       print 94,'jpe,jend',jpe,jend
       print 94,'jms,jsta_2l',jms,jsta_2l
       print 94,'jme,jend_2u',jme,jend_2u
-      print 95,'ips,ims,1',ips,ims,1
-      print 95,'ipe,ime,im',ipe,ime,im
-      !call ifi_check(-1,'Internal error: IFI halo callback j bounds do not match UPP j bounds')
+      print 94,'ips,ista',ips,ista
+      print 94,'ipe,iend',ipe,iend
+      print 94,'ims,ista_2l',ims,ista_2l
+      print 94,'ime,iend_2u',ime,iend_2u
+      !call ifi_check(-1,'Internal error: IFI halo callback i/j bounds do not match UPP i/j bounds')
     end if
-    call EXCH_IFI(d)
+    call EXCH_c_float(d)
   end subroutine ifi_halo_callback
 
   ! --------------------------------------------------------------------
@@ -223,7 +486,7 @@ contains !==============================================================
   ! --------------------------------------------------------------------
 
   subroutine send_data(vars,name,ient)
-    use ctlblk_mod, only: spval, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
+    use ctlblk_mod, only: spval, jsta, jend, lm, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u, ista, iend, ista_2l, iend_2u
     use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
     implicit none
 
@@ -237,7 +500,7 @@ contains !==============================================================
     real(kind=ifi_real_t), pointer :: data(:)
     logical(c_bool) :: missing_value_is_set
     real(kind=ifi_real_t) :: missing_value
-    integer :: i,j,k,nj,jpad,ilen,jlen,kstartm1,jstartm1,iloc,ndata
+    integer :: i,j,k,nj_local,jpad,ilen,jlen,kstartm1,jstartm1,iloc,ndata,ji,ni_local,ipad
 
     ! WARNING: do not deallocate the data pointer. It is managed by the IFI C++ library.
     data => vars%get_data(trim(name),missing_value_is_set,missing_value, &
@@ -247,9 +510,11 @@ contains !==============================================================
     endif
 
     ! Get dimensions and do some sanity checks
-    nj = jpe-jps+1
+    nj_local = jpe-jps+1
+    ni_local = ipe-ips+1
     jpad = jps-jms
-    if(nj/=jend-jsta+1 .or. jpad/=jsta-jsta_2l) then
+    ipad = ips-ims
+    if(nj_local/=jend-jsta+1 .or. jpad/=jsta-jsta_2l .or. ni_local/=iend-ista+1 .or. ipad/=ista-ista_2l) then
 94    format('   ',A,' = ',I0,', ',I0)
 83    format('Warning: ',A,': IFI output j bounds do not match UPP j bounds')
       print 83,trim(name)
@@ -258,7 +523,13 @@ contains !==============================================================
       print 94,'jms,jsta_2l',jms,jsta_2l
       print 94,'jme,jend_2u',jme,jend_2u
       print 94,'jpad,jsta-jsta_2l',jpad,jsta-jsta_2l
-      print 94,'nj,jend-jsta+1',nj,jend-jsta+1
+      print 94,'nj_local,jend-jsta+1',nj_local,jend-jsta+1
+      print 94,'ips,ista',ips,ista
+      print 94,'ipe,iend',ipe,iend
+      print 94,'ims,ista_2l',ims,ista_2l
+      print 94,'ime,iend_2u',ime,iend_2u
+      print 94,'ipad,ista-ista_2l',ipad,ista-ista_2l
+      print 94,'ni_local,iend-ista+1',ni_local,iend-ista+1
       !call ifi_check(-1,'Internal error: IFI output j bounds do not match UPP j bounds')
     end if
     ilen=ime-ims+1
@@ -277,7 +548,7 @@ contains !==============================================================
           do i=ips,ipe
             jstartm1 = kstartm1 + (j-jms)*ilen
             iloc = jstartm1+(i-ims)+1
-            if(iloc<1 .or. iloc>ndata) then
+            if(iloc<ista .or. iloc>iend) then
               call ifi_check(-1,'Internal error: out of bounds in send_data.')
             endif
             if(data(iloc)==missing_value) then
@@ -296,7 +567,7 @@ contains !==============================================================
   subroutine gather_ifi(local_buf_c,global_buf_c,receiving_rank) bind(C)
       use iso_c_binding, only: c_float, c_double,c_int64_t,c_f_pointer
       use mpi
-      use ctlblk_mod, only: ME, MPI_COMM_COMP, JSTA, JEND, IM, JM, ICNT, IDSP
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, JSTA, JEND, IM, JM, ICNT, IDSP, ISTA, IEND
       implicit none
 
       integer(kind=c_int64_t), value :: receiving_rank
@@ -305,7 +576,7 @@ contains !==============================================================
 
       integer :: type, iret
 
-      call c_f_pointer(local_buf_c,local_buf,(/ im, jend-jsta+1 /))
+      call c_f_pointer(local_buf_c,local_buf,(/ iend-ista+1, jend-jsta+1 /))
       if(me==receiving_rank) then
         call c_f_pointer(global_buf_c,global_buf,(/ im, jm /))
       else
@@ -326,79 +597,48 @@ contains !==============================================================
 
   ! --------------------------------------------------------------------
 
-  subroutine gather_for_write(local_buf,global_buf,receiving_rank) bind(C)
+  subroutine gather_for_write(local_buf,global_buf,receiving_rank_c) bind(C)
       use iso_c_binding, only: c_float, c_double,c_int64_t,c_f_pointer
       use mpi
-      use ctlblk_mod, only: ME, MPI_COMM_COMP, JSTA, JEND, IM, JM
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, JSTA, JEND, IM, JM, ISTA, ISTA, IEND
       implicit none
 
-      integer(kind=c_int64_t), value :: receiving_rank
+      integer(kind=c_int64_t), value :: receiving_rank_c
       real(kind=ifi_real_t) :: global_buf(:,:), local_buf(:,:)
-
-      integer :: type, iret, comm_size, count, i
-      integer, allocatable :: counts(:),displ(:)
-      
-      if(ifi_real_t==c_double) then
-        type=MPI_REAL8
-      else
-        type=MPI_REAL4
-      endif
-
-      call MPI_Comm_size(MPI_COMM_COMP,comm_size,iret)
-      allocate(counts(comm_size))
-      allocate(displ(comm_size))
-
-      count = im*(jend-jsta+1)
-      call MPI_Allgather(count,1,MPI_INTEGER,counts,1,MPI_INTEGER,MPI_COMM_COMP,iret)
-
-      displ(1)=0
-      do i=2,comm_size
-        displ(i) = displ(i-1) + counts(i-1)
-      enddo
-
-      call MPI_Gatherv(local_buf,count,type,global_buf,counts,displ,type,receiving_rank,mpi_comm_comp,iret)
-
-      deallocate(counts,displ)
-
+      integer :: receiving_rank
+      receiving_rank = receiving_rank_c
+      call global_gather(local_buf,global_buf,receiving_rank,ista,iend,jsta,jend)
   end subroutine gather_for_write
 
   ! --------------------------------------------------------------------
 
-  subroutine scatter_ifi(local_buf_c,global_buf_c,sending_rank)bind(C)
+  subroutine scatter_ifi(local_buf_c,global_buf_c,sending_rank_c)bind(C)
       use iso_c_binding, only: c_float, c_double, c_int64_t, c_f_pointer
       use mpi
-      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP, JSTA, JEND,  &
-     &                      IM, JM
+      use ctlblk_mod, only: JSTA, JEND, IM, JM, ISTA, IEND, ME
       implicit none
 
-      integer(kind=c_int64_t), value :: sending_rank
+      integer(kind=c_int64_t), value :: sending_rank_c
       type(c_ptr), value :: global_buf_c, local_buf_c
       real(kind=ifi_real_t), pointer :: global_buf(:,:), local_buf(:,:)
+      integer :: sending_rank
 
-      integer :: rank, type, iret
+      sending_rank=sending_rank_c
 
-      call c_f_pointer(local_buf_c,local_buf,(/ im, jend-jsta+1 /))
+      call c_f_pointer(local_buf_c,local_buf,(/ iend-ista+1, jend-jsta+1 /))
       if(me==sending_rank) then
         call c_f_pointer(global_buf_c,global_buf,(/ im, jm /))
       else
         call c_f_pointer(global_buf_c,global_buf,(/ 1,1 /))
       endif
 
-      if(ifi_real_t==c_double) then
-        type=MPI_REAL8
-      else
-        type=MPI_REAL4
-      endif
-
-      call mpi_scatterv(global_buf,icnt,idsp,type,local_buf,icnt(me),   &
-     &                  type,sending_rank,MPI_COMM_COMP,iret)
-      
+      call global_scatter(local_buf,global_buf,sending_rank,ista,iend,jsta,jend)
   end subroutine scatter_ifi
   
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
-    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend, me, num_procs, mpi_comm_comp
+    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend, me, num_procs, mpi_comm_comp, ista, iend, ista_2l, iend_2u
     use vrbls3d, only: &
          zmid, & ! = IFI "HGT"
          zint, & ! zint(:,:,LM+1) = IFI "HGT_surface"
@@ -419,12 +659,12 @@ contains !==============================================================
 
     implicit none
 
-    INTERFACE ! implemented in EXCH.f
-      SUBROUTINE EXCH_IFI(A) BIND(C)
+    INTERFACE ! implemented in EXCH_c_float.f
+      SUBROUTINE EXCH_c_float(A) BIND(C)
         use ifi_type_mod, only: ifi_real_t
         implicit none
         real(kind=ifi_real_t) :: a(*)
-      END SUBROUTINE EXCH_IFI
+      END SUBROUTINE EXCH_c_float
     END INTERFACE
 
     type(IFIData) :: hybr_vars, pres_vars, derived_vars, fip_algo_vars, flight_vars, cat_vars
@@ -444,32 +684,35 @@ contains !==============================================================
       call ifi_print_copyright()
     end if
 
+    call make_communicators()
 
     ! Read config and initialize input data structures:
 
     call read_ifi_config()
     call ifi_check(hybr_vars%init(int(1,c_int64_t),int(im,c_int64_t),int(1,c_int64_t),int(jm,c_int64_t),&
-         int(1,c_int64_t),int(lm,c_int64_t),int( 1,c_int64_t),int(im,c_int64_t),int(jsta,c_int64_t),&
+         int(1,c_int64_t),int(lm,c_int64_t),int( ista,c_int64_t),int(iend,c_int64_t),int(jsta,c_int64_t),&
          int(jend,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t)),&
          'could not initialize IFI input data structures')
 
     ! Copy 2D vars to IFI internal structures:
     
-    call ifi_check(hybr_vars%add_ij_var('topography',int(1,c_int64_t),int(im,c_int64_t),&
-         int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
+    call ifi_check(hybr_vars%add_ij_var('topography',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+                                                     int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
          zint(:,:,LP1)),'could not send topography to IFI')
     if(ITPREC>1e-5) then
-      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(1,c_int64_t),int(im,c_int64_t),&
-      int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
+      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+                                                         int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
            APCP/ITPREC),'could not send APCP to IFI')
     else
-      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(1,c_int64_t),int(im,c_int64_t),&
-           int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
+      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+                                                         int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
            APCP),'could not send APCP to IFI')
     endif
-    call ifi_check(hybr_vars%add_ij_var('CAPE_surface',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
+    call ifi_check(hybr_vars%add_ij_var('CAPE_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t), &
+                                                       int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
          'could not send CAPE to IFI')
-    call ifi_check(hybr_vars%add_ij_var('CIN_surface',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CIN), &
+    call ifi_check(hybr_vars%add_ij_var('CIN_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t), &
+                                                      int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CIN), &
          'could not send CIN to IFI')
 
     ! Copy 3D vars to IFI internal structures, inverting K dimension
@@ -524,7 +767,7 @@ contains !==============================================================
     endif
 
     call ifi_check(algo%discard_hybrid_level_vars(),'discard_hybrid_level_vars() failed')
-    call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
+    ! FIXME: UNCOMMENT THIS: call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
 
     if(write_ifi_netcdf_debug_files) then
       write(outfile,308) 'smooth_vars',me
@@ -585,14 +828,14 @@ contains !==============================================================
     subroutine add_ijk_var(ifi_name,upp_name,upp_var)
       implicit none
       character(len=*), intent(in) :: ifi_name,upp_name
-      real, intent(in) :: upp_var(IM,JSTA_2L:JEND_2U,LM)
-      real(kind=ifi_real_t) :: ifi_var(IM,JSTA_2L:JEND_2U,LM)
+      real, intent(in) :: upp_var(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM)
+      real(kind=ifi_real_t) :: ifi_var(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM)
       integer i,j,k
 
 !$OMP PARALLEL DO COLLAPSE(2)
       do k=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=ista_2l,iend_2u
             ifi_var(i,j,k) = upp_var(i,j,lm-k+1)
           enddo
         enddo
@@ -600,7 +843,7 @@ contains !==============================================================
       
       call ifi_check(hybr_vars%add_ijk_var(ifi_name,int(1,c_int64_t),int(im,c_int64_t),&
            int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),&
-           int(1,c_int64_t),int(lm,c_int64_t),ifi_var), &
+           int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),ifi_var), &
            'could not send '//ifi_name//' ('//upp_name//') to IFI')
     end subroutine add_ijk_var
 

@@ -9,6 +9,7 @@
 !  2011-02    Jun Wang  - ADD variables for grib2
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
+!  2021-09-30 JESSE MENG- 2D DECOMPOSITION
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -54,11 +55,25 @@
           SPL(komax),ALSL(komax),PREC_ACC_DT,PT_TBL,PREC_ACC_DT1,spval
 ! real :: SPVAL=9.9e10                                     ! Moorthi
 !
-  integer :: NUM_PROCS,ME,JSTA,JEND,JSTA_M,JEND_M,                     &
-             JSTA_M2,JEND_M2,IUP,IDN,ICNT(0:1023),IDSP(0:1023),        &
-             JSTA_2L, JEND_2U,JVEND_2u,NUM_SERVERS, MPI_COMM_INTER,    &
+  integer :: NUM_PROCS,ME,JSTA,JEND,ISTA,IEND,                         &
+               JSTA_M,JEND_M, JSTA_M2,JEND_M2,                         &
+               ISTA_M,IEND_M,ISTA_M2,IEND_M2,                          &
+             IUP,IDN,ICNT(0:1023),IDSP(0:1023),  ICNT2(0:1023),IDSP2(0:1023),                      & 
+             JSTA_2L, JEND_2U,JVEND_2U,                                &
+             ISTA_2L, IEND_2U,IVEND_2U,                                &
+             NUM_SERVERS, MPI_COMM_INTER,    &
              MPI_COMM_COMP, IM,JM,LM,NSOIL,LP1,LM1,IM_JM,              &
+             ileft,iright,                                             &
+                ileftb,irightb ,                                       & 
+             ibsize,ibsum,                                             &
              lsm,lsmp1                                    !comm mpi
+        integer, allocatable :: icoords(:,:),ibcoords(:,:)
+        real   , allocatable :: rcoords(:,:),rbcoords(:,:)
+        real, allocatable :: bufs(:),buff(:)                           
+        integer , allocatable :: isxa(:),iexa(:),jsxa(:),jexa(:)       
+        integer numx
+        integer, allocatable :: ibufs(:)
+        real, allocatable :: rbufs(:)
 !
   real :: ARDSW, ARDLW, ASRFC, TSRFC,TRDLW,TRDSW,TCLOD,THEAT,          &
           TPREC,TMAXMIN,TD3D                              !comm rad

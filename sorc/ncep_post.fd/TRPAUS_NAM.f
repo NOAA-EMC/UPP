@@ -1,43 +1,37 @@
 !> @file
-!
-!> SUBPROGRAM:    TRPAUS      COMPUTE TROPOPAUSE DATA.
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE COMPUTES TROPOPAUSE DATA.  AT EACH MASS
-!!     POINT A SURFACE UP SEARCH IS MADE FOR THE FIRST 
-!!     OCCURRENCE OF A THREE LAYER MEAN LAPSE RATE LESS THAN
-!!     OR EQUAL TO A CRITICAL LAPSE RATE.  THIS CRITCAL LAPSE
-!!     RATE IS 2DEG/KM.  THIS IS IN ACCORD WITH THE WMO
-!!     DEFINITION OF A TROPOPAUSE.  A MAXIMUM TROPOPAUSE
-!!     PRESSURE OF 500MB IS ENFORCED.  ONC THE TROPOPAUSE
-!!     IS LOCATED IN A COLUMN, PRESSURE, TEMPERATURE, U
-!!     AND V WINDS, AND VERTICAL WIND SHEAR ARE COMPUTED.
-!!     
-!! PROGRAM HISTORY LOG:
-!! -  92-12-22  RUSS TREADON
-!! -  97-03-06  GEOFF MANIKIN - CHANGED CRITERIA FOR DETERMINING
-!!                            THE TROPOPAUSE AND ADDED HEIGHT
-!! -  98-06-15  T BLACK       - CONVERSION FROM 1-D TO 2-D
-!! -  00-01-04  JIM TUCCILLO  - MPI VERSION
-!! -  02-04-23  MIKE BALDWIN  - WRF VERSION
-!! -  19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
-!!     
-!! USAGE:    CALL TRPAUS(PTROP,TTROP,ZTROP,UTROP,VTROP,SHTROP)
-!!   INPUT ARGUMENT LIST:
-!!     NONE     
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PTROP    - TROPOPAUSE PRESSURE.
-!!     TTROP    - TROPOPAUSE TEMPERATURE.
-!!     ZTROP    - TROPOPAUSE HEIGHT
-!!     UTROP    - TROPOPAUSE U WIND COMPONENT.
-!!     VTROP    - TROPOPAUSE V WIND COMPONENT.
-!!     SHTROP   - VERTICAL WIND SHEAR AT TROPOPAUSE.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
+!> @brief trpaus() computes tropopause data.
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
+
+!> This routine computes tropopause data.  At each mass
+!> point a surface up search is made for the first 
+!> occurrence of a three layer mean lapse rate less than
+!> or equal to a critical lapse rate.  This critcal lapse
+!> rate is 2deg/km.  This is in accord with the WMO
+!> definition of a tropopause.  A maximum tropopause
+!> pressure of 500mb is enforced.  Onc the tropopause
+!> is located in a column, pressure, temperature, u
+!> and v winds, and vertical wind shear are computed.
+!>
+!> @param[out] PTROP Tropopause pressure.
+!> @param[out] TTROP Tropopause temperature.
+!> @param[out] ZTROP Tropopause height.
+!> @param[out] UTROP Tropopause u wind component.
+!> @param[out] VTROP Tropopause v wind component.
+!> @param[out] SHTROP Vertical wind shear at tropopause.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon  | Initial
+!> 1997-03-06 | Geoff Manikin | Changed criteria for determining the tropopause and added height
+!> 1998-06-15 | T Black       | Conversion from 1-D TO 2-D
+!> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2002-04-23 | Mike Baldwin  | WRF Version
+!> 2019-10-30 | Bo Cui        | ReMOVE "GOTO" STATEMENT
+!> 2021-09-13 | JESSE MENG    | 2D DECOMPOSITION
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE TRPAUS(PTROP,TTROP,ZTROP,UTROP,VTROP,SHTROP)
 
 !     
@@ -59,8 +53,8 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL PTROP(IM,JM),TTROP(IM,JM),ZTROP(IM,JM),UTROP(IM,JM)
-      REAL VTROP(IM,JM),SHTROP(IM,JM)
+      REAL PTROP(ISTA:IEND,JSTA:JEND),TTROP(ISTA:IEND,JSTA:JEND),ZTROP(ISTA:IEND,JSTA:JEND),UTROP(ISTA:IEND,JSTA:JEND)
+      REAL VTROP(ISTA:IEND,JSTA:JEND),SHTROP(ISTA:IEND,JSTA:JEND)
       REAL TLAPSE(LM),DZ2(LM),DELT2(LM),TLAPSE2(LM)
 !
       integer I,J
@@ -72,7 +66,7 @@
 !     LOOP OVER THE HORIZONTAL GRID.
 !    
       DO J=JSTA,JEND
-      DO I=1,IM
+      DO I=ISTA,IEND
          PTROP(I,J)  = SPVAL
          TTROP(I,J)  = SPVAL
          ZTROP(I,J)  = SPVAL
@@ -87,7 +81,7 @@
 !$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !$omp&         v0,v0l,vh,vh0)
        DO J=JSTA,JEND
-       loopI:DO I=1,IM
+       loopI:DO I=ISTA,IEND
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER

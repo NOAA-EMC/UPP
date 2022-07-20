@@ -1,50 +1,30 @@
 !> @file
-!
-!> SUBPROGRAM:    OTLFT       COMPUTES LIFTED INDEX
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-03-10       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES LIFTS A PARCEL SPECIFIED BY THE
-!!     PASSED PRESSURE, TEMPERATURE, AND SPECIFIC HUMIDITY TO
-!!     500MB AND THEN COMPUTES A LIFTED INDEX.  THIS LIFTED 
-!!     LIFTED INDEX IS THE DIFFERENCE BETWEEN THE LIFTED 
-!!     PARCEL'S TEMPERATURE AT 500MB AND THE AMBIENT 500MB
-!!     TEMPERATURE.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-03-10  RUSS TREADON - MODIFIED OTLIFT2 TO LIFT PARCELS
-!!                            SPECIFIED BY PASSED P, T, AND Q.
-!!   98-06-15  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   02-06-17  MIKE BALDWIN - WRF VERSION
-!!   11-04-12  GEOFF MANIKIN - USE VIRTUAL TEMPERATURE
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!     
-!! USAGE:    CALL OTLFT(PBND,TBND,QBND,SLINDX)
-!!   INPUT ARGUMENT LIST:
-!!     PBND     - PARCEL PRESSURE.
-!!     TBND     - PARCEL TEMPERATURE.
-!!     QBND     - PARCEL SPECIFIC HUMIDITY.
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     SLINDX   - LIFTED INDEX.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  LOOPS
-!!                  MASKS
-!!                  PHYS
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief otlft() computes lifted index.
+!>
+!> This routine computes lifts a parcel specified by the
+!> passed pressure, temperature, and specific humidity to
+!> 500mb and then computes a lifted index.  This lifted
+!> lifted index is the difference between the lifted
+!> parcel's temperature at 500mb and the ambient 500mb
+!> temperature.
+!>
+!> @param[in] PBND Parcel pressure.
+!> @param[in] TBND Parcel temperature.
+!> @param[in] QBND Parcel specific humidity.
+!> @param[out] SLINDX Lifted index.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-03-10 | Russ Treadon  | Initial. Modified OTLIFT2 to lift parcels specified by passed P, T, and Q.
+!> 1998-06-15 | T Black       | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2002-06-17 | Mike Baldwin  | WRF Version
+!> 2011-04-12 | Geoff Manikin | Use virtual temperature
+!> 2020-11-10 | Jesse Meng    | Use UPP_PHYSICS Module
+!> 2021-09-30 | JESSE MENG    | 2D DECOMPOSITION
+!>
+!> @author Russ Treadon W/NP2 @date 1993-03-10
       SUBROUTINE OTLFT(PBND,TBND,QBND,SLINDX)
 
 !     
@@ -52,7 +32,7 @@
       use vrbls2d,    only: T500
       use lookup_mod, only: THL, RDTH, JTB, QS0, SQS, RDQ, ITB, PTBL, &
                             PL, RDP, THE0, STHE, RDTHE, TTBL
-      use ctlblk_mod, only: JSTA, JEND, IM, spval
+      use ctlblk_mod, only: JSTA, JEND, IM, spval, ISTA, IEND
       use params_mod, only: D00, H10E5, CAPA, ELOCP, EPS, ONEPS
       use upp_physics, only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,8 +43,8 @@
 
 !     
 !     DECLARE VARIABLES.
-      real,dimension(IM,jsta:jend),intent(in)  :: PBND,TBND,QBND
-      real,dimension(IM,jsta:jend),intent(out) :: SLINDX
+      real,dimension(ista:iend,jsta:jend),intent(in)  :: PBND,TBND,QBND
+      real,dimension(ista:iend,jsta:jend),intent(out) :: SLINDX
       REAL :: TVP, ESATP, QSATP
       REAL :: BQS00, SQS00, BQS10, SQS10, P00, P10, P01, P11, BQ, SQ, TQ
       REAL :: BTHE00, STHE00, BTHE10, STHE10, BTH, STH, TTH
@@ -81,7 +61,7 @@
 !
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           SLINDX(I,J) = D00
         ENDDO
       ENDDO
@@ -89,7 +69,7 @@
 !--------------FIND EXNER IN BOUNDARY LAYER-----------------------------
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           TBT = TBND(I,J) 
           QBT = QBND(I,J)
 !

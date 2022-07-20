@@ -1,48 +1,34 @@
 !> @file
-!
-!> SUBPROGRAM:    SCLFLD      SCALE ARRAY ELEMENT BY CONSTANT
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-09-13       
-!!     
-!! ABSTRACT:  
-!!     THIS ROUTINE MULTIPLES (SCALES) THE FIRST IMO*JMO
-!!     ELEMENTS OF ARRAY FLD BY THE REAL SCALAR SCALE.
-!!     ARRAY ELEMENTS WHICH EQUAL A SPECIAL VALUE WILL
-!!     NOT BE SCALED BY SCALE.  THEY WILL BE LEFT AS IS.
-!!     THE SPECIAL VALUE, SPVAL, IS PASSED THROUGH COMMON
-!!     BLOCK OPTIONS.  IT IS SET IN INCLUDE FILE OPTIONS.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-09-13  RUSS TREADON
-!!   00-01-04  JIM TUCCILLO
-!!     
-!! USAGE:    CALL SCLFLD(FLD,SCALE,IMO,JMO)
-!!   INPUT ARGUMENT LIST:
-!!     FLD      - ARRAY WHOSE ELEMENTS ARE TO BE SCALED.
-!!     SCALE    - CONSTANT BY WHICH TO SCALE ELEMENTS OF FLD.
-!!     IMO,JMO  - DIMENSION OF ARRAY FLD.
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     FLD      - ARRAY WHOSE ELEMENTS HAVE BEEN SCALED BY SCALE.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON - OPTIONS
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief sclfld() scale array element by constant.
+!>
+!> @author Russ Treadon W/NP2 @date 1992-09-13
+
+!> This routine multiples (scales) the first IMO*JMO
+!> elements of array fld by the real scalar scale.
+!> Array elements which equal a special value will
+!> not be scaled by scale.  They will be left as is.
+!> The special value, spval, is passed through common
+!> block options.  It is set in include file options.
+!>
+!> @param[in] FLD Array whose elements are to be scaled.
+!> @param[in] SCALE Constant by which to scale elements of fld.
+!> @param[in] IMO,JMO Dimension of array fld.
+!> @param[out] FLD Array whose elements have been scaled by scale.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-09-13 | Russ Treadon  | Initial
+!> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2021-09-29 | JESSE MENG    | 2D DECOMPOSITION
+!>
+!> @author Russ Treadon W/NP2 @date 1992-09-13
       SUBROUTINE SCLFLD(FLD,SCALE,IMO,JMO)
 !
 
 !
       use params_mod, only: small
-      use ctlblk_mod, only: jsta, jend, spval
+      use ctlblk_mod, only: jsta, jend, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -50,7 +36,7 @@
 !     
       integer,intent(in) :: IMO,JMO
       REAL,intent(in) ::  SCALE
-      REAL,dimension(imo,jmo),intent(inout) :: FLD
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: FLD
       integer I,J
 !     
 !     
@@ -61,7 +47,7 @@
 !     
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IMO
+      DO I=ISTA,IEND
         IF(ABS(FLD(I,J)-SPVAL)>SMALL) FLD(I,J)=SCALE*FLD(I,J)
       ENDDO
       ENDDO

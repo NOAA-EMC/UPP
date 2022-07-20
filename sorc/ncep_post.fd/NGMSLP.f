@@ -65,6 +65,7 @@
 !!                         CONSISTENT WITH MESINGER SLP
 !!   02-06-13  MIKE BALDWIN - WRF VERSION
 !!   06-12-18  H CHUANG - BUG FIX TO CORRECT TAU AT SFC
+!!   21-09-30  J MENG   - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL NGMSLP
 !!   INPUT ARGUMENT LIST:
@@ -93,7 +94,7 @@
       use vrbls2d,    only: slp, fis, z1000
       use masks,      only: lmh
       use params_mod, only: rd, gi, g, h1, d608, gamma, d50, p1000
-      use ctlblk_mod, only: jsta, jend, im, jm, spval
+      use ctlblk_mod, only: jsta, jend, im, jm, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -117,7 +118,7 @@
 !!$omp&         tau,tauavg,tausfc,tausl,tavg,tvrbar,tvrsfc,tvrsl,
 !!$omp&         tvrt,tvrtal,zbar,zl,zsfc)
        DO J=JSTA,JEND
-       DO I=1,IM
+       DO I=ISTA,IEND
          LLMH = NINT(LMH(I,J))
 
          if( PINT(I,J,LLMH+1)<spval) then

@@ -30,7 +30,7 @@ find_dependency(ip CONFIG)
 #find_dependency(sfcio CONFIG)
 #find_dependency(sigio CONFIG)
 #find_dependency(sp CONFIG)
-#find_dependency(w3nco CONFIG)
+#find_dependency(w3emc CONFIG)
 
 # Get the build type from library target
 get_target_property(@PROJECT_NAME@_BUILD_TYPES @PROJECT_NAME@::@PROJECT_NAME@ IMPORTED_CONFIGURATIONS)

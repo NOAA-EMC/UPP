@@ -65,9 +65,6 @@ export g2tmpl_ver=${g2tmpl_ver:-v1.5.0}
 export CDATE=${CDATE:-${PDY}${cyc}}
 export CDUMP=${CDUMP:-${RUN:-"gfs"}}
 export COMPONENT=${COMPONENT:-atmos}
-if [ $RUN_ENVIR = "nco" ]; then
-    export ROTDIR=${COMROOT:?}/$NET/$envir
-fi
 
 
 ##############################################
@@ -77,17 +74,12 @@ export APRUNP=${APRUN:-$APRUN_NP}
 export RERUN=${RERUN:-NO}
 export HOMECRTM=${HOMECRTM:-${NWROOT}/lib/crtm/${crtm_ver}}
 export FIXCRTM=${CRTM_FIX:-${HOMECRTM}/fix}
-#export FIXCRTM=${FIXCRTM:-${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
 export PARMpost=${PARMpost:-$HOMEgfs/parm/post}
 export INLINE_POST=${WRITE_DOPOST:-".false."}
 
-if [ $RUN_ENVIR = "nco" ]; then
-    export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
-    export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
-else
-    export COMIN="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
-    export COMOUT="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
-fi
+export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
+export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
+
 [[ ! -d $COMOUT ]] && mkdir -m 775 -p $COMOUT
 
 if [ $RUN = gfs ];then
@@ -128,7 +120,7 @@ export SLEEP_INT=5
 # Run relevant exglobal script
 env
 msg="HAS BEGUN on `hostname`"
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 $LOGSCRIPT
 
 
@@ -148,7 +140,7 @@ if [ -e "$pgmout" ]; then
 fi
 
 msg="ENDED NORMALLY."
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 
 
 ##########################################

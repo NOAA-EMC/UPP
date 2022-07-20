@@ -17,6 +17,7 @@ option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
 option(BUILD_WITH_IFI "Build NCEPpost with In-Flight Icing (IFI) library if present" OFF)
 option(REQUIRE_IFI "Abort if libIFI is not found ; enables BUILD_WITH_IFI==ON" OFF)
+option(BUILD_WITH_GTG   "Build NCEPpost with NCAR/GTG" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
@@ -49,7 +50,9 @@ find_package(bacio REQUIRED)
 find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)
 find_package(g2tmpl REQUIRED)
-find_package(ip REQUIRED)
+if(BUILD_WITH_GTG)
+  find_package(ip REQUIRED)
+endif()
 
 if(REQUIRE_IFI)
   set(BUILD_WITH_IFI ON)
@@ -68,7 +71,7 @@ if(BUILD_POSTEXEC)
   find_package(sfcio REQUIRED)
   find_package(sigio REQUIRED)
   find_package(sp REQUIRED)
-  find_package(w3nco REQUIRED)
+  find_package(w3emc REQUIRED)
   if(BUILD_WITH_WRFIO)
     find_package(wrf_io REQUIRED)
   endif()
@@ -83,3 +86,28 @@ if(ENABLE_DOCS)
   add_subdirectory(docs)
 endif()
 
+### Package config
+include(CMakePackageConfigHelpers)
+set(CONFIG_INSTALL_DESTINATION lib/cmake/${PROJECT_NAME})
+
+export(EXPORT ${PROJECT_NAME}Exports
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${PROJECT_NAME}-targets.cmake)
+
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PackageConfig.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION})
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+write_basic_package_version_file(
+  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+install(EXPORT ${PROJECT_NAME}Exports
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${PROJECT_NAME}-targets.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})

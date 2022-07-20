@@ -7,9 +7,10 @@
 !           Weather Systems, Vienna, VA, Amer. Meteor. Soc., 227-230.
 !
 !   CODE ADAPTED FOR WRF POST  24 AUGUST 2005    G MANIKIN
-
+!
 ! PROGRAM HISTORY LOG:
 !   10-30-19  Bo CUI - Remove "GOTO" statement
+!   21-10-31  JESSE MENG - 2D DECOMPOSITION
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
       SUBROUTINE CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,PREC,PTYP)
@@ -24,7 +25,8 @@
 !     +    ptyp) !  output(2) phase 2=Rain, 3=Frzg, 4=Solid,
 !                                               6=IP     JC  9/16/99
       use params_mod, only: pq0, a2, a3, a4
-      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend, pthresh
+      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend, pthresh,&
+                            ista, iend, ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -37,13 +39,13 @@
       INTEGER*4 i, k1, lll, k2, toodry, iflag, nq
 !
       REAL xxx ,mye, icefrac,flg,flag
-      real,DIMENSION(IM,jsta_2l:jend_2u,LM), intent(in)    :: T,Q,PMID
-      real,DIMENSION(IM,jsta_2l:jend_2u,LP1),intent(in)    :: PINT
-      real,DIMENSION(IM,jsta_2l:jend_2u),    intent(in)    :: LMH,PREC
-      integer,DIMENSION(IM,jsta:jend),       intent(inout) :: PTYP
+      real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u,LM), intent(in)    :: T,Q,PMID
+      real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u,LP1),intent(in)    :: PINT
+      real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(in)    :: LMH,PREC
+      integer,DIMENSION(ista:iend,jsta:jend),       intent(inout) :: PTYP
 !
-      real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,PQ,RHQ
-      real,DIMENSION(IM,jsta:jend,LM)       :: TWQ
+      real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u,LM) :: P,TQ,PQ,RHQ
+      real,DIMENSION(ista:iend,jsta:jend,LM)       :: TWQ
 !     REAL, ALLOCATABLE :: TWET(:,:,:)
 !
       integer J,L,LEV,LNQ,LMHK,ii
@@ -61,7 +63,7 @@
       icefrac = flag
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           PTYP(I,J) = 0
           NQ=LMH(I,J)
           DO L = 1,NQ
@@ -77,7 +79,7 @@
 
 !  BIG LOOP
       DO 800 J=JSTA,JEND
-      DO 800 I=1,IM
+      DO 800 I=ISTA,IEND
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
 !
@@ -372,9 +374,7 @@
       IF (trace) WRITE (*,*) "Returned ptyp is:ptyp,lll ", ptyp, lll,'me=',me
       IF (trace) WRITE (*,*) "Returned icefrac is: ", icefrac,'me=',me
  800  CONTINUE 
-      DO 900 J=JSTA,JEND
-      DO 900 I=1,IM
- 900  CONTINUE
+
       RETURN
 !
       END
