@@ -188,7 +188,7 @@ contains !==============================================================
     allocate(recv_iend(icomm_size))
     call MPI_Allgather(iend,1,MPI_INTEGER,recv_iend,1,MPI_INTEGER,mpi_comm_comp,ierr)
     allocate(recvcount_i(icomm_size))
-    allocate(recvcount_j(jcomm_size))
+    allocate(recvdispl_i(jcomm_size))
     call get_count_and_displ(icomm,icomm_size,(iend-ista+1)*(jend-jsta+1),recvcount_i,recvdispl_i)
 
     ! Calculate information for j-direction MPI_Gatherv and MPI_Scatterv calls.
@@ -196,7 +196,7 @@ contains !==============================================================
     call MPI_Allgather(jsta,1,MPI_INTEGER,recv_jsta,1,MPI_INTEGER,mpi_comm_comp,ierr)
     allocate(recv_jend(jcomm_size))
     call MPI_Allgather(jend,1,MPI_INTEGER,recv_jend,1,MPI_INTEGER,mpi_comm_comp,ierr)
-    allocate(recvdispl_i(icomm_size))
+    allocate(recvcount_j(icomm_size))
     allocate(recvdispl_j(jcomm_size))
     call get_count_and_displ(jcomm,jcomm_size,im*(jend-jsta+1),recvcount_j,recvdispl_j)
 
@@ -548,7 +548,7 @@ contains !==============================================================
           do i=ips,ipe
             jstartm1 = kstartm1 + (j-jms)*ilen
             iloc = jstartm1+(i-ims)+1
-            if(iloc<ista .or. iloc>iend) then
+            if(iloc<1 .or. iloc>size(data)) then
               call ifi_check(-1,'Internal error: out of bounds in send_data.')
             endif
             if(data(iloc)==missing_value) then
@@ -841,9 +841,9 @@ contains !==============================================================
         enddo
       enddo
       
-      call ifi_check(hybr_vars%add_ijk_var(ifi_name,int(1,c_int64_t),int(im,c_int64_t),&
+      call ifi_check(hybr_vars%add_ijk_var(ifi_name,int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
            int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),&
-           int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),ifi_var), &
+           int(1,c_int64_t),int(lm,c_int64_t),ifi_var), &
            'could not send '//ifi_name//' ('//upp_name//') to IFI')
     end subroutine add_ijk_var
 
