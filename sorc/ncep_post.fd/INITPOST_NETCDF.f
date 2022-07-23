@@ -19,6 +19,7 @@
 !> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
 !> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
 !> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
+!> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -2585,7 +2586,6 @@
           acfrst(i,j) = spval ! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
           ncfrst(i,j) = 1.0
           bgroff(i,j) = spval ! GFS does not have UNDERGROUND RUNOFF
-          rlwtoa(i,j) = spval ! GFS does not have inst model top outgoing longwave
         enddo
       enddo
 !     trdlw(i,j)  = 6.0
@@ -2625,6 +2625,12 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(isa,jsa)
+
+! instant outgoing model top longwave
+      VarName='ulwrf_toa'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rlwtoa)
+!     if(debugprint)print*,'sample l',VarName,' = ',1,rlwtoa(isa,jsa)
       
 ! GFS incoming sfc longwave has been averaged, set ARDLW to 1
       ardsw=1.0
