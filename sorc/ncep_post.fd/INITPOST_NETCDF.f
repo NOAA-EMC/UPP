@@ -17,6 +17,9 @@
 !> 2022-03-15 | Wen Meng      | Unify regional and global interfaces
 !> 2022-03-22 | Wen Meng      | Read PWAT from model
 !> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
+!> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
+!> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
+!> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -70,7 +73,8 @@
               ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
-              latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
+              latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
+              latse,lonse,latnw,lonnw
       use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -103,7 +107,7 @@
       character(len=20)  :: VarName, VcoordName
       integer            :: Status, fldsize, fldst, recn, recn_vvel
       character             startdate*19,SysDepInfo*80,cgar*1
-      character             startdate2(19)*4
+      character             startdate2(19)*4, flatlon*40
       logical            :: read_lonlat=.true.
 ! 
 !     NOTE: SOME INTEGER VARIABLES ARE READ INTO DUMMY ( A REAL ). THIS IS OK
@@ -467,8 +471,8 @@
           dyval=dum_const*gdsdegr
          end if
 
-         print*,'lonstart,latstart,cenlon,cenlat,dyval,dxval', &
-         lonstart,latstart,cenlon,cenlat,dyval,dxval
+!         print*,'lonstart,latstart,cenlon,cenlat,dyval,dxval', &
+!         lonstart,latstart,cenlon,cenlat,dyval,dxval
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
         else if(trim(varcharval)=='latlon')then
@@ -762,9 +766,13 @@
         if(convert_rad_to_deg)then
          lonstart = nint(dummy(1,1)*gdsdegr)*180./pi
          lonlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+         lonse    = nint(dummy(im,1)*gdsdegr)*180./pi
+         lonnw    = nint(dummy(1,jm)*gdsdegr)*180./pi
         else
          lonstart = nint(dummy(1,1)*gdsdegr)
          lonlast  = nint(dummy(im,jm)*gdsdegr)
+         lonse    = nint(dummy(im,1)*gdsdegr)
+         lonnw    = nint(dummy(1,jm)*gdsdegr)
         end if
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
@@ -819,9 +827,13 @@
         if(convert_rad_to_deg)then
          latstart = nint(dummy(1,1)*gdsdegr)*180./pi
          latlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+         latse    = nint(dummy(im,1)*gdsdegr)*180./pi
+         latnw    = nint(dummy(1,jm)*gdsdegr)*180./pi
         else
          latstart = nint(dummy(1,1)*gdsdegr)
          latlast  = nint(dummy(im,jm)*gdsdegr)
+         latse    = nint(dummy(im,1)*gdsdegr)
+         latnw    = nint(dummy(1,jm)*gdsdegr)
         end if
       end if
       print*,'laststart,latlast = ',latstart,latlast
@@ -872,8 +884,16 @@
         do i = ista, iend_m
           ip1 = i + 1
 !          if (ip1 > im) ip1 = ip1 - im
-          DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
-          DY (i,j) = ERAD*(GDLAT(I,J+1)-GDLAT(I,J))*DTR  ! like A*DPH
+          if(MAPTYPE==207)then
+            DX(i,j) = erad*dxval*dtr/gdsdegr
+          else
+            DX(i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
+          endif
+          if(MAPTYPE==207)then
+            DY(i,j)= erad*dyval*dtr/gdsdegr
+          else
+            DY(i,j) = ERAD*(GDLAT(I,J+1)-GDLAT(I,J))*DTR  ! like A*DPH
+          endif
 !	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)         ! 2*omeg*sin(phi)
 !     if (i == ii .and. j == jj) print*,'sample LATLON, DY, DY='    &
 !           ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
@@ -2566,7 +2586,6 @@
           acfrst(i,j) = spval ! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
           ncfrst(i,j) = 1.0
           bgroff(i,j) = spval ! GFS does not have UNDERGROUND RUNOFF
-          rlwtoa(i,j) = spval ! GFS does not have inst model top outgoing longwave
         enddo
       enddo
 !     trdlw(i,j)  = 6.0
@@ -2606,6 +2625,12 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(isa,jsa)
+
+! instant outgoing model top longwave
+      VarName='ulwrf_toa'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rlwtoa)
+!     if(debugprint)print*,'sample l',VarName,' = ',1,rlwtoa(isa,jsa)
       
 ! GFS incoming sfc longwave has been averaged, set ARDLW to 1
       ardsw=1.0
@@ -3540,6 +3565,16 @@
           WRITE(igdout)0
           WRITE(igdout)0
           WRITE(igdout)0
+         ELSE IF(MAPTYPE == 207)THEN !Rotated lat-lon grid
+           write(flatlon,1001)ifhr
+           open(112,file=trim(flatlon),form='formatted', &
+             status='unknown')
+           write(112,1002)LATSTART/1000,LONSTART/1000,&
+             LATSE/1000,LONSE/1000,LATNW/1000,LONNW/1000,&
+             LATLAST/1000,LONLAST/1000
+     1001 format('latlons_corners.txt.f',I3.3)
+     1002 format(4(I6,I7,X))
+           close(112)
         END IF
       end if
 !     
