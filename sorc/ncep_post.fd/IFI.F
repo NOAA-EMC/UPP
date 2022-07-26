@@ -7,9 +7,10 @@ module upp_ifi_mod
   implicit none
 
   private
-  public run_ifi, set_ifi_dims, ifi_real_t
+  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files
 
   integer, parameter :: ifi_real_t = c_float
+  logical, public :: write_ifi_debug_files = .false.
   
 contains !==============================================================
 
@@ -97,36 +98,42 @@ module upp_ifi_mod
 
   real, parameter :: feet2meters = 0.3048
 
+  interface
+    subroutine abort() bind(C)
+    end subroutine abort
+  end interface
+
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
-  logical, parameter :: write_ifi_netcdf_debug_files = .false.
+  logical, public :: write_ifi_debug_files = .false.
 
   ! Communication-related variables for gathers and
   ! scatters. Gathering is done in the i direction first, all to one
   ! rank in each row. Then that rank in each row gathers to the
   ! destination rank. Scatter follows the same process, in reverse.
 
-  integer :: ifi_mpi_real_kind
-  integer :: icomm ! communicator for i-direction messages
-  integer :: jcomm ! communicator for j-direction messages
-  integer :: icomm_rank, jcomm_rank ! Rank in the i & j comm communicators
-  integer :: icomm_size, jcomm_size ! Size of the i & j comm communicators
+  integer :: ifi_mpi_real_kind=-999
+  integer :: row_comm = -999 ! communicator for i-direction messages
+  integer :: col_comm = -999 ! communicator for j-direction messages
+  integer :: row_comm_rank=-999, col_comm_rank=-999 ! Rank in the i & j comm communicators
+  integer :: row_comm_size=-999, col_comm_size=-999 ! Size of the i & j comm communicators
+  integer :: grid_rank ! rank within mpi_comm_comp
 
   integer, allocatable :: ista_grid(:) ! ista for each rank in mpi_comm_comp in i direction
   integer, allocatable :: jsta_grid(:) ! jsta for each rank in mpi_comm_comp in j direction
 
   real, allocatable :: rearrange(:,:) ! for rearranging data on local processor
-  integer, allocatable :: recvcount_i(:) ! scatterv&gatherv receive counts for i-direction collectives
-  integer, allocatable :: recvdispl_i(:) ! scatterv&gatherv displacements for i-direction collectives
-  integer, allocatable :: recv_ista(:) ! i starts for rearranging data (icomm_size)
-  integer, allocatable :: recv_iend(:) ! i ends for rearranging data (icomm_size)
-  real, allocatable :: rearrange_i1(:) ! for rearranging data for an entire row (roots of icomm communicators)
+  integer, allocatable :: row_comm_count(:) ! scatterv&gatherv receive counts for i-direction collectives
+  integer, allocatable :: row_comm_displ(:) ! scatterv&gatherv displacements for i-direction collectives
+  integer, allocatable :: row_ista(:) ! i starts for rearranging data (icomm_size)
+  integer, allocatable :: row_iend(:) ! i ends for rearranging data (icomm_size)
+  real, allocatable :: rearrange_row1d(:) ! for rearranging data for an entire row (roots of icomm communicators)
 
-  real, allocatable :: rearrange_i2(:,:) ! for rearranging data for an entire row (roots of icomm communicators)
-  integer, allocatable :: recvcount_j(:) ! scatterv&gatherv receive counts for j-direction collectives
-  integer, allocatable :: recvdispl_j(:) ! scatterv&gatherv displacements for j-direction collectives
-  integer, allocatable :: recv_jsta(:) ! j starts for rearranging data (jcomm_size)
-  integer, allocatable :: recv_jend(:) ! j ends for rearranging data (jcomm_size)
+  real, allocatable :: rearrange_row2d(:,:) ! for rearranging data for an entire row (roots of icomm communicators)
+  integer, allocatable :: col_comm_count(:) ! scatterv&gatherv receive counts for j-direction collectives
+  integer, allocatable :: col_comm_displ(:) ! scatterv&gatherv displacements for j-direction collectives
+  integer, allocatable :: col_jsta(:) ! j starts for rearranging data (jcomm_size)
+  integer, allocatable :: col_jend(:) ! j ends for rearranging data (jcomm_size)
 
   integer, allocatable :: isize_grid(:) ! iend-ista+1 for each gridpoint
   
@@ -139,9 +146,9 @@ contains !==============================================================
     implicit none
 
     integer, allocatable :: key(:) ! ensure ranks are in a consistent order
-
-    integer :: rank, size, ierr, local_count, accum, irank, i
+    integer :: size, ierr, local_count, accum, irank, i
     real(kind=ifi_real_t) :: testreal
+
 
     ! Use the right MPI type for the ifi real kind
     if(c_sizeof(testreal)==4) then
@@ -152,53 +159,87 @@ contains !==============================================================
 
     ! Get the correct size of the communicator before we try to split it.
     call MPI_Comm_size(mpi_comm_comp,size,ierr)
-    call MPI_Comm_rank(mpi_comm_comp,rank,ierr)
+    call MPI_Comm_rank(mpi_comm_comp,grid_rank,ierr)
 
-    ! Ensure ranks are arranged in a consistent order.
+! 929 format('Rank ',I0,' ista=',I0,' jsta=',I0)
+!     print 929,grid_rank,ista,jsta
+
+    ! Get the start locations on every rank. We need this for the key,
+    ! and for determining root ranks.
     allocate(ista_grid(size))
     allocate(jsta_grid(size))
+    ista_grid=-1
+    jsta_grid=-1
     call MPI_Allgather(ista,1,MPI_INTEGER,ista_grid,1,MPI_INTEGER,mpi_comm_comp,ierr)
     call MPI_Allgather(jsta,1,MPI_INTEGER,jsta_grid,1,MPI_INTEGER,mpi_comm_comp,ierr)
+
+    ! Ensure ranks are arranged in a consistent order.
     allocate(key(size))
     do i=1,size
+      if(ista_grid(i)==-1) then
+        write(0,*) 'invalid ista_grid ',ista_grid(i)
+        call abort
+      endif
+      if(jsta_grid(i)==-1) then
+        write(0,*) 'invalid jsta_grid ',jsta_grid(i)
+        call abort
+      endif
       key(i) = ista_grid(i) + im*(jsta_grid(i)-1)
     enddo
 
-    ! Create a communicator for i-direction gather/scatter
-    call mpi_comm_split(mpi_comm_comp,ista_grid(rank),key(rank),icomm,ierr)
-    call mpi_comm_rank(icomm,icomm_rank,ierr)
-    call mpi_comm_size(icomm,icomm_size,ierr)
+    ! Create a communicator for row gather/scatter (all ranks that share a jsta)
+    if(all(jsta_grid==jsta_grid(1))) then
+      row_comm = mpi_comm_comp
+    else
+      call mpi_comm_split(mpi_comm_comp,jsta_grid(grid_rank+1),key(grid_rank+1),row_comm,ierr)
+    endif
+    if(row_comm==MPI_COMM_NULL .or. row_comm==0) then
+      write(0,*) 'MPI_Comm_split gave MPI_COMM_NULL for row_comm'
+      call abort
+    endif
+    call mpi_comm_rank(row_comm,row_comm_rank,ierr)
+    call mpi_comm_size(row_comm,row_comm_size,ierr)
 
-    ! Create a communicator for j-direction gather/scatter
-    call mpi_comm_split(mpi_comm_comp,jsta_grid(rank),key(rank),jcomm,ierr)
-    call mpi_comm_rank(jcomm,jcomm_rank,ierr)
-    call mpi_comm_size(jcomm,jcomm_size,ierr)
+    ! Create a communicator for column gather/scatter (all ranks that share an ista)
+    if(all(ista_grid==ista_grid(1))) then
+      col_comm = mpi_comm_comp
+    else
+      call mpi_comm_split(mpi_comm_comp,ista_grid(grid_rank+1),key(grid_rank+1),col_comm,ierr)
+    endif
+    if(col_comm==MPI_COMM_NULL .or. col_comm==0) then
+      write(0,*) 'MPI_Comm_split gave MPI_COMM_NULL for col_comm'
+      call abort
+    endif
+    call mpi_comm_rank(col_comm,col_comm_rank,ierr)
+    call mpi_comm_size(col_comm,col_comm_size,ierr)
 
     ! Done with the key.
     deallocate(key)
 
-    ! Allocate the arrays used to rearrange data. These are only needed on some ranks.
-    allocate(rearrange(iend-ista+1,jend-jsta+1))
-    allocate(rearrange_i1(im*(jend-jsta+1)))
-    allocate(rearrange_i2(im,(jend-jsta+1)))
+    ! Allocate the arrays used to rearrange data.
+    allocate(rearrange(ista:iend,jsta:jend))
+    allocate(rearrange_row1d(im*(jend-jsta+1)))
+    allocate(rearrange_row2d(1:im,jsta:jend))
 
-    ! Calculate information for i-direction MPI_Gatherv and MPI_Scatterv calls.
-    allocate(recv_ista(icomm_size))
-    call MPI_Allgather(ista,1,MPI_INTEGER,recv_ista,1,MPI_INTEGER,mpi_comm_comp,ierr)
-    allocate(recv_iend(icomm_size))
-    call MPI_Allgather(iend,1,MPI_INTEGER,recv_iend,1,MPI_INTEGER,mpi_comm_comp,ierr)
-    allocate(recvcount_i(icomm_size))
-    allocate(recvdispl_i(jcomm_size))
-    call get_count_and_displ(icomm,icomm_size,(iend-ista+1)*(jend-jsta+1),recvcount_i,recvdispl_i)
+    ! Calculate information for row MPI_Gatherv and MPI_Scatterv calls.
+    allocate(row_ista(row_comm_size))
+    call MPI_Allgather(ista,1,MPI_INTEGER,row_ista,1,MPI_INTEGER,row_comm,ierr)
+    allocate(row_iend(row_comm_size))
+    call MPI_Allgather(iend,1,MPI_INTEGER,row_iend,1,MPI_INTEGER,row_comm,ierr)
+    allocate(row_comm_count(row_comm_size))
+    allocate(row_comm_displ(row_comm_size))
+    call get_count_and_displ(row_comm,row_comm_size,(iend-ista+1)*(jend-jsta+1), &
+         row_comm_count,row_comm_displ)
 
     ! Calculate information for j-direction MPI_Gatherv and MPI_Scatterv calls.
-    allocate(recv_jsta(jcomm_size))
-    call MPI_Allgather(jsta,1,MPI_INTEGER,recv_jsta,1,MPI_INTEGER,mpi_comm_comp,ierr)
-    allocate(recv_jend(jcomm_size))
-    call MPI_Allgather(jend,1,MPI_INTEGER,recv_jend,1,MPI_INTEGER,mpi_comm_comp,ierr)
-    allocate(recvcount_j(icomm_size))
-    allocate(recvdispl_j(jcomm_size))
-    call get_count_and_displ(jcomm,jcomm_size,im*(jend-jsta+1),recvcount_j,recvdispl_j)
+    allocate(col_jsta(col_comm_size))
+    call MPI_Allgather(jsta,1,MPI_INTEGER,col_jsta,1,MPI_INTEGER,col_comm,ierr)
+    allocate(col_jend(col_comm_size))
+    call MPI_Allgather(jend,1,MPI_INTEGER,col_jend,1,MPI_INTEGER,col_comm,ierr)
+    allocate(col_comm_count(col_comm_size))
+    allocate(col_comm_displ(col_comm_size))
+    call get_count_and_displ(col_comm,col_comm_size,im*(jend-jsta+1), &
+         col_comm_count,col_comm_displ)
 
   end subroutine make_communicators
 
@@ -216,7 +257,7 @@ contains !==============================================================
 
     ! Displacements are a cumulative sum starting at 0 for rank 0
     accum=0
-    do i=1,icomm_size
+    do i=1,comm_size
       displacements(i) = accum
       accum = accum+counts(i)
     end do
@@ -224,42 +265,47 @@ contains !==============================================================
 
   ! --------------------------------------------------------------------
 
-  subroutine find_comm_roots(global_rank,i_root,j_root)
-    ! Find the roots of the i and j direction communicators for a
-    ! gather or scatter with the specified rank as the location of the
-    ! global array.
+  subroutine find_comm_roots(global_rank,row_root,col_root)
+    ! Find the roots of the row and column communicators for a gather
+    ! or scatter with the specified rank as the location of the global
+    ! array.
     implicit none
 
     integer, intent(in) :: global_rank
-    integer, intent(inout) :: i_root, j_root
+    integer, intent(inout) :: row_root,col_root
     integer :: r, destination_ista, destination_jsta
 
-    destination_ista=ista_grid(global_rank)
-    destination_jsta=jsta_grid(global_rank)
+    ! print *,'find roots for rank ',global_rank
 
-    i_root=-1
-    do r=1,icomm_size
-      if(recv_ista(r)==destination_ista) then
-        i_root=r
+    destination_ista=ista_grid(global_rank+1)
+    destination_jsta=jsta_grid(global_rank+1)
+
+    row_root=-1
+    do r=1,row_comm_size
+      if(row_ista(r)==destination_ista) then
+        row_root=r-1
         exit
       endif
     enddo
 
-    j_root=-1
-    do r=1,jcomm_size
-      if(recv_jsta(r)==destination_jsta) then
-        j_root=r
+    col_root=-1
+    do r=1,col_comm_size
+      if(col_jsta(r)==destination_jsta) then
+        col_root=r-1
         exit
       endif
     enddo
+
+! 201 format('root is row_root=',I0,' col_root=',I0,' for rank ',I0)
+!     print 201,row_root,col_root,global_rank
     
-    if(j_root==-1) then
-      write(0,'(A,I0)') 'ABORT: Could not find j-direction root rank for rank ',global_rank
-      stop 43
+    if(col_root==-1) then
+      write(0,'(A,I0)') 'ABORT: Could not find column root rank for rank ',global_rank
+      call abort
     endif
-    if(i_root==-1) then
-      write(0,'(A,I0)') 'ABORT: Could not find i-direction root rank for rank ',global_rank
-      stop 34
+    if(row_root==-1) then
+      write(0,'(A,I0)') 'ABORT: Could not find row root rank for rank ',global_rank
+      call abort
     endif
   end subroutine find_comm_roots
 
@@ -276,10 +322,20 @@ contains !==============================================================
     real(kind=ifi_real_t), intent(out) :: global(im,jm)
     integer, intent(in) :: global_rank,ista_local,iend_local,jsta_local,jend_local
 
-    integer :: i,j,r,inindex,i_root,j_root, destination_ista, destination_jsta,ni_rank,nj_rank,idxstart, ierr
+    integer :: i,j,r,inindex,row_root,col_root, destination_ista, destination_jsta,ni_rank,nj_rank,idxstart, ierr
+
+    if(col_comm==0 .or. col_comm==MPI_COMM_NULL) then
+      write(0,*) 'somehow, col_comm became invalid ',col_comm
+      call abort()
+    endif
+
+    if(row_comm==0 .or. row_comm==MPI_COMM_NULL) then
+      write(0,*) 'somehow, row_comm became invalid ',row_comm
+      call abort()
+    endif
 
     ! Find out who is the root of the i and j direction communications.
-    call find_comm_roots(global_rank,i_root,j_root)
+    call find_comm_roots(global_rank,row_root,col_root)
 
     ! Store the data in a contiguous local array
     !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(i,j)
@@ -289,31 +345,37 @@ contains !==============================================================
       enddo
     enddo
 
-    ! Gather across all ranks in I direction
+    ! Gather across all ranks in row
     call MPI_Gatherv(rearrange,(jend-jsta+1)*(iend-ista+1),ifi_mpi_real_kind, &
-         rearrange_i1,recvcount_i,recvdispl_i,ifi_mpi_real_kind,i_root,icomm,ierr)
+         rearrange_row1d,row_comm_count,row_comm_displ,ifi_mpi_real_kind,row_root,row_comm,ierr)
 
-    ! Rearrange from i-j-rank dimensions to i-j dimensions.
-    idxstart=0
-    do r=1,icomm_size
+    if(row_comm_rank==row_root) then
+      ! Rearrange from i-j-rank dimensions to i-j dimensions.
+      idxstart=1
+      do r=1,row_comm_size
 
-      ni_rank=recv_iend(r)-recv_ista(r)+1
-      nj_rank=jend-jsta+1
+        ni_rank=row_iend(r)-row_ista(r)+1
+        nj_rank=jend-jsta+1
+        ! print *,'r,ista,iend=',r,row_ista(r),row_iend(r)
 
-      !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(inindex)
-      do j=jsta,jend
-        do i=recv_ista(r),recv_iend(r)
-          inindex = idxstart + i + ni_rank*j
-          rearrange_i2(i,j) = rearrange_i1(inindex)
+        !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(inindex)
+        do j=0,nj_rank-1
+          do i=0,ni_rank-1
+            inindex = idxstart + i + ni_rank*j
+            rearrange_row2d(i+row_ista(r),j+jsta) = rearrange_row1d(inindex)
+          enddo
         enddo
+
+        idxstart = idxstart + ni_rank*nj_rank
       enddo
 
-      idxstart = idxstart + ni_rank*nj_rank
-    enddo
+      ! Gather along columns
+      ! print *,'global gatherv to rank ',grid_rank
+      call MPI_Gatherv(rearrange_row2d,im*(jend-jsta+1),ifi_mpi_real_kind, &
+           global,col_comm_count,col_comm_displ,ifi_mpi_real_kind,col_root,col_comm,ierr)
+    endif
 
-    ! Gather in J direction.
-    call MPI_Gatherv(rearrange_i2,im*(jend-jsta+1),ifi_mpi_real_kind, &
-         global,recvcount_j,recvdispl_j,ifi_mpi_real_kind,j_root,jcomm,ierr)
+    ! print *,'global_gather success'
   end subroutine global_gather
 
   ! --------------------------------------------------------------------
@@ -330,31 +392,48 @@ contains !==============================================================
     real(kind=ifi_real_t), intent(in) :: global(im,jm)
     integer, intent(in) :: global_rank,ista_local,iend_local,jsta_local,jend_local
 
-    integer :: i,j,r,outindex,idxstart,ni_rank,nj_rank,i_root,j_root,ierr
+    integer :: i,j,r,outindex,idxstart,ni_rank,nj_rank,col_root,ierr,row_root
 
-    ! Distribute in J direction.
-    call MPI_Scatterv(global,recvcount_j,recvdispl_j,ifi_mpi_real_kind, &
-         rearrange_i2,im*(jend-jsta+1),ifi_mpi_real_kind,j_root,jcomm,ierr)
+    if(col_comm==0 .or. col_comm==MPI_COMM_NULL) then
+      write(0,*) 'somehow, col_comm became invalid ',col_comm
+      call abort()
+    endif
 
-    ! Rearrange from i-j dimensions to i-j-rank dimensions
-    idxstart=0
-    do r=1,icomm_size
+    if(row_comm==0 .or. row_comm==MPI_COMM_NULL) then
+      write(0,*) 'somehow, row_comm became invalid ',row_comm
+      call abort()
+    endif
 
-      ni_rank=recv_iend(r)-recv_ista(r)+1
-      nj_rank=jend-jsta+1
+    ! Find out who is the root of the i and j direction communications.
+    call find_comm_roots(global_rank,row_root,col_root)
 
-      !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(outindex)
-      do j=jsta,jend
-        do i=recv_ista(r),recv_iend(r)
-          outindex = idxstart + i + ni_rank*j
-          rearrange_i1(outindex) = rearrange_i2(i,j)
+    if(row_comm_rank==row_root) then
+      ! Distribute in J direction.
+      ! print *,'global scatterv from rank ',grid_rank
+      call MPI_Scatterv(global, col_comm_count, col_comm_displ, ifi_mpi_real_kind, &
+           rearrange_row2d ,im*(jend-jsta+1), ifi_mpi_real_kind, col_root, col_comm, ierr)
+      ! Rearrange from i-j dimensions to i-j-rank dimensions
+      idxstart=1
+      do r=1,row_comm_size
+
+        ni_rank=row_iend(r)-row_ista(r)+1
+        nj_rank=jend-jsta+1
+
+        !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(outindex)
+        do j=0,nj_rank-1
+          do i=0,ni_rank-1
+            outindex = idxstart + i + ni_rank*j
+            rearrange_row1d(outindex) = rearrange_row2d(i+row_ista(r),j+jsta)
+          enddo
         enddo
-      enddo
-    enddo
 
-    ! Distribute in I direction
-    call MPI_Gatherv(rearrange_i1,recvcount_i,recvdispl_i,ifi_mpi_real_kind, &
-         rearrange,(iend-ista+1)*(jend-jsta+1),ifi_mpi_real_kind,i_root,icomm,ierr)
+        idxstart = idxstart + ni_rank*nj_rank
+      enddo
+    endif
+
+    ! Distribute across row
+    call MPI_Scatterv(rearrange_row1d,row_comm_count,row_comm_displ,ifi_mpi_real_kind, &
+         rearrange,(iend-ista+1)*(jend-jsta+1),ifi_mpi_real_kind,row_root,row_comm,ierr)
 
     ! Copy back to contiguous local array.
     ! NOTE: Does NOT update the halo!
@@ -364,6 +443,9 @@ contains !==============================================================
         local(i,j) = rearrange(i,j)
       enddo
     enddo
+
+    ! print *,'global_scatter success'
+
   end subroutine global_scatter
 
   ! --------------------------------------------------------------------
@@ -634,7 +716,7 @@ contains !==============================================================
 
       call global_scatter(local_buf,global_buf,sending_rank,ista,iend,jsta,jend)
   end subroutine scatter_ifi
-  
+
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
@@ -732,7 +814,7 @@ contains !==============================================================
 
     fcst_lead_sec=IFHR*3600.0+IFMIN*60.0
 
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'hybr_vars',me
       call write_fip_output(hybr_vars,fcst_lead_sec,trim(outfile),.true.,'z0','z1')
     endif
@@ -761,15 +843,15 @@ contains !==============================================================
     call ifi_check(algo%hybrid_to_pressure(),'hybrid_to_pressure() failed')
 
     call ifi_check(algo%get_pres_vars(pres_vars),'get_pres_vars()')
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'pres_vars',me
       call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.true.,'z1','z0')
     endif
 
     call ifi_check(algo%discard_hybrid_level_vars(),'discard_hybrid_level_vars() failed')
-    ! FIXME: UNCOMMENT THIS: call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
+    call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
 
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'smooth_vars',me
       call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.true.,'z1','z0')
     endif
@@ -778,7 +860,7 @@ contains !==============================================================
     call ifi_check(algo%derive_fields(),'derive_fields() failed')
 
     call ifi_check(algo%get_derived_vars(derived_vars),'get_derived_vars()')
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'derived_vars',me
       call write_fip_output(derived_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
@@ -787,7 +869,7 @@ contains !==============================================================
     call ifi_check(algo%run_fip_algo(),'run_fip_algo() failed')
 
     call ifi_check(algo%get_fip_algo_vars(pres_vars),'get_fip_algo_vars()')
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'fip_algo_vars',me
       call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
@@ -798,7 +880,7 @@ contains !==============================================================
     call ifi_check(algo%pressure_to_flight(),'pressure_to_flight() failed')
 
     call ifi_check(algo%get_flight_vars(flight_vars),'get_flight_vars()')
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'flight_vars',me
       call write_fip_output(flight_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
@@ -810,7 +892,7 @@ contains !==============================================================
 
     call ifi_check(algo%get_cat_vars(cat_vars),'get_cat_vars()')
 
-    if(write_ifi_netcdf_debug_files) then
+    if(write_ifi_debug_files) then
       write(outfile,308) 'cat_vars',me
       call write_fip_output(cat_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
@@ -953,7 +1035,7 @@ contains !==============================================================
     integer :: i
     if(code/=0) then
       write(0,93) trim(file),trim(message),trim(nf90_strerror(code)),code
-      stop 1
+      call abort
     endif
     93 format(A,': ',A,': ',A,'(',I0,')')
   end subroutine nc_check
@@ -1010,7 +1092,6 @@ contains !==============================================================
 
     ivar=0
     do while(ivar<maxvars)
-      write(0,*) 'bottom of loop rank ',me
       nextname='internal_error_nextname_was_not_updated'
       call ifi_check(ifi_data%next_varname(varname,nextname),"next_varname")
       varname=nextname
@@ -1040,15 +1121,11 @@ contains !==============================================================
       var_data(ivar)%varname = varname
       var_data(ivar)%outname = varname
       var_data(ivar)%should_dealloc = .false.
-      write(0,*) 'before read_var ',me
       var_data(ivar)%data => read_var(var_data(ivar),trim(varname),var_data(ivar)%should_dealloc)
-      write(0,*) 'after read_var ',me
       if(me==0) then
-        write(0,*) 'rank 0 defines var'
         call set_dims(var_data(ivar),dims,dimids)
         var_data(ivar)%varid = def_var(var_data(ivar),rename)
       endif
-      write(0,*) 'bottom of loop rank ',me
     enddo
 
     if(me/=0) then
@@ -1067,10 +1144,10 @@ contains !==============================================================
       call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
     endif
 
-    write(0,*) 'before write loop ',me
+    ! write(0,*) 'before write loop ',me
     do ivar=1,nvars
-24    format('  put var ',A)
-      print 24,trim(var_data(ivar)%varname)
+! 24    format('  put var ',A)
+!       print 24,trim(var_data(ivar)%varname)
       if(me==0) then
         call find_range(var_data(ivar)%data,var_data(ivar)%count, &
              var_data(ivar)%missing_value_is_set,var_data(ivar)%missing_value,&
@@ -1246,14 +1323,14 @@ contains !==============================================================
       if(.not.associated(local_data_1D)) then
         write(0,38) trim(varname)
 38      format("IFI did not produce ",A," variable.")
-        stop 19
+        call abort
       end if
 
       count=global_ilen*global_jlen*global_klen
       if(count<=0) then
         write(0,39) trim(varname),count
 39      format("IFI variable ",A," had no data (size=",I0,")")
-        stop 20
+        call abort
       endif
 
       if(ids==ide .or. jds==jde) then
@@ -1267,17 +1344,17 @@ contains !==============================================================
 
       if(global_ilen /= nx0) then
         write(0,40) trim(varname),'global_ilen',global_ilen,nx0
-        stop 31
+        call abort
       endif
 
       if(global_jlen /= ny0) then
         write(0,40) trim(varname),'global_jlen',global_jlen,ny0
-        stop 32
+        call abort
       endif
 
       if(global_klen/=1 .and. global_klen /= nz0) then
         write(0,40) trim(varname),'global_klen',global_klen,nz0
-        stop 33
+        call abort
       endif
 
 

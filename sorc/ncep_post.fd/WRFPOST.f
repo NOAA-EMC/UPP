@@ -118,6 +118,7 @@
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on,   &
               numx, run_ifi_tim
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
+      use upp_ifi_mod, only: write_ifi_debug_files
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -142,7 +143,8 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits,numx
+                     ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits,numx &
+                     ,write_ifi_debug_files
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
                      ,fileNameFlux,fileNameFlat

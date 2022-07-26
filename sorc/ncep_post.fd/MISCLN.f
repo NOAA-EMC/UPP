@@ -2296,8 +2296,8 @@
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
-                 IF(T1D(I,J) < spval) EGRID2(I,J) = - GRID1(I,J)
-                 CIN(I,J) = EGRID2(I,J)
+                 IF(T1D(I,J) < spval) GRID1(I,J) = - GRID1(I,J)
+                 CIN(I,J) = GRID1(I,J)
                ENDDO
              ENDDO
 !
