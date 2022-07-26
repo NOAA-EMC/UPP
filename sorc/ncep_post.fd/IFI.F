@@ -10,7 +10,7 @@ module upp_ifi_mod
   public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files
 
   integer, parameter :: ifi_real_t = c_float
-  logical, public :: write_ifi_debug_files = .false.
+  logical :: write_ifi_debug_files = .false.
   
 contains !==============================================================
 
