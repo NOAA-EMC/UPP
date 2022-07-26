@@ -758,6 +758,9 @@ contains !==============================================================
     ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
     if(grib/='grib2' .or. (IGET(1100)<=0 .and. IGET(1101)<=0 .and. IGET(1102)<=0)) then
+      if(me==0) then
+        print '(A)','IFI fields were not requested; skipping IFI'
+      endif
       return ! nothing to do
     endif
 
@@ -765,6 +768,12 @@ contains !==============================================================
       print '(A)','Running libIFI to get icing products.'
       call ifi_print_copyright()
     end if
+
+    if(write_ifi_debug_files .and. me==0) then
+      print '(A)','Will output IFI debug files.'
+    else
+      print '(A)','Will NOT output IFI debug files.'
+    endif
 
     call make_communicators()
 
@@ -1070,14 +1079,16 @@ contains !==============================================================
     integer(c_int64_t) :: ids,ide, jds,jde, kds,kde
     integer(c_int64_t) :: ips,ipe, jps,jpe, kps,kpe
     integer(c_int64_t) :: ims,ime, jms,jme, kms,kme
-    logical(c_bool) :: missing_value_is_set
-    real(kind=ifi_real_t) :: missing_value
     integer :: count
 
     character(len=200) :: varname,nextname
 
     integer :: dimids(4), ncid, ivar, id, nvars, nx0, ny0, nz0, ntime, dims(4)
     type(var_info),target :: var_data(maxvars)
+
+    if(me==0) then
+      write(0,'(A,A)') trim(output_file),': writing IFI debug data'
+    endif
 
     call ifi_check(ifi_data%get_dims(ids,ide, jds,jde, kds,kde, ips,ipe, jps,jpe, kps,kpe),"get_dims")
 
@@ -1310,7 +1321,7 @@ contains !==============================================================
       integer :: global_ilen,global_jlen,global_klen,global_index
       type(c_ptr) :: global_cptr,local_cptr
 
-      local_data_1D => ifi_data%get_data(trim(varname),missing_value_is_set,missing_value, &
+      local_data_1D => ifi_data%get_data(trim(varname),var%missing_value_is_set,var%missing_value, &
            ims,ime,jms,jme,kms,kme, ids,ide,jds,jde,kds,kde, ips,ipe,jps,jpe,kps,kpe)
 
       global_ilen=ide-ids+1

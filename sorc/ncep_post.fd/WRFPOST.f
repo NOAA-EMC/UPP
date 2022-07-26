@@ -273,6 +273,9 @@
         fileNameFlat='postxconfig-NT.txt'
         read(5,nampgb,iostat=iret,end=119)
  119    continue
+#ifdef USE_IFI
+       if (me==0) print*,'in itag, write_ifi_debug_files=', write_ifi_debug_files
+#endif
        if (me==0) print*,'in itag, mod(num_procs,numx)=', mod(num_procs,numx)
        if(mod(num_procs,numx)/=0) then
          if (me==0) then
