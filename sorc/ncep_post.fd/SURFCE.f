@@ -3667,7 +3667,7 @@
 
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET TOTAL PRECIP '
-         IF (IGET(434)>0. .or. IGET(1100) .or. IGET(1101) .or. IGET(1102)) THEN
+         IF (IGET(434)>0. .or. IGET(1100)>0 .or. IGET(1101)>0 .or. IGET(1102)>0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -3700,7 +3700,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18)<0) ID(18) = 0
-           if(grib=='grib2' .and. IGET(434)) then
+           if(grib=='grib2' .and. IGET(434)>0) then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(434))
              if(ITPREC>0) then
