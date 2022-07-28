@@ -7,7 +7,7 @@ file(STRINGS "VERSION" pVersion LIMIT_COUNT 1)
 project(
   upp
   VERSION ${pVersion}
-  LANGUAGES Fortran CXX)
+  LANGUAGES Fortran C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -74,6 +74,17 @@ if(BUILD_POSTEXEC)
   find_package(w3emc REQUIRED)
   if(BUILD_WITH_WRFIO)
     find_package(wrf_io REQUIRED)
+  endif()
+  if(IFI_FOUND)
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel$")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -cxxlib")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^GNU$")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|AppleClang)$")
+      # This one is a wild guess. I haven't tried linking a Fortran
+      # executable with C++ libraries in clang.
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+    endif()
   endif()
 endif()
 
