@@ -149,6 +149,9 @@ contains !==============================================================
     integer :: size, ierr, local_count, accum, irank, i
     real(kind=ifi_real_t) :: testreal
 
+    if(allocated(jsta_grid)) then
+      return ! Already made communicators
+    endif
 
     ! Use the right MPI type for the ifi real kind
     if(c_sizeof(testreal)==4) then
@@ -767,12 +770,12 @@ contains !==============================================================
     if(me==0) then
       print '(A)','Running libIFI to get icing products.'
       call ifi_print_copyright()
-    end if
 
-    if(write_ifi_debug_files .and. me==0) then
-      print '(A)','Will output IFI debug files.'
-    else
-      print '(A)','Will NOT output IFI debug files.'
+      if(write_ifi_debug_files) then
+        print '(A)','Will output IFI debug files.'
+      else
+        print '(A)','Will NOT output IFI debug files.'
+      endif
     endif
 
     call make_communicators()

@@ -60,9 +60,9 @@ endif()
 
 if(BUILD_WITH_IFI)
   if(REQUIRE_IFI)
-    find_package(IFI CONFIG REQUIRED)
+    find_package(IFI REQUIRED)
   else()
-    find_package(IFI CONFIG)
+    find_package(IFI)
   endif()
 endif()
 
@@ -75,6 +75,11 @@ if(BUILD_POSTEXEC)
   if(BUILD_WITH_WRFIO)
     find_package(wrf_io REQUIRED)
   endif()
+endif()
+
+if(IFI_FOUND)
+  message(NOTICE "Enabling USE_IFI in the post.")
+  add_definitions(-DUSE_IFI=1)
 endif()
 
 add_subdirectory(sorc)
