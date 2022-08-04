@@ -1317,9 +1317,10 @@
             DO J=JSTA,JEND
               DO I=ISTA,IEND
                 GRID1(I,J) = SPVAL
-                IF(abs(CFRSL(I,J)-SPVAL) > SMALL)                   &    
+                IF(abs(CFRSL(I,J)-SPVAL) > SMALL) THEN  
                   CFRSL(I,J) = MIN(MAX(0.0,CFRSL(I,J)),1.0)
                   GRID1(I,J) = CFRSL(I,J)*H100
+                ENDIF
               ENDDO 
             ENDDO
             if(grib == 'grib2')then
