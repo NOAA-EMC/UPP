@@ -719,7 +719,6 @@
                  FRIME(I,J) = 1.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
-                 !wmCFRSL(I,J) = 0.
                  IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
                END IF
 ! Compute heights by interpolating from heights on interface for NAM but
