@@ -8,7 +8,7 @@
 *       @WenMeng-NOAA 
 
 
-# DTC support for public releases and documentation 
-docs/*  @hertneky @fossell
-scripts/run_upp @hertneky @fossell
+# Support for public releases and documentation 
+docs/*  @hertneky @fossell @camshe
+scripts/run_upp @hertneky @fossell @camshe
 

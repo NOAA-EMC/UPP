@@ -10,6 +10,7 @@
 !     05-07-07  BINBIN ZHOU  - ADD PREC FOR RSM
 !     19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     21-07-26  Wen Meng - Restrict computation from undefined grids
+!     21-10-31  JESSE MENG - 2D DECOMPOSITION
 !                              
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING A DECISION TREE
@@ -22,19 +23,20 @@
 ! 
       use params_mod, only: h1m12, d00, d608, h1, rog
       use ctlblk_mod, only: jsta, jend, spval, modelname,pthresh, im,   &
-                            jsta_2l, jend_2u, lm, lp1
+                            jsta_2l, jend_2u, lm, lp1, &
+                            ista, iend, ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
 !    INPUT:
 !      T,Q,PMID,HTM,LMH,PREC,ZINT
 !
-      real,dimension(IM,jsta_2l:jend_2u),intent(in)     :: LMH
-      real,dimension(IM,jsta_2l:jend_2u,LM),intent(in)  :: T,Q,PMID,HTM
-      real,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) :: ZINT,PINT
-      integer,DIMENSION(IM,jsta:jend),intent(inout)     :: IWX
-      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: PREC
-      real,DIMENSION(IM,jsta:jend),intent(inout)       :: ZWET
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in)     :: LMH
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,LM),intent(in)  :: T,Q,PMID,HTM
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,LP1),intent(in) :: ZINT,PINT
+      integer,DIMENSION(ista:iend,jsta:jend),intent(inout)     :: IWX
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: PREC
+      real,DIMENSION(ista:iend,jsta:jend),intent(inout)       :: ZWET
 
 
 !    OUTPUT:
@@ -49,8 +51,8 @@
 !    INTERNAL:
 !
       REAL, ALLOCATABLE :: TWET(:,:,:)
-      integer,DIMENSION(IM,jsta:jend) :: KARR,LICEE
-      real,   DIMENSION(IM,jsta:jend) :: TCOLD,TWARM
+      integer,DIMENSION(ista:iend,jsta:jend) :: KARR,LICEE
+      real,   DIMENSION(ista:iend,jsta:jend) :: TCOLD,TWARM
 
       logical :: jcontinue=.true.
 !    SUBROUTINES CALLED:
@@ -69,12 +71,12 @@
       real PSFCK,TDCHK,A,TDKL,TDPRE,TLMHK,TWRMK,AREAS8,AREAP4,   &
            SURFW,SURFC,DZKL,AREA1,PINTK1,PINTK2,PM150,PKL,TKL,QKL
 
-      ALLOCATE ( TWET(IM,JSTA_2L:JEND_2U,LM) )
+      ALLOCATE ( TWET(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM) )
 
 !
 !!$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IWX(I,J)  = 0
           ZWET(I,J) = SPVAL
 !           if (I == 324 .and. J == 390) then
@@ -88,7 +90,7 @@
 
       IF(MODELNAME=='RSM') THEN          !add by Binbin because of different unit
        DO J=JSTA,JEND
-       DO I=1,IM
+       DO I=ISTA,IEND
         PREC(I,J) = PREC(I,J)*3*3600.0
        ENDDO
        ENDDO
@@ -98,7 +100,7 @@
 !
 !!$omp  parallel do private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
       DO 800 J=JSTA,JEND
-      DO 800 I=1,IM
+      DO 800 I=ISTA,IEND
       LMHK=NINT(LMH(I,J))
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
@@ -155,7 +157,7 @@
 !    LOWEST LAYER T
 !
       DO 850 J=JSTA,JEND
-      DO 850 I=1,IM
+      DO 850 I=ISTA,IEND
       KARR(I,J)=0
       IF (PREC(I,J)<=PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
@@ -195,7 +197,7 @@
 !    &         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,         &
 !    &         tlmhk,twrmk)
       DO 1900 J=JSTA,JEND
-      DO 1900 I=1,IM
+      DO 1900 I=ISTA,IEND
 !       IF (I == 324 .AND. J == 390) THEN
 !          LMHK=NINT(LMH(I,J))
 !          DO L=LMHK,1,-1          
@@ -318,7 +320,7 @@
       IF(MODELNAME == 'RSM') THEN    !add by Binbin, change back
 !!$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PREC(I,J) = PREC(I,J)/(3*3600.0)
           ENDDO
         ENDDO

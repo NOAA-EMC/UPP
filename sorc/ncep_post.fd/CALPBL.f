@@ -1,34 +1,18 @@
 !> @file
-!
-!> SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
-!!     
-!! ABSTRACT:  
-!!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER
-!!   AND PBL HEIGHT ABOVE SURFACE
-!!     
-!! PROGRAM HISTORY LOG:
-!!   06-05-04  M TSIDULKO 
-!!   
-!! USAGE:    CALL CALPBL(PBLRI)
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PBLRI  - PBL HEIGHT ABOVE GROUND
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - 
-!!                  CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : 
-!!
+!> @brief Subroutine that computes PBL height based on bulk RCH number.
+!>
+!> This routine computes the bulk Richardson number
+!> and PBL height above surface.
+!>     
+!> @param[out] PBLRI PBL height above ground.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2006-05-04 | M Tsidulko | Initial
+!> 2021-09-02 | Bo Cui     | Decompose UPP in X direction          
+!>   
+!> @author M Tsidulko @date 2006-05-04
       SUBROUTINE CALPBL(PBLRI)
 
 !
@@ -36,22 +20,23 @@
       use vrbls2d, only: fis
       use masks, only: vtm
       use params_mod, only: h10e5, capa, d608, h1, g, gi
-      use ctlblk_mod, only: lm, im, jsta, jend, spval, jsta_m, jsta_2l, jend_2u, jend_m
+      use ctlblk_mod, only: lm, im, jsta, jend, spval, jsta_m, jsta_2l, jend_2u, jend_m, &
+                            ista, iend, ista_m, ista_2l, iend_2u, iend_m  
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: PBLRI
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: PBLRI
 
       REAL, ALLOCATABLE :: THV(:,:,:)
-      INTEGER IFRSTLEV(IM,jsta_2l:jend_2u),ICALPBL(IM,jsta_2l:jend_2u)   &
-             ,LVLP(IM,jsta_2l:jend_2u)
-      REAL    RIF(IM,jsta_2l:jend_2u)                                    &
-             ,RIBP(IM,jsta_2l:jend_2u),UBOT1(IM,jsta_2l:jend_2u)         &
-             ,VBOT1(IM,jsta_2l:jend_2u),ZBOT1(IM,jsta_2l:jend_2u)        &
-             ,THVBOT1(IM,jsta_2l:jend_2u)
+      INTEGER IFRSTLEV(ista_2l:iend_2u,jsta_2l:jend_2u),ICALPBL(ista_2l:iend_2u,jsta_2l:jend_2u)   &
+             ,LVLP(ista_2l:iend_2u,jsta_2l:jend_2u)
+      REAL    RIF(ista_2l:iend_2u,jsta_2l:jend_2u)                                    &
+             ,RIBP(ista_2l:iend_2u,jsta_2l:jend_2u),UBOT1(ista_2l:iend_2u,jsta_2l:jend_2u)         &
+             ,VBOT1(ista_2l:iend_2u,jsta_2l:jend_2u),ZBOT1(ista_2l:iend_2u,jsta_2l:jend_2u)        &
+             ,THVBOT1(ista_2l:iend_2u,jsta_2l:jend_2u)
       integer I,J,L,IE,IW
       real APE,BETTA,RICR,USTARR,WMIN,UHKL,ULKL,VHKL,VLKL,WNDSL,WNDSLP,  &
            UBOT,VBOT,VTOP,UTOP,THVTOP,ZTOP,WDL2,RIB
@@ -59,13 +44,13 @@
 !*************************************************************************
 !     START CALRCHB HERE.
 !     
-      ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
+      ALLOCATE ( THV(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM) )
 
 !     INITIALIZE ARRAYS.
 !
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PBLRI(I,J) = SPVAL
           ENDDO
         ENDDO
@@ -75,7 +60,7 @@
 !$omp  parallel do private(i,j,l,ape)
       DO L=LM,1,-1
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             if( PMID(I,J,L)<SPVAL) then
             APE        = (H10E5/PMID(I,J,L))**CAPA
             THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
@@ -103,7 +88,7 @@
 
 !$omp  parallel do private(i,j)
       DO J=JSTA_M,JEND_M
-        DO I=2,IM-1
+        DO I=ISTA_M,IEND_M
            IFRSTLEV(I,J) = 0
            LVLP(I,J)     = LM
            ICALPBL(I,J)  = 0
@@ -117,17 +102,17 @@
         USTARR = 0.1
         WMIN   = 0.01
 !
-        if(GRIDTYPE /= 'A') THEN
-          call exch(VTM(1,jsta_2l,L))
-          call exch(UH(1,jsta_2l,L))
-          call exch(VH(1,jsta_2l,L))  
-          call exch(VTM(1,jsta_2l,L-1))
-          call exch(UH(1,jsta_2l,L-1))
-          call exch(VH(1,jsta_2l,L-1))
-        end if  
+!        if(GRIDTYPE /= 'A') THEN
+          call exch(VTM(ista_2l,jsta_2l,L))
+          call exch(UH(ista_2l,jsta_2l,L))
+          call exch(VH(ista_2l,jsta_2l,L))  
+          call exch(VTM(ista_2l,jsta_2l,L-1))
+          call exch(UH(ista_2l,jsta_2l,L-1))
+          call exch(VH(ista_2l,jsta_2l,L-1))
+!        end if  
          
         DO J=JSTA_M,JEND_M
-          DO I=2,IM-1
+          DO I=ISTA_M,IEND_M
 !
             if( PMID(I,J,L)<SPVAL) then
 

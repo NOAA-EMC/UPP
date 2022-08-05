@@ -1,53 +1,37 @@
 !> @file
-!
-!> SUBPROGRAM:    CALMCVG     COMPUTES MOISTURE CONVERGENCE
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-01-22       
-!!     
-!! ABSTRACT:
-!!     GIVEN SPECIFIC HUMIDITY, Q, AND THE U-V WIND COMPONENTS
-!!     THIS ROUTINE EVALUATES THE VECTOR OPERATION, 
-!!                      DEL DOT (Q*VEC)
-!!     WHERE,
-!!        DEL IS THE VECTOR GRADIENT OPERATOR,
-!!        DOT IS THE STANDARD DOT PRODUCT OPERATOR, AND
-!!        VEC IS THE VECTOR WIND.
-!!     MINUS ONE TIMES THE RESULTING SCALAR FIELD IS THE 
-!!     MOISTURE CONVERGENCE WHICH IS RETURNED BY THIS ROUTINE.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-01-22  RUSS TREADON
-!!   98-06-08  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION              
-!!   02-04-23  MIKE BALDWIN - WRF C-GRID VERSION     
-!!   05-07-07  BINBIN ZHOU - ADD RSM A GRID
-!!   06-04-25  H CHUANG - BUG FIXES TO CORECTLY COMPUTE MC AT BOUNDARIES 
-!!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
-!!   
-!! USAGE:    CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
-!!   INPUT ARGUMENT LIST:
-!!     Q1D      - SPECIFIC HUMIDITY AT P-POINTS (KG/KG)
-!!     U1D      - U WIND COMPONENT (M/S) AT P-POINTS
-!!     V1D      - V WIND COMPONENT (M/S) AT P-POINTS
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     QCNVG    - MOISTURE CONVERGENCE (1/S) AT P-POINTS
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - MASKS
-!!                  DYNAM
-!!                  OPTIONS
-!!                  INDX
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes moisture convergence.
+!>
+!><pre>
+!> Given specific humidity, Q, and the U-V wind components
+!> This routine evaluates the vector operation, 
+!>                  DEL DOT (Q*VEC)
+!> where,
+!>    DEL is the vector gradient operator,
+!>    DOT is the standard dot product operator, and
+!>    VEC is the vector wind.
+!> Minus one times the resulting scalar field is the 
+!> moisture convergence which is returned by this routine.
+!></pre>
+!>   
+!> @param[in] Q1D      - Specific humidity at P-points (kg/kg).
+!> @param[in] U1D      - U wind component (m/s) at P-points.
+!> @param[in] V1D      - V wind component (m/s) at P-points.
+!> @param[out] QCNVG    - Moisture convergence (1/s) at P-points.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-01-22 | Russ Treadon | Initial
+!> 1998-06-08 | T Black      | Conversion From 1-D To 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version              
+!> 2002-04-23 | Mike Baldwin | WRF C-Grid Version     
+!> 2005-07-07 | Binbin Zhou  | Add RSM A Grid
+!> 2006-04-25 | H Chuang     | Bug fixes to correctly compute MC at boundaries 
+!> 2021-04-01 | J Meng       | Computation on defined points only
+!> 2021-09-02 | B CUI        | REPLACE EXCH_F to EXCH             
+!> 2021-09-30 | J MENG       | 2D DECOMPOSITION
+!>     
+!> @author Russ Treadon W/NP2 @date 1993-01-22
       SUBROUTINE CALMCVG(Q1D,U1D,V1D,QCNVG)
 
 !
@@ -56,20 +40,21 @@
       use masks,        only: dx, dy, hbm2
       use params_mod,   only: d00, d25
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, jsta_m, jend_m,       &
-                              jsta_m2, jend_m2, im, jm
+                              jsta_m2, jend_m2, im, jm,                      &
+                              ista_2l, iend_2u, ista_m, iend_m, ista_m2, iend_m2 
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(in)    ::  Q1D, U1D, V1D
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(inout) ::  QCNVG
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in)    ::  Q1D, U1D, V1D
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) ::  QCNVG
 
       REAL R2DY, R2DX
-      REAL, dimension(im,jsta_2l:jend_2u) ::  UWND, VWND, QV
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) ::  UWND, VWND, QV
       INTEGER IHE(JM),IHW(JM),IVE(JM),IVW(JM)
-      integer I,J,ISTA,IEND
+      integer I,J,ISTA2,IEND2
       real QVDY,QUDX
 !     
 !***************************************************************************
@@ -78,9 +63,14 @@
 !     
 !     INITIALIZE MOISTURE CONVERGENCE ARRAY.  LOAD TEMPORARY WIND ARRAYS.
 !     
+       CALL EXCH(Q1D)
+       CALL EXCH(U1D)
+       CALL EXCH(V1D)
+
 !$omp  parallel do private(i,j)
       DO J=JSTA_2L,JEND_2U
-        DO I=1,IM
+!        DO I=1,IM
+        DO I=ISTA_2L,IEND_2U
           IF(U1D(I,J)<SPVAL)THEN
           QCNVG(I,J) = 0.
           ELSE
@@ -92,14 +82,12 @@
           IF (VWND(I,J) == SPVAL) VWND(I,J) = D00
         ENDDO
       ENDDO
-      
-      CALL EXCH_F(Q1D)
-      CALL EXCH_F(VWND)
 !
       IF(gridtype == 'A')THEN
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
-         DO I=2,IM-1
+!         DO I=2,IM-1
+         DO I=ISTA_M,IEND_M
            IF(Q1D(I,J+1)<SPVAL.AND.Q1D(I,J-1)<SPVAL.AND.          &
               Q1D(I+1,J)<SPVAL.AND.Q1D(I-1,J)<SPVAL.AND. &
               Q1D(I,J)<SPVAL) THEN
@@ -122,11 +110,12 @@
          IVW(J) = IVE(J)-1 
        END DO
      
-!$omp  parallel do private(i,j,ista,iend)
+!$omp  parallel do private(i,j)
        DO J=JSTA_M,JEND_M
-         ISTA = 1+MOD(J+1,2)
-         IEND = IM-MOD(J,2)
-         DO I=ISTA,IEND
+!         ISTA = 1+MOD(J+1,2)
+!         IEND = IM-MOD(J,2)
+!         DO I=ISTA,IEND
+         DO I=ISTA_M,IEND_M
           IF(Q1D(I,J-1)<SPVAL.AND.Q1D(I+IVW(J),J)<SPVAL.AND.&
              Q1D(I+IVE(J),J)<SPVAL.AND.Q1D(I,J+1)<SPVAL) THEN
            QV(I,J) = D25*(Q1D(I,J-1)+Q1D(I+IVW(J),J)                   &
@@ -137,14 +126,15 @@
          END DO
        END DO
 
-       CALL EXCH_F(QV)
-!      CALL EXCH_F(VWND)
+       CALL EXCH(QV)
+!      CALL EXCH(VWND)
 
 !
-!$omp  parallel do private(i,j,iend,qudx,qvdy,r2dx,r2dy)
+!$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M2,JEND_M2
-         IEND = IM-1-MOD(J,2)
-         DO I=2,IEND
+!         IEND = IM-1-MOD(J,2)
+!         DO I=2,IEND
+         DO I=ISTA_M,IEND_M-MOD(J,2)
           IF(QV(I+IHE(J),J)<SPVAL.AND.UWND(I+IHE(J),J)<SPVAL.AND.&
              QV(I+IHW(J),J)<SPVAL.AND.UWND(I+IHW(J),J)<SPVAL.AND.&
              QV(I,J)<SPVAL.AND.QV(I,J-1)<SPVAL.AND.QV(I,J+1)<SPVAL) THEN
@@ -162,11 +152,12 @@
        ENDDO
       ELSE IF(gridtype=='B')THEN
      
-       CALL EXCH_F(UWND)
+!       CALL EXCH(UWND)
 !
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
-        DO I=2,IM-1
+!        DO I=2,IM-1
+        DO I=ISTA_M,IEND_M
          IF(UWND(I,J)<SPVAL.AND.UWND(I,J-1)<SPVAL.AND.&
             UWND(I-1,J)<SPVAL.AND.UWND(I-1,J-1)<SPVAL.AND.&
             Q1D(I,J)<SPVAL.AND.Q1D(I+1,J)<SPVAL.AND.Q1D(I-1,J)<SPVAL.AND.&

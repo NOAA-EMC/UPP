@@ -8,6 +8,7 @@
 !     MODIFIED FOR HYBRID: OCT 2001, H CHUANG
 !     02-01-15  MIKE BALDWIN - WRF VERSION
 !     21-07-26  Wen Meng  - Restrict compuation from undefined grids
+!     21-09-13  Jesse Meng- 2D DECOMPOSITION
 !
 !-----------------------------------------------------------------------
 !     ROUTINE TO COMPUTE WET BULB TEMPERATURES USING THE LOOK UP TABLE
@@ -23,7 +24,8 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl, plq, ttbl,&
               pl, rdp, the0, sthe, rdthe, ttblq, itbq, jtbq, rdpq, the0q, stheq,&
               rdtheq
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, spval
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, spval,        &
+                            ista, iend, ista_2l, iend_2u
       use cuparm_mod, only: h10e5, capa, epsq, d00, elocp
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -39,14 +41,14 @@
 !    SUBROUTINES CALLED:
 !      TTBLEX
 !
-      real,dimension(IM,jsta_2l:jend_2u,LM),intent(in)  :: T,Q,    &
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,LM),intent(in)  :: T,Q,    &
                                                            PMID,HTM
-      integer,dimension(IM,jsta:jend),      intent(in)  :: KARR
-      real,dimension(IM,jsta_2l:jend_2u,LM),intent(out) :: TWET
+      integer,dimension(ista:iend,jsta:jend),      intent(in)  :: KARR
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,LM),intent(out) :: TWET
 
 
-      real,    dimension(im,jsta:jend) :: THESP, QQ, PP
-      integer, dimension(im,jsta:jend) :: KLRES,KHRES,IPTB,ITHTB
+      real,    dimension(ista:iend,jsta:jend) :: THESP, QQ, PP
+      integer, dimension(ista:iend,jsta:jend) :: KLRES,KHRES,IPTB,ITHTB
 !
       integer I,J,L,ITTB1,ITTBK,IQTBK,IT,KNUML,KNUMH,IQ
       real TBTK,QBTK,APEBTK,TTHBTK,TTHK,QQK,BQS00K,SQS00K,BQS10K,      &
@@ -62,7 +64,7 @@
 !-----------------------------------------------------------------------
       DO 300 L=1,LM
       DO 125 J=JSTA,JEND
-      DO 125 I=1,IM
+      DO 125 I=ISTA,IEND
         IF (HTM(I,J,L)<1.0) THEN
           THESP(I,J)=273.15
           cycle    
@@ -132,7 +134,7 @@
       KNUMH=0
 !
       DO 280 J=JSTA,JEND
-      DO 280 I=1,IM
+      DO 280 I=ISTA,IEND
       KLRES(I,J)=0
       KHRES(I,J)=0
 !
@@ -153,16 +155,16 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PL
 !**
       IF(KNUML>0)THEN
-        CALL TTBLEX(TWET(1,jsta_2l,L),TTBL,ITB,JTB,KLRES     &
-      ,PMID(1,jsta_2l,L),PL,QQ,PP,RDP,THE0,STHE              &
+        CALL TTBLEX(TWET(ista_2l,jsta_2l,L),TTBL,ITB,JTB,KLRES     &
+      ,PMID(ista_2l,jsta_2l,L),PL,QQ,PP,RDP,THE0,STHE              &
       ,RDTHE,THESP,IPTB,ITHTB)
       ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PL
 !**
       IF(KNUMH>0)THEN
-       CALL TTBLEX(TWET(1,jsta_2l,L),TTBLQ,ITBQ,JTBQ,KHRES   &
-      ,PMID(1,jsta_2l,L),PLQ,QQ,PP,RDPQ,THE0Q,STHEQ          &
+       CALL TTBLEX(TWET(ista_2l,jsta_2l,L),TTBLQ,ITBQ,JTBQ,KHRES   &
+      ,PMID(ista_2l,jsta_2l,L),PLQ,QQ,PP,RDPQ,THE0Q,STHEQ          &
       ,RDTHEQ,THESP,IPTB,ITHTB)
       ENDIF
 !-----------------------------------------------------------------------

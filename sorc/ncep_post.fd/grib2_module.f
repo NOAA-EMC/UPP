@@ -10,6 +10,8 @@
 !                              are defined in xml file
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
+!   July,  2021    Jesse Meng 2D decomsition
+!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
@@ -197,7 +199,7 @@
   subroutine gribit2(post_fname)
 !
 !-------
-    use ctlblk_mod, only : im,jm,im_jm,num_procs,me,jsta,jend,ifhr,sdat,ihrst,imin,    &
+    use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none
 !
@@ -215,6 +217,7 @@
     integer(4),allocatable :: isdsp(:),iscnt(:),ircnt(:),irdsp(:)
     integer status(MPI_STATUS_SIZE)
     integer(kind=MPI_OFFSET_KIND) idisp
+    integer,allocatable :: ista_pe(:),iend_pe(:)
     integer,allocatable :: jsta_pe(:),jend_pe(:)
     integer,allocatable :: grbmsglen(:)
     real,allocatable    :: datafld(:,:)
@@ -253,6 +256,12 @@
 !--- reditribute data from partial domain data with all fields 
 !---   to whole domain data but partial fields
 !
+    allocate(ista_pe(num_procs),iend_pe(num_procs))
+    call mpi_allgather(ista,1,MPI_INTEGER,ista_pe,1,          &
+      MPI_INTEGER,MPI_COMM_COMP,ierr)
+    call mpi_allgather(iend,1,MPI_INTEGER,iend_pe,1,          &
+      MPI_INTEGER,MPI_COMM_COMP,ierr)
+
     allocate(jsta_pe(num_procs),jend_pe(num_procs))
     call mpi_allgather(jsta,1,MPI_INTEGER,jsta_pe,1,          &
       MPI_INTEGER,MPI_COMM_COMP,ierr)
@@ -269,18 +278,19 @@
 !
 !--- sequatial write if the number of fields to write is small
 !
-    if(minval(nfld_pe)<1.or.num_procs==1) then
+!JESSE    if(minval(nfld_pe)<1.or.num_procs==1) then
+    if(num_procs==1) then
 !
 !-- collect data to pe 0
       allocate(datafld(im_jm,ntlfld) )
-      if(num_procs==1) then
+!      if(num_procs==1) then
         datafld=reshape(datapd,(/im_jm,ntlfld/))
-      else
-        do i=1,ntlfld 
-          call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
-             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
-        enddo
-      endif
+!      else
+!        do i=1,ntlfld 
+!          call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
+!             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
+!        enddo
+!      endif
 !
 !-- pe 0 create grib2 message and write to the file
       if(me==0) then
@@ -339,13 +349,13 @@
       allocate(ircnt(num_procs),irdsp(num_procs))
       isdsp(1)=0
       do n=1,num_procs
-       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*im*nfld_pe(n)
+       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*(iend_pe(me+1)-ista_pe(me+1)+1)*nfld_pe(n)
        if(n<num_procs)isdsp(n+1)=isdsp(n)+iscnt(n)
       enddo
 !
       irdsp(1)=0
       do n=1,num_procs
-        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*im*nfld_pe(me+1)
+        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*(iend_pe(n)-ista_pe(n)+1)*nfld_pe(me+1)
         if(n<num_procs)irdsp(n+1)=irdsp(n)+ircnt(n)
       enddo
 !      print *,'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
@@ -362,16 +372,17 @@
       do n=1,num_procs
       do k=1,nfld_pe(me+1)
       do j=jsta_pe(n),jend_pe(n)
-      do i=1,im
+      do i=ista_pe(n),iend_pe(n)
         nm=nm+1
         datafld((j-1)*im+i,k)=datafldtmp(nm)
       enddo
       enddo
       enddo
       enddo
+
       deallocate(datafldtmp)
 !
-!-- now each process has several full domain fields, start to create grib2 message.      
+!-- now each process has several full domain fields, start to create grib2 message.
 !
 !      print *,'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
 !      print *,'nprm=',   &
@@ -1769,13 +1780,15 @@
        ifield3(15) = latlast
        ifield3(16) = lonlast
 !       ifield3(17) = NINT(360./(IM)*1.0E6)
-       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+!       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+       ifield3(17) = DXVAL
 !       if(mod(jm,2) == 0 ) then
 !        ifield3(18) = NINT(180./JM*1.0E6) 
 !       else
 !        ifield3(18) = NINT(180./(JM-1)*1.0E6)
-        ifield3(18) = abs(latlast-latstart)/(JM-1)
+!        ifield3(18) = abs(latlast-latstart)/(JM-1)
 !       endif
+       ifield3(18) = DYVAL
        if( latstart < latlast ) then
         ifield3(19) = 64      !for SN scan   
        else

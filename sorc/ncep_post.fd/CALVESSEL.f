@@ -1,20 +1,24 @@
       SUBROUTINE CALVESSEL(ICEG)
 ! Algorithm for calculating ice growth rate
+!
+! PROGRAM HISTORY LOG:
+!   21-10-31  JESSE MENG - 2D DECOMPOSITION
+
       use vrbls2d, only: sst, u10h, v10h, tshltr
       use masks, only: sm, sice
-      use ctlblk_mod, only: jsta, jend, im, spval
+      use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !-------------------------------------------
       implicit none
       integer I, J
       real TSFC_C,TSHLTR_C,SST_C
       real, parameter :: C2K=273.15
-      real, dimension(im,jsta:jend) :: pr, spd10
-      real,intent(out) ::  ICEG(im,jsta:jend)
+      real, dimension(ista:iend,jsta:jend) :: pr, spd10
+      real,intent(out) ::  ICEG(ista:iend,jsta:jend)
 
-!      allocate (thsfc(im,jsta:jend),tsfc(im,jsta:jend))
+!      allocate (thsfc(ista:iend,jsta:jend),tsfc(ista:iend,jsta:jend))
 
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 !   CALCULATE SPEED
           SPD10(i,j)=SQRT(U10H(I,J)**2+V10H(I,J)**2)
           if (SPD10(i,j)>50) then

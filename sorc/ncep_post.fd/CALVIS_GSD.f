@@ -90,21 +90,24 @@
 !   2021-05        Wen Meng        Unify CONST1 and VISRH. 
 !   2021-05        Wen Meng  - Add checking for undefined points invloved in computation
 !   2021-08        Wen Meng  - Restrict divided by 0.
+!   2021-10        Jesse Meng - 2D DECOMPOSITION
 !                           
 !------------------------------------------------------------------
 !
 
       use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
       use params_mod, only: h1, d608, rd
-      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval,&
+                                    ista_2l, iend_2u
 
       implicit none
 
       integer :: j, i, k, ll
       integer :: method
       real :: tx, pol, esx, es, e
-      REAL VIS(IM,jsta_2l:jend_2u) ,RHB(IM,jsta_2l:jend_2u,LM), CZEN(IM,jsta_2l:jend_2u)
-
+      REAL VIS(ista_2l:iend_2u,jsta_2l:jend_2u)
+      REAL RHB(ista_2l:iend_2u,jsta_2l:jend_2u,LM)
+      REAL CZEN(ista_2l:iend_2u,jsta_2l:jend_2u)
 
       real celkel,tice,coeflc,coeflp,coeffc,coeffp,coeffg
       real exponlc,exponlp,exponfc,exponfp,exponfg,const1
@@ -203,7 +206,7 @@
       visrh_min = 1.e6
  
       DO J=jsta_2l,jend_2u
-      DO I=1,IM
+      DO I=ista_2l,iend_2u
         VIS(I,J)=spval
 ! -checking undedined points
         if(T(I,J,LM)<spval .and. U(I,J,LM)<spval .and. V(I,J,LM)<spval &

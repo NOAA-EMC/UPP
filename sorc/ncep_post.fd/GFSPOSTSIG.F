@@ -1,77 +1,54 @@
 !> @file
-!
-!> Subprogram: rtsig      Read and transform sigma file
-!!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!!
-!! Abstract: This subprogram reads a sigma file and transforms
-!!   the fields to a designated global grid.
-!!
-!! Program history log:
-!!   1999-10-18  Mark Iredell
-!!   2013-04-19  Jun  Wang:  add option to get tmp and ps(in pascal) 
-!!                           from enthalpy and ps(cb) option
-!!   2013-05-06 Shrinivas Moorthi: Initialize midea to 0
-!!   2013-05-07 Shrinivas Moorthi: Remove mo3, mct, midea and define io3, ict etc
-!!                                 correctly and get correct cloud condensate.
-!!   2013-08-02 Shrinivas Moorthi: Rewrote the whole routine to read the sigma
-!!                                 file differently and to read all tracers
-!!                                 Addedd sptezj for two 2d fields
-!!   2014-02-20 Shrinivas Moorthi: Modified conversion from spectral to grid
-!!                                 taking advantage of threding in SP library.
-!!                                 This really speeds up the code
-!!                                 Also threaded loop for Temperature from Tv
-
-!!
-!! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,                     &
-!!                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,iret,o,o2)
-!!   Input argument list:
-!!     lusig    integer(sigio_intkind) sigma file unit number
-!!     head     type(sigio_head) sigma file header
-!!     k1       integer first model level to return
-!!     k2       integer last model level to return
-!!     kgds     integer (200) GDS to which to transform
-!!     ijo      integer dimension of output fields
-!!     levs     integer number of total vertical levels
-!!     ntrac    integer number of output tracers
-!!     jcap     integer number of waves
-!!     lnt2     integer (jcap+1)*(jcap+2)
-!!   Output argument list:
-!!     h        real (ijo) surface orography (m)
-!!     p        real (ijo) surface pressure (Pa)
-!!     px       real (ijo) log surface pressure x-gradient (1/m)
-!!     py       real (ijo) log surface pressure y-gradient (1/m)
-!!     t        real (ijo,k1:k2) temperature (K)
-!!     tx       real (ijo,k1:k2) virtual temperature x-gradient (K/m)
-!!     ty       real (ijo,k1:k2) virtual temperature y-gradient (K/m)
-!!     u        real (ijo,k1:k2) x-component wind (m/s)
-!!     v        real (ijo,k1:k2) y-component wind (m/s)
-!!     d        real (ijo,k1:k2) wind divergence (1/s)
-!!     trc      real (ijo,k1:k2,ntrac) tracers
-!!                                1 = specific humidity (kg/kg)
-!!                                2 = Ozone mixing ratio (kg/kg)
-!!                                3 = cloud condensate mixing ratio (kg/kg)
-!!                                .
-!!                                .
-!!                                    atomic oxyge, oxygen etc
-!!
-!!     iret     integer return code
-!!
-!! Modules used:
-!!   sigio_r_module sigma file I/O
-!!
-!! Subprograms called:
-!!   sigio_rrdati   read sigma single data field
-!!   sptez          scalar spectral transform
-!!   sptezd         gradient spectral transform
-!!   sptezm         multiple scalar spectral transform
-!!   sptezmv        multiple vector spectral transform
-!!
-!! Attributes:
-!!   Language: Fortran 90
-!!
-!!
-! Add Iredells subroutine to read sigma files
-!-------------------------------------------------------------------------------
+!>
+!> @brief rtsig() reads and transforms sigma file.
+!>
+!> This subprogram reads a sigma file and transforms
+!> the fields to a designated global grid.
+!> Add Iredells subroutine to read sigma files.
+!>
+!> @param[out] lusig integer(sigio_intkind) sigma file unit number.
+!> @param[out] head type(sigio_head) sigma file header.
+!> @param[out] k1 integer first model level to return.
+!> @param[out] k2 integer last model level to return.
+!> @param[out] kgds integer (200) GDS to which to transform.
+!> @param[out] ijo integer dimension of output fields.
+!> @param[out] levs integer number of total vertical levels.
+!> @param[out] ntrac integer number of output tracers.
+!> @param[out] jcap integer number of waves.
+!> @param[out] lnt2 integer (jcap+1)*(jcap+2).
+!> @param[out] h real (ijo) surface orography (m).
+!> @param[out] p real (ijo) surface pressure (Pa).
+!> @param[out] px real (ijo) log surface pressure x-gradient (1/m).
+!> @param[out] py real (ijo) log surface pressure y-gradient (1/m).
+!> @param[out] t real (ijo,k1:k2) temperature (K).
+!> @param[out] tx real (ijo,k1:k2) virtual temperature x-gradient (K/m).
+!> @param[out] ty real (ijo,k1:k2) virtual temperature y-gradient (K/m).
+!> @param[out] u real (ijo,k1:k2) x-component wind (m/s).
+!> @param[out] v real (ijo,k1:k2) y-component wind (m/s).
+!> @param[out] d real (ijo,k1:k2) wind divergence (1/s).
+!> @param[out] trc real (ijo,k1:k2,ntrac) tracers.
+!><pre>
+!>                                   1 = specific humidity (kg/kg)
+!>                                   2 = Ozone mixing ratio (kg/kg)
+!>                                   3 = cloud condensate mixing ratio (kg/kg)
+!>                                   .
+!>                                   .
+!>                                       atomic oxyge, oxygen etc
+!>
+!></pre>
+!> @param[out] iret Integer return code.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell      | Initial
+!> 2013-04-19 | Jun  Wang         | Add option to get tmp and ps(in pascal) from enthalpy and ps(cb) option
+!> 2013-05-06 | Shrinivas Moorthi | Initialize midea to 0
+!> 2013-05-07 | Shrinivas Moorthi | Remove mo3, mct, midea and define io3, ict etc correctly and get correct cloud condensate.
+!> 2013-08-02 | Shrinivas Moorthi | Rewrote the whole routine to read the sigma file differently and to read all tracers. Added sptezj for two 2d fields
+!> 2014-02-20 | Shrinivas Moorthi | Modified conversion from spectral to grid taking advantage of threding in SP library. This really speeds up the code. Also threaded loop for Temperature from Tv
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
 subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
                  h,p,px,py,t,u,v,d,trc,iret)
 
@@ -248,43 +225,35 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 end subroutine  
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> modstuff() computes model coordinate dependent functions.
+!>
+!> This subprogram computes fields which depend on the model coordinate
+!> such as pressure thickness and vertical velocity.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] idvc integer vertical coordinate id (1 for sigma and 2 for hybrid).
+!> @param[in] idsl integer type of sigma structure (1 for phillips or 2 for mean).
+!> @param[in] nvcoord integer number of vertical coordinates.
+!> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
+!> @param[in] ps real surface pressure (Pa).
+!> @param[in] psx real log surface pressure x-gradient (1/m).
+!> @param[in] psy real log surface pressure y-gradient (1/m).
+!> @param[in] d real (km) wind divergence (1/s).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[out] pi real (km+1) interface pressure (Pa).
+!> @param[out] pm real (km) mid-layer pressure (Pa).
+!> @param[out] om real (km) vertical velocity (Pa/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell | Initial
+!> 2013-04-19 | Jun Wang     | Add option to get pi by using 8 byte real computation
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
   subroutine modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
                       pi,pm,om)
-!$$$  Subprogram documentation block
-!
-! Subprogram: modstuff   Compute model coordinate dependent functions
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram computes fields which depend on the model coordinate
-!           such as pressure thickness and vertical velocity.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2013-04-19  Jun  Wang:  add option to get pi by using 8byte real computation
-!
-! Usage:  call modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
-!                       pd,pi,pm,os,om,px,py)
-!   Input argument list:
-!     km       integer number of levels
-!     idvc     integer vertical coordinate id (1 for sigma and 2 for hybrid)
-!     idsl     integer type of sigma structure (1 for phillips or 2 for mean)
-!     nvcoord  integer number of vertical coordinates
-!     vcoord   real (km+1,nvcoord) vertical coordinates
-!     ps       real surface pressure (Pa)
-!     psx      real log surface pressure x-gradient (1/m)
-!     psy      real log surface pressure y-gradient (1/m)
-!     d        real (km) wind divergence (1/s)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!   Output argument list:
-!     pi       real (km+1) interface pressure (Pa)
-!     pm       real (km) mid-layer pressure (Pa)
-!     om       real (km) vertical velocity (Pa/s)
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     use sigio_module, only: sigio_modprd
     implicit none
     integer,intent(in):: km,idvc,idsl,nvcoord
@@ -331,46 +300,38 @@ end subroutine
   end subroutine
 
 !-------------------------------------------------------------------------------
+!> modstuff2() computes model coordinate dependent functions.
+!>
+!> This subprogram computes fields which depend on the model coordinate
+!> such as pressure thickness and vertical velocity.
+!>
+!> @param[in] im integer inner computational domain.
+!> @param[in] ix integer maximum inner dimension.
+!> @param[in] km integer number of levels.
+!> @param[in] idvc integer vertical coordinate id (1 for sigma and 2 for hybrid).
+!> @param[in] idsl integer type of sigma structure (1 for phillips or 2 for mean).
+!> @param[in] nvcoord integer number of vertical coordinates.
+!> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
+!> @param[in] ps real surface pressure (Pa).
+!> @param[in] psx real log surface pressure x-gradient (1/m).
+!> @param[in] psy real log surface pressure y-gradient (1/m).
+!> @param[in] d real (km) wind divergence (1/s).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[out] pi real (km+1) interface pressure (Pa).
+!> @param[out] pm real (km) mid-layer pressure (Pa).
+!> @param[out] om real (km) vertical velocity (Pa/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell      | Initial
+!> 2013-04-19 | Jun  Wang         | Add option to get pi by using 8 byte real computation
+!> 2013-08-13 | Shrinivas Moorthi | Modified to include im points and thread
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
   subroutine modstuff2(im,ix,km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
                        pi,pm,om,me)
-!$$$  Subprogram documentation block
-!
-! Subprogram: modstuff   Compute model coordinate dependent functions
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram computes fields which depend on the model coordinate
-!           such as pressure thickness and vertical velocity.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2013-04-19  Jun  Wang:  add option to get pi by using 8byte real computation
-!   2013-08-13  Shrinivas Moorthi - Modified to include im points and thread
-!
-! Usage:  call modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
-!                       pd,pi,pm,os,om,px,py)
-!   Input argument list:
-!     im       integer - inner computational domain
-!     ix       integer - maximum inner dimension
-!     km       integer number of levels
-!     idvc     integer vertical coordinate id (1 for sigma and 2 for hybrid)
-!     idsl     integer type of sigma structure (1 for phillips or 2 for mean)
-!     nvcoord  integer number of vertical coordinates
-!     vcoord   real (km+1,nvcoord) vertical coordinates
-!     ps       real surface pressure (Pa)
-!     psx      real log surface pressure x-gradient (1/m)
-!     psy      real log surface pressure y-gradient (1/m)
-!     d        real (km) wind divergence (1/s)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!   Output argument list:
-!     pi       real (km+1) interface pressure (Pa)
-!     pm       real (km) mid-layer pressure (Pa)
-!     om       real (km) vertical velocity (Pa/s)
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     use sigio_module, only : sigio_modprd
     implicit none
     integer,                    intent(in)  :: im,ix,km,idvc,idsl,nvcoord,me
@@ -443,61 +404,47 @@ end subroutine
   end subroutine
 
 !-----------------------------------------------------------------------
+!> trssc() transforms sigma spectral fields to grid.
+!>
+!> Transforms sigma spectral fields to grid and converts
+!> log surface pressure to surface pressure and virtual temperature
+!> to temperature.
+!>
+!> @param[in] jcap integer spectral truncation.
+!> @param[in] nc integer first dimension (nc>=(jcap+1)*(jcap+2)).
+!> @param[in] km integer number of levels.
+!> @param[in] ntrac integer number of tracers.
+!> @param[in] idvm integer mass variable id.
+!> @param[in] idrt integer data representation type.
+!> @param[in] lonb integer number of longitudes.
+!> @param[in] latb integer number of latitudes.
+!> @param[in] ijl integer horizontal dimension.
+!> @param[in] j1 integer first latitude.
+!> @param[in] j2 integer last latitude.
+!> @param[in] jc integer number of cpus.
+!> @param[in] szs real (nc) orography.
+!> @param[in] sps real (nc) log surface pressure.
+!> @param[in] st real (nc,levs) virtual temperature.
+!> @param[in] sd real (nc,levs) divergence.
+!> @param[in] sz real (nc,levs) vorticity.
+!> @param[in] sq real (nc,levs*ntrac) tracers.
+!> @param[out] zs real (ijl) orography.
+!> @param[out] ps real (ijl) surface pressure.
+!> @param[out] t real (ijl,km) temperature.
+!> @param[out] u real (ijl,km) zonal wind.
+!> @param[out] v real (ijl,km) meridional wind.
+!> @param[out] q real (ijl,km*ntrac) tracers.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell | Initial
+!>
+!> @author Mark Iredell w/nmc23 @date 1992-10-31
       subroutine trssc(jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,vcoord,     &
                        cpi,idrt,lonb,latb,ijl,ijn,j1,j2,jc,chgq0,          &
                        szs,sps,st,sd,sz,sq,gfszs,gfsps,gfsp,gfsdp,         &
                        gfst,gfsu,gfsv,gfsq,gfsw)
-!$$$  subprogram documentation block
-!
-! subprogram:    trssc       transform sigma spectral fields to grid
-!   prgmmr: iredell          org: w/nmc23     date: 92-10-31
-!
-! abstract: transforms sigma spectral fields to grid and converts
-!   log surface pressure to surface pressure and virtual temperature
-!   to temperature.
-!
-! program history log:
-!   91-10-31  mark iredell
-!
-! usage:    call trssc(jcap,nc,km,ntrac,idvm,
-!    &                 idrt,lonb,latb,ijl,j1,j2,jc,
-!    &                 szs,sps,st,sd,sz,sq,zs,ps,t,u,v,q)
-!   input argument list:
-!     jcap         integer spectral truncation
-!     nc           integer first dimension (nc>=(jcap+1)*(jcap+2))
-!     km           integer number of levels
-!     ntrac        integer number of tracers
-!     idvm         integer mass variable id
-!     idrt         integer data representation type
-!     lonb         integer number of longitudes
-!     latb         integer number of latitudes
-!     ijl          integer horizontal dimension
-!     j1           integer first latitude
-!     j2           integer last latitude
-!     jc           integer number of cpus
-!     szs          real (nc) orography
-!     sps          real (nc) log surface pressure
-!     st           real (nc,levs) virtual temperature
-!     sd           real (nc,levs) divergence
-!     sz           real (nc,levs) vorticity
-!     sq           real (nc,levs*ntrac) tracers
-!   output argument list:
-!     zs           real (ijl) orography
-!     ps           real (ijl) surface pressure
-!     t            real (ijl,km) temperature
-!     u            real (ijl,km) zonal wind
-!     v            real (ijl,km) meridional wind
-!     q            real (ijl,km*ntrac) tracers
-!
-! subprograms called:
-!   sptran       perform a scalar spherical transform
-!
-! attributes:
-!   language: fortran
-!
-!c$$$
-!!      use gfsio_module
-!      use gfsio_rst
       implicit none
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb
       integer,intent(in)::ijl,ijn,j1,j2,jc,chgq0

@@ -10,6 +10,7 @@
 !   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
 !   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!   21-09-30  J MENG - 2D DECOMPOSITION
 !   
 !
 !     INPUT:
@@ -42,7 +43,8 @@
       use masks, only: lmh, htm
       use params_mod, only: EPSQ2, CAPA
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, im, jm, jsta_2l, jend_2u,&
-              lm, lm1, spval
+              lm, lm1, spval,&
+              ista, iend, ista_m, iend_m, ista_2l, iend_2u
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -54,9 +56,9 @@
 !
 !     ------------------------------------------------------------------
 !
-      real,intent(in) :: el0(im,jsta_2l:jend_2u)
-      real,intent(out) ::  EL(IM,jsta_2l:jend_2u,LM)
-      real HGT(IM,JSTA:JEND),APE(IM,JSTA_M:JEND_M,2)
+      real,intent(in) :: el0(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real,intent(out) ::  EL(ista_2l:iend_2u,jsta_2l:jend_2u,LM)
+      real HGT(ISTA:IEND,JSTA:JEND),APE(ISTA_M:IEND_M,JSTA_M:JEND_M,2)
 !
       integer I,J,L
       real ZL,VKRMZ,ENSQ,Q2KL,ELST,ZIAG,ELVGD
@@ -66,13 +68,13 @@
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           EL(I,J,L)=0.
         ENDDO
         ENDDO
       ENDDO
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           HGT(I,J)=ZINT(I,J,NINT(LMH(I,J))+1)
         ENDDO
         ENDDO
@@ -83,7 +85,7 @@
 !$omp  parallel do private(i,j,l,vkrmz,zl)
       DO L=1,LM
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(HGT(I,J)<spval)THEN
             ZL        = 0.5*(ZINT(I,J,L)+ZINT(I,J,L+1))
             VKRMZ     = (ZL-HGT(I,J))*VKRM
@@ -100,7 +102,7 @@
       DO L=1,LM1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(HGT(I,J)<spval)THEN
             EL(I,J,L) = 0.5*(EL(I,J,L)+EL(I,J,L+1))*HTM(I,J,L+1)
             ELSE
@@ -112,7 +114,7 @@
 !
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(HGT(I,J)<spval)THEN
           EL(I,J,LM) = 0.0
           ELSE
@@ -127,7 +129,7 @@
 !       (ASSUME PBL TOP IS AT CPBLT*EL0(K));
 !$omp  parallel do private(i,j)
       DO J=JSTA_M,JEND_M
-        DO I=1,IM
+        DO I=ISTA_M,IEND_M
           APE(I,J,1) = (1.E5/PMID(I,J,1))**CAPA
         ENDDO
       ENDDO
@@ -135,7 +137,7 @@
       DO L=1,LM1
 !$omp  parallel do private(i,j,elst,elvgd,ensq,q2kl,ziag)
         DO J=JSTA_M,JEND_M
-          DO I=2,IM-1
+          DO I=ISTA_M,IEND_M
             IF(T(I,J,L)<spval)THEN
             APE(I,J,2) = (1.E5/PMID(I,J,L+1))**CAPA
             ENSQ = HTM(I,J,L+1)*                                     &

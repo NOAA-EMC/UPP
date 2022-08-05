@@ -1,80 +1,44 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    CALHEL       COMPUTES STORM RELATIVE HELICITY
-!!   PRGRMMR: BALDWIN         ORG: W/NP2      DATE: 94-08-22       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES ESTIMATED STORM MOTION AND
-!!     STORM-RELATIVE ENVIRONMENTAL HELICITY.  
-!!     (DAVIES-JONES ET AL 1990) THE ALGORITHM PROCEEDS AS 
-!!     FOLLOWS.
-!!     
-!!     THE STORM MOTION COMPUTATION NO LONGER EMPLOYS THE DAVIES AND
-!!     JOHNS (1993) METHOD WHICH DEFINED STORM MOTION AS 30 DEGREES TO
-!!     THE RIGHT OF THE 0-6 KM MEAN WIND AT 75% OF THE SPEED FOR MEAN
-!!     SPEEDS LESS THAN 15 M/S AND 20 DEGREES TO THE RIGHT FOR SPEEDS
-!!     GREATER THAN 15 M/S.   INSTEAD, WE NOW USE THE DYNAMIC METHOD
-!!     (BUNKERS ET AL. 1998) WHICH HAS BEEN FOUND TO DO BETTER IN
-!!     CASES WITH 'NON-CLASSIC' HODOGRAPHS (SUCH AS NORTHWEST-FLOW
-!!     EVENTS) AND DO AS WELL OR BETTER THAN THE OLD METHOD IN MORE
-!!     CLASSIC SITUATIONS. 
-!!     
-!! PROGRAM HISTORY LOG:
-!!   94-08-22  MICHAEL BALDWIN
-!!   97-03-27  MICHAEL BALDWIN - SPEED UP CODE
-!!   98-06-15  T BLACK         - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO    - MPI VERSION
-!!   00-01-10  G MANIKIN       - CHANGED TO BUNKERS METHOD
-!!   02-05-22  G MANIKIN       - NOW ALLOW CHOICE OF COMPUTING
-!!                               HELICITY OVER TWO DIFFERENT
-!!                               (0-1 and 0-3 KM) DEPTHS
-!!   03-03-25  G MANIKIN       - MODIFIED CODE TO COMPUTE MEAN WINDS
-!!                               USING ARITHMETIC AVERAGES INSTEAD OF
-!!                               MASS WEIGHTING;  DIFFERENCES ARE MINOR
-!!                               BUT WANT TO BE CONSISTENT WITH THE
-!!                               BUNKERS METHOD
-!!   04-04-16  M PYLE          - MINIMAL MODIFICATIONS, BUT PUT INTO
-!!                                NMM WRFPOST CODE
-!!   05=02-25  H CHUANG        - ADD COMPUTATION FOR ARW A GRID
-!!   05-07-07  BINBIN ZHOU     - ADD RSM FOR A GRID  
-!!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
-!!   
-!! USAGE:    CALHEL(UST,VST,HELI)
-!!   INPUT ARGUMENT LIST:
-!!     DPTH      - DEPTH IN METERS OVER WHICH HELICITY SHOULD BE COMPUTED;
-!!                 ALLOWS ONE TO DISTINGUISH 0-3 KM AND 0-1 KM VALUES
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     UST      - ESTIMATED U COMPONENT (M/S) OF STORM MOTION.
-!!     VST      - ESTIMATED V COMPONENT (M/S) OF STORM MOTION.
-!!     HELI     - STORM-RELATIVE HELICITY (M**2/S**2)
-!! CRA
-!!     USHR1    - U COMPONENT (M/S) OF 0-1 KM SHEAR
-!!     VSHR1    - V COMPONENT (M/S) OF 0-1 KM SHEAR
-!!     USHR6    - U COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
-!!     VSHR6    - V COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
-!! CRA
-
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!
-!!     LIBRARY:
-!!       COMMON   - VRBLS
-!!                  LOOPS
-!!                  PHYS 
-!!                  EXTRA
-!!                  MASKS
-!!                  OPTIONS
-!!                  INDX
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : IBM SP
-!!
+!> @brief Subroutine that computes storm relative helicity.
+!
+!> This routine computes estimated storm motion and storm-relative
+!> environmental helicity. (Davies-Jones et al 1990) the algorithm
+!> processd as follows.
+!>     
+!> The storm motion computation no longer employs the Davies and Johns (1993)
+!> method which defined storm motion as 30 degress to the right of the 0-6 km
+!> mean wind at 75% of the speed for mean speeds less than 15 m/s and 20 degrees
+!> to the right for speeds greater than 15 m/s. Instead, we now use the dynamic
+!> method (Bunkers et al. 1988) which has been found to do better in cases with
+!> 'non-classic' hodographs (such as Northwest-flow events) and do as well or 
+!> better than the old method in more classic situations.
+!>     
+!> @param[in] DPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
+!> @param[out] UST Estimated U Component (m/s) Of Storm motion.
+!> @param[out] VST Estimated V Component (m/s) Of Storm motion.
+!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
+!> @param[out] USHR1 U Component (m/s) Of 0-1 km shear.
+!> @param[out] VSHR1 V Component (m/s) Of 0-1 km shear.
+!> @param[out] USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> @param[out] VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!>     
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1994-08-22 | Michael Baldwin | Initial
+!> 1997-03-27 | Michael Baldwin | Speed up code
+!> 1998-06-15 | T Black         | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo    | MPI Version
+!> 2000-01-10 | G Manikin       | Changed to Bunkers method
+!> 2002-05-22 | G Manikin       | Now allow choice of computing helicity over two different (0-1 and 0-3 km) depths
+!> 2003-03-25 | G Manikin       | Modified code to compute mean winds using arithmetic averages instead of mass weighting; differences are minor but want to be consistent with the Bunkers method
+!> 2004-04-16 | M Pyle          | Minimal modifications but put into NMM WRFPOST code
+!> 2005-02-25 | H Chuang        | Add computation for ARW A grid
+!> 2005-07-07 | Binbin Zhou     | Add RSM for A grid  
+!> 2019-10-30 | Bo Cui          | Remove "goto" statement
+!> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
+!>   
+!> @author Michael Baldwin W/NP2 @date 1994-08-22
       SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 
 !
@@ -84,7 +48,8 @@
       use params_mod, only: g
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
-                            lm, im, jm, me, spval
+                            lm, im, jm, me, spval,  &
+                            ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -102,10 +67,10 @@
 !     DECLARE VARIABLES
 !     
       real,intent(in)                                  :: DEPTH(2)
-      REAL,dimension(IM,jsta_2l:jend_2u),  intent(out) :: UST,VST
-      REAL,dimension(IM,jsta_2l:jend_2u,2),intent(out) :: HELI
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),  intent(out) :: UST,VST
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,2),intent(out) :: HELI
 !
-      real, dimension(im,jsta_2l:jend_2u) :: HTSFC, UST6, VST6, UST5, VST5,   &
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: HTSFC, UST6, VST6, UST5, VST5,   &
                                              UST1,  VST1, USHR1, VSHR1,       &
                                              USHR6, VSHR6, U1, V1, U2, V2,    &
                                              HGT1,  HGT2, UMEAN, VMEAN
@@ -120,7 +85,7 @@
 !     REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
 ! CRA
 
-      integer, dimension(im,jsta_2l:jend_2u) :: COUNT6, COUNT5, COUNT1, L1, L2
+      integer, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: COUNT6, COUNT5, COUNT1, L1, L2
 !     INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
 ! CRA
 !     INTEGER L1(IM,JM),L2(IM,JM)
@@ -140,7 +105,7 @@
 !     
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           UST(I,J)    = 0.0
           VST(I,J)    = 0.0
           HELI(I,J,1) = 0.0
@@ -180,8 +145,8 @@
           IVE(J) = MOD(J,2)
           IVW(J) = IVE(J)-1
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE IF(gridtype == 'B')THEN
@@ -191,8 +156,8 @@
           IVE(J)=1
           IVW(J)=0
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
@@ -202,8 +167,8 @@
           IVE(J) = 0
           IVW(J) = 0
         enddo
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND 
       END IF 
@@ -218,9 +183,9 @@
 !      END DO
 ! 
 !!$omp  parallel do private(htsfc,ie,iw)
-      IF(gridtype /= 'A') CALL EXCH(FIS(1:IM,JSTA_2L:JEND_2U))
+      IF(gridtype /= 'A') CALL EXCH(FIS(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U))
       DO L = 1,LM
-        IF(gridtype /= 'A') CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L)) 
+        IF(gridtype /= 'A') CALL EXCH(ZMID(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,L)) 
         DO J=JSTART,JSTOP
           DO I=ISTART,ISTOP
             IE = I+IVE(J)

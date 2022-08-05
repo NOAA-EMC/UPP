@@ -1,50 +1,33 @@
 !> @file
-!
-!> SUBPROGRAM:    CALLCL      COMPUTES LCL HEIGHTS AND PRESSURE
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-03-15
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES THE LIFTING CONDENSATION LEVEL 
-!!     PRESSURE AND HEIGHT IN EACH COLUMN AT MASS POINTS.
-!!     THE HEIGHT IS ABOVE GROUND LEVEL.  THE EQUATION USED
-!!     TO FIND THE LCL PRESSURE IS FROM BOLTAN (1980,MWR) 
-!!     AND IS THE SAME AS THAT USED IN SUBROUTINE CALCAPE.
-!!     
-!!     THIS ROUTINE IS A TEST VERSION.  STILL TO BE RESOLVED
-!!     IS THE "BEST" PARCEL TO LIFT.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   93-03-15  RUSS TREADON
-!!   98-06-16  T BLACK - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!!   02-04-24  MIKE BALDWIN - WRF VERSION            
-!!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
-!!   21-07-28  W Meng - Restriction compuatation from undefined grids
-!!     
-!! USAGE:    CALL CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
-!!   INPUT ARGUMENT LIST:
-!!     P1D      - ARRAY OF PARCEL PRESSURES (PA)
-!!     T1D      - ARRAY OF PARCEL TEMPERATURES (K)
-!!     Q1D      - ARRAY OF PARCEL SPECIFIC HUMIDITIES (KG/KG)
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     PLCL     - PARCEL PRESSURE AT LCL (PA)
-!!     ZLCL     - PARCEL AGL HEIGHT AT LCL (M)
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - LOOPS
-!!                  OPTIONS
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes LCL heights and pressure.
+!>
+!> This routine computes the lifting condensation level
+!> pressure and height in each column at mass points.
+!> The height is above ground level. The equation used
+!> to find the LCL pressure is from Boltan (1980, MWR)
+!> and is the same as that used in subroutine CALCAPE.
+!> 
+!> This is a test version. Still to be resolved 
+!> is the "best" parcel to lift.
+!>
+!> @param[in] P1D Array of parcel pressures (Pa).
+!> @param[in] T1D Array of parcel temperatures (K).
+!> @param[in] Q1D Array of parcel specific humidities (kg/kg).
+!> @param[out] PLCL Parcel Pressure at LCL (Pa).
+!> @param[out] ZLCL Parcel AGL height at LCL (m).
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-03-15 | Russ Treadon | Initial
+!> 1998-06-16 | T Black      | Convesion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version            
+!> 2002-04-24 | Mike Baldwin | WRF Version            
+!> 2019-10-30 | Bo Cui       | Remove "GOTO" Statement
+!> 2021-07-28 | W Meng       | Restriction compuatation from undefined grids
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
+!>
+!> @author Russ Treadon W/NP2 @date 1993-03-15
       SUBROUTINE CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
 
 !     
@@ -53,7 +36,8 @@
       use vrbls2d, only: fis
       use masks, only: lmh
       use params_mod, only: eps, oneps, d01, h1m12, gi, d00
-      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im
+      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im, &
+                            ista, iend, ista_m, iend_m
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -62,9 +46,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,jsta:jend), intent(in)    :: P1D,T1D,Q1D
-      REAL,dimension(IM,jsta:jend), intent(inout) :: PLCL,ZLCL
-      REAL TLCL(IM,jsta:jend)
+      REAL,dimension(ista:iend,jsta:jend), intent(in)    :: P1D,T1D,Q1D
+      REAL,dimension(ista:iend,jsta:jend), intent(inout) :: PLCL,ZLCL
+      REAL TLCL(ista:iend,jsta:jend)
       integer I,J,L,LLMH
       real DLPLCL,ZSFC,DZ,DALP,ALPLCL,RMX,EVP,ARG,RKAPA
 !     
@@ -75,7 +59,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           PLCL(I,J) = SPVAL
           TLCL(I,J) = SPVAL
           ZLCL(I,J) = SPVAL
@@ -87,8 +71,7 @@
 ! Bo Cui 10/30/2019, remove "GOTO" statement
 
       DO 30 J=JSTA_M,JEND_M
-      DO 30 I=2,IM-1
-!     DO 30 I=1,IM
+      DO 30 I=ISTA_M,IEND_M
       IF(P1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
       EVP       = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
       RMX       = EPS*EVP/(P1D(I,J)-EVP)

@@ -1,74 +1,47 @@
 !> @file
-!                .      .    .     
-!> SUBPROGRAM:    LFMFLD      COMPUTES LAYER MEAN LFM FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES THREE LAYER MEAN RELATIVE HUMIDITIES
-!!     AND A PRECIPITABLE WATER FIELD FROM ETA LEVEL DATA.  THE
-!!     COMPUTED FIELDS ARE INTENDED TO MIMIC SIMILAR FIELDS COM-
-!!     PUTED BY THE LFM.  THE ALGORITHM USED HERE IS FAIRLY PRI-
-!!     MATIVE.  IN EACH COLUMN ABOVE A MASS POINT ON THE ETA GRID
-!!     WE SET THE FOLLOWING TARGET PRESSURES:
-!!         SIGMA LAYER 1.00 PRESSURE:  SURFACE PRESSURE
-!!         SIGMA LAYER 0.66 PRESSURE:  0.50 * SURFACE PRESSURE
-!!         SIGMA LAYER 0.33 PRESSURE:  0.4356 * SURFACE PRESSURE
-!!     GIVEN THESE PRESSURES A SURFACE UP SUMMATION IS MADE OF 
-!!     RELATIVE HUMIDITY AND/OR PRECIPITABLE WATER BETWEEN THESE
-!!     TARGET PRESSURES.  EACH TERM IN THE SUMMATION IS WEIGHTED
-!!     BY THE THICKNESS OF THE ETA LAYER.  THE FINAL LAYER MEAN
-!!     IS THIS SUM NORMALIZED BY THE TOTAL DEPTH OF THE LAYER.  
-!!     THERE IS, OBVIOUSLY, NO NORMALIZATION FOR PRECIPITABLE WATER.
-!!
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   93-07-27  RUSS TREADON - MODIFIED SUMMATION LIMITS FROM
-!!                            0.66*PSFC TO 0.75*PSFC AND 0.33*PSFC 
-!!                            TO 0.50*PSFC, WHERE PSFC IS THE
-!!                            SURFACES PRESSURE.  THE REASON FOR
-!!                            THIS CHANGE WAS RECOGNITION THAT IN 
-!!                            THE LFM 0.33 AND 0.66 WERE MEASURED
-!!                            FROM THE SURFACE TO THE TROPOPAUSE,
-!!                            NOT THE TOP OF THE MODEL.
-!!   93-09-13  RUSS TREADON - RH CALCULATIONS WERE MADE INTERNAL
-!!                            TO THE ROUTINE.
-!!   96-03-04  MIKE BALDWIN - CHANGE PW CALC TO INCLUDE CLD WTR 
-!!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   98-08-17  MIKE BALDWIN - COMPUTE RH OVER ICE
-!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   02-04-24  MIKE BALDWIN - WRF VERSION
-!!   06-11-06 H CHUANG      - MODIFY TO OUTPUT GFS LFM FIELDS WHICH 
-!!                            HAVE DIFFERENT THICKNESS AS MESO AND USE DP
-!!                            RATHER THAN DZ 
-!!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!     
-!!     
-!! USAGE:    CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
-!!   INPUT ARGUMENT LIST:
-!!     NONE
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     RH3310   - SIGMA LAYER 0.33-1.00 MEAN RELATIVE HUMIDITY.
-!!     RH6610   - SIGMA LAYER 0.66-1.00 MEAN RELATIVE HUMIDITY.
-!!     RH3366   - SIGMA LAYER 0.33-0.66 MEAN RELATIVE HUMIDITY.
-!!     PW3310   - SIGMA LAYER 0.33-1.00 PRECIPITABLE WATER.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   LIBRARY:
-!!     COMMON   - 
-!!                MAPOT
-!!                LOOPS
-!!                OPTIONS
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief lfmfld_gfs() computes layer mean LFM fields.
+!>
+!> This routine computes three layer mean relative humidities
+!> and a precipitable water field from ETA level data.  The
+!> computed fields are intended to mimic similar fields com-
+!> puted by the LFM.  The algorithm used here is fairly pri-
+!> mative.
+!> <pre>
+!> In each column above a mass point on the ETA grid we set the following target pressures:
+!>     Sigma layer 1.00 pressure:  Surface pressure
+!>     Sigma layer 0.66 pressure:  0.50 * Surface pressure
+!>     Sigma layer 0.33 pressure:  0.4356 * Surface pressure
+!> </pre>
+!> Given there pressures a surface up summation is made of
+!> relative humidity and/or precipitable water between these
+!> target pressures.  Each term in the summation is weighted
+!> By the thickness of the ETA layer.  The final layer mean
+!> is this sum normalized by the total depth of the layer. 
+!> There is, obviously, no normalization for precipitable water.
+!>
+!> @param[out] RH3310 Sigma layer 0.33-1.00 mean relative humidity.
+!> @param[out] RH6610 Sigma layer 0.66-1.00 mean relative humidity.
+!> @param[out] RH3366 Sigma layer 0.33-0.66 mean relative humidity.
+!> @param[out] PW3310 Sigma layer 0.33-1.00 precipitable water.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-07-27 | Russ Treadon | Modified summation limits from 0.66*PSFC to 0.75*PSFC and 0.33*PSFC to 0.50*PSFC, where PSFC is the surfaces pressure.  The reason for this change was recognition that in the LFM 0.33 and 0.66 were measured from the surface to the tropopause not the top of the model.
+!> 1993-09-13 | Russ Treadon | RH calculations were made internal to the routine.
+!> 1996-03-04 | Mike Baldwin | Change PW CALC to include CLD WTR
+!> 1998-06-16 | T Black      | Conversion from 1-D to 2-D
+!> 1998-08-17 | Mike Baldwin | Compute RH over ice
+!> 1998-12-22 | Mike Baldwin | Back out RH over ice
+!> 2000-01-04 | Jim Tuccillo | MPI Version
+!> 2002-04-24 | Mike Baldwin | WRF Version
+!> 2006-11-06 | H CHUANG     | Modify to output GFS LFM fields which have different thickness as MESO and use DP rather than DZ
+!> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
+!> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS Module
+!> 2021-10-14 | JESSE MENG   | 2D DECOMPOSITION
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE LFMFLD_GFS(RH4410,RH7294,RH4472,RH3310)
 
 !     
@@ -76,7 +49,7 @@
       use vrbls3d, only: pint, q, t, pmid
       use masks, only: lmh
       use params_mod, only: d00
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: jsta, jend, spval, im, ista, iend
       use upp_physics, only: FPVSNEW
 !     
     implicit none
@@ -92,7 +65,7 @@
 !     DECLARE VARIABLES.
 !     
       REAL ALPM, DZ, ES, PM, PWSUM, QM, QS
-      REAL,dimension(IM,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
+      REAL,dimension(ista:iend,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
                                                  ,RH3310    
 !
       integer I,J,L,LLMH
@@ -106,7 +79,7 @@
 !     LOOP OVER HORIZONTAL GRID.
 !     
       DO 30 J=JSTA,JEND
-      DO 30 I=1,IM
+      DO 30 I=ISTA,IEND
 !     
 !        ZERO VARIABLES.
          RH4410(I,J) = D00

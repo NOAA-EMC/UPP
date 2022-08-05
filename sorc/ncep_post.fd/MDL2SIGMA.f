@@ -20,6 +20,7 @@
 !!   11-02064  J WANG - ADD GRIB2 option
 !!   20-03-25  J MENG - remove grib1
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-10-14  J MENG - 2D DECOMPOSITION
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -62,7 +63,7 @@
                                h1m12, d00, h2, rd, g, gi, h99999
       use ctlblk_mod,    only: jsta_2l, jend_2u, spval, lp1, jsta, jend, lm, &
                                grib, cfld, datapd, fld_info, me, jend_m, im, &
-                               jm, im_jm
+                               jm, im_jm, ista, iend, ista_2l, iend_2u, ista_m, iend_m
       use rqstfld_mod,   only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod,  only :gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -80,14 +81,14 @@
       LOGICAL READTHK
       LOGICAL IOOMG,IOALL
       LOGICAL DONEFSL1,TSLDONE
-      real, dimension(im,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL, USL, VSL, Q2SL, &
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL, USL, VSL, Q2SL, &
                                              FSL1, CFRSIG, EGRID1, EGRID2
       REAL GRID1(IM,JM)
-      real, dimension(im,jsta_2l:jend_2u) :: grid2
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: grid2
 
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
-      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X,NL1XF
+      INTEGER,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: NL1X,NL1XF
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -98,7 +99,7 @@
 !  QR1   - rain mixing ratio
 !  QS1   - snow mixing ratio
 !
-      real, dimension(im,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, AKH
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, AKH
 !
       integer I,J,L,LL,LP,LLMH,II,JJ,JJB,JJE,NHOLD
       real PFSIGO,APFSIGO,PSIGO,APSIGO,PNL1,PU,ZU,TU,QU,QSAT,  &
@@ -196,7 +197,7 @@
         END IF
 ! OBTAIN GEOPOTENTIAL AT 1ST LEVEL
        DO J=JSTA_2L,JEND_2U
-       DO I=1,IM
+       DO I=ISTA_2L,IEND_2U
 	FSL(I,J)=SPVAL
 	AKH(I,J)=SPVAL
         NL1XF(I,J)=LP1
@@ -208,7 +209,7 @@
        END DO	
        END DO
        DO 167 J=JSTA,JEND
-        DO 167 I=1,IM 
+        DO 167 I=ISTA_2L,IEND_2U
 	 DONEFSL1=.FALSE.
          PFSIGO=PTSIGO
          APFSIGO=LOG(PFSIGO)
@@ -309,7 +310,7 @@
          IF (LVLS(1,IGET(205))>0) THEN
 !$omp  parallel do
            DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              IF(FSL1(I,J)<SPVAL) THEN
                 GRID1(I,J)=FSL1(I,J)*GI
              ELSE
@@ -320,7 +321,7 @@
           if(grib=='grib2')then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(205))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
          ENDIF
         ENDIF
@@ -330,14 +331,14 @@
           IF (LVLS(1,IGET(243))>0) THEN
 !$omp  parallel do
            DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J)=AKH(I,J)
            ENDDO
            ENDDO
 	  if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(243))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
 
            if(me==0)print*,'output Heat Diffusivity'
@@ -353,7 +354,7 @@
         NHOLD=0
 !
         DO J=JSTA_2L,JEND_2U
-        DO I=1,IM
+        DO I=ISTA_2L,IEND_2U
 
 !
         TSL(I,J)=SPVAL
@@ -407,7 +408,7 @@
 !hc        J=JHOLD(NN)
         DO 220 J=JSTA,JEND      ! Moorthi on Nov 26 2014
 !       DO 220 J=JSTA_2L,JEND_2U
-        DO 220 I=1,IM
+        DO 220 I=ISTA,IEND
         LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -555,7 +556,7 @@
 !
 ! OBTAIN GEOPOTENTIAL AND KH ON INTERFACES 
        DO J=JSTA_2L,JEND_2U
-       DO I=1,IM
+       DO I=ISTA_2L,IEND_2U
         FSL(I,J)=SPVAL
 	AKH(I,J)=SPVAL
         NL1XF(I,J)=LP1
@@ -571,7 +572,7 @@
 !
 !      DO J=JSTA_2L,JEND_2U
        DO J=JSTA,JEND          ! Moorthi on 26 Nov 2014
-       DO I=1,IM
+       DO I=ISTA,IEND
           DONEFSL1=.FALSE.
 	  TSLDONE=.FALSE.
           LLMH = NINT(LMH(I,J))  
@@ -721,22 +722,41 @@
 ! VERTICAL INTERPOLATION FOR WIND FOR E and B GRIDS
 !
         if(gridtype=='B' .or. gridtype=='E') &
-	 call exch(PINT(1:IM,JSTA_2L:JEND_2U,LP1))  
+	 call exch(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LP1))  
         IF(gridtype=='E')THEN
         DO J=JSTA,JEND
-        DO I=1,IM-MOD(J,2)
+!        DO I=1,IM-MOD(J,2)
+        DO I=ISTA,IEND-MOD(J,2) !Jesse 20211014
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER FOR V POINT JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
 !
 	 LLMH = NINT(LMH(I,J))
-         IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
+
+!Jesse 20211014
+!         IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
+!           PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
+!         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
+!           PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
+!         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
+!           PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
+!         ELSE IF(I == IM .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
+!           PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
+!         ELSE IF (MOD(J,2) < 1) THEN
+!           PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I-1,J,LLMH+1)              &
+!     &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
+!         ELSE
+!           PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1)              &
+!     &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
+!         END IF 
+
+         IF(J == 1 .AND. I < IEND)THEN   !SOUTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
+         ELSE IF(J==JM .AND. I<IEND)THEN   !NORTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
+         ELSE IF(I == ISTA .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
-         ELSE IF(I == IM .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
+         ELSE IF(I == IEND .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
          ELSE IF (MOD(J,2) < 1) THEN
            PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I-1,J,LLMH+1)              &
@@ -744,7 +764,8 @@
          ELSE
            PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1)              &
      &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
-         END IF 
+         END IF
+
          PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
 	 NL1X(I,J)=LP1 
          DO L=2,LM
@@ -766,15 +787,35 @@
         ENDDO
 !
         DO 230 J=JSTA,JEND
-        DO 230 I=1,IM-MOD(j,2)
+!        DO 230 I=1,IM-MOD(j,2)
+        DO 230 I=ISTA,IEND-MOD(j,2) !Jesse 20211014
+
          LLMH = NINT(LMH(I,J))
-         IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
+
+!Jesse 20211014
+!         IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
+!           PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
+!         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
+!           PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
+!         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
+!           PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
+!         ELSE IF(I == IM .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
+!           PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
+!         ELSE IF (MOD(J,2) < 1) THEN
+!           PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I-1,J,LLMH+1)        &
+!     &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
+!         ELSE
+!           PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1)        &
+!     &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
+!         END IF
+
+         IF(J == 1 .AND. I < IEND)THEN   !SOUTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
+         ELSE IF(J==JM .AND. I<IEND)THEN   !NORTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
+         ELSE IF(I == ISTA .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
-         ELSE IF(I == IM .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
+         ELSE IF(I == IEND .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
          ELSE IF (MOD(J,2) < 1) THEN
            PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I-1,J,LLMH+1)        &
@@ -783,6 +824,7 @@
            PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1)        &
      &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
          END IF
+
          PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
 	 APSIGO=LOG(PSIGO)  
          LL=NL1X(I,J)
@@ -823,13 +865,13 @@
         JJE=JEND
         IF(MOD(JEND,2)==0)JJE=JEND-1
         DO J=JJB,JJE,2 !chc
-          USL(IM,J)=USL(IM-1,J)
-	  VSL(IM,J)=VSL(IM-1,J)
+          USL(IEND,J)=USL(IEND-1,J)
+	  VSL(IEND,J)=VSL(IEND-1,J)
         END DO
 	
 	ELSE IF (gridtype=='B')THEN
          DO J=JSTA,JEND_M
-         DO I=1,IM-1
+         DO I=ISTA,IEND_M
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER FOR V POINT JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -858,7 +900,7 @@
          ENDDO
 !
          DO 231 J=JSTA,JEND_M
-         DO 231 I=1,IM-1
+         DO 231 I=ISTA,IEND_M
 	  PDV=0.25*(PINT(I,J,LP1)+PINT(I+1,J,LP1)                       &
              +PINT(I,J+1,LP1)+PINT(I+1,J+1,LP1))
           PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
@@ -929,7 +971,7 @@
           IF(LVLS(LP+1,IGET(205))>0)THEN
 !$omp  parallel do
             DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               IF(FSL(I,J)<SPVAL) THEN
                 GRID1(I,J)=FSL(I,J)*GI
               ELSE
@@ -941,7 +983,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(205))
             fld_info(cfld)%lvl=LVLSXML(LP+1,IGET(205))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
         ENDIF
@@ -953,7 +995,7 @@
           IF (LVLS(LP+1,IGET(243))>0) THEN
 !$omp  parallel do
            DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J)=AKH(I,J)
 	     IF(LP==(LSIG+1))GRID1(I,J)=0.0  !! NO SLIP ASSUMTION FOR CMAQ
            ENDDO
@@ -962,7 +1004,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(243))
             fld_info(cfld)%lvl=LVLSXML(LP+1,IGET(243))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
            if(me==0)print*,'output Heat Diffusivity'
          ENDIF
@@ -973,7 +1015,7 @@
         IF(IGET(206)>0) THEN
           IF(LVLS(LP,IGET(206))>0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=TSL(I,J)
              ENDDO
              ENDDO
@@ -981,7 +1023,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(206))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(206))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
         ENDIF
@@ -992,7 +1034,7 @@
           IF(LVLS(LP,IGET(216))>0)THEN
 !$omp  parallel do
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
 	       LLMH = NINT(LMH(I,J))  
                GRID1(I,J)=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO)
              ENDDO
@@ -1001,7 +1043,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(216))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(216))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
         ENDIF
@@ -1011,7 +1053,7 @@
         IF(IGET(207)>0)THEN
           IF(LVLS(LP,IGET(207))>0)THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=QSL(I,J)
              ENDDO
              ENDDO
@@ -1020,7 +1062,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(207))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(207))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
         ENDIF
@@ -1030,7 +1072,7 @@
         IF(IGET(210)>0)THEN
           IF(LVLS(LP,IGET(210))>0)THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=OSL(I,J)
              ENDDO
              ENDDO
@@ -1038,7 +1080,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(210))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(210))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
         ENDIF
@@ -1048,7 +1090,7 @@
         IF(IGET(208)>0.OR.IGET(209)>0)THEN
           IF(LVLS(LP,IGET(208))>0.OR.LVLS(LP,IGET(209))>0) then
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=USL(I,J)
                GRID2(I,J)=VSL(I,J)
              ENDDO
@@ -1057,11 +1099,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(208))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(208))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(209))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(209))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID2(ista:iend,jsta:jend)
           endif
           ENDIF
         ENDIF
@@ -1071,7 +1113,7 @@
          IF (IGET(217)>0) THEN
           IF (LVLS(LP,IGET(217))>0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=Q2SL(I,J)
              ENDDO
              ENDDO
@@ -1079,7 +1121,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(217))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(217))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1089,7 +1131,7 @@
          IF (IGET(211)>0) THEN
           IF (LVLS(LP,IGET(211))>0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=QW1(I,J)
              ENDDO
              ENDDO
@@ -1097,7 +1139,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(211))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(211))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1107,7 +1149,7 @@
          IF (IGET(212)>0) THEN
           IF (LVLS(LP,IGET(212))>0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=QI1(I,J)
              ENDDO
              ENDDO
@@ -1115,7 +1157,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(212))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(212))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1124,7 +1166,7 @@
          IF (IGET(213)>0) THEN
           IF (LVLS(LP,IGET(213))>0) THEN 
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=QR1(I,J)
              ENDDO
              ENDDO
@@ -1132,7 +1174,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(213))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(213))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1141,7 +1183,7 @@
          IF (IGET(214)>0) THEN
           IF (LVLS(LP,IGET(214))>0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=QS1(I,J)
              ENDDO
              ENDDO
@@ -1149,7 +1191,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(214))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(214))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1158,7 +1200,7 @@
          IF (IGET(255)>0) THEN
           IF (LVLS(LP,IGET(255))>0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=QG1(I,J)
              ENDDO
              ENDDO
@@ -1166,7 +1208,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(255))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(255))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1175,7 +1217,7 @@
          IF (IGET(215)>0) THEN
           IF (LVLS(LP,IGET(215))>0) THEN 
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=C1D(I,J)
              ENDDO
              ENDDO
@@ -1183,7 +1225,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(215))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(215))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
@@ -1192,7 +1234,7 @@
          IF (IGET(222)>0) THEN
           IF (LVLS(LP,IGET(222))>0) THEN 
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=CFRSIG(I,J)
              ENDDO
              ENDDO
@@ -1200,7 +1242,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(222))
             fld_info(cfld)%lvl=LVLSXML(LP,IGET(222))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
           ENDIF
          ENDIF
