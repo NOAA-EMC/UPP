@@ -44,7 +44,7 @@
 !
       use vrbls3d,    only: zmid, uh, vh, u, v, zint
       use vrbls2d,    only: fis, u10, v10
-      use masks,      only: lmv
+      use masks,      only: lmv, gdlat
       use params_mod, only: g
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
@@ -308,8 +308,13 @@
 
             DENOM = USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)
             IF (DENOM /= 0.0) THEN
-              UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
-              VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
+              IF (GDLAT(I,J) >= 0) THEN
+                UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
+                VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
+              ELSE IF (GDLAT(I,J) < 0) THEN
+                UST(I,J) = UMEAN6 - (7.5*VSHR6(I,J)/SQRT(DENOM))
+                VST(I,J) = VMEAN6 + (7.5*USHR6(I,J)/SQRT(DENOM))
+              ENDIF
             ELSE
               UST(I,J) = 0
               VST(I,J) = 0
