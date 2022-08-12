@@ -29,7 +29,7 @@ load(pathJoin("zlib", zlib_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.4.5"
 load(pathJoin("g2", g2_ver))
-g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.0"
+g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
 load(pathJoin("g2tmpl", g2tmpl_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
