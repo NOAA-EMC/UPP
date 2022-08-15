@@ -33,6 +33,7 @@ echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition.
 echo " May 22 - Mao  - Set KPO for WAFS on different pressure levels"
 echo " May 22 - Mao  - Three diff WAFS control files for anl, F000-F048, F054-F120"
 echo " May 22 - Mao  - Add processing two paramsets for WAFS"
+echo " Aug 22 - Meng - Add dbn_alert for wgne data file from F000-F180"
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -395,6 +396,9 @@ do
 		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}.idx
 		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}
 		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}.idx
+		    if [ -s $COMOUT/${PREFIX}wgne.f${fhr} -a $fhr -le 180 ] ; then
+			$DBNROOT/bin/dbn_alert MODEL GFS_WGNE $job $COMOUT/${PREFIX}wgne.f${fhr}
+	            fi
 		    
 		    if [ -s $COMOUT/${PREFIX}pgrb2.0p50.f${fhr} ] ; then
 			$DBNROOT/bin/dbn_alert  MODEL GFS_PGB2_0P5 $job $COMOUT/${PREFIX}pgrb2.0p50.f${fhr}
