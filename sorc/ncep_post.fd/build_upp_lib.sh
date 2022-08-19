@@ -1,6 +1,5 @@
 SHELL=/bin/sh
 
-module purge
 set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
@@ -31,6 +30,7 @@ export version=${1:-"v8.1.0"}
 
 moduledir=`dirname $(readlink -f ../../modulefiles/upp)`
 if [ $machine = wcoss2 ] ; then
+module reset
 module use ${moduledir}/upp
 module load upp_${machine}
 elif [ $machine = hera -o $machine = orion ] ; then
