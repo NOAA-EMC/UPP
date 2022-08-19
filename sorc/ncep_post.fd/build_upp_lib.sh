@@ -1,6 +1,5 @@
 SHELL=/bin/sh
 
-module reset
 set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
