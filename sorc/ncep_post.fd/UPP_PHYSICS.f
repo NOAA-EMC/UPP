@@ -1399,6 +1399,10 @@
         ENDDO
       ENDDO
 !
+!Ensure later calculations do not access LM+1
+!
+      LEND=MIN(LEND,LM-1)
+!
 !reverse L order from bottom up for ESRH calculation
 !
       ESRHH = LCL
