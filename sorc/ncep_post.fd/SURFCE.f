@@ -3667,7 +3667,7 @@
 
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET TOTAL PRECIP '
-         IF (IGET(434)>0. .or. IGET(1100)>0 .or. IGET(1101)>0 .or. IGET(1102)>0) THEN
+         IF (IGET(434)>0. .or. IGET(1003)>0 .or. IGET(1004)>0 .or. IGET(1005)>0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND

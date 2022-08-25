@@ -17588,7 +17588,7 @@ complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
 lossless
-1100
+1003
 ICE_PROB_IFI_FLIGHT_LEVEL
 ?
 1
@@ -17625,7 +17625,7 @@ spec_alt_above_mean_sea_lvl
 ?
 ?
 ?
-1101
+1004
 SLD_IFI_FLIGHT_LEVEL
 ?
 1
@@ -17662,7 +17662,7 @@ spec_alt_above_mean_sea_lvl
 ?
 ?
 ?
-1102
+1005
 ICE_SEV_CAT_IFI_FLIGHT_LEVEL
 ?
 1

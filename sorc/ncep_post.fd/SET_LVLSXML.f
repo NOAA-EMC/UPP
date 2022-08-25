@@ -65,7 +65,7 @@
       real,parameter :: small2=1
       integer,parameter :: LSIG1=22,LSIG2=5
       integer i,j,l,nlevel,scalef,lvlcape,lvlcin
-      logical READTHK,logrec
+      logical READTHK,logrec,found
       REAL :: SIGO2(LSIG2+1),ASIGO2(LSIG2),DSIGO2(LSIG2)
       REAL :: SIGO1(LSIG1+1),ASIGO1(LSIG1),DSIGO1(LSIG1)
 !
@@ -189,43 +189,27 @@
       if(trim(param%fixed_sfc1_type)=='spec_alt_above_mean_sea_lvl') then
         if(index(param%shortname,"SPECIFIC_IFI_FLIGHT_LEVEL")>0) then
           do j=1, nlevel
+            found=.false.
             iloop411:  do i=1, ifi_nflight
               if(nint(param%level(j)/10)==nint(ifi_flight_levels(i)/10) )then
                 LVLS(i,ifld)=1
                 LVLSXML(i,ifld)=j
-                ! ! Convert feet to meters for output
-                ! param%level(j) = (param%level(j)*3048)/10000
-                ! if(associated(param%scale_fact_fixed_sfc1)) then
-                !   if(size(param%scale_fact_fixed_sfc1)<j) then
-                !     param%level(j) = param%level(j)*(10**param%scale_fact_fixed_sfc1(1))
-                !   else
-                !     param%level(j) = param%level(j)*(10**param%scale_fact_fixed_sfc1(j))
-                !   endif
-                ! endif
-                ! print *,'level ',j,' converted to ',param%level(j)
+                !print *,'SPECIFIC_IFI_FLIGHT_LEVEL ',j,' is ',param%level(j)
                 irec=irec+1
+                found=.true.
                 exit iloop411
               endif
             enddo iloop411
+            if(.not.found) then
+              write(0,*) 'ERROR: No such IFI flight level: ',param%level(j)/10
+              LVLS(i,ifld)=0
+            endif
           enddo
         else if(index(param%shortname,"IFI_FLIGHT_LEVEL")>0) then
-           ! if(associated(param%level)) then
-           !   deallocate(param%level)
-           ! endif
-           ! allocate(param%level(ifi_nflight))
            do j=1, ifi_nflight
              LVLS(j,ifld)=1
              LVLSXML(j,ifld)=j
-             ! ! Convert feet to meters for output
-             ! param%level(j) = (ifi_flight_levels(j)*3048)/10000
-             ! if(associated(param%scale_fact_fixed_sfc1)) then
-             !   if(size(param%scale_fact_fixed_sfc1)<j) then
-             !     param%level(j) = param%level(j)*(10**param%scale_fact_fixed_sfc1(1))
-             !   else
-             !     param%level(j) = param%level(j)*(10**param%scale_fact_fixed_sfc1(j))
-             !   endif
-             ! endif
-             ! print *,'level ',j,' is ',param%level(j)
+             !print *,'IFI_FLIGHT_LEVEL ',j,' is ',param%level(j)
              irec=irec+1
            enddo
         elseif(index(param%shortname,"GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL")<=0) then

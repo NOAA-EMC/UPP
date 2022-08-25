@@ -338,9 +338,9 @@
 !
 !     FROM VRBLS2D
 !
-      allocate(CAPE(im,jsta_2l:jend_2u))
-      allocate(CIN(im,jsta_2l:jend_2u))
-      allocate(APCP(im,jsta_2l:jend_2u))
+      allocate(CAPE(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(CIN(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(APCP(ista_2l:iend_2u,jsta_2l:jend_2u))
 ! SRD
       allocate(wspd10max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(w_up_max(ista_2l:iend_2u,jsta_2l:jend_2u))

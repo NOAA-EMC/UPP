@@ -31,9 +31,9 @@ contains !==============================================================
 
   subroutine run_ifi()
     ! Fill any requested IFI fields with missing data.
-    call send_missing_data(1100)  ! ICE_PROB = missing
-    call send_missing_data(1101)  ! SLD = missing
-    call send_missing_data(1102)  ! ICE_SEV_CAT = missing
+    call send_missing_data(1003)  ! ICE_PROB = missing
+    call send_missing_data(1004)  ! SLD = missing
+    call send_missing_data(1005)  ! ICE_SEV_CAT = missing
   end subroutine run_ifi
 
   ! --------------------------------------------------------------------
@@ -51,10 +51,23 @@ contains !==============================================================
 
     logical, save :: wrote_message = .false. ! guarded by an OMP CRITICAL below
 
+    if(size(IGET)<ient) then
+      return
+    endif
+
+    write(0,*) 'ient,iget = ',ient,iget(ient)
+
+    if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
+      return
+    endif
+
     ! Go level-by-level writing grib2 if requested
     do k=1,ifi_nflight
+      if(k>size(LVLS,1)) then
+        write(0,*) 'ERROR: LVLS is too small to handle ',ifi_nflight,' vertical levels'
+        return
+      endif
       if(LVLS(k,IGET(ient))>0) then
-
         if(.not.wrote_message) then
           !$OMP CRITICAL
           if(.not.wrote_message) then
@@ -760,7 +773,7 @@ contains !==============================================================
 
     ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
-    if(grib/='grib2' .or. (IGET(1100)<=0 .and. IGET(1101)<=0 .and. IGET(1102)<=0)) then
+    if(grib/='grib2' .or. (IGET(1003)<=0 .and. IGET(1004)<=0 .and. IGET(1005)<=0)) then
       if(me==0) then
         print '(A)','IFI fields were not requested; skipping IFI'
       endif
@@ -909,9 +922,9 @@ contains !==============================================================
       call write_fip_output(cat_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
     
-    call send_data(cat_vars,'ICE_PROB',1100)
-    call send_data(cat_vars,'SLD',1101)
-    call send_data(cat_vars,'ICE_SEV_CAT',1102)
+    call send_data(cat_vars,'ICE_PROB',1003)
+    call send_data(cat_vars,'SLD',1004)
+    call send_data(cat_vars,'ICE_SEV_CAT',1005)
     
     ! When this subroutine ends, a Fortran-2003-compliant compiler
     ! will free all memory IFI uses, by calling the destructors (final
