@@ -55,4 +55,7 @@ setenv("CC","mpiicc")
 setenv("CXX","mpiicpc")
 setenv("FC","mpiifort")
 
+prepend_path("MODULEPATH", "/scratch2/BMC/ifi/modulefiles")
+try_load("ifi/20220817-intel-2022.1.2")
+
 whatis("Description: post build environment")
