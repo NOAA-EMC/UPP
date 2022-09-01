@@ -277,8 +277,9 @@
            AHF  =D00
            FAC  =D00
 	   DONEFSL1=.TRUE.
-         ELSEIF(T(I,J,NL1XF(I,J))<SPVAL                 &
-     &	 .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
+         ELSEIF(NL1XF(I,J)<LP1) THEN
+          IF(T(I,J,NL1XF(I,J))<SPVAL                 &
+     &	   .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
 !==        B     =T(I,J,NL1XF(I,J)) !Marina Tsidulko Dec22, 2003
            B     =T(I,J,NL1XF(I,J))*(H1+D608*Q(I,J,NL1XF(I,J)))
            DENOM=(ALPINT(I,J,NL1XF(I,J)+1)-ALPINT(I,J,NL1XF(I,J)-1))
@@ -287,6 +288,7 @@
                    /DENOM            !Marina Tsidulko Dec22, 2003
            FAC =H2*LOG(PMID(I,J,NL1XF(I,J)))
 	   DONEFSL1=.TRUE.
+          END IF
          END IF
 !
          if(DONEFSL1)FSL1(I,J)=(PNL1-PFSIGO)/(PFSIGO+PNL1)              &
@@ -656,8 +658,9 @@
 	      TSLDONE=.TRUE.
 !
 !
-            ELSEIF(T(I,J,NL1XF(I,J))<SPVAL              &
-     &	 .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
+            ELSEIF(NL1XF(I,J)<LP1) THEN
+             IF(T(I,J,NL1XF(I,J))<SPVAL              &
+     &	  .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
 !
 !           INTERPOLATION BETWEEN LOWER AND UPPER BOUNDS.
 !
@@ -674,6 +677,7 @@
                    /DENOMF             !Marina Tsidulko Dec22, 2003
 !
               DONEFSL1=.TRUE.     
+             ENDIF
             ENDIF   
 !
             IF(DONEFSL1)then

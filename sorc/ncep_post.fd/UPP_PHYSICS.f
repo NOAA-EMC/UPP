@@ -1320,6 +1320,9 @@
               THUNDER(I,J) = .FALSE.
             ENDIF
           ENDIF
+
+          ! Limit LCL to prevent out-of-bounds accesses later
+          LCL(I,J) = max(min(LCL(I,J),LM-1),1)
         ENDDO
       ENDDO
 !-----------------------------------------------------------------------
