@@ -30,7 +30,7 @@
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:)                   &
       ,SNONC(:,:),EPSR(:,:),RSWTOA(:,:),TEQL(:,:)                            &
 ! Variables saved for input to IFI
-      ,APCP(:,:),CAPE(:,:),CIN(:,:)                                          &
+      ,IFI_APCP(:,:),CAPE(:,:),CIN(:,:)                                      &
 ! HWRF additions
       ,MDLTAUX(:,:),MDLTAUY(:,:),CD10(:,:),CH10(:,:)  &
       ,ACSWUPT(:,:),SWDNT(:,:),ACSWDNT(:,:) &

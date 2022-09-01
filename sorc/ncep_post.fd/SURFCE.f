@@ -91,7 +91,7 @@
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa,APCP
+                         tecan,tetran,tedir,twa,IFI_APCP
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -3672,12 +3672,16 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IF (IFHR == 0) THEN
-                 APCP(I,J) = 0.0
+                 IFI_APCP(I,J) = 0.0
                ELSE
-                 APCP(I,J) = PCP_BUCKET(I,J)
+                 IFI_APCP(I,J) = PCP_BUCKET(I,J)
                ENDIF 
              ENDDO
            ENDDO
+           ! Note: IFI.F may replace IFI_APCP with other values where it is spval or 0
+         ENDIF
+
+         IF (IGET(434)>0.) THEN
            ID(1:25) = 0
            ITPREC     = NINT(TPREC)
 !mp
@@ -3722,7 +3726,7 @@
                jj = jsta+j-1
                do i=1,iend-ista+1
                ii = ista+i-1
-                 datapd(i,j,cfld) = APCP(i,jj)
+                 datapd(i,j,cfld) = IFI_APCP(i,jj)
                enddo
              enddo
            endif
