@@ -30,6 +30,7 @@
 !> 2021-03-11 | B Cui           | Change local arrays to dimension (im,jsta:jend)
 !> 2021-04-01 | J Meng          | Computation on defined points only
 !> 2021-07-07 | J MENG          | 2D DECOMPOSITION
+!> 2022-08-03 | W Meng          | Modify total cloud fraction(331) 
 !>
 !> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
@@ -718,7 +719,7 @@
                  FRIME(I,J) = 1.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
-                 CFRSL(I,J) = 0.
+                 IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
                END IF
 ! Compute heights by interpolating from heights on interface for NAM but
 ! hydrostaticJ integration for GFS
@@ -1316,9 +1317,10 @@
             DO J=JSTA,JEND
               DO I=ISTA,IEND
                 GRID1(I,J) = SPVAL
-                CFRSL(I,J) = MIN(MAX(0.0,CFRSL(I,J)),1.0)
-                IF(abs(CFRSL(I,J)-SPVAL) > SMALL)                   &    
-                      GRID1(I,J) = CFRSL(I,J)*H100
+                IF(abs(CFRSL(I,J)-SPVAL) > SMALL) THEN  
+                  CFRSL(I,J) = MIN(MAX(0.0,CFRSL(I,J)),1.0)
+                  GRID1(I,J) = CFRSL(I,J)*H100
+                ENDIF
               ENDDO 
             ENDDO
             if(grib == 'grib2')then
