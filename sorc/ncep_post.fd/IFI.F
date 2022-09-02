@@ -7,11 +7,10 @@ module upp_ifi_mod
   implicit none
 
   private
-  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files, enable_ifi_smoother
+  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files
 
   integer, parameter :: ifi_real_t = c_float
   logical :: write_ifi_debug_files = .false.
-  logical :: enable_ifi_smoother = .false.
   
 contains !==============================================================
 
@@ -120,7 +119,6 @@ module upp_ifi_mod
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
   logical, public :: write_ifi_debug_files = .false.
-  logical, public :: enable_ifi_smoother = .false.
 
   ! Communication-related variables for gathers and
   ! scatters. Gathering is done in the i direction first, all to one
