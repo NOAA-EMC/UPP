@@ -960,7 +960,8 @@
         call calslr_roebber(sno(ista:iend,jsta:jend),si(ista:iend,jsta:jend),egrid1(ista:iend,jsta:jend))
         do j=jsta,jend
         do i=ista,iend
-           grid1(i,j)=egrid1(i,j)
+           if(egrid1(i,j) /= spval .and. egrid1(i,j) > 0.) &
+               grid1(i,j)=1./egrid1(i,j)
         enddo
         enddo 
         if(grib=='grib2') then

@@ -2651,7 +2651,7 @@
 
       real,dimension(ista:iend,jsta:jend),intent(in)    :: sno !weasd
       real,dimension(ista:iend,jsta:jend),intent(in)    :: si  !snod
-      real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !sden
+      real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !1/sndens=si/sno
 
       integer :: i,j
 
@@ -2660,8 +2660,9 @@
       do i=ista,iend
          slr(i,j)=spval
          if(sno(i,j) /= spval .and. si(i,j) /= spval .and. si(i,j) > 0.) then
-            slr(i,j) = si(i,j)*0.001*0.01       ! SI comes out of WRF in mm 
+           slr(i,j) = si(i,j)/sno(i,j)
          endif
+
       enddo
       enddo
 
