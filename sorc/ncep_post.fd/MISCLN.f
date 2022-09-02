@@ -3393,6 +3393,7 @@
 !
          IF(FIELD1.OR.FIELD2.OR.NEED_IFI)THEN
            ITYPE = 1
+           call allocate_cape_arrays
 !
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
