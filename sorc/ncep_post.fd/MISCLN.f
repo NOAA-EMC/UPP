@@ -860,7 +860,7 @@
 
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
 !     
-         DO 10 IFD = 1,NFD
+         loop_10: DO IFD = 1,NFD
 !
 !           FD LEVEL TEMPERATURE.
             iget1 = IGET(059)
@@ -1328,7 +1328,7 @@
                ENDIF
             ENDIF
 
- 10      CONTINUE
+         END DO loop_10
          DEALLOCATE(T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
       ENDIF
 
@@ -1807,7 +1807,7 @@
 
 !     
 !        LOOP OVER NBND BOUNDARY LAYERS.
-         DO 20 LBND = 1,NBND
+         boundary_layer_loop: DO LBND = 1,NBND
 !     
 !           BOUNDARY LAYER PRESSURE.
             IF (IGET(067)>0) THEN
@@ -2118,7 +2118,7 @@
             ENDIF
 !
 !        END OF ETA BOUNDARY LAYER LOOP.
- 20      CONTINUE
+         END DO boundary_layer_loop
          deallocate(OMGBND,PWTBND,QCNVBND)
 !     
 !        BEST LIFTED INDEX FROM BOUNDARY LAYER FIELDS.
@@ -2208,7 +2208,7 @@
              ENDDO
            ENDDO
 !
-           DO 80 LBND = 1,NBND
+           loop_80: DO LBND = 1,NBND
            CALL CALTHTE(PBND(ista,jsta,LBND),TBND(ista,jsta,LBND),        &
                         QBND(ista,jsta,LBND),EGRID1)
 !$omp parallel do private(i,j)
@@ -2223,7 +2223,7 @@
                ENDIF
              ENDDO
            ENDDO
- 80        CONTINUE
+           ENDDO loop_80
 !
            DPBND = 0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
