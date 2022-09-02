@@ -21,6 +21,7 @@
 !!   20-03-25  J MENG - remove grib1
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!   21-10-14  J MENG - 2D DECOMPOSITION
+!!   2022-09-01 S Trahan - fixed bugs where extreme atmospheric conditions can cause out-of-bounds access
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -277,7 +278,7 @@
            AHF  =D00
            FAC  =D00
 	   DONEFSL1=.TRUE.
-         ELSEIF(NL1XF(I,J)<LP1) THEN
+         ELSEIF(NL1XF(I,J)<LP1) THEN ! must check the "<LP1" first; do not combine these into a single "if"
           IF(T(I,J,NL1XF(I,J))<SPVAL                 &
      &	   .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
 !==        B     =T(I,J,NL1XF(I,J)) !Marina Tsidulko Dec22, 2003
@@ -658,7 +659,7 @@
 	      TSLDONE=.TRUE.
 !
 !
-            ELSEIF(NL1XF(I,J)<LP1) THEN
+            ELSEIF(NL1XF(I,J)<LP1) THEN ! must check the "<LP1" first; do not combine these into a single "if"
              IF(T(I,J,NL1XF(I,J))<SPVAL              &
      &	  .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
 !
