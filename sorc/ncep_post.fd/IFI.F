@@ -111,11 +111,6 @@ module upp_ifi_mod
 
   real, parameter :: feet2meters = 0.3048
 
-  interface
-    subroutine abort() bind(C)
-    end subroutine abort
-  end interface
-
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
   logical, public :: write_ifi_debug_files = .false.
@@ -194,11 +189,11 @@ contains !==============================================================
     do i=1,size
       if(ista_grid(i)==-1) then
         write(0,*) 'invalid ista_grid ',ista_grid(i)
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
       if(jsta_grid(i)==-1) then
         write(0,*) 'invalid jsta_grid ',jsta_grid(i)
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
       key(i) = ista_grid(i) + im*(jsta_grid(i)-1)
     enddo
@@ -211,7 +206,7 @@ contains !==============================================================
     endif
     if(row_comm==MPI_COMM_NULL .or. row_comm==0) then
       write(0,*) 'MPI_Comm_split gave MPI_COMM_NULL for row_comm'
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     call mpi_comm_rank(row_comm,row_comm_rank,ierr)
     call mpi_comm_size(row_comm,row_comm_size,ierr)
@@ -224,7 +219,7 @@ contains !==============================================================
     endif
     if(col_comm==MPI_COMM_NULL .or. col_comm==0) then
       write(0,*) 'MPI_Comm_split gave MPI_COMM_NULL for col_comm'
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     call mpi_comm_rank(col_comm,col_comm_rank,ierr)
     call mpi_comm_size(col_comm,col_comm_size,ierr)
@@ -285,11 +280,12 @@ contains !==============================================================
     ! Find the roots of the row and column communicators for a gather
     ! or scatter with the specified rank as the location of the global
     ! array.
+    use mpi
     implicit none
 
     integer, intent(in) :: global_rank
     integer, intent(inout) :: row_root,col_root
-    integer :: r, destination_ista, destination_jsta
+    integer :: r, destination_ista, destination_jsta, ierr
 
     ! print *,'find roots for rank ',global_rank
 
@@ -317,11 +313,11 @@ contains !==============================================================
     
     if(col_root==-1) then
       write(0,'(A,I0)') 'ABORT: Could not find column root rank for rank ',global_rank
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     if(row_root==-1) then
       write(0,'(A,I0)') 'ABORT: Could not find row root rank for rank ',global_rank
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
   end subroutine find_comm_roots
 
@@ -342,12 +338,12 @@ contains !==============================================================
 
     if(col_comm==0 .or. col_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, col_comm became invalid ',col_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     if(row_comm==0 .or. row_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, row_comm became invalid ',row_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     ! Find out who is the root of the i and j direction communications.
@@ -412,12 +408,12 @@ contains !==============================================================
 
     if(col_comm==0 .or. col_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, col_comm became invalid ',col_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     if(row_comm==0 .or. row_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, row_comm became invalid ',row_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     ! Find out who is the root of the i and j direction communications.
@@ -490,65 +486,6 @@ contains !==============================================================
       have_read_ifi_config = .true.
     endif
   end subroutine read_ifi_config
-
-  ! --------------------------------------------------------------------
-
-  subroutine ifi_minmax_callback(minv,maxv) bind(C)
-    use ctlblk_mod, only: mpi_comm_comp, me
-    use mpi
-    implicit none
-    real(kind=ifi_real_t) :: minv,maxv
-    real(kind=8) :: sendbuf(1),recvbuf(1)
-    integer :: ierr
-
-    sendbuf(1)=minv
-    call MPI_Allreduce(sendbuf,recvbuf,1,MPI_REAL8,MPI_MIN,mpi_comm_comp,ierr)
-    minv=recvbuf(1)
-
-    sendbuf(1)=maxv
-    call MPI_Allreduce(sendbuf,recvbuf,1,MPI_REAL8,MPI_MAX,mpi_comm_comp,ierr)
-    maxv=recvbuf(1)
-  end subroutine ifi_minmax_callback
-
-  ! --------------------------------------------------------------------
-
-  subroutine ifi_halo_callback(d,ims1,ime1,jms1,jme1, &
-                                 ids1,ide1,jds1,jde1, &
-                                 ips1,ipe1,jps1,jpe1) BIND(C)
-    use ctlblk_mod, only: jsta,jend,im,jsta_2l,jend_2u,ista,iend,ista_2l,iend_2u
-    implicit none
-    real(kind=ifi_real_t) :: d(*)
-    integer(kind=c_int64_t), value :: &
-         ims1,ime1,jms1,jme1, &
-         ids1,ide1,jds1,jde1, &
-         ips1,ipe1,jps1,jpe1
-    integer(kind=c_int64_t) :: &
-         ims,ime,jms,jme, &
-         ids,ide,jds,jde, &
-         ips,ipe,jps,jpe
-
-    ! Convert from C++ to Fortran indexing:
-    ims=ims1+1 ; ime=ime1+1 ; jms=jms1+1 ; jme=jme1+1
-    ids=ids1+1 ; ide=ide1+1 ; jds=jds1+1 ; jde=jde1+1
-    ips=ips1+1 ; ipe=ipe1+1 ; jps=jps1+1 ; jpe=jpe1+1
-
-    if(   jms/=jsta_2l .or. jme/=jend_2u .or. jsta/=jps .or. jend/=jpe &
-     .or. ims/=ista_2l .or. ime/=iend_2u .or. ista/=ips .or. iend/=ipe ) then
-94    format('   ',A,' = ',I0,', ',I0)
-95    format('   ',A,' = ',I0,', ',I0,', ',I0)
-      print '(A)','Warning: IFI halo callback j bounds do not match UPP j bounds'
-      print 94,'jps,jsta',jps,jsta
-      print 94,'jpe,jend',jpe,jend
-      print 94,'jms,jsta_2l',jms,jsta_2l
-      print 94,'jme,jend_2u',jme,jend_2u
-      print 94,'ips,ista',ips,ista
-      print 94,'ipe,iend',ipe,iend
-      print 94,'ims,ista_2l',ims,ista_2l
-      print 94,'ime,iend_2u',ime,iend_2u
-      !call ifi_check(-1,'Internal error: IFI halo callback i/j bounds do not match UPP i/j bounds')
-    end if
-    call EXCH_c_float(d)
-  end subroutine ifi_halo_callback
 
   ! --------------------------------------------------------------------
 
@@ -790,7 +727,9 @@ contains !==============================================================
       endif
     endif
 
-    call make_communicators()
+    if(write_ifi_debug_files) then
+      call make_communicators()
+    endif
 
     ! Read config and initialize input data structures:
 
@@ -854,14 +793,6 @@ contains !==============================================================
 
     call ifi_check(algo%init(ifi_config,fcst_lead_sec,hybr_vars,ME,NUM_PROCS,MPI_COMM_COMP), &
          'could not initialize IFI algorithm')
-    call ifi_check(algo%set_halo_callback(ifi_halo_callback), &
-         'send halo callback function to IFI algorithm')
-    call ifi_check(algo%set_minmax_callback(ifi_minmax_callback), &
-         'send minmax callback function to IFI algorithm')
-    call ifi_check(algo%set_gather_callback(gather_ifi), &
-         'send gather callback function to IFI algorithm')
-    call ifi_check(algo%set_scatter_callback(scatter_ifi), &
-         'send scatter callback function to IFI algorithm')
 
     ! Run the IFI algorithm
     
@@ -948,14 +879,6 @@ contains !==============================================================
 
   end subroutine run_ifi
 
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-! FIXME: DELETE THIS TEST CODE
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine find_range(var,count,missing_value_is_set,missing_value,min_not_miss,max_not_miss,all_missing)
@@ -1039,13 +962,14 @@ contains !==============================================================
 
   subroutine nc_check(code,file,message)
     use netcdf
+    use mpi
     implicit none
     integer, intent(in) :: code
     character(*), intent(in) :: file, message
-    integer :: i
+    integer :: i, ierr
     if(code/=0) then
       write(0,93) trim(file),trim(message),trim(nf90_strerror(code)),code
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     93 format(A,': ',A,': ',A,'(',I0,')')
   end subroutine nc_check
@@ -1308,6 +1232,7 @@ contains !==============================================================
     end function def_var
 
     function read_var(var,varname,should_dealloc)
+      use mpi
       implicit none
       type(var_info), intent(inout) :: var
       real(kind=ifi_real_t), pointer :: read_var(:)
@@ -1320,7 +1245,7 @@ contains !==============================================================
 
       integer :: nxny_local,nxny_global,nz,count,i,j,k
       integer :: local_ilen,local_jlen,local_klen,local_index
-      integer :: global_ilen,global_jlen,global_klen,global_index
+      integer :: global_ilen,global_jlen,global_klen,global_index, ierr
       type(c_ptr) :: global_cptr,local_cptr
 
       local_data_1D => ifi_data%get_data(trim(varname),var%missing_value_is_set,var%missing_value, &
@@ -1336,14 +1261,14 @@ contains !==============================================================
       if(.not.associated(local_data_1D)) then
         write(0,38) trim(varname)
 38      format("IFI did not produce ",A," variable.")
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       end if
 
       count=global_ilen*global_jlen*global_klen
       if(count<=0) then
         write(0,39) trim(varname),count
 39      format("IFI variable ",A," had no data (size=",I0,")")
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
       if(ids==ide .or. jds==jde) then
@@ -1357,17 +1282,17 @@ contains !==============================================================
 
       if(global_ilen /= nx0) then
         write(0,40) trim(varname),'global_ilen',global_ilen,nx0
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
       if(global_jlen /= ny0) then
         write(0,40) trim(varname),'global_jlen',global_jlen,ny0
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
       if(global_klen/=1 .and. global_klen /= nz0) then
         write(0,40) trim(varname),'global_klen',global_klen,nz0
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
 
