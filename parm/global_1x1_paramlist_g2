@@ -42,9 +42,12 @@ ABSV:0.02 mb
 ABSV:0.04 mb
 ABSV:0.07 mb
 ACPCP:surface
+AEMFLX:surface
 ALBDO:surface
+AOTK:entire atmosphere
 APCP:surface
 APTMP:2 m above ground
+ASYSFK:entire atmosphere
 var discipline=0 master_table=2 parmcat=0 parm=21:2 m above ground
 CAPE:180-0 mb above ground
 CAPE:255-0 mb above ground
@@ -80,12 +83,14 @@ CLMR:950 mb
 CLMR:975 mb
 CLMR:1 hybrid level
 CNWAT:surface
+COLMD:entire atmosphere
 CPOFP:surface
 CPRAT:surface
 CRAIN:surface
 CSNOW:surface
 CWAT:entire atmosphere (considered as a single layer)
 CWORK:entire atmosphere (considered as a single layer)
+DDMFLX:entire atmosphere
 DLWRF:surface
 DPT:2 m above ground
 DSWRF:surface
@@ -220,6 +225,48 @@ LAND:surface
 LCDC:low cloud layer
 LFTX:surface
 LHTFL:surface
+MASSMR:1000 mb
+MASSMR:100 mb
+MASSMR:10 mb
+MASSMR:15 mb
+MASSMR:150 mb
+MASSMR:20 mb
+MASSMR:200 mb
+MASSMR:250 mb
+MASSMR:300 mb
+MASSMR:30 mb
+MASSMR:350 mb
+MASSMR:40 mb
+MASSMR:400 mb
+MASSMR:450 mb
+MASSMR:500 mb
+MASSMR:50 mb
+MASSMR:550 mb
+MASSMR:600 mb
+MASSMR:650 mb
+MASSMR:700 mb
+MASSMR:70 mb
+MASSMR:750 mb
+MASSMR:800 mb
+MASSMR:850 mb
+MASSMR:900 mb
+MASSMR:925 mb
+MASSMR:950 mb
+MASSMR:975 mb
+MASSMR:1 mb
+MASSMR:2 mb
+MASSMR:3 mb
+MASSMR:5 mb
+MASSMR:7 mb
+MASSMR:0.1 mb
+MASSMR:0.2 mb
+MASSMR:0.4 mb
+MASSMR:0.7 mb
+MASSMR:0.01 mb
+MASSMR:0.02 mb
+MASSMR:0.04 mb
+MASSMR:0.07 mb
+MASSMR:1 hybrid level
 MSLET:mean sea level
 O3MR:1000 mb
 O3MR:100 mb
@@ -265,6 +312,94 @@ O3MR:0.07 mb
 MCDC:middle cloud layer
 PEVPR:surface
 PLPL:255-0 mb above ground
+PMTC:1000 mb
+PMTC:100 mb
+PMTC:10 mb
+PMTC:15 mb
+PMTC:150 mb
+PMTC:20 mb
+PMTC:200 mb
+PMTC:250 mb
+PMTC:300 mb
+PMTC:30 mb
+PMTC:350 mb
+PMTC:40 mb
+PMTC:400 mb
+PMTC:450 mb
+PMTC:500 mb
+PMTC:50 mb
+PMTC:550 mb
+PMTC:600 mb
+PMTC:650 mb
+PMTC:700 mb
+PMTC:70 mb
+PMTC:750 mb
+PMTC:800 mb
+PMTC:850 mb
+PMTC:900 mb
+PMTC:925 mb
+PMTC:950 mb
+PMTC:975 mb
+PMTC:1 mb
+PMTC:2 mb
+PMTC:3 mb
+PMTC:5 mb
+PMTC:7 mb
+PMTC:0.1 mb
+PMTC:0.2 mb
+PMTC:0.4 mb
+PMTC:0.7 mb
+PMTC:0.01 mb
+PMTC:0.02 mb
+PMTC:0.04 mb
+PMTC:0.07 mb
+PMTC:1 hybrid level
+PMTC:entire atmosphere
+PMTC:surface
+PMTF:1000 mb
+PMTF:100 mb
+PMTF:10 mb
+PMTF:15 mb
+PMTF:150 mb
+PMTF:20 mb
+PMTF:200 mb
+PMTF:250 mb
+PMTF:300 mb
+PMTF:30 mb
+PMTF:350 mb
+PMTF:40 mb
+PMTF:400 mb
+PMTF:450 mb
+PMTF:500 mb
+PMTF:50 mb
+PMTF:550 mb
+PMTF:600 mb
+PMTF:650 mb
+PMTF:700 mb
+PMTF:70 mb
+PMTF:750 mb
+PMTF:800 mb
+PMTF:850 mb
+PMTF:900 mb
+PMTF:925 mb
+PMTF:950 mb
+PMTF:975 mb
+PMTF:1 mb
+PMTF:2 mb
+PMTF:3 mb
+PMTF:5 mb
+PMTF:7 mb
+PMTF:0.1 mb
+PMTF:0.2 mb
+PMTF:0.4 mb
+PMTF:0.7 mb
+PMTF:0.01 mb
+PMTF:0.02 mb
+PMTF:0.04 mb
+PMTF:0.07 mb
+PMTF:1 hybrid level
+PMTF:entire atmosphere
+PMTF:surface
 POT:0.995 sigma level
 PRATE:surface
 PRES:80 m above ground
@@ -362,6 +497,8 @@ RWMR:925 mb
 RWMR:950 mb
 RWMR:975 mb
 RWMR:1 hybrid level
+SCTAOTK:entire atmosphere
+SEDMFLX:entire atmosphere
 SHTFL:surface
 SFCR:surface
 SOILW:0-0.1 m below ground
@@ -440,6 +577,7 @@ SOILL:0-0.1 m below ground
 SOILL:0.1-0.4 m below ground
 SOILL:0.4-1 m below ground
 SOILL:1-2 m below ground
+SSALBK:entire atmosphere
 SUNSD:surface
 TCDC:50 mb
 TCDC:1000 mb
@@ -750,6 +888,7 @@ VWSH:tropopause
 WATR:surface
 WEASD:surface
 WILT:surface
+WLSMFLX:entire atmosphere
 SNOD:surface
 VIS:surface
 ICEG:10 m above mean sea level

@@ -42,7 +42,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on
+  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
@@ -103,6 +103,8 @@
   integer, parameter :: nbin_oc = 2   		! organic carbon
   integer, parameter :: nbin_bc = 2   		! black carbon
   integer, parameter :: nbin_su = 1   		! sulfate
+  integer, parameter :: nbin_no3 = 3   		! nitrate
+  integer, parameter :: nbin_nh4 = 1   		! NH4
   integer, parameter :: nbin_sm = 1             ! smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.

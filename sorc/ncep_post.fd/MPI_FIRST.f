@@ -38,7 +38,7 @@
       SUBROUTINE MPI_FIRST()
 
 !
-      use vrbls4d, only: dust, salt, soot, waso, suso, pp25, pp10
+      use vrbls4d, only: dust, salt, soot, waso, suso, no3, nh4, pp25, pp10
       use vrbls3d, only: u, v, t, q, uh, vh, wh, pmid, pmidv, pint, alpint, zmid,      &
               zint, q2, omga, t_adj, ttnd, rswtt, rlwtt, exch_h, train, tcucn,         &
               el_pbl, cwm, f_ice, f_rain, f_rimef, qqw, qqi, qqr, qqs,qqg, qqni, qqnr, &
@@ -80,13 +80,13 @@
               ocsmass25, occmass25, bcsmass, bccmass, bcsmass25, bccmass25,            &
               sssmass, sscmass, sssmass25, sscmass25, ducmass25,                       &
               dustcb, sscb, bccb, occb, sulfcb, dustallcb, ssallcb,dustpm,sspm, pp25cb,&
-              dustpm10, pp10cb, maod, ti
+              no3cb, nh4cb, dustpm10, pp10cb, maod, ti
       use soil, only:  smc, stc, sh2o, sldpth, rtdpth, sllevel
       use masks, only: htm, vtm, hbm2, sm, sice, lmh, gdlat, gdlon, dx, dy, lmv
       use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,ista,iend , &
               jend_m, jend_m2, iup, idn, icnt, im, idsp, jsta_2l, jend_2u,idsp2,icnt2, &
               jvend_2u, lm, lp1, jsta_2l, jend_2u, nsoil, nbin_du, nbin_ss,            &
-              nbin_bc, nbin_oc, nbin_su,                                               &
+              nbin_bc, nbin_oc, nbin_su, nbin_no3, nbin_nh4,                           &
               ISTA_M,IEND_M,ISTA_M2,IEND_M2, iSTA_M,IEND_M,ISTA_M2,IEND_M2,            &
               ileft,iright,ileftb,irightb,ibsize,ibsum, isxa,iexa,jsxa,jexa,           &
               icoords,ibcoords,bufs,ibufs, rbufs, rcoords,rbcoords,                    &  

@@ -224,22 +224,22 @@
                 PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
                 ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
                  (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
-                if (gocart_on) then
-                  DO N = 1, NBIN_DU
-                    AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
-                        (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
-                  ENDDO
-                endif
+!                if (gocart_on) then
+!                  DO N = 1, NBIN_DU
+!                    AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
+!                        (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
+!                  ENDDO
+!                endif
               ELSEIF (L == LM) THEN
                 TFD(I,J,IFD) = T(I,J,L)
                 QFD(I,J,IFD) = Q(I,J,L)
                 PFD(I,J,IFD) = PMID(I,J,L)
                 ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
-                if (gocart_on) then
-                  DO N = 1, NBIN_DU
-                    AERFD(I,J,IFD,N) = DUST(I,J,L,N)
-                  ENDDO
-                endif
+!                if (gocart_on) then
+!                  DO N = 1, NBIN_DU
+!                    AERFD(I,J,IFD,N) = DUST(I,J,L,N)
+!                  ENDDO
+!                endif
               ENDIF
     
               L = LVL(IFD)
@@ -364,22 +364,22 @@
                  PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
                  ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
                    (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
-                 if (gocart_on) then
-                   DO N = 1, NBIN_DU
-                     AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
-                    (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
-                   ENDDO
-                 endif
+             !    if (gocart_on) then
+             !      DO N = 1, NBIN_DU
+             !        AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
+             !       (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
+             !      ENDDO
+             !    endif
                ELSE
                  TFD(I,J,IFD) = T(I,J,L)
                  QFD(I,J,IFD) = Q(I,J,L)
                  PFD(I,J,IFD) = PMID(I,J,L)
                  ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
-                 if (gocart_on) then
-                   DO N = 1, NBIN_DU
-                     AERFD(I,J,IFD,N) = DUST(I,J,L,N)
-                   ENDDO
-                 endif
+             !    if (gocart_on) then
+             !      DO N = 1, NBIN_DU
+             !        AERFD(I,J,IFD,N) = DUST(I,J,L,N)
+             !      ENDDO
+             !    endif
                ENDIF
 
                L = LVL(IFD)

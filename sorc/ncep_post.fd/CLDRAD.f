@@ -68,7 +68,7 @@
       SUBROUTINE CLDRAD
 
 !
-      use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO
+      use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO,NO3,NH4
       use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID,PMID,&
                          PINT, DUEM, DUSD, DUDP, DUWT, DUSV, SSEM, SSSD,SSDP,&
                          SSWT, SSSV, BCEM, BCSD, BCDP, BCWT, BCSV, OCEM,OCSD,&
@@ -90,7 +90,7 @@
                          AVGCPRATE,                                           &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
-                         PWAT,DUSTPM10,MAOD
+                         PWAT,DUSTPM10,MAOD,NO3CB,NH4CB
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -99,7 +99,7 @@
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU, DTQ2,         &
-                            JM, LM, gocart_on, me, rdaod,ISTA, IEND
+                            JM, LM, gocart_on, nasa_on, me, rdaod,ISTA, IEND
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -4529,7 +4529,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 !
-      if (gocart_on) then
+      if (gocart_on .or. nasa_on) then
 !
 !***  BLOCK 4. GOCART AEROSOL FIELDS
 !
@@ -4724,6 +4724,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               Q1D(I,J) = Q(I,J,LL)
             ENDDO
           ENDDO
+          !CALL CALRH(P1D,T1D,Q1D,EGRID4)
           CALL CALRH(P1D,T1D,Q1D,EGRID4)
           DO J=JSTA,JEND
             DO I=ISTA,IEND
@@ -5186,100 +5187,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
       ENDIF         ! END OF LAEROPT IF-BLOCK
 
-!! Multiply by 1.E-6 to revert these fields back
-      IF (IGET(659)>0) THEN
-         GRID1=SPVAL
-!$omp parallel do private(i,j)
-         DO J = JSTA,JEND
-            DO I = ISTA,IEND
-               IF(DUEM(I,J,1)<SPVAL) GRID1(I,J) = DUEM(I,J,1)*1.E-6
-               DO K=2,NBIN_DU
-               IF(DUEM(I,J,K)<SPVAL)&
-                GRID1(I,J) = GRID1(I,J) + DUEM(I,J,K)*1.E-6
-               END DO
-            END DO
-         END DO
-         if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(659))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-         endif
-      ENDIF
-      
-!! Multiply by 1.E-6 to revert these fields back
-      IF (IGET(667)>0) THEN
-         GRID1=SPVAL
-!$omp parallel do private(i,j)
-         DO J = JSTA,JEND
-            DO I = ISTA,IEND
-               IF(BCEM(I,J,1)<SPVAL) GRID1(I,J) = BCEM(I,J,1)
-               DO K=2,NBIN_BC
-               IF(BCEM(I,J,K)<SPVAL)&
-                GRID1(I,J) = GRID1(I,J) + BCEM(I,J,K)
-               END DO
-            END DO
-         END DO
-         if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(667))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-         endif
-      ENDIF
-
-      IF (IGET(660)>0) THEN
-         GRID1=SPVAL
-!$omp parallel do private(i,j)
-         DO J = JSTA,JEND
-            DO I = ISTA,IEND
-               IF(DUSD(I,J,1)<SPVAL) GRID1(I,J) = DUSD(I,J,1)*1.E-6
-               DO K=2,NBIN_DU
-               IF(DUSD(I,J,K)<SPVAL)&
-                GRID1(I,J) = GRID1(I,J)+ DUSD(I,J,K)*1.E-6
-               END DO
-            END DO
-         END DO
-         if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(660))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-         endif
-      ENDIF
-      
-      IF (IGET(699)>0) THEN
-         GRID1=SPVAL
-!$omp parallel do private(i,j)
-         DO J = JSTA,JEND
-            DO I = ISTA,IEND
-                GRID1(I,J) = MAOD(I,J)
-            END DO
-         END DO
-         if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(699))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-         endif
-      ENDIF
-!! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
-!
-!      IF (IGET(661)>0) THEN
-!         DO J = JSTA,JEND
-!            DO I = ISTA,IEND
-!               GRID1(I,J) = DUDP(I,J,1)*1.E-6
-!               DO K=2,NBIN_DU
-!                GRID1(I,J) = GRID1(I,J)+ DUDP(I,J,K)*1.E-6
-!               END DO
-!            END DO
-!         END DO
-!         ID(1:25) = 0
-!         ID(02)=141
-!         if(grib=='grib1') then
-!          CALL GRIBIT(IGET(661),LVLS(1,IGET(661)),GRID1,IM,JM)
-!         elseif(grib=='grib2') then
-!          cfld=cfld+1
-!          fld_info(cfld)%ifld=IAVBLFLD(IGET(661))
-!          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-!         endif
-!      ENDIF
 
 !! ADD AEROSOL SURFACE PM25 DUST MASS CONCENTRATION (ug/m3)
       IF (IGET(686)>0 ) THEN
@@ -5311,26 +5218,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
       
-!! ADD DUST WET DEPOSITION FLUXES (kg/m2/sec)
-!      IF (IGET(662)>0) THEN
-!         DO J = JSTA,JEND
-!            DO I = ISTA,IEND
-!               GRID1(I,J) = DUWT(I,J,1)*1.E-6
-!               DO K=2,NBIN_DU
-!                GRID1(I,J) = GRID1(I,J)+ DUWT(I,J,K)*1.E-6
-!               END DO
-!            END DO
-!         END DO
-!         ID(1:25) = 0
-!         ID(02)=141
-!         if(grib=='grib1') then
-!          CALL GRIBIT(IGET(662),LVLS(1,IGET(662)),GRID1,IM,JM)
-!         elseif(grib=='grib2') then
-!          cfld=cfld+1
-!          fld_info(cfld)%ifld=IAVBLFLD(IGET(662))
-!          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-!         endif
-!      ENDIF
 
 !! ADD AEROSOL SURFACE PM25 SEA SALT MASS CONCENTRATION (ug/m3)
       IF (IGET(684)>0 ) THEN
@@ -5490,6 +5377,43 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
+#if 0
+      if (nasa_on) then
+!! ADD NO3 COLUMN DENSITY (kg/m2)  !
+      IF (IGET(657)>0 ) THEN
+         GRID1=SPVAL
+!$omp parallel do private(i,j)
+         DO J = JSTA,JEND
+            DO I = ISTA,IEND
+               IF(NO3CB(I,J)<SPVAL) GRID1(I,J) = NO3CB(I,J) * 1.E-9
+            END DO
+         END DO
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(657))
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD NH4 COLUMN DENSITY (kg/m2)  !
+      IF (IGET(658)>0 ) THEN
+         GRID1=SPVAL
+!$omp parallel do private(i,j)
+         DO J = JSTA,JEND
+            DO I = ISTA,IEND
+               IF(NH4CB(I,J)<SPVAL) GRID1(I,J) = NH4CB(I,J) * 1.E-9
+            END DO
+         END DO
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(658))
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+         endif
+      ENDIF
+
+      endif  !nasa_on
+#endif
+      if (gocart_on) then
 !! ADD EMISSION FLUXES,dry depostion, wet/convective depostion (kg/m2/sec)
 !! The AER file uses 1.E6 to scale all 2d diagnosis fields
 !! Multiply by 1.E-6 to revert these fields back
@@ -5527,6 +5451,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !! wrt MIE AOD at 550nm
       IF (IGET(699).GT.0) call wrt_aero_diag(699,1,maod)
       print *,'aft wrt disg maod'
+      endif !gocart_on
+      print *,'rdaod',rdaod
       
 !! wrt SU diag field
 !      IF (IGET(675)>0) call wrt_aero_diag(675,nbin_su,suem)
@@ -5534,7 +5460,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !      IF (IGET(677)>0) call wrt_aero_diag(677,nbin_su,sudp)
 !      IF (IGET(678)>0) call wrt_aero_diag(678,nbin_su,suwt)
 !      print *,'aft wrt disg suwt'
-      endif          ! if gocart_on
+      endif          ! if gocart_on or nasa_on
 
 ! CB for WAFS
       if(IGET(473)>0 .or. IGET(474)>0 .or. IGET(475)>0) then
