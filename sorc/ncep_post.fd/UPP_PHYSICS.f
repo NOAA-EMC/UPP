@@ -1000,6 +1000,7 @@
 !> 2021-09-03 | J Meng        | Modified to add 0-3km CAPE/CINS, LFC, effective helicity, downdraft CAPE, dendritic growth layer depth, ESP
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
 !> 2022-08-27 | S Trahan      | Fixed bug in CALCAPE2 where extreme atmospheric conditions cause an out-of-bounds access
+!> 2022-09-01 | S Trahan      | Fixed another bug in CALCAPE2 where extreme atmospheric conditions cause an out-of-bounds access
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &  
@@ -1321,6 +1322,9 @@
               THUNDER(I,J) = .FALSE.
             ENDIF
           ENDIF
+
+          ! Limit LCL to prevent out-of-bounds accesses later
+          LCL(I,J) = max(min(LCL(I,J),LM-1),1)
         ENDDO
       ENDDO
 !-----------------------------------------------------------------------
