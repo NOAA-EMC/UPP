@@ -7,7 +7,7 @@ file(STRINGS "VERSION" pVersion LIMIT_COUNT 1)
 project(
   upp
   VERSION ${pVersion}
-  LANGUAGES Fortran)
+  LANGUAGES Fortran C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -15,6 +15,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(OPENMP "use OpenMP threading" ON)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
+option(BUILD_WITH_IFI "Build NCEPpost with In-Flight Icing (IFI) library if present" OFF)
+option(REQUIRE_IFI "Abort if libIFI is not found ; enables BUILD_WITH_IFI=ON" OFF)
 option(BUILD_WITH_GTG   "Build NCEPpost with NCAR/GTG" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
 
@@ -52,6 +54,18 @@ if(BUILD_WITH_GTG)
   find_package(ip REQUIRED)
 endif()
 
+if(REQUIRE_IFI)
+  set(BUILD_WITH_IFI ON)
+endif()
+
+if(BUILD_WITH_IFI)
+  if(REQUIRE_IFI)
+    find_package(IFI REQUIRED)
+  else()
+    find_package(IFI)
+  endif()
+endif()
+
 if(BUILD_POSTEXEC)
   find_package(nemsio REQUIRED)
   find_package(sfcio REQUIRED)
@@ -61,6 +75,22 @@ if(BUILD_POSTEXEC)
   if(BUILD_WITH_WRFIO)
     find_package(wrf_io REQUIRED)
   endif()
+  if(IFI_FOUND)
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel$")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -cxxlib")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^GNU$")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|AppleClang)$")
+      # This one is a wild guess. I haven't tried linking a Fortran
+      # executable with C++ libraries in clang.
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+    endif()
+  endif()
+endif()
+
+if(IFI_FOUND)
+  message(NOTICE "Enabling USE_IFI in the post.")
+  add_definitions(-DUSE_IFI=1)
 endif()
 
 add_subdirectory(sorc)

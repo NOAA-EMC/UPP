@@ -7,11 +7,13 @@ set -eu
 
 usage() {
   echo
-  echo "Usage: $0 [-p] [-g] [-w] [-v] [-c] -h"
+  echo "Usage: $0 [-p] [-g] [-w] [-v] [-c] [-i] -h"
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
+  echo "  -i  build with libIFI (users with ifi access only)        DEFAULT: OFF"
   echo "  -w  build without WRF-IO            DEFAULT: ON"
+  echo "  -i  build with IFI                  DEFAULT: OFF"
   echo "  -v  build with cmake verbose        DEFAULT: NO"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
   echo "  -h  display this message and quit"
@@ -20,11 +22,13 @@ usage() {
 }
 
 prefix="../install"
+ifi_opt=" -DBUILD_WITH_IFI=OFF"
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
+ifi_opt=" -DBUILD_WITH_IFI=OFF"
 compiler="intel"
 verbose_opt=""
-while getopts ":p:gwc:vh" opt; do
+while getopts ":p:gwc:vhi" opt; do
   case $opt in
     p)
       prefix=$OPTARG
@@ -32,8 +36,14 @@ while getopts ":p:gwc:vh" opt; do
     g)
       gtg_opt=" -DBUILD_WITH_GTG=ON"
       ;;
+    i)
+      ifi_opt=" -DREQUIRE_IFI=ON"
+      ;;
     w)
       wrfio_opt=" -DBUILD_WITH_WRFIO=OFF"
+      ;;
+    i)
+      ifi_opt=" -DREQUIRE_IFI=ON"
       ;;
     c)
       compiler=$OPTARG
@@ -46,7 +56,7 @@ while getopts ":p:gwc:vh" opt; do
       ;;
   esac
 done
-cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}
+cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}${ifi_opt}
 
 source ./detect_machine.sh
 if [[ $(uname -s) == Darwin ]]; then

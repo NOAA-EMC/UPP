@@ -3539,4 +3539,49 @@
        </param>
 
     </paramset>
+
+    <paramset>
+      <datset>IFIFIP</datset>
+      <grid_num>4</grid_num>
+      <sub_center>ncep_emc</sub_center>
+      <version_no>v2003</version_no>
+      <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+      <sigreftime>fcst</sigreftime>
+      <prod_status>oper</prod_status>
+      <data_type>fcst</data_type>
+      <gen_proc_type>fcst</gen_proc_type>
+      <time_range_unit>hour</time_range_unit>
+      <orig_center>nws_ncep</orig_center>
+      <gen_proc>hrrr</gen_proc>
+      <packing_method>complex_packing_spatial_diff</packing_method>
+      <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+      <field_datatype>fltng_pnt</field_datatype>
+      <comprs_type>lossless</comprs_type>
+
+      <!-- New IFI products, only available if libIFI is linked to a post with USE_IFI enabled -->
+
+      <param>
+        <shortname>ICE_PROB_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+
+      <param>
+        <shortname>SLD_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+
+      <param>
+        <shortname>ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+    </paramset>
    </postxml>

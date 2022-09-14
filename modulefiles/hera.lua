@@ -51,8 +51,15 @@ load(pathJoin("sfcio", sfcio_ver))
 wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("wrf_io", wrf_io_ver))
 
+ifi_ver=os.getenv("ifi_ver") or "20220901-intel-2022.1.2"
+prepend_path("MODULEPATH", "/scratch2/BMC/ifi/modulefiles")
+try_load(pathJoin("ifi",ifi_ver))
+
 setenv("CC","mpiicc")
 setenv("CXX","mpiicpc")
 setenv("FC","mpiifort")
+
+prepend_path("MODULEPATH", "/scratch2/BMC/ifi/modulefiles")
+try_load("ifi/20220901-intel-2022.1.2")
 
 whatis("Description: post build environment")
