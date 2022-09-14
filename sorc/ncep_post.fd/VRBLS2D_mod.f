@@ -62,7 +62,6 @@
       ,SWDNBC(:,:),SWDDNIC(:,:),SWDDIFC(:,:), SWUPBC(:,:), SWUPT(:,:)        &
       ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:)              &
       ,LWP(:,:),IWP(:,:)                                                     &
-      ,INT_SMOKE(:,:),INT_AOD(:,:)                                           &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &
