@@ -44,7 +44,7 @@
       use vrbls3d,    only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt,    &
                             train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt, &
                             taod5503d,sca, asy
-      use vrbls4d,    only: smoke
+      use vrbls4d,    only: smoke, fv3dust
       use masks,      only: htm
       use params_mod, only: tfrz, gi
       use ctlblk_mod, only: lm, jsta, jend, im, spval, ista, iend
@@ -265,6 +265,16 @@
           DO J=JSTA,JEND
             DO I=ISTA,IEND
               Qdum(I,J) = ASY(I,J,L)
+            ENDDO
+          END DO
+
+! E. James - 14 Sep 2022
+! DUST (from RRFS)
+        ELSE IF (IDECID == 22) THEN
+!$omp  parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=ISTA,IEND
+              Qdum(I,J) = FV3DUST(I,J,L,1)/1000000000.
             ENDDO
           END DO
         ENDIF

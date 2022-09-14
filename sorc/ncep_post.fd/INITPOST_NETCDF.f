@@ -19,14 +19,15 @@
 !> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
 !> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
 !> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
-!> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
+!> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from modela
+!> 2022-09-14 | Eric James    | Read smoke and dust from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
 
 
       use netcdf
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
@@ -658,12 +659,12 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=15
+       nrec=16
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle','smoke']
+                                     'snmr','grle','smoke','dust']
       else
        nrec=8
        allocate (recname(nrec))
@@ -1018,6 +1019,8 @@
        spval,recname(14),qqg(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
 
 ! calculete CWM from FV3 output
        do l=1,lm

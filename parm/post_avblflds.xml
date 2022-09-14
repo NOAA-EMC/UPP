@@ -6763,6 +6763,43 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>741</post_avblfldidx>
+       <shortname>DUST_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <scale>5.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>742</post_avblfldidx>
+       <shortname>DUST_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
+       <pname>MASSDEN</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>743</post_avblfldidx>
+       <shortname>DUST_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
+       <pname>MASSDEN</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>744</post_avblfldidx>
+       <shortname>DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
+       <pname>MASSDEN</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>8.</level>
+       <scale>6.0</scale>
+    </param>
+
    <param>
        <post_avblfldidx>746</post_avblfldidx>
        <shortname>ACM_GRAUPEL_ON_SURFACE</shortname>

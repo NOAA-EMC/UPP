@@ -472,6 +472,25 @@
           enddo
         endif
       ENDIF
+!
+!     TOTAL COLUMN DUST
+!
+      IF (IGET(741) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),22)
+         CALL BOUND(GRID1,D00,H99999)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(741))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
 !     
 !     TOTAL COLUMN CLOUD WATER
       IF (IGET(200) > 0 .or. IGET(575) > 0) THEN 
