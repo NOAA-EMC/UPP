@@ -16,12 +16,13 @@
 !> 2021-03-11 | Bo Cui         | improve local arrays memory
 !> 2021-08-31 | Lin Zhu        | added ssmis-f17 channels 15-18 grib2 output 
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
+!> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
 !>
 !> @author Chuang @date 2007-01-17       
       SUBROUTINE CALRAD_WCLOUD
 
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &
-                     qqnr, qqni, qqnw
+                     qqnr, qqni, qqnw, cfr
   use vrbls2d, only: czen, ivgtyp, sno, pctsno, ths, vegfrc, si, u10h, v10h, u10,&
        v10, smstot, hbot, htop, cnvcfr
   use masks, only: gdlat, gdlon, sm, lmh, sice
@@ -927,6 +928,7 @@
                        !       CRTM counts from top down just as post does
                        if(i==ii.and.j==jj.and.debugprint)print*,'TOA= ',atmosphere(1)%level_pressure(0)
                        do k = 1,lm
+                          atmosphere(1)%cloud_fraction(k) = min(max(cfr(i,j,k),0.),1.)
                           atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
                           atmosphere(1)%pressure(k)       = pmid(i,j,k)/r100
                           atmosphere(1)%temperature(k)    = t(i,j,k)
@@ -1511,6 +1513,7 @@
                        !       CRTM counts from top down just as post does
                        if(i==ii.and.j==jj)print*,'TOA= ',atmosphere(1)%level_pressure(0)
                        do k = 1,lm
+                          atmosphere(1)%cloud_fraction(k) = min(max(cfr(i,j,k),0.),1.)
                           atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
                           atmosphere(1)%pressure(k)       = pmid(i,j,k)/r100
                           atmosphere(1)%temperature(k)    = t(i,j,k)
