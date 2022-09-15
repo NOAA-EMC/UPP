@@ -5,9 +5,9 @@ Load environment to build post on orion
 cmake_ver=os.getenv("cmake_ver") or "3.22.1"
 load(pathJoin("cmake", cmake_ver))
 
-prepend_path("MODULEPATH", "/apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack")
+prepend_path("MODULEPATH", "/apps/contrib/NCEP/hpc-stack/libs/hpc-stack/modulefiles/stack")
 
-hpc_ver=os.getenv("hpc_ver") or "1.1.0"
+hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
 
 hpc_intel_ver=os.getenv("hpc_intel_ver") or "2022.1.2"
@@ -29,7 +29,7 @@ load(pathJoin("zlib", zlib_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.4.5"
 load(pathJoin("g2", g2_ver))
-g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.0"
+g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
 load(pathJoin("g2tmpl", g2tmpl_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
@@ -37,7 +37,7 @@ ip_ver=os.getenv("ip_ver") or "3.3.3"
 load(pathJoin("ip", ip_ver))
 sp_ver=os.getenv("sp_ver") or "2.3.3"
 load(pathJoin("sp", sp_ver))
-crtm_ver=os.getenv("crtm_ver") or "2.3.0"
+crtm_ver=os.getenv("crtm_ver") or "2.4.0"
 load(pathJoin("crtm", crtm_ver))
 w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
