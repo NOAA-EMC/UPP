@@ -16,6 +16,7 @@
 !> 2021-03-11 | Bo Cui         | improve local arrays memory
 !> 2021-08-31 | Lin Zhu        | added ssmis-f17 channels 15-18 grib2 output 
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
+!> 2022-05-26 | WM Lewis       | added support for GOES-18 ABI IR Channels 7-16
 !> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
 !>
 !> @author Chuang @date 2007-01-17       
@@ -109,7 +110,7 @@
   !      integer,parameter::  n_clouds = 4 
   integer,parameter::  n_aerosols = 0
   ! Add your sensors here
-  integer(i_kind),parameter:: n_sensors=22
+  integer(i_kind),parameter:: n_sensors=23
   character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
       (/'imgr_g15            ', &
         'imgr_g13            ', &
@@ -132,6 +133,7 @@
         'abi_gr              ', &
         'abi_g16             ', &
         'abi_g17             ', &
+        'abi_g18             ', &
         'ahi_himawari8       '/)
   character(len=13),parameter,dimension(1:n_sensors):: obslist=  &
       (/'goes_img     ', &
@@ -152,6 +154,7 @@
         'imgr_mt2     ', &
         'imgr_mt1r    ', &
         'imgr_insat3d ', &
+        'abi          ', &
         'abi          ', &
         'abi          ', &
         'abi          ', &
@@ -197,8 +200,8 @@
   logical ssmis_las,ssmis_uas,ssmis_env,ssmis_img
   logical sea,mixed,land,ice,snow,toss
   logical micrim,microwave
-  logical post_abig16, post_abig17, post_abigr ! if true, user requested at least one abi channel
-  logical fix_abig16, fix_abig17   ! if true, abi_g16, abi_g17 fix files are available
+  logical post_abig16, post_abig17, post_abig18, post_abigr ! if true, user requested at least one abi channel
+  logical fix_abig16, fix_abig17, fix_abig18   ! if true, abi_g16, abi_g17 fix files are available
   logical post_ahi8 ! if true, user requested at least on ahi channel (himawari8)
   logical post_ssmis17 ! if true, user requested at least on ssmis_f17 channel
   !  logical,dimension(nobs):: luse
@@ -220,6 +223,7 @@
   ! linked CRTM version is updated with fix files abi_g16 & abi_g17
    fix_abig16 = .False.
    fix_abig17 = .False.
+   fix_abig18 = .False.
    do n=1, n_sensors
      sensorlist_local(n) = sensorlist(n)
      if (sensorlist(n) == 'abi_g16') then  ! check if fix file is available
@@ -229,6 +233,10 @@
      if (sensorlist(n) == 'abi_g17') then
        inquire(file='abi_g17.SpcCoeff.bin',exist=fix_abig17)
        if (.not.fix_abig17) sensorlist_local(n) = 'abi_gr              '
+     endif
+     if (sensorlist(n) == 'abi_g18') then
+       inquire(file='abi_g18.SpcCoeff.bin',exist=fix_abig18)
+       if (.not.fix_abig18) sensorlist_local(n) = 'abi_gr              '
      endif
    enddo
   
@@ -273,6 +281,10 @@
   post_abig17=.false.
   do n = 937, 937+9  ! 937 set in RQSTFLD.f
     if (iget(n) > 0) post_abig17=.true.
+  enddo
+  post_abig18=.false.
+  do n = 531, 531+9  ! 531 set in RQSTFLD.f
+    if (iget(n) > 0) post_abig18=.true.
   enddo
   post_abigr=.false.
   do n = 958, 958+9  ! 958 set in RQSTFLD.f
@@ -327,7 +339,8 @@
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &
        .or. post_ahi8 .or. post_ssmis17 & 
-       .or. post_abig16 .or. post_abig17 .or. post_abigr ) then
+       .or. post_abig16 .or. post_abig17 .or. post_abig18 &
+       .or. post_abigr ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
@@ -415,6 +428,20 @@
        if (nchanl > 0 .and. nchanl <10) then 
          do n = 937, 937+9  ! 927 set in RQSTFLD.f
            if (iget(n) == 0) channelinfo(20)%Process_Channel(n-937+1)=.False.  !  turn off channel processing
+         enddo
+       endif
+     endif
+     ! GOES-18 
+     if(post_abig18)then
+       nchanl=0
+       do n = 531, 531+9  ! 531 set in RQSTFLD.f
+         if (iget(n) > 0) then
+           nchanl = nchanl+1
+         endif
+       enddo
+       if (nchanl > 0 .and. nchanl <10) then
+         do n = 531, 531+9  ! 531 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(21)%Process_Channel(n-531+1)=.False.
          enddo
        endif
      endif
@@ -540,6 +567,7 @@
              (isis=='imgr_g15' .and. iget(872)>0) .OR. &
              (isis=='abi_g16'  .and. post_abig16) .OR. &
              (isis=='abi_g17'  .and. post_abig17) .OR. &
+             (isis=='abi_g18'  .and. post_abig18) .OR. &
              (isis=='abi_gr'   .and. post_abigr) .OR. &
              (isis=='seviri_m10' .and. iget(876)>0) .OR. &
              (isis=='ahi_himawari8' .and. post_ahi8) )then
@@ -594,6 +622,9 @@
               if (isis=='abi_g17' .and. .not.fix_abig17) then
                 isis_local='abi_gr              '
               endif
+              if (isis=='abi_g18' .and. .not.fix_abig18) then
+                isis_local='abi_gr              '
+              endif
               if (channelinfo(j)%sensor_id == isis_local ) then
                  sensorindex = j
                  exit sensor_search
@@ -614,6 +645,9 @@
            if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Sensor_Id=617
            if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Satellite_Id=271
            if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Sensor_Id=617
+!          assuming sat id for g18 is 272 (continuity w/ g16 and g17)
+           if(isis=='abi_g18')channelinfo(sensorindex)%WMO_Satellite_Id=272
+           if(isis=='abi_g18')channelinfo(sensorindex)%WMO_Sensor_Id=617
            if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Satellite_Id=270
            if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Sensor_Id=617
 
@@ -955,10 +989,10 @@
                              !     &      atmosphere(1)%absorber(k,1)>1.)  &
                              !     &      print*,'bad atmosphere o3'
                           end if
-                          if(i==ii.and.j==jj.and.debugprint)print*,'sample atmosphere in CALRAD=',  &
-   	                        i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
-                                atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
-                                atmosphere(1)%absorber(k,2)
+!                          if(i==ii.and.j==jj.and.debugprint)print*,'sample atmosphere in CALRAD=',  &
+!   	                        i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
+!                                atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
+!                                atmosphere(1)%absorber(k,2)
                           ! Specify clouds
                           dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
                           if(imp_physics==99 .or. imp_physics==98)then
@@ -1248,6 +1282,7 @@
                         (isis=='imgr_g15' .and. iget(872)>0) .OR. &
                         (isis=='abi_g16'  .and. post_abig16) .OR. &
                         (isis=='abi_g17'  .and. post_abig17) .OR. &
+                        (isis=='abi_g18'  .and. post_abig18) .OR. &
                         (isis=='seviri_m10' .and. iget(876)>0) .OR. &
                         (isis=='ahi_himawari8' .and. post_ahi8) .OR. &
                         (isis=='imgr_g12' .and. (iget(456)>0 .or. &
@@ -1288,6 +1323,9 @@
                        sublat=0.0
                        sublon=-75.2
                     else if(isis=='abi_g17')then
+                       sublat=0.0
+                       sublon=-137.2
+                    else if(isis=='abi_g18')then
                        sublat=0.0
                        sublon=-137.2
                     else if(isis=='imgr_g11')then
@@ -1540,10 +1578,10 @@
                              !     &      atmosphere(1)%absorber(k,1)>1.)  &
                              !     &      print*,'bad atmosphere o3'
                           end if
-                          if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
-      	                           i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
-                                   atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
-                                   atmosphere(1)%absorber(k,2)
+!                          if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
+!      	                           i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
+!                                   atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
+!                                   atmosphere(1)%absorber(k,2)
                           ! Specify clouds
                           dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
                           if(imp_physics==99 .or. imp_physics==98)then
@@ -2078,6 +2116,30 @@
                    endif
                  enddo ! channel loop
               end if  ! end of outputting goes 17
+!             Wm Lewis updated idx for g18 on 3 JUN 2022
+              if (isis=='abi_g18')then  ! writing goes 16 to grib
+                 nc=0
+                 do ixchan=1,10
+                   igot=iget(530+ixchan)
+                   ichan=ixchan
+                   if(igot>0)then
+                    do j=jsta,jend
+                     do i=1,im
+                      grid1(i,j)=tb(i,j,ichan)
+                     enddo
+                    enddo
+                    id(1:25) = 0
+                    id(02) = 2
+                    id(08) = 118
+                    id(09) = 109
+                    if(grib=="grib2" )then
+                     cfld=cfld+1
+                     fld_info(cfld)%ifld=IAVBLFLD(igot)
+                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                    endif
+                   endif
+                 enddo ! channel loop
+              end if  ! end of outputting goes 18
               if(isis=='ahi_himawari8') then ! writing Himawari-8 AHI to grib
                  do ichan=1,10
                     igot=iget(968+ichan)
