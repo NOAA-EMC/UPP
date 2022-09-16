@@ -914,6 +914,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
            (IGET(470)>0).OR.                       &
            (IGET(909)>0).OR.(IGET(737)>0).OR.      &
+           (IGET(742)>0).OR.                       &
            (IGET(994)>0).OR.(IGET(995)>0) ) THEN
 
       DO 190 L=1,LM
