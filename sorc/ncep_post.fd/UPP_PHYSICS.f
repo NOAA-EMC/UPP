@@ -2651,26 +2651,464 @@
 
       SUBROUTINE CALSLR_ROEBBER(sno,si,slr)
 
-      use ctlblk_mod, only: ista, iend, jsta, jend, spval
+      use vrbls3d, only: T, Q, PMID
+      use vrbls2d, only: slp, prec, u10, v10
+      use ctlblk_mod, only: ista, iend, jsta, jend, LM, spval
+
+      implicit none
 
       real,dimension(ista:iend,jsta:jend),intent(in)    :: sno !weasd
       real,dimension(ista:iend,jsta:jend),intent(in)    :: si  !snod
       real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !1/sndens=si/sno
 
-      integer :: i,j
+! local variables
 
+      real,dimension(ista:iend,jsta:jend)    :: P1D,T1D,Q1D,EGRID1
+      real,dimension(ista:iend,jsta:jend,lm) :: RH3D
+
+      type all_grids
+           real :: grid
+           real :: sigma
+      end type all_grids
+
+      real,dimension(0:14), parameter        :: sig = &
+       (/0.0, 1.0, 0.975, 0.95, 0.925, 0.9, 0.875, 0.85,&
+         0.8, 0.75, 0.7, 0.65, 0.6, 0.5, 0.4/)
+
+      real,dimension(12), parameter          :: mf = &
+       (/1.0, 0.67, 0.33, 0.0, -0.33, -0.67, -1.00, -0.67, -0.33, 0.0, 0.33, 0.67/)
+
+      real,dimension(0:14)                   :: tm, rhm
+
+      real,dimension(0:30), parameter        :: co1 = &
+       (/0.0, -.2926, .0070, -.0099, .0358, .0356, .0353, .0333, .0291, &
+         .0235, .0169, .0060, -.0009, -.0052, -.0079, -.0093,&
+        -.0116, -.0137, .0030, .0033, -.0005, -.0024, -.0023,&
+        -.0021, -.0007, .0013, .0023, .0024, .0012, .0002, -.0010/)
+
+      real,dimension(0:30), parameter        :: co2 = &
+       (/0.0, -9.7961, .0099, -.0222, -.0036, -.0012, .0010, .0018, .0018,&
+         .0011, -.0001, -.0016, -.0026, -.0021, -.0015, -.0010,&
+         -.0008, -.0017, .0238, .0213, .0253, .0232, .0183, .0127,&
+          .0041, -.0063, -.0088, -.0062, -.0029, .0002, .0019/)
+
+      real,dimension(0:30), parameter        :: co3 = &
+       (/0.0, 5.0037, -0.0097, -.0130, -.0170, -.0158, -.0141, -.0097,&
+        -.0034, .0032, .0104, .0200, .0248, .0273, .0280, .0276,&
+        .0285, .0308, -.0036, -.0042, -.0013, .0011, .0014, .0023,&
+        .0011, -.0004, -.0022, -.0030, -.0033, -.0031, -.0019/)         
+
+      real,dimension(0:30), parameter        :: co4 = &
+       (/0.0, -5.0141, .0172, -.0267, .0015, .0026, .0033, .0015, -.0007,&
+        -.0030, -.0063, -.0079, -.0074, -.0055, -.0035, -.0015,&
+        -.0038, -.0093, .0052, .0059, .0019, -.0022, -.0077, -.0102,&
+        -.0109, -.0077, .0014, .0160, .0217, .0219, .0190/)
+
+      real,dimension(0:30), parameter        :: co5 = &
+       (/0.0, -5.2807, -.0240, .0228, .0067, .0019, -.0010, -.0003, .0012,&
+         .0027, .0056, .0067, .0067, .0034, .0005, -.0026, -.0039,&
+         -.0033, -.0225, -.0152, -.0157, -.0094, .0049, .0138,&
+         .0269, .0388, .0334, .0147, .0018, -.0066, -.0112/)
+
+      real,dimension(0:30), parameter        :: co6 = &
+       (/0.0, -2.2663, .0983, .3666, .0100, .0062, .0020, -.0008, -.0036,&
+         -.0052, -.0074, -.0086, -.0072, -.0057, -.0040, -.0011,&
+         .0006, .0014, .0012, -.0005, -.0019, .0003, -.0007, -.0008,&
+         .0022, .0005, -.0016, -.0052, -.0024, .0008, .0037/)
+
+      type(all_grids), dimension(ista:iend,jsta:jend,lm) :: tmpk_grids, rh_grids
+      integer,         dimension(ista:iend,jsta:jend,lm) :: tmpk_levels, rh_levels
+
+      real,dimension(ista:iend,jsta:jend)    :: hprob,mprob,lprob
+      real,dimension(ista:iend,jsta:jend)    :: slrgrid, slrgrid2
+      real,dimension(ista:iend,jsta:jend)    :: pres,qpf,swnd
+
+      character*20 nswFileName
+      real :: psurf, sgw, sg1, sg2, dtds, rhds
+      real :: f1, f2, f3, f4, f5, f6
+      real :: p1, p2, p3
+      real :: hprob_tot = 0.
+      real :: mprob_tot = 0.
+      real :: lprob_tot = 0.
+
+      integer :: i, j, k, ks, L, LL, imo
+!
+!***************************************************************************
+!
+! calculate rh for all levels
+
+      loop_lm: DO L=1,LM
+        LL=LM-L+1
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+        DO I=ISTA,IEND
+          P1D(I,J) = PMID(I,J,LL)
+          T1D(I,J) = T(I,J,LL)
+          Q1D(I,J) = Q(I,J,LL)
+        ENDDO
+        ENDDO
+        CALL CALRH(P1D,T1D,Q1D,EGRID1)
+        RH3D(:,:,LL)=EGRID1
+      END DO loop_lm
+
+! Load variables
+
+      DO L=1,LM
+        LL=LM-L+1
 !$omp parallel do private(i,j)
       do j=jsta,jend
       do i=ista,iend
-         slr(i,j)=spval
-         if(sno(i,j) /= spval .and. si(i,j) /= spval .and. si(i,j) > 0.) then
-           slr(i,j) = si(i,j)/sno(i,j)
-         endif
+         tmpk_grids(i,j,LL)%grid=T(I,J,LL)-273.15
+         tmpk_levels(i,j,LL)=PMID(I,J,LL)
+         rh_grids(i,j,LL)%grid=RH3D(I,J,LL)
+         rh_levels(i,j,LL)=PMID(I,J,LL)
+      end do
+      end do
+      END DO
 
+!$omp parallel do private(i,j)
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         pres(i,j)=slp(i,j)
+         qpf(i,j)=prec(i,j)
+         swnd(i,j)=spval
+         if(u10(i,j)/=spval .and. v10(i,j)/=spval) &
+         swnd(i,j)=sqrt(u10(i,j)*u10(i,j)+v10(i,j)*v10(i,j))
+      END DO
+      END DO
+
+! Convert to sigma
+
+      tmpk_grids(:,:,1)%sigma = 1
+      rh_grids(:,:,1)%sigma = 1
+
+      DO L=1,LM-1
+        LL=LM-L+1
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+        do i=ista,iend
+           if(pres(i,j) == spval) then
+              tmpk_grids(i,j,LL)%sigma=spval
+              rh_grids(i,j,LL)%sigma=spval
+           else
+              tmpk_grids(i,j,LL)%sigma=tmpk_levels(i,j,LL) / pres(i,j)     
+              rh_grids(i,j,LL)%sigma=rh_levels(i,j,LL) / pres(i,j)
+           endif
+        end do
+        end do
+      END DO
+
+! main slr i/j loop start
+
+!$omp parallel do private(i,j)
+      loop_slr: do j=jsta,jend
+      do i=ista,iend
+         slr(i,j)=spval
+        ! if(sno(i,j) /= spval .and. si(i,j) /= spval .and. si(i,j) > 0.) then
+        !   slr(i,j) = si(i,j)/sno(i,j)
+        ! endif
+        ! slr(i,j) = RH3D(i,j,LM)
+
+      if(pres(i,j)/=spval .and. qpf(i,j)/=spval .and. swnd(i,j)/=spval) then
+
+! Interpolate to the 14 sigma levels      
+
+      loop_ks15: do ks=1,14
+         psurf = pres(i,j)
+         sgw   = sig(ks)
+
+         do L=LM,2,-1
+           LL=LM-L+1
+           if(LL==1) then
+              sg1 = psurf/psurf
+           else
+              sg1 = tmpk_levels(i,j,LL)/psurf
+           endif  
+              sg2 = tmpk_levels(i,j,LL+1)/psurf
+           
+           if(sg1==sgw) then
+              tm(ks) = tmpk_grids(i,j,LL)%grid
+              rhm(ks)=   rh_grids(i,j,LL)%grid
+           elseif (sg2==sgw) then
+              tm(ks) = tmpk_grids(i,j,LL+1)%grid
+              rhm(ks)=   rh_grids(i,j,LL+1)%grid
+           elseif ((sgw < sg1) .and. (sgw > sg2)) then
+              dtds = (tmpk_grids(i,j,LL+1)%grid - tmpk_grids(i,j,LL)%grid) / (sg2-sg1)
+              tm(ks) = ((sgw - sg1) * dtds) + tmpk_grids(i,j,LL)%grid
+              rhds = (rh_grids(i,j,LL+1)%grid - rh_grids(i,j,LL)%grid) / (sg2-sg1)
+              rhm(ks)= ((sgw - sg1) * rhds) + rh_grids(i,j,LL)%grid
+           endif    
+         end do
+      end do loop_ks15
+
+! Have surface wind, QPF, and temp/RH on the 14 levels.
+! Convert these data to the factors using regression equations
+
+      f1 = co1(1)+co1(2)*qpf(i,j)+co1(3)*swnd(i,j)+co1(4)*tm(1)+co1(5)*tm(2)+co1(6)*tm(3)+ &
+           co1(7)*tm(4)+co1(8)*tm(5)+co1(9)*tm(6)+co1(10)*tm(7)+co1(11)*tm(8)+ &
+           co1(12)*tm(9)+co1(13)*tm(10)+co1(14)*tm(11)+co1(15)*tm(12)+co1(16)*tm(13)+ &
+           co1(17)*tm(14)+co1(18)*rhm(1)+co1(19)*rhm(2)+co1(20)*rhm(3)+co1(21)*rhm(4)+ &
+           co1(22)*rhm(5)+co1(23)*rhm(6)+co1(24)*rhm(7)+co1(25)*rhm(8)+co1(26)*rhm(9)+ &
+           co1(27)*rhm(10)+co1(28)*rhm(11)+co1(29)*rhm(12)+co1(30)*rhm(13);
+
+      f2 = co2(1)+co2(2)*qpf(i,j)+co2(3)*swnd(i,j)+co2(4)*tm(1)+co2(5)*tm(2)+co2(6)*tm(3)+ &
+           co2(7)*tm(4)+co2(8)*tm(5)+co2(9)*tm(6)+co2(10)*tm(7)+co2(11)*tm(8)+ &
+           co2(12)*tm(9)+co2(13)*tm(10)+co2(14)*tm(11)+co2(15)*tm(12)+co2(16)*tm(13)+ &
+           co2(17)*tm(14)+co2(18)*rhm(1)+co2(19)*rhm(2)+co2(20)*rhm(3)+co2(21)*rhm(4)+ &
+           co2(22)*rhm(5)+co2(23)*rhm(6)+co2(24)*rhm(7)+co2(25)*rhm(8)+co2(26)*rhm(9)+ &
+           co2(27)*rhm(10)+co2(28)*rhm(11)+co2(29)*rhm(12)+co2(30)*rhm(13);
+
+      f3 = co3(1)+co3(2)*qpf(i,j)+co3(3)*swnd(i,j)+co3(4)*tm(1)+co3(5)*tm(2)+co3(6)*tm(3)+ &
+           co3(7)*tm(4)+co3(8)*tm(5)+co3(9)*tm(6)+co3(10)*tm(7)+co3(11)*tm(8)+ &
+           co3(12)*tm(9)+co3(13)*tm(10)+co3(14)*tm(11)+co3(15)*tm(12)+co3(16)*tm(13)+ &
+           co3(17)*tm(14)+co3(18)*rhm(1)+co3(19)*rhm(2)+co3(20)*rhm(3)+co3(21)*rhm(4)+ &
+           co3(22)*rhm(5)+co3(23)*rhm(6)+co3(24)*rhm(7)+co3(25)*rhm(8)+co3(26)*rhm(9)+ &
+           co3(27)*rhm(10)+co3(28)*rhm(11)+co3(29)*rhm(12)+co3(30)*rhm(13);
+
+      f4 = co4(1)+co4(2)*qpf(i,j)+co4(3)*swnd(i,j)+co4(4)*tm(1)+co4(5)*tm(2)+co4(6)*tm(3)+ &
+           co4(7)*tm(4)+co4(8)*tm(5)+co4(9)*tm(6)+co4(10)*tm(7)+co4(11)*tm(8)+ &
+           co4(12)*tm(9)+co4(13)*tm(10)+co4(14)*tm(11)+co4(15)*tm(12)+co4(16)*tm(13)+ &
+           co4(17)*tm(14)+co4(18)*rhm(1)+co4(19)*rhm(2)+co4(20)*rhm(3)+co4(21)*rhm(4)+ &
+           co4(22)*rhm(5)+co4(23)*rhm(6)+co4(24)*rhm(7)+co4(25)*rhm(8)+co4(26)*rhm(9)+ &
+           co4(27)*rhm(10)+co4(28)*rhm(11)+co4(29)*rhm(12)+co4(30)*rhm(13);
+
+      f5 = co5(1)+co5(2)*qpf(i,j)+co5(3)*swnd(i,j)+co5(4)*tm(1)+co5(5)*tm(2)+co5(6)*tm(3)+ &
+           co5(7)*tm(4)+co5(8)*tm(5)+co5(9)*tm(6)+co5(10)*tm(7)+co5(11)*tm(8)+ &
+           co5(12)*tm(9)+co5(13)*tm(10)+co5(14)*tm(11)+co5(15)*tm(12)+co5(16)*tm(13)+ &
+           co5(17)*tm(14)+co5(18)*rhm(1)+co5(19)*rhm(2)+co5(20)*rhm(3)+co5(21)*rhm(4)+ &
+           co5(22)*rhm(5)+co5(23)*rhm(6)+co5(24)*rhm(7)+co5(25)*rhm(8)+co5(26)*rhm(9)+ &
+           co5(27)*rhm(10)+co5(28)*rhm(11)+co5(29)*rhm(12)+co5(30)*rhm(13);
+      
+      f6 = co6(1)+co6(2)*qpf(i,j)+co6(3)*swnd(i,j)+co6(4)*tm(1)+co6(5)*tm(2)+co6(6)*tm(3)+ &
+           co6(7)*tm(4)+co6(8)*tm(5)+co6(9)*tm(6)+co6(10)*tm(7)+co6(11)*tm(8)+ &
+           co6(12)*tm(9)+co6(13)*tm(10)+co6(14)*tm(11)+co6(15)*tm(12)+co6(16)*tm(13)+ &
+           co6(17)*tm(14)+co6(18)*rhm(1)+co6(19)*rhm(2)+co6(20)*rhm(3)+co6(21)*rhm(4)+ &
+           co6(22)*rhm(5)+co6(23)*rhm(6)+co6(24)*rhm(7)+co6(25)*rhm(8)+co6(26)*rhm(9)+ &
+           co6(27)*rhm(10)+co6(28)*rhm(11)+co6(29)*rhm(12)+co6(30)*rhm(13);
+
+      do k=1,10
+         p1 = 0
+         p2 = 0
+         p3 = 0
+         if(k==1) then
+            nswFileName='Breadboard1.nsw'
+            call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==2) then
+            nswFileName='Breadboard2.nsw'
+            call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==3) then
+            nswFileName='Breadboard3.nsw'
+            call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==4) then
+            nswFileName='Breadboard4.nsw'
+            call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==5) then
+            nswFileName='Breadboard5.nsw'
+            call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==6) then
+            nswFileName='Breadboard6.nsw'
+            call breadboard6_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==7) then
+            nswFileName='Breadboard7.nsw'
+            call breadboard6_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==8) then
+            nswFileName='Breadboard8.nsw'
+            call breadboard6_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==9) then
+            nswFileName='Breadboard9.nsw'
+            call breadboard6_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         elseif(k==10) then
+            nswFileName='Breadboard10.nsw'
+            call breadboard6_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
+         endif
+         hprob_tot = hprob_tot + p1
+         mprob_tot = mprob_tot + p2
+         lprob_tot = lprob_tot + p3
       enddo
+      hprob(i,j) = hprob_tot/10.
+      mprob(i,j) = mprob_tot/10.
+      lprob(i,j) = lprob_tot/10.
+
+      if(hprob(i,j) > mprob(i,j) .and. hprob(i,j) > lprob(i,j)) then
+         slrgrid(i,j) = 8.0
+      elseif(mprob(i,j) >= hprob(i,j) .and. mprob(i,j) >= lprob(i,j)) then
+         slrgrid(i,j) = 13.0
+      elseif(lprob(i,j) > hprob(i,j) .and. lprob(i,j) > mprob(i,j)) then   
+          if(lprob(i,j) < .67) then
+             slrgrid(i,j) = 18.0
+          else 
+             slrgrid(i,j) = 27.0
+          endif
+      endif
+
+!     Weighted SLR
+
+      if(lprob(i,j) < .67) then
+         slrgrid2(i,j) = hprob(i,j)*8.0 + mprob(i,j)*13.0 + lprob(i,j)*18.0
+         slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
+      else
+         slrgrid2(i,j) = hprob(i,j)*8.0 + mprob(i,j)*13.0 + lprob(i,j)*27.0
+         slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
+      endif
+               
+      slr(i,j) = slrgrid2(i,j)
+      slr(i,j) = RH3D(i,j,LM)
+
+      endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
+      enddo loop_slr
 
       END SUBROUTINE CALSLR_ROEBBER
+!
+!-------------------------------------------------------------------------------------
+!
+      SUBROUTINE breadboard1_main(nswFileName,mf,f1,f2,f3,f4,f5,f6,p1,p2,p3)
+
+      implicit none
+
+      character*20 nswFileName
+      real mf, f1, f2, f3, f4, f5, f6
+      real p1, p2, p3
+
+      integer ieof
+      character*100 bbstring
+      integer datacount
+      real inputFile(2,7)
+      real inputAxon(7)
+      real hidden1Axon(40)
+      real outputAxon(3)
+      real hidden1Synapse(7,40)
+      real outputSynapse(40,3)
+      real activeOutputProbe(2,3)
+
+      integer i,j
+
+      open(11,file=nswFileName,status='unknown')
+
+      ieof = 0
+      do while (ieof == 0)
+
+      read(11,'(a)',iostat=ieof) bbstring
+
+      if(trim(bbstring)=='#inputFile File') then
+         print*,trim(bbstring)
+         read(11,*) datacount
+         do j=1,7
+            read(11,*) inputFile(:,j)
+         enddo
+      endif
+
+      if(trim(bbstring)=='#inputAxon Axon') then
+         read(11,*) i,j
+         read(11,*) j
+      endif
+
+      if(trim(bbstring)=='#hidden1Axon TanhAxon') then
+         read(11,*) i,j
+         read(11,*) j
+         read(11,*) datacount, hidden1Axon
+      endif
+
+      if(trim(bbstring)=='#outputAxon SoftMaxAxon') then
+         read(11,*) i,j
+         read(11,*) j
+         read(11,*) datacount, outputAxon
+      endif
+
+      if(trim(bbstring)=='#hidden1Synapse FullSynapse') then
+         read(11,*) datacount, hidden1Synapse
+      endif
+
+      if(trim(bbstring)=='#outputSynapse FullSynapse') then
+         read(11,*) datacount, outputSynapse
+      endif
+
+      if(trim(bbstring)=='#activeOutputProbe DataWriter') then
+         read(11,*) datacount
+         do j=1,3
+            read(11,*) activeOutputProbe(:,j)
+         enddo
+      endif
+
+      enddo
+
+      close(11)
+
+      END SUBROUTINE breadboard1_main
+!
+!-------------------------------------------------------------------------------------
+!
+      SUBROUTINE breadboard6_main(nswFileName,mf,f1,f2,f3,f4,f5,f6,p1,p2,p3)
+
+      character*20 nswFileName
+      real mf, f1, f2, f3, f4, f5, f6
+      real p1, p2, p3
+
+      integer ieof
+      character*100 bbstring
+      integer datacount
+      real inputFile(2,7)
+      real inputAxon(7)
+      real hidden1Axon(40)
+      real outputAxon(3)
+      real hidden1Synapse(7,40)
+      real outputSynapse(40,3)
+      real activeOutputProbe(2,3)
+
+      integer i,j
+
+      open(11,file=nswFileName,status='unknown')
+
+      ieof = 0
+      do while (ieof == 0)
+
+      read(11,'(a)',iostat=ieof) bbstring
+
+      if(trim(bbstring)=='#inputFile File') then
+         print*,trim(bbstring)
+         read(11,*) datacount
+         do j=1,7
+            read(11,*) inputFile(:,j)
+         enddo
+      endif
+
+      if(trim(bbstring)=='#inputAxon Axon') then
+         read(11,*) i,j
+         read(11,*) j
+      endif
+
+      if(trim(bbstring)=='#hidden1Axon TanhAxon') then
+         read(11,*) i,j
+         read(11,*) j
+         read(11,*) datacount, hidden1Axon
+      endif
+
+      if(trim(bbstring)=='#outputAxon SoftMaxAxon') then
+         read(11,*) i,j
+         read(11,*) j
+         read(11,*) datacount, outputAxon
+      endif
+
+      if(trim(bbstring)=='#hidden1Synapse FullSynapse') then
+         read(11,*) datacount, hidden1Synapse
+      endif
+
+      if(trim(bbstring)=='#outputSynapse FullSynapse') then
+         read(11,*) datacount, outputSynapse
+      endif
+
+      if(trim(bbstring)=='#activeOutputProbe DataWriter') then
+         read(11,*) datacount
+         do j=1,3
+            read(11,*) activeOutputProbe(:,j)
+         enddo
+      endif
+
+      enddo
+
+      close(11)
+
+      END SUBROUTINE breadboard6_main
 !
 !-------------------------------------------------------------------------------------
 !
