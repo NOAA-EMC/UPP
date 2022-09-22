@@ -45,7 +45,6 @@
 
 !     
 !
-      use vrbls4d,    only: DUST
       use vrbls3d,    only: ZMID, T, Q, PMID, ICING_GFIP, UH, VH
       use vrbls2d,    only: FIS
       use masks,      only: LMH
@@ -224,22 +223,11 @@
                 PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
                 ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
                  (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
-!                if (gocart_on) then
-!                  DO N = 1, NBIN_DU
-!                    AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
-!                        (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
-!                  ENDDO
-!                endif
               ELSEIF (L == LM) THEN
                 TFD(I,J,IFD) = T(I,J,L)
                 QFD(I,J,IFD) = Q(I,J,L)
                 PFD(I,J,IFD) = PMID(I,J,L)
                 ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
-!                if (gocart_on) then
-!                  DO N = 1, NBIN_DU
-!                    AERFD(I,J,IFD,N) = DUST(I,J,L,N)
-!                  ENDDO
-!                endif
               ENDIF
     
               L = LVL(IFD)
@@ -364,22 +352,11 @@
                  PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
                  ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
                    (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
-             !    if (gocart_on) then
-             !      DO N = 1, NBIN_DU
-             !        AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
-             !       (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
-             !      ENDDO
-             !    endif
                ELSE
                  TFD(I,J,IFD) = T(I,J,L)
                  QFD(I,J,IFD) = Q(I,J,L)
                  PFD(I,J,IFD) = PMID(I,J,L)
                  ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
-             !    if (gocart_on) then
-             !      DO N = 1, NBIN_DU
-             !        AERFD(I,J,IFD,N) = DUST(I,J,L,N)
-             !      ENDDO
-             !    endif
                ENDIF
 
                L = LVL(IFD)
@@ -812,6 +789,7 @@
 !> 2017-06-01 | Y Mao        | Add FD levels for GTG(EDPARM CATEDR MWTURB) and allow levels input from control file
 !> 2019-09-25 | Y Mao        | Seperate mass from UV allow array of mass input to interpolate multiple fields with the same levels at one time. Dust=> AERFD can be processed when NIN=NBIN_DU
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!> 2022-09-22 | Li(Kate) Zhang   | Remove Dust=> AERFD
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)

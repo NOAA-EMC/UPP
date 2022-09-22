@@ -81,7 +81,7 @@ export machine=${machine:-WCOSS_C}
 ###########################
 # Specify Output layers
 ###########################
-export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,nasa_on=.true.,"
+export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,"
 
 ##########################################################
 # Specify variable to directly output pgrb2 files for GDAS/GFS
@@ -315,8 +315,7 @@ do
 
     if [ $GRIBVERSION = 'grib2' ]; then
       export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
-      #export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS.txt}
-      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-UFS-aerosol.txt}
+      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS.txt}
 
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS

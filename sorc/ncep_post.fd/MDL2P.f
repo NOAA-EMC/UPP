@@ -199,9 +199,7 @@
          (IGET(393) > 0) .OR. (IGET(394) > 0) .OR.      &
          (IGET(395) > 0) .OR. (IGET(379) > 0) .OR.      &
 ! ADD DUST FIELDS
-         (IGET(438) > 0) .OR. (IGET(439) > 0) .OR.      &
-         (IGET(440) > 0) .OR. (IGET(441) > 0) .OR.      &
-         (IGET(442) > 0) .OR. (IGET(455) > 0) .OR.      &
+         (IGET(455) > 0) .OR.      &
 ! ADD SMOKE FIELDS
          (IGET(738) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
 ! LIFTED INDEX needs 500 mb T
@@ -2064,130 +2062,6 @@
           ENDIF
          ENDIF
          
-!          if (gocart_on) then
-!!--- DUST 
-!         IF (IGET(438) > 0) THEN
-!          IF (LVLS(LP,IGET(438)) > 0) THEN
-!!$omp  parallel do private(i,j)
-!             DO J=JSTA,JEND
-!               DO I=ISTA,IEND
-!                 GRID1(I,J) = DUSTSL(I,J,1)
-!               ENDDO
-!             ENDDO
-!             if(grib == 'grib2')then
-!               cfld = cfld + 1
-!               fld_info(cfld)%ifld=IAVBLFLD(IGET(438))
-!               fld_info(cfld)%lvl=LVLSXML(LP,IGET(438))
-!!$omp parallel do private(i,j,ii,jj)
-!               do j=1,jend-jsta+1
-!                 jj = jsta+j-1
-!                 do i=1,iend-ista+1
-!                  ii=ista+i-1
-!                   datapd(i,j,cfld) = GRID1(ii,jj)
-!                 enddo
-!               enddo
-!             endif
-!          ENDIF
-!         ENDIF
-!
-!         IF (IGET(439) > 0) THEN
-!          IF (LVLS(LP,IGET(439)) > 0) THEN
-!!$omp  parallel do private(i,j)
-!             DO J=JSTA,JEND
-!               DO I=ISTA,IEND
-!                 GRID1(I,J) = DUSTSL(I,J,2)
-!               ENDDO
-!             ENDDO
-!             if(grib == 'grib2')then
-!               cfld = cfld + 1
-!               fld_info(cfld)%ifld=IAVBLFLD(IGET(439))
-!               fld_info(cfld)%lvl=LVLSXML(LP,IGET(439))
-!!$omp parallel do private(i,j,ii,jj)
-!               do j=1,jend-jsta+1
-!                 jj = jsta+j-1
-!                 do i=1,iend-ista+1
-!                  ii=ista+i-1
-!                   datapd(i,j,cfld) = GRID1(ii,jj)
-!                 enddo
-!               enddo
-!             endif
-!          ENDIF
-!         ENDIF
-!
-!        IF (IGET(440) > 0) THEN
-!
-!          IF (LVLS(LP,IGET(440)) > 0) THEN
-!!$omp  parallel do private(i,j)
-!             DO J=JSTA,JEND
-!               DO I=ISTA,IEND
-!                 GRID1(I,J) = DUSTSL(I,J,3)
-!               ENDDO
-!             ENDDO
-!             if(grib == 'grib2')then
-!               cfld = cfld + 1
-!               fld_info(cfld)%ifld=IAVBLFLD(IGET(440))
-!               fld_info(cfld)%lvl=LVLSXML(LP,IGET(440))
-!!$omp parallel do private(i,j,ii,jj)
-!               do j=1,jend-jsta+1
-!                 jj = jsta+j-1
-!                 do i=1,iend-ista+1
-!                  ii=ista+i-1
-!                   datapd(i,j,cfld) = GRID1(ii,jj)
-!                 enddo
-!               enddo
-!             endif
-!          ENDIF
-!         ENDIF
-!
-!         IF (IGET(441) > 0) THEN
-!          IF (LVLS(LP,IGET(441)) > 0) THEN
-!!$omp  parallel do private(i,j)
-!             DO J=JSTA,JEND
-!               DO I=ISTA,IEND
-!                 GRID1(I,J) = DUSTSL(I,J,4)
-!               ENDDO
-!             ENDDO
-!             if(grib == 'grib2')then
-!               cfld = cfld + 1
-!               fld_info(cfld)%ifld=IAVBLFLD(IGET(441))
-!               fld_info(cfld)%lvl=LVLSXML(LP,IGET(441))
-!!$omp parallel do private(i,j,ii,jj)
-!               do j=1,jend-jsta+1
-!                 jj = jsta+j-1
-!                 do i=1,iend-ista+1
-!                  ii=ista+i-1
-!                   datapd(i,j,cfld) = GRID1(ii,jj)
-!                 enddo
-!               enddo
-!             endif
-!          ENDIF
-!         ENDIF
-!
-!         IF (IGET(442) > 0) THEN
-!          IF (LVLS(LP,IGET(442)) > 0) THEN
-!!$omp  parallel do private(i,j)
-!             DO J=JSTA,JEND
-!               DO I=ISTA,IEND
-!                 GRID1(I,J) = DUSTSL(I,J,5)
-!               ENDDO
-!             ENDDO
-!             if(grib == 'grib2')then
-!               cfld = cfld + 1
-!               fld_info(cfld)%ifld=IAVBLFLD(IGET(442))
-!               fld_info(cfld)%lvl=LVLSXML(LP,IGET(442))
-!!$omp parallel do private(i,j,ii,jj)
-!               do j=1,jend-jsta+1
-!                 jj = jsta+j-1
-!                 do i=1,iend-ista+1
-!                  ii=ista+i-1
-!                   datapd(i,j,cfld) = GRID1(ii,jj)
-!                 enddo
-!               enddo
-!             endif
-!          ENDIF
-!         ENDIF
-!         endif  ! if gocart_on
-
          if(iostatusD3D==0 .and. d3d_on) then
 !---  longwave tendency
            IF (IGET(355) > 0) THEN
