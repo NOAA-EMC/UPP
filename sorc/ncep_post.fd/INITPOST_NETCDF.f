@@ -34,7 +34,8 @@
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon
+              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon, extsmoke, extdust,                &
+              aextc55, taod5503d
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
@@ -135,6 +136,7 @@
       integer nfhour ! forecast hour from nems io file
       integer fhzero !bucket
       real dtp !physics time step
+      real dz
       REAL RINC(5)
 
       REAL DUMMY(IM,JM)
@@ -659,12 +661,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=16
+       nrec=18
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle','smoke','dust']
+                                     'snmr','grle','smoke','dust',      &
+                                     'smoke_ext','dust_ext']
       else
        nrec=8
        allocate (recname(nrec))
@@ -1021,6 +1024,10 @@
        spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(17),extsmoke(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(18),extdust(ista_2l,jsta_2l,1),lm)
 
 ! calculete CWM from FV3 output
        do l=1,lm
@@ -2582,6 +2589,28 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
+
+!
+! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
+! extinction; it needs to be after ZINT is defined.
+!
+      if(imp_physics==28) then
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = ista_2l, iend_2u
+            taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
+            dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
+            aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
+          i,j,l,taod5503d ( i, j, l )
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
+          dz
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+          i,j,l,aextc55 ( i, j, l )
+        end do
+       end do
+      end do
+      end if
 
 !$omp parallel do private(i,j)
       do j=jsta,jend

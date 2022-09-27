@@ -80,6 +80,8 @@
       deallocate(QQNIFA)
       deallocate(TAOD5503D)
       deallocate(AEXTC55)
+      deallocate(EXTSMOKE)
+      deallocate(EXTDUST)
       deallocate(EXTCOF55)
       deallocate(QC_BL)
       deallocate(CFR)

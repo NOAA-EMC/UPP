@@ -151,6 +151,8 @@
       allocate(QQNIFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(TAOD5503D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(AEXTC55(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EXTSMOKE(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EXTDUST(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(EXTCOF55(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QC_BL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(CFR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
