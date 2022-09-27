@@ -1893,6 +1893,11 @@
            <scale>5.0</scale>
        </param>
 
+       <param>
+           <shortname>AOD_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+           <scale>5.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>

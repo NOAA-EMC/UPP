@@ -2594,7 +2594,6 @@
 ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
 ! extinction; it needs to be after ZINT is defined.
 !
-      if(imp_physics==28) then
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = ista_2l, iend_2u
