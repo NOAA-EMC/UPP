@@ -2609,7 +2609,6 @@
         end do
        end do
       end do
-      end if
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
