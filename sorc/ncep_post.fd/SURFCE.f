@@ -961,6 +961,7 @@
         do j=jsta,jend
         do i=ista,iend
 !           if(egrid1(i,j) /= spval .and. egrid1(i,j) > 0.) &
+!           if(egrid1(i,j) /= spval .and. egrid1(i,j) > 0.) &
 !               grid1(i,j)=1./egrid1(i,j)
            grid1(i,j)=egrid1(i,j)
         enddo

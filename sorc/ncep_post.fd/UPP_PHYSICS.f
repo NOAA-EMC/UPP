@@ -2659,7 +2659,7 @@
 
       real,dimension(ista:iend,jsta:jend),intent(in)    :: sno !weasd
       real,dimension(ista:iend,jsta:jend),intent(in)    :: si  !snod
-      real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !1/sndens=si/sno
+      real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !slr=1/sndens=si/sno
 
 ! local variables
 
@@ -2727,14 +2727,17 @@
       real :: psurf, sgw, sg1, sg2, dtds, rhds
       real :: f1, f2, f3, f4, f5, f6
       real :: p1, p2, p3
-      real :: hprob_tot = 0.
-      real :: mprob_tot = 0.
-      real :: lprob_tot = 0.
+      real :: hprob_tot
+      real :: mprob_tot
+      real :: lprob_tot
 
       integer :: i, j, k, ks, L, LL, imo
 !
 !***************************************************************************
 !
+! obtain month of the year, hardwired for testing
+      imo = 3
+
 ! calculate rh for all levels
 
       loop_lm: DO L=1,LM
@@ -2758,10 +2761,10 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
       do i=ista,iend
-         tmpk_grids(i,j,LL)%grid=T(I,J,LL)-273.15
-         tmpk_levels(i,j,LL)=PMID(I,J,LL)
-         rh_grids(i,j,LL)%grid=RH3D(I,J,LL)
-         rh_levels(i,j,LL)=PMID(I,J,LL)
+         tmpk_grids(i,j,LL)%grid=T(I,J,L)-273.15
+         tmpk_levels(i,j,LL)=PMID(I,J,L)
+         rh_grids(i,j,LL)%grid=RH3D(I,J,L)
+         rh_levels(i,j,LL)=PMID(I,J,L)
       end do
       end do
       END DO
@@ -2804,6 +2807,12 @@
       loop_slr: do j=jsta,jend
       do i=ista,iend
          slr(i,j)=spval
+         slrgrid(i,j)=spval
+         slrgrid2(i,j)=spval
+         hprob(i,j)=spval
+         mprob(i,j)=spval
+         lprob(i,j)=spval
+
         ! if(sno(i,j) /= spval .and. si(i,j) /= spval .and. si(i,j) > 0.) then
         !   slr(i,j) = si(i,j)/sno(i,j)
         ! endif
@@ -2886,10 +2895,13 @@
            co6(22)*rhm(5)+co6(23)*rhm(6)+co6(24)*rhm(7)+co6(25)*rhm(8)+co6(26)*rhm(9)+ &
            co6(27)*rhm(10)+co6(28)*rhm(11)+co6(29)*rhm(12)+co6(30)*rhm(13);
 
+      hprob_tot = 0.
+      mprob_tot = 0.
+      lprob_tot = 0.
       do k=1,10
-         p1 = 0
-         p2 = 0
-         p3 = 0
+         p1 = 0.
+         p2 = 0.
+         p3 = 0.
          if(k==1) then
             nswFileName='Breadboard1.nsw'
             call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
@@ -2951,8 +2963,13 @@
          slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
       endif
                
-      slr(i,j) = slrgrid2(i,j)
-      slr(i,j) = RH3D(i,j,LM)
+      slr(i,j) = hprob(i,j)
+!      slr(i,j) = mprob(i,j)
+!      slr(i,j) = lprob(i,j)
+!      slr(i,j) = slrgrid(i,j)
+!      slr(i,j) = slrgrid2(i,j)
+!      slr(i,j) = rhm(1)
+!      slr(i,j) = RH3D(i,j,LM)
 
       endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
@@ -2970,6 +2987,8 @@
       real mf, f1, f2, f3, f4, f5, f6
       real p1, p2, p3
 
+      real f(7)
+
       integer ieof
       character*100 bbstring
       integer datacount
@@ -2981,7 +3000,19 @@
       real outputSynapse(40,3)
       real activeOutputProbe(2,3)
 
+      real fgrid1(40), fgrid2(3), fgridsum
+
       integer i,j
+!
+      f(1) = mf
+      f(2) = f1
+      f(3) = f2
+      f(4) = f3
+      f(5) = f4
+      f(6) = f5
+      f(7) = f6
+
+! Read nsw file and load weights
 
       open(11,file=nswFileName,status='unknown')
 
@@ -2991,7 +3022,6 @@
       read(11,'(a)',iostat=ieof) bbstring
 
       if(trim(bbstring)=='#inputFile File') then
-         print*,trim(bbstring)
          read(11,*) datacount
          do j=1,7
             read(11,*) inputFile(:,j)
@@ -3033,6 +3063,38 @@
       enddo
 
       close(11)
+
+! Run Network
+
+      do i=1,7
+         inputAxon(i) = inputFile(i,1) * f(i) + inputFile(i,2)
+      enddo
+
+      fgrid1=0.
+      do j=1,40
+         do i=1,7
+            fgrid1(j) = fgrid1(j) + hidden1Synapse(i,j) * inputAxon(i) 
+         enddo
+         fgrid1(j) = fgrid1(j) + hidden1Axon(j)
+         fgrid1(j) = (exp(fgrid1(j))-exp(-fgrid1(j)))/(exp(fgrid1(j))+exp(-fgrid1(j)))
+      enddo
+
+      fgrid2=0.
+      fgridsum=0.
+      do j=1,3
+         do i=1,40
+            fgrid2(j) = fgrid2(j) + outputSynapse(i,j) * fgrid1(i)
+         enddo
+         fgrid2(j) = fgrid2(j) + outputAxon(j)
+         fgridsum = fgridsum + fgrid2(j)
+      enddo
+      do j=1,3
+         fgrid2(j) = fgrid2(j) / fgridsum
+      enddo
+
+      p1 = fgrid2(1)
+      p2 = fgrid2(2)
+      p3 = fgrid2(3)
 
       END SUBROUTINE breadboard1_main
 !
@@ -3040,23 +3102,39 @@
 !
       SUBROUTINE breadboard6_main(nswFileName,mf,f1,f2,f3,f4,f5,f6,p1,p2,p3)
 
+      implicit none
+
       character*20 nswFileName
       real mf, f1, f2, f3, f4, f5, f6
       real p1, p2, p3
+
+      real f(7)
 
       integer ieof
       character*100 bbstring
       integer datacount
       real inputFile(2,7)
       real inputAxon(7)
-      real hidden1Axon(40)
+      real hidden1Axon(7)
+      real hidden2Axon(4)
       real outputAxon(3)
-      real hidden1Synapse(7,40)
-      real outputSynapse(40,3)
+      real hidden1Synapse(7,7)
+      real hidden2Synapse(7,4)
+      real outputSynapse(4,3)
       real activeOutputProbe(2,3)
 
-      integer i,j
+      real fgrid1(7), fgrid2(4), fgrid3(3), fgridsum
 
+      integer i,j
+!
+      f(1) = mf
+      f(2) = f1
+      f(3) = f2
+      f(4) = f3
+      f(5) = f4
+      f(6) = f5
+      f(7) = f6
+!
       open(11,file=nswFileName,status='unknown')
 
       ieof = 0
@@ -3065,7 +3143,6 @@
       read(11,'(a)',iostat=ieof) bbstring
 
       if(trim(bbstring)=='#inputFile File') then
-         print*,trim(bbstring)
          read(11,*) datacount
          do j=1,7
             read(11,*) inputFile(:,j)
@@ -3083,6 +3160,12 @@
          read(11,*) datacount, hidden1Axon
       endif
 
+      if(trim(bbstring)=='#hidden2Axon TanhAxon') then
+         read(11,*) i,j
+         read(11,*) j
+         read(11,*) datacount, hidden2Axon
+      endif
+
       if(trim(bbstring)=='#outputAxon SoftMaxAxon') then
          read(11,*) i,j
          read(11,*) j
@@ -3091,6 +3174,10 @@
 
       if(trim(bbstring)=='#hidden1Synapse FullSynapse') then
          read(11,*) datacount, hidden1Synapse
+      endif
+
+      if(trim(bbstring)=='#hidden2Synapse FullSynapse') then
+         read(11,*) datacount, hidden2Synapse
       endif
 
       if(trim(bbstring)=='#outputSynapse FullSynapse') then
@@ -3108,6 +3195,47 @@
 
       close(11)
 
+! Run Network
+
+      do i=1,7
+         inputAxon(i) = inputFile(i,1) * f(i) + inputFile(i,2)
+      enddo
+
+      fgrid1=0.
+      do j=1,7
+         do i=1,7
+            fgrid1(j) = fgrid1(j) + hidden1Synapse(i,j) * inputAxon(i) 
+         enddo
+         fgrid1(j) = fgrid1(j) + hidden1Axon(j)
+         fgrid1(j) = (exp(fgrid1(j))-exp(-fgrid1(j)))/(exp(fgrid1(j))+exp(-fgrid1(j)))
+      enddo
+
+      fgrid2=0.
+      do j=1,4
+         do i=1,7
+            fgrid2(j) = fgrid2(j) + hidden2Synapse(i,j) * fgrid1(i)
+         enddo
+         fgrid2(j) = fgrid2(j) + hidden2Axon(j)
+         fgrid2(j) = (exp(fgrid2(j))-exp(-fgrid2(j)))/(exp(fgrid2(j))+exp(-fgrid2(j)))
+      enddo
+
+      fgrid3=0.
+      fgridsum=0.
+      do j=1,3
+         do i=1,4
+            fgrid3(j) = fgrid3(j) + outputSynapse(i,j) * fgrid2(i)
+         enddo
+         fgrid3(j) = fgrid3(j) + outputAxon(j)
+         fgridsum = fgridsum + fgrid3(j)
+      enddo
+      do j=1,3
+         fgrid3(j) = fgrid3(j) / fgridsum
+      enddo
+
+      p1 = fgrid3(1)
+      p2 = fgrid3(2)
+      p3 = fgrid3(3)
+      
       END SUBROUTINE breadboard6_main
 !
 !-------------------------------------------------------------------------------------
