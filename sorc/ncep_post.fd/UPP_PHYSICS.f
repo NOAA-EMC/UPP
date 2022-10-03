@@ -2736,7 +2736,7 @@
 !***************************************************************************
 !
 ! obtain month of the year, hardwired for testing
-      imo = 3
+      imo = 9
 
 ! calculate rh for all levels
 
@@ -2963,13 +2963,8 @@
          slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
       endif
                
-      slr(i,j) = hprob(i,j)
-!      slr(i,j) = mprob(i,j)
-!      slr(i,j) = lprob(i,j)
 !      slr(i,j) = slrgrid(i,j)
-!      slr(i,j) = slrgrid2(i,j)
-!      slr(i,j) = rhm(1)
-!      slr(i,j) = RH3D(i,j,LM)
+      slr(i,j) = slrgrid2(i,j)
 
       endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
@@ -3086,6 +3081,7 @@
             fgrid2(j) = fgrid2(j) + outputSynapse(i,j) * fgrid1(i)
          enddo
          fgrid2(j) = fgrid2(j) + outputAxon(j)
+         fgrid2(j) = exp(fgrid2(j))
          fgridsum = fgridsum + fgrid2(j)
       enddo
       do j=1,3
@@ -3226,6 +3222,7 @@
             fgrid3(j) = fgrid3(j) + outputSynapse(i,j) * fgrid2(i)
          enddo
          fgrid3(j) = fgrid3(j) + outputAxon(j)
+         fgrid3(j) = exp(fgrid3(j))
          fgridsum = fgridsum + fgrid3(j)
       enddo
       do j=1,3
