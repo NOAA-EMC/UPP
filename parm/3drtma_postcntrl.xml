@@ -848,22 +848,22 @@
        </param>
 
        <param>
-           <shortname>EFSH_ON_LFC</shortname>
+           <shortname>EFSH_ON_EFBL</shortname>
            <scale>-1.0</scale>
        </param>
 
        <param>
-           <shortname>EFSH_ON_EQUIL_LVL</shortname>
+           <shortname>EFSH_ON_EFTL</shortname>
            <scale>-1.0</scale>
        </param>
 
        <param>
-           <shortname>ELMELT_ON_EQUIL_LVL</shortname>
+           <shortname>ELMELT_ON_EFTL</shortname>
            <scale>-1.0</scale>
        </param>
 
        <param>
-           <shortname>UESH_ON_LFC</shortname>
+           <shortname>UESH_ON_EFL</shortname>
            <scale>-1.0</scale>
        </param>
 
@@ -873,7 +873,7 @@
        </param>
 
        <param>
-           <shortname>VESH_ON_LFC</shortname>
+           <shortname>VESH_ON_EFL</shortname>
            <scale>-1.0</scale>
        </param>
 
@@ -883,47 +883,47 @@
        </param>
 
        <param>
-           <shortname>ESHR_ON_LFC</shortname>
+           <shortname>ESHR_ON_EFL</shortname>
            <scale>-1.0</scale>
        </param>
 
        <param>
-            <shortname>UEID_ON_LFC</shortname>
+            <shortname>UEID_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
  
         <param>
-            <shortname>VEID_ON_LFC</shortname>
+            <shortname>VEID_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
  
         <param>
-            <shortname>E3KH_ON_LFC</shortname>
+            <shortname>E3KH_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
  
         <param>
-            <shortname>STPC_ON_LFC</shortname>
+            <shortname>STPC_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
  
         <param>
-            <shortname>SIGT_ON_LFC</shortname>
+            <shortname>SIGT_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
 
         <param>
-            <shortname>SCCP_ON_LFC</shortname>
+            <shortname>SCCP_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
 
          <param>
-            <shortname>SIGH_ON_LFC</shortname>
+            <shortname>SIGH_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
 
         <param>
-            <shortname>MLFC_ON_LFC</shortname>
+            <shortname>MLFC_ON_EFL</shortname>
             <scale>-1.0</scale>
         </param>
 
