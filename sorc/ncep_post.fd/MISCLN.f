@@ -49,7 +49,7 @@
 !!                       bottoma calculation which is only employed 
 !!                       for RTMA usage.
 !!   21-10-14  J MENG - 2D DECOMPOSITION
-!!   22-10-05  W Meng - Changes per E Colon's suggtions to output SPC variables for RRFS
+!!   22-10-06  W Meng - Generate SPC fields with RRFS input
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
@@ -3670,7 +3670,6 @@
 !       
 !    CAPE AND CINS 0-3KM, FOLLOW ML PROCEDURE WITH HEIGHT 0-3KM
 !
-       IF (MODELNAME == 'RAPR') THEN
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
@@ -3687,11 +3686,10 @@
          IF(IGET(951)>0)THEN
            FIELD2=.TRUE.
          ENDIF
-
-       ELSE !FV3R and others
-         FIELD1=.TRUE.
-         FIELD2=.TRUE.
-       ENDIF
+         IF(MODELNAME == "FV3R" .and. SUBMODELNAME == "RTMA") THEN
+           FIELD1=.TRUE.
+           FIELD2=.TRUE.
+         ENDIF
 !
 !         IF(FIELD1)ITYPE=2
 !         IF(FIELD2)ITYPE=2
