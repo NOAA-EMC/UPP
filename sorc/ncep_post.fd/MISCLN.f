@@ -2124,7 +2124,7 @@
 !     
          IF (IGET(031)>0 .OR. IGET(573)>0 ) THEN
 !           DO J=JSTA,JEND
-!            DO I=1,IM
+!            DO I=ISTA,IEND
 !              EGRID1(I,J) = H99999
 !              EGRID2(I,J) = H99999
 !            ENDDO
@@ -2134,7 +2134,7 @@
 !               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),      &
 !                    QBND(1,1,LBND),EGRID2)
 !               DO J=JSTA,JEND
-!               DO I=1,IM
+!               DO I=ISTA,IEND
 !                 EGRID1(I,J)=AMIN1(EGRID1(I,J),EGRID2(I,J))
 !               ENDDO
 !               ENDDO
@@ -2241,7 +2241,7 @@
               CALL BOUND(GRID1,D00,H99999)
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ISTA,IEND
                   CAPE(I,J) = GRID1(I,J)
                 ENDDO
               ENDDO
@@ -2251,7 +2251,7 @@
              GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ISTA,IEND
                  IF(T1D(I,J) < spval) THEN
                    GRID1(I,J) = - EGRID2(I,J)
                  ENDIF
@@ -3359,7 +3359,7 @@
 !	    
 !            IF (IGET(110)>0) THEN
 !	       DO J=JSTA,JEND
-!               DO I=1,IM
+!               DO I=ISTA,IEND
 !                 GRID1(I,J)=EGRID1(I,J)
 !               ENDDO
 !               ENDDO
@@ -3425,7 +3425,7 @@
 !               ENDIF
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                     CAPE(I,J) = GRID1(I,J)
                  ENDDO
               ENDDO
@@ -3469,7 +3469,7 @@
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                     CIN(I,J) = GRID1(I,J)
                  ENDDO
                ENDDO
@@ -3751,7 +3751,7 @@
 !          ENDDO
 !          ENDDO
 !          DO J=JSTA,JEND
-!          DO I=1,IM
+!          DO I=ISTA,IEND
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
@@ -4619,7 +4619,7 @@
 
 !           ITYPE = 1
 !           DO J=JSTA,JEND
-!           DO I=1,IM
+!           DO I=ISTA,IEND
 !               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
 !                            LVLBND(I,J,3))/3
 !               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
