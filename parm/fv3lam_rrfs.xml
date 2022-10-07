@@ -2,7 +2,7 @@
 <postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
 <!--  Lin Gan:  20150427 validated -->
     <paramset>
-    <datset>BGDAWP</datset>
+    <datset>PRSLEV</datset>
     <grid_num>32769</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
@@ -12,8 +12,8 @@
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
-    <gen_proc>hrrr</gen_proc>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -1433,6 +1433,76 @@
        </param>
 
        <param>
+           <shortname>EFSH_ON_EFBL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>EFSH_ON_EFTL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>ELMELT_ON_EFTL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>UESH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>VESH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>ESHR_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>UEID_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>VEID_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>E3KH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>STPC_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>SIGT_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>SCCP_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>SIGH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>MLFC_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
        <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLR</pname>
        <table_info>NCEP</table_info>
@@ -1809,7 +1879,7 @@
     </paramset>
 
     <paramset>
-    <datset>BGRD3D</datset>
+    <datset>NATLEV</datset>
     <grid_num>32769</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
@@ -1819,8 +1889,8 @@
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
-    <gen_proc>hrrr</gen_proc>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
