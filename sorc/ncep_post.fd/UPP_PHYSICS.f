@@ -3066,6 +3066,7 @@
       enddo
 
       fgrid1=0.
+!$omp parallel do private(i,j)
       do j=1,40
          do i=1,7
             fgrid1(j) = fgrid1(j) + hidden1Synapse(i,j) * inputAxon(i) 
@@ -3076,11 +3077,14 @@
 
       fgrid2=0.
       fgridsum=0.
+!$omp parallel do private(i,j)
       do j=1,3
          do i=1,40
             fgrid2(j) = fgrid2(j) + outputSynapse(i,j) * fgrid1(i)
          enddo
-         fgrid2(j) = fgrid2(j) + outputAxon(j)
+         !fgrid2(j) = fgrid2(j) + outputAxon(j)
+         fgrid2(j) = activeOutputProbe(j,1) * fgrid2(j) + activeOutputProbe(j,2)
+         
          fgrid2(j) = exp(fgrid2(j))
          fgridsum = fgridsum + fgrid2(j)
       enddo
@@ -3198,6 +3202,7 @@
       enddo
 
       fgrid1=0.
+!$omp parallel do private(i,j)
       do j=1,7
          do i=1,7
             fgrid1(j) = fgrid1(j) + hidden1Synapse(i,j) * inputAxon(i) 
@@ -3207,6 +3212,7 @@
       enddo
 
       fgrid2=0.
+!$omp parallel do private(i,j)
       do j=1,4
          do i=1,7
             fgrid2(j) = fgrid2(j) + hidden2Synapse(i,j) * fgrid1(i)
@@ -3217,11 +3223,14 @@
 
       fgrid3=0.
       fgridsum=0.
+!$omp parallel do private(i,j)
       do j=1,3
          do i=1,4
             fgrid3(j) = fgrid3(j) + outputSynapse(i,j) * fgrid2(i)
          enddo
          fgrid3(j) = fgrid3(j) + outputAxon(j)
+!         fgrid3(j) = activeOutputProbe(j,1) * fgrid3(j) + activeOutputProbe(j,2)
+
          fgrid3(j) = exp(fgrid3(j))
          fgridsum = fgridsum + fgrid3(j)
       enddo
