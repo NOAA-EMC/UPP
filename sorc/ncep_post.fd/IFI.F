@@ -739,8 +739,11 @@ contains !==============================================================
          int(jend,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t)),&
          'could not initialize IFI input data structures')
 
-
-    ! Make sure IFI_APCP has valid data.
+    ! Copy 2D vars to IFI internal structures:
+    
+    call ifi_check(hybr_vars%add_ij_var('topography',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+                                                     int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
+         zint(:,:,LP1)),'could not send topography to IFI')
 
     to_hourly=3600*1000.0/dtq2
 !$OMP PARALLEL DO COLLAPSE(2)
@@ -754,25 +757,28 @@ contains !==============================================================
        enddo
     enddo
 
-    ! Copy 2D vars to IFI internal structures:
-    
-    call add_ij_ijk_var('topography','topography',zint(:,:,LP1),lbound(IFI_APCP,1),ubound(IFI_APCP,1),lbound(IFI_APCP,2),ubound(IFI_APCP,2),1,.false.)
-    call add_ij_ijk_var('APCP_surface','APCP_surface',IFI_APCP,lbound(IFI_APCP,1),ubound(IFI_APCP,1),lbound(IFI_APCP,2),ubound(IFI_APCP,2),1,.false.)
-    call add_ij_ijk_var('CAPE_surface','CAPE_surface',CAPE,lbound(CAPE,1),ubound(CAPE,1),lbound(CAPE,2),ubound(CAPE,2),1,.false.)
-    call add_ij_ijk_var('CIN_surface','CIN_surface',CIN,lbound(CIN,1),ubound(CIN,1),lbound(CIN,2),ubound(CIN,2),1,.false.)
+    call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+                                                       int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
+         IFI_APCP),'could not send IFI_APCP to IFI')
+    call ifi_check(hybr_vars%add_ij_var('CAPE_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t), &
+                                                       int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
+         'could not send CAPE to IFI')
+    call ifi_check(hybr_vars%add_ij_var('CIN_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t), &
+                                                      int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CIN), &
+         'could not send CIN to IFI')
 
     ! Copy 3D vars to IFI internal structures, inverting K dimension
-    
-    call add_ij_ijk_var('HGT','zmid',zmid,lbound(zmid,1),ubound(zmid,1),lbound(zmid,2),ubound(zmid,2),size(zmid,3),.true.)
-    call add_ij_ijk_var('CIMIXR','QQI',QQI,lbound(QQI,1),ubound(QQI,1),lbound(QQI,2),ubound(QQI,2),size(QQI,3),.true.)
-    call add_ij_ijk_var('CLMR','QQW',QQW,lbound(QQW,1),ubound(QQW,1),lbound(QQW,2),ubound(QQW,2),size(QQW,3),.true.)
-    call add_ij_ijk_var('GRLE','QQG',QQG,lbound(QQG,1),ubound(QQG,1),lbound(QQG,2),ubound(QQG,2),size(QQG,3),.true.)
-    call add_ij_ijk_var('PRES','pmid',pmid,lbound(pmid,1),ubound(pmid,1),lbound(pmid,2),ubound(pmid,2),size(pmid,3),.true.)
-    call add_ij_ijk_var('RWMR','QQR',QQR,lbound(QQR,1),ubound(QQR,1),lbound(QQR,2),ubound(QQR,2),size(QQR,3),.true.)
-    call add_ij_ijk_var('SPFH','Q',Q,lbound(Q,1),ubound(Q,1),lbound(Q,2),ubound(Q,2),size(Q,3),.true.)
-    call add_ij_ijk_var('TMP','T',T,lbound(T,1),ubound(T,1),lbound(T,2),ubound(T,2),size(T,3),.true.)
-    call add_ij_ijk_var('SNMR','QQS',QQS,lbound(QQS,1),ubound(QQS,1),lbound(QQS,2),ubound(QQS,2),size(QQS,3),.true.)
-    call add_ij_ijk_var('VVEL','OMGA',OMGA,lbound(OMGA,1),ubound(OMGA,1),lbound(OMGA,2),ubound(OMGA,2),size(OMGA,3),.true.)
+
+    call add_ijk_var('HGT','zmid',zmid)
+    call add_ijk_var('CIMIXR','QQI',QQI)
+    call add_ijk_var('CLMR','QQW',QQW)
+    call add_ijk_var('GRLE','QQG',QQG)
+    call add_ijk_var('PRES','pmid',pmid)
+    call add_ijk_var('RWMR','QQR',QQR)
+    call add_ijk_var('SPFH','Q',Q)
+    call add_ijk_var('TMP','T',T)
+    call add_ijk_var('SNMR','QQS',QQS)
+    call add_ijk_var('VVEL','OMGA',OMGA)
 
 308 format(A,'_',I0,'.nc')
 
@@ -849,35 +855,27 @@ contains !==============================================================
 
   contains
     
-    subroutine add_ij_ijk_var(ifi_name,upp_name,upp_var,i1,i2,j1,j2,nk,is_ijk)
+    subroutine add_ijk_var(ifi_name,upp_name,upp_var)
       implicit none
       character(len=*), intent(in) :: ifi_name,upp_name
-      integer, intent(in) :: i1,i2,j1,j2,nk
-      real, intent(in) :: upp_var(i1:i2,j1:j2,nk)
-      logical, intent(in) :: is_ijk
-
-      real(kind=ifi_real_t) :: ifi_var(ISTA:IEND,JSTA:JEND,nk)
+      real, intent(in) :: upp_var(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM)
+      real(kind=ifi_real_t) :: ifi_var(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM)
       integer i,j,k
 
-!$OMP PARALLEL DO COLLAPSE(2) PRIVATE(i,j,k)
-      do k=1,nk
-        do j=jsta,jend
-          do i=ista,iend
-            ifi_var(i,j,k) = upp_var(i,j,nk-k+1)
+!$OMP PARALLEL DO COLLAPSE(2)
+      do k=1,lm
+        do j=jsta_2l,jend_2u
+          do i=ista_2l,iend_2u
+            ifi_var(i,j,k) = upp_var(i,j,lm-k+1)
           enddo
         enddo
       enddo
-
-      if(is_ijk) then
-        call ifi_check(hybr_vars%add_ijk_var(ifi_name,int(ista,c_int64_t),int(iend,c_int64_t),&
-             int(jsta,c_int64_t),int(jend,c_int64_t),int(1,c_int64_t),int(nk,c_int64_t),ifi_var), &
-             'could not send ijk var '//ifi_name//' ('//upp_name//') to IFI')
-      else
-        call ifi_check(hybr_vars%add_ij_var(ifi_name,int(ista,c_int64_t),int(iend,c_int64_t),&
-             int(jsta,c_int64_t),int(jend,c_int64_t),ifi_var),&
-             'could not send ij var '//ifi_name//' ('//upp_name//') to IFI')
-      endif
-    end subroutine add_ij_ijk_var
+      
+      call ifi_check(hybr_vars%add_ijk_var(ifi_name,int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+           int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),&
+           int(1,c_int64_t),int(lm,c_int64_t),ifi_var), &
+           'could not send '//ifi_name//' ('//upp_name//') to IFI')
+    end subroutine add_ijk_var
 
   end subroutine run_ifi
 
