@@ -37,6 +37,7 @@
 !> 2005-07-07 | Binbin Zhou     | Add RSM for A grid  
 !> 2019-10-30 | Bo Cui          | Remove "goto" statement
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
+!> 2022-10-07 | Tracy Hertneky  | Add left mover for storm motion in SH
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
       SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
