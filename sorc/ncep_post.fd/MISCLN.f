@@ -49,6 +49,7 @@
 !!                       bottoma calculation which is only employed 
 !!                       for RTMA usage.
 !!   21-10-14  J MENG - 2D DECOMPOSITION
+!!   22-10-06  W Meng - Generate SPC fields with RRFS input
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
@@ -134,7 +135,7 @@
       real,dimension(ista:iend,jsta:jend) :: P1D, T1D, Q1D, U1D, V1D, SHR1D, Z1D,   &
                                       RH1D, EGRID1, EGRID2, EGRID3, EGRID4,  &
                                       EGRID5, EGRID6, EGRID7, EGRID8, &
-                                      MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN,MUMIXR, &
+                                      MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN, &
                                       FREEZELVL,MUQ1D,SLCL,THE,MAXTHE
       integer,dimension(ista:iend,jsta:jend) :: MAXTHEPOS
       real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
@@ -3379,7 +3380,6 @@
            DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
-           IF (SUBMODELNAME == 'RTMA') MUMIXR(I,J) = Q1D(I,J)
            IF (IGET(584)>0) THEN
 ! dong add missing value to cin
                GRID1 = spval
@@ -3684,6 +3684,10 @@
            FIELD1=.TRUE.
          ENDIF
          IF(IGET(951)>0)THEN
+           FIELD2=.TRUE.
+         ENDIF
+         IF(MODELNAME == "FV3R" .and. SUBMODELNAME == "RTMA") THEN
+           FIELD1=.TRUE.
            FIELD2=.TRUE.
          ENDIF
 !
