@@ -31,6 +31,7 @@
 !> 2021-04-01 | J Meng          | Computation on defined points only
 !> 2021-07-07 | J MENG          | 2D DECOMPOSITION
 !> 2022-08-03 | W Meng          | Modify total cloud fraction(331) 
+!> 2022-09-22 | L Zhang         | Remove DUSTSL
 !>
 !> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
@@ -57,7 +58,7 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on, ioform, NBIN_SM,  &
+                            JEND_2U, LSM, d3d_on, ioform, NBIN_SM,  &
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L,  &
                             IEND_2U,nasa_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
@@ -139,17 +140,6 @@
           enddo
         enddo
       endif
-!      if (gocart_on) then
-!        if (.not. allocated(dustsl)) allocate(dustsl(im,jm,nbin_du))
-!!$omp parallel do private(i,j,l)
-!        do l=1,nbin_du
-!          do j=1,jm
-!            do i=1,im
-!               DUSTSL(i,j,l)  = SPVAL
-!            enddo
-!          enddo
-!        enddo
-!      endif
       if (.not. allocated(smokesl)) allocate(smokesl(im,jm,nbin_sm))
 !$omp parallel do private(i,j,l)
       do l=1,nbin_sm
@@ -337,12 +327,6 @@
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
-! DUST
-!                 if (gocart_on) then
-!                   DO K = 1, NBIN_DU
-!                     IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K) = DUST(I,J,1,K)
-!                   ENDDO
-!                 endif
                  DO K = 1, NBIN_SM
                    IF(SMOKE(I,J,1,K) < SPVAL) SMOKESL(I,J,K)=SMOKE(I,J,1,K)
                  ENDDO
@@ -499,13 +483,6 @@
 
                  IF(CFR(I,J,LL) < SPVAL .AND. CFR(I,J,LL-1) < SPVAL)          &
                    CFRSL(I,J) = CFR(I,J,LL) + (CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
-! DUST
-!                 if (gocart_on) then
-!                   DO K = 1, NBIN_DU
-!                     IF(DUST(I,J,LL,K) < SPVAL .AND. DUST(I,J,LL-1,K) < SPVAL)   &
-!                     DUSTSL(I,J,K) = DUST(I,J,LL,K) + (DUST(I,J,LL,K)-DUST(I,J,LL-1,K))*FACT
-!                   ENDDO
-!                 endif
                  DO K = 1, NBIN_SM
                    IF(SMOKE(I,J,LL,K) < SPVAL .AND. SMOKE(I,J,LL-1,K) < SPVAL)   &
                    SMOKESL(I,J,K)=SMOKE(I,J,LL,K)+(SMOKE(I,J,LL,K)-SMOKE(I,J,LL-1,K))*FACT

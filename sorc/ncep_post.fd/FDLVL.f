@@ -39,6 +39,7 @@
 !> 2002-01-15 | Mike Baldwin | WRF version           
 !> 2011-12-14 | Sarah Lu     | Add GOCART aerosol AERFD
 !> 2021-10-15 | JESSE MENG   | 2D DECOMPOSITION
+!> 2022-09-22 | Li(Kate) Zhang   | Remove Dust=> AERFD
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
@@ -789,7 +790,6 @@
 !> 2017-06-01 | Y Mao        | Add FD levels for GTG(EDPARM CATEDR MWTURB) and allow levels input from control file
 !> 2019-09-25 | Y Mao        | Seperate mass from UV allow array of mass input to interpolate multiple fields with the same levels at one time. Dust=> AERFD can be processed when NIN=NBIN_DU
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
-!> 2022-09-22 | Li(Kate) Zhang   | Remove Dust=> AERFD
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)

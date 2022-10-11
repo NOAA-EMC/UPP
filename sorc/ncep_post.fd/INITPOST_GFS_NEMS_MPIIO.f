@@ -24,6 +24,7 @@
 !> 2016-07-21 | Jun Wang       | Change averaged field name with suffix
 !> 2019-07-24 | Li(Kate) Zhang | Merge and update NGAC UPP into FV3-Chem
 !> 2021-03-11 | Bo Cui         | Change local arrays to dimension (im,jsta:jend)
+!> 2022-09-22 | Li(Kate) Zhang | Remove duplicated initializations which have been done in ALLCOCATE_ALL.f
 !>
 !> @author Hui-Ya Chuang @date 2007-03-04
       SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)

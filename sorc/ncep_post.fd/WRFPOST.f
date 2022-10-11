@@ -28,6 +28,7 @@
 !> 2021-11-03 | Tracy Hertneky            | Removed SIGIO option
 !> 2022-01-14 | W Meng                    | Remove interfaces INITPOST_GS_NEMS, INITPOST_NEMS_MPIIO, INITPOST_NMM and INITPOST_GFS_NETCDF
 !> 2022-03-15 | W Meng                    | Unify FV3 based interfaces
+!> 2022-09-22 | L Zhang                   | Add option of nasa_on to process ufs-aerosols
 !>
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
       PROGRAM WRFPOST

@@ -19,6 +19,7 @@
 !! -  21-04-16  Wen Meng - Initializing aextc55 and extc55 as 0. These
 !!                      two arrays are involved in GSL visibility computation.
 !! -  22-03-22  Wen Meng - Initializing pwat.
+!! -  22-09-22  Li(Kate) Zhang - Initializing NASA GOCART tracers of Nitrate, NH4,and their column burden.
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.

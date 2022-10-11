@@ -10,6 +10,7 @@
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
 !  2021-09-30 JESSE MENG- 2D DECOMPOSITION
+!  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
 !-----------------------------------------------------------------------
 !
   implicit none
