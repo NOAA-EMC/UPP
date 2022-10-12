@@ -787,8 +787,6 @@
       IF ( (IGET(059)>0.or.IGET(586)>0).OR.IGET(911)>0.OR.     &
            (IGET(060)>0.or.IGET(576)>0).OR.                     &
            (IGET(061)>0.or.IGET(577)>0).OR.                     &
-           (IGET(601)>0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
-           (IGET(604)>0.or.IGET(605)>0).OR.                     &
            (IGET(451)>0.or.IGET(578)>0).OR.IGET(580)>0 ) THEN
 
          ALLOCATE(T7D(ISTA:IEND,JSTA:JEND,NFD), Q7D(ISTA:IEND,JSTA:JEND,NFD),    &
@@ -834,22 +832,6 @@
            ENDIF
 	   IF (IGET(587)>0) then
             if(LVLS(IFD,IGET(587))>0) ITYPEFDLVL(IFD)=2
-           ENDIF
-
-	   IF (IGET(601)>0) THEN
-            IF (LVLS(IFD,IGET(601))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(602)>0) THEN
-            IF (LVLS(IFD,IGET(602))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(603)>0) THEN
-            IF (LVLS(IFD,IGET(603))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(604)>0) THEN
-            IF (LVLS(IFD,IGET(604))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(605)>0) THEN
-            IF (LVLS(IFD,IGET(605))>1) ITYPEFDLVL(IFD)=2
            ENDIF
 
          ENDDO
