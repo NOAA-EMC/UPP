@@ -85,8 +85,7 @@
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
      &,                                      OSL_OLD, OSL995
-!     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
-      REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:), SMOKESL(:,:,:)
+      REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
