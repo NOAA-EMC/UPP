@@ -42,7 +42,7 @@
 !> 2022-09-22 | Li(Kate) Zhang   | Remove Dust=> AERFD
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
-      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
+      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
 
 !     
 !
@@ -65,7 +65,6 @@
       integer,intent(in) ::  ITYPE(NFD)
 !jw      real,intent(in) :: HTFD(NFD)
       real,dimension(ISTA:IEND,JSTA:JEND,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
-      real,dimension(ISTA:IEND,JSTA:JEND,NFD,NBIN_DU),intent(out) :: AERFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
@@ -98,17 +97,6 @@
           ENDDO
         ENDDO
       ENDDO
-      if (gocart_on) then
-        DO N = 1, NBIN_DU
-          DO IFD = 1,NFD
-            DO J=JSTA,JEND
-              DO I=ISTA,IEND
-                AERFD(I,J,IFD,N) = SPVAL
-              ENDDO
-            ENDDO
-          ENDDO
-        ENDDO
-      endif
 
       IF(gridtype == 'E') THEN
         JVN =  1

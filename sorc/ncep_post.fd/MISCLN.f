@@ -839,7 +839,8 @@
          ENDDO
 !         print *,'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL,'for tmp,lvls=',LVLS(1:15,iget(59)), &
 !          'grib2tmp lvs=',LVLS(1:15,iget(586))
-
+         
+         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
 !     
          loop_10: DO IFD = 1,NFD
 !
