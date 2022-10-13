@@ -3802,7 +3802,6 @@
       ENDIF
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
-if(allocated(dustsl))  deallocate(dustsl)
 if(allocated(smokesl)) deallocate(smokesl)
 !     END OF ROUTINE.
 !
