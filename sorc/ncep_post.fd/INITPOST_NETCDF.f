@@ -2593,7 +2593,7 @@
 ! E. James - 14 Oct 2022: Biomass Burning Emissions from RRFS-SD
 !
       VarName='ebb_smoke_hr'
-      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ebb(ista_2l,jsta_2l))
 
 !

@@ -3847,34 +3847,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 
-! Instantaneous clear-sky downwelling LW at the surface
-      IF (IGET(744)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            GRID1(I,J) = LWDNBC(I,J)
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(744))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
-      ENDIF
-
-! Instantaneous clear-sky upwelling LW at the surface
-      IF (IGET(745)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            GRID1(I,J) = LWUPBC(I,J)
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(745))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
-      ENDIF
-
 ! Instantaneous MEAN_FRP
       IF (IGET(740)>0) THEN
 !        print *,"GETTING INTO MEAN_FRP PART"
