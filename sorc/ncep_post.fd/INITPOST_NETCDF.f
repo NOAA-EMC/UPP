@@ -2595,6 +2595,7 @@
       VarName='ebb_smoke_hr'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ebb(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ebb = ',1,ebb(isa,jsa)
 
 !
 ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
