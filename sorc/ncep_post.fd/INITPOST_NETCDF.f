@@ -57,7 +57,7 @@
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max, &
-              pwat
+              pwat, ebb
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
