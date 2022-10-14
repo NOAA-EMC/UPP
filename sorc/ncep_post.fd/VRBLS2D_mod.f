@@ -60,7 +60,7 @@
       ,SWRADmean(:,:),U10mean(:,:),V10mean(:,:),SPDUV10mean(:,:)             &
       ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:),SWDDNI(:,:),SWDDIF(:,:)      &
       ,SWDNBC(:,:),SWDDNIC(:,:),SWDDIFC(:,:), SWUPBC(:,:), SWUPT(:,:)        &
-      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:)              &
+      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:),EBB(:,:)     &
       ,LWP(:,:),IWP(:,:)                                                     &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &

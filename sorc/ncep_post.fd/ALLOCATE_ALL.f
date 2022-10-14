@@ -601,6 +601,7 @@
       allocate(snfden(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(sndepac(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(mean_frp(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -626,6 +627,7 @@
           snfden(i,j)=spval
           sndepac(i,j)=spval
           mean_frp(i,j)=spval
+          ebb(i,j)=spval
         enddo
       enddo
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))

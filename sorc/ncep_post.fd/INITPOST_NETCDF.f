@@ -2589,6 +2589,12 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
+!
+! E. James - 14 Oct 2022: Biomass Burning Emissions from RRFS-SD
+!
+      VarName='ebb_smoke_hr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ebb(ista_2l,jsta_2l))
 
 !
 ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust

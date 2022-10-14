@@ -86,8 +86,8 @@
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
-                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
-                         AVGCPRATE,                                           &
+                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, EBB, LWP,   &
+                         IWP, AVGCPRATE,                                      &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
                          PWAT,DUSTPM10,MAOD
@@ -3887,6 +3887,20 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !          print *,"GETTING INTO MEAN_FRP GRIB2 PART"
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(740))
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+        endif
+      ENDIF
+
+! Biomass burning emissions (EBB)
+      IF (IGET(745)>0) THEN
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            GRID1(I,J) = EBB(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(745))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
       ENDIF
