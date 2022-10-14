@@ -19,7 +19,7 @@
 !> 2022-04-08 | Bo Cui        | 2D decomposition for unified fv3 read interfaces
 !> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
 !> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
-!> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from modela
+!> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
 !> 2022-09-14 | Eric James    | Read smoke and dust from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
