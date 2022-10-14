@@ -6812,6 +6812,7 @@
     <param>
        <post_avblfldidx>745</post_avblfldidx>
        <shortname>BIOMASS_BURNING_EMISSIONS</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
        <pname>AEMFLX</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>

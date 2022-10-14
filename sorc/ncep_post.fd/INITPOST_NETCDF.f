@@ -661,13 +661,14 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=18
+       nrec=19
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'smoke_ext','dust_ext']
+                                     'smoke_ext','dust_ext',            &
+                                     'ebb_smoke_hr']
       else
        nrec=8
        allocate (recname(nrec))
@@ -1028,6 +1029,8 @@
        spval,recname(17),extsmoke(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(18),extdust(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,       &
+       spval,recname(19),ebb(ista_2l,jsta_2l))
 
 ! calculete CWM from FV3 output
        do l=1,lm
@@ -2589,14 +2592,6 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
-!
-! E. James - 14 Oct 2022: Biomass Burning Emissions from RRFS-SD
-!
-      VarName='ebb_smoke_hr'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,ebb(ista_2l,jsta_2l))
-     if(debugprint)print*,'sample ebb = ',1,ebb(isa,jsa)
-
 !
 ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
 ! extinction; it needs to be after ZINT is defined.
