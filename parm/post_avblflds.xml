@@ -6761,6 +6761,7 @@
     <param>
        <post_avblfldidx>740</post_avblfldidx>
        <shortname>MEAN_FIRE_RDIATV_PWR</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
        <pname>CFNSF</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
