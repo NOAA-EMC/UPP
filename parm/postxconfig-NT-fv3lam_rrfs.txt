@@ -10271,7 +10271,7 @@ surface
 SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m
 ?
 1
-tmpl4_0
+tmpl4_48
 MASSDEN
 ?
 ?
@@ -10285,7 +10285,7 @@ spec_hgt_lvl_above_grnd
 ?
 0
 ?
-?
+smoke
 ?
 0
 0.0
@@ -10308,7 +10308,7 @@ spec_hgt_lvl_above_grnd
 SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR
 ?
 1
-tmpl4_0
+tmpl4_48
 COLMD
 ?
 ?
@@ -10322,7 +10322,7 @@ entire_atmos_single_lyr
 ?
 0
 ?
-?
+smoke
 ?
 0
 0.0
@@ -10345,7 +10345,7 @@ entire_atmos_single_lyr
 DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m
 ?
 1
-tmpl4_0
+tmpl4_48
 MASSDEN
 ?
 ?
@@ -10359,7 +10359,7 @@ spec_hgt_lvl_above_grnd
 ?
 0
 ?
-?
+dust
 ?
 0
 0.0
@@ -10382,7 +10382,7 @@ spec_hgt_lvl_above_grnd
 DUST_ON_ENTIRE_ATMOS_SINGLE_LYR
 ?
 1
-tmpl4_0
+tmpl4_48
 COLMD
 ?
 ?
@@ -10396,7 +10396,7 @@ entire_atmos_single_lyr
 ?
 0
 ?
-?
+dust
 ?
 0
 0.0
@@ -13506,7 +13506,7 @@ hybrid_lvl
 SMOKE_ON_HYBRID_LVL
 ?
 1
-tmpl4_0
+tmpl4_48
 MASSDEN
 ?
 ?
@@ -13520,7 +13520,7 @@ hybrid_lvl
 ?
 0
 ?
-?
+smoke
 ?
 0
 0.0
@@ -13543,7 +13543,7 @@ hybrid_lvl
 DUST_ON_HYBRID_LVL
 ?
 1
-tmpl4_0
+tmpl4_48
 MASSDEN
 ?
 ?
@@ -13557,7 +13557,7 @@ hybrid_lvl
 ?
 0
 ?
-?
+dust
 ?
 0
 0.0

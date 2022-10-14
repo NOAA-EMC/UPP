@@ -6720,8 +6720,9 @@
     <param>
        <post_avblfldidx>736</post_avblfldidx>
        <shortname>SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>COLMD</pname>
+       <aerosol_type>smoke</aerosol_type>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
@@ -6729,8 +6730,9 @@
     <param>
        <post_avblfldidx>737</post_avblfldidx>
        <shortname>SMOKE_ON_HYBRID_LVL</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>smoke</aerosol_type>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -6738,8 +6740,9 @@
     <param>
        <post_avblfldidx>738</post_avblfldidx>
        <shortname>SMOKE_ON_ISOBARIC_SFC</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>smoke</aerosol_type>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -6747,8 +6750,9 @@
     <param>
        <post_avblfldidx>739</post_avblfldidx>
        <shortname>SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>smoke</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>8.</level>
        <scale>6.0</scale>
@@ -6766,8 +6770,9 @@
     <param>
        <post_avblfldidx>741</post_avblfldidx>
        <shortname>DUST_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>COLMD</pname>
+       <aerosol_type>dust</aerosol_type>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
@@ -6775,8 +6780,9 @@
     <param>
        <post_avblfldidx>742</post_avblfldidx>
        <shortname>DUST_ON_HYBRID_LVL</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>dust</aerosol_type>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -6784,8 +6790,9 @@
     <param>
        <post_avblfldidx>743</post_avblfldidx>
        <shortname>DUST_ON_ISOBARIC_SFC</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>dust</aerosol_type>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -6793,8 +6800,9 @@
     <param>
        <post_avblfldidx>744</post_avblfldidx>
        <shortname>DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>dust</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>8.</level>
        <scale>6.0</scale>
