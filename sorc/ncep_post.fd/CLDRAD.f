@@ -3895,7 +3895,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(745)>0) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
-            GRID1(I,J) = EBB(I,J)
+            GRID1(I,J) = EBB(I,J)/1000000000.
           ENDDO
         ENDDO
         if(grib=='grib2') then
