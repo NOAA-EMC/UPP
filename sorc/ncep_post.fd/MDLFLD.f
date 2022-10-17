@@ -2303,7 +2303,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                DO J=JSTA,JEND
                DO I=ista,iend
                IF(PMID(I,J,LL)<spval.and.T(I,J,LL)<spval.and.SMOKE(I,J,LL,1)<spval)THEN
-                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*SMOKE(I,J,LL,1)
+                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*SMOKE(I,J,LL,1)/(1E9)
                ELSE
                  GRID1(I,J) = spval
                ENDIF
@@ -2334,7 +2334,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                DO J=JSTA,JEND
                DO I=ista,iend
                IF(PMID(I,J,LL)<spval.and.T(I,J,LL)<spval.and.FV3DUST(I,J,LL,1)<spval)THEN
-                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*FV3DUST(I,J,LL,1)
+                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*FV3DUST(I,J,LL,1)/(1E9)
                ELSE
                  GRID1(I,J) = spval
                ENDIF

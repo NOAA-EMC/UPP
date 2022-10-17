@@ -2128,7 +2128,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
              if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE(I,J,LM,1)/=spval)&
-               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)
+               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)/(1E9)
              ENDDO
            ENDDO
            if(grib=='grib2') then
@@ -2145,7 +2145,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
              if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.FV3DUST(I,J,LM,1)/=spval)&
-               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*FV3DUST(I,J,LM,1)
+               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*FV3DUST(I,J,LM,1)/(1E9)
              ENDDO
            ENDDO
            if(grib=='grib2') then

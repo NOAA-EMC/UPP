@@ -3868,7 +3868,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             IF (EBB(I,J)<spval) THEN
-              GRID1(I,J) = EBB(I,J)/1000000000.
+              GRID1(I,J) = EBB(I,J)/(1E9)
             ELSE
               GRID1(I,J) = spval
             ENDIF
