@@ -3857,83 +3857,7 @@
        <scale>4.0</scale>
     </param>
 
-    <!-- dust fields on P sfc-->
-
-    <param>
-       <post_avblfldidx>438</post_avblfldidx>
-       <shortname>DUST1_ON_ISOBARIC_LVL</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>isobaric_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>2</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>20</scale_val_2nd_size>
-       <scale>11.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>439</post_avblfldidx>
-       <shortname>DUST2_ON_ISOBARIC_LVL</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>isobaric_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>20</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>36</scale_val_2nd_size>
-       <scale>11.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>440</post_avblfldidx>
-       <shortname>DUST3_ON_ISOBARIC_LVL</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>isobaric_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>36</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>60</scale_val_2nd_size>
-       <scale>11.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>441</post_avblfldidx>
-       <shortname>DUST4_ON_ISOBARIC_LVL</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>isobaric_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>60</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>120</scale_val_2nd_size>
-       <scale>11.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>442</post_avblfldidx>
-       <shortname>DUST5_ON_ISOBARIC_LVL</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>isobaric_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>120</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>200</scale_val_2nd_size>
-       <scale>11.0</scale>
-    </param>
-
+<!--438-442-->
 
 <!--443-->
     <param>
@@ -5133,82 +5057,116 @@
        <scale>4.0</scale>
     </param>
 
+<!-- 600-605 (GFS aerosol AOD) -->
+    <param>
+       <post_avblfldidx>600</post_avblfldidx>
+       <shortname>AER_OPT_GFS_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>555</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
+    </param>
+
     <param>
        <post_avblfldidx>601</post_avblfldidx>
-       <shortname>DUST1_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT</shortname>
+       <shortname>DUST_AER_OPT_GFS_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>	   
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>2</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>20</scale_val_2nd_size>
-       <scale>11.0</scale>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>555</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>602</post_avblfldidx>
-       <shortname>DUST2_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT</shortname>
+       <shortname>SEASALT_AER_OPT_GFS_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
        <scale_val_1st_size>20</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>36</scale_val_2nd_size>
-       <scale>11.0</scale>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>555</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>603</post_avblfldidx>
-       <shortname>DUST3_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT</shortname>
+       <shortname>SULFATE_AER_OPT_GFS_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>36</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>60</scale_val_2nd_size>
-       <scale>11.0</scale>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>555</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>604</post_avblfldidx>
-       <shortname>DUST4_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT</shortname>
+       <shortname>ORGANIC_CARBON_AER_OPT_GFS_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>60</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>120</scale_val_2nd_size>
-       <scale>11.0</scale>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>555</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>605</post_avblfldidx>
-       <shortname>DUST5_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT</shortname>
+       <shortname>BLACK_CARBON_AER_OPT_GFS_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
-       <scale_fact_1st_size>7</scale_fact_1st_size>
-       <scale_val_1st_size>120</scale_val_1st_size>
-       <scale_fact_2nd_size>7</scale_fact_2nd_size>
-       <scale_val_2nd_size>200</scale_val_2nd_size>
-       <scale>11.0</scale>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>555</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
     </param>
 
-<!-- 606-608 -->
+<!-- 606-699 (chemical fields) -->
     <param>
        <post_avblfldidx>606</post_avblfldidx>
        <shortname>AECOEF_ON_HYBRID_LVL</shortname>
@@ -5245,9 +5203,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5263,9 +5221,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5281,9 +5239,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5299,9 +5257,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5317,9 +5275,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5335,9 +5293,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5379,6 +5337,7 @@
        <scale_val_1st_size>25</scale_val_1st_size>
        <scale>9.0</scale>
     </param>
+
     <param>
        <post_avblfldidx>619</post_avblfldidx>
        <shortname>PM10_SFC_MASS_CON</shortname>
@@ -5959,11 +5918,37 @@
     </param>
 
     <param>
+       <post_avblfldidx>657</post_avblfldidx>
+       <shortname>NO3_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>nitrate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>658</post_avblfldidx>
+       <shortname>NH4_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>ammonium_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>659</post_avblfldidx>
        <shortname>DUST_EMISSION_FLUX</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>AEMFLX</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <aerosol_type>dust_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
@@ -6019,7 +6004,7 @@
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
        <scale_val_1st_size>20</scale_val_1st_size>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 9.0</scale>
     </param>
 
@@ -6071,7 +6056,7 @@
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>10</scale_fact_1st_size>
        <scale_val_1st_size>236</scale_val_1st_size>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 9.0</scale>
     </param>
 
@@ -6123,7 +6108,7 @@
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>8</scale_fact_1st_size>
        <scale_val_1st_size>70</scale_val_1st_size>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 9.0</scale>
     </param>
 
@@ -6175,7 +6160,7 @@
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>8</scale_fact_1st_size>
        <scale_val_1st_size>70</scale_val_1st_size>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 9.0</scale>
     </param>
 
@@ -6327,30 +6312,46 @@
 
     <param>
        <post_avblfldidx>687</post_avblfldidx>
-       <shortname>BC_AER_SFC_MASS_CON</shortname>
-       <stats_proc>AVE</stats_proc>
+       <shortname>NITRATE_AER_OPT_DEP_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSDEN</pname>
-       <aerosol_type>black_carbon_dry</aerosol_type>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>nitrate_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
-       <scale_val_1st_size>10</scale_val_1st_size>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>688</post_avblfldidx>
-       <shortname>OC_AER_SFC_MASS_CON</shortname>
-       <stats_proc>AVE</stats_proc>
+       <shortname>NO3_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSDEN</pname>
-       <aerosol_type>particulate_org_matter_dry</aerosol_type>
-       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
-       <scale_fact_1st_size>6</scale_fact_1st_size>
-       <scale_val_1st_size>10</scale_val_1st_size>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale> 9.0</scale>
+       <pname>PMTF</pname>
+       <aerosol_type>nitrate_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>9</scale_fact_1st_size>
+       <scale_val_1st_size>139</scale_val_1st_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>689</post_avblfldidx>
+       <shortname>NH4_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>ammonium_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>9</scale_fact_1st_size>
+       <scale_val_1st_size>139</scale_val_1st_size>
+       <scale> 11.0</scale>
     </param>
 
     <param>
@@ -6483,6 +6484,24 @@
        <scale_val_1st_size>25</scale_val_1st_size>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>699</post_avblfldidx>
+       <shortname>MIE_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>mercury_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
     </param>
 
     <param>
