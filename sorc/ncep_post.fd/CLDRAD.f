@@ -3865,12 +3865,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! Biomass burning emissions (EBB)
       IF (IGET(745)>0) THEN
-          print *,"GETTING INTO EBB GRIB2 PART"
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             GRID1(I,J) = EBB(I,J)/1000000000.
           ENDDO
         ENDDO
+        CALL BOUND(GRID1,D00,H99999)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(745))

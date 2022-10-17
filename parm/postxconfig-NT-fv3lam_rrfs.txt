@@ -10234,9 +10234,9 @@ surface
 BIOMASS_BURNING_EMISSIONS
 ?
 1
-tmpl4_0
+tmpl4_48
 AEMFLX
-NCEP
+?
 ?
 surface
 0
@@ -10248,7 +10248,7 @@ surface
 ?
 0
 ?
-?
+particulate_org_matter_dry
 ?
 0
 0.0
