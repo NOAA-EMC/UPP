@@ -151,6 +151,8 @@
       allocate(QQNIFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(TAOD5503D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(AEXTC55(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EXTSMOKE(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EXTDUST(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(EXTCOF55(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QC_BL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(CFR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
@@ -598,9 +600,8 @@
       allocate(qvl1(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(snfden(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(sndepac(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(int_smoke(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(mean_frp(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(int_aod(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -625,18 +626,19 @@
           qvl1(i,j)=spval
           snfden(i,j)=spval
           sndepac(i,j)=spval
-          int_smoke(i,j)=spval
           mean_frp(i,j)=spval
-          int_aod(i,j)=spval
+          ebb(i,j)=spval
         enddo
       enddo
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
+      allocate(fv3dust(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
 !$omp parallel do private(i,j,l,k)
       do k=1,nbin_sm
         do l=1,lm
           do j=jsta_2l,jend_2u
             do i=ista_2l,iend_2u
               smoke(i,j,l,k)=spval
+              fv3dust(i,j,l,k)=spval
             enddo
           enddo
         enddo
