@@ -2084,7 +2084,7 @@
              DO J=JSTA,JEND
                DO I=ISTA,IEND
                IF(FV3DUSTSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
-                 GRID1(I,J) = (1./RD)*FV3DUSTSL(I,J,1)*(SPL(LP)/(TSL(I,J)*(1E9))
+                 GRID1(I,J) = (1./RD)*FV3DUSTSL(I,J,1)*(SPL(LP)/(TSL(I,J)*(1E9)))
                ELSE
                  GRID1(I,J) = SPVAL
                ENDIF
