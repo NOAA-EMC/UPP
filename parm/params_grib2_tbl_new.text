@@ -953,7 +953,7 @@
    2   0     0   0 LAND
    2   0     1   0 SFCR
    2   0     2   0 TSOIL
-   2   0     3   0 SOILM
+!   2   0     3   0 SOILM
    2   0     4   0 VEG
    2   0     5   0 WATR
    2   0     6   0 EVAPT
