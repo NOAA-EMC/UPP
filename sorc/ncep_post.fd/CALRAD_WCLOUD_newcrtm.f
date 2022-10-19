@@ -2097,7 +2097,7 @@
                    endif
                  enddo ! channel loop
               end if  ! end of outputting goes 16
-              if (isis=='abi_g17')then  ! writing goes 16 to grib
+              if (isis=='abi_g17')then  ! writing goes 17 to grib
                  nc=0
                  do ixchan=1,10
                    ichan=ixchan
@@ -2117,7 +2117,7 @@
                  enddo ! channel loop
               end if  ! end of outputting goes 17
 !             Wm Lewis updated idx for g18 on 3 JUN 2022
-              if (isis=='abi_g18')then  ! writing goes 16 to grib
+              if (isis=='abi_g18')then  ! writing goes 18 to grib
                  nc=0
                  do ixchan=1,10
                    igot=iget(530+ixchan)
