@@ -818,8 +818,12 @@
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(501))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -848,8 +852,12 @@
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(502))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -2299,8 +2307,12 @@
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(506))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2311,8 +2323,12 @@
             enddo
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(507))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2635,12 +2651,12 @@
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(508))
            fld_info(cfld)%lvl=LVLSXML(1,IGET(508))
-           fld_info(cfld)%tinvstat=1
-           if (IFHR > 0) then
+           if(ITSRFC>0) then
              fld_info(cfld)%ntrange=1
            else
              fld_info(cfld)%ntrange=0
            endif
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -6405,8 +6421,12 @@
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
@@ -6430,8 +6450,12 @@
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
 

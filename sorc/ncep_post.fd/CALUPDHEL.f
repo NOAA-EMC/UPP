@@ -115,6 +115,10 @@
 
               UPDHEL(I,J)=UPDHEL(I,J)+(DVDX-DUDY)*WH(I,J,L)*DZ
 
+              IF (UPDHEL(I,J) < -9E10 .OR. UPDHEL(I,J) > 9E10) THEN
+                 UPDHEL(I,J) = spval
+              ENDIF
+
             ENDIF
           ENDDO l_loop
 
