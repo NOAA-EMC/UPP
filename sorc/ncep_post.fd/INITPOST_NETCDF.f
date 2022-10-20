@@ -3361,8 +3361,8 @@
       
       IF(MODELNAME == 'FV3R')THEN
         VarName='wet1'
-        call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,buf)
+        call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,buf)
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=1,im
@@ -3399,6 +3399,7 @@
           vz0(i,j)    = spval    ! GFS does not output humidity at roughness length
         enddo
       enddo
+      ENDIF
       do l=1,lm
 !$omp parallel do private(i,j)
         do j=jsta_2l,jend_2u
