@@ -5220,6 +5220,24 @@
     </param>
 
     <param>
+       <post_avblfldidx>615</post_avblfldidx>
+       <shortname>NITRATE_AER_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>nitrate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>616</post_avblfldidx>
        <shortname>BC_COL_MASS_DEN</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
@@ -6232,14 +6250,15 @@
 
     <param>
        <post_avblfldidx>687</post_avblfldidx>
-       <shortname>NITRATE_AER_OPT_DEP_at550</shortname>
+       <shortname>NITRATE_AER_SCAT_OPT_DEP_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>AOTK</pname>
+       <pname>SCTAOTK</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <aerosol_type>nitrate_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
-       <scale_fact_1st_size>6</scale_fact_1st_size>
-       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
        <scale_val_1st_wvlen>545</scale_val_1st_wvlen>

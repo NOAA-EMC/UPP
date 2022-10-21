@@ -215,6 +215,11 @@
     </param>
 
     <param>
+       <shortname>NITRATE_AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <shortname>AER_SCAT_OPT_DEP_at550</shortname>
        <scale>9.0</scale>
     </param>
