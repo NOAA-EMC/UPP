@@ -64,7 +64,8 @@
 !> 2021-02-08 | Anning Cheng      | read aod550, aod550_du/su/ss/oc/bc directly from fv3gfs and output to grib2 by setting rdaod
 !> 2021-04-01 | Jesse Meng        | Computation on defined points only
 !> 2022-09-22 | Li(Kate Zhang)    | Remove duplicated GOCART output variables and add capbility for NASA GOCART (UFS-Aerosols).
-!> 2022-10-11 | Li(Kate Zhang)    | Update look-up table for NASA GOCART (UFS-Aerosols).
+!> 2022-09-22 | Li(Kate Zhang)    | Update look-up table for NASA GOCART (UFS-Aerosols).
+!> 2022-10-20 | Li(Kate Zhang)    | Add nitrate look-up table and nitrate AOD for NASA GOCART (UFS-Aerosols).
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -74,7 +75,7 @@
       use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID,PMID,&
                          PINT, DUEM, DUSD, DUDP, DUWT, DUSV, SSEM, SSSD,SSDP,&
                          SSWT, SSSV, BCEM, BCSD, BCDP, BCWT, BCSV, OCEM,OCSD,&
-                         OCDP, OCWT, OCSV, SCA, ASY,CFR_RAW
+                         OCDP, OCWT, OCSV, SCA, ASY,CFR_RAW, RHOMID
       use vrbls2d, only: CLDEFI, CFRACL, AVGCFRACL, CFRACM, AVGCFRACM, CFRACH,&
                          AVGCFRACH, AVGTCDC, NCFRST, ACFRST, NCFRCV, ACFRCV,  &
                          HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH,  &
@@ -100,7 +101,7 @@
       use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD,  &
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
-                            NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU, DTQ2,         &
+                            NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
                             JM, LM, gocart_on, nasa_on, me, rdaod,ISTA, IEND
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
@@ -162,36 +163,35 @@
 
       integer, parameter :: KRHLEV = 36 ! num of rh levels for rh-dep components
       integer, parameter :: KCM1 = 5    ! num of rh independent aer species
-      integer, parameter :: KCM2 = 5    ! num of rh dependent aer species
+      integer, parameter :: KCM2 = 6    ! num of rh dependent aer species
       integer, parameter :: NBDSW = 7   ! total num of sw bands
       integer, parameter :: NOAER = 20  ! unit for LUTs file
-      integer, parameter :: nAero=KCM2  ! num of aer species in LUTs
       CHARACTER          :: AerosolName(KCM2)*4, AerosolName_rd*4, aerosol_file*30
       CHARACTER          :: AerName_rd*4, AerOpt*3
 
 !   - aerosol optical properties: mass extinction efficiency
       REAL, ALLOCATABLE  :: extrhd_DU(:,:,:), extrhd_SS(:,:,:), &
      &                      extrhd_SU(:,:,:), extrhd_BC(:,:,:), &
-     &                      extrhd_OC(:,:,:)
+     &                      extrhd_OC(:,:,:), extrhd_NI(:,:,:)
 
 !   - aerosol optical properties: mass scattering efficienc
       REAL, ALLOCATABLE  :: scarhd_DU(:,:,:), scarhd_SS(:,:,:), &
      &                      scarhd_SU(:,:,:), scarhd_BC(:,:,:), &
-     &                      scarhd_OC(:,:,:)
+     &                      scarhd_OC(:,:,:), scarhd_NI(:,:,:)
 
 !   - aerosol optical properties: asymmetry factor
       REAL, ALLOCATABLE  :: asyrhd_DU(:,:,:), asyrhd_SS(:,:,:), &
      &                      asyrhd_SU(:,:,:), asyrhd_BC(:,:,:), &
-     &                      asyrhd_OC(:,:,:)
+     &                      asyrhd_OC(:,:,:), asyrhd_NI(:,:,:)
 
 !   - aerosol optical properties: single scatter albedo
       REAL, ALLOCATABLE  :: ssarhd_DU(:,:,:), ssarhd_SS(:,:,:), &
      &                      ssarhd_SU(:,:,:), ssarhd_BC(:,:,:), &
-     &                      ssarhd_OC(:,:,:)
+     &                      ssarhd_OC(:,:,:), ssarhd_NI(:,:,:)
 
 !  --- aerosol optical properties mapped onto specified spectral bands
 !   - relative humidity independent aerosol optical properties: du
-      real (kind=kind_phys)  :: extrhi(KCM1,NBDSW)         ! extinction coefficient
+      real (kind=kind_phys)  :: extrhi(KCM2,NBDSW)         ! extinction coefficient
 
 !   - relative humidity dependent aerosol optical properties: oc, bc, su, ss001-005
       real (kind=kind_phys)  :: extrhd(KRHLEV,KCM2,NBDSW)  ! extinction coefficient
@@ -201,22 +201,22 @@
       real,    allocatable:: rdrh(:,:,:)
       integer, allocatable :: ihh(:,:,:)
       REAL                 :: rh3d, DRH0, DRH1, EXT01, EXT02,SCA01,ASY01
-      INTEGER              :: IH1, IH2
+      INTEGER              :: IH1, IH2,nAero
       INTEGER            :: IOS, INDX, ISSAM, ISSCM, ISUSO, IWASO, ISOOT, NBIN
       REAL               :: CCDRY, CCWET, SSAM, SSCM
-      REAL,dimension(ista:iend,jsta:jend) :: AOD_DU, AOD_SS, AOD_SU, AOD_OC, AOD_BC, AOD
-      REAL,dimension(ista:iend,jsta:jend) :: SCA_DU, SCA_SS, SCA_SU, SCA_OC,SCA_BC, SCA2D
-      REAL,dimension(ista:iend,jsta:jend) :: ASY_DU, ASY_SS, ASY_SU, ASY_OC, ASY_BC,ASY2D
+      REAL,dimension(ista:iend,jsta:jend) :: AOD_DU, AOD_SS, AOD_SU, AOD_OC, AOD_BC, AOD_NI, AOD
+      REAL,dimension(ista:iend,jsta:jend) :: SCA_DU, SCA_SS, SCA_SU, SCA_OC,SCA_BC, SCA_NI,SCA2D
+      REAL,dimension(ista:iend,jsta:jend) :: ASY_DU, ASY_SS, ASY_SU, ASY_OC, ASY_BC,ASY_NI,ASY2D
       REAL,dimension(ista:iend,jsta:jend) :: ANGST, AOD_440, AOD_860      ! FORANGSTROM EXPONENT
       REAL               :: ANG1, ANG2
-      INTEGER            :: INDX_EXT(nAero), INDX_SCA(nAero)
+      INTEGER            :: INDX_EXT(KCM2), INDX_SCA(KCM2)
       LOGICAL            :: LAEROPT, LEXT, LSCA, LASY
       LOGICAL            :: LAERSMASS
       REAL, allocatable  :: fPM25_DU(:),fPM25_SS(:)
       REAL, allocatable, dimension(:,:) :: RHOsfc, smass_du_cr,smass_du_fn, &
      &                      smass_ss_cr, smass_ss_fn, smass_oc,smass_bc,    &
      &                      smass_su, smass_cr, smass_fn
-      real               :: rPM, dmass
+      real               :: rPM, dmasNITRs
       real (kind=kind_phys), dimension(KRHLEV) :: rhlev
       data  rhlev (:)/  .0, .05, .10, .15, .20, .25, .30, .35,               &
      &                 .40, .45, .50, .55, .60, .65, .70, .75,               &
@@ -224,10 +224,10 @@
      &                 .88, .89, .90, .91, .92, .93, .94, .95,               &
      &                 .96, .97, .98, .99/
 !
-      data AerosolName    /'DUST', 'SALT', 'SUSO', 'SOOT', 'WASO'/
+      data AerosolName    /'DUST', 'SALT', 'SUSO', 'SOOT', 'WASO', 'NITR'/
 !     INDEX FOR TOTAL AND SPECIATED AEROSOLS (DU, SS, SU, OC, BC)
-      data INDX_EXT       / 610, 611, 612, 613, 614  /
-      data INDX_SCA       / 651, 652, 653, 654, 655  /
+      data INDX_EXT       / 610, 611, 612, 613, 614, 615 /
+      data INDX_SCA       / 651, 652, 653, 654, 655, 687 /
       logical, parameter :: debugprint = .false.
       logical :: Model_Pwat
 !     
@@ -4589,9 +4589,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ALLOCATE ( ssarhd_SU(KRHLEV,nbin_su,NBDSW))
          ALLOCATE ( ssarhd_BC(KRHLEV,nbin_bc,NBDSW))
          ALLOCATE ( ssarhd_OC(KRHLEV,nbin_oc,NBDSW))
+
+         if (nasa_on) then
+         ALLOCATE ( extrhd_NI(KRHLEV,nbin_no3,NBDSW))
+         ALLOCATE ( scarhd_NI(KRHLEV,nbin_no3,NBDSW))
+         ALLOCATE ( asyrhd_NI(KRHLEV,nbin_no3,NBDSW))
+         ALLOCATE ( ssarhd_NI(KRHLEV,nbin_no3,NBDSW))
+         endif
+
+         if (gocart_on) then
+         nAero=KCM1
+         else if (nasa_on) then
+         nAero=KCM2
+         endif
          PRINT *, 'aft  AEROSOL allocate, nbin_du=',nbin_du,  &
           'nbin_ss=',nbin_ss,'nbin_su=',nbin_su,'nbin_bc=',     &
-          'nbin_oc=',nbin_oc,'nAero=',nAero
+          'nbin_oc=',nbin_oc,'nbin_ni=',nbin_no3,'nAero=',nAero
 
 !!! READ AEROSOL LUTS
          DO i = 1, nAero
@@ -4613,6 +4626,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           IF (AerosolName(i) == 'SUSO') nbin = nbin_su
           IF (AerosolName(i) == 'SOOT') nbin = nbin_bc
           IF (AerosolName(i) == 'WASO') nbin = nbin_oc
+          if (nasa_on) then
+          IF (AerosolName(i) == 'NITR') nbin = nbin_no3
+          endif
           DO J = 1, NBIN
            read(NOAER,'(2x,a4,1x,i1,1x,a3)')AerName_rd,ib, AerOpt
            IF (AerName_rd /= AerosolName(i)) STOP
@@ -4703,8 +4719,26 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             do ib = 1, NBDSW
              read(NOAER,'(8f10.5)') (ssarhd_oc(ii,j,ib), ii=1,KRHLEV)
             enddo
-
            ENDIF
+           if ( nasa_on ) then
+            IF (AerosolName(i) == 'NITR') THEN
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (extrhd_ni(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (scarhd_ni(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (asyrhd_ni(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (ssarhd_ni(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            ENDIF
+           endif !nasa_on
 
          ENDDO        ! j-loop for nbin
         ENDDO        ! i-loop for nAero
@@ -4968,6 +5002,42 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          CALL CALPW(SCA_OC,20)
          CALL CALPW(ASY_OC,21)
 
+         if ( nasa_on ) then
+! COMPUTE ORGANIC CARBON AOD
+         AOD_NI=SPVAL
+         SCA_NI=SPVAL
+         ASY_NI=SPVAL
+         EXT=0.0
+         SCA=0.0
+         ASY=0.0
+         DO  J=JSTA,JEND
+           DO  I=ISTA,IEND
+             DO  L=1,LM
+             ih1 = ihh (I,J,L)
+             ih2 = ih1 + 1
+             DO N = 1, NBIN_NO3
+               EXT01 = EXTRHD_NI(IH1,N,IB) &
+     &          + RDRH(I,J,L)*(EXTRHD_NI(IH2,N,IB)-EXTRHD_NI(IH1,N,IB))
+               SCA01 = SCARHD_NI(IH1,N,IB) &
+     &          + RDRH(I,J,L)*(SCARHD_NI(IH2,N,IB)-SCARHD_NI(IH1,N,IB))
+               ASY01 = ASYRHD_NI(IH1,N,IB) &
+     &          + RDRH(I,J,L)*(ASYRHD_NI(IH2,N,IB)-ASYRHD_NI(IH1,N,IB))
+               EXT(I,J,L) = EXT(I,J,L)+1e-9*NO3(I,J,L,N)*EXT01
+               SCA(I,J,L) = SCA(I,J,L)+1e-9*NO3(I,J,L,N)*SCA01
+               ASY(I,J,L) = ASY(I,J,L)+1e-9*NO3(I,J,L,N)*SCA01*ASY01
+             ENDDO   ! N-loop
+               EXT(I,J,L) = EXT(I,J,L) * 1000.
+               SCA(I,J,L) = SCA(I,J,L) * 1000.
+               ASY(I,J,L) = ASY(I,J,L) * 1000.
+             ENDDO  ! L-loop
+           ENDDO    ! I-loop
+         ENDDO      ! J-loop
+         CALL CALPW(AOD_NI,17)
+         CALL CALPW(SCA_NI,20)
+         CALL CALPW(ASY_NI,21)
+         endif
+
+
 ! COMPUTE TOTAL AOD
          AOD=SPVAL
          SCA=SPVAL
@@ -4992,12 +5062,28 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ASY_SU(I,J) = MAX (ASY_SU(I,J), 0.0)
             ASY_SS(I,J) = MAX (ASY_SS(I,J), 0.0)
 
+           if ( nasa_on ) then
+           AOD_NI(I,J) = MAX (AOD_NI(I,J), 0.0)
+           SCA_NI(I,J) = MAX (SCA_NI(I,J), 0.0)
+           ASY_NI(I,J) = MAX (ASY_NI(I,J), 0.0)
+
+            AOD(I,J)    = AOD_DU(I,J) + AOD_BC(I,J) + AOD_OC(I,J) +   &
+     &                  AOD_SU(I,J) + AOD_SS(I,J) + AOD_NI(I,J)
+            SCA2D(I,J) = SCA_DU(I,J) + SCA_BC(I,J) + SCA_OC(I,J) +    &
+     &                 SCA_SU(I,J) + SCA_SS(I,J) + SCA_NI(I,J)
+            ASY2D(I,J) = ASY_DU(I,J) + ASY_BC(I,J) + ASY_OC(I,J) +    &
+     &                 ASY_SU(I,J) + ASY_SS(I,J) + ASY_NI(I,J)
+           endif
+           
+           if (gocart_on ) then
             AOD(I,J)    = AOD_DU(I,J) + AOD_BC(I,J) + AOD_OC(I,J) +   &
      &                     AOD_SU(I,J) + AOD_SS(I,J)
             SCA2D(I,J) = SCA_DU(I,J) + SCA_BC(I,J) + SCA_OC(I,J) +    &
      &                 SCA_SU(I,J) + SCA_SS(I,J)
             ASY2D(I,J) = ASY_DU(I,J) + ASY_BC(I,J) + ASY_OC(I,J) +    &
      &                 ASY_SU(I,J) + ASY_SS(I,J)
+           endif
+
            ENDDO   ! I-loop
          ENDDO   ! J-loop
 ! FILL UP AOD_440 AND AOD_860, IF ANGSTROM EXP IS REQUESTED
@@ -5125,6 +5211,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II == 3 ) GRID1(I,J) = AOD_SU(I,J)
              IF ( II == 4 ) GRID1(I,J) = AOD_OC(I,J)
              IF ( II == 5 ) GRID1(I,J) = AOD_BC(I,J)
+             IF ( II == 6 ) GRID1(I,J) = AOD_NI(I,J)
           ENDDO
           ENDDO
              CALL BOUND(GRID1,D00,H99999)
@@ -5146,6 +5233,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II == 3 ) GRID1(I,J) = SCA_SU(I,J)
              IF ( II == 4 ) GRID1(I,J) = SCA_OC(I,J)
              IF ( II == 5 ) GRID1(I,J) = SCA_BC(I,J)
+             IF ( II == 6 ) GRID1(I,J) = SCA_NI(I,J)
           ENDDO
           ENDDO
              CALL BOUND(GRID1,D00,H99999)
