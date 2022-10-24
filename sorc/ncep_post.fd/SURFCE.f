@@ -2651,7 +2651,8 @@
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(508))
            fld_info(cfld)%lvl=LVLSXML(1,IGET(508))
-           if(ITSRFC>0) then
+           fld_info(cfld)%tinvstat=1
+           if (IFHR > 0) then
              fld_info(cfld)%ntrange=1
            else
              fld_info(cfld)%ntrange=0
