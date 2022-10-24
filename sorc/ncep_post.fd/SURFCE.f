@@ -2657,7 +2657,6 @@
            else
              fld_info(cfld)%ntrange=0
            endif
-           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
