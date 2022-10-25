@@ -75,7 +75,7 @@
       use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID,PMID,&
                          PINT, DUEM, DUSD, DUDP, DUWT, DUSV, SSEM, SSSD,SSDP,&
                          SSWT, SSSV, BCEM, BCSD, BCDP, BCWT, BCSV, OCEM,OCSD,&
-                         OCDP, OCWT, OCSV, SCA, ASY,CFR_RAW, RHOMID
+                         OCDP, OCWT, OCSV, SCA, ASY,CFR_RAW
       use vrbls2d, only: CLDEFI, CFRACL, AVGCFRACL, CFRACM, AVGCFRACM, CFRACH,&
                          AVGCFRACH, AVGTCDC, NCFRST, ACFRST, NCFRCV, ACFRCV,  &
                          HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH,  &
@@ -216,7 +216,6 @@
       REAL, allocatable, dimension(:,:) :: RHOsfc, smass_du_cr,smass_du_fn, &
      &                      smass_ss_cr, smass_ss_fn, smass_oc,smass_bc,    &
      &                      smass_su, smass_cr, smass_fn
-      real               :: rPM, dmasNITRs
       real (kind=kind_phys), dimension(KRHLEV) :: rhlev
       data  rhlev (:)/  .0, .05, .10, .15, .20, .25, .30, .35,               &
      &                 .40, .45, .50, .55, .60, .65, .70, .75,               &
@@ -4590,12 +4589,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ALLOCATE ( ssarhd_BC(KRHLEV,nbin_bc,NBDSW))
          ALLOCATE ( ssarhd_OC(KRHLEV,nbin_oc,NBDSW))
 
-         if (nasa_on) then
          ALLOCATE ( extrhd_NI(KRHLEV,nbin_no3,NBDSW))
          ALLOCATE ( scarhd_NI(KRHLEV,nbin_no3,NBDSW))
          ALLOCATE ( asyrhd_NI(KRHLEV,nbin_no3,NBDSW))
          ALLOCATE ( ssarhd_NI(KRHLEV,nbin_no3,NBDSW))
-         endif
 
          if (gocart_on) then
          nAero=KCM1
