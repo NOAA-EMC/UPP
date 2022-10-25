@@ -1767,13 +1767,13 @@ HLCY
 spec_hgt_lvl_above_grnd
 0
 ?
-1
-3000.
+2
+3000. 1000.
 spec_hgt_lvl_above_grnd
 0
 ?
-1
-0.
+2
+0. 0.
 ?
 ?
 0
@@ -2607,9 +2607,9 @@ entire_atmos_single_lyr
 ?
 ?
 ?
-180
-VIS_ON_SURFACE
-?
+410
+GSD_VIS_ON_SURFACE
+GSD_visibility on surface
 1
 tmpl4_0
 VIS

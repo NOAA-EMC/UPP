@@ -44,7 +44,8 @@
 !!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !!   21-04-01  J MENG - COMPUTATION ON DEFINED POINTS ONLY
 !!   21-07-07  J MENG - 2D DECOMPOSITION
-!!   22-09-22  L Zhang- ADD NO3 and NH4 output for UFS-Aerosols model
+!!   22-09-22  L Zhang - ADD NO3 and NH4 output for UFS-Aerosols model
+!!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -1217,8 +1218,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=ista,iend
-                   IF(abs(CFR(I,J,LL)-SPVAL) > SMALL)                   &
-     &                 GRID1(I,J) = CFR(I,J,LL)*H100
+                   IF(abs(CFR(I,J,LL)-SPVAL) > SMALL) THEN
+                       GRID1(I,J) = CFR(I,J,LL)*H100
+                   ELSE
+                       GRID1(I,J) = SPVAL
+                   ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H100)
@@ -3051,6 +3055,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               if(zint(i,j,l) < spval .and.zint(i,j,l+1)<spval.and.DBZ(I,J,L)<spval) then
                 GRID1(I,J)=GRID1(I,J)+0.00344* &
                 (10.**(DBZ(I,J,L)/10.))**0.57143*(ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+              else
+                GRID1(I,J)=spval
               endif
             ENDDO
           ENDDO
