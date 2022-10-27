@@ -38,7 +38,7 @@
               aextc55, taod5503d
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
-              cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
+              cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
               cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
@@ -158,6 +158,7 @@
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
       real                     :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real                     :: buf2(ista_2l:iend_2u,jsta_2l:jend_2u)
       real                     :: buf3d(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
 
 !     real buf(ista_2l:iend_2u,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
@@ -3003,12 +3004,35 @@
             smstav(i,j) = buf(i,j)
           enddo
         enddo
+        VarName='accswe_land'
+        call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,buf)
+        VarName='accswe_ice'
+        call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,buf2)
+!$omp parallel do private(i,j)
+        do j = jsta_2l, jend_2u
+          do i=ista,iend
+            acsnow(i,j) = buf(i,j) + buf2(i,j)
+          enddo
+        enddo
+        VarName='snacc_land'
+        call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,buf)
+        VarName='snacc_ice'
+        call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+        spval,VarName,buf2)
+!$omp parallel do private(i,j)
+        do j = jsta_2l, jend_2u
+          do i=ista,iend
+            sndepac(i,j) = buf(i,j) + buf2(i,j)
+          enddo
+        enddo
 !$omp parallel do private(i,j)
         do j=jsta_2l,jend_2u
           do i=1,im
 !            smstot(i,j) = spval    ! GFS does not have total soil moisture
             sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-            acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
             acsnom(i,j) = spval    ! GFS does not have snow melt
 !            sst(i,j)    = spval    ! GFS does not have sst????
             thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute

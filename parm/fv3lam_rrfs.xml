@@ -535,6 +535,11 @@
        </param>
 
        <param>
+       <shortname>GSD_ACM_SNOD_ON_SURFACE</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
        <shortname>SMDRY_ON_SURFACE</shortname>
        <pname>SMDRY</pname>
        <table_info>NCEP</table_info>
