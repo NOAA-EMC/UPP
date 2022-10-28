@@ -2649,22 +2649,26 @@
 !>
 !> @author Jesse Meng @date 2022-07-11
 
-      SUBROUTINE CALSLR_ROEBBER(sno,si,slr)
+      SUBROUTINE CALSLR_ROEBBER(tprs,rhprs,slr)
 
-      use vrbls3d, only: T, Q, PMID
-      use vrbls2d, only: slp, prec, u10, v10
-      use ctlblk_mod, only: ista, iend, jsta, jend, LM, spval
+      use masks,   only: lmh        
+      use vrbls2d, only: slp, prec, u10, v10, pshltr, tshltr, qshltr
+      use vrbls3d, only: T, Q, PMID, PINT
+      use ctlblk_mod, only: ista, iend, jsta, jend, &
+                            ista_2l, iend_2u, jsta_2l, jend_2u, &
+                            LM, LSM, SPL, MODELNAME, spval 
+      use params_mod, only: CAPA, H1, H100
 
       implicit none
 
-      real,dimension(ista:iend,jsta:jend),intent(in)    :: sno !weasd
-      real,dimension(ista:iend,jsta:jend),intent(in)    :: si  !snod
-      real,dimension(ista:iend,jsta:jend),intent(out)   :: slr !slr=1/sndens=si/sno
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lsm),intent(in)    :: tprs
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lsm),intent(in)    :: rhprs
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(out)   :: slr !slr=1/sndens=snod/weasd
 
 ! local variables
 
       real,dimension(ista:iend,jsta:jend)    :: P1D,T1D,Q1D,EGRID1
-      real,dimension(ista:iend,jsta:jend,lm) :: RH3D
+      real,dimension(ista:iend,jsta:jend)    :: T2M,RH2M
 
       type all_grids
            real :: grid
@@ -2716,12 +2720,12 @@
          .0006, .0014, .0012, -.0005, -.0019, .0003, -.0007, -.0008,&
          .0022, .0005, -.0016, -.0052, -.0024, .0008, .0037/)
 
-      type(all_grids), dimension(ista:iend,jsta:jend,lm) :: tmpk_grids, rh_grids
-      integer,         dimension(ista:iend,jsta:jend,lm) :: tmpk_levels, rh_levels
+      type(all_grids), dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_grids, rh_grids
+      integer,         dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_levels, rh_levels
 
       real,dimension(ista:iend,jsta:jend)    :: hprob,mprob,lprob
       real,dimension(ista:iend,jsta:jend)    :: slrgrid, slrgrid2
-      real,dimension(ista:iend,jsta:jend)    :: pres,qpf,swnd
+      real,dimension(ista:iend,jsta:jend)    :: psfc,pres,qpf,swnd
 
       character*20 nswFileName
       real :: psurf, sgw, sg1, sg2, dtds, rhds
@@ -2735,36 +2739,20 @@
 !
 !***************************************************************************
 !
-! obtain month of the year, hardwired for testing
-      imo = 9
+! month of the year, hardwired for testing
+      imo = 10
 
-! calculate rh for all levels
+! load variables
 
-      loop_lm: DO L=1,LM
-        LL=LM-L+1
-!$omp parallel do private(i,j)
-        DO J=JSTA,JEND
-        DO I=ISTA,IEND
-          P1D(I,J) = PMID(I,J,LL)
-          T1D(I,J) = T(I,J,LL)
-          Q1D(I,J) = Q(I,J,LL)
-        ENDDO
-        ENDDO
-        CALL CALRH(P1D,T1D,Q1D,EGRID1)
-        RH3D(:,:,LL)=EGRID1
-      END DO loop_lm
-
-! Load variables
-
-      DO L=1,LM
-        LL=LM-L+1
+      DO L=1,LSM
+        LL=LSM-L+1
 !$omp parallel do private(i,j)
       do j=jsta,jend
       do i=ista,iend
-         tmpk_grids(i,j,LL)%grid=T(I,J,L)-273.15
-         tmpk_levels(i,j,LL)=PMID(I,J,L)
-         rh_grids(i,j,LL)%grid=RH3D(I,J,L)
-         rh_levels(i,j,LL)=PMID(I,J,L)
+         tmpk_grids(i,j,LL)%grid=TPRS(I,J,L)-273.15
+         tmpk_levels(i,j,LL)=SPL(L)
+         rh_grids(i,j,LL)%grid=RHPRS(I,J,L)
+         rh_levels(i,j,LL)=SPL(L)
       end do
       end do
       END DO
@@ -2772,7 +2760,9 @@
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
-         pres(i,j)=slp(i,j)
+         psfc(i,j)=slp(i,j)
+!         PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)   ! SURFACE PRESSURE.
+         pres(i,j)=psfc(i,j)
          qpf(i,j)=prec(i,j)
          swnd(i,j)=spval
          if(u10(i,j)/=spval .and. v10(i,j)/=spval) &
@@ -2780,13 +2770,52 @@
       END DO
       END DO
 
-! Convert to sigma
+!$omp parallel do private(i,j)
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         IF(MODELNAME=='RAPR')THEN
+            P1D(I,J) = PMID(I,J,NINT(LMH(I,J)))
+            T1D(I,J) = T(I,J,NINT(LMH(I,J))) 
+         ELSE
+            P1D(I,J) = PINT(I,J,LM+1)*EXP(-0.068283/TSHLTR(I,J))
+            T1D(I,J) = TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+         ENDIF
+         Q1D(I,J) = QSHLTR(I,J)
+         T2M(I,J) = T1D(I,J)
+      ENDDO
+      ENDDO
+     
+      CALL CALRH(P1D,T1D,Q1D,EGRID1(ista:iend,jsta:jend))
 
-      tmpk_grids(:,:,1)%sigma = 1
-      rh_grids(:,:,1)%sigma = 1
+!$omp parallel do private(i,j)
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         if(qshltr(i,j) /= spval)then
+            RH2M(I,J) = EGRID1(I,J)*100.
+         else
+            RH2M(I,J) = spval 
+         endif
+      ENDDO
+      ENDDO
+      CALL BOUND(RH2M,H1,H100)
 
-      DO L=1,LM-1
-        LL=LM-L+1
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+      do i=ista,iend
+         tmpk_grids(i,j,0)%grid=T2M(I,J)-273.15
+         tmpk_levels(i,j,0)=pres(i,j)
+         rh_grids(i,j,0)%grid=RH2M(I,J)
+         rh_levels(i,j,LL)=pres(i,j)
+      end do
+      end do
+
+! convert to sigma
+
+      tmpk_grids(:,:,1)%sigma = 1.0
+      rh_grids(:,:,1)%sigma = 1.0
+
+      DO L=1,LSM
+        LL=LSM-L
 !$omp parallel do private(i,j)
         do j=jsta,jend
         do i=ista,iend
@@ -2801,11 +2830,13 @@
         end do
       END DO
 
-! main slr i/j loop start
+! main slr i/j loop 
 
 !$omp parallel do private(i,j)
       loop_slr: do j=jsta,jend
       do i=ista,iend
+         tm=spval
+         rhm=spval
          slr(i,j)=spval
          slrgrid(i,j)=spval
          slrgrid2(i,j)=spval
@@ -2813,27 +2844,19 @@
          mprob(i,j)=spval
          lprob(i,j)=spval
 
-        ! if(sno(i,j) /= spval .and. si(i,j) /= spval .and. si(i,j) > 0.) then
-        !   slr(i,j) = si(i,j)/sno(i,j)
-        ! endif
-        ! slr(i,j) = RH3D(i,j,LM)
-
       if(pres(i,j)/=spval .and. qpf(i,j)/=spval .and. swnd(i,j)/=spval) then
 
-! Interpolate to the 14 sigma levels      
-
-      loop_ks15: do ks=1,14
-         psurf = pres(i,j)
-         sgw   = sig(ks)
-
-         do L=LM,2,-1
-           LL=LM-L+1
-           if(LL==1) then
-              sg1 = psurf/psurf
+! Interpolate to the 14 network sigma levels      
+      loop_ks14: do ks=1,14
+         sgw = sig(ks)
+         do LL=0,LSM-1
+           if(LL==0) then
+              sg1 = 1.0
            else
-              sg1 = tmpk_levels(i,j,LL)/psurf
+              sg1 = tmpk_levels(i,j,LL)/pres(i,j)
            endif  
-              sg2 = tmpk_levels(i,j,LL+1)/psurf
+
+           sg2 = tmpk_levels(i,j,LL+1)/pres(i,j)
            
            if(sg1==sgw) then
               tm(ks) = tmpk_grids(i,j,LL)%grid
@@ -2846,11 +2869,11 @@
               tm(ks) = ((sgw - sg1) * dtds) + tmpk_grids(i,j,LL)%grid
               rhds = (rh_grids(i,j,LL+1)%grid - rh_grids(i,j,LL)%grid) / (sg2-sg1)
               rhm(ks)= ((sgw - sg1) * rhds) + rh_grids(i,j,LL)%grid
-           endif    
+           endif
          end do
-      end do loop_ks15
+      end do loop_ks14
 
-! Have surface wind, QPF, and temp/RH on the 14 levels.
+! Have surface wind, QPF, and temp/RH on the 14 sigma levels.
 ! Convert these data to the factors using regression equations
 
       f1 = co1(1)+co1(2)*qpf(i,j)+co1(3)*swnd(i,j)+co1(4)*tm(1)+co1(5)*tm(2)+co1(6)*tm(3)+ &
@@ -2858,42 +2881,42 @@
            co1(12)*tm(9)+co1(13)*tm(10)+co1(14)*tm(11)+co1(15)*tm(12)+co1(16)*tm(13)+ &
            co1(17)*tm(14)+co1(18)*rhm(1)+co1(19)*rhm(2)+co1(20)*rhm(3)+co1(21)*rhm(4)+ &
            co1(22)*rhm(5)+co1(23)*rhm(6)+co1(24)*rhm(7)+co1(25)*rhm(8)+co1(26)*rhm(9)+ &
-           co1(27)*rhm(10)+co1(28)*rhm(11)+co1(29)*rhm(12)+co1(30)*rhm(13);
+           co1(27)*rhm(10)+co1(28)*rhm(11)+co1(29)*rhm(12)+co1(30)*rhm(13)
 
       f2 = co2(1)+co2(2)*qpf(i,j)+co2(3)*swnd(i,j)+co2(4)*tm(1)+co2(5)*tm(2)+co2(6)*tm(3)+ &
            co2(7)*tm(4)+co2(8)*tm(5)+co2(9)*tm(6)+co2(10)*tm(7)+co2(11)*tm(8)+ &
            co2(12)*tm(9)+co2(13)*tm(10)+co2(14)*tm(11)+co2(15)*tm(12)+co2(16)*tm(13)+ &
            co2(17)*tm(14)+co2(18)*rhm(1)+co2(19)*rhm(2)+co2(20)*rhm(3)+co2(21)*rhm(4)+ &
            co2(22)*rhm(5)+co2(23)*rhm(6)+co2(24)*rhm(7)+co2(25)*rhm(8)+co2(26)*rhm(9)+ &
-           co2(27)*rhm(10)+co2(28)*rhm(11)+co2(29)*rhm(12)+co2(30)*rhm(13);
+           co2(27)*rhm(10)+co2(28)*rhm(11)+co2(29)*rhm(12)+co2(30)*rhm(13)
 
       f3 = co3(1)+co3(2)*qpf(i,j)+co3(3)*swnd(i,j)+co3(4)*tm(1)+co3(5)*tm(2)+co3(6)*tm(3)+ &
            co3(7)*tm(4)+co3(8)*tm(5)+co3(9)*tm(6)+co3(10)*tm(7)+co3(11)*tm(8)+ &
            co3(12)*tm(9)+co3(13)*tm(10)+co3(14)*tm(11)+co3(15)*tm(12)+co3(16)*tm(13)+ &
            co3(17)*tm(14)+co3(18)*rhm(1)+co3(19)*rhm(2)+co3(20)*rhm(3)+co3(21)*rhm(4)+ &
            co3(22)*rhm(5)+co3(23)*rhm(6)+co3(24)*rhm(7)+co3(25)*rhm(8)+co3(26)*rhm(9)+ &
-           co3(27)*rhm(10)+co3(28)*rhm(11)+co3(29)*rhm(12)+co3(30)*rhm(13);
+           co3(27)*rhm(10)+co3(28)*rhm(11)+co3(29)*rhm(12)+co3(30)*rhm(13)
 
       f4 = co4(1)+co4(2)*qpf(i,j)+co4(3)*swnd(i,j)+co4(4)*tm(1)+co4(5)*tm(2)+co4(6)*tm(3)+ &
            co4(7)*tm(4)+co4(8)*tm(5)+co4(9)*tm(6)+co4(10)*tm(7)+co4(11)*tm(8)+ &
            co4(12)*tm(9)+co4(13)*tm(10)+co4(14)*tm(11)+co4(15)*tm(12)+co4(16)*tm(13)+ &
            co4(17)*tm(14)+co4(18)*rhm(1)+co4(19)*rhm(2)+co4(20)*rhm(3)+co4(21)*rhm(4)+ &
            co4(22)*rhm(5)+co4(23)*rhm(6)+co4(24)*rhm(7)+co4(25)*rhm(8)+co4(26)*rhm(9)+ &
-           co4(27)*rhm(10)+co4(28)*rhm(11)+co4(29)*rhm(12)+co4(30)*rhm(13);
+           co4(27)*rhm(10)+co4(28)*rhm(11)+co4(29)*rhm(12)+co4(30)*rhm(13)
 
       f5 = co5(1)+co5(2)*qpf(i,j)+co5(3)*swnd(i,j)+co5(4)*tm(1)+co5(5)*tm(2)+co5(6)*tm(3)+ &
            co5(7)*tm(4)+co5(8)*tm(5)+co5(9)*tm(6)+co5(10)*tm(7)+co5(11)*tm(8)+ &
            co5(12)*tm(9)+co5(13)*tm(10)+co5(14)*tm(11)+co5(15)*tm(12)+co5(16)*tm(13)+ &
            co5(17)*tm(14)+co5(18)*rhm(1)+co5(19)*rhm(2)+co5(20)*rhm(3)+co5(21)*rhm(4)+ &
            co5(22)*rhm(5)+co5(23)*rhm(6)+co5(24)*rhm(7)+co5(25)*rhm(8)+co5(26)*rhm(9)+ &
-           co5(27)*rhm(10)+co5(28)*rhm(11)+co5(29)*rhm(12)+co5(30)*rhm(13);
+           co5(27)*rhm(10)+co5(28)*rhm(11)+co5(29)*rhm(12)+co5(30)*rhm(13)
       
       f6 = co6(1)+co6(2)*qpf(i,j)+co6(3)*swnd(i,j)+co6(4)*tm(1)+co6(5)*tm(2)+co6(6)*tm(3)+ &
            co6(7)*tm(4)+co6(8)*tm(5)+co6(9)*tm(6)+co6(10)*tm(7)+co6(11)*tm(8)+ &
            co6(12)*tm(9)+co6(13)*tm(10)+co6(14)*tm(11)+co6(15)*tm(12)+co6(16)*tm(13)+ &
            co6(17)*tm(14)+co6(18)*rhm(1)+co6(19)*rhm(2)+co6(20)*rhm(3)+co6(21)*rhm(4)+ &
            co6(22)*rhm(5)+co6(23)*rhm(6)+co6(24)*rhm(7)+co6(25)*rhm(8)+co6(26)*rhm(9)+ &
-           co6(27)*rhm(10)+co6(28)*rhm(11)+co6(29)*rhm(12)+co6(30)*rhm(13);
+           co6(27)*rhm(10)+co6(28)*rhm(11)+co6(29)*rhm(12)+co6(30)*rhm(13)
 
       hprob_tot = 0.
       mprob_tot = 0.
@@ -2965,6 +2988,17 @@
                
 !      slr(i,j) = slrgrid(i,j)
       slr(i,j) = slrgrid2(i,j)
+
+!      slr(i,j) = pres(i,j)
+!      slr(i,j) = tmpk_levels(i,j,1)
+!      slr(i,j) = tm(1)
+       slr(i,j) = rh2m(i,j)
+!      slr(i,j) = rhm(1)
+!      slr(i,j) = swnd(i,j)
+
+!       slr(i,j) = hprob(i,j)
+!       slr(i,j) = mprob(i,j)
+!       slr(i,j) = lprob(i,j)
 
       endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
@@ -3059,6 +3093,11 @@
 
       close(11)
 
+      do j=1,3
+         activeOutputProbe(1,j)=8.999999761581421e-001
+         activeOutputProbe(2,j)=5.000000074505806e-002
+      enddo
+
 ! Run Network
 
       do i=1,7
@@ -3082,9 +3121,10 @@
          do i=1,40
             fgrid2(j) = fgrid2(j) + outputSynapse(i,j) * fgrid1(i)
          enddo
-         !fgrid2(j) = fgrid2(j) + outputAxon(j)
-         fgrid2(j) = activeOutputProbe(j,1) * fgrid2(j) + activeOutputProbe(j,2)
-         
+         fgrid2(j) = fgrid2(j) + outputAxon(j)
+         fgrid2(j) = (exp(fgrid2(j))-exp(-fgrid2(j)))/(exp(fgrid2(j))+exp(-fgrid2(j)))
+
+!         fgrid2(j) = activeOutputProbe(j,1) * fgrid2(j) + activeOutputProbe(j,2)         
          fgrid2(j) = exp(fgrid2(j))
          fgridsum = fgridsum + fgrid2(j)
       enddo
@@ -3195,6 +3235,11 @@
 
       close(11)
 
+      do j=1,3
+         activeOutputProbe(1,j)=8.999999761581421e-001 
+         activeOutputProbe(2,j)=5.000000074505806e-002
+      enddo
+
 ! Run Network
 
       do i=1,7
@@ -3229,8 +3274,9 @@
             fgrid3(j) = fgrid3(j) + outputSynapse(i,j) * fgrid2(i)
          enddo
          fgrid3(j) = fgrid3(j) + outputAxon(j)
-!         fgrid3(j) = activeOutputProbe(j,1) * fgrid3(j) + activeOutputProbe(j,2)
+         fgrid3(j) = (exp(fgrid3(j))-exp(-fgrid3(j)))/(exp(fgrid3(j))+exp(-fgrid3(j)))
 
+!         fgrid3(j) = activeOutputProbe(j,1) * fgrid3(j) + activeOutputProbe(j,2)
          fgrid3(j) = exp(fgrid3(j))
          fgridsum = fgridsum + fgrid3(j)
       enddo

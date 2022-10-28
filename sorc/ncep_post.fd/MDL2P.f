@@ -61,7 +61,7 @@
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L, IEND_2U
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none
@@ -89,6 +89,7 @@
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
+      real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
 !
       INTEGER K, NSMOOTH
 !
@@ -1303,9 +1304,10 @@
             DO J=JSTA,JEND
               DO I=ISTA,IEND
                 SAVRH(I,J) = GRID1(I,J)
-              ENDDO
+                RHPRS(I,J,LP) = GRID1(I,J)
+                ENDDO
             ENDDO
-
+            
           ENDIF
         ENDIF
 !     
@@ -3947,6 +3949,32 @@
            ENDIF 
           END DO
         ENDIF  
+      ENDIF
+
+! SNOW DESITY SOLID-LIQUID-RATION SLR
+      IF ( IGET(1003)>0 ) THEN
+         grid1=spval
+         egrid1=spval
+         call calslr_roebber(TPRS,RHPRS,EGRID1)
+!$omp parallel do private(i,j) 
+         do j=jsta,jend
+         do i=ista,iend
+            if(egrid1(i,j) < spval) &
+            grid1(i,j)=1000./egrid1(i,j)
+         enddo
+         enddo
+         if(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(1003))
+!$omp parallel do private(i,j,ii,jj) 
+            do j=1,jend-jsta+1 
+              jj = jsta+j-1
+              do i=1,iend-ista+1
+              ii=ista+i-1
+                datapd(i,j,cfld) = GRID1(ii,jj) 
+              enddo
+            enddo
+         endif
       ENDIF
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
