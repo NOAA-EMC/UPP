@@ -21,6 +21,7 @@
 !> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
 !> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
 !> 2022-09-18 | Li(Kate) Zhang| Add aerosol fileds for GEFS-Aerosols (gocart_on) and UFS-Aerosols(nasa_on) model
+!> 2022-10-28 | Eric James    | Modifications to allow passing through soil moisture availability field from RUC LSM for RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
