@@ -5633,7 +5633,7 @@
            endif
       ENDIF
 
-      write_cd: IF(IGET(922)>0) THEN
+      write_cd: IF(IGET(924)>0) THEN
          DO J=JSTA,JEND
             DO I=ISTA,IEND
                GRID1(I,J)=CD10(I,J)
@@ -5641,7 +5641,7 @@
          ENDDO
          if(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(922))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(924))
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF write_cd
