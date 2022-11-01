@@ -3371,7 +3371,8 @@
       enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=1,im
+        do i=ista_2l,iend_2u
+!          smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
