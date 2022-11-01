@@ -3360,35 +3360,18 @@
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(isa,jsa)
       
-      IF(MODELNAME == 'FV3R')THEN
-        VarName='wet1'
-        call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-        spval,VarName,buf)
+      VarName='wet1'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
 !$omp parallel do private(i,j)
-        do j=jsta,jend
-          do i=1,im
-            smstav(i,j) = buf(i,j)
-          enddo
+      do j=jsta,jend
+        do i=1,im
+          smstav(i,j) = buf(i,j)
         enddo
-!$omp parallel do private(i,j)
-        do j=jsta_2l,jend_2u
-          do i=1,im
-!            smstot(i,j) = spval    ! GFS does not have total soil moisture
-            sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-            acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
-            acsnom(i,j) = spval    ! GFS does not have snow melt
-!            sst(i,j)    = spval    ! GFS does not have sst????
-            thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
-            qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
-            uz0(i,j)    = spval    ! GFS does not output u at roughness length
-            vz0(i,j)    = spval    ! GFS does not output humidity at roughness length
-          enddo
-        enddo
-      ELSE
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
-          smstav(i,j) = spval    ! GFS does not have soil moisture availability
+        do i=1,im
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
@@ -3400,7 +3383,6 @@
           vz0(i,j)    = spval    ! GFS does not output humidity at roughness length
         enddo
       enddo
-      ENDIF
       do l=1,lm
 !$omp parallel do private(i,j)
         do j=jsta_2l,jend_2u
