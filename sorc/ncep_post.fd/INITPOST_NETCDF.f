@@ -3360,7 +3360,7 @@
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(isa,jsa)
       
-      VarName='wet1'
+      VarName='wetness'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,buf)
 !$omp parallel do private(i,j)
