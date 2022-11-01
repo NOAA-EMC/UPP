@@ -466,7 +466,7 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
