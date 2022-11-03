@@ -821,6 +821,7 @@
           ID(18) = IFHR - 1
         ENDIF
         ID(20)     = 3
+        ITSRFC = NINT(TSRFC)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(501))
@@ -855,6 +856,7 @@
         ISVALUE = 10
         ID(10) = MOD(ISVALUE/256,256)
         ID(11) = MOD(ISVALUE,256)
+        ITSRFC = NINT(TSRFC)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(502))
@@ -2310,6 +2312,7 @@
                 GRID2(I,J) = V10MAX(I,J)
               ENDDO
             ENDDO
+           ITSRFC = NINT(TSRFC)
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(506))
@@ -6424,6 +6427,7 @@
            ID(18) = IFHR - 1
          ENDIF
             ID(20)     = 3
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
@@ -6453,6 +6457,7 @@
            ID(18) = IFHR - 1
          ENDIF
             ID(20)     = 3
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
