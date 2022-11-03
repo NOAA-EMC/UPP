@@ -1834,8 +1834,6 @@
            <scale>5.0</scale>
        </param>
 
-<!--
-
        <param>
            <shortname>1H_2YARI_EXCEEDANCE</shortname>
            <scale>5.0</scale>
@@ -1873,8 +1871,6 @@
            <shortname>ACM_100YARI_EXCEEDANCE</shortname>
            <scale>5.0</scale>
        </param>
-
--->
 
     </paramset>
 

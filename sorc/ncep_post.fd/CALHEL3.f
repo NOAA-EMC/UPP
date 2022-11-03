@@ -40,6 +40,7 @@
 !> 2019-09-03 | J Meng          | Modified to compute effective helicity and critical angle
 !> 2021-03-15 | E Colon         | CALHEL2 modified to compute effective rather than fixed layer helicity
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
+!> 2022-05-12 | E Colon         | Resolved a bug  which looped over the calculation of SRH at two fixed levels, erroneously doubling the magnitude.
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
       SUBROUTINE CALHEL3(LLOW,LUPP,UST,VST,HELI)
@@ -373,7 +374,6 @@
 !       COMPUTE STORM-RELATIVE HELICITY
 !
 !!$omp  parallel do private(i,j,n,l,du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,jn,js,z1,z2,z3)
-      DO N=1,2 ! for dfferent helicity depth
         DO L = 2,LM-1
           if(GRIDTYPE /= 'A')then
             call exch(ZINT(1,jsta_2l,L))
@@ -442,7 +442,6 @@
             ENDDO
           ENDDO
         ENDDO
-      END DO  ! end of different helicity depth
 
 !     END OF ROUTINE.
 !
