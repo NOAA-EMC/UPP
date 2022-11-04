@@ -40,6 +40,8 @@
 !! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
 !! -  21-07-26  W Meng  - Restrict computation from undefined grids
 !! -  21-10-31  J MENG    - 2D DECOMPOSITION
+!! -  22-02-01  E JAMES - Cleaning up GRIB2 encoding for six variables
+!!                        that cause issues with newer wgrib2 builds in RRFS system.
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -646,7 +648,11 @@
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             IF(SMSTAV(I,J) /= SPVAL)THEN
-              GRID1(I,J) = SMSTAV(I,J)*100.
+              IF ( MODELNAME == 'FV3R') THEN
+                GRID1(I,J) = SMSTAV(I,J)
+              ELSE
+                GRID1(I,J) = SMSTAV(I,J)*100.
+              ENDIF
             ELSE
               GRID1(I,J) = 0.
             ENDIF
@@ -815,11 +821,16 @@
           ID(18) = IFHR - 1
         ENDIF
         ID(20)     = 3
+        ITSRFC = NINT(TSRFC)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(501))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -845,11 +856,16 @@
         ISVALUE = 10
         ID(10) = MOD(ISVALUE/256,256)
         ID(11) = MOD(ISVALUE,256)
+        ITSRFC = NINT(TSRFC)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(502))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -2296,11 +2312,16 @@
                 GRID2(I,J) = V10MAX(I,J)
               ENDDO
             ENDDO
+           ITSRFC = NINT(TSRFC)
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(506))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2311,8 +2332,12 @@
             enddo
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(507))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -5615,7 +5640,7 @@
            endif
       ENDIF
 
-      write_cd: IF(IGET(922)>0) THEN
+      write_cd: IF(IGET(924)>0) THEN
          DO J=JSTA,JEND
             DO I=ISTA,IEND
                GRID1(I,J)=CD10(I,J)
@@ -5623,7 +5648,7 @@
          ENDDO
          if(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(922))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(924))
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF write_cd
@@ -6402,11 +6427,16 @@
            ID(18) = IFHR - 1
          ENDIF
             ID(20)     = 3
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
@@ -6427,11 +6457,16 @@
            ID(18) = IFHR - 1
          ENDIF
             ID(20)     = 3
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
 
