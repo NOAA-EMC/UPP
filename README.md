@@ -45,8 +45,7 @@ Examples of UPP products include:
 
 
 ## User Support
-Support for the UFS UPP is provided through the [UFS Forum](https://forums.ufscommunity.org/)
-by the Developmental Testbed Center (DTC). 
+Support for the UFS UPP is provided through [GitHub Discussions](https://github.com/NOAA-EMC/UPP/discussions).
 
 ## Documentation 
 User Guide for latest public release: https://upp.readthedocs.io/en/latest/.

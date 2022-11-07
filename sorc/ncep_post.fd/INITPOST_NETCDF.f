@@ -21,6 +21,7 @@
 !> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
 !> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
 !> 2022-09-18 | Li(Kate) Zhang| Add aerosol fileds for GEFS-Aerosols (gocart_on) and UFS-Aerosols(nasa_on) model
+!> 2022-10-28 | Eric James    | Modifications to allow passing through soil moisture availability field from RUC LSM for RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -3359,10 +3360,19 @@
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(isa,jsa)
       
+      VarName='wetness'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          smstav(i,j) = buf(i,j)
+        enddo
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
-          smstav(i,j) = spval    ! GFS does not have soil moisture availability
+!          smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
