@@ -20,6 +20,7 @@
 !!                      two arrays are involved in GSL visibility computation.
 !! -  22-03-22  Wen Meng - Initializing pwat.
 !! -  22-09-22  Li(Kate) Zhang - Initializing NASA GOCART tracers of Nitrate, NH4,and their column burden.
+!! -  22-11-08  Kai Wang - Replace acfcmaq_on with aqf_on
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -1369,19 +1370,19 @@
       enddo
 
 ! AQF
-      if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
-      if (aqfcmaq_on) then
+      if (me == 0) print *,'aqf_on= ', aqf_on
+      if (aqf_on) then
 
-      allocate(ozcon(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-      allocate(pmtf(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(avgozcon(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(avgpmtf(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=ista_2l,iend_2u
-             ozcon(i,j,l)=0.
-             pmtf(i,j,l)=0.
+             avgozcon(i,j,l)=spval
+             avgpmtf(i,j,l)=spval
           enddo
         enddo
       enddo
