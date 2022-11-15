@@ -472,7 +472,7 @@
               jj = jsta+j-1
               do i=1,iend-ista+1
               ii = ista+i-1
-                datapd(i,j,cfld) =  SNDEPAC(ii,jj)
+                datapd(i,j,cfld) =  SNDEPAC(ii,jj)/(1E3)
               enddo
             enddo
          endif
