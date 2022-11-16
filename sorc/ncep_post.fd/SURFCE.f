@@ -68,7 +68,7 @@
 !     
 !     INCLUDE GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !
-      use vrbls4d, only: smoke
+      use vrbls4d, only: smoke, fv3dust
       use vrbls3d, only: zint, pint, t, pmid, q, f_rimef
       use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,       &
                          cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,    &
@@ -1513,7 +1513,7 @@
            (IGET(138)>0).OR.(IGET(414)>0).OR.     &
            (IGET(546)>0).OR.(IGET(547)>0).OR.     &
            (IGET(548)>0).OR.(IGET(739)>0).OR.     &
-           (IGET(771)>0)) THEN
+           (IGET(744)>0).OR.(IGET(771)>0)) THEN
 
         if (.not. allocated(psfc))  allocate(psfc(ista:iend,jsta:jend))
 !
@@ -2136,7 +2136,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
              if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE(I,J,LM,1)/=spval)&
-               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)
+               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)/(1E9)
              ENDDO
            ENDDO
            if(grib=='grib2') then
@@ -2145,6 +2145,24 @@
              datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
            endif
          ENDIF
+!
+! E. James - 14 Sep 2022: DUST from RRFS on lowest model level
+!
+         IF (IGET(744)>0) THEN
+           GRID1=SPVAL
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.FV3DUST(I,J,LM,1)/=spval)&
+               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*FV3DUST(I,J,LM,1)/(1E9)
+             ENDDO
+           ENDDO
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(744))
+             datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
+           endif
+         ENDIF
+!
 !
 !     BLOCK 3.  ANEMOMETER LEVEL (10M) WINDS, THETA, AND Q.
 !

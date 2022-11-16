@@ -6758,8 +6758,9 @@
     <param>
        <post_avblfldidx>736</post_avblfldidx>
        <shortname>SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>COLMD</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
@@ -6767,8 +6768,9 @@
     <param>
        <post_avblfldidx>737</post_avblfldidx>
        <shortname>SMOKE_ON_HYBRID_LVL</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -6776,8 +6778,9 @@
     <param>
        <post_avblfldidx>738</post_avblfldidx>
        <shortname>SMOKE_ON_ISOBARIC_SFC</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -6785,8 +6788,9 @@
     <param>
        <post_avblfldidx>739</post_avblfldidx>
        <shortname>SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
-       <pdstmpl>tmpl4_0</pdstmpl>
+       <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>8.</level>
        <scale>6.0</scale>
@@ -6795,10 +6799,62 @@
     <param>
        <post_avblfldidx>740</post_avblfldidx>
        <shortname>MEAN_FIRE_RDIATV_PWR</shortname>
+       <pdstmpl>tmpl4_0</pdstmpl>
        <pname>CFNSF</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>741</post_avblfldidx>
+       <shortname>DUST_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <scale>5.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>742</post_avblfldidx>
+       <shortname>DUST_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>743</post_avblfldidx>
+       <shortname>DUST_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>744</post_avblfldidx>
+       <shortname>DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>8.</level>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>745</post_avblfldidx>
+       <shortname>BIOMASS_BURNING_EMISSIONS</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AEMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>5.0</scale>
     </param>
 
    <param>
@@ -6879,6 +6935,15 @@
        <pname>NCRAIN</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>755</post_avblfldidx>
+       <shortname>HWP_ON_SURFACE</shortname>
+       <longname>Hourly Wildfire Potential on surface</longname>
+       <pname>FWINX</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>5.0</scale>
     </param>
 
     <param>
