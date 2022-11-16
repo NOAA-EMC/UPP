@@ -1066,7 +1066,7 @@
         call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
         spval,VarName,cfr(ista_2l,jsta_2l,1),lm)
       else
-        VarName='cldfra_bl'
+        VarName='cldfra'
         call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
         spval,VarName,cfr(ista_2l,jsta_2l,1),lm)
       endif
