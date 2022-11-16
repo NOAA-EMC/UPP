@@ -46,6 +46,7 @@
 !!   21-07-07  J MENG - 2D DECOMPOSITION
 !!   22-09-22  L Zhang - ADD NO3 and NH4 output for UFS-Aerosols model
 !!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
+!!   22-11-16  E James - Adding dust from RRFS
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:

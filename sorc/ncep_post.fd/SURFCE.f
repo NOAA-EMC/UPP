@@ -42,6 +42,7 @@
 !! -  21-10-31  J MENG    - 2D DECOMPOSITION
 !! -  22-02-01  E JAMES - Cleaning up GRIB2 encoding for six variables
 !!                        that cause issues with newer wgrib2 builds in RRFS system.
+!! -  22-11-16  E JAMES - Adding dust from RRFS
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:

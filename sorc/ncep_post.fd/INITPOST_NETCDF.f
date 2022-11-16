@@ -22,7 +22,7 @@
 !> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
 !> 2022-09-18 | Li(Kate) Zhang| Add aerosol fileds for GEFS-Aerosols (gocart_on) and UFS-Aerosols(nasa_on) model
 !> 2022-10-28 | Eric James    | Modifications to allow passing through soil moisture availability field from RUC LSM for RRFS
-!> 2022-11-16 | Eric James    | Read smoke and dust from RRFS
+!> 2022-11-16 | Eric James    | Read smoke, dust, biomass burning, and hourly wildfire potential from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)

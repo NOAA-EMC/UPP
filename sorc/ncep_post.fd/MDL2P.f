@@ -32,6 +32,7 @@
 !> 2021-07-07 | J MENG          | 2D DECOMPOSITION
 !> 2022-08-03 | W Meng          | Modify total cloud fraction(331) 
 !> 2022-09-22 | L Zhang         | Remove DUSTSL
+!> 2022-11-16 | E James         | Adding dust from RRFS
 !>
 !> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
