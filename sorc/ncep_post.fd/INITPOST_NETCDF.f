@@ -2999,21 +2999,23 @@
 ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
 ! extinction; it needs to be after ZINT is defined.
 !
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = ista_2l, iend_2u
+      if (modelname == 'FV3R') then
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = ista_2l, iend_2u
             taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
-          i,j,l,taod5503d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
-          dz
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
-          i,j,l,aextc55 ( i, j, l )
+         if(i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
+           i,j,l,taod5503d ( i, j, l )
+         if(i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
+           dz
+         if(i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+           i,j,l,aextc55 ( i, j, l )
+         end do
         end do
        end do
-      end do
+      end if
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
