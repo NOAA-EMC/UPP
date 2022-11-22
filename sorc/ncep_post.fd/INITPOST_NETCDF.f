@@ -675,7 +675,7 @@
       if (nhcas == 0 ) then  !non-hydrostatic case
        nrec=18
        allocate (recname(nrec))
-       recname=[character(len=18) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
+       recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
