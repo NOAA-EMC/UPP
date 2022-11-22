@@ -673,14 +673,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=20
+       nrec=18
        allocate (recname(nrec))
-       recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
+       recname=[character(len=18) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'smoke_ext','dust_ext',            &
-                                     'ebb_smoke_hr','hwp']
+                                     'smoke_ext','dust_ext']
       else
        nrec=8
        allocate (recname(nrec))
@@ -1033,6 +1032,8 @@
        spval,recname(13),qqs(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(14),qqg(ista_2l,jsta_2l,1),lm)
+! read for regional FV3
+       if (modelname == 'FV3R') then
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -1041,10 +1042,7 @@
        spval,recname(17),extsmoke(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(18),extdust(ista_2l,jsta_2l,1),lm)
-       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,       &
-       spval,recname(19),ebb(ista_2l,jsta_2l))
-       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,       &
-       spval,recname(20),hwp(ista_2l,jsta_2l))
+       endif
 
 ! calculate CWM from FV3 output
        do l=1,lm
@@ -1608,6 +1606,16 @@
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rel_vort_maxhy1(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
+! biomass burning emissions
+      VarName='ebb_smoke_hr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ebb(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',ebb(isa,jsa)
+! hourly wildfire potential
+      VarName='hwp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,hwp(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
       endif
 
 ! surface pressure
