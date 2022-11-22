@@ -37,8 +37,7 @@
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
               dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp,ocwt,ocsv, &
-              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon, extsmoke, extdust, aextc55,      &
-              taod5503d
+              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon, aextc55, taod5503d
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
@@ -187,6 +186,7 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
+      real, allocatable :: extsmoke(:,:,:), extdust(:,:,:)
 
 ! AQF
 
@@ -235,6 +235,11 @@
                           ,axyl1j(:,:,:), axyl2j(:,:,:), axyl3j(:,:,:) &
                           ,pm25ac(:,:,:), pm25at(:,:,:), pm25co(:,:,:)
 
+
+      if (modelname == 'FV3R') then
+         allocate(extsmoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(extdust(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      endif
 
       if (me == 0) print *,' aqfcmaq_on=', aqfcmaq_on
 
@@ -3023,6 +3028,8 @@
          end do
         end do
        end do
+       deallocate(extsmoke)
+       deallocate(extdust)
       end if
 
 !$omp parallel do private(i,j)
