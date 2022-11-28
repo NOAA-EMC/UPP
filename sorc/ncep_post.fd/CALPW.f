@@ -275,7 +275,7 @@
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=ISTA,IEND
-              Qdum(I,J) = FV3DUST(I,J,L,1)/1000000000.
+              Qdum(I,J) = FV3DUST(I,J,L,1)/(1E9)
             ENDDO
           END DO
         ENDIF
