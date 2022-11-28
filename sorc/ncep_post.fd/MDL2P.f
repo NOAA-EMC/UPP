@@ -3845,6 +3845,7 @@
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
+if(allocated(fv3dustsl)) deallocate(fv3dustsl)
 !     END OF ROUTINE.
 !
       RETURN
