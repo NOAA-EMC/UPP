@@ -3019,11 +3019,11 @@
             taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
-         if(i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
+         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
            i,j,l,taod5503d ( i, j, l )
-         if(i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
+         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
            dz
-         if(i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
            i,j,l,aextc55 ( i, j, l )
          end do
         end do
@@ -3418,7 +3418,7 @@
       spval,VarName,buf)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           smstav(i,j) = buf(i,j)
         enddo
       enddo

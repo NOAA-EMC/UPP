@@ -201,6 +201,7 @@
       deallocate(ebb)
       deallocate(hwp)
       deallocate(smoke)
+      deallocate(fv3dust)
       deallocate(taod5502d)
       deallocate(aerasy2d)
       deallocate(aerssa2d)
