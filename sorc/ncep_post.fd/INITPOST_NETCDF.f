@@ -3016,9 +3016,11 @@
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = ista_2l, iend_2u
+          if(extsmoke(i,j,l)<spval.and.extdust(i,j,l)<spval)then
             taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+          endif
          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
            i,j,l,taod5503d ( i, j, l )
          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &

@@ -7006,6 +7006,22 @@
     </param>
 
     <param>
+       <post_avblfldidx>764</post_avblfldidx>
+       <shortname>CSDLF_ON_SURFACE</shortname>
+       <pname>CSDLF</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+  
+    <param>
+       <post_avblfldidx>765</post_avblfldidx>
+       <shortname>CSULF_ON_SURFACE</shortname>
+       <pname>CSULF</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>766</post_avblfldidx>
        <shortname>GSD_NCWFA_ON_HYBRID_LVL</shortname>
        <pname>PMTF</pname>
