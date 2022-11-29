@@ -34,8 +34,7 @@
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon, extsmoke, extdust,                &
-              aextc55, taod5503d
+              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon, aextc55, taod5503d
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
@@ -57,7 +56,7 @@
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max, &
-              pwat, ebb
+              pwat, ebb, hwp
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -176,6 +175,7 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
+      real, allocatable :: extsmoke(:,:,:), extdust(:,:,:)
 
 ! AQF
 
@@ -224,6 +224,10 @@
                           ,axyl1j(:,:,:), axyl2j(:,:,:), axyl3j(:,:,:) &
                           ,pm25ac(:,:,:), pm25at(:,:,:), pm25co(:,:,:)
 
+      if (modelname == 'FV3R') then
+         allocate(extsmoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(extdust(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      endif
 
       if (me == 0) print *,' aqfcmaq_on=', aqfcmaq_on
 
@@ -662,14 +666,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=19
+       nrec=18
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'smoke_ext','dust_ext',            &
-                                     'ebb_smoke_hr']
+                                     'smoke_ext','dust_ext']
       else
        nrec=8
        allocate (recname(nrec))
@@ -1024,14 +1027,15 @@
        spval,recname(14),qqg(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
+! read for regional FV3
+       if (modelname == 'FV3R') then
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(17),extsmoke(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(18),extdust(ista_2l,jsta_2l,1),lm)
-       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,       &
-       spval,recname(19),ebb(ista_2l,jsta_2l))
+       endif
 
 ! calculete CWM from FV3 output
        do l=1,lm
@@ -1595,6 +1599,16 @@
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rel_vort_maxhy1(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
+! biomass burning emissions
+      VarName='ebb_smoke_hr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ebb(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',ebb(isa,jsa)
+! hourly wildfire potential
+      VarName='hwp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,hwp(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
       endif
 
 ! surface pressure
@@ -2597,6 +2611,7 @@
 ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
 ! extinction; it needs to be after ZINT is defined.
 !
+      if (modelname == 'FV3R') then
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = ista_2l, iend_2u
@@ -2612,6 +2627,9 @@
         end do
        end do
       end do
+      deallocate(extsmoke)
+      deallocate(extdust)
+      endif
 
 !$omp parallel do private(i,j)
       do j=jsta,jend

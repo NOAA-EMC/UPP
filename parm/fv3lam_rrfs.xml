@@ -1908,6 +1908,12 @@
            <scale>5.0</scale>
        </param>
 
+       <param>
+           <shortname>HWP_ON_SURFACE</shortname>
+           <pname>FWINX</pname>
+           <scale>5.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>

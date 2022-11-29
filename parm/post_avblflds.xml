@@ -6900,6 +6900,15 @@
     </param>
 
     <param>
+       <post_avblfldidx>755</post_avblfldidx>
+       <shortname>HWP_ON_SURFACE</shortname>
+       <longname>Hourly Wildfire Potential on surface</longname>
+       <pname>FWINX</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>5.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>756</post_avblfldidx>
        <shortname>GSD_PRES_ON_HGHST_TROP_FRZ_LVL</shortname>
        <longname>GSD_pressure on Highest tropospheric freezing level</longname>

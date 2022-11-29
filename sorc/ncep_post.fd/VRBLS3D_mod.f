@@ -56,8 +56,6 @@
       ,QQNIFA(:,:,:)          &
       ,TAOD5503D(:,:,:)       &
       ,AEXTC55(:,:,:)         &
-      ,EXTSMOKE(:,:,:)        &
-      ,EXTDUST(:,:,:)         &
 !
 ! Add aerosol optical properties for GOCART (NGAC)
       ,ext(:,:,:), asy(:,:,:)           &
