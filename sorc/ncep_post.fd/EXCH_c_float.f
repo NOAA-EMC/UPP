@@ -40,7 +40,7 @@
       integer mpi_kind
 
       logical, parameter :: checkcoords = .false.
-
+      
       data ifirst/0/
       allocate(coll(jm))
       allocate(colr(jm))
