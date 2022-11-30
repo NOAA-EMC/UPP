@@ -16,7 +16,8 @@
 !> 2021-03-11 | Bo Cui         | improve local arrays memory
 !> 2021-08-31 | Lin Zhu        | added ssmis-f17 channels 15-18 grib2 output 
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
-!> 2022-05-26 | Wm Lewis       | added support for GOES-18 ABI IR Channels 7-16
+!> 2022-05-26 | WM Lewis       | added support for GOES-18 ABI IR Channels 7-16
+!> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
 !>
 !> @author Chuang @date 2007-01-17       
       SUBROUTINE CALRAD_WCLOUD
@@ -961,7 +962,6 @@
                        !       CRTM counts from top down just as post does
                        if(i==ii.and.j==jj.and.debugprint)print*,'TOA= ',atmosphere(1)%level_pressure(0)
                        do k = 1,lm
-!                         Wm Lewis added cloud_fraction to support CRTM v2.4
                           atmosphere(1)%cloud_fraction(k) = min(max(cfr(i,j,k),0.),1.)
                           atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
                           atmosphere(1)%pressure(k)       = pmid(i,j,k)/r100
@@ -1551,7 +1551,6 @@
                        !       CRTM counts from top down just as post does
                        if(i==ii.and.j==jj)print*,'TOA= ',atmosphere(1)%level_pressure(0)
                        do k = 1,lm
-!                         Wm Lewis added cloud_fraction to support CRTM v2.4
                           atmosphere(1)%cloud_fraction(k) = min(max(cfr(i,j,k),0.),1.)
                           atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
                           atmosphere(1)%pressure(k)       = pmid(i,j,k)/r100
@@ -2098,7 +2097,7 @@
                    endif
                  enddo ! channel loop
               end if  ! end of outputting goes 16
-              if (isis=='abi_g17')then  ! writing goes 16 to grib
+              if (isis=='abi_g17')then  ! writing goes 17 to grib
                  nc=0
                  do ixchan=1,10
                    ichan=ixchan
@@ -2118,7 +2117,7 @@
                  enddo ! channel loop
               end if  ! end of outputting goes 17
 !             Wm Lewis updated idx for g18 on 3 JUN 2022
-              if (isis=='abi_g18')then  ! writing goes 16 to grib
+              if (isis=='abi_g18')then  ! writing goes 18 to grib
                  nc=0
                  do ixchan=1,10
                    igot=iget(530+ixchan)

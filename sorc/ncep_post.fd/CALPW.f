@@ -36,6 +36,7 @@
 !> 2019-07-25 | Li(Kate) Zhang | Merge Sarah Lu's update for FV3-Chem
 !> 2020-11-10 | Jesse Meng     | Use UPP_PHYSICS Module
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
+!> 2022-11-16 | Eric James     | Adding calculation of vertically integrated dust from RRFS
 !>     
 !> @author Russ Treadon W/NP2 @date 1992-12-24
       SUBROUTINE CALPW(PW,IDECID)
@@ -236,7 +237,7 @@
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=ISTA,IEND
-              Qdum(I,J) = SMOKE(I,J,L,1)/1000000000.
+              Qdum(I,J) = SMOKE(I,J,L,1)/(1E9)
             ENDDO
           END DO
 !
@@ -274,7 +275,7 @@
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=ISTA,IEND
-              Qdum(I,J) = FV3DUST(I,J,L,1)/1000000000.
+              Qdum(I,J) = FV3DUST(I,J,L,1)/(1E9)
             ENDDO
           END DO
         ENDIF

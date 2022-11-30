@@ -3,16 +3,16 @@
 ABSV:1000 mb
 ABSV:100 mb
 ABSV:10 mb
-ABSV:15 mb
 ABSV:150 mb
-ABSV:20 mb
+ABSV:15 mb
 ABSV:200 mb
+ABSV:20 mb
 ABSV:250 mb
 ABSV:300 mb
 ABSV:30 mb
 ABSV:350 mb
-ABSV:40 mb
 ABSV:400 mb
+ABSV:40 mb
 ABSV:450 mb
 ABSV:500 mb
 ABSV:50 mb
@@ -42,10 +42,12 @@ ABSV:0.02 mb
 ABSV:0.04 mb
 ABSV:0.07 mb
 ACPCP:surface
-ALBDO:surface
+AEMFLX:surface
+AOTK:entire atmosphere
 APCP:surface
 APTMP:2 m above ground
-AOTK:entire atmosphere
+ASYSFK:entire atmosphere
+var discipline=0 master_table=2 parmcat=0 parm=21:2 m above ground
 CAPE:180-0 mb above ground
 CAPE:255-0 mb above ground
 CAPE:90-0 mb above ground
@@ -80,18 +82,16 @@ CLMR:950 mb
 CLMR:975 mb
 CLMR:1 hybrid level
 CNWAT:surface
+COLMD:entire atmosphere
 CPOFP:surface
 CPRAT:surface
 CRAIN:surface
 CSNOW:surface
 CWAT:entire atmosphere (considered as a single layer)
-CWORK:entire atmosphere (considered as a single layer)
-DLWRF:surface
+DDMFLX:entire atmosphere
 DPT:2 m above ground
-DSWRF:surface
 FLDCP:surface
 FRICV:surface
-GFLUX:surface
 GRLE:50 mb
 GRLE:1000 mb
 GRLE:100 mb
@@ -130,8 +130,8 @@ HGT:300 mb
 HGT:30 mb
 HGT:350 mb
 HGT:400 mb
-HGT:450 mb
 HGT:40 mb
+HGT:450 mb
 HGT:500 mb
 HGT:50 mb
 HGT:550 mb
@@ -175,25 +175,6 @@ ICAHT:tropopause
 ICEC:surface
 ICETK:surface
 ICETMP:surface
-ICSEV:100 mb
-ICSEV:150 mb
-ICSEV:200 mb
-ICSEV:250 mb
-ICSEV:300 mb
-ICSEV:350 mb
-ICSEV:400 mb
-ICSEV:450 mb
-ICSEV:500 mb
-ICSEV:550 mb
-ICSEV:600 mb
-ICSEV:650 mb
-ICSEV:700 mb
-ICSEV:750 mb
-ICSEV:800 mb
-ICSEV:850 mb
-ICSEV:900 mb
-ICSEV:950 mb
-ICSEV:1000 mb
 ICMR:50 mb
 ICMR:1000 mb
 ICMR:100 mb
@@ -220,21 +201,62 @@ ICMR:1 hybrid level
 LAND:surface
 LCDC:low cloud layer
 LFTX:surface
-LHTFL:surface
+MASSMR:1000 mb
+MASSMR:100 mb
+MASSMR:10 mb
+MASSMR:15 mb
+MASSMR:150 mb
+MASSMR:20 mb
+MASSMR:200 mb
+MASSMR:250 mb
+MASSMR:300 mb
+MASSMR:30 mb
+MASSMR:350 mb
+MASSMR:40 mb
+MASSMR:400 mb
+MASSMR:450 mb
+MASSMR:500 mb
+MASSMR:50 mb
+MASSMR:550 mb
+MASSMR:600 mb
+MASSMR:650 mb
+MASSMR:700 mb
+MASSMR:70 mb
+MASSMR:750 mb
+MASSMR:800 mb
+MASSMR:850 mb
+MASSMR:900 mb
+MASSMR:925 mb
+MASSMR:950 mb
+MASSMR:975 mb
+MASSMR:1 mb
+MASSMR:2 mb
+MASSMR:3 mb
+MASSMR:5 mb
+MASSMR:7 mb
+MASSMR:0.1 mb
+MASSMR:0.2 mb
+MASSMR:0.4 mb
+MASSMR:0.7 mb
+MASSMR:0.01 mb
+MASSMR:0.02 mb
+MASSMR:0.04 mb
+MASSMR:0.07 mb
+MASSMR:1 hybrid level
 MSLET:mean sea level
 O3MR:1000 mb
 O3MR:100 mb
 O3MR:10 mb
-O3MR:15 mb
 O3MR:150 mb
+O3MR:15 mb
 O3MR:20 mb
 O3MR:200 mb
 O3MR:250 mb
 O3MR:300 mb
 O3MR:30 mb
 O3MR:350 mb
-O3MR:40 mb
 O3MR:400 mb
+O3MR:40 mb
 O3MR:450 mb
 O3MR:500 mb
 O3MR:50 mb
@@ -264,20 +286,99 @@ O3MR:0.02 mb
 O3MR:0.04 mb
 O3MR:0.07 mb
 MCDC:middle cloud layer
-PEVPR:surface
 PLPL:255-0 mb above ground
+PMTC:1000 mb
+PMTC:100 mb
+PMTC:10 mb
+PMTC:15 mb
+PMTC:150 mb
+PMTC:20 mb
+PMTC:200 mb
+PMTC:250 mb
+PMTC:300 mb
+PMTC:30 mb
+PMTC:350 mb
+PMTC:40 mb
+PMTC:400 mb
+PMTC:450 mb
+PMTC:500 mb
+PMTC:50 mb
+PMTC:550 mb
+PMTC:600 mb
+PMTC:650 mb
+PMTC:700 mb
+PMTC:70 mb
+PMTC:750 mb
+PMTC:800 mb
+PMTC:850 mb
+PMTC:900 mb
+PMTC:925 mb
+PMTC:950 mb
+PMTC:975 mb
+PMTC:1 mb
+PMTC:2 mb
+PMTC:3 mb
+PMTC:5 mb
+PMTC:7 mb
+PMTC:0.1 mb
+PMTC:0.2 mb
+PMTC:0.4 mb
+PMTC:0.7 mb
+PMTC:0.01 mb
+PMTC:0.02 mb
+PMTC:0.04 mb
+PMTC:0.07 mb
+PMTC:1 hybrid level
+PMTC:entire atmosphere
+PMTC:surface
+PMTF:1000 mb
+PMTF:100 mb
+PMTF:10 mb
+PMTF:15 mb
+PMTF:150 mb
+PMTF:20 mb
+PMTF:200 mb
+PMTF:250 mb
+PMTF:300 mb
+PMTF:30 mb
+PMTF:350 mb
+PMTF:40 mb
+PMTF:400 mb
+PMTF:450 mb
+PMTF:500 mb
+PMTF:50 mb
+PMTF:550 mb
+PMTF:600 mb
+PMTF:650 mb
+PMTF:700 mb
+PMTF:70 mb
+PMTF:750 mb
+PMTF:800 mb
+PMTF:850 mb
+PMTF:900 mb
+PMTF:925 mb
+PMTF:950 mb
+PMTF:975 mb
+PMTF:1 mb
+PMTF:2 mb
+PMTF:3 mb
+PMTF:5 mb
+PMTF:7 mb
+PMTF:0.1 mb
+PMTF:0.2 mb
+PMTF:0.4 mb
+PMTF:0.7 mb
+PMTF:0.01 mb
+PMTF:0.02 mb
+PMTF:0.04 mb
+PMTF:0.07 mb
+PMTF:1 hybrid level
+PMTF:entire atmosphere
+PMTF:surface
 POT:0.995 sigma level
 PRATE:surface
 PRES:80 m above ground
-PRES:convective cloud bottom level
-PRES:convective cloud top level
-PRES:high cloud bottom level
-PRES:high cloud top level
-PRES:low cloud bottom level
-PRES:low cloud top level
 PRES:max wind
-PRES:middle cloud bottom level
-PRES:middle cloud top level
 PRES:PV=-2e-06 (Km^2/kg/s) surface
 PRES:PV=2e-06 (Km^2/kg/s) surface
 PRES:surface
@@ -298,18 +399,18 @@ RH:0C isotherm
 RH:1000 mb
 RH:100 mb
 RH:10 mb
-RH:15 mb
 RH:150 mb
+RH:15 mb
 RH:20 mb
 RH:200 mb
 RH:250 mb
 RH:2 m above ground
-RH:300 mb
 RH:30-0 mb above ground
+RH:300 mb
 RH:30 mb
 RH:350 mb
-RH:40 mb
 RH:400 mb
+RH:40 mb
 RH:450 mb
 RH:500 mb
 RH:50 mb
@@ -363,8 +464,36 @@ RWMR:925 mb
 RWMR:950 mb
 RWMR:975 mb
 RWMR:1 hybrid level
-SHTFL:surface
+SCTAOTK:entire atmosphere
+SEDMFLX:entire atmosphere
 SFCR:surface
+SNMR:50 mb
+SNMR:1000 mb
+SNMR:100 mb
+SNMR:150 mb
+SNMR:200 mb
+SNMR:250 mb
+SNMR:300 mb
+SNMR:350 mb
+SNMR:400 mb
+SNMR:450 mb
+SNMR:500 mb
+SNMR:550 mb
+SNMR:600 mb
+SNMR:650 mb
+SNMR:700 mb
+SNMR:750 mb
+SNMR:800 mb
+SNMR:850 mb
+SNMR:900 mb
+SNMR:925 mb
+SNMR:950 mb
+SNMR:975 mb
+SNMR:1 hybrid level
+SOILL:0-0.1 m below ground
+SOILL:0.1-0.4 m below ground
+SOILL:0.4-1 m below ground
+SOILL:1-2 m below ground
 SOILW:0-0.1 m below ground
 SOILW:0.1-0.4 m below ground
 SOILW:0.4-1 m below ground
@@ -375,14 +504,14 @@ SPFH:100 mb
 SPFH:10 mb
 SPFH:15 mb
 SPFH:150 mb
-SPFH:20 mb
 SPFH:200 mb
+SPFH:20 mb
 SPFH:250 mb
 SPFH:300 mb
 SPFH:30 mb
 SPFH:350 mb
-SPFH:40 mb
 SPFH:400 mb
+SPFH:40 mb
 SPFH:450 mb
 SPFH:500 mb
 SPFH:50 mb
@@ -414,33 +543,6 @@ SPFH:0.07 mb
 SPFH:2 m above ground
 SPFH:30-0 mb above ground
 SPFH:80 m above ground
-SNMR:50 mb
-SNMR:1000 mb
-SNMR:100 mb
-SNMR:150 mb
-SNMR:200 mb
-SNMR:250 mb
-SNMR:300 mb
-SNMR:350 mb
-SNMR:400 mb
-SNMR:450 mb
-SNMR:500 mb
-SNMR:550 mb
-SNMR:600 mb
-SNMR:650 mb
-SNMR:700 mb
-SNMR:750 mb
-SNMR:800 mb
-SNMR:850 mb
-SNMR:900 mb
-SNMR:925 mb
-SNMR:950 mb
-SNMR:975 mb
-SNMR:1 hybrid level
-SOILL:0-0.1 m below ground
-SOILL:0.1-0.4 m below ground
-SOILL:0.4-1 m below ground
-SOILL:1-2 m below ground
 SUNSD:surface
 TCDC:50 mb
 TCDC:1000 mb
@@ -464,14 +566,8 @@ TCDC:900 mb
 TCDC:925 mb
 TCDC:950 mb
 TCDC:975 mb
-TCDC:boundary layer cloud layer
-TCDC:convective cloud layer
 TCDC:entire atmosphere
-TCDC:high cloud layer
-TCDC:low cloud layer
-TCDC:middle cloud layer
-TMAX:2 m above ground
-TMIN:2 m above ground
+TCDC:convective cloud layer
 TSOIL:0-0.1 m below ground
 TSOIL:0.1-0.4 m below ground
 TSOIL:0.4-1 m below ground
@@ -489,8 +585,8 @@ TMP:20 mb
 TMP:250 mb
 TMP:2743 m above mean sea level
 TMP:2 m above ground
-TMP:300 mb
 TMP:30-0 mb above ground
+TMP:300 mb
 TMP:30 mb
 TMP:350 mb
 TMP:3658 m above mean sea level
@@ -525,38 +621,34 @@ TMP:0.01 mb
 TMP:0.02 mb
 TMP:0.04 mb
 TMP:0.07 mb
-TMP:high cloud top level
-TMP:low cloud top level
 TMP:max wind
-TMP:middle cloud top level
 TMP:PV=-2e-06 (Km^2/kg/s) surface
 TMP:PV=2e-06 (Km^2/kg/s) surface
 TMP:surface
 TMP:tropopause
 TOZNE:entire atmosphere (considered as a single layer)
-UFLX:surface
 UGRD:0.995 sigma level
 UGRD:1000 mb
 UGRD:100 m above ground
 UGRD:100 mb
 UGRD:10 m above ground
 UGRD:10 mb
-UGRD:15 mb
 UGRD:150 mb
+UGRD:15 mb
 UGRD:1829 m above mean sea level
 UGRD:200 mb
 UGRD:20 mb
 UGRD:20 m above ground
 UGRD:250 mb
 UGRD:2743 m above mean sea level
-UGRD:300 mb
-UGRD:30 m above ground
 UGRD:30-0 mb above ground
+UGRD:300 mb
 UGRD:30 mb
+UGRD:30 m above ground
 UGRD:350 mb
 UGRD:3658 m above mean sea level
-UGRD:40 mb
 UGRD:400 mb
+UGRD:40 mb
 UGRD:40 m above ground
 UGRD:450 mb
 UGRD:500 mb
@@ -593,36 +685,30 @@ UGRD:planetary boundary layer
 UGRD:PV=-2e-06 (Km^2/kg/s) surface
 UGRD:PV=2e-06 (Km^2/kg/s) surface
 UGRD:tropopause
-U-GWD:surface
-ULWRF:surface
-ULWRF:top of atmosphere
 USTM:6000-0 m above ground
-USWRF:surface
-USWRF:top of atmosphere
 VEG:surface
-VFLX:surface
 VGRD:0.995 sigma level
 VGRD:1000 mb
 VGRD:100 m above ground
 VGRD:100 mb
 VGRD:10 m above ground
 VGRD:10 mb
-VGRD:15 mb
 VGRD:150 mb
+VGRD:15 mb
 VGRD:1829 m above mean sea level
 VGRD:200 mb
 VGRD:20 mb
 VGRD:20 m above ground
 VGRD:250 mb
 VGRD:2743 m above mean sea level
-VGRD:300 mb
-VGRD:30 m above ground
 VGRD:30-0 mb above ground
+VGRD:300 mb
 VGRD:30 mb
+VGRD:30 m above ground
 VGRD:350 mb
 VGRD:3658 m above mean sea level
-VGRD:40 mb
 VGRD:400 mb
+VGRD:40 mb
 VGRD:40 m above ground
 VGRD:450 mb
 VGRD:500 mb
@@ -659,7 +745,6 @@ VGRD:planetary boundary layer
 VGRD:PV=-2e-06 (Km^2/kg/s) surface
 VGRD:PV=2e-06 (Km^2/kg/s) surface
 VGRD:tropopause
-V-GWD:surface
 VRATE:planetary boundary layer
 VSTM:6000-0 m above ground
 DZDT:1000 mb
@@ -748,9 +833,9 @@ VVEL:0.07 mb
 VWSH:PV=-2e-06 (Km^2/kg/s) surface
 VWSH:PV=2e-06 (Km^2/kg/s) surface
 VWSH:tropopause
-WATR:surface
 WEASD:surface
 WILT:surface
+WLSMFLX:entire atmosphere
 SNOD:surface
 VIS:surface
 ICEG:10 m above mean sea level

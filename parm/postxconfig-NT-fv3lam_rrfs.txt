@@ -10050,7 +10050,7 @@ surface
 ?
 1
 tmpl4_8
-GWUPS
+GWLOWS
 ?
 ACM
 surface
@@ -10087,7 +10087,7 @@ ACM_5YARI_EXCEEDANCE
 ?
 1
 tmpl4_8
-GWUPS
+GWLOWS
 ?
 ACM
 surface
@@ -10124,7 +10124,7 @@ surface
 ?
 1
 tmpl4_8
-UPAPCP
+GWLOWS
 ?
 ACM
 surface
@@ -10161,7 +10161,7 @@ ACM_10YARI_EXCEEDANCE
 ?
 1
 tmpl4_8
-UPAPCP
+GWLOWS
 ?
 ACM
 surface
@@ -10198,7 +10198,7 @@ surface
 ?
 1
 tmpl4_8
-DEPWSS
+GWLOWS
 ?
 ACM
 surface
@@ -10235,7 +10235,7 @@ ACM_100YARI_EXCEEDANCE
 ?
 1
 tmpl4_8
-DEPWSS
+GWLOWS
 ?
 ACM
 surface

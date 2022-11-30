@@ -201,6 +201,7 @@
       deallocate(ebb)
       deallocate(hwp)
       deallocate(smoke)
+      deallocate(fv3dust)
       deallocate(taod5502d)
       deallocate(aerasy2d)
       deallocate(aerssa2d)
@@ -463,7 +464,7 @@
       deallocate(gtg)
 
 !
-      if (gocart_on) then
+      if (gocart_on .or. nasa_on) then
 ! Deallocate GOCART fields
 ! vrbls4d
         deallocate(dust)
@@ -471,6 +472,10 @@
         deallocate(soot)
         deallocate(waso)
         deallocate(suso)
+      if (nasa_on) then
+        deallocate(no3)
+        deallocate(nh4)
+      endif
         deallocate(pp25)
         deallocate(pp10)
 ! vrbls3d
@@ -531,6 +536,10 @@
         deallocate(pp25cb)
         deallocate(pp10cb)
         deallocate(sscb)
+        if (nasa_on) then
+        deallocate(no3cb)
+        deallocate(nh4cb)
+        endif
         deallocate(dustallcb)
         deallocate(ssallcb)
         deallocate(dustpm)

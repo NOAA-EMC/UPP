@@ -1468,45 +1468,44 @@
        </param>
 
        <param>
-            <shortname>UEID_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+           <shortname>UEID_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-        <param>
-            <shortname>VEID_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+       <param>
+           <shortname>VEID_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-        <param>
-            <shortname>E3KH_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+       <param>
+           <shortname>E3KH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-        <param>
-            <shortname>STPC_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+       <param>
+           <shortname>STPC_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-        <param>
-            <shortname>SIGT_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+       <param>
+           <shortname>SIGT_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-        <param>
-            <shortname>SCCP_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+       <param>
+           <shortname>SCCP_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-         <param>
-            <shortname>SIGH_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
+       <param>
+           <shortname>SIGH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
-        <param>
-            <shortname>MLFC_ON_EFL</shortname>
-            <scale>-1.0</scale>
-        </param>
-
+       <param>
+           <shortname>MLFC_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
 
        <param>
        <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
