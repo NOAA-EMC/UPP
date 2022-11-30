@@ -66,6 +66,7 @@
 !> 2022-09-22 | Li(Kate Zhang)    | Remove duplicated GOCART output variables and add capbility for NASA GOCART (UFS-Aerosols).
 !> 2022-09-22 | Li(Kate Zhang)    | Update look-up table for NASA GOCART (UFS-Aerosols).
 !> 2022-10-20 | Li(Kate Zhang)    | Add nitrate look-up table and nitrate AOD for NASA GOCART (UFS-Aerosols).
+!> 2022-11-16 | Eric James        | Adding total column dust, biomass burning emissions, hourly wildfire potential from RRFS
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -89,8 +90,8 @@
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
-                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
-                         AVGCPRATE,                                           &
+                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, EBB, HWP,   &
+                         LWP, IWP, AVGCPRATE,                                 &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
                          PWAT,DUSTPM10,MAOD,NO3CB,NH4CB
@@ -463,6 +464,25 @@
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(736))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+!     TOTAL COLUMN DUST
+!
+      IF (IGET(741) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),22)
+         CALL BOUND(GRID1,D00,H99999)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(741))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -3831,7 +3851,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       ENDIF
 
 ! Instantaneous clear-sky downwelling LW at the surface
-      IF (IGET(744)>0) THEN
+      IF (IGET(764)>0) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             GRID1(I,J) = LWDNBC(I,J)
@@ -3839,16 +3859,48 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         ENDDO
         if(grib=='grib2') then
           cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(744))
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(764))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
       ENDIF
 
 ! Instantaneous clear-sky upwelling LW at the surface
-      IF (IGET(745)>0) THEN
+      IF (IGET(765)>0) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             GRID1(I,J) = LWUPBC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(765))
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+        endif
+      ENDIF
+
+! Instantaneous MEAN_FRP
+      IF (IGET(740)>0) THEN
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            GRID1(I,J) = MEAN_FRP(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(740))
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+        endif
+      ENDIF
+
+! Biomass burning emissions (EBB)
+      IF (IGET(745)>0) THEN
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            IF (EBB(I,J)<spval) THEN
+              GRID1(I,J) = EBB(I,J)/(1E9)
+            ELSE
+              GRID1(I,J) = spval
+            ENDIF
           ENDDO
         ENDDO
         if(grib=='grib2') then
@@ -3858,18 +3910,20 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         endif
       ENDIF
 
-! Instantaneous MEAN_FRP
-      IF (IGET(740)>0) THEN
-!        print *,"GETTING INTO MEAN_FRP PART"
+! Hourly wildfire potential (HWP)
+      IF (IGET(755)>0) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
-            GRID1(I,J) = MEAN_FRP(I,J)
+            IF (HWP(I,J)<spval) THEN
+              GRID1(I,J) = HWP(I,J)
+            ELSE
+              GRID1(I,J) = spval
+            ENDIF
           ENDDO
         ENDDO
         if(grib=='grib2') then
-!          print *,"GETTING INTO MEAN_FRP GRIB2 PART"
           cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(740))
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(755))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
       ENDIF
