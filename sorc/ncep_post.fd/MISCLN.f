@@ -844,7 +844,7 @@
          ENDDO
 !         print *,'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL,'for tmp,lvls=',LVLS(1:15,iget(59)), &
 !          'grib2tmp lvs=',LVLS(1:15,iget(586))
-         
+
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
 !     
          loop_10: DO IFD = 1,NFD
@@ -1628,7 +1628,6 @@
                QBND(ista:iend,jsta:jend,NBND), UBND(ista:iend,jsta:jend,NBND),    &
                VBND(ista:iend,jsta:jend,NBND), RHBND(ista:iend,jsta:jend,NBND),   &
                WBND(ista:iend,jsta:jend,NBND))
-
 !
 !     ***BLOCK 5:  BOUNDARY LAYER FIELDS.
 !     
@@ -2115,7 +2114,7 @@
 !
              CALL BOUND(GRID1,D00,H99999)
            ENDIF
-
+                        
            IF (IGET(566)>0) THEN
              if(grib=='grib2') then
               cfld=cfld+1
@@ -3453,7 +3452,6 @@
 
 
       IF (SUBMODELNAME == 'RTMA')THEN
-
 !
 ! --- Effective (inflow) Layer (EL)
 !

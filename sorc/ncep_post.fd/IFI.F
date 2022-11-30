@@ -12,7 +12,7 @@ module upp_ifi_mod
   integer, parameter :: ifi_real_t = c_float
   logical :: write_ifi_debug_files = .false.
   logical :: enable_ifi_smoother = .false.
-
+  
 contains !==============================================================
 
   subroutine set_ifi_dims()
@@ -151,7 +151,7 @@ module upp_ifi_mod
   integer, allocatable :: col_jend(:) ! j ends for rearranging data (jcomm_size)
 
   integer, allocatable :: isize_grid(:) ! iend-ista+1 for each gridpoint
-
+  
 contains !==============================================================
 
   subroutine make_communicators
@@ -316,7 +316,7 @@ contains !==============================================================
 
 ! 201 format('root is row_root=',I0,' col_root=',I0,' for rank ',I0)
 !     print 201,row_root,col_root,global_rank
-
+    
     if(col_root==-1) then
       write(0,'(A,I0)') 'ABORT: Could not find column root rank for rank ',global_rank
       call abort
@@ -988,7 +988,7 @@ contains !==============================================================
     ! Initialize to out-of-bounds values so they'll stay that way if no valid values are found:
     minv = 1e30
     maxv = -1e30
-
+    
     ! Find the min and max values in the array:
     if(missing_value_is_set) then
       !$OMP PARALLEL DO REDUCTION(min:minv) REDUCTION(max:maxv)
@@ -1020,7 +1020,7 @@ contains !==============================================================
     ! call MPI_Allreduce(maxv,global_maxv,1,type,MPI_MAX,mpi_comm_comp,iret)
     global_minv=minv
     global_maxv=maxv
-
+    
     ! If min or max are inf, -inf, or NaN, assume all values are missing.
     all_missing = global_minv<-9e9 .or. global_minv>9e9 .or. global_maxv<-9e9 .or. global_maxv>9e9
 
@@ -1115,17 +1115,17 @@ contains !==============================================================
       else
         ivar=ivar+1
       endif
-
+      
       if(ivar==1 .and. me==0) then
 59      format(A,': write to file')
         print 59,output_file
-
+        
         call nc_check(nf90_create(output_file,ior(NF90_NOCLOBBER,NF90_64BIT_OFFSET),ncid),&
              output_file,'nf90_create')
 
         call nc_check(nf90_put_att(ncid,NF90_GLOBAL,"fcst_lead_sec",fcst_lead_sec),&
              output_file,"nf90_put_att fcst_lead_sec")
-
+        
         call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
         call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
         call nc_check(nf90_def_dim(ncid,z3dname,nz0,dimids(3)),output_file,"nf90_def_dim "//z3dname)
@@ -1239,7 +1239,7 @@ contains !==============================================================
         ! Ranks that are not writing are done now
         return
       endif
-
+      
       call nc_check(nf90_put_var(ncid=ncid,varid=var%varid,values=var%data, &
                                  start=ones,count=dims), &
                     output_file,"nf90_put_var "//trim(var%outname))

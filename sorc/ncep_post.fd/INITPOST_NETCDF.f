@@ -46,7 +46,7 @@
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
               rswout, aswin, auvbin, auvbinc, aswout, aswtoa, sfcshx, sfclhx, subshx,           &
-              snopcx, sfcux, sfcvx, sfcuxi, sfcvxi, sfcuvx, gtaux, gtauy, potevp, u10, v10, smstav,&
+              snopcx, sfcux, sfcvx, sfcuxi, sfcvxi, sfcuvx, gtaux, gtauy, potevp, u10, v10, smstav,          &
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
@@ -235,7 +235,6 @@
                           ,atrp1j(:,:,:), atrp2j(:,:,:)                &
                           ,axyl1j(:,:,:), axyl2j(:,:,:), axyl3j(:,:,:) &
                           ,pm25ac(:,:,:), pm25at(:,:,:), pm25co(:,:,:)
-
 
       if (modelname == 'FV3R') then
          allocate(extsmoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
