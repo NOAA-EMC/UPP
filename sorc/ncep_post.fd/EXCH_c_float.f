@@ -109,7 +109,7 @@
       end do
 
       call mpi_barrier(mpi_comm_comp,ierr)
-      
+       
 !  send first col    to  ileft  last  col+  and receive last  col+ from ileft first col 
 
       call mpi_sendrecv(coll(jsta),msglenl    ,MPI_REAL4,ileft,1,           &
@@ -147,7 +147,7 @@
       endif  ! for iright
 
  921  format(5i10,a50)
-      
+     
 !     print *,'mype=',me,'in EXCH, after first mpi_sendrecv'
 
       if ( ierr /= 0 ) then
