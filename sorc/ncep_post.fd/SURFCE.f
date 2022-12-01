@@ -475,7 +475,11 @@
               jj = jsta+j-1
               do i=1,iend-ista+1
               ii = ista+i-1
-                datapd(i,j,cfld) =  SNDEPAC(ii,jj)/(1E3)
+              if(SNDEPAC(ii,jj)<spval) then
+                datapd(i,j,cfld) = SNDEPAC(ii,jj)/(1E3)
+              else
+                datapd(i,j,cfld) = spval
+              endif
               enddo
             enddo
          endif
