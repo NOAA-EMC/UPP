@@ -469,13 +469,17 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
               ii = ista+i-1
-                datapd(i,j,cfld) =  SNDEPAC(ii,jj)
+              if(SNDEPAC(ii,jj)<spval) then
+                datapd(i,j,cfld) =  SNDEPAC(ii,jj)/(1E3)
+              else
+                datapd(i,j,cfld) = spval
+              endif
               enddo
             enddo
          endif
@@ -3359,7 +3363,7 @@
           cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(035))
            fld_info(cfld)%ntrange=1
-          fld_info(cfld)%tinvstat=IFHR-ID(18)
+          fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
