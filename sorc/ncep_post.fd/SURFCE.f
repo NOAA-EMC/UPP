@@ -480,6 +480,7 @@
                   datapd(i,j,cfld) = SNDEPAC(ii,jj)/(1E3)
                 else
                   datapd(i,j,cfld) = SNDEPAC(ii,jj) 
+                endif
               else
                 datapd(i,j,cfld) = spval
               endif
