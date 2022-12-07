@@ -20,8 +20,8 @@ NOAA UPP developers who wish to add new variables to the UPP, please follow the 
     Hui-Ya Chuang). UPP supports many NOAA operational models and we can not change operational products
     without coordination and advanced notices.
 
-We encourage non NOAA UPP developers to contact the Developmental Testbed Center (DTC) via the UPP
-`forum <https://forums.ufscommunity.org/forum/post-processing>`_ to make them aware of modifications you
+We encourage non NOAA UPP developers to contact the Developmental Testbed Center (DTC) via
+`GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_ to make them aware of modifications you
 are making. In some cases, if they determine the changes you are making may be relevant for operational
 and/or community purposes, they will be interested in incorporating your changes into the code base for
 support and future release. We would then work with you to make this possible.

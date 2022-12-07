@@ -34,4 +34,4 @@ The UPP has 2D decomposition capabilities (V11.0.0) and is also backwards compat
 The functionality demonstrates run-time improvements, especially for larger domains. Support for this
 feature is available for standalone UPP applications.
 
-Support for the community UPP is provided through the `UFS Forum <https://forums.ufscommunity.org/>`_.
+Support for the community UPP is provided through `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_.
