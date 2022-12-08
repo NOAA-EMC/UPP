@@ -688,6 +688,36 @@
        </param>
 
        <param>
+       <shortname>ACM_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_FRAIN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
        <pname>NCPCP</pname>
        <scale>-4.0</scale>
