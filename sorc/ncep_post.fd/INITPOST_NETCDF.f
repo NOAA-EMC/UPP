@@ -2262,31 +2262,31 @@
       spval,VarName,SFCEXC)
 
 ! accumulated snowfall
-      VarName='acsnow'
+      VarName='tsnowp'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,SNOW_ACM)
 ! snowfall bucket
-      VarName='acsnowb'
+      VarName='tsnowpb'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,SNOW_BKT)
 
 ! accumulated graupel/sleet
-      VarName='acgraup'
+      VarName='frozr'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,acgraup)
 
 ! graupel/sleet bucket
-      VarName='acgraupb'
+      VarName='frozrb'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,graup_bucket)
 
 ! accumulated freezing rain
-      VarName='acfrzrn'
+      VarName='frzr'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,acfrain)
 
 ! freezing rain bucket
-      VarName='acfrzrnb'
+      VarName='frzrb'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,frzrn_bucket)
 
