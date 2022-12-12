@@ -60,9 +60,9 @@
 
 
 ! smooth 700 mb temperature first
-       if(MAPTYPE==6 .OR. MAPTYPE == 207) then
+       if(MAPTYPE==6) then
          if(grib=='grib2') then
-            dxm=(DXVAL / 360.)*(ERAD*2.*pi)/1000.0  ! [mm]
+            dxm=(DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
          endif
        else
          dxm = dxval

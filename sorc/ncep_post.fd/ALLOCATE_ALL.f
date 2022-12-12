@@ -19,6 +19,7 @@
 !! -  21-04-16  Wen Meng - Initializing aextc55 and extc55 as 0. These
 !!                      two arrays are involved in GSL visibility computation.
 !! -  22-03-22  Wen Meng - Initializing pwat.
+!! -  22-09-22  Li(Kate) Zhang - Initializing NASA GOCART tracers of Nitrate, NH4,and their column burden.
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -78,7 +79,7 @@
       allocate(EL_PBL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
       call set_ifi_dims() ! set ifi_nflight and ifi_flight_levels
-      
+
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
@@ -118,7 +119,7 @@
             exch_h(i,j,l)=spval 
             train(i,j,l)=spval 
             tcucn(i,j,l)=spval 
-            EL_PBL(i,j,l)=spval
+            EL_PBL(i,j,l)=spval 
           enddo
         enddo
       enddo
@@ -1065,7 +1066,7 @@
       enddo
 
       if (me == 0) print *,' gocart_on=',gocart_on
-      if (gocart_on) then
+      if (gocart_on .or. nasa_on) then
 !  
 ! Add GOCART fields
 ! vrbls4d
@@ -1074,6 +1075,10 @@
         allocate(soot(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_bc))
         allocate(waso(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_oc))
         allocate(suso(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_su))
+      if (nasa_on) then
+        allocate(no3(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_no3))
+        allocate(nh4(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_nh4))
+      endif
         allocate(pp25(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_su))
         allocate(pp10(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_su))
 !Initialization
@@ -1117,6 +1122,30 @@
             enddo
           enddo
         enddo
+      if (nasa_on) then
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_no3
+          do l=1,lm
+            do j=jsta_2l,jend_2u
+              do i=ista_2l,iend_2u
+                no3(i,j,l,k)=spval
+              enddo
+            enddo
+          enddo
+        enddo
+
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_nh4
+          do l=1,lm
+            do j=jsta_2l,jend_2u
+              do i=ista_2l,iend_2u
+                nh4(i,j,l,k)=spval
+              enddo
+            enddo
+          enddo
+        enddo
+      endif
+
 !$omp parallel do private(i,j,l,k)
         do k=1,nbin_su
           do l=1,lm
@@ -1262,6 +1291,10 @@
         allocate(sssmass25(ista_2l:iend_2u,jsta_2l:jend_2u))
         allocate(sscmass25(ista_2l:iend_2u,jsta_2l:jend_2u))
         allocate(dustcb(ista_2l:iend_2u,jsta_2l:jend_2u))
+        if (nasa_on) then
+        allocate(no3cb(ista_2l:iend_2u,jsta_2l:jend_2u))
+        allocate(nh4cb(ista_2l:iend_2u,jsta_2l:jend_2u))
+        endif 
         allocate(occb(ista_2l:iend_2u,jsta_2l:jend_2u))
         allocate(bccb(ista_2l:iend_2u,jsta_2l:jend_2u))
         allocate(sulfcb(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -1299,6 +1332,10 @@
            sssmass25(i,j)=spval
            sscmass25(i,j)=spval
            dustcb(i,j)=spval
+           if (nasa_on) then
+           no3cb(i,j)=spval
+           nh4cb(i,j)=spval
+           endif
            occb(i,j)=spval
            bccb(i,j)=spval
            sulfcb(i,j)=spval

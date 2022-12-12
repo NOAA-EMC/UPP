@@ -40,6 +40,7 @@
 !> 2019-09-03 | J Meng          | Modified to compute effective helicity and critical angle
 !> 2021-03-15 | E Colon         | CALHEL2 modified to compute effective rather than fixed layer helicity
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
+!> 2022-05-12 | E Colon         | Resolved a bug  which looped over the calculation of SRH at two fixed levels, erroneously doubling the magnitude.
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
       SUBROUTINE CALHEL3(LLOW,LUPP,UST,VST,HELI)

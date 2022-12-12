@@ -39,13 +39,13 @@
 !> 2002-01-15 | Mike Baldwin | WRF version           
 !> 2011-12-14 | Sarah Lu     | Add GOCART aerosol AERFD
 !> 2021-10-15 | JESSE MENG   | 2D DECOMPOSITION
+!> 2022-09-22 | Li(Kate) Zhang   | Remove Dust=> AERFD
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
-      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
+      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
 
 !     
 !
-      use vrbls4d,    only: DUST
       use vrbls3d,    only: ZMID, T, Q, PMID, ICING_GFIP, UH, VH
       use vrbls2d,    only: FIS
       use masks,      only: LMH
@@ -65,7 +65,6 @@
       integer,intent(in) ::  ITYPE(NFD)
 !jw      real,intent(in) :: HTFD(NFD)
       real,dimension(ISTA:IEND,JSTA:JEND,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
-      real,dimension(ISTA:IEND,JSTA:JEND,NFD,NBIN_DU),intent(out) :: AERFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
@@ -98,17 +97,6 @@
           ENDDO
         ENDDO
       ENDDO
-      if (gocart_on) then
-        DO N = 1, NBIN_DU
-          DO IFD = 1,NFD
-            DO J=JSTA,JEND
-              DO I=ISTA,IEND
-                AERFD(I,J,IFD,N) = SPVAL
-              ENDDO
-            ENDDO
-          ENDDO
-        ENDDO
-      endif
 
       IF(gridtype == 'E') THEN
         JVN =  1
@@ -224,22 +212,11 @@
                 PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
                 ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
                  (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
-                if (gocart_on) then
-                  DO N = 1, NBIN_DU
-                    AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
-                        (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
-                  ENDDO
-                endif
               ELSEIF (L == LM) THEN
                 TFD(I,J,IFD) = T(I,J,L)
                 QFD(I,J,IFD) = Q(I,J,L)
                 PFD(I,J,IFD) = PMID(I,J,L)
                 ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
-                if (gocart_on) then
-                  DO N = 1, NBIN_DU
-                    AERFD(I,J,IFD,N) = DUST(I,J,L,N)
-                  ENDDO
-                endif
               ENDIF
     
               L = LVL(IFD)
@@ -364,22 +341,11 @@
                  PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
                  ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
                    (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
-                 if (gocart_on) then
-                   DO N = 1, NBIN_DU
-                     AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
-                    (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
-                   ENDDO
-                 endif
                ELSE
                  TFD(I,J,IFD) = T(I,J,L)
                  QFD(I,J,IFD) = Q(I,J,L)
                  PFD(I,J,IFD) = PMID(I,J,L)
                  ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
-                 if (gocart_on) then
-                   DO N = 1, NBIN_DU
-                     AERFD(I,J,IFD,N) = DUST(I,J,L,N)
-                   ENDDO
-                 endif
                ENDIF
 
                L = LVL(IFD)
