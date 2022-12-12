@@ -60,6 +60,7 @@ jobs:
           spack env activate upp-env
           sudo apt install gfortran-12
           spack compiler find
+          sudo apt install cmake
           spack external find
           spack add mpich@3.4.2
           spack concretize
