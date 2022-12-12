@@ -62,7 +62,7 @@ jobs:
           spack external find
           spack add mpich@3.4.2
           spack concretize
-          spack install --dirty -v
+          spack install --fail-fast --dirty -v
 
   build:
     needs: setup
