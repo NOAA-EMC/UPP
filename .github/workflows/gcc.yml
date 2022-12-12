@@ -58,6 +58,7 @@ jobs:
           source spack/share/spack/setup-env.sh
           spack env create upp-env UPP/ci/spack.yaml
           spack env activate upp-env
+          spack compiler find
           sudo apt install cmake
           spack external find
           spack add mpich@3.4.2
