@@ -1377,6 +1377,7 @@
 
       allocate(avgozcon(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(avgpmtf(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(aqm_aod550(ista_2l:iend_2u,jsta_2l:jend_2u))
 
 !Initialization
 !$omp parallel do private(i,j,l)
@@ -1386,6 +1387,14 @@
              avgozcon(i,j,l)=spval
              avgpmtf(i,j,l)=spval
           enddo
+        enddo
+      enddo
+
+!Initialization 
+!$omp parallel do private(i,j)
+      do j=jsta_2l,jend_2u
+        do i=ista_2l,iend_2u
+          aqm_aod550(i,j)=spval
         enddo
       enddo
 

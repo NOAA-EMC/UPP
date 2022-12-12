@@ -562,6 +562,7 @@
       if (aqf_on) then
         deallocate(avgozcon)
         deallocate(avgpmtf)
+        deallocate(aqm_aod550)
       endif
 
       end

@@ -186,5 +186,14 @@
            <scale>3.0</scale>
        </param>
 
+       <param>
+           <shortname>AER_OPT_AQM_at550</shortname>
+       </param>
+
+       <param>
+           <shortname>HPBL_ON_SURFACE</shortname>
+           <scale>6.0</scale>
+       </param>
+
     </paramset>
    </postxml>

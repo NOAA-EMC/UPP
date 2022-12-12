@@ -95,6 +95,9 @@
       ,DUSTCB(:,:),SSCB(:,:),OCCB(:,:),BCCB(:,:),SULFCB(:,:)                 &
       ,DUSTALLCB(:,:),SSALLCB(:,:),DUSTPM(:,:),SSPM(:,:),PP25CB(:,:)         &
       ,DUSTPM10(:,:),PP10CB(:,:),NO3CB(:,:),NH4CB(:,:),maod(:,:)!lzhang, add for FV3-Chem
+
+! Add new field for AQM
+      real, allocatable :: aqm_aod550(:,:)
  
 !
       end module vrbls2d

@@ -6636,6 +6636,20 @@
     </param>
 
     <param>
+       <post_avblfldidx>712</post_avblfldidx>
+       <shortname>AER_OPT_AQM_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AOTK</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <aerosol_type>ozone</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>0</scale_fact_1st_size>
+       <scale_val_1st_size>0</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>719</post_avblfldidx>
        <shortname>INST_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>
