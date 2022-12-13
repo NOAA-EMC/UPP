@@ -32,13 +32,14 @@
 !> 2021-07-07 | J MENG          | 2D DECOMPOSITION
 !> 2022-08-03 | W Meng          | Modify total cloud fraction(331) 
 !> 2022-09-22 | L Zhang         | Remove DUSTSL
+!> 2022-11-16 | E James         | Adding dust from RRFS
 !>
 !> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
 
 !
 !
-      use vrbls4d, only: DUST, SMOKE
+      use vrbls4d, only: DUST, SMOKE, FV3DUST
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
                          RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
@@ -85,7 +86,7 @@
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
      &,                                      OSL_OLD, OSL995
-      REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:)
+      REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:),  FV3DUSTSL(:,:,:)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
@@ -149,6 +150,15 @@
           enddo
         enddo
       enddo
+      if (.not. allocated(fv3dustsl)) allocate(fv3dustsl(im,jm,nbin_sm))
+!$omp parallel do private(i,j,l)
+      do l=1,nbin_sm
+        do j=1,jm
+          do i=1,im
+             FV3DUSTSL(i,j,l)  = SPVAL
+          enddo
+        enddo
+      enddo
 !     
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
@@ -191,7 +201,8 @@
 ! ADD DUST FIELDS
          (IGET(455) > 0) .OR.      &
 ! ADD SMOKE FIELDS
-         (IGET(738) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
+         (IGET(738) > 0) .OR. (IGET(743) > 0) .OR.      &
+         (MODELNAME == 'RAPR') .OR.&
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -329,6 +340,7 @@
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
                  DO K = 1, NBIN_SM
                    IF(SMOKE(I,J,1,K) < SPVAL) SMOKESL(I,J,K)=SMOKE(I,J,1,K)
+                   IF(FV3DUST(I,J,1,K) < SPVAL) FV3DUSTSL(I,J,K)=FV3DUST(I,J,1,K)
                  ENDDO
 
 ! only interpolate GFS d3d fields when  reqested
@@ -486,6 +498,8 @@
                  DO K = 1, NBIN_SM
                    IF(SMOKE(I,J,LL,K) < SPVAL .AND. SMOKE(I,J,LL-1,K) < SPVAL)   &
                    SMOKESL(I,J,K)=SMOKE(I,J,LL,K)+(SMOKE(I,J,LL,K)-SMOKE(I,J,LL-1,K))*FACT
+                   IF(FV3DUST(I,J,LL,K) < SPVAL .AND. FV3DUST(I,J,LL-1,K) < SPVAL)  &
+                   FV3DUSTSL(I,J,K)=FV3DUST(I,J,LL,K)+(FV3DUST(I,J,LL,K)-FV3DUST(I,J,LL-1,K))*FACT
                  ENDDO
 
 ! only interpolate GFS d3d fields when  == ested
@@ -2018,7 +2032,7 @@
              DO J=JSTA,JEND
                DO I=ISTA,IEND
                IF(SMOKESL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
-                 GRID1(I,J) = (1./RD)*SMOKESL(I,J,1)*(SPL(LP)/TSL(I,J))
+                 GRID1(I,J) = (1./RD)*SMOKESL(I,J,1)*(SPL(LP)/(TSL(I,J)*(1E9)))
                ELSE
                  GRID1(I,J) = SPVAL
                ENDIF
@@ -2028,6 +2042,34 @@
                cfld = cfld + 1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(738))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(738))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+! E. James - 14 Sep 2022: DUST from RRFS
+        IF (IGET(743) > 0) THEN
+          IF (LVLS(LP,IGET(743)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+               IF(FV3DUSTSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*FV3DUSTSL(I,J,1)*(SPL(LP)/(TSL(I,J)*(1E9)))
+               ELSE
+                 GRID1(I,J) = SPVAL
+               ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(743))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(743))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -3831,6 +3873,7 @@
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
+if(allocated(fv3dustsl)) deallocate(fv3dustsl)
 !     END OF ROUTINE.
 !
       RETURN

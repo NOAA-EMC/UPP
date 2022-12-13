@@ -14,6 +14,7 @@
       real, allocatable :: NO3(:,:,:,:)         ! no3
       real, allocatable :: NH4(:,:,:,:)         ! nh4
       real, allocatable :: SMOKE(:,:,:,:)
+      real, allocatable :: FV3DUST(:,:,:,:)
       real, allocatable :: PP25(:,:,:,:)        ! PP25
       real, allocatable :: PP10(:,:,:,:)        ! PP10
 !
