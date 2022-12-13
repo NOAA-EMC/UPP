@@ -34,6 +34,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: checkout-upp  # This is for getting spack.yaml
+        uses: actions/checkout@v2
+        with:
+            path: UPP
+
       # Cache spack, compiler and dependencies
       - name: cache-env
         id: cache-env
@@ -43,12 +48,6 @@ jobs:
             spack
             ~/.spack
           key: spack-${{ runner.os }}-${{ env.cache_key }}-${{ hashFiles('UPP/ci/spack.yaml') }}
-
-      - name: checkout-upp  # This is for getting spack.yaml
-        if: steps.cache-env.outputs.cache-hit != 'true'
-        uses: actions/checkout@v2
-        with:
-            path: UPP
 
       # Install dependencies using Spack
       - name: install-dependencies-with-spack

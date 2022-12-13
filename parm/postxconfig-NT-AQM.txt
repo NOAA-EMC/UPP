@@ -874,7 +874,7 @@ AER_OPT_AQM_at550
 tmpl4_48
 AOTK
 ?
-AVE
+?
 entire_atmos_single_lyr
 0
 ?
@@ -885,7 +885,7 @@ entire_atmos_single_lyr
 ?
 0
 ?
-ozone
+total_aerosol
 smaller_than_first_limit
 0
 0

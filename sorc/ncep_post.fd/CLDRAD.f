@@ -4552,15 +4552,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               grid1(i,j)=aqm_aod550(i,j)
             ENDDO
           ENDDO
-          ID(1:25) = 0
-          ITHEAT     = INT(THEAT)
-          ID(19) = IFHR
-          ID(20) = 3
-          IF (IFHR==0) THEN
-          ID(18) = 0
-          ELSE
-          ID(18) = IFHR-1
-          ENDIF
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(712))
