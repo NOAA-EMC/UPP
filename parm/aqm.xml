@@ -192,6 +192,7 @@
 
        <param>
            <shortname>HPBL_ON_SURFACE</shortname>
+	   <table_info>NCEP</table_info>
            <scale>6.0</scale>
        </param>
 

@@ -2247,7 +2247,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                DO J=JSTA,JEND
                  DO I=ISTA,IEND
                    IF(AVGOZCON(I,J,LL)<SPVAL) THEN
-                   GRID1(I,J) = AVGOZCON(I,J,LL)*1000.    ! convert ppm to ppb
+                   GRID1(I,J) = AVGOZCON(I,J,LL)    ! in ppb
                    ELSE
                    GRID1(I,J) = SPVAL
                    ENDIF
