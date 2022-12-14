@@ -1237,7 +1237,7 @@
 !***  RELATIVE HUMIDITY.
 !
      
-        IF(IGET(017) > 0 .OR. IGET(257) > 0)THEN
+        IF(IGET(017) > 0 .OR. IGET(257) > 0 .OR. IGET(1003) > 0)THEN
 !         if ( me == 0)  print *,'IGET(17)=',IGET(017),'LP=',LP,IGET(257),  &
 !             'LVLS=',LVLS(1,4)
           log1=.false.
@@ -1247,7 +1247,7 @@
           IF(IGET(257) > 0) then
              if(LVLS(LP,IGET(257)) > 0 ) log1=.true.
           endif
-          if ( log1 ) then
+
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=ISTA,IEND
@@ -1275,6 +1275,8 @@
                 CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
               end do
             ENDIF
+            
+          if ( log1 ) then
             if(grib == 'grib2')then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(017))
@@ -1295,9 +1297,15 @@
                 SAVRH(I,J) = GRID1(I,J)
                 RHPRS(I,J,LP) = GRID1(I,J)
                 ENDDO
-            ENDDO
-            
-          ENDIF
+            ENDDO            
+          ENDIF !if (log1 )
+
+!$omp  parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=ISTA,IEND
+                RHPRS(I,J,LP) = GRID1(I,J)
+              ENDDO
+            ENDDO                            
         ENDIF
 !     
 !***  CLOUD FRACTION.
@@ -3847,14 +3855,16 @@
 
 ! SNOW DESITY SOLID-LIQUID-RATION SLR
       IF ( IGET(1003)>0 ) THEN
-         grid1=spval
          egrid1=spval
          call calslr_roebber(TPRS,RHPRS,EGRID1)
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend
-            if(egrid1(i,j) < spval) &
-            grid1(i,j)=1000./egrid1(i,j)
+            if(egrid1(i,j) < spval) then
+                grid1(i,j)=1000./egrid1(i,j)
+            else
+                grid1(i,j)=spval
+            endif
          enddo
          enddo
          if(grib=='grib2') then

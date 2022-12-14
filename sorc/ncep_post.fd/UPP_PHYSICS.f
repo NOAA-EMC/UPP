@@ -2656,18 +2656,25 @@
       use vrbls3d, only: T, Q, PMID, PINT
       use ctlblk_mod, only: ista, iend, jsta, jend, &
                             ista_2l, iend_2u, jsta_2l, jend_2u, &
-                            LM, LSM, SPL, MODELNAME, spval 
+                            IM, JM, LM, LSM, SPL, MODELNAME, spval, me, idat
       use params_mod, only: CAPA, H1, H100
+      use grib2_module, only: read_grib2_sngle
 
       implicit none
 
-      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lsm),intent(in)    :: tprs
-      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lsm),intent(in)    :: rhprs
-      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(out)   :: slr !slr=1/sndens=snod/weasd
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lsm),intent(in)  :: tprs
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lsm),intent(in)  :: rhprs
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(out) :: slr !slr=snod/weasd=1000./sndens
 
 ! local variables
+ 
+      character*256 :: climoFile
+      logical file_exists
+      integer :: ntot, height
+      real,dimension(im,jm) :: CLIMO
+      real,dimension(ista:iend,jsta:jend)    :: CLIMOSUB
 
-      real,dimension(ista:iend,jsta:jend)    :: P1D,T1D,Q1D,EGRID1
+      real,dimension(ista:iend,jsta:jend)    :: P1D,T1D,Q1D,RH1D
       real,dimension(ista:iend,jsta:jend)    :: T2M,RH2M
 
       type all_grids
@@ -2675,14 +2682,18 @@
            real :: sigma
       end type all_grids
 
+      real prob1, prob2, prob3
       real,dimension(0:14), parameter        :: sig = &
-       (/0.0, 1.0, 0.975, 0.95, 0.925, 0.9, 0.875, 0.85,&
-         0.8, 0.75, 0.7, 0.65, 0.6, 0.5, 0.4/)
-
+       (/0.0, 1.0, 0.975, 0.95, 0.925, 0.9, 0.875, 0.85, & 
+                          0.8, 0.75, 0.7, 0.65, 0.6, 0.5, 0.4/)
       real,dimension(12), parameter          :: mf = &
        (/1.0, 0.67, 0.33, 0.0, -0.33, -0.67, -1.00, -0.67, -0.33, 0.0, 0.33, 0.67/)
+      integer, dimension(0:37), parameter    :: levels = &
+       (/2, 1000, 975, 950, 925, 900, 875, 850, 825, 800, 775, 750, 725, 700, &
+                  675, 650, 625, 600, 575, 550, 525, 500, 475, 450, 425, 400, &
+                  375, 350, 325, 300, 275, 250, 225, 200, 175, 150, 125, 100/)
 
-      real,dimension(0:14)                   :: tm, rhm
+      real,dimension(0:14) :: tm, rhm
 
       real,dimension(0:30), parameter        :: co1 = &
        (/0.0, -.2926, .0070, -.0099, .0358, .0356, .0353, .0333, .0291, &
@@ -2725,50 +2736,60 @@
 
       real,dimension(ista:iend,jsta:jend)    :: hprob,mprob,lprob
       real,dimension(ista:iend,jsta:jend)    :: slrgrid, slrgrid2
-      real,dimension(ista:iend,jsta:jend)    :: psfc,pres,qpf,swnd
+      real,dimension(ista:iend,jsta:jend)    :: psfc,pres,qpf,swnd,prp
 
       character*20 nswFileName
-      real :: psurf, sgw, sg1, sg2, dtds, rhds
+      real :: psurf, sgw, sg1, sg2, dtds, rhds, p
       real :: f1, f2, f3, f4, f5, f6
       real :: p1, p2, p3
       real :: hprob_tot
       real :: mprob_tot
       real :: lprob_tot
 
-      integer :: i, j, k, ks, L, LL, imo
+      integer :: i, j, k, ks, L, LL, imo, iday
 !
 !***************************************************************************
 !
-! month of the year, hardwired for testing
-      imo = 10
+! day and month of the year
 
-! load variables
+      imo = idat(1)
+      iday= idat(2)
 
-      DO L=1,LSM
-        LL=LSM-L+1
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-      do i=ista,iend
-         tmpk_grids(i,j,LL)%grid=TPRS(I,J,L)-273.15
-         tmpk_levels(i,j,LL)=SPL(L)
-         rh_grids(i,j,LL)%grid=RHPRS(I,J,L)
-         rh_levels(i,j,LL)=SPL(L)
-      end do
-      end do
-      END DO
+! climatology
+
+!      climoFile='climo_snoden'
+!      ntot=im*jm
+!      CLIMO = spval
+!      CLIMOSUB = spval
+!      INQUIRE(FILE=climoFile, EXIST=file_exists)
+!      if(file_exists) then
+!         print*,trim(climoFile),' FOUND'
+!         call read_grib2_sngle(climoFile,ntot,height,CLIMO)
+!         do j=jsta,jend
+!         do i=ista,iend
+!            if(CLIMO(i,j).gt.0 .and. CLIMO(i,j).lt.1000) CLIMOSUB(i,j)=1000./CLIMO(i,j)
+!         endif
+!         end do
+!         end do
+!      else
+!         print*,trim(climoFile),' NOT FOUND'
+!      endif !if(file_exist)
+
+! surface variables
 
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
-         psfc(i,j)=slp(i,j)
-!         PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)   ! SURFACE PRESSURE.
-         pres(i,j)=psfc(i,j)
-         qpf(i,j)=prec(i,j)
-         swnd(i,j)=spval
-         if(u10(i,j)/=spval .and. v10(i,j)/=spval) &
-         swnd(i,j)=sqrt(u10(i,j)*u10(i,j)+v10(i,j)*v10(i,j))
+         PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
+         PRES(I,J)=SLP(I,J)
+         QPF(I,J)=PREC(I,J)*3600.*3.
+         SWND(I,J)=SPVAL
+         IF(U10(I,J)/=SPVAL .AND. V10(I,J)/=SPVAL) &
+           SWND(I,J)=SQRT(U10(I,J)*U10(I,J)+V10(I,J)*V10(I,J))
       END DO
       END DO
+
+! T2M and RH2M
 
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
@@ -2785,13 +2806,13 @@
       ENDDO
       ENDDO
      
-      CALL CALRH(P1D,T1D,Q1D,EGRID1(ista:iend,jsta:jend))
+      CALL CALRH(P1D,T1D,Q1D,RH1D)
 
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          if(qshltr(i,j) /= spval)then
-            RH2M(I,J) = EGRID1(I,J)*100.
+            RH2M(I,J) = RH1D(I,J)*100.
          else
             RH2M(I,J) = spval 
          endif
@@ -2805,18 +2826,33 @@
          tmpk_grids(i,j,0)%grid=T2M(I,J)-273.15
          tmpk_levels(i,j,0)=pres(i,j)
          rh_grids(i,j,0)%grid=RH2M(I,J)
-         rh_levels(i,j,LL)=pres(i,j)
+         rh_levels(i,j,0)=pres(i,j)
       end do
       end do
+
+! T and RH all pressure levels
+
+      DO L=1,LSM
+        LL=LSM-L+1
+!!!$omp parallel do private(i,j,ll)
+      do j=jsta,jend
+      do i=ista,iend
+         tmpk_grids(i,j,LL)%grid=tprs(I,J,L)-273.15
+         tmpk_levels(i,j,LL)=SPL(L)
+         rh_grids(i,j,LL)%grid=rhprs(I,J,L)
+         rh_levels(i,j,LL)=SPL(L)
+      end do
+      end do
+      END DO
 
 ! convert to sigma
 
-      tmpk_grids(:,:,1)%sigma = 1.0
-      rh_grids(:,:,1)%sigma = 1.0
+      tmpk_grids(:,:,0)%sigma = 1.0
+      rh_grids(:,:,0)%sigma = 1.0
 
       DO L=1,LSM
-        LL=LSM-L
-!$omp parallel do private(i,j)
+        LL=LSM-L+1
+!!!$omp parallel do private(i,j,ll)
         do j=jsta,jend
         do i=ista,iend
            if(pres(i,j) == spval) then
@@ -2825,16 +2861,18 @@
            else
               tmpk_grids(i,j,LL)%sigma=tmpk_levels(i,j,LL) / pres(i,j)     
               rh_grids(i,j,LL)%sigma=rh_levels(i,j,LL) / pres(i,j)
+              prp(i,j)=pres(i,j)/psfc(i,j)
+              prp(i,j)=prp(i,j)*100000./psfc(i,j)
            endif
         end do
         end do
       END DO
 
-! main slr i/j loop 
+! main slr i/j loop starts
 
-!$omp parallel do private(i,j)
-      loop_slr: do j=jsta,jend
+      do j=jsta,jend
       do i=ista,iend
+
          tm=spval
          rhm=spval
          slr(i,j)=spval
@@ -2846,22 +2884,24 @@
 
       if(pres(i,j)/=spval .and. qpf(i,j)/=spval .and. swnd(i,j)/=spval) then
 
-! Interpolate to the 14 network sigma levels      
-      loop_ks14: do ks=1,14
-         sgw = sig(ks)
+! Interpolate T and RH to the 14 sigma levels      
+
+      do ks=1,14
+         psurf=pres(i,j)
+         sgw=sig(ks)
+         p=prp(i,j)
          do LL=0,LSM-1
            if(LL==0) then
-              sg1 = 1.0
+              sg1 = psurf/psurf
            else
-              sg1 = tmpk_levels(i,j,LL)/pres(i,j)
+              sg1 = tmpk_levels(i,j,LL) / psurf
            endif  
-
-           sg2 = tmpk_levels(i,j,LL+1)/pres(i,j)
+           sg2 = tmpk_levels(i,j,LL+1) / psurf
            
-           if(sg1==sgw) then
+           if(sg1 == sgw) then
               tm(ks) = tmpk_grids(i,j,LL)%grid
               rhm(ks)=   rh_grids(i,j,LL)%grid
-           elseif (sg2==sgw) then
+           elseif (sg2 == sgw) then
               tm(ks) = tmpk_grids(i,j,LL+1)%grid
               rhm(ks)=   rh_grids(i,j,LL+1)%grid
            elseif ((sgw < sg1) .and. (sgw > sg2)) then
@@ -2871,7 +2911,7 @@
               rhm(ks)= ((sgw - sg1) * rhds) + rh_grids(i,j,LL)%grid
            endif
          end do
-      end do loop_ks14
+      end do !loop ks
 
 ! Have surface wind, QPF, and temp/RH on the 14 sigma levels.
 ! Convert these data to the factors using regression equations
@@ -2922,9 +2962,6 @@
       mprob_tot = 0.
       lprob_tot = 0.
       do k=1,10
-         p1 = 0.
-         p2 = 0.
-         p3 = 0.
          if(k==1) then
             nswFileName='Breadboard1.nsw'
             call breadboard1_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
@@ -2979,30 +3016,23 @@
 !     Weighted SLR
 
       if(lprob(i,j) < .67) then
-         slrgrid2(i,j) = hprob(i,j)*8.0 + mprob(i,j)*13.0 + lprob(i,j)*18.0
-         slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
+         slrgrid2(i,j) = hprob(i,j)*8.0+mprob(i,j)*13.0+lprob(i,j)*18.0
+         slrgrid2(i,j) = slrgrid2(i,j)*p/(hprob(i,j)+mprob(i,j)+lprob(i,j))
       else
-         slrgrid2(i,j) = hprob(i,j)*8.0 + mprob(i,j)*13.0 + lprob(i,j)*27.0
-         slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
+         slrgrid2(i,j) = hprob(i,j)*8.0+mprob(i,j)*13.0+lprob(i,j)*27.0
+         slrgrid2(i,j) = slrgrid2(i,j)*p/(hprob(i,j)+mprob(i,j)+lprob(i,j))
       endif
-               
+ 
+!      slr(i,j) = climosub(i,j)
 !      slr(i,j) = slrgrid(i,j)
       slr(i,j) = slrgrid2(i,j)
-
-!      slr(i,j) = pres(i,j)
-!      slr(i,j) = tmpk_levels(i,j,1)
-!      slr(i,j) = tm(1)
-       slr(i,j) = rh2m(i,j)
-!      slr(i,j) = rhm(1)
-!      slr(i,j) = swnd(i,j)
-
-!       slr(i,j) = hprob(i,j)
-!       slr(i,j) = mprob(i,j)
-!       slr(i,j) = lprob(i,j)
+      slr(i,j)=min(27.,max(1.,slr(i,j)))
 
       endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
-      enddo loop_slr
+      enddo
+
+! main slr i/j loop ends
 
       END SUBROUTINE CALSLR_ROEBBER
 !
@@ -3042,6 +3072,16 @@
       f(7) = f6
 
 ! Read nsw file and load weights
+
+      inputFile(1,:)=1.
+      inputFile(2,:)=0.
+      inputAxon=0.
+      hidden1Axon=0.
+      outputAxon=0.
+      hidden1Synapse=1.
+      outputSynapse=1.
+      activeOutputProbe(1,:)=1.
+      activeOutputProbe(2,:)=0.
 
       open(11,file=nswFileName,status='unknown')
 
@@ -3093,15 +3133,17 @@
 
       close(11)
 
+      if(activeOutputProbe(1,1)==1.) then
       do j=1,3
          activeOutputProbe(1,j)=8.999999761581421e-001
          activeOutputProbe(2,j)=5.000000074505806e-002
       enddo
+      endif
 
 ! Run Network
 
-      do i=1,7
-         inputAxon(i) = inputFile(i,1) * f(i) + inputFile(i,2)
+      do j=1,7
+         inputAxon(j) = inputFile(1,j) * f(j) + inputFile(2,j)
       enddo
 
       fgrid1=0.
@@ -3116,20 +3158,17 @@
 
       fgrid2=0.
       fgridsum=0.
-!$omp parallel do private(i,j)
       do j=1,3
          do i=1,40
             fgrid2(j) = fgrid2(j) + outputSynapse(i,j) * fgrid1(i)
          enddo
          fgrid2(j) = fgrid2(j) + outputAxon(j)
-         fgrid2(j) = (exp(fgrid2(j))-exp(-fgrid2(j)))/(exp(fgrid2(j))+exp(-fgrid2(j)))
-
-!         fgrid2(j) = activeOutputProbe(j,1) * fgrid2(j) + activeOutputProbe(j,2)         
          fgrid2(j) = exp(fgrid2(j))
          fgridsum = fgridsum + fgrid2(j)
       enddo
       do j=1,3
          fgrid2(j) = fgrid2(j) / fgridsum
+!         fgrid2(j) = activeOutputProbe(1,j) * fgrid2(j) + activeOutputProbe(2,j)  
       enddo
 
       p1 = fgrid2(1)
@@ -3175,6 +3214,18 @@
       f(6) = f5
       f(7) = f6
 !
+      inputFile(1,:)=1.
+      inputFile(2,:)=0.
+      inputAxon=0.
+      hidden1Axon=0.
+      hidden2Axon=0.
+      outputAxon=0.
+      hidden1Synapse=1.
+      hidden2Synapse=1.
+      outputSynapse=1.
+      activeOutputProbe(1,:)=1.
+      activeOutputProbe(2,:)=0.
+
       open(11,file=nswFileName,status='unknown')
 
       ieof = 0
@@ -3235,15 +3286,17 @@
 
       close(11)
 
+      if(activeOutputProbe(1,1)==1.) then
       do j=1,3
          activeOutputProbe(1,j)=8.999999761581421e-001 
          activeOutputProbe(2,j)=5.000000074505806e-002
       enddo
+      endif
 
 ! Run Network
 
-      do i=1,7
-         inputAxon(i) = inputFile(i,1) * f(i) + inputFile(i,2)
+      do j=1,7
+         inputAxon(j) = inputFile(1,j) * f(j) + inputFile(2,j)
       enddo
 
       fgrid1=0.
@@ -3268,20 +3321,17 @@
 
       fgrid3=0.
       fgridsum=0.
-!$omp parallel do private(i,j)
       do j=1,3
          do i=1,4
             fgrid3(j) = fgrid3(j) + outputSynapse(i,j) * fgrid2(i)
          enddo
          fgrid3(j) = fgrid3(j) + outputAxon(j)
-         fgrid3(j) = (exp(fgrid3(j))-exp(-fgrid3(j)))/(exp(fgrid3(j))+exp(-fgrid3(j)))
-
-!         fgrid3(j) = activeOutputProbe(j,1) * fgrid3(j) + activeOutputProbe(j,2)
          fgrid3(j) = exp(fgrid3(j))
          fgridsum = fgridsum + fgrid3(j)
       enddo
       do j=1,3
          fgrid3(j) = fgrid3(j) / fgridsum
+!         fgrid3(j) = activeOutputProbe(1,j) * fgrid3(j) + activeOutputProbe(2,j)
       enddo
 
       p1 = fgrid3(1)
