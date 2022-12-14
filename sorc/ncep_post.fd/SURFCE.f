@@ -656,7 +656,7 @@
               IF ( MODELNAME == 'FV3R') THEN
                 GRID1(I,J) = SMSTAV(I,J)
               ELSE
-                GRID1(I,J) = SMSTAV(I,J)*100.
+                GRID1(I,J) = SMSTAV(I,J)*(1E2)
               ENDIF
             ELSE
               GRID1(I,J) = 0.
