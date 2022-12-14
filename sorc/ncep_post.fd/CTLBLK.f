@@ -11,6 +11,7 @@
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
 !  2021-09-30 JESSE MENG- 2D DECOMPOSITION
 !  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
+!  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -43,7 +44,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on
+  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqf_on
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
