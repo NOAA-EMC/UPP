@@ -46,7 +46,7 @@
 !!   21-07-07  J MENG - 2D DECOMPOSITION
 !!   22-09-22  L Zhang - ADD NO3 and NH4 output for UFS-Aerosols model
 !!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
-!!   22-11-08  W Meng - Output time averaged PM2.5 and O3 
+!!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
 !!   22-11-16  E James - Adding dust from RRFS
 !!
 !! USAGE:    CALL MDLFLD
