@@ -67,7 +67,7 @@
 !> 2022-09-22 | Li(Kate Zhang)    | Update look-up table for NASA GOCART (UFS-Aerosols).
 !> 2022-10-20 | Li(Kate Zhang)    | Add nitrate look-up table and nitrate AOD for NASA GOCART (UFS-Aerosols).
 !> 2022-11-16 | Eric James        | Adding total column dust, biomass burning emissions, hourly wildfire potential from RRFS
-!> 2022-1207  | Wen Meng          | Add hourly AOD for AQM
+!> 2022-1207  | Wen Meng          | Add AOD for AQM 
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
