@@ -79,7 +79,7 @@
       allocate(EL_PBL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
       call set_ifi_dims() ! set ifi_nflight and ifi_flight_levels
-
+      
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
@@ -119,7 +119,7 @@
             exch_h(i,j,l)=spval 
             train(i,j,l)=spval 
             tcucn(i,j,l)=spval 
-            EL_PBL(i,j,l)=spval 
+            EL_PBL(i,j,l)=spval
           enddo
         enddo
       enddo

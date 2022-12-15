@@ -129,7 +129,6 @@
 
         ENDDO
       ENDDO
-
 !
 !      print*,'jsta_m, jend_m in calupdhel= ',jsta_m,jend_m
 !     
