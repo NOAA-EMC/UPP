@@ -20,7 +20,7 @@ NOAA UPP developers who wish to add new variables to the UPP, please follow the 
     Hui-Ya Chuang). UPP supports many NOAA operational models and we can not change operational products
     without coordination and advanced notices.
 
-We encourage non NOAA UPP developers to contact the Developmental Testbed Center (DTC) via
+We encourage non NOAA UPP developers to contact EPIC via
 `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_ to make them aware of modifications you
 are making. In some cases, if they determine the changes you are making may be relevant for operational
 and/or community purposes, they will be interested in incorporating your changes into the code base for
@@ -53,7 +53,7 @@ with examples in the sections below.
                 c.  Save new params_grib2_tbl_new.text and params_grib2_tbl_new under parm/ of your UPP
                     working version.
 
-                d.  Other users please coordinate through the DTC for the above three steps.
+                d.  Other users please coordinate through EPIC for the above three steps.
 
                 e.  Add a new entry in post_avblflds.xml with your new variable, then follow step B), then step 2)
                     and beyond. You should assign a new UPP ID for your new variable.
