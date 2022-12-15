@@ -1790,6 +1790,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
         DO J=JSTA,JEND
           DO I=ISTA,IEND
+
 !- imported from RUC post
           CLDZ(I,J) = SPVAL 
           pcldbase = SPVAL
@@ -4777,7 +4778,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             do ib = 1, NBDSW
              read(NOAER,'(8f10.5)') (ssarhd_oc(ii,j,ib), ii=1,KRHLEV)
             enddo
-
            ENDIF
            if ( nasa_on ) then
             IF (AerosolName(i) == 'NITR') THEN
