@@ -3678,30 +3678,30 @@
 
     <param>
        <post_avblfldidx>423</post_avblfldidx>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <longname>hourly maximum Upward Vertical Velocity between 100-1000hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <level2>100000.</level2>
        <scale>-3.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>424</post_avblfldidx>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <longname>hourly maximum Downward Vertical Velocity between 100-1000hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXDVV</pname>
        <stats_proc>MAX</stats_proc>
        <table_info>NCEP</table_info>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <level2>100000.</level2>
        <scale>-3.0</scale>
     </param>
