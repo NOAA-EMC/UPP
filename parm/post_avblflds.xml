@@ -3678,30 +3678,30 @@
 
     <param>
        <post_avblfldidx>423</post_avblfldidx>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <longname>hourly maximum Upward Vertical Velocity between 100-1000hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <level2>100000.</level2>
        <scale>-3.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>424</post_avblfldidx>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <longname>hourly maximum Downward Vertical Velocity between 100-1000hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXDVV</pname>
        <stats_proc>MAX</stats_proc>
        <table_info>NCEP</table_info>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <level2>100000.</level2>
        <scale>-3.0</scale>
     </param>
@@ -6636,6 +6636,19 @@
     </param>
 
     <param>
+       <post_avblfldidx>712</post_avblfldidx>
+       <shortname>AER_OPT_AQM_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>0</scale_fact_1st_size>
+       <scale_val_1st_size>0</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>719</post_avblfldidx>
        <shortname>INST_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>
@@ -8059,16 +8072,20 @@
     
     <param>
        <post_avblfldidx>994</post_avblfldidx>
-       <shortname>OZCON_ON_HYBRID_LVL</shortname>
+       <shortname>AVE_OZCON_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>OZCON</pname>
+       <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>7.0</scale>
     </param>
     
     <param>
        <post_avblfldidx>995</post_avblfldidx>
-       <shortname>PM25TOT_ON_HYBRID_LVL</shortname>
+       <shortname>AVE_PM25TOT_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>PMTF</pname>
+       <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>7.0</scale>
     </param>

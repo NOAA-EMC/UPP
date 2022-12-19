@@ -36,6 +36,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: checkout-upp  # This is for getting spack.yaml
+        if: steps.cache-env.outputs.cache-hit != 'true'
+        uses: actions/checkout@v2
+        with:
+            path: UPP
+
       # Cache spack, compiler and dependencies
       - name: cache-env
         id: cache-env
@@ -45,10 +51,9 @@ jobs:
             spack
             ~/.spack
             /opt/intel
-          key: spack-${{ runner.os }}-${{ env.cache_key }}
+          key: spack-${{ runner.os }}-${{ env.cache_key }}-${{ hashFiles('UPP/ci/spack.yaml') }}
 
       - name: install-intel-compilers
-        if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -57,25 +62,21 @@ jobs:
           sudo apt-get install intel-oneapi-dev-utilities intel-oneapi-mpi-devel intel-oneapi-openmp intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
           echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bash_profile
 
-      - name: checkout-upp  # This is for getting spack.yaml
-        if: steps.cache-env.outputs.cache-hit != 'true'
-        uses: actions/checkout@v2
-        with:
-            path: UPP
-
       # Install dependencies using Spack
       - name: install-dependencies-with-spack
         if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
+          sudo mv /usr/local/ /usr_local_mv
           git clone -c feature.manyFiles=true https://github.com/NOAA-EMC/spack.git
           source spack/share/spack/setup-env.sh
           spack env create upp-env UPP/ci/spack.yaml
           spack env activate upp-env
           spack compiler find
+          sudo apt install cmake
           spack external find
           spack add intel-oneapi-mpi
           spack concretize
-          spack install --dirty -v
+          spack install --dirty -v --fail-fast
 
   build:
     needs: setup
@@ -99,7 +100,7 @@ jobs:
             spack
             ~/.spack
             /opt/intel
-          key: spack-${{ runner.os }}-${{ env.cache_key }}
+          key: spack-${{ runner.os }}-${{ env.cache_key }}-${{ hashFiles('UPP/ci/spack.yaml') }}
 
       - name: build-upp
         run: |
