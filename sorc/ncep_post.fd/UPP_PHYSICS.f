@@ -2756,6 +2756,7 @@
       iday= idat(2)
 
 ! climatology
+! currently not used, 3 gfs.T1534 climatology files in fix directory
 
 !      climoFile='climo_snoden'
 !      ntot=im*jm
@@ -3026,8 +3027,7 @@
 !      slr(i,j) = climosub(i,j)
 !      slr(i,j) = slrgrid(i,j)
       slr(i,j) = slrgrid2(i,j)
-      slr(i,j)=min(27.,max(1.,slr(i,j)))
-
+      slr(i,j)=max(1.,min(25.,slr(i,j)))
       endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
       enddo
