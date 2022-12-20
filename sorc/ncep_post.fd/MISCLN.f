@@ -203,7 +203,7 @@
 !     
        debugprint = .FALSE.
        
-       NEED_IFI = IGET(1100)>0 .or. IGET(1101)>0 .or. IGET(1102)>0
+       NEED_IFI = IGET(1003)>0 .or. IGET(1004)>0 .or. IGET(1005)>0
 
          allocate(USHR1(ista_2l:iend_2u,jsta_2l:jend_2u),VSHR1(ista_2l:iend_2u,jsta_2l:jend_2u), &
                   USHR6(ista_2l:iend_2u,jsta_2l:jend_2u),VSHR6(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -862,7 +862,7 @@
 
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
 !     
-         DO 10 IFD = 1,NFD
+         loop_10: DO IFD = 1,NFD
 !
 !           FD LEVEL TEMPERATURE.
             iget1 = IGET(059)
@@ -1330,7 +1330,7 @@
                ENDIF
             ENDIF
 
- 10      CONTINUE
+         END DO loop_10
          DEALLOCATE(T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
       ENDIF
 
@@ -1785,17 +1785,14 @@
            (IGET(090)>0).OR.(IGET(075)>0).OR.       &
            (IGET(109)>0).OR.(IGET(110)>0).OR.       &
            (IGET(031)>0).OR.(IGET(032)>0).OR.       &
-           (IGET(573)>0).OR.                        &
+           (IGET(573)>0).OR. NEED_IFI    .OR.       &
            (IGET(107)>0).OR.(IGET(091)>0).OR.       &
            (IGET(092)>0).OR.(IGET(093)>0).OR.       &
            (IGET(094)>0).OR.(IGET(095)>0).OR.       &
            (IGET(096)>0).OR.(IGET(097)>0).OR.       &
            (IGET(098)>0).OR.(IGET(221)>0) ) THEN
 !
-           allocate(OMGBND(ista:iend,jsta:jend,NBND),PWTBND(ista:iend,jsta:jend,NBND),  &
-                    QCNVBND(ista:iend,jsta:jend,NBND),LVLBND(ista:iend,jsta:jend,NBND), &
-                    LB2(ista:iend,jsta:jend))
-
+         call allocate_cape_arrays
 !        COMPUTE ETA BOUNDARY LAYER FIELDS.
          CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,      &
                      WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
@@ -1809,7 +1806,7 @@
 
 !     
 !        LOOP OVER NBND BOUNDARY LAYERS.
-         DO 20 LBND = 1,NBND
+         boundary_layer_loop: DO LBND = 1,NBND
 !     
 !           BOUNDARY LAYER PRESSURE.
             IF (IGET(067)>0) THEN
@@ -2120,14 +2117,14 @@
             ENDIF
 !
 !        END OF ETA BOUNDARY LAYER LOOP.
- 20      CONTINUE
+         END DO boundary_layer_loop
          deallocate(OMGBND,PWTBND,QCNVBND)
 !     
 !        BEST LIFTED INDEX FROM BOUNDARY LAYER FIELDS.
 !     
          IF (IGET(031)>0 .OR. IGET(573)>0 ) THEN
 !           DO J=JSTA,JEND
-!            DO I=1,IM
+!            DO I=ISTA,IEND
 !              EGRID1(I,J) = H99999
 !              EGRID2(I,J) = H99999
 !            ENDDO
@@ -2137,7 +2134,7 @@
 !               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),      &
 !                    QBND(1,1,LBND),EGRID2)
 !               DO J=JSTA,JEND
-!               DO I=1,IM
+!               DO I=ISTA,IEND
 !                 EGRID1(I,J)=AMIN1(EGRID1(I,J),EGRID2(I,J))
 !               ENDDO
 !               ENDDO
@@ -2199,8 +2196,9 @@
          !  LVLSXML(1,IGET(566)),'LVLSXML(1,IGET(567)=',               &
          !  LVLSXML(1,IGET(567)),'field1=',field1,'field2=',field2
 !
-         IF(FIELD1.OR.FIELD2)THEN
+         IF(FIELD1.OR.FIELD2.OR.NEED_IFI)THEN
            ITYPE = 2
+           call allocate_cape_arrays
 !
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -2210,7 +2208,7 @@
              ENDDO
            ENDDO
 !
-           DO 80 LBND = 1,NBND
+           loop_80: DO LBND = 1,NBND
            CALL CALTHTE(PBND(ista,jsta,LBND),TBND(ista,jsta,LBND),        &
                         QBND(ista,jsta,LBND),EGRID1)
 !$omp parallel do private(i,j)
@@ -2225,15 +2223,14 @@
                ENDIF
              ENDDO
            ENDDO
- 80        CONTINUE
+           ENDDO loop_80
 !
            DPBND = 0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
                         EGRID2,EGRID3,EGRID4,EGRID5) 
 
 !
-           IF(IGET(566)>0) THEN
-             print *,"STORE CAPE"
+           IF(IGET(566)>0 .or. NEED_IFI) THEN
               GRID1=spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2244,18 +2241,17 @@
               CALL BOUND(GRID1,D00,H99999)
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ISTA,IEND
                   CAPE(I,J) = GRID1(I,J)
                 ENDDO
               ENDDO
            ENDIF
 
-           IF(IGET(567)>0) THEN
-             print *,"STORE CIN"
+           IF(IGET(567)>0 .or. NEED_IFI) THEN
              GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ISTA,IEND
                  IF(T1D(I,J) < spval) THEN
                    GRID1(I,J) = - EGRID2(I,J)
                  ENDIF
@@ -2281,7 +2277,7 @@
              endif
            ENDIF
 !
-           IF (IGET(567) > 0) THEN
+           IF (IGET(567) > 0 .or. NEED_IFI) THEN
 ! dong add missing value for CIN
               GRID1=spval
 !$omp parallel do private(i,j)
@@ -2300,7 +2296,9 @@
                  CIN(I,J) = GRID1(I,J)
                ENDDO
              ENDDO
-!
+           ENDIF
+
+           IF(IGET(567) > 0) THEN
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
@@ -3361,7 +3359,7 @@
 !	    
 !            IF (IGET(110)>0) THEN
 !	       DO J=JSTA,JEND
-!               DO I=1,IM
+!               DO I=ISTA,IEND
 !                 GRID1(I,J)=EGRID1(I,J)
 !               ENDDO
 !               ENDDO
@@ -3395,6 +3393,7 @@
 !
          IF(FIELD1.OR.FIELD2.OR.NEED_IFI)THEN
            ITYPE = 1
+           call allocate_cape_arrays
 !
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3426,7 +3425,7 @@
 !               ENDIF
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                     CAPE(I,J) = GRID1(I,J)
                  ENDDO
               ENDDO
@@ -3470,7 +3469,7 @@
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                     CIN(I,J) = GRID1(I,J)
                  ENDDO
                ENDDO
@@ -3735,6 +3734,8 @@
          IF(FIELD1.OR.FIELD2)THEN
            ITYPE = 2
 
+           call allocate_cape_arrays
+
 !
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3750,7 +3751,7 @@
 !          ENDDO
 !          ENDDO
 !          DO J=JSTA,JEND
-!          DO I=1,IM
+!          DO I=ISTA,IEND
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
@@ -4618,7 +4619,7 @@
 
 !           ITYPE = 1
 !           DO J=JSTA,JEND
-!           DO I=1,IM
+!           DO I=ISTA,IEND
 !               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
 !                            LVLBND(I,J,3))/3
 !               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
@@ -4709,4 +4710,14 @@
 !     END OF ROUTINE.
 !     
       RETURN
-      END
+   CONTAINS
+
+     subroutine allocate_cape_arrays
+       if(.not.allocated(OMGBND))  allocate(OMGBND(ista:iend,jsta:jend,NBND))
+       if(.not.allocated(PWTBND))  allocate(PWTBND(ista:iend,jsta:jend,NBND))
+       if(.not.allocated(QCNVBND)) allocate(QCNVBND(ista:iend,jsta:jend,NBND))
+       if(.not.allocated(LVLBND))  allocate(LVLBND(ista:iend,jsta:jend,NBND))
+       if(.not.allocated(LB2))     allocate(LB2(ista:iend,jsta:jend))
+     end subroutine allocate_cape_arrays
+
+   END SUBROUTINE MISCLN

@@ -31,9 +31,9 @@ contains !==============================================================
 
   subroutine run_ifi()
     ! Fill any requested IFI fields with missing data.
-    call send_missing_data(1100)  ! ICE_PROB = missing
-    call send_missing_data(1101)  ! SLD = missing
-    call send_missing_data(1102)  ! ICE_SEV_CAT = missing
+    call send_missing_data(1003)  ! ICE_PROB = missing
+    call send_missing_data(1004)  ! SLD = missing
+    call send_missing_data(1005)  ! ICE_SEV_CAT = missing
   end subroutine run_ifi
 
   ! --------------------------------------------------------------------
@@ -51,10 +51,23 @@ contains !==============================================================
 
     logical, save :: wrote_message = .false. ! guarded by an OMP CRITICAL below
 
+    if(size(IGET)<ient) then
+      return
+    endif
+
+    write(0,*) 'ient,iget = ',ient,iget(ient)
+
+    if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
+      return
+    endif
+
     ! Go level-by-level writing grib2 if requested
     do k=1,ifi_nflight
+      if(k>size(LVLS,1)) then
+        write(0,*) 'ERROR: LVLS is too small to handle ',ifi_nflight,' vertical levels'
+        return
+      endif
       if(LVLS(k,IGET(ient))>0) then
-
         if(.not.wrote_message) then
           !$OMP CRITICAL
           if(.not.wrote_message) then
@@ -97,11 +110,6 @@ module upp_ifi_mod
   public run_ifi, set_ifi_dims, ifi_real_t
 
   real, parameter :: feet2meters = 0.3048
-
-  interface
-    subroutine abort() bind(C)
-    end subroutine abort
-  end interface
 
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
@@ -181,11 +189,11 @@ contains !==============================================================
     do i=1,size
       if(ista_grid(i)==-1) then
         write(0,*) 'invalid ista_grid ',ista_grid(i)
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
       if(jsta_grid(i)==-1) then
         write(0,*) 'invalid jsta_grid ',jsta_grid(i)
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
       key(i) = ista_grid(i) + im*(jsta_grid(i)-1)
     enddo
@@ -198,7 +206,7 @@ contains !==============================================================
     endif
     if(row_comm==MPI_COMM_NULL .or. row_comm==0) then
       write(0,*) 'MPI_Comm_split gave MPI_COMM_NULL for row_comm'
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     call mpi_comm_rank(row_comm,row_comm_rank,ierr)
     call mpi_comm_size(row_comm,row_comm_size,ierr)
@@ -211,7 +219,7 @@ contains !==============================================================
     endif
     if(col_comm==MPI_COMM_NULL .or. col_comm==0) then
       write(0,*) 'MPI_Comm_split gave MPI_COMM_NULL for col_comm'
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     call mpi_comm_rank(col_comm,col_comm_rank,ierr)
     call mpi_comm_size(col_comm,col_comm_size,ierr)
@@ -272,11 +280,12 @@ contains !==============================================================
     ! Find the roots of the row and column communicators for a gather
     ! or scatter with the specified rank as the location of the global
     ! array.
+    use mpi
     implicit none
 
     integer, intent(in) :: global_rank
     integer, intent(inout) :: row_root,col_root
-    integer :: r, destination_ista, destination_jsta
+    integer :: r, destination_ista, destination_jsta, ierr
 
     ! print *,'find roots for rank ',global_rank
 
@@ -304,11 +313,11 @@ contains !==============================================================
     
     if(col_root==-1) then
       write(0,'(A,I0)') 'ABORT: Could not find column root rank for rank ',global_rank
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     if(row_root==-1) then
       write(0,'(A,I0)') 'ABORT: Could not find row root rank for rank ',global_rank
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
   end subroutine find_comm_roots
 
@@ -329,12 +338,12 @@ contains !==============================================================
 
     if(col_comm==0 .or. col_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, col_comm became invalid ',col_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     if(row_comm==0 .or. row_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, row_comm became invalid ',row_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     ! Find out who is the root of the i and j direction communications.
@@ -399,12 +408,12 @@ contains !==============================================================
 
     if(col_comm==0 .or. col_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, col_comm became invalid ',col_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     if(row_comm==0 .or. row_comm==MPI_COMM_NULL) then
       write(0,*) 'somehow, row_comm became invalid ',row_comm
-      call abort()
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
 
     ! Find out who is the root of the i and j direction communications.
@@ -480,65 +489,6 @@ contains !==============================================================
 
   ! --------------------------------------------------------------------
 
-  subroutine ifi_minmax_callback(minv,maxv) bind(C)
-    use ctlblk_mod, only: mpi_comm_comp, me
-    use mpi
-    implicit none
-    real(kind=ifi_real_t) :: minv,maxv
-    real(kind=8) :: sendbuf(1),recvbuf(1)
-    integer :: ierr
-
-    sendbuf(1)=minv
-    call MPI_Allreduce(sendbuf,recvbuf,1,MPI_REAL8,MPI_MIN,mpi_comm_comp,ierr)
-    minv=recvbuf(1)
-
-    sendbuf(1)=maxv
-    call MPI_Allreduce(sendbuf,recvbuf,1,MPI_REAL8,MPI_MAX,mpi_comm_comp,ierr)
-    maxv=recvbuf(1)
-  end subroutine ifi_minmax_callback
-
-  ! --------------------------------------------------------------------
-
-  subroutine ifi_halo_callback(d,ims1,ime1,jms1,jme1, &
-                                 ids1,ide1,jds1,jde1, &
-                                 ips1,ipe1,jps1,jpe1) BIND(C)
-    use ctlblk_mod, only: jsta,jend,im,jsta_2l,jend_2u,ista,iend,ista_2l,iend_2u
-    implicit none
-    real(kind=ifi_real_t) :: d(*)
-    integer(kind=c_int64_t), value :: &
-         ims1,ime1,jms1,jme1, &
-         ids1,ide1,jds1,jde1, &
-         ips1,ipe1,jps1,jpe1
-    integer(kind=c_int64_t) :: &
-         ims,ime,jms,jme, &
-         ids,ide,jds,jde, &
-         ips,ipe,jps,jpe
-
-    ! Convert from C++ to Fortran indexing:
-    ims=ims1+1 ; ime=ime1+1 ; jms=jms1+1 ; jme=jme1+1
-    ids=ids1+1 ; ide=ide1+1 ; jds=jds1+1 ; jde=jde1+1
-    ips=ips1+1 ; ipe=ipe1+1 ; jps=jps1+1 ; jpe=jpe1+1
-
-    if(   jms/=jsta_2l .or. jme/=jend_2u .or. jsta/=jps .or. jend/=jpe &
-     .or. ims/=ista_2l .or. ime/=iend_2u .or. ista/=ips .or. iend/=ipe ) then
-94    format('   ',A,' = ',I0,', ',I0)
-95    format('   ',A,' = ',I0,', ',I0,', ',I0)
-      print '(A)','Warning: IFI halo callback j bounds do not match UPP j bounds'
-      print 94,'jps,jsta',jps,jsta
-      print 94,'jpe,jend',jpe,jend
-      print 94,'jms,jsta_2l',jms,jsta_2l
-      print 94,'jme,jend_2u',jme,jend_2u
-      print 94,'ips,ista',ips,ista
-      print 94,'ipe,iend',ipe,iend
-      print 94,'ims,ista_2l',ims,ista_2l
-      print 94,'ime,iend_2u',ime,iend_2u
-      !call ifi_check(-1,'Internal error: IFI halo callback i/j bounds do not match UPP i/j bounds')
-    end if
-    call EXCH_c_float(d)
-  end subroutine ifi_halo_callback
-
-  ! --------------------------------------------------------------------
-
   subroutine set_ifi_dims()
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
     implicit none
@@ -586,6 +536,10 @@ contains !==============================================================
     logical(c_bool) :: missing_value_is_set
     real(kind=ifi_real_t) :: missing_value
     integer :: i,j,k,nj_local,jpad,ilen,jlen,kstartm1,jstartm1,iloc,ndata,ji,ni_local,ipad
+
+    if(.not. IGET(ient)>0) then
+      return
+    endif
 
     ! WARNING: do not deallocate the data pointer. It is managed by the IFI C++ library.
     data => vars%get_data(trim(name),missing_value_is_set,missing_value, &
@@ -670,14 +624,6 @@ contains !==============================================================
 
       call gather_for_write(local_buf,global_buf,receiving_rank)
       
-      ! if(ifi_real_t==c_double) then
-      !   type=MPI_REAL8
-      ! else
-      !   type=MPI_REAL4
-      ! endif
-
-      ! call MPI_Gatherv(local_buf,icnt(me),type,global_buf,icnt,idsp,type,receiving_rank,mpi_comm_comp,iret)
-
   end subroutine gather_ifi
 
   ! --------------------------------------------------------------------
@@ -723,7 +669,8 @@ contains !==============================================================
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
-    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend, me, num_procs, mpi_comm_comp, ista, iend, ista_2l, iend_2u
+    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, &
+         jm, jsta,jend, me, num_procs, mpi_comm_comp, ista, iend, ista_2l, iend_2u, dtq2
     use vrbls3d, only: &
          zmid, & ! = IFI "HGT"
          zint, & ! zint(:,:,LM+1) = IFI "HGT_surface"
@@ -737,8 +684,9 @@ contains !==============================================================
          QQS, & ! "SNMR"
          OMGA ! "VVEL"
     use vrbls2d, only : &
-         APCP, & ! IFI "APCP_surface" over ITPREC bucket time
-         CAPE, CIN
+         IFI_APCP, & ! IFI "APCP_surface" over ITPREC bucket time
+         CAPE, CIN, &
+         AVGPREC_CONT ! Backup plan for points where IFI_APCP is invalid or 0
     use rqstfld_mod, only: IGET
     use iso_c_binding, only: c_bool, c_int64_t
 
@@ -755,12 +703,13 @@ contains !==============================================================
     type(IFIData) :: hybr_vars, pres_vars, derived_vars, fip_algo_vars, flight_vars, cat_vars
     type(IFIAlgo) :: algo
     character(88) :: outfile
-
+    real :: to_hourly
     real(c_double) :: fcst_lead_sec
+    integer :: i, j
 
     ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
-    if(grib/='grib2' .or. (IGET(1100)<=0 .and. IGET(1101)<=0 .and. IGET(1102)<=0)) then
+    if(grib/='grib2' .or. (IGET(1003)<=0 .and. IGET(1004)<=0 .and. IGET(1005)<=0)) then
       if(me==0) then
         print '(A)','IFI fields were not requested; skipping IFI'
       endif
@@ -778,7 +727,9 @@ contains !==============================================================
       endif
     endif
 
-    call make_communicators()
+    if(write_ifi_debug_files) then
+      call make_communicators()
+    endif
 
     ! Read config and initialize input data structures:
 
@@ -793,15 +744,22 @@ contains !==============================================================
     call ifi_check(hybr_vars%add_ij_var('topography',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
                                                      int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
          zint(:,:,LP1)),'could not send topography to IFI')
-    if(ITPREC>1e-5) then
-      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
-                                                         int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
-           APCP/ITPREC),'could not send APCP to IFI')
-    else
-      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
-                                                         int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
-           APCP),'could not send APCP to IFI')
-    endif
+
+    to_hourly=3600*1000.0/dtq2
+!$OMP PARALLEL DO COLLAPSE(2)
+    do j=jsta,jend
+       do i=ista,iend
+          if(ifi_apcp(i,j)>9e9 .or. ifi_apcp(i,j)<-9e9 .or. ifi_apcp(i,j)==0) then
+             ifi_apcp(i,j) = avgprec_cont(i,j)*to_hourly
+          else if(ITPREC>1e-5) then
+             ifi_apcp(i,j) = ifi_apcp(i,j)/itprec
+          endif
+       enddo
+    enddo
+
+    call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t),&
+                                                       int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
+         IFI_APCP),'could not send IFI_APCP to IFI')
     call ifi_check(hybr_vars%add_ij_var('CAPE_surface',int(ista_2l,c_int64_t),int(iend_2u,c_int64_t), &
                                                        int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
          'could not send CAPE to IFI')
@@ -810,7 +768,7 @@ contains !==============================================================
          'could not send CIN to IFI')
 
     ! Copy 3D vars to IFI internal structures, inverting K dimension
-    
+
     call add_ijk_var('HGT','zmid',zmid)
     call add_ijk_var('CIMIXR','QQI',QQI)
     call add_ijk_var('CLMR','QQW',QQW)
@@ -830,24 +788,11 @@ contains !==============================================================
       write(outfile,308) 'hybr_vars',me
       call write_fip_output(hybr_vars,fcst_lead_sec,trim(outfile),.true.,'z0','z1')
     endif
-    
+   
     ! Initialize the IFI algorithm
 
     call ifi_check(algo%init(ifi_config,fcst_lead_sec,hybr_vars,ME,NUM_PROCS,MPI_COMM_COMP), &
          'could not initialize IFI algorithm')
-    call ifi_check(algo%set_halo_callback(ifi_halo_callback), &
-         'send halo callback function to IFI algorithm')
-    call ifi_check(algo%set_minmax_callback(ifi_minmax_callback), &
-         'send minmax callback function to IFI algorithm')
-    call ifi_check(algo%set_gather_callback(gather_ifi), &
-         'send gather callback function to IFI algorithm')
-    call ifi_check(algo%set_scatter_callback(scatter_ifi), &
-         'send scatter callback function to IFI algorithm')
-
-    ! Change n>=spval to Config.MISSING in all input fields
-    
-    call ifi_check(algo%cap_to_missing(9e9),&
-         'could not change post spval to Config.MISSING in input to IFI')
 
     ! Run the IFI algorithm
     
@@ -861,14 +806,7 @@ contains !==============================================================
     endif
 
     call ifi_check(algo%discard_hybrid_level_vars(),'discard_hybrid_level_vars() failed')
-    call ifi_check(algo%smooth_fields(),'smooth_fields() failed')
 
-    if(write_ifi_debug_files) then
-      write(outfile,308) 'smooth_vars',me
-      call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.true.,'z1','z0')
-    endif
-
-    !call ifi_check(algo%imprecise_pressure_level_vars(),'imprecise_pressure_level_vars() failed')
     call ifi_check(algo%derive_fields(),'derive_fields() failed')
 
     call ifi_check(algo%get_derived_vars(derived_vars),'get_derived_vars()')
@@ -877,7 +815,6 @@ contains !==============================================================
       call write_fip_output(derived_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
 
-    !call ifi_check(algo%imprecise_derived_vars(),'imprecise_derived_vars() failed')
     call ifi_check(algo%run_fip_algo(),'run_fip_algo() failed')
 
     call ifi_check(algo%get_fip_algo_vars(pres_vars),'get_fip_algo_vars()')
@@ -886,7 +823,6 @@ contains !==============================================================
       call write_fip_output(pres_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
 
-    !call ifi_check(algo%imprecise_fip_algo_vars(),'imprecise_fip_algo_vars() failed')
     call ifi_check(algo%discard_pressure_level_vars(),'discard_pressure_level_vars() failed')
     call ifi_check(algo%discard_derived_vars(),'discard_derived_vars() failed')
     call ifi_check(algo%pressure_to_flight(),'pressure_to_flight() failed')
@@ -909,9 +845,9 @@ contains !==============================================================
       call write_fip_output(cat_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
     
-    call send_data(cat_vars,'ICE_PROB',1100)
-    call send_data(cat_vars,'SLD',1101)
-    call send_data(cat_vars,'ICE_SEV_CAT',1102)
+    call send_data(cat_vars,'ICE_PROB',1003)
+    call send_data(cat_vars,'SLD',1004)
+    call send_data(cat_vars,'ICE_SEV_CAT',1005)
     
     ! When this subroutine ends, a Fortran-2003-compliant compiler
     ! will free all memory IFI uses, by calling the destructors (final
@@ -943,14 +879,6 @@ contains !==============================================================
 
   end subroutine run_ifi
 
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-! FIXME: DELETE THIS TEST CODE
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine find_range(var,count,missing_value_is_set,missing_value,min_not_miss,max_not_miss,all_missing)
@@ -966,9 +894,10 @@ contains !==============================================================
     logical(c_bool), intent(in) :: missing_value_is_set
 
     real(kind=ifi_real_t) :: minv,maxv,epsilon, global_minv,global_maxv
-    logical :: first
     integer :: i,type,iret
     real(kind=ifi_real_t), parameter :: zero = 0
+
+    print *,'find range begin'
 
     if(missing_value_is_set) then
       epsilon = abs(missing_value)*1e-4
@@ -978,37 +907,26 @@ contains !==============================================================
     endif
 
     ! Initialize to out-of-bounds values so they'll stay that way if no valid values are found:
-    minv = ieee_value(zero,ieee_positive_inf)
-    maxv = ieee_value(zero,ieee_negative_inf)
+    minv = 1e30
+    maxv = -1e30
     
     ! Find the min and max values in the array:
-    first=.true.
     if(missing_value_is_set) then
       !$OMP PARALLEL DO REDUCTION(min:minv) REDUCTION(max:maxv)
       do i=1,count
-        if(.not. abs(var(i)-missing_value)>epsilon) then
-          if(first) then
-            first=.false.
-            minv=var(i)
-            maxv=var(i)
-          else
-            minv=min(minv,var(i))
-            maxv=max(maxv,var(i))
-          end if
+        if(.not. abs(var(i)-missing_value)>epsilon .and. var(i)<9e9 .and. var(i)>-9e9) then
+           minv=min(minv,var(i))
+           maxv=max(maxv,var(i))
         endif
       end do
     else
       !$OMP PARALLEL DO REDUCTION(min:minv) REDUCTION(max:maxv)
       do i=1,count
         if(var(i)+1>var(i)) then
-          if(first) then
-            first=.false.
-            minv=var(i)
-            maxv=var(i)
-          else
-            minv=min(minv,var(i))
-            maxv=max(maxv,var(i))
-          end if
+          if(var(i)<9e9 .and. var(i)>-9e9) then
+             minv=min(minv,var(i))
+             maxv=max(maxv,var(i))
+          endif
         endif
       end do
     endif
@@ -1019,14 +937,15 @@ contains !==============================================================
       type=MPI_REAL4
     endif
 
-    !call MPI_Allreduce(minv,global_minv,1,type,MPI_MIN,mpi_comm_comp,iret)
-    !call MPI_Allreduce(maxv,global_maxv,1,type,MPI_MAX,mpi_comm_comp,iret)
+    ! call MPI_Allreduce(minv,global_minv,1,type,MPI_MIN,mpi_comm_comp,iret)
+    ! call MPI_Allreduce(maxv,global_maxv,1,type,MPI_MAX,mpi_comm_comp,iret)
     global_minv=minv
     global_maxv=maxv
     
     ! If min or max are inf, -inf, or NaN, assume all values are missing.
-    all_missing = (.not.(global_minv==global_minv) .or. .not.(global_maxv==global_maxv) &
-         .or. .not.(global_minv+1>global_minv) .or. .not.(global_maxv+1>global_maxv))
+    all_missing = global_minv<-9e9 .or. global_minv>9e9 .or. global_maxv<-9e9 .or. global_maxv>9e9
+
+    print *,'range min,max = ',global_minv,global_maxv
 
     if(all_missing) then
       min_not_miss=-1
@@ -1035,19 +954,22 @@ contains !==============================================================
       min_not_miss=global_minv
       max_not_miss=global_maxv
     endif
+
+    print *,'find range end'
   end subroutine find_range
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine nc_check(code,file,message)
     use netcdf
+    use mpi
     implicit none
     integer, intent(in) :: code
     character(*), intent(in) :: file, message
-    integer :: i
+    integer :: i, ierr
     if(code/=0) then
       write(0,93) trim(file),trim(message),trim(nf90_strerror(code)),code
-      call abort
+      call mpi_abort(mpi_comm_world,1,ierr)
     endif
     93 format(A,': ',A,': ',A,'(',I0,')')
   end subroutine nc_check
@@ -1154,30 +1076,25 @@ contains !==============================================================
       return
     endif
 
-    if(me==0) then
-      call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
-    endif
+    call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
 
-    ! write(0,*) 'before write loop ',me
+    write(0,*) 'before write loop ',me
     do ivar=1,nvars
-! 24    format('  put var ',A)
-!       print 24,trim(var_data(ivar)%varname)
-      if(me==0) then
-        call find_range(var_data(ivar)%data,var_data(ivar)%count, &
-             var_data(ivar)%missing_value_is_set,var_data(ivar)%missing_value,&
-             var_data(ivar)%min_not_miss,var_data(ivar)%max_not_miss, &
-             var_data(ivar)%all_missing)
-        call write_var(var_data(ivar))
-      endif
+24     format('  put var ',A)
+       print 24,trim(var_data(ivar)%varname)
+
+       call find_range(var_data(ivar)%data,var_data(ivar)%count, &
+            var_data(ivar)%missing_value_is_set,var_data(ivar)%missing_value,&
+            var_data(ivar)%min_not_miss,var_data(ivar)%max_not_miss, &
+            var_data(ivar)%all_missing)
+       call write_var(var_data(ivar))
       if(var_data(ivar)%should_dealloc) then
         deallocate(var_data(ivar)%data)
       endif
       nullify(var_data(ivar)%data)
     enddo
 
-    if(me==0) then
-      call nc_check(nf90_close(ncid),output_file,"nf90_close")
-    endif
+    call nc_check(nf90_close(ncid),output_file,"nf90_close")
   contains
 
     subroutine set_dims(var,dims,dimids)
@@ -1249,6 +1166,12 @@ contains !==============================================================
                                  start=ones,count=dims), &
                     output_file,"nf90_put_var "//trim(var%outname))
 
+      call nc_check(nf90_put_att(ncid,var%varid,"min_value",var%min_not_miss), &
+           output_file,"nf90_put_att "//trim(var%outname)//" min_value")
+
+      call nc_check(nf90_put_att(ncid,var%varid,"max_value",var%max_not_miss), &
+           output_file,"nf90_put_att "//trim(var%outname)//" max_value")
+
     end subroutine write_var
 
     integer function def_var(var,rename)
@@ -1309,6 +1232,7 @@ contains !==============================================================
     end function def_var
 
     function read_var(var,varname,should_dealloc)
+      use mpi
       implicit none
       type(var_info), intent(inout) :: var
       real(kind=ifi_real_t), pointer :: read_var(:)
@@ -1321,7 +1245,7 @@ contains !==============================================================
 
       integer :: nxny_local,nxny_global,nz,count,i,j,k
       integer :: local_ilen,local_jlen,local_klen,local_index
-      integer :: global_ilen,global_jlen,global_klen,global_index
+      integer :: global_ilen,global_jlen,global_klen,global_index, ierr
       type(c_ptr) :: global_cptr,local_cptr
 
       local_data_1D => ifi_data%get_data(trim(varname),var%missing_value_is_set,var%missing_value, &
@@ -1337,14 +1261,14 @@ contains !==============================================================
       if(.not.associated(local_data_1D)) then
         write(0,38) trim(varname)
 38      format("IFI did not produce ",A," variable.")
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       end if
 
       count=global_ilen*global_jlen*global_klen
       if(count<=0) then
         write(0,39) trim(varname),count
 39      format("IFI variable ",A," had no data (size=",I0,")")
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
       if(ids==ide .or. jds==jde) then
@@ -1358,17 +1282,17 @@ contains !==============================================================
 
       if(global_ilen /= nx0) then
         write(0,40) trim(varname),'global_ilen',global_ilen,nx0
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
       if(global_jlen /= ny0) then
         write(0,40) trim(varname),'global_jlen',global_jlen,ny0
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
       if(global_klen/=1 .and. global_klen /= nz0) then
         write(0,40) trim(varname),'global_klen',global_klen,nz0
-        call abort
+        call mpi_abort(mpi_comm_world,1,ierr)
       endif
 
 
