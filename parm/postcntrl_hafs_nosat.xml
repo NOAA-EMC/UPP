@@ -247,6 +247,12 @@
        </param>
 
        <param>
+       <shortname>ACM_ACPCP_ON_SURFACE</shortname>
+       <pname>ACPCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
        <pname>NCPCP</pname>
        <scale>-4.0</scale>
@@ -500,12 +506,6 @@
        <pname>TCOLC</pname>
        <table_info>NCEP</table_info>
         <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>MAX_PRATE_ON_SURFACE</shortname>
-       <pname>PRATE</pname>
-       <scale>6.0</scale>
        </param>
 
        <param>
