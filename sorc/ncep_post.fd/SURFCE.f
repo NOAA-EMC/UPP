@@ -3414,6 +3414,7 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(746))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3459,6 +3460,7 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(782))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
