@@ -20,29 +20,36 @@
 !> 2022-06-05 | Hui-Ya Chuang | Modify dx/dy computation for RRFS domain over north pole
 !> 2022-07-10 | Wen Meng      | Output lat/lon on four coner points of rotated lat-lon grids in text file.
 !> 2022-07-18 | Wen Meng      | Read instant top of atmos ULWRF from model
+!> 2022-09-18 | Li(Kate) Zhang| Add aerosol fileds for GEFS-Aerosols (gocart_on) and UFS-Aerosols(nasa_on) model
+!> 2022-10-28 | Eric James    | Modifications to allow passing through soil moisture availability field from RUC LSM for RRFS
+!> 2022-11-08 | Kai Wang      | Read time averaged PM2.5 and O3 concentration from model
+!> 2022-11-08 | Wen Meng      | Remove instant PM2.5 calculation
+!> 2022-11-16 | Eric James    | Read smoke, dust, biomass burning, and hourly wildfire potential from RRFS
+!> 2022-12-07 | Wen Meng      | Read AOD from AQM model
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
 
 
       use netcdf
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, no3,nh4, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              wh, qqg, ref_10cm, qqnifa, qqnwfa, pmtf, ozcon
+              dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp,ocwt,ocsv, &
+              wh, qqg, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
-              cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
+              cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
               cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
               rswout, aswin, auvbin, auvbinc, aswout, aswtoa, sfcshx, sfclhx, subshx,           &
-              snopcx, sfcux, sfcvx, sfcuxi, sfcvxi, sfcuvx, gtaux, gtauy, potevp, u10, v10, smstav,             &
+              snopcx, sfcux, sfcvx, sfcuxi, sfcvxi, sfcuvx, gtaux, gtauy, potevp, u10, v10, smstav,&
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
@@ -54,8 +61,9 @@
               avgedir,avgecan,paha,pahi,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
-              ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max, &
-              pwat
+              ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
+              dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
+              pwat, ebb, hwp, aqm_aod550
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -68,8 +76,9 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,         &
-              iSF_SURFACE_PHYSICS,rdaod, aqfcmaq_on, modelname,                                 &
+              nbin_oc, nbin_su, nbin_no3, nbin_nh4, gocart_on, nasa_on, pt_tbl, hyb_sigp,       &
+              filenameFlux, fileNameAER,                                                        &
+              iSF_SURFACE_PHYSICS,rdaod, modelname, aqf_on,                         &
               ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
@@ -134,6 +143,7 @@
       integer nfhour ! forecast hour from nems io file
       integer fhzero !bucket
       real dtp !physics time step
+      real dz
       REAL RINC(5)
 
       REAL DUMMY(IM,JM)
@@ -155,7 +165,15 @@
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
       real                     :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real                     :: buf2(ista_2l:iend_2u,jsta_2l:jend_2u)
       real                     :: buf3d(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: chem_2d(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real                     :: chemT(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: dt1(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: dt2(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: dt3(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: dt4(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: dt5(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
 
 !     real buf(ista_2l:iend_2u,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
 !         ,buf3d(ista_2l:iend_2u,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
@@ -172,191 +190,11 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
+      real, allocatable :: extsmoke(:,:,:), extdust(:,:,:)
 
-! AQF
-
-      real, allocatable :: aacd(:,:,:), aalj(:,:,:)                    &
-                          ,aalk1j(:,:,:), aalk2j(:,:,:)                &
-                          ,abnz1j(:,:,:), abnz2j(:,:,:), abnz3j(:,:,:) &
-                          ,acaj(:,:,:), acet(:,:,:)                    &
-                          ,acli(:,:,:), aclj(:,:,:), aclk(:,:,:)       &
-                          ,acors(:,:,:), acro_primary(:,:,:)           &
-                          ,acrolein(:,:,:), aeci(:,:,:)                &
-                          ,aecj(:,:,:), afej(:,:,:)                    &
-                          ,aglyj(:,:,:)                                &
-                          ,ah2oi(:,:,:), ah2oj(:,:,:), ah2ok(:,:,:)    &
-                          ,ah3opi(:,:,:), ah3opj(:,:,:), ah3opk(:,:,:) &
-                          ,aiso1j(:,:,:), aiso2j(:,:,:), aiso3j(:,:,:) &
-                          ,aivpo1j(:,:,:), akj(:,:,:)                  &
-                          ,ald2(:,:,:), ald2_primary(:,:,:)            &
-                          ,aldx(:,:,:)                                 &
-                          ,alvoo1i(:,:,:), alvoo1j(:,:,:)              &
-                          ,alvoo2i(:,:,:), alvoo2j(:,:,:)              &
-                          ,alvpo1i(:,:,:), alvpo1j(:,:,:)              &
-                          ,amgj(:,:,:), amnj(:,:,:)                    &
-                          ,amgk(:,:,:), akk(:,:,:), acak(:,:,:)        &
-                          ,anai(:,:,:), anaj(:,:,:), anak(:,:,:)       &
-                          ,anh4i(:,:,:), anh4j(:,:,:), anh4k(:,:,:)    &
-                          ,ano3i(:,:,:), ano3j(:,:,:), ano3k(:,:,:)    &
-                          ,aolgaj(:,:,:), aolgbj(:,:,:), aorgcj(:,:,:) &
-                          ,aomi(:,:,:), aomj(:,:,:)                    &
-                          ,aothri(:,:,:), aothrj(:,:,:)                &
-                          ,apah1j(:,:,:), apah2j(:,:,:), apah3j(:,:,:) &
-                          ,apomi(:,:,:), apomj(:,:,:)                  &
-                          ,apcsoj(:,:,:), aseacat(:,:,:), asij(:,:,:)  &
-                          ,aso4i(:,:,:), aso4j(:,:,:), aso4k(:,:,:)    &
-                          ,asoil(:,:,:), asqtj(:,:,:)                  &
-                          ,asomi(:,:,:), asomj(:,:,:)                  &
-                          ,asvoo1i(:,:,:), asvoo1j(:,:,:)              &
-                          ,asvoo2i(:,:,:), asvoo2j(:,:,:)              &
-                          ,asvoo3j(:,:,:)                              &
-                          ,asvpo1i(:,:,:), asvpo1j(:,:,:)              &
-                          ,asvpo2i(:,:,:), asvpo2j(:,:,:)              &
-                          ,asvpo3j(:,:,:)                              &
-                          ,atij(:,:,:)                                 &
-                          ,atol1j(:,:,:), atol2j(:,:,:), atol3j(:,:,:) &
-                          ,atoti(:,:,:), atotj(:,:,:), atotk(:,:,:)    &
-                          ,atrp1j(:,:,:), atrp2j(:,:,:)                &
-                          ,axyl1j(:,:,:), axyl2j(:,:,:), axyl3j(:,:,:) &
-                          ,pm25ac(:,:,:), pm25at(:,:,:), pm25co(:,:,:)
-
-
-      if (me == 0) print *,' aqfcmaq_on=', aqfcmaq_on
-
-      if (aqfcmaq_on) then
-
-        allocate(aacd(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aalj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aalk1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aalk2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(abnz1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(abnz2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(abnz3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(acaj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(acet(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(acli(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aclj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aclk(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(acors(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(acro_primary(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(acrolein(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aeci(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aecj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(afej(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aglyj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(ah2oi(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ah2oj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ah2ok(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(ah3opi(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ah3opj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ah3opk(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aiso1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aiso2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aiso3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aivpo1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(akj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(ald2(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ald2_primary(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aldx(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(alvoo1i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(alvoo1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(alvoo2i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(alvoo2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(alvpo1i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(alvpo1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(amgj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(amnj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(anai(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(anaj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(anak(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(anh4i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(anh4j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(anh4k(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(ano3i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ano3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(ano3k(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aolgaj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aolgbj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aomi(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aomj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aorgcj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aothri(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aothrj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(apah1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(apah2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(apah3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(apcsoj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(apomi(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(apomj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aseacat(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asij(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(aso4i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aso4j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(aso4k(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asoil(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(asomi(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asomj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(asqtj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(asvoo1i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvoo1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvoo2i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvoo2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvoo3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(asvpo1i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvpo1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvpo2i(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvpo2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(asvpo3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(atij(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(atol1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(atol2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(atol3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(atoti(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(atotj(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(atotk(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(atrp1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(atrp2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(axyl1j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(axyl2j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(axyl3j(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
-        allocate(pm25ac(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(pm25at(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-        allocate(pm25co(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-
+      if (modelname == 'FV3R') then
+         allocate(extsmoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(extdust(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       endif
 
 !***********************************************************************
@@ -658,12 +496,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=14
+       nrec=18
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle']
+                                     'snmr','grle','smoke','dust',      &
+                                     'smoke_ext','dust_ext']
       else
        nrec=8
        allocate (recname(nrec))
@@ -1016,6 +855,17 @@
        spval,recname(13),qqs(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(14),qqg(ista_2l,jsta_2l,1),lm)
+! read for regional FV3
+       if (modelname == 'FV3R') then
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(17),extsmoke(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(18),extdust(ista_2l,jsta_2l,1),lm)
+       endif
 
 ! calculate CWM from FV3 output
        do l=1,lm
@@ -1046,489 +896,31 @@
 !          ,cfr(isa,jsa,l),isa,jsa,l
 !      enddo
 
-!=============================
-! For AQF Chemical species
-!=============================
+!=====================================
+! For AQF Hourly average field PM2.5
+!=====================================
 
-      if (aqfcmaq_on) then
+      if (aqf_on) then
 
        ! *********** VarName need to be in lower case ************
        ! === It will cause problem if not use the lower case =====
        ! *********************************************************
 
-       !--------------------------------------------------------------
-       !-- rename input o3 to NCO grib2 name ozcon -------------------
+       !-- rename input o3_ave and pm25_ave to NCO grib2 name OZCON and PMTF
 
-       VarName='o3'
+       VarName='o3_ave'
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ozcon(ista_2l,jsta_2l,1),lm)
+       spval,VarName,avgozcon(ista_2l,jsta_2l,1),lm)
 
-       !--------------------------------------------------------------
-
-       VarName='aacd'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aacd(ista_2l,jsta_2l,1),lm)
-
-       VarName='aalj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aalj(ista_2l,jsta_2l,1),lm)
-
-       VarName='aalk1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aalk1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='aalk2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aalk2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='abnz1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,abnz1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='abnz2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,abnz2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='abnz3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,abnz3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='acaj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,acaj(ista_2l,jsta_2l,1),lm)
-
-       VarName='acet'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,acet(ista_2l,jsta_2l,1),lm)
-
-       VarName='acli'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,acli(ista_2l,jsta_2l,1),lm)
-
-       VarName='aclj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aclj(ista_2l,jsta_2l,1),lm)
-
-       VarName='aclk'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aclk(ista_2l,jsta_2l,1),lm)
-
-       VarName='acors'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,acors(ista_2l,jsta_2l,1),lm)
-
-       VarName='acro_primary'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,acro_primary(ista_2l,jsta_2l,1),lm)
-
-       VarName='acrolein'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,acrolein(ista_2l,jsta_2l,1),lm)
-
-       VarName='aeci'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aeci(ista_2l,jsta_2l,1),lm)
-
-       VarName='aecj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aecj(ista_2l,jsta_2l,1),lm)
-
-       VarName='afej'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,afej(ista_2l,jsta_2l,1),lm)
-
-       VarName='aglyj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aglyj(ista_2l,jsta_2l,1),lm)
-
-       VarName='ah2oi'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ah2oi(ista_2l,jsta_2l,1),lm)
-
-       VarName='ah2oj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ah2oj(ista_2l,jsta_2l,1),lm)
-
-       VarName='ah2ok'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ah2ok(ista_2l,jsta_2l,1),lm)
-
-       VarName='ah3opi'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ah3opi(ista_2l,jsta_2l,1),lm)
-
-       VarName='ah3opj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ah3opj(ista_2l,jsta_2l,1),lm)
-
-       VarName='ah3opk'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ah3opk(ista_2l,jsta_2l,1),lm)
-
-       VarName='aiso1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aiso1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='aiso2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aiso2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='aiso3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aiso3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='aivpo1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aivpo1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='akj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,akj(ista_2l,jsta_2l,1),lm)
-
-       VarName='ald2'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ald2(ista_2l,jsta_2l,1),lm)
-
-       VarName='ald2_primary'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ald2_primary(ista_2l,jsta_2l,1),lm)
-
-       VarName='aldx'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aldx(ista_2l,jsta_2l,1),lm)
-
-       VarName='alvoo1i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,alvoo1i(ista_2l,jsta_2l,1),lm)
-
-       VarName='alvoo1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,alvoo1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='alvoo2i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,alvoo2i(ista_2l,jsta_2l,1),lm)
-
-       VarName='alvoo2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,alvoo2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='alvpo1i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,alvpo1i(ista_2l,jsta_2l,1),lm)
-
-       VarName='alvpo1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,alvpo1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='amgj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,amgj(ista_2l,jsta_2l,1),lm)
-
-       VarName='amnj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,amnj(ista_2l,jsta_2l,1),lm)
-
-       VarName='anai'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,anai(ista_2l,jsta_2l,1),lm)
-
-       VarName='anaj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,anaj(ista_2l,jsta_2l,1),lm)
-
-       VarName='anh4i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,anh4i(ista_2l,jsta_2l,1),lm)
-
-       VarName='anh4j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,anh4j(ista_2l,jsta_2l,1),lm)
-
-       VarName='anh4k'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,anh4k(ista_2l,jsta_2l,1),lm)
-
-       VarName='ano3i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ano3i(ista_2l,jsta_2l,1),lm)
-
-       VarName='ano3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ano3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='ano3k'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,ano3k(ista_2l,jsta_2l,1),lm)
-
-       VarName='aolgaj'
+       VarName='pm25_ave'
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aolgaj(ista_2l,jsta_2l,1),lm)
-
-       VarName='aolgbj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aolgbj(ista_2l,jsta_2l,1),lm)
-
-       VarName='aorgcj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aorgcj(ista_2l,jsta_2l,1),lm)
-
-       VarName='aothri'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aothri(ista_2l,jsta_2l,1),lm)
-
-       VarName='aothrj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aothrj(ista_2l,jsta_2l,1),lm)
-
-       VarName='apah1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,apah1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='apah2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,apah2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='apah3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,apah3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='apcsoj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,apcsoj(ista_2l,jsta_2l,1),lm)
-
-       VarName='aseacat'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aseacat(ista_2l,jsta_2l,1),lm)
-
-       VarName='asij'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asij(ista_2l,jsta_2l,1),lm)
-
-       VarName='aso4i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aso4i(ista_2l,jsta_2l,1),lm)
-
-       VarName='aso4j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aso4j(ista_2l,jsta_2l,1),lm)
-
-       VarName='aso4k'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,aso4k(ista_2l,jsta_2l,1),lm)
-
-       VarName='asoil'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asoil(ista_2l,jsta_2l,1),lm)
-
-       VarName='asqtj'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asqtj(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvoo1i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvoo1i(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvoo1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvoo1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvoo2i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvoo2i(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvoo2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvoo2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvoo3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvoo3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvpo1i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvpo1i(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvpo1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvpo1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvpo2i'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvpo2i(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvpo2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvpo2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='asvpo3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,asvpo3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='atij'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,atij(ista_2l,jsta_2l,1),lm)
-
-       VarName='atol1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,atol1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='atol2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,atol2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='atol3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,atol3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='atrp1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,atrp1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='atrp2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,atrp2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='axyl1j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,axyl1j(ista_2l,jsta_2l,1),lm)
-
-       VarName='axyl2j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,axyl2j(ista_2l,jsta_2l,1),lm)
-
-       VarName='axyl3j'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,axyl3j(ista_2l,jsta_2l,1),lm)
-
-       VarName='pm25ac'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,pm25ac(ista_2l,jsta_2l,1),lm)
-
-       VarName='pm25at'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,pm25at(ista_2l,jsta_2l,1),lm)
-
-       VarName='pm25co'
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,VarName,pm25co(ista_2l,jsta_2l,1),lm)
-
-!=========================
-! PM2.5 SPECIES
-!=========================
-
-    !   do l=1,lm
-    !   do j=jsta,jend
-    !     do i=ista,iend
-    !        pm25hp(i,j,l) = ( ah3opi(i,j,l)*pm25at(i,j,l)            &
-    !                        + ah3opj(i,j,l)*pm25ac(i,j,l)            &
-    !                        + ah3opk(i,j,l)*pm25co(i,j,l) ) / 19.0
-
-    !        pm25cl(i,j,l) =   acli(i,j,l)*pm25at(i,j,l)              &
-    !                        + aclj(i,j,l)*pm25ac(i,j,l)              &
-    !                        + aclk(i,j,l)*pm25co(i,j,l)
-
-    !        pm25ec(i,j,l) =   aeci(i,j,l)*pm25at(i,j,l)              &
-    !                        + aecj(i,j,l)*pm25ac(i,j,l)
-    !     enddo
-    !   enddo
-    !   enddo
-
-
-    !   do l=1,lm
-    !   do j=jsta,jend
-    !     do i=ista,iend
-
-    !        anak(i,j,l) =  0.8373 * aseacat(i,j,l)                   &
-    !                     + 0.0626 *   asoil(i,j,l)                   &
-    !                     + 0.0023 *   acors(i,j,l)
-
-    !        pm25na(i,j,l) =   anai(i,j,l)*pm25at(i,j,l)              &
-    !                        + anaj(i,j,l)*pm25ac(i,j,l)              &
-    !                        + anak(i,j,l)*pm25co(i,j,l)
-    !     enddo
-    !   enddo
-    !   enddo
-
-       do l=1,lm
-       do j=jsta,jend
-         do i=ista,iend
-
-            apomi(i,j,l) = alvpo1i(i,j,l)                                   &
-                          +asvpo1i(i,j,l) + asvpo2i(i,j,l)
-
-            apomj(i,j,l) = alvpo1j(i,j,l)                                   &
-                          +asvpo1j(i,j,l) + asvpo2j(i,j,l) + asvpo3j(i,j,l) &
-                          +aivpo1j(i,j,l)
-
-            asomi(i,j,l) = alvoo1i(i,j,l) + alvoo2i(i,j,l)                  &
-                          +asvoo1i(i,j,l) + asvoo2i(i,j,l)
-
-            asomj(i,j,l) = axyl1j(i,j,l)  + axyl2j(i,j,l)  + axyl3j(i,j,l)  &
-                          +atol1j(i,j,l)  + atol2j(i,j,l)  + atol3j(i,j,l)  &
-                          +abnz1j(i,j,l)  + abnz2j(i,j,l)  + abnz3j(i,j,l)  &
-                          +aiso1j(i,j,l)  + aiso2j(i,j,l)  + aiso3j(i,j,l)  &
-                          +atrp1j(i,j,l)  + atrp2j(i,j,l)  +  asqtj(i,j,l)  &
-                          +aalk1j(i,j,l)  + aalk2j(i,j,l)                   &
-                          +apah1j(i,j,l)  + apah2j(i,j,l)  + apah3j(i,j,l)  &
-                          +aorgcj(i,j,l)  + aolgbj(i,j,l)  + aolgaj(i,j,l)  &
-                          +alvoo1j(i,j,l) + alvoo2j(i,j,l)                  &
-                          +asvoo1j(i,j,l) + asvoo2j(i,j,l) + asvoo3j(i,j,l) &
-                          +apcsoj(i,j,l)
-
-            aomi(i,j,l) = apomi(i,j,l) + asomi(i,j,l)
-            aomj(i,j,l) = apomj(i,j,l) + asomj(i,j,l)
-
-            atoti(i,j,l) = aso4i(i,j,l) + ano3i(i,j,l) + anh4i(i,j,l)  &
-                          + anai(i,j,l) +  acli(i,j,l) +  aeci(i,j,l)  &
-                          + aomi(i,j,l) +aothri(i,j,l)
-
-            atotj(i,j,l) = aso4j(i,j,l) + ano3j(i,j,l) + anh4j(i,j,l)  &
-                          + anaj(i,j,l) +  aclj(i,j,l) +  aecj(i,j,l)  &
-                          + aomj(i,j,l) +aothrj(i,j,l)                 &
-                          + afej(i,j,l) +  asij(i,j,l) +  atij(i,j,l)  &
-                          + acaj(i,j,l) +  amgj(i,j,l) +  amnj(i,j,l)  &
-                          + aalj(i,j,l) +   akj(i,j,l)
-
-            atotk(i,j,l) = asoil(i,j,l) + acors(i,j,l) + aseacat(i,j,l)&
-                          + aclk(i,j,l)                                &
-                          +aso4k(i,j,l) + ano3k(i,j,l) + anh4k(i,j,l)
-
-            pmtf(i,j,l) =  atoti(i,j,l)*pm25at(i,j,l)                  &
-                          + atotj(i,j,l)*pm25ac(i,j,l)                 &
-                          + atotk(i,j,l)*pm25co(i,j,l)
-         enddo
-       enddo
-       enddo
-
-       deallocate (aacd, aalj, aalk1j, aalk2j, abnz1j, abnz2j, abnz3j)
-       deallocate (acaj, acet, acli, aclj, aclk)
-       deallocate (acors, acro_primary, acrolein)
-
-       deallocate (aeci, aecj, afej, aglyj, ah2oi, ah2oj, ah2ok)
-       deallocate (ah3opi, ah3opj, ah3opk, aiso1j, aiso2j, aiso3j)
-
-       deallocate (aivpo1j, akj, ald2, ald2_primary, aldx)
-       deallocate (alvoo1i, alvoo1j, alvoo2i, alvoo2j, alvpo1i, alvpo1j)
-
-       deallocate (amgj, amnj, anai, anaj, anak)
-       deallocate (anh4i, anh4j, anh4k, ano3i, ano3j, ano3k)
-
-       deallocate (aolgaj, aolgbj, aomi, aomj)
-       deallocate (aorgcj, aothri, aothrj, apah1j, apah2j, apah3j)
-
-       deallocate (apcsoj, apomi, apomj, aseacat, asij)
-       deallocate (aso4i, aso4j, aso4k, asoil, asomi, asomj, asqtj)
-
-       deallocate (asvoo1i, asvoo1j, asvoo2i, asvoo2j, asvoo3j)
-       deallocate (asvpo1i, asvpo1j, asvpo2i, asvpo2j, asvpo3j)
-
-       deallocate (atij, atol1j, atol2j, atol3j, atrp1j, atrp2j)
-       deallocate (atoti, atotj, atotk, axyl1j, axyl2j, axyl3j)
+       spval,VarName,avgpmtf(ista_2l,jsta_2l,1),lm)
 
-       deallocate (pm25ac, pm25at, pm25co)
+       VarName='aod'
+       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,aqm_aod550(ista_2l,jsta_2l))
 
-      endif     ! -- aqfcmaq_on
+      endif     ! -- aqf_on
 !============================
 
 ! read for regional FV3
@@ -1579,6 +971,16 @@
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rel_vort_maxhy1(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
+! biomass burning emissions
+      VarName='ebb_smoke_hr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ebb(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',ebb(isa,jsa)
+! hourly wildfire potential
+      VarName='hwp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,hwp(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
       endif
 
 ! surface pressure
@@ -1685,6 +1087,395 @@
       end do
 
       
+      print *, 'gocart_on=',gocart_on
+      print *, 'nasa_on=',nasa_on
+      if (gocart_on .or. nasa_on) then
+
+! GFS output dust in nemsio (GOCART)
+        dustcb=0.0
+        dustallcb=0.0
+!       DUST = SPVAL
+
+        VarName='dust1'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+        VarName='dust2'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt2(ista_2l,jsta_2l,1),lm)
+        VarName='dust3'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt3(ista_2l,jsta_2l,1),lm)
+        VarName='dust4'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt4(ista_2l,jsta_2l,1),lm)
+        VarName='dust5'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt5(ista_2l,jsta_2l,1),lm)
+
+      
+        do l=1,lm
+
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          dust(i,j,l,1)=dt1(i,j,l)
+          dust(i,j,l,2)=dt2(i,j,l)
+          dust(i,j,l,3)=dt3(i,j,l)
+          dust(i,j,l,4)=dt4(i,j,l)
+          dust(i,j,l,5)=dt5(i,j,l)
+          
+
+           dustcb(i,j)=dustcb(i,j)+&
+           (dust(i,j,l,1)+0.38*dust(i,j,l,2))* &
+           dpres(i,j,l)/grav
+
+
+           dustallcb(i,j)=dustallcb(i,j)+ &
+           (dust(i,j,l,1)+dust(i,j,l,2)+ &
+           dust(i,j,l,3)+0.74*dust(i,j,l,4))* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+
+ 
+! GFS output sea salt in nemsio (GOCART)
+        sscb=0.0
+        ssallcb=0.0
+        
+        VarName='seas1'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+
+        VarName='seas2'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt2(ista_2l,jsta_2l,1),lm)
+
+        VarName='seas3'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt3(ista_2l,jsta_2l,1),lm)
+
+        VarName='seas4'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt4(ista_2l,jsta_2l,1),lm)
+
+        VarName='seas5'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt5(ista_2l,jsta_2l,1),lm)
+
+
+
+        do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          salt(i,j,l,1)=dt1(i,j,l)
+          salt(i,j,l,2)=dt2(i,j,l)
+          salt(i,j,l,3)=dt3(i,j,l)
+          salt(i,j,l,4)=dt4(i,j,l)
+          salt(i,j,l,5)=dt5(i,j,l)
+
+            sscb(i,j)=sscb(i,j)+ &
+         (salt(i,j,l,1)+salt(i,j,l,2)+0.83*salt(i,j,l,3))*  &
+           dpres(i,j,l)/grav
+
+
+          ssallcb(i,j)=ssallcb(i,j)+ &
+         (salt(i,j,l,1)+salt(i,j,l,2)+salt(i,j,l,3)+salt(i,j,l,4))* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+! GFS output black carbon in nemsio (GOCART)
+        bccb=0.0
+
+
+        VarName='bc1'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+
+        VarName='bc2'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt2(ista_2l,jsta_2l,1),lm)
+
+        do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+
+          soot(i,j,l,1)=dt1(i,j,l)
+          soot(i,j,l,2)=dt2(i,j,l)
+
+            bccb(i,j)=bccb(i,j)+ &
+        (soot(i,j,l,1)+soot(i,j,l,2))* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+
+        occb=0.0
+! GFS output organic carbon in nemsio (GOCART)
+
+        VarName='oc1'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+
+        VarName='oc2'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt2(ista_2l,jsta_2l,1),lm)
+        do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          waso(i,j,l,1)=dt1(i,j,l)
+          waso(i,j,l,2)=dt2(i,j,l)
+
+            occb(i,j)=occb(i,j)+ &
+        (waso(i,j,l,1)+waso(i,j,l,2))* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+
+! GFS output sulfate in netcdf (GOCART)
+        sulfcb=0.0
+
+!       SUSO = SPVAL
+        if (gocart_on) then
+        VarName='sulf'
+        endif
+
+        if (nasa_on) then
+        VarName='so4'
+        endif
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+        
+         do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          suso(i,j,l,1)=dt1(i,j,l)
+
+            sulfcb(i,j)=sulfcb(i,j)+ &
+        suso(i,j,l,1)* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+
+        if (nasa_on) then
+! GFS output nitrate in netcdf (GOCART)
+        no3cb=0.0
+        VarName='no3an1'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+
+        VarName='no3an2'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt2(ista_2l,jsta_2l,1),lm)
+
+        VarName='no3an3'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt3(ista_2l,jsta_2l,1),lm)
+
+         do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          no3(i,j,l,1)=dt1(i,j,l)
+          no3(i,j,l,2)=dt2(i,j,l)
+          no3(i,j,l,3)=dt3(i,j,l)
+
+            no3cb(i,j)=no3cb(i,j)+ &
+        (no3(i,j,l,1)+no3(i,j,l,2)+no3(i,j,l,3))* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+
+! GFS output NH4 in netcdf (GOCART)
+        nh4cb=0.0
+        VarName='nh4a'
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+
+         do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          nh4(i,j,l,1)=dt1(i,j,l)
+
+            nh4cb(i,j)=nh4cb(i,j)+ &
+        nh4(i,j,l,1)* &
+           dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+
+
+        endif !nasa_on
+
+! GFS output pp25 in nemsio (GOCART)
+        pp25cb=0.0
+
+        if (gocart_on) then
+        VarName='pp25'
+        endif
+
+        if (nasa_on) then
+        VarName='pm25'
+        endif
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt1(ista_2l,jsta_2l,1),lm)
+
+
+! GFS output pp10 in nemsio (GOCART)
+        pp10cb=0.0
+        if (gocart_on) then
+        VarName='pp10'
+        endif
+
+        if (nasa_on) then
+        VarName='pm10'
+        endif
+
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+       spval,VarName,dt2(ista_2l,jsta_2l,1),lm)
+
+        do l=1,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+          do i=ista,iend
+          pp25(i,j,l,1)=dt1(i,j,l)
+          pp10(i,j,l,1)=dt2(i,j,l)
+
+
+            pp25cb(i,j)=pp25cb(i,j)+ &
+        pp25(i,j,l,1)* dpres(i,j,l)/grav
+
+            pp10cb(i,j)=pp10cb(i,j)+ &
+        pp10(i,j,l,1)* dpres(i,j,l)/grav
+           enddo
+           enddo
+        end do ! do loop for l
+! -- compute air density RHOMID and remove negative tracer values
+        do l=1,lm
+!$omp parallel do private(i,j,tv)
+          do j=jsta,jend
+            do i=ista,iend
+
+              TV = T(I,J,L) * (H1+D608*MAX(Q(I,J,L),QMIN))
+              RHOMID(I,J,L) = PMID(I,J,L) / (RD*TV)
+              do n = 1,  NBIN_DU
+                IF ( dust(i,j,l,n) < SPVAL) THEN
+                  DUST(i,j,l,n) = MAX(DUST(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+              do n = 1,  NBIN_SS
+                IF ( salt(i,j,l,n) < SPVAL) THEN
+                  SALT(i,j,l,n) = MAX(SALT(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+              do n = 1,  NBIN_OC
+                IF ( waso(i,j,l,n) < SPVAL) THEN
+                  WASO(i,j,l,n) = MAX(WASO(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+              do n = 1,  NBIN_BC
+                IF ( soot(i,j,l,n) < SPVAL) THEN
+                  SOOT(i,j,l,n) = MAX(SOOT(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+              do n = 1,  NBIN_SU
+                IF ( suso(i,j,l,n) < SPVAL) THEN
+                  SUSO(i,j,l,n) = MAX(SUSO(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+          if (nasa_on) then
+              do n = 1,  NBIN_NO3
+                IF ( no3(i,j,l,n) < SPVAL) THEN
+                  no3(i,j,l,n) = MAX(no3(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+              do n = 1,  NBIN_NH4
+                IF ( nh4(i,j,l,n) < SPVAL) THEN
+                  nh4(i,j,l,n) = MAX(nh4(i,j,l,n), 0.0)
+                ENDIF
+              enddo
+          endif !nasa_on
+            end do
+          end do
+        end do
+             l=lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=ista,iend
+            dustcb(i,j) = MAX(dustcb(i,j), 0.0)
+            dustallcb(i,j) = MAX(dustallcb(i,j), 0.0)
+            sscb(i,j) = MAX(sscb(i,j), 0.0)
+            ssallcb(i,j) = MAX(ssallcb(i,j), 0.0)
+            bccb(i,j) = MAX(bccb(i,j), 0.0)
+            occb(i,j) = MAX(occb(i,j), 0.0)
+            sulfcb(i,j) = MAX(sulfcb(i,j), 0.0)
+            if (nasa_on) then
+            no3cb(i,j) = MAX(no3cb(i,j), 0.0)
+            nh4cb(i,j) = MAX(nh4cb(i,j), 0.0)
+            endif
+            pp25cb(i,j) = MAX(pp25cb(i,j), 0.0)
+            pp10cb(i,j) = MAX(pp10cb(i,j), 0.0)
+
+!      PM25 dust and seasalt      
+       dustpm(i,j)=(dust(i,j,l,1)+0.38*dust(i,j,l,2))*RHOMID(i,j,l) !ug/m3
+       dustpm10(i,j)=(dust(i,j,l,1)+dust(i,j,l,2)+dust(i,j,l,3)+ &
+       0.74*dust(i,j,l,4))*RHOMID(i,j,l) !ug/m3
+       sspm(i,j)=(salt(i,j,l,1)+salt(i,j,l,2)+ &
+       0.83*salt(i,j,l,3))*RHOMID(i,j,l)  !ug/m3 
+
+       if (gocart_on) then
+!      PM10 concentration
+       dusmass(i,j)=(dust(i,j,l,1)+dust(i,j,l,2)+dust(i,j,l,3)+ &
+       0.74*dust(i,j,l,4)+salt(i,j,l,1)+salt(i,j,l,2)+salt(i,j,l,3)+ &
+       salt(i,j,l,4) + soot(i,j,l,1)+soot(i,j,l,2)+waso(i,j,l,1)+ &
+       waso(i,j,l,2) +suso(i,j,l,1)+pp25(i,j,l,1)+pp10(i,j,l,1)) &
+       *RHOMID(i,j,l)  !ug/m3
+!      PM25 concentration       
+       dusmass25(i,j)=(dust(i,j,l,1)+0.38*dust(i,j,l,2)+ &
+       salt(i,j,l,1)+salt(i,j,l,2)+0.83*salt(i,j,l,3) + &
+       soot(i,j,l,1)+soot(i,j,l,2)+waso(i,j,l,1)+ &
+       waso(i,j,l,2) +suso(i,j,l,1)+pp25(i,j,l,1))*RHOMID(i,j,l)  !ug/m3
+
+!      PM10 column
+        ducmass(i,j)=dustallcb(i,j)+ssallcb(i,j)+bccb(i,j)+ &
+         occb(i,j)+sulfcb(i,j)+pp25cb(i,j)+pp10cb(i,j)
+!      PM25 column
+        ducmass25(i,j)=dustcb(i,j)+sscb(i,j)+bccb(i,j)+occb(i,j) &
+         +sulfcb(i,j)+pp25cb(i,j)
+       endif !gocart_on
+
+       if (nasa_on) then
+!      PM10 concentration
+       dusmass(i,j)=pp10(i,j,l,1)*RHOMID(i,j,l)  !ug/m3
+!      PM25 concentration       
+       dusmass25(i,j)=pp25(i,j,l,1)*RHOMID(i,j,l)  !ug/m3
+
+!      PM10 column
+        ducmass(i,j)=pp10cb(i,j)
+!      PM25 column
+        ducmass25(i,j)=pp25cb(i,j)
+       endif !nasa_on
+
+
+            end do
+          end do
+       
+
+      endif                     ! endif for gocart_on & nasa_on
+
+!         ',ll,waso(isa,jsa,ll,2)
+!         ',ll,waso(isa,jsa,ll,2)
+
+
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !
@@ -2577,6 +2368,31 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
+!
+! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
+! extinction; it needs to be after ZINT is defined.
+!
+      if (modelname == 'FV3R') then
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = ista_2l, iend_2u
+          if(extsmoke(i,j,l)<spval.and.extdust(i,j,l)<spval)then
+            taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
+            dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
+            aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+          endif
+         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
+           i,j,l,taod5503d ( i, j, l )
+         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
+           dz
+         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+           i,j,l,aextc55 ( i, j, l )
+         end do
+        end do
+       end do
+       deallocate(extsmoke)
+       deallocate(extdust)
+      end if
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -2959,13 +2775,45 @@
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(isa,jsa)
       
+      VarName='wetness'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          smstav(i,j) = buf(i,j)
+        enddo
+      enddo
+      VarName='accswe_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='accswe_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          acsnow(i,j) = buf(i,j) + buf2(i,j)
+        enddo
+      enddo
+      VarName='snacc_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='snacc_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          sndepac(i,j) = buf(i,j) + buf2(i,j)
+        enddo
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
-          smstav(i,j) = spval    ! GFS does not have soil moisture availability
+!          smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
           acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
@@ -3435,6 +3283,231 @@
         enddo
       enddo
 
+
+      print *, 'gocart_on=',gocart_on
+      print *, 'nasa_on=',nasa_on
+      if (gocart_on) then
+
+
+! retrieve dust emission fluxes
+       do K = 1, nbin_du
+       if ( K == 1) VarName='duem001'
+       if ( K == 2) VarName='duem002'
+       if ( K == 3) VarName='duem003'
+       if ( K == 4) VarName='duem004'
+       if ( K == 5) VarName='duem005'
+
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+
+      duem(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve dust sedimentation fluxes
+      do K = 1, nbin_du
+       if ( K == 1) VarName='dust1sd'
+       if ( K == 2) VarName='dust2sd'
+       if ( K == 3) VarName='dust3sd'
+       if ( K == 4) VarName='dust4sd'
+       if ( K == 5) VarName='dust5sd'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      dusd(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve dust dry deposition fluxes
+      do K = 1, nbin_du
+       if ( K == 1) VarName='dust1dp'
+       if ( K == 2) VarName='dust2dp'
+       if ( K == 3) VarName='dust3dp'
+       if ( K == 4) VarName='dust4dp'
+       if ( K == 5) VarName='dust5dp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      dudp(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve dust wet deposition fluxes
+      do K = 1, nbin_du
+       if ( K == 1) VarName='dust1wtl'
+       if ( K == 2) VarName='dust2wtl'
+       if ( K == 3) VarName='dust3wtl'
+       if ( K == 4) VarName='dust4wtl'
+       if ( K == 5) VarName='dust5wtl'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      duwt(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve dust scavenging fluxes
+      do K = 1, nbin_du
+       if ( K == 1) VarName='dust1wtc'
+       if ( K == 2) VarName='dust2wtc'
+       if ( K == 3) VarName='dust3wtc'
+       if ( K == 4) VarName='dust4wtc'
+       if ( K == 5) VarName='dust5wtc'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      dusv(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve seasalt emission fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='ssem001'
+       if ( K == 2) VarName='ssem002'
+       if ( K == 3) VarName='ssem003'
+       if ( K == 4) VarName='ssem004'
+       if ( K == 5) VarName='ssem005'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ssem(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve seasalt emission fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1sd'
+       if ( K == 2) VarName='seas2sd'
+       if ( K == 3) VarName='seas3sd'
+       if ( K == 4) VarName='seas4sd'
+       if ( K == 5) VarName='seas5sd'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      sssd(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve seasalt dry deposition fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1dp'
+       if ( K == 2) VarName='seas2dp'
+       if ( K == 3) VarName='seas3dp'
+       if ( K == 4) VarName='seas4dp'
+       if ( K == 5) VarName='seas5dp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ssdp(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve seasalt wet deposition fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1wtl'
+       if ( K == 2) VarName='seas2wtl'
+       if ( K == 3) VarName='seas3wtl'
+       if ( K == 4) VarName='seas4wtl'
+       if ( K == 5) VarName='seas5wtl'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      sswt(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve seasalt scavenging fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1wtc'
+       if ( K == 2) VarName='seas1wtc'
+       if ( K == 3) VarName='seas1wtc'
+       if ( K == 4) VarName='seas1wtc'
+       if ( K == 5) VarName='seas1wtc'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      sssv(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve bc emission fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bceman'
+       if ( K == 2) VarName='bcembb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      bcem(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve bc sedimentation fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1sd'
+       if ( K == 2) VarName='bc2sd'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      bcsd(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve bc dry deposition fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1dp'
+       if ( K == 2) VarName='bc2dp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      bcdp(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve bc large wet deposition fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1wtl'
+       if ( K == 2) VarName='bc2wtl'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      bcwt(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve bc convective wet deposition fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1wtc'
+       if ( K == 2) VarName='bc2wtc'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      bcsv(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve oc emission fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oceman'
+       if ( K == 2) VarName='ocembb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ocem(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve oc sedimentation fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1sd'
+       if ( K == 2) VarName='oc2sd'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ocsd(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve oc dry deposition fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1dp'
+       if ( K == 2) VarName='oc2dp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ocdp(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve oc large wet deposition fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1wtl'
+       if ( K == 2) VarName='oc2wtl'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ocwt(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve oc convective wet deposition fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1wtc'
+       if ( K == 2) VarName='oc2wtc'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      ocsv(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)
+       enddo
+
+! retrieve MIE AOD
+       VarName='maod'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
+      spval,VarName,chem_2d)
+      maod(1:im,jsta_2l:jend_2u)=chem_2d(1:im,jsta_2l:jend_2u)
+
+       endif ! gocart_on
 ! done with flux file, close it for now
       Status=nf90_close(ncid2d)
 !      deallocate(tmp,recname,reclevtyp,reclev)

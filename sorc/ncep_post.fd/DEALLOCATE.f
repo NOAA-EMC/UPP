@@ -9,6 +9,7 @@
 !> 2000-01-06 | Jim Tuccillo | Initial
 !> 2001-10-25 | H Chuang     | Modified to process hybrid model output
 !> 2002-06-19 | Mike Baldwin | WRF version
+!> 2022-11-08 | Kai Wang     | Replace aqfcmaq_on with aqf_on
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
@@ -197,10 +198,11 @@
       deallocate(swddnic)
       deallocate(swddifc)
       deallocate(swupt)
-      deallocate(int_smoke)
       deallocate(mean_frp)
-      deallocate(int_aod)
+      deallocate(ebb)
+      deallocate(hwp)
       deallocate(smoke)
+      deallocate(fv3dust)
       deallocate(taod5502d)
       deallocate(aerasy2d)
       deallocate(aerssa2d)
@@ -463,7 +465,7 @@
       deallocate(gtg)
 
 !
-      if (gocart_on) then
+      if (gocart_on .or. nasa_on) then
 ! Deallocate GOCART fields
 ! vrbls4d
         deallocate(dust)
@@ -471,6 +473,10 @@
         deallocate(soot)
         deallocate(waso)
         deallocate(suso)
+      if (nasa_on) then
+        deallocate(no3)
+        deallocate(nh4)
+      endif
         deallocate(pp25)
         deallocate(pp10)
 ! vrbls3d
@@ -531,6 +537,10 @@
         deallocate(pp25cb)
         deallocate(pp10cb)
         deallocate(sscb)
+        if (nasa_on) then
+        deallocate(no3cb)
+        deallocate(nh4cb)
+        endif
         deallocate(dustallcb)
         deallocate(ssallcb)
         deallocate(dustpm)
@@ -549,9 +559,10 @@
       deallocate(uuavg)
 
 ! AQF
-      if (aqfcmaq_on) then
-        deallocate(ozcon)
-        deallocate(pmtf)
+      if (aqf_on) then
+        deallocate(avgozcon)
+        deallocate(avgpmtf)
+        deallocate(aqm_aod550)
       endif
 
       end

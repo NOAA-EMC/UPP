@@ -40,6 +40,9 @@
 !! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
 !! -  21-07-26  W Meng  - Restrict computation from undefined grids
 !! -  21-10-31  J MENG    - 2D DECOMPOSITION
+!! -  22-02-01  E JAMES - Cleaning up GRIB2 encoding for six variables
+!!                        that cause issues with newer wgrib2 builds in RRFS system.
+!! -  22-11-16  E JAMES - Adding dust from RRFS
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -66,7 +69,7 @@
 !     
 !     INCLUDE GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !
-      use vrbls4d, only: smoke
+      use vrbls4d, only: smoke, fv3dust
       use vrbls3d, only: zint, pint, t, pmid, q, f_rimef
       use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,       &
                          cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,    &
@@ -466,13 +469,21 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
               ii = ista+i-1
-                datapd(i,j,cfld) =  SNDEPAC(ii,jj)
+              if(SNDEPAC(ii,jj)<spval) then
+                if(MODELNAME=='FV3R') then
+                  datapd(i,j,cfld) = SNDEPAC(ii,jj)/(1E3)
+                else
+                  datapd(i,j,cfld) = SNDEPAC(ii,jj) 
+                endif
+              else
+                datapd(i,j,cfld) = spval
+              endif
               enddo
             enddo
          endif
@@ -646,7 +657,11 @@
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             IF(SMSTAV(I,J) /= SPVAL)THEN
-              GRID1(I,J) = SMSTAV(I,J)*100.
+              IF ( MODELNAME == 'FV3R') THEN
+                GRID1(I,J) = SMSTAV(I,J)
+              ELSE
+                GRID1(I,J) = SMSTAV(I,J)*100.
+              ENDIF
             ELSE
               GRID1(I,J) = 0.
             ENDIF
@@ -815,11 +830,16 @@
           ID(18) = IFHR - 1
         ENDIF
         ID(20)     = 3
+        ITSRFC = NINT(TSRFC)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(501))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -845,11 +865,16 @@
         ISVALUE = 10
         ID(10) = MOD(ISVALUE/256,256)
         ID(11) = MOD(ISVALUE,256)
+        ITSRFC = NINT(TSRFC)
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(502))
-          fld_info(cfld)%ntrange=IFHR-ID(18)
-          fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -1497,7 +1522,7 @@
            (IGET(138)>0).OR.(IGET(414)>0).OR.     &
            (IGET(546)>0).OR.(IGET(547)>0).OR.     &
            (IGET(548)>0).OR.(IGET(739)>0).OR.     &
-           (IGET(771)>0)) THEN
+           (IGET(744)>0).OR.(IGET(771)>0)) THEN
 
         if (.not. allocated(psfc))  allocate(psfc(ista:iend,jsta:jend))
 !
@@ -2120,7 +2145,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
              if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE(I,J,LM,1)/=spval)&
-               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)
+               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)/(1E9)
              ENDDO
            ENDDO
            if(grib=='grib2') then
@@ -2129,6 +2154,24 @@
              datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
            endif
          ENDIF
+!
+! E. James - 14 Sep 2022: DUST from RRFS on lowest model level
+!
+         IF (IGET(744)>0) THEN
+           GRID1=SPVAL
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.FV3DUST(I,J,LM,1)/=spval)&
+               GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*FV3DUST(I,J,LM,1)/(1E9)
+             ENDDO
+           ENDDO
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(744))
+             datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
+           endif
+         ENDIF
+!
 !
 !     BLOCK 3.  ANEMOMETER LEVEL (10M) WINDS, THETA, AND Q.
 !
@@ -2296,11 +2339,16 @@
                 GRID2(I,J) = V10MAX(I,J)
               ENDDO
             ENDDO
+           ITSRFC = NINT(TSRFC)
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(506))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2311,8 +2359,12 @@
             enddo
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(507))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3315,7 +3367,7 @@
           cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(035))
            fld_info(cfld)%ntrange=1
-          fld_info(cfld)%tinvstat=IFHR-ID(18)
+          fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -5619,7 +5671,7 @@
            endif
       ENDIF
 
-      write_cd: IF(IGET(922)>0) THEN
+      write_cd: IF(IGET(924)>0) THEN
          DO J=JSTA,JEND
             DO I=ISTA,IEND
                GRID1(I,J)=CD10(I,J)
@@ -5627,7 +5679,7 @@
          ENDDO
          if(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(922))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(924))
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF write_cd
@@ -6406,11 +6458,16 @@
            ID(18) = IFHR - 1
          ENDIF
             ID(20)     = 3
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
@@ -6431,11 +6488,16 @@
            ID(18) = IFHR - 1
          ENDIF
             ID(20)     = 3
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
 

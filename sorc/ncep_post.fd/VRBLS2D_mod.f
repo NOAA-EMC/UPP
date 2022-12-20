@@ -60,9 +60,8 @@
       ,SWRADmean(:,:),U10mean(:,:),V10mean(:,:),SPDUV10mean(:,:)             &
       ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:),SWDDNI(:,:),SWDDIF(:,:)      &
       ,SWDNBC(:,:),SWDDNIC(:,:),SWDDIFC(:,:), SWUPBC(:,:), SWUPT(:,:)        &
-      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:)              &
-      ,LWP(:,:),IWP(:,:)                                                     &
-      ,INT_SMOKE(:,:),INT_AOD(:,:)                                           &
+      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:),EBB(:,:)     &
+      ,HWP(:,:),LWP(:,:),IWP(:,:)                                            &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &
@@ -97,7 +96,10 @@
       ,SSSMASS(:,:),SSCMASS(:,:),SSSMASS25(:,:),SSCMASS25(:,:)               &
       ,DUSTCB(:,:),SSCB(:,:),OCCB(:,:),BCCB(:,:),SULFCB(:,:)                 &
       ,DUSTALLCB(:,:),SSALLCB(:,:),DUSTPM(:,:),SSPM(:,:),PP25CB(:,:)         &
-      ,DUSTPM10(:,:),PP10CB(:,:),maod(:,:)!lzhang, add for FV3-Chem
+      ,DUSTPM10(:,:),PP10CB(:,:),NO3CB(:,:),NH4CB(:,:),maod(:,:)!lzhang, add for FV3-Chem
+
+! Add new field for AQM
+      real, allocatable :: aqm_aod550(:,:)
  
 !
       end module vrbls2d

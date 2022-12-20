@@ -10,6 +10,8 @@
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
 !  2021-09-30 JESSE MENG- 2D DECOMPOSITION
+!  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
+!  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -42,7 +44,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on
+  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqf_on
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
@@ -104,6 +106,8 @@
   integer, parameter :: nbin_oc = 2   		! organic carbon
   integer, parameter :: nbin_bc = 2   		! black carbon
   integer, parameter :: nbin_su = 1   		! sulfate
+  integer, parameter :: nbin_no3 = 3   		! nitrate
+  integer, parameter :: nbin_nh4 = 1   		! NH4
   integer, parameter :: nbin_sm = 1             ! smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.

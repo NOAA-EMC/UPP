@@ -49,6 +49,8 @@
 !!                       bottoma calculation which is only employed 
 !!                       for RTMA usage.
 !!   21-10-14  J MENG - 2D DECOMPOSITION
+!!   22-09-22  L Zhang -  Li(Kate) Zhang - Remove Dust=> AERFD
+!!   22-10-06  W Meng - Generate SPC fields with RRFS input
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
@@ -135,7 +137,7 @@
       real,dimension(ista:iend,jsta:jend) :: P1D, T1D, Q1D, U1D, V1D, SHR1D, Z1D,   &
                                       RH1D, EGRID1, EGRID2, EGRID3, EGRID4,  &
                                       EGRID5, EGRID6, EGRID7, EGRID8, &
-                                      MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN,MUMIXR, &
+                                      MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN, &
                                       FREEZELVL,MUQ1D,SLCL,THE,MAXTHE
       integer,dimension(ista:iend,jsta:jend) :: MAXTHEPOS
       real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
@@ -144,7 +146,6 @@
                                             WBND,   T7D,    Q7D,       &
                                             U7D,    V6D,    P7D,       &
                                             ICINGFD,GTGFD,CATFD,MWTFD
-      real, dimension(:,:,:,:),allocatable :: AERFD
 
       real, dimension(:,:),allocatable ::   QM8510, RH4710, RH8498,    &
                                             RH4796, RH1847, UST, VST,  &
@@ -790,14 +791,11 @@
       IF ( (IGET(059)>0.or.IGET(586)>0).OR.IGET(911)>0.OR.     &
            (IGET(060)>0.or.IGET(576)>0).OR.                     &
            (IGET(061)>0.or.IGET(577)>0).OR.                     &
-           (IGET(601)>0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
-           (IGET(604)>0.or.IGET(605)>0).OR.                     &
            (IGET(451)>0.or.IGET(578)>0).OR.IGET(580)>0 ) THEN
 
          ALLOCATE(T7D(ISTA:IEND,JSTA:JEND,NFD), Q7D(ISTA:IEND,JSTA:JEND,NFD),    &
                   U7D(ISTA:IEND,JSTA:JEND,NFD), V6D(ISTA:IEND,JSTA:JEND,NFD),    &
-                  P7D(ISTA:IEND,JSTA:JEND,NFD), ICINGFD(ISTA:IEND,JSTA:JEND,NFD),&
-                  AERFD(ISTA:IEND,JSTA:JEND,NFD,NBIN_DU))
+                  P7D(ISTA:IEND,JSTA:JEND,NFD), ICINGFD(ISTA:IEND,JSTA:JEND,NFD))
 
 !
 !     DETERMINE WHETHER TO DO MSL OR AGL FD LEVELS
@@ -840,27 +838,11 @@
             if(LVLS(IFD,IGET(587))>0) ITYPEFDLVL(IFD)=2
            ENDIF
 
-	   IF (IGET(601)>0) THEN
-            IF (LVLS(IFD,IGET(601))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(602)>0) THEN
-            IF (LVLS(IFD,IGET(602))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(603)>0) THEN
-            IF (LVLS(IFD,IGET(603))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(604)>0) THEN
-            IF (LVLS(IFD,IGET(604))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-	   IF (IGET(605)>0) THEN
-            IF (LVLS(IFD,IGET(605))>1) ITYPEFDLVL(IFD)=2
-           ENDIF
-
          ENDDO
 !         print *,'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL,'for tmp,lvls=',LVLS(1:15,iget(59)), &
 !          'grib2tmp lvs=',LVLS(1:15,iget(586))
-
-         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
+         
+         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
 !     
          loop_10: DO IFD = 1,NFD
 !
@@ -1107,136 +1089,6 @@
               ENDIF
             ENDIF
 !
-!  ADD FD LEVEL DUST/ASH (GOCART)
-            IF (IGET(601)>0) THEN                      ! DUST 1
-	      IF (LVLS(IFD,IGET(601))>0) THEN
-!$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
-	       DO I=ISTA,IEND
-	          GRID1(I,J)=AERFD(I,J,IFD,1) 
-               ENDDO
-               ENDDO
-               if(iget(601)>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(601))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(601))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                    ii = ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                 endif
-               endif
-	      ENDIF
-	    ENDIF
-
-            IF (IGET(602)>0) THEN			! DUST 2
-	      IF (LVLS(IFD,IGET(602))>0) THEN
-!$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
-	       DO I=ISTA,IEND
-	          GRID1(I,J)=AERFD(I,J,IFD,2) 
-               ENDDO
-               ENDDO
-               if(iget(602)>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(602))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(602))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                    ii = ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                 endif
-               endif
-	      ENDIF
-	    ENDIF
-
-            IF (IGET(603)>0) THEN			! DUST 3
-	      IF (LVLS(IFD,IGET(603))>0) THEN
-!$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
-	       DO I=ISTA,IEND
-	          GRID1(I,J)=AERFD(I,J,IFD,3) 
-               ENDDO
-               ENDDO
-               if(iget(603)>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(603))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(603))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                    ii = ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                 endif
-               endif
-	      ENDIF
-	    ENDIF
-
-            IF (IGET(604)>0) THEN			! DUST 4
-	      IF (LVLS(IFD,IGET(604))>0) THEN
-!$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
-	       DO I=ISTA,IEND
-	          GRID1(I,J)=AERFD(I,J,IFD,4) 
-               ENDDO
-               ENDDO
-               if(iget(604)>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(604))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(604))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                    ii = ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                 endif
-               endif
-	      ENDIF
-	    ENDIF
-
-            IF (IGET(605)>0) THEN			! DUST 5
-	      IF (LVLS(IFD,IGET(605))>0) THEN
-!$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
-	       DO I=ISTA,IEND
-	          GRID1(I,J)=AERFD(I,J,IFD,5) 
-               ENDDO
-               ENDDO
-               if(iget(605)>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(605))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(605))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                    ii = ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                 endif
-               endif
-	      ENDIF
-	    ENDIF
 
 !
 !
@@ -1331,7 +1183,7 @@
             ENDIF
 
          END DO loop_10
-         DEALLOCATE(T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
+         DEALLOCATE(T7D,Q7D,U7D,V6D,P7D,ICINGFD)
       ENDIF
 
 !
@@ -3406,7 +3258,6 @@
            DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
-           IF (SUBMODELNAME == 'RTMA') MUMIXR(I,J) = Q1D(I,J)
            IF (IGET(584)>0 .or. NEED_IFI) THEN
 ! dong add missing value to cin
                GRID1 = spval
@@ -3725,6 +3576,10 @@
            FIELD1=.TRUE.
          ENDIF
          IF(IGET(951)>0)THEN
+           FIELD2=.TRUE.
+         ENDIF
+         IF(MODELNAME == "FV3R" .and. SUBMODELNAME == "RTMA") THEN
+           FIELD1=.TRUE.
            FIELD2=.TRUE.
          ENDIF
 !
