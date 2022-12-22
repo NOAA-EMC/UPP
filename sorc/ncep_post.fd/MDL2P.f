@@ -33,6 +33,7 @@
 !> 2022-08-03 | W Meng          | Modify total cloud fraction(331) 
 !> 2022-09-22 | L Zhang         | Remove DUSTSL
 !> 2022-11-16 | E James         | Adding dust from RRFS
+!> 2022-12-21 | J Meng          ! Adding snow density SDEN      
 !>
 !> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
@@ -1295,7 +1296,6 @@
             DO J=JSTA,JEND
               DO I=ISTA,IEND
                 SAVRH(I,J) = GRID1(I,J)
-                RHPRS(I,J,LP) = GRID1(I,J)
                 ENDDO
             ENDDO            
           ENDIF !if (log1 )
@@ -3855,6 +3855,7 @@
 
 ! SNOW DESITY SOLID-LIQUID-RATION SLR
       IF ( IGET(1003)>0 ) THEN
+         if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
          call calslr_roebber(TPRS,RHPRS,EGRID1)
 !$omp parallel do private(i,j) 
@@ -3884,6 +3885,7 @@
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
+      if(me==0)PRINT*,'MDL2P completed'
 !     END OF ROUTINE.
 !
       RETURN

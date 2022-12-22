@@ -14,6 +14,8 @@
 !>
 !> calrh_pw() algorithm use at GSD for RUC and Rapid Refresh.
 !>
+!> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm.
+!>      
 !> fpvsnew() computes saturation vapor pressure.
 !>
 !> tvirtual() computes virtual temperature.
@@ -2652,7 +2654,7 @@
       SUBROUTINE CALSLR_ROEBBER(tprs,rhprs,slr)
 
       use masks,   only: lmh        
-      use vrbls2d, only: slp, prec, u10, v10, pshltr, tshltr, qshltr
+      use vrbls2d, only: slp, avgprec_cont, u10, v10, pshltr, tshltr, qshltr
       use vrbls3d, only: T, Q, PMID, PINT
       use ctlblk_mod, only: ista, iend, jsta, jend, &
                             ista_2l, iend_2u, jsta_2l, jend_2u, &
@@ -2739,14 +2741,14 @@
       real,dimension(ista:iend,jsta:jend)    :: psfc,pres,qpf,swnd,prp
 
       character*20 nswFileName
-      real :: psurf, sgw, sg1, sg2, dtds, rhds, p
-      real :: f1, f2, f3, f4, f5, f6
-      real :: p1, p2, p3
+      real :: psurf,p,sgw,sg1,sg2,dtds,rhds
+      real :: f1,f2,f3,f4,f5,f6
+      real :: p1,p2,p3
       real :: hprob_tot
       real :: mprob_tot
       real :: lprob_tot
 
-      integer :: i, j, k, ks, L, LL, imo, iday
+      integer :: i,j,k,ks,L,LL,imo,iday
 !
 !***************************************************************************
 !
@@ -2756,8 +2758,8 @@
       iday= idat(2)
 
 ! climatology
-! currently not used, 3 gfs.T1534 climatology files in fix directory
-
+! currently not used, snoden climatology files saved in fix directory
+!
 !      climoFile='climo_snoden'
 !      ntot=im*jm
 !      CLIMO = spval
@@ -2783,7 +2785,7 @@
       DO I=ISTA,IEND
          PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
          PRES(I,J)=SLP(I,J)
-         QPF(I,J)=PREC(I,J)*3600.*3.
+         QPF(I,J)=AVGPREC_CONT(I,J)*3600.*3.
          SWND(I,J)=SPVAL
          IF(U10(I,J)/=SPVAL .AND. V10(I,J)/=SPVAL) &
            SWND(I,J)=SQRT(U10(I,J)*U10(I,J)+V10(I,J)*V10(I,J))
@@ -2860,8 +2862,8 @@
               tmpk_grids(i,j,LL)%sigma=spval
               rh_grids(i,j,LL)%sigma=spval
            else
-              tmpk_grids(i,j,LL)%sigma=tmpk_levels(i,j,LL) / pres(i,j)     
-              rh_grids(i,j,LL)%sigma=rh_levels(i,j,LL) / pres(i,j)
+              tmpk_grids(i,j,LL)%sigma=tmpk_levels(i,j,LL)/pres(i,j)     
+              rh_grids(i,j,LL)%sigma=rh_levels(i,j,LL)/pres(i,j)
               prp(i,j)=pres(i,j)/psfc(i,j)
               prp(i,j)=prp(i,j)*100000./psfc(i,j)
            endif
@@ -2873,7 +2875,6 @@
 
       do j=jsta,jend
       do i=ista,iend
-
          tm=spval
          rhm=spval
          slr(i,j)=spval
@@ -2895,9 +2896,9 @@
            if(LL==0) then
               sg1 = psurf/psurf
            else
-              sg1 = tmpk_levels(i,j,LL) / psurf
+              sg1 = tmpk_levels(i,j,LL)/psurf
            endif  
-           sg2 = tmpk_levels(i,j,LL+1) / psurf
+           sg2 = tmpk_levels(i,j,LL+1)/psurf
            
            if(sg1 == sgw) then
               tm(ks) = tmpk_grids(i,j,LL)%grid
@@ -2906,9 +2907,9 @@
               tm(ks) = tmpk_grids(i,j,LL+1)%grid
               rhm(ks)=   rh_grids(i,j,LL+1)%grid
            elseif ((sgw < sg1) .and. (sgw > sg2)) then
-              dtds = (tmpk_grids(i,j,LL+1)%grid - tmpk_grids(i,j,LL)%grid) / (sg2-sg1)
+              dtds = (tmpk_grids(i,j,LL+1)%grid - tmpk_grids(i,j,LL)%grid)/(sg2-sg1)
               tm(ks) = ((sgw - sg1) * dtds) + tmpk_grids(i,j,LL)%grid
-              rhds = (rh_grids(i,j,LL+1)%grid - rh_grids(i,j,LL)%grid) / (sg2-sg1)
+              rhds = (rh_grids(i,j,LL+1)%grid - rh_grids(i,j,LL)%grid)/(sg2-sg1)
               rhm(ks)= ((sgw - sg1) * rhds) + rh_grids(i,j,LL)%grid
            endif
          end do
@@ -2994,9 +2995,9 @@
             nswFileName='Breadboard10.nsw'
             call breadboard6_main(nswFileName,mf(imo),f1,f2,f3,f4,f5,f6,p1,p2,p3)
          endif
-         hprob_tot = hprob_tot + p1
-         mprob_tot = mprob_tot + p2
-         lprob_tot = lprob_tot + p3
+         hprob_tot = hprob_tot+p1
+         mprob_tot = mprob_tot+p2
+         lprob_tot = lprob_tot+p3
       enddo
       hprob(i,j) = hprob_tot/10.
       mprob(i,j) = mprob_tot/10.
@@ -3027,7 +3028,7 @@
 !      slr(i,j) = climosub(i,j)
 !      slr(i,j) = slrgrid(i,j)
       slr(i,j) = slrgrid2(i,j)
-      slr(i,j)=max(1.,min(25.,slr(i,j)))
+      slr(i,j) = max(1.,min(25.,slr(i,j)))
       endif !if(pres(i,j), qpf(i,j), swnd(i,j) /= spval)
       enddo
       enddo

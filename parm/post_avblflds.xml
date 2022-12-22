@@ -8166,7 +8166,7 @@
        <shortname>SDEN_ON_SURFACE</shortname>
        <pname>SDEN</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
   </post_avblflds>
