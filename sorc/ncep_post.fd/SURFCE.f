@@ -43,6 +43,7 @@
 !! -  22-02-01  E JAMES - Cleaning up GRIB2 encoding for six variables
 !!                        that cause issues with newer wgrib2 builds in RRFS system.
 !! -  22-11-16  E JAMES - Adding dust from RRFS
+!! -  22-12-23  E Aligo - Read six winter weather diagnostics from model.
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:

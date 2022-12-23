@@ -26,6 +26,7 @@
 !> 2022-11-08 | Wen Meng      | Remove instant PM2.5 calculation
 !> 2022-11-16 | Eric James    | Read smoke, dust, biomass burning, and hourly wildfire potential from RRFS
 !> 2022-12-07 | Wen Meng      | Read AOD from AQM model
+!> 2022-12-23 | Eric Aligo    | Read six winter weather diagnostics from model
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
