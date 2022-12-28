@@ -53,6 +53,7 @@
       ,NCI_REFD(:,:),NCA_REFD(:,:),RAINC_BUCKET1(:,:),RAINNC_BUCKET1(:,:)   &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
       ,GRAUP_BUCKET(:,:),PCP_BUCKET(:,:),ACGRAUP(:,:),ACFRAIN(:,:)           &
+      ,FRZRN_BUCKET(:,:),SNOW_ACM(:,:),SNOW_BKT(:,:)                         &
       ,SNOW_BUCKET1(:,:),GRAUP_BUCKET1(:,:),PCP_BUCKET1(:,:)                 &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:)                      &
       ,TSNOW(:,:),QVG(:,:),QV2m(:,:),QVl1(:,:)                               &
