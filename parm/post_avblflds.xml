@@ -8163,6 +8163,37 @@
 
     <param>
        <post_avblfldidx>1003</post_avblfldidx>
+       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FRZR</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1004</post_avblfldidx>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TSNOWP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1005</post_avblfldidx>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TSNOWP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+    
+    <param>
+       <post_avblfldidx>1006</post_avblfldidx>
        <shortname>SDEN_ON_SURFACE</shortname>
        <pname>SDEN</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>

@@ -1238,7 +1238,7 @@
 !***  RELATIVE HUMIDITY.
 !
      
-        IF(IGET(017) > 0 .OR. IGET(257) > 0 .OR. IGET(1003) > 0)THEN
+        IF(IGET(017) > 0 .OR. IGET(257) > 0 .OR. IGET(1006) > 0)THEN
 !         if ( me == 0)  print *,'IGET(17)=',IGET(017),'LP=',LP,IGET(257),  &
 !             'LVLS=',LVLS(1,4)
           log1=.false.
@@ -3854,7 +3854,7 @@
       ENDIF
 
 ! SNOW DESITY SOLID-LIQUID-RATION SLR
-      IF ( IGET(1003)>0 ) THEN
+      IF ( IGET(1006)>0 ) THEN
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
          call calslr_roebber(TPRS,RHPRS,EGRID1)
@@ -3870,7 +3870,7 @@
          enddo
          if(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(1003))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(1006))
 !$omp parallel do private(i,j,ii,jj) 
             do j=1,jend-jsta+1 
               jj = jsta+j-1
