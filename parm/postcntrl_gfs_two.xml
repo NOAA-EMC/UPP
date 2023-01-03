@@ -1874,6 +1874,11 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>
