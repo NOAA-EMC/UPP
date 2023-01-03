@@ -2642,8 +2642,12 @@
 
       END SUBROUTINE CALGRADPS
 
-!> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm
+!> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm.
 !>
+!> Obtained the code and data from WPC. WPC's SLR products include SLR computed from
+!> GFS and NAM, SLR climotology, and averaged SLR. UPP computes SLR for GFS and RRFS. 
+!> SLR climatology is not used in UPP calculation but the data is saved in fix directory 
+!> for reference.
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
