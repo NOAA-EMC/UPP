@@ -2647,11 +2647,14 @@
 !> Obtained the code and data from WPC. WPC's SLR products include SLR computed from
 !> GFS and NAM, SLR climotology, and averaged SLR. UPP computes SLR for GFS and RRFS. 
 !> SLR climatology is not used in UPP calculation but the data is saved in fix directory 
-!> for reference.
+!> for reference. Breadboard coefficients are included in this module to enhance the 
+!> performance. Original Breadboard coefficients files are also saved in fix directory.
+!>  
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2022-07-11 | Jesse Meng | Initial
+!> 2023-01-06 | Jesse Meng ! Import Breadboard coefficients into module
 !>
 !> @author Jesse Meng @date 2022-07-11
 
