@@ -26,6 +26,7 @@
 !> 2022-11-08 | Wen Meng      | Remove instant PM2.5 calculation
 !> 2022-11-16 | Eric James    | Read smoke, dust, biomass burning, and hourly wildfire potential from RRFS
 !> 2022-12-07 | Wen Meng      | Read AOD from AQM model
+!> 2022-12-23 | Eric Aligo    | Read six winter weather diagnostics from model
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -43,7 +44,7 @@
               wh, qqg, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
-              cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
+              cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
               cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
@@ -53,7 +54,8 @@
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
-              mintshltr, maxrhshltr, fdnsst,            &
+              mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
+              snow_acm, snow_bkt,                                                               &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -165,6 +167,7 @@
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
       real                     :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real                     :: buf2(ista_2l:iend_2u,jsta_2l:jend_2u)
       real                     :: buf3d(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
       real                     :: chem_2d(ista_2l:iend_2u,jsta_2l:jend_2u)
       real                     :: chemT(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
@@ -1619,6 +1622,35 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,SFCEXC)
 
+! accumulated snowfall
+      VarName='tsnowp'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,SNOW_ACM)
+! snowfall bucket
+      VarName='tsnowpb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,SNOW_BKT)
+
+! accumulated graupel/sleet
+      VarName='frozr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,acgraup)
+
+! graupel/sleet bucket
+      VarName='frozrb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,graup_bucket)
+
+! accumulated freezing rain
+      VarName='frzr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,acfrain)
+
+! freezing rain bucket
+      VarName='frzrb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,frzrn_bucket)
+
 ! aerodynamic conductance
       VarName='acond'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2783,13 +2815,36 @@
           smstav(i,j) = buf(i,j)
         enddo
       enddo
+      VarName='accswe_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='accswe_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          acsnow(i,j) = buf(i,j) + buf2(i,j)
+        enddo
+      enddo
+      VarName='snacc_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='snacc_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          sndepac(i,j) = buf(i,j) + buf2(i,j)
+        enddo
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
 !          smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
           acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
