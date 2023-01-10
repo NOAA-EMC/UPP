@@ -259,9 +259,15 @@
        </param>
 
        <param>
-       <shortname>INST_PRATE_ON_SURFACE</shortname>
+       <shortname>AVE_PRATE_ON_SURFACE</shortname>
        <pname>PRATE</pname>
-       <scale>6.0</scale>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>AVE_CPRAT_ON_SURFACE</shortname>
+       <pname>CPRAT</pname>
+       <scale>4.0</scale>
        </param>
 
        <param>
@@ -514,7 +520,37 @@
        <scale>-4.0</scale>
        </param>
 
+       <param>
+       <shortname>GUST_ON_SURFACE</shortname>
+       <pname>GUST</pname>
+       <scale>3.0</scale>
+       </param>
 
+       <param>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
+       <pname>MAXUVV</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
+       <pname>MAXDVV</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <pname>MXUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+   
+       <param>
+       <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <pname>MXUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
 
     </paramset>
 
