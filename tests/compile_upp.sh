@@ -11,7 +11,8 @@ usage() {
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
-  echo "  -i  build with libIFI (users with ifi access only)        DEFAULT: OFF"
+  echo "  -I  build with libIFI(users with ifi repos. access only)  DEFAULT: OFF"
+  echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
   echo "  -w  build without WRF-IO            DEFAULT: ON"
   echo "  -v  build with cmake verbose        DEFAULT: NO"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
@@ -26,7 +27,7 @@ gtg_opt=" -DBUILD_WITH_GTG=OFF"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
 compiler="intel"
 verbose_opt=""
-while getopts ":p:gwc:vhi" opt; do
+while getopts ":p:gwc:vhiI" opt; do
   case $opt in
     p)
       prefix=$OPTARG
@@ -36,6 +37,9 @@ while getopts ":p:gwc:vhi" opt; do
       ;;
     w)
       wrfio_opt=" -DBUILD_WITH_WRFIO=OFF"
+      ;;
+    I)
+      ifi_opt=" -DINTERNAL_IFI=ON"
       ;;
     i)
       ifi_opt=" -DREQUIRE_IFI=ON"

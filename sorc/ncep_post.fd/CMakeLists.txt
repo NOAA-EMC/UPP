@@ -206,8 +206,14 @@ target_link_libraries(${LIBNAME} PUBLIC
   NetCDF::NetCDF_Fortran)
 
 if(IFI_FOUND)
-  target_link_libraries(${LIBNAME} PUBLIC IFI)
-  target_link_libraries(${LIBNAME} PUBLIC tdrp)
+  if(INTERNAL_IFI)
+    target_link_libraries(${LIBNAME} PRIVATE IFI)
+    target_link_libraries(${LIBNAME} PRIVATE tdrp)
+    target_include_directories(${LIBNAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/include $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  else()
+    target_link_libraries(${LIBNAME} PUBLIC IFI)
+    target_link_libraries(${LIBNAME} PUBLIC tdrp)
+  endif()
 endif()
 
 if(BUILD_WITH_GTG)
