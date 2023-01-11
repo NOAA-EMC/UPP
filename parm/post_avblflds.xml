@@ -8191,5 +8191,14 @@
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
+    
+    <param>
+       <post_avblfldidx>1006</post_avblfldidx>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <pname>SDEN</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>

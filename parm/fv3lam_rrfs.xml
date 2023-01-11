@@ -3624,5 +3624,11 @@
        <scale>4.0</scale>
        </param>
 
+       <param>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <pname>SDEN</pname>
+       <scale>6.0</scale>
+       </param>
+
     </paramset>
    </postxml>
