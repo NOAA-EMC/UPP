@@ -234,6 +234,7 @@ if(BUILD_POSTEXEC)
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
+  set_target_properties(${EXENAME} PROPERTIES LINKER_LANGUAGE Fortran)
   if(IFI_FOUND)
     target_link_libraries(${EXENAME} PRIVATE IFI)
     target_link_libraries(${EXENAME} PRIVATE tdrp)
