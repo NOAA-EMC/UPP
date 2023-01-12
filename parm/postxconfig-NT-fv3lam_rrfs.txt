@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 3
 0
 241
+=======
+2
+242
+>>>>>>> upstream/develop
 290
 PRSLEV
 32769
@@ -19681,6 +19686,7 @@ top_of_atmos
 ?
 ?
 ?
+<<<<<<< HEAD
 IFIFIP
 4
 ncep_emc
@@ -19697,3 +19703,42 @@ complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
 lossless
+=======
+1006
+SDEN_ON_SURFACE
+?
+1
+tmpl4_0
+SDEN
+?
+?
+surface
+0
+?
+0
+?
+?
+0
+?
+0
+?
+?
+?
+0
+0.0
+0
+0.0
+?
+0
+0.0
+0
+0.0
+1
+6.0
+0
+0
+0
+?
+?
+?
+>>>>>>> upstream/develop
