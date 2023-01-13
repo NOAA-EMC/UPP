@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 3
 0
-241
-=======
-2
 242
->>>>>>> upstream/develop
 290
 PRSLEV
 32769
@@ -19686,24 +19681,6 @@ top_of_atmos
 ?
 ?
 ?
-<<<<<<< HEAD
-IFIFIP
-4
-ncep_emc
-v2003
-local_tab_yes1
-fcst
-oper
-fcst
-fcst
-hour
-nws_ncep
-hrrr
-complex_packing_spatial_diff
-2nd_ord_sptdiff
-fltng_pnt
-lossless
-=======
 1006
 SDEN_ON_SURFACE
 ?
@@ -19741,4 +19718,19 @@ surface
 ?
 ?
 ?
->>>>>>> upstream/develop
+IFIFIP
+4
+ncep_emc
+v2003
+local_tab_yes1
+fcst
+oper
+fcst
+fcst
+hour
+nws_ncep
+hrrr
+complex_packing_spatial_diff
+2nd_ord_sptdiff
+fltng_pnt
+lossless
