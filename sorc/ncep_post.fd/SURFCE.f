@@ -3831,7 +3831,7 @@
                jj = jsta+j-1
                do i=1,iend-ista+1
                ii = ista+i-1
-                 datapd(i,j,cfld) = IFI_APCP(i,jj)
+                 datapd(i,j,cfld) = IFI_APCP(ii,jj)
                enddo
              enddo
            endif
