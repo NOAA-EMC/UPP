@@ -204,7 +204,7 @@
 !     
        debugprint = .FALSE.
        
-       NEED_IFI = IGET(1003)>0 .or. IGET(1004)>0 .or. IGET(1005)>0
+       NEED_IFI = IGET(1007)>0 .or. IGET(1008)>0 .or. IGET(1009)>0 .or. IGET(1010)>0
 
          allocate(USHR1(ista_2l:iend_2u,jsta_2l:jend_2u),VSHR1(ista_2l:iend_2u,jsta_2l:jend_2u), &
                   USHR6(ista_2l:iend_2u,jsta_2l:jend_2u),VSHR6(ista_2l:iend_2u,jsta_2l:jend_2u))

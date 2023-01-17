@@ -165,7 +165,7 @@
       character(len=256) :: ffgfile
       character(len=256) :: arifile
 
-      logical file_exists
+      logical file_exists, need_ifi
 
       logical, parameter :: debugprint = .false.
 
@@ -3771,7 +3771,8 @@
 
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET TOTAL PRECIP '
-         IF (IGET(434)>0. .or. IGET(1003)>0 .or. IGET(1004)>0 .or. IGET(1005)>0) THEN
+         NEED_IFI = IGET(1007)>0 .or. IGET(1008)>0 .or. IGET(1009)>0 .or. IGET(1010)>0
+         IF (IGET(434)>0. .or. NEED_IFI) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND

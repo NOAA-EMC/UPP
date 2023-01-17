@@ -31,9 +31,10 @@ contains !==============================================================
 
   subroutine run_ifi()
     ! Fill any requested IFI fields with missing data.
-    call send_missing_data(1003)  ! ICE_PROB = missing
-    call send_missing_data(1004)  ! SLD = missing
-    call send_missing_data(1005)  ! ICE_SEV_CAT = missing
+    call send_missing_data(1007)  ! ICE_PROB = missing
+    call send_missing_data(1008)  ! SLD = missing
+    call send_missing_data(1009)  ! ICE_SEV_CAT = missing
+    call send_missing_data(1010)  ! ICE_SEV_CAT = missing
   end subroutine run_ifi
 
   ! --------------------------------------------------------------------
@@ -709,7 +710,7 @@ contains !==============================================================
 
     ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
-    if(grib/='grib2' .or. (IGET(1003)<=0 .and. IGET(1004)<=0 .and. IGET(1005)<=0)) then
+    if(grib/='grib2' .or. (IGET(1007)<=0 .and. IGET(1008)<=0 .and. IGET(1009)<=0 .and. IGET(1010)<=0)) then
       if(me==0) then
         print '(A)','IFI fields were not requested; skipping IFI'
       endif
@@ -845,9 +846,10 @@ contains !==============================================================
       call write_fip_output(cat_vars,fcst_lead_sec,trim(outfile),.false.,'z1','z0')
     endif
     
-    call send_data(cat_vars,'ICE_PROB',1003)
-    call send_data(cat_vars,'SLD',1004)
-    call send_data(cat_vars,'ICE_SEV_CAT',1005)
+    call send_data(cat_vars,'ICE_PROB',1007)
+    call send_data(cat_vars,'SLD',1008)
+    call send_data(cat_vars,'ICE_SEV_CAT',1009)
+    call send_data(cat_vars,'WMO_ICE_SEV_CAT',1010)
     
     ! When this subroutine ends, a Fortran-2003-compliant compiler
     ! will free all memory IFI uses, by calling the destructors (final
