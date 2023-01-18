@@ -34,4 +34,4 @@ module load w3emc/2.9.2
 module load wrf_io/1.1.1
 
 module use /lfs4/BMC/ifi/modulefiles
-module try-load ifi/20220901-intel-18.0.5.274
+module try-load ifi/20230112-intel-18.0.5.274
