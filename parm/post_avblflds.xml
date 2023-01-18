@@ -3678,30 +3678,30 @@
 
     <param>
        <post_avblfldidx>423</post_avblfldidx>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <longname>hourly maximum Upward Vertical Velocity between 100-1000hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <level2>100000.</level2>
        <scale>-3.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>424</post_avblfldidx>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <longname>hourly maximum Downward Vertical Velocity between 100-1000hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXDVV</pname>
        <stats_proc>MAX</stats_proc>
        <table_info>NCEP</table_info>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <level2>100000.</level2>
        <scale>-3.0</scale>
     </param>
@@ -6636,6 +6636,19 @@
     </param>
 
     <param>
+       <post_avblfldidx>712</post_avblfldidx>
+       <shortname>AER_OPT_AQM_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AOTK</pname>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>0</scale_fact_1st_size>
+       <scale_val_1st_size>0</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>719</post_avblfldidx>
        <shortname>INST_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>
@@ -8059,16 +8072,20 @@
     
     <param>
        <post_avblfldidx>994</post_avblfldidx>
-       <shortname>OZCON_ON_HYBRID_LVL</shortname>
+       <shortname>AVE_OZCON_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>OZCON</pname>
+       <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>7.0</scale>
     </param>
     
     <param>
        <post_avblfldidx>995</post_avblfldidx>
-       <shortname>PM25TOT_ON_HYBRID_LVL</shortname>
+       <shortname>AVE_PM25TOT_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>PMTF</pname>
+       <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>7.0</scale>
     </param>
@@ -8142,10 +8159,49 @@
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>
-    </param>
+    </param>  
 
     <param>
        <post_avblfldidx>1003</post_avblfldidx>
+       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FRZR</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1004</post_avblfldidx>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TSNOWP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1005</post_avblfldidx>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TSNOWP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+    
+    <param>
+       <post_avblfldidx>1006</post_avblfldidx>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <pname>SDEN</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1007</post_avblfldidx>
        <shortname>ICE_PROB_IFI_FLIGHT_LEVEL</shortname>
        <pname>ICPRB</pname>
        <table_info>NCEP</table_info>
@@ -8157,7 +8213,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>1004</post_avblfldidx>
+       <post_avblfldidx>1008</post_avblfldidx>
        <shortname>SLD_IFI_FLIGHT_LEVEL</shortname>
        <pname>SIPD</pname>
        <table_info>NCEP</table_info>
@@ -8169,7 +8225,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>1005</post_avblfldidx>
+       <post_avblfldidx>1009</post_avblfldidx>
        <shortname>ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
        <pname>ICSEV</pname>
        <table_info>NCEP</table_info>
@@ -8179,5 +8235,18 @@
        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
     </param>
+
+    <param>
+       <post_avblfldidx>1010</post_avblfldidx>
+       <shortname>WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+       <pname>ICESEV</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+       <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+       <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+    </param>
+
   </post_avblflds>
 </postxml>

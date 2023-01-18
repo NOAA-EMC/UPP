@@ -1202,7 +1202,7 @@
     integer :: grib_edition
     integer :: itot
     integer :: nx,ny
-    real    :: dx,dy,lat1,lon1,rtnum
+    real    :: dx,dy,lat1,lon1,rtnum, nlat
     real    :: ref_value,bin_scale_fac,dec_scale_fac,bit_number,field_type
     real    :: bit_map
     real    :: scale_factor,scale_factor2
@@ -1326,7 +1326,15 @@
 !                write(*,*) 'bit_number=',bit_number
 !                write(*,*) 'field_type=',field_type
 !                write(*,*) 'bit map indicator=',bit_map
-             else
+             else if (gfld%igdtnum.eq.40) then ! Gaussian Grid (GFS)
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                lat1 = gfld%igdtmpl(12)/scale_factor
+                lon1 = gfld%igdtmpl(13)/scale_factor
+                dx = gfld%igdtmpl(17)/scale_factor
+                nlat = gfld%igdtmpl(18)
+                write(*,*) gfld%igdtnum, nx, ny, lat1, lon1, dx, nlat
+        else
                 write(*,*) 'unknown projection'
                 stop 1235
              endif

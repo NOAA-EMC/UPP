@@ -11,9 +11,9 @@ usage() {
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
-  echo "  -i  build with libIFI (users with ifi access only)        DEFAULT: OFF"
+  echo "  -I  build with libIFI(users with ifi repos. access only)  DEFAULT: OFF"
+  echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
   echo "  -w  build without WRF-IO            DEFAULT: ON"
-  echo "  -i  build with IFI                  DEFAULT: OFF"
   echo "  -v  build with cmake verbose        DEFAULT: NO"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
   echo "  -h  display this message and quit"
@@ -25,10 +25,9 @@ prefix="../install"
 ifi_opt=" -DBUILD_WITH_IFI=OFF"
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
-ifi_opt=" -DBUILD_WITH_IFI=OFF"
 compiler="intel"
 verbose_opt=""
-while getopts ":p:gwc:vhi" opt; do
+while getopts ":p:gwc:vhiI" opt; do
   case $opt in
     p)
       prefix=$OPTARG
@@ -36,11 +35,11 @@ while getopts ":p:gwc:vhi" opt; do
     g)
       gtg_opt=" -DBUILD_WITH_GTG=ON"
       ;;
-    i)
-      ifi_opt=" -DREQUIRE_IFI=ON"
-      ;;
     w)
       wrfio_opt=" -DBUILD_WITH_WRFIO=OFF"
+      ;;
+    I)
+      ifi_opt=" -DINTERNAL_IFI=ON"
       ;;
     i)
       ifi_opt=" -DREQUIRE_IFI=ON"
@@ -68,7 +67,7 @@ PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 
 #Load required modulefiles
 if [[ $MACHINE_ID != "unknown" ]]; then
-   if [ $MACHINE_ID == "wcoss2" -o $MACHINE_ID == "wcoss2_a" ]; then
+   if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
       module reset
    else
       module purge

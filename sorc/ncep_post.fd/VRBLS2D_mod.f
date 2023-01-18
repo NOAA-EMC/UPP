@@ -53,6 +53,7 @@
       ,NCI_REFD(:,:),NCA_REFD(:,:),RAINC_BUCKET1(:,:),RAINNC_BUCKET1(:,:)   &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
       ,GRAUP_BUCKET(:,:),PCP_BUCKET(:,:),ACGRAUP(:,:),ACFRAIN(:,:)           &
+      ,FRZRN_BUCKET(:,:),SNOW_ACM(:,:),SNOW_BKT(:,:)                         &
       ,SNOW_BUCKET1(:,:),GRAUP_BUCKET1(:,:),PCP_BUCKET1(:,:)                 &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:)                      &
       ,TSNOW(:,:),QVG(:,:),QV2m(:,:),QVl1(:,:)                               &
@@ -97,6 +98,9 @@
       ,DUSTCB(:,:),SSCB(:,:),OCCB(:,:),BCCB(:,:),SULFCB(:,:)                 &
       ,DUSTALLCB(:,:),SSALLCB(:,:),DUSTPM(:,:),SSPM(:,:),PP25CB(:,:)         &
       ,DUSTPM10(:,:),PP10CB(:,:),NO3CB(:,:),NH4CB(:,:),maod(:,:)!lzhang, add for FV3-Chem
+
+! Add new field for AQM
+      real, allocatable :: aqm_aod550(:,:)
  
 !
       end module vrbls2d

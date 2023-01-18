@@ -693,6 +693,36 @@
        </param>
 
        <param>
+       <shortname>ACM_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_FRAIN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
        <pname>NCPCP</pname>
        <scale>-4.0</scale>
@@ -1725,14 +1755,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -2166,14 +2196,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
  
        <param>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -3594,6 +3624,12 @@
        <scale>4.0</scale>
        </param>
 
+       <param>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <pname>SDEN</pname>
+       <scale>6.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
@@ -3634,6 +3670,14 @@
 
       <param>
         <shortname>ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+
+      <param>
+        <shortname>WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
         <scale>4.0</scale>
         <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
         <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>

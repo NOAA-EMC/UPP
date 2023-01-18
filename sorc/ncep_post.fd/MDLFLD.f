@@ -46,6 +46,7 @@
 !!   21-07-07  J MENG - 2D DECOMPOSITION
 !!   22-09-22  L Zhang - ADD NO3 and NH4 output for UFS-Aerosols model
 !!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
+!!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
 !!   22-11-16  E James - Adding dust from RRFS
 !!
 !! USAGE:    CALL MDLFLD
@@ -89,7 +90,7 @@
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM, pmtf, ozcon
+              catedr,mwt,gtg, REF_10CM, avgpmtf, avgozcon
 
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
@@ -102,7 +103,7 @@
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
-      ista, iend, ista_2l, iend_2u, aqfcmaq_on, gocart_on, nasa_on 
+      ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, nasa_on
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
       use upp_physics, only: CALRH, CALCAPE, CALVOR
@@ -2237,7 +2238,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! AQF
 !===============
 
-        if (aqfcmaq_on) then
+        if (aqf_on) then
 
            IF (IGET(994)>0) THEN
              IF (LVLS(L,IGET(994))>0) THEN
@@ -2245,14 +2246,32 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=ISTA,IEND
-                   GRID1(I,J) = OZCON(I,J,LL)*1000.    ! convert ppm to ppb
+                   IF(AVGOZCON(I,J,LL)<SPVAL) THEN
+                   GRID1(I,J) = AVGOZCON(I,J,LL)    ! in ppb
+                   ELSE
+                   GRID1(I,J) = SPVAL
+                   ENDIF
                  ENDDO
                ENDDO
-
+               ID(1:25) = 0
+               ITHEAT     = INT(THEAT)
+               ID(19) = IFHR
+               ID(20) = 3
+               IF (IFHR==0) THEN
+                  ID(18) = 0
+               ELSE
+                  ID(18) = IFHR-1
+               ENDIF
                if(grib=="grib2") then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(994))
+                 if(IFHR==0) then
+                   fld_info(cfld)%ntrange=0
+                 else
+                   fld_info(cfld)%ntrange=1
+                 endif
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -2274,15 +2293,28 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=ISTA,IEND
-                   DENS=PMID(I,J,LL)/(RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
-                   GRID1(I,J) = PMTF(I,J,LL)*DENS      ! ug/kg-->ug/m3
+                   GRID1(I,J) = AVGPMTF(I,J,LL)      !ug/m3
                  ENDDO
                ENDDO
-
+               ID(1:25) = 0
+               ITHEAT     = INT(THEAT)
+               ID(19) = IFHR
+               ID(20) = 3
+               IF (IFHR==0) THEN
+                  ID(18) = 0
+               ELSE
+                  ID(18) = IFHR-1
+               ENDIF
                if(grib=="grib2") then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(995))
+                 if(IFHR==0) then
+                   fld_info(cfld)%ntrange=0
+                 else
+                   fld_info(cfld)%ntrange=1
+                 endif
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
