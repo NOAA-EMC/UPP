@@ -2099,20 +2099,6 @@
               ENDDO
            ENDIF
 
-           IF(IGET(567)>0 .or. NEED_IFI) THEN
-             GRID1=spval
-!$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=ISTA,IEND
-                 IF(T1D(I,J) < spval) THEN
-                   GRID1(I,J) = - EGRID2(I,J)
-                 ENDIF
-               ENDDO
-             ENDDO
-!
-             CALL BOUND(GRID1,D00,H99999)
-           ENDIF
-                        
            IF (IGET(566)>0) THEN
              if(grib=='grib2') then
               cfld=cfld+1
