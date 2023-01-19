@@ -204,15 +204,12 @@
 !     
        debugprint = .FALSE.
        
-       NEED_IFI = IGET(1003)>0 .or. IGET(1004)>0 .or. IGET(1005)>0
+       NEED_IFI = IGET(1007)>0 .or. IGET(1008)>0 .or. IGET(1009)>0 .or. IGET(1010)>0
 
          allocate(USHR1(ista_2l:iend_2u,jsta_2l:jend_2u),VSHR1(ista_2l:iend_2u,jsta_2l:jend_2u), &
                   USHR6(ista_2l:iend_2u,jsta_2l:jend_2u),VSHR6(ista_2l:iend_2u,jsta_2l:jend_2u))
          allocate(UST(ista_2l:iend_2u,jsta_2l:jend_2u),VST(ista_2l:iend_2u,jsta_2l:jend_2u),     &
                   HELI(ista_2l:iend_2u,jsta_2l:jend_2u,2),FSHR(ista_2l:iend_2u,jsta_2l:jend_2u))
-
-       print *,'start MISCLN'
-
 !
 !      HELICITY AND STORM MOTION.
        iget1 = IGET(162)
@@ -844,7 +841,7 @@
          ENDDO
 !         print *,'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL,'for tmp,lvls=',LVLS(1:15,iget(59)), &
 !          'grib2tmp lvs=',LVLS(1:15,iget(586))
-
+         
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
 !     
          loop_10: DO IFD = 1,NFD
@@ -1628,6 +1625,7 @@
                QBND(ista:iend,jsta:jend,NBND), UBND(ista:iend,jsta:jend,NBND),    &
                VBND(ista:iend,jsta:jend,NBND), RHBND(ista:iend,jsta:jend,NBND),   &
                WBND(ista:iend,jsta:jend,NBND))
+
 !
 !     ***BLOCK 5:  BOUNDARY LAYER FIELDS.
 !     
@@ -1978,7 +1976,7 @@
 !     
          IF (IGET(031)>0 .OR. IGET(573)>0 ) THEN
 !           DO J=JSTA,JEND
-!            DO I=1,IM
+!            DO I=ISTA,IEND
 !              EGRID1(I,J) = H99999
 !              EGRID2(I,J) = H99999
 !            ENDDO
@@ -1988,7 +1986,7 @@
 !               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),      &
 !                    QBND(1,1,LBND),EGRID2)
 !               DO J=JSTA,JEND
-!               DO I=1,IM
+!               DO I=ISTA,IEND
 !                 EGRID1(I,J)=AMIN1(EGRID1(I,J),EGRID2(I,J))
 !               ENDDO
 !               ENDDO
@@ -2095,26 +2093,12 @@
               CALL BOUND(GRID1,D00,H99999)
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ISTA,IEND
                   CAPE(I,J) = GRID1(I,J)
                 ENDDO
               ENDDO
            ENDIF
 
-           IF(IGET(567)>0 .or. NEED_IFI) THEN
-             GRID1=spval
-!$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 IF(T1D(I,J) < spval) THEN
-                   GRID1(I,J) = - EGRID2(I,J)
-                 ENDIF
-               ENDDO
-             ENDDO
-!
-             CALL BOUND(GRID1,D00,H99999)
-           ENDIF
-                        
            IF (IGET(566)>0) THEN
              if(grib=='grib2') then
               cfld=cfld+1
@@ -2142,7 +2126,6 @@
              ENDDO
 !
              CALL BOUND(GRID1,D00,H99999)
-             print *,"STORE CIN"
 !
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -3214,7 +3197,7 @@
 !	    
 !            IF (IGET(110)>0) THEN
 !	       DO J=JSTA,JEND
-!               DO I=1,IM
+!               DO I=ISTA,IEND
 !                 GRID1(I,J)=EGRID1(I,J)
 !               ENDDO
 !               ENDDO
@@ -3279,7 +3262,7 @@
 !               ENDIF
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                     CAPE(I,J) = GRID1(I,J)
                  ENDDO
               ENDDO
@@ -3323,7 +3306,7 @@
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                     CIN(I,J) = GRID1(I,J)
                  ENDDO
                ENDDO
@@ -3452,6 +3435,7 @@
 
 
       IF (SUBMODELNAME == 'RTMA')THEN
+
 !
 ! --- Effective (inflow) Layer (EL)
 !
@@ -3608,7 +3592,7 @@
 !          ENDDO
 !          ENDDO
 !          DO J=JSTA,JEND
-!          DO I=1,IM
+!          DO I=ISTA,IEND
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
@@ -4476,7 +4460,7 @@
 
 !           ITYPE = 1
 !           DO J=JSTA,JEND
-!           DO I=1,IM
+!           DO I=ISTA,IEND
 !               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
 !                            LVLBND(I,J,3))/3
 !               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3

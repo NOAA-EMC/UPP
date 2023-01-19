@@ -20,6 +20,7 @@
 !!                      two arrays are involved in GSL visibility computation.
 !! -  22-03-22  Wen Meng - Initializing pwat.
 !! -  22-09-22  Li(Kate) Zhang - Initializing NASA GOCART tracers of Nitrate, NH4,and their column burden.
+!! -  22-11-08  Kai Wang - Replace acfcmaq_on with aqf_on
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -79,7 +80,7 @@
       allocate(EL_PBL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
       call set_ifi_dims() ! set ifi_nflight and ifi_flight_levels
-
+      
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
@@ -119,7 +120,7 @@
             exch_h(i,j,l)=spval 
             train(i,j,l)=spval 
             tcucn(i,j,l)=spval 
-            EL_PBL(i,j,l)=spval 
+            EL_PBL(i,j,l)=spval
           enddo
         enddo
       enddo
@@ -589,6 +590,9 @@
       allocate(snow_bucket1(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(graup_bucket(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(graup_bucket1(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(frzrn_bucket(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(snow_acm(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(snow_bkt(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(qrmax(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(tmax(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(snownc(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -1380,20 +1384,29 @@
       enddo
 
 ! AQF
-      if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
-      if (aqfcmaq_on) then
+      if (me == 0) print *,'aqf_on= ', aqf_on
+      if (aqf_on) then
 
-      allocate(ozcon(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-      allocate(pmtf(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(avgozcon(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(avgpmtf(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(aqm_aod550(ista_2l:iend_2u,jsta_2l:jend_2u))
 
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=ista_2l,iend_2u
-             ozcon(i,j,l)=0.
-             pmtf(i,j,l)=0.
+             avgozcon(i,j,l)=spval
+             avgpmtf(i,j,l)=spval
           enddo
+        enddo
+      enddo
+
+!Initialization 
+!$omp parallel do private(i,j)
+      do j=jsta_2l,jend_2u
+        do i=ista_2l,iend_2u
+          aqm_aod550(i,j)=spval
         enddo
       enddo
 

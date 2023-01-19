@@ -67,6 +67,7 @@
 !> 2022-09-22 | Li(Kate Zhang)    | Update look-up table for NASA GOCART (UFS-Aerosols).
 !> 2022-10-20 | Li(Kate Zhang)    | Add nitrate look-up table and nitrate AOD for NASA GOCART (UFS-Aerosols).
 !> 2022-11-16 | Eric James        | Adding total column dust, biomass burning emissions, hourly wildfire potential from RRFS
+!> 2022-1207  | Wen Meng          | Add AOD for AQM 
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -94,7 +95,7 @@
                          LWP, IWP, AVGCPRATE,                                 &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
-                         PWAT,DUSTPM10,MAOD,NO3CB,NH4CB
+                         PWAT,DUSTPM10,MAOD,NO3CB,NH4CB,aqm_aod550
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -103,7 +104,8 @@
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
-                            JM, LM, gocart_on, nasa_on, me, rdaod,ISTA, IEND
+                            JM, LM, gocart_on, nasa_on, me, rdaod,ISTA, IEND, &
+                            aqf_on
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -4549,6 +4551,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           endif
         ENDIF
       END IF !rdaod
+
+      !AQM AEROSOL OPTICAL DEPTH AT 550 NM
+      IF (aqf_on) THEN
+        IF (IGET(712).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=ISTA,IEND
+              grid1(i,j)=aqm_aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(712))
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+          endif
+        ENDIF
+      END IF !aqf_on
 
       !2D AEROSOL OPTICAL DEPTH AT 550 NM
       IF (IGET(715)>0) THEN

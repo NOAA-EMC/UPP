@@ -33,6 +33,7 @@
 !> 2022-08-03 | W Meng          | Modify total cloud fraction(331) 
 !> 2022-09-22 | L Zhang         | Remove DUSTSL
 !> 2022-11-16 | E James         | Adding dust from RRFS
+!> 2022-12-21 | J Meng          ! Adding snow density SDEN      
 !>
 !> @author T Black W/NP2 @date 1999-09-23
       SUBROUTINE MDL2P(iostatusD3D)
@@ -64,7 +65,7 @@
                             IEND_2U,nasa_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none
@@ -91,6 +92,7 @@
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
+      real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
 !
       INTEGER K, NSMOOTH
 !
@@ -1236,7 +1238,7 @@
 !***  RELATIVE HUMIDITY.
 !
      
-        IF(IGET(017) > 0 .OR. IGET(257) > 0)THEN
+        IF(IGET(017) > 0 .OR. IGET(257) > 0 .OR. IGET(1006) > 0)THEN
 !         if ( me == 0)  print *,'IGET(17)=',IGET(017),'LP=',LP,IGET(257),  &
 !             'LVLS=',LVLS(1,4)
           log1=.false.
@@ -1246,7 +1248,7 @@
           IF(IGET(257) > 0) then
              if(LVLS(LP,IGET(257)) > 0 ) log1=.true.
           endif
-          if ( log1 ) then
+
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=ISTA,IEND
@@ -1274,6 +1276,8 @@
                 CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
               end do
             ENDIF
+            
+          if ( log1 ) then
             if(grib == 'grib2')then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(017))
@@ -1292,10 +1296,16 @@
             DO J=JSTA,JEND
               DO I=ISTA,IEND
                 SAVRH(I,J) = GRID1(I,J)
-              ENDDO
-            ENDDO
+                ENDDO
+            ENDDO            
+          ENDIF !if (log1 )
 
-          ENDIF
+!$omp  parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=ISTA,IEND
+                RHPRS(I,J,LP) = GRID1(I,J)
+              ENDDO
+            ENDDO                            
         ENDIF
 !     
 !***  CLOUD FRACTION.
@@ -3842,10 +3852,40 @@
           END DO
         ENDIF  
       ENDIF
+
+! SNOW DESITY SOLID-LIQUID-RATION SLR
+      IF ( IGET(1006)>0 ) THEN
+         if(me==0)PRINT*,'CALLING SLR'
+         egrid1=spval
+         call calslr_roebber(TPRS,RHPRS,EGRID1)
+!$omp parallel do private(i,j) 
+         do j=jsta,jend
+         do i=ista,iend
+            if(egrid1(i,j) < spval) then
+                grid1(i,j)=1000./egrid1(i,j)
+            else
+                grid1(i,j)=spval
+            endif
+         enddo
+         enddo
+         if(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(1006))
+!$omp parallel do private(i,j,ii,jj) 
+            do j=1,jend-jsta+1 
+              jj = jsta+j-1
+              do i=1,iend-ista+1
+              ii=ista+i-1
+                datapd(i,j,cfld) = GRID1(ii,jj) 
+              enddo
+            enddo
+         endif
+      ENDIF
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
+      if(me==0)PRINT*,'MDL2P completed'
 !     END OF ROUTINE.
 !
       RETURN
