@@ -747,11 +747,11 @@
        endif
 
        if(abs(level_unit_conversion-1)>1e-4) then
-         print *,'apply level unit conversion ',level_unit_conversion
-         print *,'scaled_val_fixed_sfc1 was ',scaled_val_fixed_sfc1
+!         print *,'apply level unit conversion ',level_unit_conversion
+!         print *,'scaled_val_fixed_sfc1 was ',scaled_val_fixed_sfc1
          scaled_val_fixed_sfc1=nint(scaled_val_fixed_sfc1*real(level_unit_conversion,kind=8))
          scaled_val_fixed_sfc2=nint(scaled_val_fixed_sfc2*real(level_unit_conversion,kind=8))
-         print *,'scaled_val_fixed_sfc1 now ',scaled_val_fixed_sfc1
+!         print *,'scaled_val_fixed_sfc1 now ',scaled_val_fixed_sfc1
        endif
 
        ihr_start = ifhr-tinvstat 
