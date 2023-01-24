@@ -16,6 +16,7 @@
 !   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
 !   07_08_2016  J. Carley - Comment out debug prints
 !   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
+!   01-24-2023  Sam Trahan - IFI flight levels and related unit conversions
 !
 ! USAGE:    CALL SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 !   INPUT ARGUMENT LIST:

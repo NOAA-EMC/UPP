@@ -12,6 +12,7 @@
 !  2021-09-30 JESSE MENG- 2D DECOMPOSITION
 !  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
 !  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
+!  2023-01-24 Sam Trahan - IFI flight levels, runtime of IFI, and record of the bucket time
 !-----------------------------------------------------------------------
 !
   implicit none

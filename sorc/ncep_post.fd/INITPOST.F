@@ -19,6 +19,7 @@
 !> 2002-06-19 | Mike Baldwin | WRF Version
 !> 2002-08-15 | H CHuang     | Unit correction and generalize projection options
 !> 2021-03-11 | Bo Cui       | Change local arrays to dimension (im,jsta:jend)
+!> 2023-01-24 | Sam Trahan   | Comment-out wordy debug writes
 !>
 !> @author Russ Treadon W/NP2 @date 1993-11-10
       SUBROUTINE INITPOST

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Wen Meng 01/2020, Set up for cmake build.
 # Wen Meng 01/2022, Add option for building with gtg code
+# Sam Trahan 01/2023, Add option for building with libIFI
 ############################################################
 
 set -eu

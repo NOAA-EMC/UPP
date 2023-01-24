@@ -12,6 +12,7 @@
 !                              with parameter marshalling
 !   July,  2021    Jesse Meng 2D decomsition
 !   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
+!   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !

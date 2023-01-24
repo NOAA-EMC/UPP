@@ -23,6 +23,7 @@
 !> 2001-10-25 | H CHUANG     | Modified to process hybrid model output
 !> 2002-06-19 | Mike Baldwin | WRF Version
 !> 2011-02-04 | Jun Wang     | Add grib2 option
+!> 2023-01-24 | Sam Trahan   | run IFI and compute its runtime
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-21
       SUBROUTINE PROCESS(kth,kpv,th,pv,iostatusD3D)
