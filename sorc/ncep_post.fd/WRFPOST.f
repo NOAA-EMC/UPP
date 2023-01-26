@@ -30,6 +30,7 @@
 !> 2022-03-15 | W Meng                    | Unify FV3 based interfaces
 !> 2022-09-22 | L Zhang                   | Add option of nasa_on to process ufs-aerosols
 !> 2022-11-08 | K Wang                    | Replace aqfamaq_on with aqf_on
+!> 2023-01-24 | Sam Trahan                | write_ifi_debug_files flag for IFI debug capability
 !>
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
       PROGRAM WRFPOST
