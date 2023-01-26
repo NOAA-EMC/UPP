@@ -44,6 +44,7 @@
 !!                        that cause issues with newer wgrib2 builds in RRFS system.
 !! -  22-11-16  E JAMES - Adding dust from RRFS
 !! -  22-12-23  E Aligo - Read six winter weather diagnostics from model.
+!! -  23-01-24  Sam Trahan - store hourly accumulated precip for IFI and bucket time
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -96,7 +97,7 @@
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          frzrn_bucket, snow_acm, snow_bkt,                    &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa
+                         tecan,tetran,tedir,twa,IFI_APCP
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -165,7 +166,7 @@
       character(len=256) :: ffgfile
       character(len=256) :: arifile
 
-      logical file_exists
+      logical file_exists, need_ifi
 
       logical, parameter :: debugprint = .false.
 
@@ -3771,17 +3772,22 @@
 
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET TOTAL PRECIP '
-         IF (IGET(434)>0.) THEN
+         NEED_IFI = IGET(1007)>0 .or. IGET(1008)>0 .or. IGET(1009)>0 .or. IGET(1010)>0
+         IF (IGET(434)>0. .or. NEED_IFI) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IF (IFHR == 0) THEN
-                 GRID1(I,J) = 0.0
+                 IFI_APCP(I,J) = 0.0
                ELSE
-                 GRID1(I,J) = PCP_BUCKET(I,J)
+                 IFI_APCP(I,J) = PCP_BUCKET(I,J)
                ENDIF 
              ENDDO
            ENDDO
+           ! Note: IFI.F may replace IFI_APCP with other values where it is spval or 0
+         ENDIF
+
+         IF (IGET(434)>0.) THEN
            ID(1:25) = 0
            ITPREC     = NINT(TPREC)
 !mp
@@ -3804,7 +3810,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18)<0) ID(18) = 0
-           if(grib=='grib2') then
+           if(grib=='grib2' .and. IGET(434)>0) then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(434))
              if(ITPREC>0) then
@@ -3826,7 +3832,7 @@
                jj = jsta+j-1
                do i=1,iend-ista+1
                ii = ista+i-1
-                 datapd(i,j,cfld) = GRID1(ii,jj)
+                 datapd(i,j,cfld) = IFI_APCP(ii,jj)
                enddo
              enddo
            endif

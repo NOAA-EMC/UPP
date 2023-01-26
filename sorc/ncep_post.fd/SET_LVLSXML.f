@@ -16,6 +16,7 @@
 !   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
 !   07_08_2016  J. Carley - Comment out debug prints
 !   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
+!   01-24-2023  Sam Trahan - IFI flight levels and related unit conversions
 !
 ! USAGE:    CALL SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 !   INPUT ARGUMENT LIST:
@@ -47,7 +48,7 @@
 !
       use xml_perl_data, only: param_t
       use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
-                            petabnd, nbnd
+                            petabnd, nbnd, ifi_nflight, ifi_flight_levels
       use soil,       only: SLDPTH,SLLEVEL
       use rqstfld_mod,only : mxlvl,LVLS,LVLSXML
       implicit none
@@ -65,7 +66,7 @@
       real,parameter :: small2=1
       integer,parameter :: LSIG1=22,LSIG2=5
       integer i,j,l,nlevel,scalef,lvlcape,lvlcin
-      logical READTHK,logrec
+      logical READTHK,logrec,found
       REAL :: SIGO2(LSIG2+1),ASIGO2(LSIG2),DSIGO2(LSIG2)
       REAL :: SIGO1(LSIG1+1),ASIGO1(LSIG1),DSIGO1(LSIG1)
 !
@@ -187,23 +188,48 @@
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_alt_above_mean_sea_lvl') then
-       if(index(param%shortname,"GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL")<=0) then
-         do j=1, nlevel
-        iloop4:  do i=1, NFD
-           if(nint(param%level(j))==nint(HTFD(i)) )then
-            if(HTFD(i)>300.) then
-              LVLS(i,ifld)=1
-            else
-              LVLS(i,ifld)=2
+        if(index(param%shortname,"SPECIFIC_IFI_FLIGHT_LEVEL")>0) then
+          do j=1, nlevel
+            found=.false.
+            iloop411:  do i=1, ifi_nflight
+              if(nint(param%level(j)/10)==nint(ifi_flight_levels(i)/10) )then
+                LVLS(i,ifld)=1
+                LVLSXML(i,ifld)=j
+                !print *,'SPECIFIC_IFI_FLIGHT_LEVEL ',j,' is ',param%level(j)
+                irec=irec+1
+                found=.true.
+                exit iloop411
+              endif
+            enddo iloop411
+            if(.not.found) then
+              write(0,*) 'ERROR: No such IFI flight level: ',param%level(j)/10
+              LVLS(i,ifld)=0
             endif
-            LVLSXML(i,ifld)=j
-            irec=irec+1
-            exit iloop4
-           endif
-         enddo iloop4
-         enddo
-         return
-       endif
+          enddo
+        else if(index(param%shortname,"IFI_FLIGHT_LEVEL")>0) then
+           do j=1, ifi_nflight
+             LVLS(j,ifld)=1
+             LVLSXML(j,ifld)=j
+             !print *,'IFI_FLIGHT_LEVEL ',j,' is ',param%level(j)
+             irec=irec+1
+           enddo
+        elseif(index(param%shortname,"GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL")<=0) then
+          do j=1, nlevel
+        iloop4:  do i=1, NFD
+            if(nint(param%level(j))==nint(HTFD(i)) )then
+             if(HTFD(i)>300.) then
+               LVLS(i,ifld)=1
+             else
+               LVLS(i,ifld)=2
+             endif
+             LVLSXML(i,ifld)=j
+             irec=irec+1
+             exit iloop4
+            endif
+           enddo iloop4
+          enddo
+          return
+         endif
 !      Allow inputs of FD levels from control file. For GTG (EDPARM CATEDR MWTURB)
 !      SET LVLS to 1
        do j=1, nlevel
@@ -277,15 +303,16 @@
              endif
             enddo iloop41
           enddo
-          return
+         return
          endif
          do j=1, nlevel
-            LVLS(j,ifld)=1
-            LVLSXML(j,ifld)=j
-            irec=irec+1
+           LVLS(j,ifld)=1
+           LVLSXML(j,ifld)=j
+           irec=irec+1
          enddo
          return
       endif
+!
 !for hpc tmp at sigma lvl
       if(trim(param%shortname)=='TMP_ON_SIGMA_LVL_HPC') then
         IF(READTHK)THEN   ! EITHER READ DSG THICKNESS

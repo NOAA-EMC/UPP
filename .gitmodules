@@ -2,3 +2,7 @@
   path = sorc/ncep_post.fd/post_gtg.fd
   url = https://github.com/NCAR/UPP_GTG
   update = none
+[submodule "sorc/libIFI.fd"]
+  path = sorc/libIFI.fd
+  url = https://github.com/NCAR/UPP_IFI
+  update = none
