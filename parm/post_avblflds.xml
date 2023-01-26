@@ -8240,7 +8240,6 @@
        <post_avblfldidx>1010</post_avblfldidx>
        <shortname>WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
        <pname>ICESEV</pname>
-       <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
        <scale>4.0</scale>
        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->

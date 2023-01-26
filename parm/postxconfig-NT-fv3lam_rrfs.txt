@@ -19851,7 +19851,7 @@ WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL
 1
 tmpl4_0
 ICESEV
-NCEP
+?
 ?
 spec_alt_above_mean_sea_lvl
 1

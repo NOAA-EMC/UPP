@@ -51,6 +51,7 @@
 !!   21-10-14  J MENG - 2D DECOMPOSITION
 !!   22-09-22  L Zhang -  Li(Kate) Zhang - Remove Dust=> AERFD
 !!   22-10-06  W Meng - Generate SPC fields with RRFS input
+!!   23-01-24  Sam Trahan - when IFI is enabled, calculate and store CAPE & CIN. Add allocate_cape_arrays
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:

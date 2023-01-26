@@ -21,6 +21,7 @@
 !! -  22-03-22  Wen Meng - Initializing pwat.
 !! -  22-09-22  Li(Kate) Zhang - Initializing NASA GOCART tracers of Nitrate, NH4,and their column burden.
 !! -  22-11-08  Kai Wang - Replace acfcmaq_on with aqf_on
+!! -  23-01-24  Sam Trahan - CAPE, CIN, and IFI_APCP varibles for input to IFI
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
