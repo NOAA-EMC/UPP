@@ -199,7 +199,6 @@ contains !==============================================================
     ! and for determining root ranks.
     allocate(ista_grid(size))
     allocate(jsta_grid(size))
-
     ista_grid=-1
     jsta_grid=-1
     call MPI_Allgather(ista,1,MPI_INTEGER,ista_grid,1,MPI_INTEGER,mpi_comm_comp,ierr)
