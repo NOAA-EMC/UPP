@@ -21,6 +21,9 @@ contains !==============================================================
 
     ! Bogus fill value for flight levels to prevent a crash
     ifi_nflight = 60
+    if(allocated(ifi_flight_levels)) then
+      deallocate(ifi_flight_levels)
+    endif
     allocate(ifi_flight_levels(ifi_nflight))
     do i=1,ifi_nflight
       ifi_flight_levels(i) = 500*i
@@ -175,6 +178,22 @@ contains !==============================================================
 
 ! 929 format('Rank ',I0,' ista=',I0,' jsta=',I0)
 !     print 929,grid_rank,ista,jsta
+
+    if(allocated(ista_grid)) then
+      deallocate(ista_grid)
+      deallocate(jsta_grid)
+      deallocate(rearrange)
+      deallocate(rearrange_row1d)
+      deallocate(rearrange_row2d)
+      deallocate(row_ista)
+      deallocate(row_iend)
+      deallocate(row_comm_count)
+      deallocate(row_comm_displ)
+      deallocate(col_jsta)
+      deallocate(col_jend)
+      deallocate(col_comm_count)
+      deallocate(col_comm_displ)
+    endif
 
     ! Get the start locations on every rank. We need this for the key,
     ! and for determining root ranks.
@@ -508,6 +527,9 @@ contains !==============================================================
 
     ! Convert from integer to real:
     ifi_nflight = size(config_flight_levels_feet)
+    if(allocated(ifi_flight_levels)) then
+      deallocate(ifi_flight_levels)
+    endif
     allocate(ifi_flight_levels(ifi_nflight))
     ifi_flight_levels = config_flight_levels_feet
 

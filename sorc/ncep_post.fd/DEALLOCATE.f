@@ -139,6 +139,9 @@
       deallocate(stc)
       deallocate(sh2o)
       deallocate(SLDPTH)
+      deallocate(CAPE)
+      deallocate(CIN)
+      deallocate(IFI_APCP)
       deallocate(RTDPTH)
       deallocate(SLLEVEL)
 !
