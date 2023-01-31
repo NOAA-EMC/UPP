@@ -29,6 +29,8 @@
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:)                             &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:)                   &
       ,SNONC(:,:),EPSR(:,:),RSWTOA(:,:),TEQL(:,:)                            &
+! Variables saved for input to IFI
+      ,IFI_APCP(:,:),CAPE(:,:),CIN(:,:)                                      &
 ! HWRF additions
       ,MDLTAUX(:,:),MDLTAUY(:,:),CD10(:,:),CH10(:,:)  &
       ,ACSWUPT(:,:),SWDNT(:,:),ACSWDNT(:,:) &
@@ -51,6 +53,7 @@
       ,NCI_REFD(:,:),NCA_REFD(:,:),RAINC_BUCKET1(:,:),RAINNC_BUCKET1(:,:)   &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
       ,GRAUP_BUCKET(:,:),PCP_BUCKET(:,:),ACGRAUP(:,:),ACFRAIN(:,:)           &
+      ,FRZRN_BUCKET(:,:),SNOW_ACM(:,:),SNOW_BKT(:,:)                         &
       ,SNOW_BUCKET1(:,:),GRAUP_BUCKET1(:,:),PCP_BUCKET1(:,:)                 &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:)                      &
       ,TSNOW(:,:),QVG(:,:),QV2m(:,:),QVl1(:,:)                               &
@@ -58,9 +61,8 @@
       ,SWRADmean(:,:),U10mean(:,:),V10mean(:,:),SPDUV10mean(:,:)             &
       ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:),SWDDNI(:,:),SWDDIF(:,:)      &
       ,SWDNBC(:,:),SWDDNIC(:,:),SWDDIFC(:,:), SWUPBC(:,:), SWUPT(:,:)        &
-      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:)              &
-      ,LWP(:,:),IWP(:,:)                                                     &
-      ,INT_SMOKE(:,:),INT_AOD(:,:)                                           &
+      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:),EBB(:,:)     &
+      ,HWP(:,:),LWP(:,:),IWP(:,:)                                            &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &
@@ -82,7 +84,7 @@
       ,avgesnow(:,:),avgpotevp(:,:),avgprec_cont(:,:),avgcprate_cont(:,:)&
       ,ti(:,:),aod550(:,:),du_aod550(:,:),ss_aod550(:,:),su_aod550(:,:)      &
       ,bc_aod550(:,:),oc_aod550(:,:),landfrac(:,:),paha(:,:),pahi(:,:)       &
-      ,tecan(:,:),tetran(:,:),tedir(:,:),twa(:,:),fdnsst(:,:)
+      ,tecan(:,:),tetran(:,:),tedir(:,:),twa(:,:),fdnsst(:,:),pwat(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) &
       ,IEQL(:,:)
       
@@ -95,7 +97,10 @@
       ,SSSMASS(:,:),SSCMASS(:,:),SSSMASS25(:,:),SSCMASS25(:,:)               &
       ,DUSTCB(:,:),SSCB(:,:),OCCB(:,:),BCCB(:,:),SULFCB(:,:)                 &
       ,DUSTALLCB(:,:),SSALLCB(:,:),DUSTPM(:,:),SSPM(:,:),PP25CB(:,:)         &
-      ,PP10CB(:,:)!lzhang, add for FV3-Chem
+      ,DUSTPM10(:,:),PP10CB(:,:),NO3CB(:,:),NH4CB(:,:),maod(:,:)!lzhang, add for FV3-Chem
+
+! Add new field for AQM
+      real, allocatable :: aqm_aod550(:,:)
  
 !
       end module vrbls2d

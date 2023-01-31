@@ -26,7 +26,6 @@ list(APPEND LIB_SRC
     CALVESSEL.f
     CALVIS.f
     CALVIS_GSD.f
-    CALVOR.f
     CALWXT_BOURG.f
     CALWXT_DOMINANT.f
     CALWXT_EXPLICIT.f
@@ -46,8 +45,8 @@ list(APPEND LIB_SRC
     DEWPOINT.f
     ETCALC.f
     ETAMP_Q2F.f
-    EXCH2.f
     EXCH.f
+    EXCH_c_float.f
     FDLVL.f
     FGAMMA.f
     FILL_PSETFLD.f
@@ -64,6 +63,7 @@ list(APPEND LIB_SRC
     grib2_module.f
     GRIDSPEC.f
     ICAOHEIGHT.f
+    IFI.F
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
@@ -107,7 +107,6 @@ list(APPEND LIB_SRC
     SET_OUTFLDS.f
     SETUP_SERVERS.f
     SLP_new.f
-    SLP_NMM.f
     SMOOTH.f
     SNFRAC.f
     SNFRAC_GFS.f
@@ -150,14 +149,9 @@ list(APPEND EXE_SRC
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
-    INITPOST_GFS_NETCDF.f
-    INITPOST_GFS_NETCDF_PARA.f
     INITPOST_NEMS.f
-    INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
-    INITPOST_NMM.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
@@ -177,7 +171,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
       "-g -traceback -fp-model source -free -convert big_endian")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check bounds -check pointers -check shape -check stack -check uninit")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
       "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
@@ -211,6 +205,17 @@ target_link_libraries(${LIBNAME} PUBLIC
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
 
+if(IFI_FOUND)
+  if(INTERNAL_IFI)
+    target_link_libraries(${LIBNAME} PRIVATE IFI)
+    target_link_libraries(${LIBNAME} PRIVATE tdrp)
+    target_include_directories(${LIBNAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/include $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  else()
+    target_link_libraries(${LIBNAME} PUBLIC IFI)
+    target_link_libraries(${LIBNAME} PUBLIC tdrp)
+  endif()
+endif()
+
 if(BUILD_WITH_GTG)
   target_link_libraries(${LIBNAME} PUBLIC
   ip::ip_4)
@@ -224,16 +229,21 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    w3nco::w3nco_4
     nemsio::nemsio
+    w3emc::w3emc_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
+  set_target_properties(${EXENAME} PROPERTIES LINKER_LANGUAGE Fortran)
+  if(IFI_FOUND)
+    target_link_libraries(${EXENAME} PRIVATE IFI)
+    target_link_libraries(${EXENAME} PRIVATE tdrp)
+  endif()
   if(wrf_io_FOUND)
     target_link_libraries(${EXENAME} PRIVATE
       wrf_io::wrf_io)
   endif()
-  install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
+  install(TARGETS ${EXENAME} RUNTIME DESTINATION ${exec_dir})
 endif()
 
 install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
@@ -241,6 +251,6 @@ install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(
   TARGETS ${LIBNAME}
   EXPORT ${PROJECT_NAME}Exports
-  RUNTIME DESTINATION bin
+  RUNTIME DESTINATION ${exec_dir}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)

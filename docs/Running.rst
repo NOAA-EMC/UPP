@@ -64,7 +64,7 @@ Run Script Overview
 
        | **TOP_DIR**: Top level directory for building and running UPP
        | **DOMAINPATH**: Working directory for this run
-       | **UNIPOST_HOME**: Location of the **UPP** directory
+       | **UPP_HOME**: Location of the **UPP** directory
        | **POSTEXEC**: Location of the **UPP** executable
        | **modelDataPath**: Location of the model output data files to be processed
        | **txtCntrlFile**: Name and location of the flat text file that lists desired fields for
@@ -82,7 +82,7 @@ Run Script Overview
 
 3. Specify the format for the input model files and output UPP files
 
-       | **inFormat**: Format of the model data ("binarynemsiompiio": GFS only or "netcdf": GFS/LAM)
+       | **inFormat**: Format of the model data ("netcdfpara")
        | **outFormat**: Format of output from UPP ("grib2")
 
 4. Specify the forecast cycles to be post-processed
@@ -119,7 +119,3 @@ Upon a successful run, UPP will generate output files for each forecast hour in 
 When executed with the provided run script, UPP provides log files in the post-processor working directory named
 :bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further
 run-time information in the event of an error.
-
-.. note::
-   FV3 output is on a Guassian grid. To interpolate to a lat/lon or other projection, use wgrib2 (see
-   :ref:`Examples-of-wgrib2` section).

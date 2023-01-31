@@ -80,8 +80,7 @@
       ,icing_gfip(:,:,:),icing_gfis(:,:,:) &
 ! Add NCAR GTG turbulence
       ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:) &
-
 ! AQF
-      ,ozcon(:,:,:),pmtf(:,:,:)
+      ,avgozcon(:,:,:),avgpmtf(:,:,:)
 
       end module vrbls3d

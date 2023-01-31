@@ -8,6 +8,7 @@
 !   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
 !   21-07-26  W Meng - Restrict computation from undefined grids
+!   21-10-26  J MENG - 2D DECOMPOSITION
 !
 !     INPUT:
 !     ------
@@ -42,7 +43,7 @@
 !      use vrbls2d, only:
       use masks, only: lmh, sm
       use params_mod, only: EPSQ2
-      use ctlblk_mod, only: jsta, jend, lm, im, spval
+      use ctlblk_mod, only: jsta, jend, lm, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -56,8 +57,8 @@
 !
 !     ------------------------------------------------------------------
 !
-      real,dimension(IM,jsta:jend),intent(inout) ::  SQZ,SQ,RQ2L,RQ2H,EL0
-      real,dimension(IM,jsta:jend)               ::   HGT
+      real,dimension(ista:iend,jsta:jend),intent(inout) ::  SQZ,SQ,RQ2L,RQ2H,EL0
+      real,dimension(ista:iend,jsta:jend)               ::   HGT
 !jw
       integer I,J,L
       real dp, RQ2m
@@ -66,7 +67,7 @@
 !
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           SQZ(I,J)  = 0.0
           SQ(I,J)   = 0.0
           RQ2H(I,J) = 0.0
@@ -76,7 +77,7 @@
 !
       DO L=1,LM
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(Q2(I,J,L) <= EPSQ2) THEN
               RQ2L(I,J) = 0.0
             ELSE
@@ -121,7 +122,7 @@
 !***
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(HGT(I,J)<spval)THEN
           EL0(I,J)= MAX(MIN(                                           &
      &       ((SM(I,J)*ALPHAS+(1.0-SM(I,J))*ALPHAL)*SQZ(I,J)           &

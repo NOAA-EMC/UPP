@@ -5678,6 +5678,52 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>1007</post_avblfldidx>
+       <shortname>ICE_PROB_IFI_FLIGHT_LEVEL</shortname>
+       <pname>ICPRB</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+       <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+       <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+    </param>
+
+    <param>
+       <post_avblfldidx>1008</post_avblfldidx>
+       <shortname>SLD_IFI_FLIGHT_LEVEL</shortname>
+       <pname>SIPD</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+       <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+       <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+    </param>
+
+    <param>
+       <post_avblfldidx>1009</post_avblfldidx>
+       <shortname>ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+       <pname>ICSEV</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+       <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+       <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+    </param>
+
+    <param>
+       <post_avblfldidx>1010</post_avblfldidx>
+       <shortname>WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+       <pname>ICESEV</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+       <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+       <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+    </param>
 
   </post_avblflds>
 </postxml>

@@ -1,53 +1,49 @@
 !> @file
-!
-!> SUBPROGRAM:    DEWPOINT    COMPUTES DEWPOINTS FROM VAPOR PRESSURE
-!!   PRGMMR: J TUCCILLO       ORG: W/NP2       DATE: 90-05-19
-!!
-!! ABSTRACT: COMPUTES THE DEWPOINTS FOR THE N VALUES
-!!           OF VAPOR PRESSURE IN ARRAY VP.
-!! THE FORMULA:
-!!
-!! VP = 0.611 * (X**A) * EXP( (A+B)*(1-X) )
-!!
-!!   IS USED TO GET DEWPOINT TEMPERATURE T, WHERE
-!!
-!!   X = T3/T,                   T3=TRIPLE PT TEMPERATURE,
-!!   VP=VAPOR PRESSURE IN CBS,   0.611=VP AT T3,
-!!   A=(SPEC. HT. OF WATER-CSUBP OF VAPOR)/GAS CONST OF VAPOR
-!!                           AND
-!!   B=LATENT HEAT AT T3/(GAS CONST OF VAPOR TIMES T3).
-!!   
-!!   ON THE FIRST CALL, A TABLE  TDP  IS CONSTRUCTED GIVING
-!!   DEWPOINT AS A FUNCTION OF VAPOR PRESSURE.
-!!   
-!!   VALUES OF VP LESS THAN THE FIRST TABLE ENTRY
-!!   (RVP1 IN THE CODE) WILL BE GIVEN DEWPOINTS FOR
-!!   THAT BEGINNING VALUE.  SIMILARLY , VP VALUES THAT
-!!   EXCEED THE MAXIMUM TABLE VALUE (RVP2 IN THE CODE)
-!!   WILL BE ASSIGNED DEWPOINTS FOR THAT MAXIMUM VALUE.
-!!   
-!!   THE VALUES 0.02 AND 8.0 FOR RVP1 AND RVP2 YIELD
-!!   DEWPOINTS OF 233.6K AND 314.7K,RESPECTIVELY.
-!!   
-!! PROGRAM HISTORY LOG:
-!! -  90-05-19  J TUCCILLO
-!! -  93-05-12  R TREADON - EXPANDED TABLE SIZE AND RESET
-!!                         RANGE OF PRESSURES COVERED BY
-!!                         TABLE.
-!! -  98-06-12  T BLACK   - CONVERSION FROM 1-D TO 2-D
-!! -  00-01-04  JIM TUCCILLO - MPI VERSION
-!! -  21-07-26  W Meng  - Restrict computation from undefined grids
-!!
-!! USAGE:  CALL DEWPOINT( VP, TD)
-!!   INPUT ARGUMENT LIST:
-!!     VP       - ARRAY OF N VAPOR PRESSURES(CENTIBARS)
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     TD       - DEWPOINT IN DEGREES ABSOLUTE
-!!
+!> @brief Subroutine that computes dewpoints from vapor pressure.
+!>
+!> This routine is to  computes the dewpoints for the N values
+!> of vapor pressure in array VP.
+!> The forumla:
+!>
+!> VP = 0.611 * (X**A) * EXP( (A+B)*(1-X) )
+!>
+!> is used to get dewpoint temperature T, where
+!>
+!> X = T3/T,                   T3=Triple PT temperature,
+!> VP=Vapor pressure in CBS,   0.611=VP at T3,
+!> A=(Spec. HT. of WATER-CSUBP of vapor)/gas const of vapor
+!>                           and
+!> B=Latent heat at T3/(gas const of vapor times T3).
+!>   
+!> on the first call, a table TDP is constructed giving
+!> dewpoint as a function of vapor pressure.
+!>  
+!> Values of VP less than the first table entry
+!> (RVP1 in the code) will be given dewpoints for
+!> that beginning valus. Similarly, VP vaules that
+!> exceed the maximum table value (RVP2 in the code)
+!> will be assigned dewpoints for that maximum value.
+!>   
+!> The values 0.02 and 8.0 for RVP1 and RVP2 yield
+!> dewpoints of 233.6K and 314.7K,respectively.
+!>
+!> @param[in] VP Array of N vapor pressures(centibars).
+!> @param[out] TD Dewpoint in degrees absolute.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1990-05-19 | Jim Tuccillo | Initial
+!> 1993-05-12 | R Treadon    | Expanded table size and reset range of pressures covered by table.
+!> 1998-06-12 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI Version
+!> 2021-07-26 | W Meng       | Restrict computation from undefined grids
+!> 2021-10-31 | J Meng       | 2D Decomposition
+!>
+!> @author Jim Tuccillo W/NP2 @date 1990-05-19
       SUBROUTINE DEWPOINT( VP, TD)
 
-       use ctlblk_mod, only: jsta, jend, im, spval
+       use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -55,8 +51,8 @@
       integer,PARAMETER :: NT=2000
 !...TRANSLATED BY FPP 3.00Z36 11/09/90  14:48:53  
 !...SWITCHES: OPTON=I47,OPTOFF=VAE0
-      real,intent(out) :: TD(IM,jsta:jend)
-      real,intent(in) ::  VP(IM,jsta:jend)
+      real,intent(out) :: TD(ista:iend,jsta:jend)
+      real,intent(in) ::  VP(ista:iend,jsta:jend)
       real TDP(NT)
 !jw
       integer NN,I,J,JNT
@@ -132,7 +128,7 @@
 !
 !$omp parallel do private(i,j,w1,w2,jnt)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(VP(I,J)<spval)THEN
           W1  = MIN(MAX((A*VP(I,J)+B),1.0),DNTM1)
           W2  = AINT(W1)

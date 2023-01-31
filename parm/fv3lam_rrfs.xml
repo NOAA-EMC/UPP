@@ -2,7 +2,7 @@
 <postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
 <!--  Lin Gan:  20150427 validated -->
     <paramset>
-    <datset>BGDAWP</datset>
+    <datset>PRSLEV</datset>
     <grid_num>32769</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
@@ -12,8 +12,8 @@
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
-    <gen_proc>hrrr</gen_proc>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -535,6 +535,11 @@
        </param>
 
        <param>
+       <shortname>GSD_ACM_SNOD_ON_SURFACE</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
        <shortname>SMDRY_ON_SURFACE</shortname>
        <pname>SMDRY</pname>
        <table_info>NCEP</table_info>
@@ -685,6 +690,36 @@
        <shortname>ACM_APCP_ON_SURFACE</shortname>
        <pname>APCP</pname>
        <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_FRAIN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1433,6 +1468,76 @@
        </param>
 
        <param>
+           <shortname>EFSH_ON_EFBL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>EFSH_ON_EFTL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>ELMELT_ON_EFTL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>UESH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>VESH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>ESHR_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>UEID_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>VEID_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>E3KH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>STPC_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>SIGT_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>SCCP_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>SIGH_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
+           <shortname>MLFC_ON_EFL</shortname>
+           <scale>-1.0</scale>
+       </param>
+
+       <param>
        <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLR</pname>
        <table_info>NCEP</table_info>
@@ -1650,14 +1755,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -1764,8 +1869,6 @@
            <scale>5.0</scale>
        </param>
 
-<!--
-
        <param>
            <shortname>1H_2YARI_EXCEEDANCE</shortname>
            <scale>5.0</scale>
@@ -1804,12 +1907,46 @@
            <scale>5.0</scale>
        </param>
 
--->
+       <param>
+           <shortname>BIOMASS_BURNING_EMISSIONS</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+           <scale>6.0</scale>
+       </param>
+
+       <param>
+           <shortname>SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+           <scale>6.0</scale>
+       </param>
+
+       <param>
+           <shortname>DUST_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>AOD_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>HWP_ON_SURFACE</shortname>
+           <pname>FWINX</pname>
+           <scale>5.0</scale>
+       </param>
 
     </paramset>
 
     <paramset>
-    <datset>BGRD3D</datset>
+    <datset>NATLEV</datset>
     <grid_num>32769</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
@@ -1819,8 +1956,8 @@
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
-    <gen_proc>hrrr</gen_proc>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -2059,14 +2196,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
  
        <param>
-       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -2421,6 +2558,22 @@
 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 
 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64. 65.</level>
        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>SMOKE_ON_HYBRID_LVL</shortname>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24.
+25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48.
+49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64. 65.</level>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>DUST_ON_HYBRID_LVL</shortname>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24.
+25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48.
+49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64. 65.</level>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -3357,5 +3510,178 @@
        <scale>3.0</scale>
        </param>
 
+       <param>
+       <shortname>SBTA167_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA167</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA168_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA168</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA169_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA169</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1610_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1610</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1611_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1611</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1612_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1612</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1613_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1613</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1614_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1614</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1615_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1615</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1616_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1616</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA188_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA188</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA189_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA189</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1810_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1810</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1811_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1811</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1812_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1812</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1813_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1813</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1814_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1814</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1815_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1815</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTA1816_ON_TOP_OF_ATMOS</shortname>
+       <pname>SBTA1816</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <pname>SDEN</pname>
+       <scale>6.0</scale>
+       </param>
+
+    </paramset>
+
+    <paramset>
+      <datset>IFIFIP</datset>
+      <grid_num>4</grid_num>
+      <sub_center>ncep_emc</sub_center>
+      <version_no>v2003</version_no>
+      <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+      <sigreftime>fcst</sigreftime>
+      <prod_status>oper</prod_status>
+      <data_type>fcst</data_type>
+      <gen_proc_type>fcst</gen_proc_type>
+      <time_range_unit>hour</time_range_unit>
+      <orig_center>nws_ncep</orig_center>
+      <gen_proc>hrrr</gen_proc>
+      <packing_method>complex_packing_spatial_diff</packing_method>
+      <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+      <field_datatype>fltng_pnt</field_datatype>
+      <comprs_type>lossless</comprs_type>
+
+      <!-- New IFI products, only available if libIFI is linked to a post with USE_IFI enabled -->
+
+      <param>
+        <shortname>ICE_PROB_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+
+      <param>
+        <shortname>SLD_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+
+      <param>
+        <shortname>ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
+
+      <param>
+        <shortname>WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL</shortname>
+        <scale>4.0</scale>
+        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
+        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
+        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+      </param>
     </paramset>
    </postxml>

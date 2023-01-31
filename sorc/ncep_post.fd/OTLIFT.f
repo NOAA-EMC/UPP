@@ -1,44 +1,28 @@
 !> @file
-!
-!> SUBPROGRAM:    OTLIFT      COMPUTES SFC TO 500MB LIFTED INDEX
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-03-10       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE COMPUTES A SURFACE TO 500MB LIFTED INDEX.
-!!     THE LIFTED PARCEL IS FROM THE FIRST ATMOSPHERIC ETA 
-!!     LAYER (IE, THE ETA LAYER CLOSEST TO THE MODEL GROUND).
-!!     THE LIFTED INDEX IS THE DIFFERENCE BETWEEN THIS PARCEL'S
-!!     TEMPERATURE AT 500MB AND THE AMBIENT 500MB TEMPERATURE.
-!!     
-!! PROGRAM HISTORY LOG:
-!!   ??-??-??  ??? - SUBROUTINE OTLIFT IN ETA MODEL.
-!!   93-03-10  RUSS TREADON - ADAPTED OTLIFT FOR USE WITH NEW POST. 
-!!   98-06-18  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-11  MIKE BALDWIN - WRF VERSION
-!!   11-04-12  GEOFF MANIKIN - USE VIRTUAL TEMPERATURE
-!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!     
-!! USAGE:    CALL OTLIFT(SLINDX)
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     SLINDX   - LIFTED INDEX.
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief otlift() computes SFC to 500mb lifted index.
+!>
+!> This routine computes a surface to 500mb lifted index.
+!> The lifted parcel is from the first atmpspheric ETA
+!> layer (ie, the ETA layer closest to the model ground).
+!> The lifted index is the difference between this parcel's
+!> temperature at 500mb and the ambient 500mb temperature.
+!>
+!> @param[out] SLINDX lifted index.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> ????-??-?? | ???           | Subroutine OTLIFT in ETA model.
+!> 1993-03-10 | Russ Treadon  | Adapted OTLIFT for use with new post.
+!> 1998-06-18 | T Black       | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo  | MPI Version
+!> 2001-10-25 | H Chuang      | Modified to process hybrid model output
+!> 2002-06-11 | Mike Baldwin  | WRF Version
+!> 2011-04-12 | Geoff Manikin | Use virtual temperature
+!> 2020-11-10 | Jesse Meng    | Use UPP_PHYSICS Module
+!> 2021-09-30 | JESSE MENG    | 2D DECOMPOSITION
+!>
+!> @author Russ Treadon W/NP2 @date 1993-03-10
       SUBROUTINE OTLIFT(SLINDX)
 
 !     
@@ -47,7 +31,7 @@
       use masks,      only: LMH
       use lookup_mod, only: THL, RDTH, JTB, QS0, SQS, RDQ,ITB, PTBL, PL, &
                             RDP, THE0, STHE, RDTHE, TTBL
-      use ctlblk_mod, only: JSTA, JEND, IM, SPVAL
+      use ctlblk_mod, only: JSTA, JEND, IM, SPVAL, ISTA, IEND
       use params_mod, only: D00,H10E5, CAPA, ELOCP, EPS, ONEPS
       use upp_physics, only: FPVSNEW
 !
@@ -60,7 +44,7 @@
 
 !     
 !     DECLARE VARIABLES.
-      real,intent(out) :: SLINDX(IM,jsta:jend)
+      real,intent(out) :: SLINDX(ista:iend,jsta:jend)
       REAL :: TVP, ESATP, QSATP
       REAL :: TTH, TP, APESP, PARTMP, THESP, TPSP
       REAL :: BQS00, SQS00, BQS10, SQS10, BQ, SQ, TQ
@@ -77,13 +61,13 @@
 !     INTIALIZE LIFTED INDEX ARRAY TO ZERO.
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           SLINDX(I,J) = D00
         ENDDO
       ENDDO
 !--------------FIND EXNER AT LOWEST LEVEL-------------------------------
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LBTM=NINT(LMH(I,J))
           IF(T(I,J,LBTM)<SPVAL .AND. Q(I,J,LBTM)<SPVAL) THEN
           TBT = T(I,J,LBTM)

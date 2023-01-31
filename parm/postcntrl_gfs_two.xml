@@ -314,8 +314,8 @@
 
     <param>
        <shortname>HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
-       <level>3000.</level>
-       <level2>0.</level2>
+       <level>3000. 1000.</level>
+       <level2>0. 0.</level2>
        <scale>4.0</scale>
     </param>
 
@@ -445,7 +445,7 @@
     </param>
 
     <param>
-       <shortname>VIS_ON_SURFACE</shortname>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
        <scale>6.0</scale>
     </param>
 
@@ -1159,6 +1159,71 @@
        <scale>3.0</scale>
    </param>
 
+    <param>
+       <shortname>ACM_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_FRAIN_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_GFS_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>DUST_AER_OPT_GFS_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SEASALT_AER_OPT_GFS_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SULFATE_AER_OPT_GFS_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>ORGANIC_CARBON_AER_OPT_GFS_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>BLACK_CARBON_AER_OPT_GFS_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SDEN_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+    </param>
+			  
     <!--  comments wherever I like -->
   </paramset>
 

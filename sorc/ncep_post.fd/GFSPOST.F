@@ -1,57 +1,43 @@
 !> @file
-!
-!> Subprogram: pvetc      Compute potential vorticity, etc
-!!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!!
-!! Abstract: This subprogram computes
-!!             the Montgomery streamfunction
-!!               hm=cp*t+g*z
-!!             the specific entropy
-!!               s=cp*log(t/t0)-r*log(p/p0)
-!!             the Brunt-Vaisala frequency squared
-!!               bvf2=g/cp*ds/dz
-!!             the potential vorticity defined as
-!!               pvn=(av*ds/dz-dv/dz*ds/dx+du/dz*ds/dy)/rho/cp
-!!             the potential temperature
-!!               theta=t0*exp(s/cp)
-!!             the static stability
-!!               sigma=t/g*bvf2
-!!             and the potential vorticity in PV units
-!!               pvu=10**-6*theta*pvn
-!!
-!! Program history log:
-!!   1999-10-18  Mark Iredell
-!!
-!! Usage:  call pvetc(km,p,px,py,t,tx,ty,h,u,v,av,s,bvf2,pvn,theta,sigma,pvu)
-!!   Input argument list:
-!!     km       integer number of levels
-!!     p        real (km) pressure (Pa)
-!!     px       real (km) pressure x-gradient (Pa/m)
-!!     py       real (km) pressure y-gradient (Pa/m)
-!!     t        real (km) (virtual) temperature (K)
-!!     tx       real (km) (virtual) temperature x-gradient (K/m)
-!!     ty       real (km) (virtual) temperature y-gradient (K/m)
-!!     h        real (km) height (m)
-!!     u        real (km) x-component wind (m/s)
-!!     v        real (km) y-component wind (m/s)
-!!     av       real (km) absolute vorticity (1/s)
-!!   Output argument list:
-!!     hm       real (km) Montgomery streamfunction (m**2/s**2)
-!!     s        real (km) specific entropy (J/K/kg)
-!!     bvf2     real (km) Brunt-Vaisala frequency squared (1/s**2)
-!!     pvn      real (km) potential vorticity (m**2/kg/s)
-!!     theta    real (km) (virtual) potential temperature (K)
-!!     sigma    real (km) static stability (K/m)
-!!     pvu      real (km) potential vorticity (10**-6*K*m**2/kg/s)
-!!
-!! Modules used:
-!!   physcons       Physical constants
-!!
-!! Attributes:
-!!   Language: Fortran 90
-!!
-!!
-      subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
+!> pvetc() computes potential vorticity, etc.
+!>
+!> This subprogram computes
+!> computation | equation
+!> -----------------|------------
+!> Montgomery streamfunction       | hm=cp*t+g*z
+!> Specific entropy                | s=cp*log(t/t0)-r*log(p/p0)
+!> Brunt-Vaisala frequency squared | bvf2=g/cp*ds/dz
+!> Potential vorticity             | pvn=(av*ds/dz-dv/dz*ds/dx+du/dz*ds/dy)/rho/cp
+!> Potential temperature           | theta=t0*exp(s/cp)
+!> Static stability                | sigma=t/g*bvf2
+!> Potential vorticity in PV units | pvu=10**-6*theta*pvn
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] px real (km) pressure x-gradient (Pa/m).
+!> @param[in] py real (km) pressure y-gradient (Pa/m).
+!> @param[in] t real (km) (virtual) temperature (K).
+!> @param[in] tx real (km) (virtual) temperature x-gradient (K/m).
+!> @param[in] ty real (km) (virtual) temperature y-gradient (K/m).
+!> @param[in] h real (km) height (m).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] av real (km) absolute vorticity (1/s).
+!> @param[out] hm real (km) Montgomery streamfunction (m**2/s**2).
+!> @param[out] s real (km) specific entropy (J/K/kg).
+!> @param[out] bvf2 real (km) Brunt-Vaisala frequency squared (1/s**2).
+!> @param[out] pvn real (km) potential vorticity (m**2/kg/s).
+!> @param[out] theta real (km) (virtual) potential temperature (K).
+!> @param[out] sigma real (km) static stability (K/m).
+!> @param[out] pvu real (km) potential vorticity (10**-6*K*m**2/kg/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+    subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
 
     use physcons_post, only: con_cp, con_g, con_rd, con_rocp
 !
@@ -91,46 +77,37 @@
     enddo
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  subroutine p2th(km,theta,u,v,h,t,pvu,sigma,rh,omga,kth,th &
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> p2th() interpolates to isentropic level.
+!>
+!> This subprogram interpolates fields to given isentropic levels.
+!> The interpolation is linear in entropy.
+!> Outside the domain the bitmap is set to false.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] theta real (km) potential temperature (K).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] h real (km) height (m).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] pvu real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s).
+!> @param[in] kth integer number of isentropic levels.
+!> @param[in] th real (kth) isentropic levels (K).
+!> @param[out] lpv logical*1 (kth) bitmap.
+!> @param[out] uth real (kth) x-component wind (m/s).
+!> @param[out] vth real (kth) y-component wind (m/s).
+!> @param[out] hth real (kth) height (m).
+!> @param[out] tth real (kth) temperature (K).
+!> @param[out] zth real (kth) potential vorticity in PV units (10**-6*K*m**2/kg/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+    subroutine p2th(km,theta,u,v,h,t,pvu,sigma,rh,omga,kth,th &
                  ,lth,uth,vth,hth,tth,zth,sigmath,rhth,oth)
-!$$$  Subprogram documentation block
-!
-! Subprogram: p2th       Interpolate to isentropic level
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram interpolates fields to given isentropic levels.
-!   The interpolation is linear in entropy.
-!   Outside the domain the bitmap is set to false.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!
-! Usage:  call p2th(km,theta,u,v,h,t,puv,kth,th,uth,vth,tth)
-!   Input argument list:
-!     km       integer number of levels
-!     theta    real (km) potential temperature (K)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     h        real (km) height (m)
-!     t        real (km) temperature (K)
-!     pvu      real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s)
-!     kth      integer number of isentropic levels
-!     th       real (kth) isentropic levels (K)
-!   Output argument list:
-!     lpv      logical*1 (kth) bitmap
-!     uth      real (kth) x-component wind (m/s)
-!     vth      real (kth) y-component wind (m/s)
-!     hth      real (kth) height (m)
-!     tth      real (kth) temperature (K)
-!     zth      real (kth) potential vorticity in PV units (10**-6*K*m**2/kg/s)
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     implicit none
     integer,intent(in):: km,kth
     real,intent(in),dimension(km):: theta,u,v,h,t,pvu,sigma,rh,omga
@@ -161,55 +138,42 @@
     enddo
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
+!> p2pv() interpolates to potential vorticity level.
+!>
+!> This subprogram interpolates fields to given potential vorticity
+!> levels within given pressure limits.
+!> The output level is the first  encountered from the top pressure limit.
+!> If the given potential vorticity level is not found, the outputs are zero
+!> and the bitmap is false. The interpolation is linear in potential vorticity.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] pvu real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s).
+!> @param[in] h real (km) height (m).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] kpv integer number of potential vorticity levels.
+!> @param[in] pv real (kpv) potential vorticity levels (10**-6*K*m**2/kg/s).
+!> @param[in] pvpt real (kpv) top pressures for PV search (Pa).
+!> @param[in] pvpb real (kpv) bottom pressures for PV search (Pa).
+!> @param[out] lpv logical*1 (kpv) bitmap.
+!> @param[out] upv real (kpv) x-component wind (m/s).
+!> @param[out] vpv real (kpv) y-component wind (m/s).
+!> @param[out] hpv real (kpv) temperature (K).
+!> @param[out] tpv real (kpv) temperature (K).
+!> @param[out] ppv real (kpv) pressure (Pa).
+!> @param[out] spv real (kpv) wind speed shear (1/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell  | Initial
+!> 2021-08-31 | Hui-ya Chuang | Increase depth criteria for identifying PV layer from 25 to 50 to avoid finding shallow high level PV layer in high latitudes
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+    subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
                   lpv,upv,vpv,hpv,tpv,ppv,spv)
-!$$$  Subprogram documentation block
-!
-! Subprogram: p2pv       Interpolate to potential vorticity level
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram interpolates fields to given potential vorticity
-!   levels within given pressure limits.
-!   The output level is the first  encountered from the top pressure limit.
-!   If the given potential vorticity level is not found, the outputs are zero
-!   and the bitmap is false. The interpolation is linear in potential vorticity.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2021-08-31  Hui-ya Chuang Increase depth criteria for identifying PV layer 
-!                             from 25 to 50 to avoid finding shallow high level
-!                             PV layer in high latitudes
-!
-! Usage:  call p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
-!                   lpv,upv,vpv,hpv,tpv,ppv,spv)
-!   Input argument list:
-!     km       integer number of levels
-!     pvu      real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s)
-!     h        real (km) height (m)
-!     t        real (km) temperature (K)
-!     p        real (km) pressure (Pa)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     kpv      integer number of potential vorticity levels
-!     pv       real (kpv) potential vorticity levels (10**-6*K*m**2/kg/s)
-!     pvpt     real (kpv) top pressures for PV search (Pa)
-!     pvpb     real (kpv) bottom pressures for PV search (Pa)
-!   Output argument list:
-!     lpv      logical*1 (kpv) bitmap
-!     upv      real (kpv) x-component wind (m/s)
-!     vpv      real (kpv) y-component wind (m/s)
-!     hpv      real (kpv) temperature (K)
-!     tpv      real (kpv) temperature (K)
-!     ppv      real (kpv) pressure (Pa)
-!     spv      real (kpv) wind speed shear (1/s)
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km,kpv
@@ -276,58 +240,33 @@
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
-subroutine rsearch1(km1,z1,km2,z2,l2)
-!$$$  subprogram documentation block
-!
-! subprogram:    rsearch1    search for a surrounding real interval
-!   prgmmr: iredell    org: w/nmc23     date: 98-05-01
-!
-! abstract: this subprogram searches a monotonic sequences of real numbers
-!   for intervals that surround a given search set of real numbers.
-!   the sequences may be monotonic in either direction; the real numbers
-!   may be single or double precision.
-!
-! program history log:
-! 1999-01-05  mark iredell
-!
-! usage:    call rsearch1(km1,z1,km2,z2,l2)
-!   input argument list:
-!     km1    integer number of points in the sequence
-!     z1     real (km1) sequence values to search
-!            (z1 must be monotonic in either direction)
-!     km2    integer number of points to search for
-!     z2     real (km2) set of values to search for
-!            (z2 need not be monotonic)
-!
-!   output argument list:
-!     l2     integer (km2) interval locations from 0 to km1
-!            (z2 will be between z1(l2) and z1(l2+1))
-!
-! subprograms called:
-!   sbsrch essl binary search
-!   dbsrch essl binary search
-!
-! remarks:
-!   returned values of 0 or km1 indicate that the given search value
-!   is outside the range of the sequence.
-!
-!   if a search value is identical to one of the sequence values
-!   then the location returned points to the identical value.
-!   if the sequence is not strictly monotonic and a search value is
-!   identical to more than one of the sequence values, then the
-!   location returned may point to any of the identical values.
-!
-!   if l2(k)=0, then z2(k) is less than the start point z1(1)
-!   for ascending sequences (or greater than for descending sequences).
-!   if l2(k)=km1, then z2(k) is greater than or equal to the end point
-!   z1(km1) for ascending sequences (or less than or equal to for
-!   descending sequences).  otherwise z2(k) is between the values
-!   z1(l2(k)) and z1(l2(k+1)) and may equal the former.
-!
-! attributes:
-!   language: fortran
-!
-!$$$
+!> rsearch1() searches for a surrounding real interval.
+!>
+!> This subprogram searches a monotonic sequences of real numbers
+!> for intervals that surround a given search set of real numbers.
+!> the sequences may be monotonic in either direction; the real numbers
+!> may be single or double precision.
+!>
+!> @param[in] km1 integer number of points in the sequence.
+!> @param[in] z1 real (km1) sequence values to search. (z1 must be monotonic in either direction)
+!> @param[in] km2 integer number of points to search for.
+!> @param[in] z2 real (km2) set of values to search for. (z2 need not be monotonic)
+!> @param[out] l2 integer (km2) interval locations from 0 to km1. (z2 will be between z1(l2) and z1(l2+1))
+!>
+!> @note
+!>  * Returned values of 0 or km1 indicate that the given search value is outside the range of the sequence.
+!>  * If a search value is identical to one of the sequence values then the location returned points to the identical value.
+!>  * If the sequence is not strictly monotonic and a search value is identical to more than one of the sequence values, then the location returned may point to any of the identical values.
+!>  * If l2(k)=0, then z2(k) is less than the start point z1(1) for ascending sequences (or greater than for descending sequences).
+!>  * If l2(k)=km1, then z2(k) is greater than or equal to the end point z1(km1) for ascending sequences (or less than or equal to for descending sequences).  Otherwise z2(k) is between the values z1(l2(k)) and z1(l2(k+1)) and may equal the former.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1998-05-01 | Mark Iredell  | Initial
+!>
+!> @author Mark Iredell w/nmc23 @date 1998-05-01
+    subroutine rsearch1(km1,z1,km2,z2,l2)
   implicit none
   integer,intent(in):: km1,km2
   real,intent(in):: z1(km1),z2(km2)
@@ -371,51 +310,38 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
-!$$$  Subprogram documentation block
-!
-! Subprogram: tpause     Compute tropopause level fields
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram finds the tropopause level and computes fields 
-!   at the tropopause level.  The tropopause is defined as the lowest level
-!   above 500 mb which has a temperature lapse rate of less than 2 K/km.
-!   The lapse rate must average less than 2 K/km over a 2 km depth.
-!   If no such level is found below 50 mb, the tropopause is set to 50 mb.
-!   The tropopause fields are interpolated linearly in lapse rate.
-!   The tropopause pressure is found hydrostatically.
-!   The tropopause wind shear is computed as the partial derivative
-!   of wind speed with respect to height at the tropopause level.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!
-! Usage:  call tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
-!   Input argument list:
-!     km       integer number of levels
-!     p        real (km) pressure (Pa)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     t        real (km) temperature (K)
-!     h        real (km) height (m)
-!   Output argument list:
-!     ptp      real tropopause pressure (Pa)
-!     utp      real tropopause x-component wind (m/s)
-!     vtp      real tropopause y-component wind (m/s)
-!     ttp      real tropopause temperature (K)
-!     htp      real tropopause height (m)
-!     shrtp    real tropopause wind shear (1/s)
-!
-! Files included:
-!   physcons.h     Physical constants
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
+!> tpause() computes tropopause level fields.
+!>
+!> This subprogram finds the tropopause level and computes fields
+!> at the tropopause level.  The tropopause is defined as the lowest level
+!> above 500 mb which has a temperature lapse rate of less than 2 K/km.
+!> The lapse rate must average less than 2 K/km over a 2 km depth.
+!> If no such level is found below 50 mb, the tropopause is set to 50 mb.
+!> The tropopause fields are interpolated linearly in lapse rate.
+!> The tropopause pressure is found hydrostatically.
+!> The tropopause wind shear is computed as the partial derivative
+!> of wind speed with respect to height at the tropopause level.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] h real (km) height (m).
+!> @param[out] ptp real tropopause pressure (Pa).
+!> @param[out] utp real tropopause x-component wind (m/s).
+!> @param[out] vtp real tropopause y-component wind (m/s).
+!> @param[out] ttp real tropopause temperature (K).
+!> @param[out] htp real tropopause height (m).
+!> @param[out] shrtp real tropopause wind shear (1/s).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell  | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+    subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
@@ -473,49 +399,36 @@ end subroutine
     shrtp=(spdu-spdd)/(h(ktp)-h(ktp+1))
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  subroutine mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
-!$$$  Subprogram documentation block
-!
-! Subprogram: mxwind     Compute maximum wind level fields
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram finds the maximum wind level and computes fields 
-!   at the maximum wind level.  The maximum wind level is searched for
-!   between 500 mb and 100 mb.  The height and wind speed at the maximum wind
-!   speed level is calculated by assuming the wind speed varies quadratically
-!   in height in the neighborhood of the maximum wind level.  The other fields
-!   are interpolated linearly in height to the maximum wind level.
-!   The maximum wind level pressure is found hydrostatically.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2005-02-02  Mark Iredell  changed upper limit to 100 mb
-!
-! Usage:  call mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
-!   Input argument list:
-!     km       integer number of levels
-!     p        real (km) pressure (Pa)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     t        real (km) temperature (K)
-!     h        real (km) height (m)
-!   Output argument list:
-!     pmw      real maximum wind level pressure (Pa)
-!     umw      real maximum wind level x-component wind (m/s)
-!     vmw      real maximum wind level y-component wind (m/s)
-!     tmw      real maximum wind level temperature (K)
-!     hmw      real maximum wind level height (m)
-!
-! Files included:
-!   physcons.h     Physical constants
-!
-! Subprograms called:
-!   rsearch1       search for a surrounding real interval
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
+!> mxwind() computes maximum wind level fields.
+!>
+!> This subprogram finds the maximum wind level and computes fields
+!> at the maximum wind level. The maximum wind level is searched for
+!> between 500 mb and 100 mb. The height and wind speed at the maximum wind
+!> speed level is calculated by assuming the wind speed varies quadratically
+!> in height in the neighborhood of the maximum wind level.  The other fields
+!> are interpolated linearly in height to the maximum wind level.
+!> The maximum wind level pressure is found hydrostatically.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] t real (km) temperature (K).
+!> @param[in] h real (km) height (m).
+!> @param[out] pmw real maximum wind level pressure (Pa).
+!> @param[out] umw real maximum wind level x-component wind (m/s).
+!> @param[out] vmw real maximum wind level y-component wind (m/s).
+!> @param[out] tmw maximum wind level temperature (K).
+!> @param[out] hmw real maximum wind level height (m).
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell | Initial
+!> 2005-02-02 | Mark Iredell | Changed upper limit to 100 mb
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+    subroutine mxwind(km,p,u,v,t,h,pmw,umw,vmw,tmw,hmw)
     use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
@@ -576,40 +489,34 @@ end subroutine
     tmw=t(kmw)-wmw*(t(kmw)-t(kmw+1))
     pmw=p(kmw)*exp((h(kmw)-hmw)*(1-0.5*(tmw/t(kmw)-1))/(con_rog*t(kmw)))
   end subroutine 
-  
-subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
-!$$$  Subprogram documentation block
-!
-! Subprogram:    mptgen      Generate grid decomposition dimensions
-!   Prgmmr: Iredell    Org: W/NP23      Date: 1999-02-12
-!
-! Abstract: This subprogram decomposes total dimensions of a problem
-!   into smaller domains to be managed on a distributed memory system.
-!   The last dimension given is decomposed first.  If more decompositions
-!   are possible, the next to last dimension is decomposed next, and so on.
-!   The transpositions between decompositions should be done by mptran*.
-!
-! Program history log:
-!   1999-02-12  Mark Iredell
-!
-! Usage:    call mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
-!   Input argument list:
-!     mpirank  integer(kint_mpi) rank of the process (from mpi_comm_rank)
-!     mpisize  integer(kint_mpi) size of the process (from mpi_comm_size)
-!     nd       integer(kint_mpi) number of dimensions to decompose
-!     jt1      integer(kint_mpi) (nd) lower bounds of total dimensions
-!     jt2      integer(kint_mpi) (nd) upper bounds of total dimensions
-!   Output argument list:
-!     j1       integer(kint_mpi) (nd) lower bounds of local decompositions
-!     j2       integer(kint_mpi) (nd) upper bounds of local decompositions
-!     jx       integer(kint_mpi) (nd) local size of decompositions
-!     jm       integer(kint_mpi) (nd) maximum size of decompositions
-!     jn       integer(kint_mpi) (nd) number of decompositions
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> mptgen() generates grid decomposition dimensions.
+!>
+!> This subprogram decomposes total dimensions of a problem
+!> into smaller domains to be managed on a distributed memory system.
+!> The last dimension given is decomposed first.  If more decompositions
+!> are possible, the next to last dimension is decomposed next, and so on.
+!> The transpositions between decompositions should be done by mptran*.
+!>
+!> @param[in] mpirank integer(kint_mpi) rank of the process (from mpi_comm_rank).
+!> @param[in] mpisize integer(kint_mpi) size of the process (from mpi_comm_size).
+!> @param[in] nd integer(kint_mpi) number of dimensions to decompose.
+!> @param[in] jt1 integer(kint_mpi) (nd) lower bounds of total dimensions.
+!> @param[in] jt2 integer(kint_mpi) (nd) upper bounds of total dimensions.
+!> @param[out] j1 integer(kint_mpi) (nd) lower bounds of local decompositions.
+!> @param[out] j2 integer(kint_mpi) (nd) upper bounds of local decompositions.
+!> @param[out] jx integer(kint_mpi) (nd) local size of decompositions.
+!> @param[out] jm integer(kint_mpi) (nd) maximum size of decompositions.
+!> @param[out] jn integer(kint_mpi) (nd) number of decompositions.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-02-12 | Mark Iredell | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-02-12  
+  subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
   use machine_post,only:kint_mpi
   implicit none
   integer(kint_mpi),intent(in):: mpirank,mpisize,nd,jt1(nd),jt2(nd)
@@ -642,91 +549,77 @@ subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
 !-------------------------------------------------------------------------------
-subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
-                    jm,jma,jmb,jda,km,kma,kmb,kdb,a,b,ta,tb)
-!$$$  Subprogram documentation block
-!
-! Subprogram:    mptranr4    Transpose grid decompositions
-!   Prgmmr: Iredell    Org: W/NP23      Date: 1999-02-12
-!
-! Abstract: This subprogram transposes an array of data from one
-!   grid decomposition to another by using message passing.
-!   The grid decompositions should be generated by mptgen.
-!
-! Program history log:
-!   1999-02-12  Mark Iredell
-!
-! Usage:  call mptranr4(mpicomm,mpisize,im,ida,idb,&
-!                       jm,jma,jmb,jda,km,kma,kmb,kdb,a,b)
-!   Input argument list:
-!     mpicomm  integer(kint_mpi) mpi communicator
-!     mpisize  integer(kint_mpi) size of the process (from mpi_comm_size)
-!     im       integer(kint_mpi) undecomposed range
-!     ida      integer(kint_mpi) undecomposed input dimension
-!     idb      integer(kint_mpi) undecomposed output dimension
-!     jm       integer(kint_mpi) output grid decomposition size
-!     jma      integer(kint_mpi) input grid undecomposed range
-!     jmb      integer(kint_mpi) output grid decomposed range
-!     jda      integer(kint_mpi) input grid undecomposed dimension
-!     km       integer(kint_mpi) input grid decomposition size
-!     kma      integer(kint_mpi) input grid decomposed range
-!     kmb      integer(kint_mpi) output grid undecomposed range
-!     kdb      integer(kint_mpi) output grid undecomposed dimension
-!     a        real(4) (ida,jda,kma) input array
-!   Output argument list:
-!     b        real(4) (idb,kdb,jmb) output array
-!     ta,tb    real(4) (im,jm,km,mpisize)  work arrays
-!
-! Subprograms called:
-!   mpi_alltoall  mpi exchange of data between every process pair
-!
-! Remarks:
-!   While this routine serves a wide variety of scalable transpose functions
-!   for multidimensional grids,
-!     (a) it does not work with nonrectanguloid grids;
-!     (b) it does not do any load balancing;
-!     (c) it does not do any communication hiding.
-!
-!   This subprogram must be used rather than mpi_alltoall
-!   in any of the following cases:
-!     (a) The undecomposed range is less than the respective dimension
-!         (either im<ida or im<idb)
-!     (b) The decomposition size is greater than one
-!         (either km>1 or jm>1)
-!     (c) The decomposed range is ever zero
-!         (either kma==0 or jmb==0 for any process)
-!     (d) The output grid range is not the full extent
-!         (either kmb<mpisize or kmb<kda or jma<mpisize or jma<jda)
-!   If none of these conditions apply, mpi_alltoall could be used directly
-!   rather than this subprogram and would be more efficient.
-!
-!   Example 1.  Transpose a 1000 x 10000 matrix.
-!
-!!!   include 'mpif.h'                                     ! use mpi
-!!!   parameter(jt=1000,kt=10000)                          ! set problem size
-!!!   real,allocatable:: a(:,:),b(:,:)                     ! declare arrays
-!!!   call mpi_init(ierr)                                  ! initialize mpi
-!!!   call mpi_comm_rank(MPI_COMM_WORLD,mpirank,ierr)      ! get mpi rank
-!!!   call mpi_comm_size(MPI_COMM_WORLD,mpisize,ierr)      ! get mpi size
-!!!   call mptgen(mpirank,mpisize,1,1,jt,j1,j2,jx,jm,jn)   ! decompose output
-!!!   call mptgen(mpirank,mpisize,1,1,kt,k1,k2,kx,km,kn)   ! decompose input
-!!!   allocate(a(jt,k1:k2),b(kt,j1:j2))                    ! allocate arrays
-!!!   a=reshape((/((j+k,j=1,jt),k=k1,k2)/),(/jt,k2-k1+1/)) ! initialize input
-!!!   call mptranr4(MPI_COMM_WORLD,mpisize,1,1,1,          ! transpose arrays
-!!!  &              jm,jt,j2-j1+1,jt,km,k2-k1+1,kt,kt,a,b)
-!!!   print '(2i8,f16.1)',((k,j,b(k,j),k=2000,kt,2000),    ! print some values
-!!!  &                    j=((j1-1)/200+1)*200,j2,200)
-!!!   call mpi_finalize(ierr)                              ! finalize mpi
-!!!   end
-!
-!   This transpose took 0.6 seconds on 4 2-way winterhawk nodes.
-!   A 20000x10000 transpose took 3.4 seconds on 16 2-way winterhawk nodes.
-!   Thus a transpose may take about 1 second for every 16 Mb per node.
-!
-! Attributes:
-!   language: fortran 90
-!
-!$$$
+!> mptranr4() transposes grid decompositions.
+!>
+!> This subprogram transposes an array of data from one
+!> grid decomposition to another by using message passing.
+!> The grid decompositions should be generated by mptgen.
+!>
+!> @param[in] mpicomm  integer(kint_mpi) mpi communicator.
+!> @param[in] mpisize  integer(kint_mpi) size of the process (from mpi_comm_size).
+!> @param[in] im       integer(kint_mpi) undecomposed range.
+!> @param[in] ida      integer(kint_mpi) undecomposed input dimension.
+!> @param[in] idb      integer(kint_mpi) undecomposed output dimension.
+!> @param[in] jm       integer(kint_mpi) output grid decomposition size.
+!> @param[in] jma      integer(kint_mpi) input grid undecomposed range.
+!> @param[in] jmb      integer(kint_mpi) output grid decomposed range.
+!> @param[in] jda      integer(kint_mpi) input grid undecomposed dimension.
+!> @param[in] km       integer(kint_mpi) input grid decomposition size.
+!> @param[in] kma      integer(kint_mpi) input grid decomposed range.
+!> @param[in] kmb      integer(kint_mpi) output grid undecomposed range.
+!> @param[in] kdb      integer(kint_mpi) output grid undecomposed dimension.
+!> @param[in] a        real(4) (ida,jda,kma) input array.
+!> @param[out] b real(4) (idb,kdb,jmb) output array.
+!> @param[out] ta,tb real(4) (im,jm,km,mpisize) work arrays.
+!>
+!> @note
+!>   While this routine serves a wide variety of scalable transpose functions for multidimensional grids,
+!>  * It does not work with nonrectanguloid grids;
+!>  * It does not do any load balancing;
+!>  * It does not do any communication hiding.
+!>
+!>   This subprogram must be used rather than mpi_alltoall in any of the following cases:
+!>
+!>  * The undecomposed range is less than the respective dimension (either im<ida or im<idb)
+!>  * The decomposition size is greater than one (either km>1 or jm>1)
+!>  * The decomposed range is ever zero (either kma==0 or jmb==0 for any process)
+!>  * The output grid range is not the full extent (either kmb<mpisize or kmb<kda or jma<mpisize or jma<jda)
+!>
+!>   If none of these conditions apply, mpi_alltoall could be used directly rather than this subprogram and would be more efficient.
+!> @note
+!>  Example 1.  Transpose a 1000 x 10000 matrix.
+!> <pre>
+!>  include 'mpif.h'                                     ! use mpi
+!>  parameter(jt=1000,kt=10000)                          ! set problem size
+!>  real,allocatable:: a(:,:),b(:,:)                     ! declare arrays
+!>  call mpi_init(ierr)                                  ! initialize mpi
+!>  call mpi_comm_rank(MPI_COMM_WORLD,mpirank,ierr)      ! get mpi rank
+!>  call mpi_comm_size(MPI_COMM_WORLD,mpisize,ierr)      ! get mpi size
+!>  call mptgen(mpirank,mpisize,1,1,jt,j1,j2,jx,jm,jn)   ! decompose output
+!>  call mptgen(mpirank,mpisize,1,1,kt,k1,k2,kx,km,kn)   ! decompose input
+!>  allocate(a(jt,k1:k2),b(kt,j1:j2))                    ! allocate arrays
+!>  a=reshape((/((j+k,j=1,jt),k=k1,k2)/),(/jt,k2-k1+1/)) ! initialize input
+!>  call mptranr4(MPI_COMM_WORLD,mpisize,1,1,1,          ! transpose arrays
+!>  &              jm,jt,j2-j1+1,jt,km,k2-k1+1,kt,kt,a,b)
+!>  print '(2i8,f16.1)',((k,j,b(k,j),k=2000,kt,2000),    ! print some values
+!>  &                    j=((j1-1)/200+1)*200,j2,200)
+!>  call mpi_finalize(ierr)                              ! finalize mpi
+!>  end
+!> </pre>
+!>  This transpose took 0.6 seconds on 4 2-way winterhawk nodes.
+!> @note
+!>  A 20000x10000 transpose took 3.4 seconds on 16 2-way winterhawk nodes.
+!> @note
+!>  Thus a transpose may take about 1 second for every 16 Mb per node.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-02-12 | Mark Iredell | Initial
+!>
+!> @author Mark Iredell np23 @date 1999-02-12
+  subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
+                      jm,jma,jmb,jda,km,kma,kmb,kdb,a,b,ta,tb)
   use machine_post,only:kint_mpi
   implicit none
   include 'mpif.h'

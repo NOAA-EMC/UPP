@@ -9,6 +9,10 @@
 !  2011-02    Jun Wang  - ADD variables for grib2
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
+!  2021-09-30 JESSE MENG- 2D DECOMPOSITION
+!  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
+!  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
+!  2023-01-24 Sam Trahan - IFI flight levels, runtime of IFI, and record of the bucket time
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -41,7 +45,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, d3d_on, hyb_sigp, rdaod, aqfcmaq_on
+  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqf_on
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
@@ -54,11 +58,25 @@
           SPL(komax),ALSL(komax),PREC_ACC_DT,PT_TBL,PREC_ACC_DT1,spval
 ! real :: SPVAL=9.9e10                                     ! Moorthi
 !
-  integer :: NUM_PROCS,ME,JSTA,JEND,JSTA_M,JEND_M,                     &
-             JSTA_M2,JEND_M2,IUP,IDN,ICNT(0:1023),IDSP(0:1023),        &
-             JSTA_2L, JEND_2U,JVEND_2u,NUM_SERVERS, MPI_COMM_INTER,    &
+  integer :: NUM_PROCS,ME,JSTA,JEND,ISTA,IEND,                         &
+               JSTA_M,JEND_M, JSTA_M2,JEND_M2,                         &
+               ISTA_M,IEND_M,ISTA_M2,IEND_M2,                          &
+             IUP,IDN,ICNT(0:1023),IDSP(0:1023),  ICNT2(0:1023),IDSP2(0:1023),                      & 
+             JSTA_2L, JEND_2U,JVEND_2U,                                &
+             ISTA_2L, IEND_2U,IVEND_2U,                                &
+             NUM_SERVERS, MPI_COMM_INTER,    &
              MPI_COMM_COMP, IM,JM,LM,NSOIL,LP1,LM1,IM_JM,              &
+             ileft,iright,                                             &
+                ileftb,irightb ,                                       & 
+             ibsize,ibsum,                                             &
              lsm,lsmp1                                    !comm mpi
+        integer, allocatable :: icoords(:,:),ibcoords(:,:)
+        real   , allocatable :: rcoords(:,:),rbcoords(:,:)
+        real, allocatable :: bufs(:),buff(:)                           
+        integer , allocatable :: isxa(:),iexa(:),jsxa(:),jexa(:)       
+        integer numx
+        integer, allocatable :: ibufs(:)
+        real, allocatable :: rbufs(:)
 !
   real :: ARDSW, ARDLW, ASRFC, TSRFC,TRDLW,TRDSW,TCLOD,THEAT,          &
           TPREC,TMAXMIN,TD3D                              !comm rad
@@ -68,7 +86,8 @@
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
                   MDL2SIGMA_tim=0.,READxml_tim=0.,MDL2AGL_tim=0.,      &
-                  MDL2STD_tim=0.,MDL2THANDPV_tim=0.,CALRAD_WCLOUD_tim=0.!comm tim_info
+                  MDL2STD_tim=0.,MDL2THANDPV_tim=0.,                   &
+                  CALRAD_WCLOUD_tim=0.,RUN_IFI_TIM=0.     !comm tim_info
 !
   real(kind=8) :: time_output=0., time_e2out=0.           !comm jjt
 !
@@ -88,6 +107,8 @@
   integer, parameter :: nbin_oc = 2   		! organic carbon
   integer, parameter :: nbin_bc = 2   		! black carbon
   integer, parameter :: nbin_su = 1   		! sulfate
+  integer, parameter :: nbin_no3 = 3   		! nitrate
+  integer, parameter :: nbin_nh4 = 1   		! NH4
   integer, parameter :: nbin_sm = 1             ! smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
@@ -99,5 +120,12 @@
       DATA SIGBND / 0.985,0.955,0.925,0.895,0.865,0.835 /
       DATA PETABND / 15.,45.,75.,105.,135.,165./
 !
+!     Precipitation bucket time
+      real :: ITPREC=-1
+!
+!     Flight levels in feet, provided by libIFI
+      integer :: ifi_nflight = 0
+      real, allocatable :: ifi_flight_levels(:) ! units are FEET
+!     
 !-----------------------------------------------------------------------
   end module CTLBLK_mod

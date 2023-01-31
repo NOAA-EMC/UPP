@@ -10,6 +10,9 @@
 !                              are defined in xml file
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
+!   July,  2021    Jesse Meng 2D decomsition
+!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
+!   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
@@ -197,7 +200,7 @@
   subroutine gribit2(post_fname)
 !
 !-------
-    use ctlblk_mod, only : im,jm,im_jm,num_procs,me,jsta,jend,ifhr,sdat,ihrst,imin,    &
+    use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none
 !
@@ -215,6 +218,7 @@
     integer(4),allocatable :: isdsp(:),iscnt(:),ircnt(:),irdsp(:)
     integer status(MPI_STATUS_SIZE)
     integer(kind=MPI_OFFSET_KIND) idisp
+    integer,allocatable :: ista_pe(:),iend_pe(:)
     integer,allocatable :: jsta_pe(:),jend_pe(:)
     integer,allocatable :: grbmsglen(:)
     real,allocatable    :: datafld(:,:)
@@ -222,6 +226,7 @@
     logical, parameter :: debugprint = .false.
 !
     character(1), dimension(:), allocatable :: cgrib
+    real :: level_unit_conversion
 !
 !
 !---------------- code starts here --------------------------
@@ -253,6 +258,12 @@
 !--- reditribute data from partial domain data with all fields 
 !---   to whole domain data but partial fields
 !
+    allocate(ista_pe(num_procs),iend_pe(num_procs))
+    call mpi_allgather(ista,1,MPI_INTEGER,ista_pe,1,          &
+      MPI_INTEGER,MPI_COMM_COMP,ierr)
+    call mpi_allgather(iend,1,MPI_INTEGER,iend_pe,1,          &
+      MPI_INTEGER,MPI_COMM_COMP,ierr)
+
     allocate(jsta_pe(num_procs),jend_pe(num_procs))
     call mpi_allgather(jsta,1,MPI_INTEGER,jsta_pe,1,          &
       MPI_INTEGER,MPI_COMM_COMP,ierr)
@@ -269,18 +280,19 @@
 !
 !--- sequatial write if the number of fields to write is small
 !
-    if(minval(nfld_pe)<1.or.num_procs==1) then
+!JESSE    if(minval(nfld_pe)<1.or.num_procs==1) then
+    if(num_procs==1) then
 !
 !-- collect data to pe 0
       allocate(datafld(im_jm,ntlfld) )
-      if(num_procs==1) then
+!      if(num_procs==1) then
         datafld=reshape(datapd,(/im_jm,ntlfld/))
-      else
-        do i=1,ntlfld 
-          call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
-             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
-        enddo
-      endif
+!      else
+!        do i=1,ntlfld 
+!          call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
+!             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
+!        enddo
+!      endif
 !
 !-- pe 0 create grib2 message and write to the file
       if(me==0) then
@@ -314,10 +326,14 @@
                                       '  category ',icatg,             &
                                       '  parameter ',iparm,            &
                                       ' for var ',trim(pset%param(nprm)%pname)
-
+            if(index(pset%param(nprm)%shortname,'IFI_FLIGHT_LEVEL')>0) then
+              level_unit_conversion=0.3048 ! convert feet->meters
+            else
+              level_unit_conversion=1
+            endif
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
                 fld_info(i)%ntrange,fld_info(i)%tinvstat,datafld(:,i),       &
-                cgrib,clength)
+                cgrib,clength,level_unit_conversion)
 !            print *,'finished gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call wryte(lunout, clength, cgrib)
            else
@@ -339,13 +355,13 @@
       allocate(ircnt(num_procs),irdsp(num_procs))
       isdsp(1)=0
       do n=1,num_procs
-       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*im*nfld_pe(n)
+       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*(iend_pe(me+1)-ista_pe(me+1)+1)*nfld_pe(n)
        if(n<num_procs)isdsp(n+1)=isdsp(n)+iscnt(n)
       enddo
 !
       irdsp(1)=0
       do n=1,num_procs
-        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*im*nfld_pe(me+1)
+        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*(iend_pe(n)-ista_pe(n)+1)*nfld_pe(me+1)
         if(n<num_procs)irdsp(n+1)=irdsp(n)+ircnt(n)
       enddo
 !      print *,'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
@@ -362,16 +378,17 @@
       do n=1,num_procs
       do k=1,nfld_pe(me+1)
       do j=jsta_pe(n),jend_pe(n)
-      do i=1,im
+      do i=ista_pe(n),iend_pe(n)
         nm=nm+1
         datafld((j-1)*im+i,k)=datafldtmp(nm)
       enddo
       enddo
       enddo
       enddo
+
       deallocate(datafldtmp)
 !
-!-- now each process has several full domain fields, start to create grib2 message.      
+!-- now each process has several full domain fields, start to create grib2 message.
 !
 !      print *,'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
 !      print *,'nprm=',   &
@@ -408,8 +425,14 @@
 !
 !--- generate grib2 message ---
 !
+         if(index(pset%param(nprm)%shortname,'IFI_FLIGHT_LEVEL')>0) then
+           level_unit_conversion=0.3048 ! convert feet->meters
+         else
+           level_unit_conversion=1
+         endif
          call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,  &
-                       leng_time_range_stat,datafld(:,i),cgrib(cstart),clength)
+                       leng_time_range_stat,datafld(:,i),cgrib(cstart),clength, &
+                       level_unit_conversion)
          cstart=cstart+clength
 !
        else
@@ -468,7 +491,7 @@
 !----------------------------------------------------------------------------------------
 !
   subroutine gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,tinvstat,  &
-     datafld1,cgrib,lengrib)
+     datafld1,cgrib,lengrib,level_unit_conversion)
 !
 !----------------------------------------------------------------------------------------
 !
@@ -487,6 +510,7 @@
     real,dimension(:),intent(in) :: datafld1
     character(1),intent(inout) :: cgrib(max_bytes)
     integer, intent(inout) :: lengrib
+    real, intent(in) :: level_unit_conversion
 !
     integer, parameter :: igdsmaxlen=200
 !
@@ -721,6 +745,14 @@
          scale_fct_fixed_sfc2=pset%param(nprm)%scale_fact_fixed_sfc2(1)
        else
          scale_fct_fixed_sfc2=0
+       endif
+
+       if(abs(level_unit_conversion-1)>1e-4) then
+!         print *,'apply level unit conversion ',level_unit_conversion
+!         print *,'scaled_val_fixed_sfc1 was ',scaled_val_fixed_sfc1
+         scaled_val_fixed_sfc1=nint(scaled_val_fixed_sfc1*real(level_unit_conversion,kind=8))
+         scaled_val_fixed_sfc2=nint(scaled_val_fixed_sfc2*real(level_unit_conversion,kind=8))
+!         print *,'scaled_val_fixed_sfc1 now ',scaled_val_fixed_sfc1
        endif
 
        ihr_start = ifhr-tinvstat 
@@ -1171,7 +1203,7 @@
     integer :: grib_edition
     integer :: itot
     integer :: nx,ny
-    real    :: dx,dy,lat1,lon1,rtnum
+    real    :: dx,dy,lat1,lon1,rtnum, nlat
     real    :: ref_value,bin_scale_fac,dec_scale_fac,bit_number,field_type
     real    :: bit_map
     real    :: scale_factor,scale_factor2
@@ -1295,7 +1327,15 @@
 !                write(*,*) 'bit_number=',bit_number
 !                write(*,*) 'field_type=',field_type
 !                write(*,*) 'bit map indicator=',bit_map
-             else
+             else if (gfld%igdtnum.eq.40) then ! Gaussian Grid (GFS)
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                lat1 = gfld%igdtmpl(12)/scale_factor
+                lon1 = gfld%igdtmpl(13)/scale_factor
+                dx = gfld%igdtmpl(17)/scale_factor
+                nlat = gfld%igdtmpl(18)
+                write(*,*) gfld%igdtnum, nx, ny, lat1, lon1, dx, nlat
+        else
                 write(*,*) 'unknown projection'
                 stop 1235
              endif
@@ -1769,13 +1809,15 @@
        ifield3(15) = latlast
        ifield3(16) = lonlast
 !       ifield3(17) = NINT(360./(IM)*1.0E6)
-       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+!       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+       ifield3(17) = DXVAL
 !       if(mod(jm,2) == 0 ) then
 !        ifield3(18) = NINT(180./JM*1.0E6) 
 !       else
 !        ifield3(18) = NINT(180./(JM-1)*1.0E6)
-        ifield3(18) = abs(latlast-latstart)/(JM-1)
+!        ifield3(18) = abs(latlast-latstart)/(JM-1)
 !       endif
+       ifield3(18) = DYVAL
        if( latstart < latlast ) then
         ifield3(19) = 64      !for SN scan   
        else

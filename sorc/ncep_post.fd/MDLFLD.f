@@ -43,6 +43,11 @@
 !!   20-11-10  J MENG - USE UPP_MATH MODULE
 !!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !!   21-04-01  J MENG - COMPUTATION ON DEFINED POINTS ONLY
+!!   21-07-07  J MENG - 2D DECOMPOSITION
+!!   22-09-22  L Zhang - ADD NO3 and NH4 output for UFS-Aerosols model
+!!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
+!!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
+!!   22-11-16  E James - Adding dust from RRFS
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -80,12 +85,12 @@
       SUBROUTINE MDLFLD
 
 !    
-      use vrbls4d, only: dust, salt, suso, waso, soot, smoke
+      use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM, pmtf, ozcon
+              catedr,mwt,gtg, REF_10CM, avgpmtf, avgozcon
 
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
@@ -97,10 +102,11 @@
               tops, dsnow, drain,const_ng1, const_ng2, gon, topg, dgraupel
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
-              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, aqfcmaq_on
+              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
+      ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, nasa_on
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
-      use upp_physics, only: CALRH, CALCAPE
+      use upp_physics, only: CALRH, CALCAPE, CALVOR
       use upp_math, only: H2U, H2V, U2H, V2H
 
 !     
@@ -120,7 +126,7 @@
       REAL CC(10), PPT(10)
       DATA CC / 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 /
       DATA PPT/  0., .14, .31, .70, 1.6, 3.4, 7.7, 17., 38., 85. /
-      INTEGER, dimension(im,jsta_2l:jend_2u) ::  ICBOT, ICTOP, LPBL
+      INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) ::  ICBOT, ICTOP, LPBL
 
 !     
 !     DECLARE VARIABLES.
@@ -129,7 +135,7 @@
       LOGICAL NMM_GFSmicro
       LOGiCAL Model_Radar
       real, dimension(im,jm)              :: GRID1, GRID2
-      real, dimension(im,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
                                              EL0,    P1D,    T1D,    Q1D,    C1D,   &
                                              FI1D,   FR1D,   FS1D,   QW1,    QI1,   &
                                              QR1,    QS1,    CUREFL_S,              &
@@ -160,8 +166,8 @@
       integer ks,nsmooth
       REAL SDUMMY(IM,2),dxm
 ! added to calculate cape and cin for icing
-      real, dimension(im,jsta:jend) ::  dummy, cape, cin
-      integer idummy(IM,jsta:jend)
+      real, dimension(ista:iend,jsta:jend) ::  dummy, cape, cin
+      integer idummy(ista:iend,jsta:jend)
 
       real, PARAMETER :: ZSL=0.0, TAUCR=RD*GI*290.66, CONST=0.005*G/RD, GORD=G/RD
       logical, parameter :: debugprint = .false.
@@ -186,7 +192,7 @@
 !      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
       check_ref: DO L=1,LM
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ista,iend
           IF(ABS(REF_10CM(I,J,L)-SPVAL)>SMALL) THEN
             Model_Radar=.True.
             exit check_ref
@@ -196,9 +202,9 @@
       ENDDO check_ref
       if(debugprint .and. me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
         'MODELNAME=',trim(MODELNAME),' imp_physics=',imp_physics 
-      ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
-      ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
-      ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
+      ALLOCATE(EL     (ista_2l:iend_2u,JSTA_2L:JEND_2U,LM))     
+      ALLOCATE(RICHNO (ista_2l:iend_2u,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(PBLRI  (ista_2l:iend_2u,JSTA_2L:JEND_2U))    
 !     
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
       IF (IGET(105) > 0 .OR. IGET(445) > 0) THEN
@@ -207,18 +213,19 @@
       IF (IGET(105) > 0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ista,iend
                GRID1(I,J) = SLP(I,J)
              ENDDO
            ENDDO
            if(grib=="grib2") then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(105))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
+               do i=1,iend-ista+1
+                 ii = ista+i-1
+                 datapd(i,j,cfld) = GRID1(ii,jj)
                enddo
              enddo
            endif
@@ -233,7 +240,7 @@
 !        print*,'DTQ2 in MDLFLD= ',DTQ2
         RDTPHS=24.*3.6E6/DTQ2
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ista,iend
           IF ((HBOT(I,J)-HTOP(I,J)) <= 1.0) THEN
             ICBOT(I,J)=0
             ICTOP(I,J)=0
@@ -261,7 +268,7 @@
 !            CNVCFR(I,J)=100.*CFRdum
             CNVCFR(I,J)=CFRdum
           ENDIF       !--- End IF (HBOT(I,J)-HTOP(I,J) <= 1.0) ...
-          ENDDO       !--- DO I=1,IM
+          ENDDO       !--- DO I=ista,iend
         ENDDO         !--- DO J=JSTA,JEND
       ENDIF           !-- IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
 !
@@ -279,7 +286,7 @@
         .or. NMM_GFSmicro)THEN
        RDTPHS=3.6E6/DTQ2
        DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ista,iend
           CUPRATE=RDTPHS*CPRATE(I,J)            !--- Cu precip rate, R (mm/h)
 !          CUPRATE=CUPPT(I,J)*1000./TRDLW        !--- mm/h
           Zfrz(I,J)=ZMID(I,J,NINT(LMH(I,J)))  !-- Initialize to lowest model level
@@ -315,7 +322,7 @@
        if(icount_calmict==0)then  !only call calmict once in multiple grid processing
        DO L=1,LM
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ista,iend
           P1D(I,J)=PMID(I,J,L)
           T1D(I,J)=T(I,J,L)
           Q1D(I,J)=Q(I,J,L)
@@ -368,7 +375,7 @@
 refl_miss:   IF (Model_Radar) THEN               
                 ! - Model output DBZ is present - proceed with calc
                 DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                 IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
                   ze_nc=10.**(0.1*REF_10CM(I,J,L))
                   DBZ1(I,J)=10.*LOG10(max(Zmin,(ze_nc+CUREFL(I,J))))
@@ -435,7 +442,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
 !
            DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ista,iend
            IF(C1D(I,J)<spval.and.FI1D(I,J)<spval)THEN
               QI1(I,J)=C1D(I,J)*FI1D(I,J)
               QW1(I,J)=C1D(I,J)-QI1(I,J)
@@ -453,7 +460,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            ENDDO
         ENDIF
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ista,iend
           LLMH = NINT(LMH(I,J))
           IF (L > LLMH) THEN
             QQW(I,J,L)  = D00
@@ -495,7 +502,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==99)THEN !NMMB+Zhao
        DO L=1,LM
         DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
           LLMH = NINT(LMH(I,J))
           IF (L > LLMH) THEN
             QQW(I,J,L)  = D00
@@ -523,7 +530,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==6)THEN !NMMB+WSM6
        DO L=1,LM
         DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
           LLMH = NINT(LMH(I,J))
           IF (L > LLMH) THEN
             QQW(I,J,L)=D00
@@ -562,7 +569,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         .and. imp_physics==8)THEN !NMMB or FV3R +THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
             DBZ(I,J,L)=REF_10CM(I,J,L)
          ENDDO
         ENDDO
@@ -570,7 +577,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       ELSE IF(imp_physics==99 .or. imp_physics==98)THEN ! Zhao MP
        DO L=1,LM
         DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
             DBZ(I,J,L)=SPVAL
          ENDDO
         ENDDO
@@ -588,7 +595,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! Chuang: add convective contribution for all MP schemes
         RDTPHS=3.6E6/DTQ2
         DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
           CUPRATE=RDTPHS*CPRATE(I,J)            !--- Cu precip rate, R (mm/h)
           Zfrz(I,J)=ZMID(I,J,NINT(LMH(I,J)))  !-- Initialize to lowest model level
           DO L=1,NINT(LMH(I,J))               !-- Start from the top, work down
@@ -620,7 +627,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j,l,curefl,fctr,dens,llmh,lctop,delz,ze_nc)
          DO L=1,LM
            DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ista,iend
 !--- Estimate radar reflectivity factor from convection at level L
 !
                CUREFL(I,J)=0.
@@ -737,7 +744,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       ze_gmax = -1.E30
 
          DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ista,iend
         refl(i,j) = -10.
         ze_max = -10.
 
@@ -885,7 +892,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     ABSOLUTE VORTICITY ON MDL SURFACES.
 !     
 !
-      allocate (RH3D(im,jsta_2l:jend_2u,lm))
+      allocate (RH3D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       IF ( (IGET(001)>0).OR.(IGET(077)>0).OR.      &
            (IGET(002)>0).OR.(IGET(003)>0).OR.      &
            (IGET(004)>0).OR.(IGET(005)>0).OR.      &
@@ -911,6 +918,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
            (IGET(470)>0).OR.                       &
            (IGET(909)>0).OR.(IGET(737)>0).OR.      &
+           (IGET(742)>0).OR.                       &
            (IGET(994)>0).OR.(IGET(995)>0) ) THEN
 
       DO 190 L=1,LM
@@ -921,7 +929,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  LL=LM-L+1
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                   DO I=1,IM
+                   DO I=ista,iend
                      GRID1(I,J) = PMID(I,J,LL)
                    ENDDO
                  ENDDO
@@ -929,11 +937,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(001))
                    fld_info(cfld)%lvl=LVLSXML(L,IGET(001))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                    do j=1,jend-jsta+1
                      jj = jsta+j-1
-                     do i=1,im
-                       datapd(i,j,cfld) = GRID1(i,jj)
+                     do i=1,iend-ista+1
+                       ii = ista+i-1
+                       datapd(i,j,cfld) = GRID1(ii,jj)
                      enddo
                    enddo
                 endif
@@ -948,7 +957,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = QQW(I,J,LL)
                    if(GRID1(I,J)<1e-20) GRID1(I,J) = 0.0
                  ENDDO
@@ -957,11 +966,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(124))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(124))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -973,9 +983,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF (IGET(125) > 0) THEN
             IF (LVLS(L,IGET(125)) > 0) THEN
                LL=LM-L+1
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = QQI(I,J,LL)
                    if(GRID1(I,J)<1e-20) GRID1(I,J) = 0.0
                  ENDDO
@@ -984,11 +994,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(125))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(125))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1002,7 +1013,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = QQR(I,J,LL)
                    if(GRID1(I,J)<1e-20) GRID1(I,J) = 0.0
                  ENDDO
@@ -1011,11 +1022,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(181))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(181))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1029,7 +1041,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = QQS(I,J,LL)
                    if(GRID1(I,J)<1e-20) GRID1(I,J) = 0.0
                  ENDDO
@@ -1038,11 +1050,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(182))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(182))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1056,7 +1069,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    if(QQG(I,J,LL) < 1.e-12) QQG(I,J,LL) = 0.     !tgs
                       GRID1(I,J) = QQG(I,J,LL)
                  ENDDO
@@ -1065,11 +1078,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(415))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(415))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1083,7 +1097,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    if(QQNW(I,J,LL) < 1.e-8) QQNW(I,J,LL) = 0.     !tgs 
                       GRID1(I,J) = QQNW(I,J,LL)
                  ENDDO
@@ -1092,11 +1106,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(747))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(747))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1110,7 +1125,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    if(QQNI(I,J,LL) < 1.e-8) QQNI(I,J,LL) = 0.     !tgs
                       GRID1(I,J) = QQNI(I,J,LL)
                  ENDDO
@@ -1119,11 +1134,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(752))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(752))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1137,7 +1153,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    if(QQNR(I,J,LL) < 1.e-8) QQNR(I,J,LL) = 0.     !tgs
                    GRID1(I,J) = QQNR(I,J,LL)
                  ENDDO
@@ -1146,11 +1162,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(754))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(754))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1162,7 +1179,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             IF (LVLS(L,IGET(766)) > 0)THEN
                LL=LM-L+1
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
             if(QQNWFA(I,J,LL)<1.e-8)QQNWFA(I,J,LL)=0.     !tgs
                  GRID1(I,J)=QQNWFA(I,J,LL)
                ENDDO
@@ -1171,7 +1188,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(766))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(766))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
                endif
             ENDIF
           ENDIF
@@ -1182,7 +1199,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             IF (LVLS(L,IGET(767)) > 0)THEN
                LL=LM-L+1
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
             if(QQNIFA(I,J,LL)<1.e-8)QQNIFA(I,J,LL)=0.     !tgs
                  GRID1(I,J)=QQNIFA(I,J,LL)
                ENDDO
@@ -1191,7 +1208,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(767))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(767))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
                endif
             ENDIF
           ENDIF
@@ -1203,9 +1220,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
-                   IF(abs(CFR(I,J,LL)-SPVAL) > SMALL)                   &
-     &                 GRID1(I,J) = CFR(I,J,LL)*H100
+                 DO I=ista,iend
+                   IF(abs(CFR(I,J,LL)-SPVAL) > SMALL) THEN
+                       GRID1(I,J) = CFR(I,J,LL)*H100
+                   ELSE
+                       GRID1(I,J) = SPVAL
+                   ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H100)
@@ -1213,11 +1233,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(145))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(145))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1231,7 +1252,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    IF(MODELNAME == 'RAPR') THEN
                      GRID1(I,J) = CFR(I,J,LL)
                    ELSE
@@ -1243,11 +1264,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(774))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(774))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1270,14 +1292,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                   DO I=1,IM
+                   DO I=ista,iend
                      GRID1(I,J) = REF_10CM(I,J,LL)
                    ENDDO
                  ENDDO
                ELSE
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                   DO I=1,IM
+                   DO I=ista,iend
                      GRID1(I,J) = DBZ(I,J,LL)
                    ENDDO
                  ENDDO
@@ -1288,11 +1310,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(250))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(250))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1307,7 +1330,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = CWM(I,J,LL)
                  ENDDO
                ENDDO
@@ -1315,11 +1338,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(199))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(199))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1333,7 +1357,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = F_rain(I,J,LL)
                  ENDDO
                ENDDO
@@ -1341,11 +1365,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(185))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(185))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1359,7 +1384,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = F_ice(I,J,LL)
                  ENDDO
                ENDDO
@@ -1367,11 +1392,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(186))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(186))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1386,7 +1412,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                  GRID1(I,J) = F_RimeF(I,J,LL)
                 ENDDO
               ENDDO
@@ -1394,11 +1420,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(187))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(187))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
               endif
@@ -1412,7 +1439,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = ZMID(I,J,LL)
                  ENDDO
                ENDDO
@@ -1420,11 +1447,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(077))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(077))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1438,7 +1466,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
@@ -1446,11 +1474,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(002))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(002))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1464,7 +1493,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(T(I,J,LL)<spval.and.Q(I,J,LL)<spval)THEN
                    GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
                  ELSE
@@ -1476,7 +1505,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(909))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(909))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
                endif
               ENDIF
 
@@ -1488,16 +1517,16 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    P1D(I,J) = PMID(I,J,LL)
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
+               CALL CALPOT(P1D(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = EGRID3(I,J)
                  ENDDO
                ENDDO
@@ -1505,11 +1534,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(003))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(003))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
                endif
@@ -1523,16 +1553,16 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    P1D(I,J) = PMID(I,J,LL)
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
+               CALL CALPOT(P1D(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q(I,J,LL)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J) * (1.+D608*Q(I,J,LL))
                  ELSE
@@ -1544,11 +1574,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(751))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(751))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
                endif
@@ -1563,18 +1594,18 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   P1D(I,J) = PMID(I,J,LL)
                   T1D(I,J) = T(I,J,LL)
                   Q1D(I,J) = Q(I,J,LL)
                 ENDDO
               ENDDO
 
-            CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+            CALL CALRH(P1D(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend),Q1D(ista:iend,jsta:jend),EGRID4(ista:iend,jsta:jend))
 
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                 IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
                   GRID1(I,J)   = EGRID4(I,J)*100.
                   RH3D(I,J,LL) = GRID1(I,J)
@@ -1591,11 +1622,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(006))
                   fld_info(cfld)%lvl=LVLSXML(L,IGET(006))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                 endif
@@ -1609,16 +1641,16 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    P1D(I,J) = PMID(I,J,LL)
                    T1D(I,J) = T(I,J,LL)
                    Q1D(I,J) = Q(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALDWP(P1D(1,jsta),Q1D(1,jsta),EGRID3(1,jsta),T1D(1,jsta))
+               CALL CALDWP(P1D(ista:iend,jsta:jend),Q1D(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J)
                  ELSE
@@ -1630,11 +1662,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(004))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(004))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1647,7 +1680,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = Q(I,J,LL)
                  ENDDO
                ENDDO
@@ -1656,11 +1689,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(005))
                fld_info(cfld)%lvl=LVLSXML(L,IGET(005))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
+                 do i=1,iend-ista+1
+                   ii = ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
                  enddo
                enddo
               endif
@@ -1673,7 +1707,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(Q(I,J,LL)<spval)THEN
                    GRID1(I,J) = Q(I,J,LL) / (1.-Q(I,J,LL))
                  ELSE
@@ -1686,11 +1720,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(750))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(750))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
                endif
@@ -1706,7 +1741,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA_2L,JEND_2U
-                 DO I=1,IM
+                 DO I=ista_2l,iend_2u
                    Q1D(I,J)    = Q(I,J,LL)
                    EGRID1(I,J) = UH(I,J,LL)
                    EGRID2(I,J) = VH(I,J,LL)
@@ -1715,7 +1750,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                CALL CALMCVG(Q1D,EGRID1,EGRID2,EGRID3)
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(Q1D(I,J)<spval.and.EGRID1(I,J)<spval.and.EGRID2(I,J)<spval)THEN
                    GRID1(I,J)   = EGRID3(I,J)
                    MCVG(I,J,LL) = EGRID3(I,J)
@@ -1730,11 +1765,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(083))
                   fld_info(cfld)%lvl=LVLSXML(L,IGET(083))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                 endif
@@ -1749,7 +1785,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = UH(I,J,LL)
                    GRID2(I,J) = VH(I,J,LL)
                  ENDDO
@@ -1758,21 +1794,23 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(007))
                fld_info(cfld)%lvl=LVLSXML(L,IGET(007))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
+                 do i=1,iend-ista+1
+                   ii = ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
                  enddo
                enddo
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(008))
                fld_info(cfld)%lvl=LVLSXML(L,IGET(008))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID2(i,jj)
+                 do i=1,iend-ista+1
+                   ii = ista+i-1
+                   datapd(i,j,cfld) = GRID2(ii,jj)
                  enddo
                enddo
               endif
@@ -1785,7 +1823,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = OMGA(I,J,LL)
                  ENDDO
                ENDDO
@@ -1793,11 +1831,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(009))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(009))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1810,7 +1849,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J)=WH(I,J,LL)
                  ENDDO
                ENDDO
@@ -1818,11 +1857,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(264))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(264))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1835,7 +1875,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA_2L,JEND_2U
-                 DO I=1,IM
+                 DO I=ista_2l,iend_2u
                    EGRID1(I,J) = UH(I,J,LL)
                    EGRID2(I,J) = VH(I,J,LL)
                  ENDDO
@@ -1843,7 +1883,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                CALL CALVOR(EGRID1,EGRID2,EGRID3)
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(EGRID3(I,J)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J)
                  ELSE
@@ -1855,11 +1895,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(010))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(010))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1872,14 +1913,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    EGRID1(I,J) = ZMID(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALSTRM(EGRID1(1,jsta),EGRID2(1,jsta))
+               CALL CALSTRM(EGRID1(ista:iend,jsta:jend),EGRID2(ista:iend,jsta:jend))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = EGRID2(I,J)
                  ENDDO
                ENDDO
@@ -1887,11 +1928,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(084))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(084))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -1904,7 +1946,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  LL=LM-L+1
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                     GRID1(I,J) = Q2(I,J,LL)
                   ENDDO
                 ENDDO
@@ -1912,11 +1954,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(011))
                   fld_info(cfld)%lvl=LVLSXML(L,IGET(011))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                endif
@@ -1927,14 +1970,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !HC            IF (IGET(124)>0) THEN
 !HC             IF (LVLS(L,IGET(124))>0) THEN
 !HC              DO J=JSTA,JEND
-!HC              DO I=1,IM
+!HC              DO I=ista,iend
 !HC                IF(CWM(I,J,L)<0..AND.CWM(I,J,L)>-1.E-10)
 !HC     1            CWM(I,J,L)=0.
 !HC                 GRID1(I,J)=CWM(I,J,L)
 !HC              ENDDO
 !HC              ENDDO
 !HC              ID(1:25) = 0
-!HC              CALL GRIBIT(IGET(124),L,GRID1,IM,JM)
+!HC              CALL GRIBIT(IGET(124),L,GRIDista,iend,JM)
 !HC             ENDIF
 !HC            ENDIF
 !     
@@ -1943,12 +1986,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           IF (IGET(125)>0) THEN
 !            IF (LVLS(L,IGET(125))>0) THEN
 !              DO J=JSTA,JEND
-!              DO I=1,IM
+!              DO I=ista,iend
 !                GRID1(I,J)=QICE(I,J,L)
 !              ENDDO
 !              ENDDO
 !              ID(1:25) = 0
-!              CALL GRIBIT(IGET(125),L,GRID1,IM,JM)
+!              CALL GRIBIT(IGET(125),L,GRIDista,iend,JM)
 !            ENDIF
 !           ENDIF
 !     
@@ -1958,12 +2001,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           IF (IGET(145)>0) THEN
 !            IF (LVLS(L,IGET(145))>0) THEN
 !              DO J=JSTA,JEND
-!              DO I=1,IM
+!              DO I=ista,iend
 !                GRID1(I,J)=CFRC(I,J,L)
 !              ENDDO
 !              ENDDO
 !              ID(1:25) = 0
-!              CALL GRIBIT(IGET(145),L,GRID1,IM,JM)
+!              CALL GRIBIT(IGET(145),L,GRIDista,iend,JM)
 !            ENDIF
 !           ENDIF
 !     
@@ -1974,7 +2017,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   GRID1(I,J) = TTND(I,J,LL)
                 ENDDO
               ENDDO
@@ -1982,11 +2025,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(140))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(140))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
               endif
@@ -2000,7 +2044,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   GRID1(I,J) = RSWTT(I,J,LL)
                 ENDDO
               ENDDO
@@ -2008,11 +2052,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(040))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(040))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
               endif
@@ -2026,7 +2071,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   GRID1(I,J) = RLWTT(I,J,LL)
                 ENDDO
               ENDDO
@@ -2034,11 +2079,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(041))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(041))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
               endif
@@ -2057,9 +2103,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ELSE
                  RRNUM=0.
                ENDIF
-!$omp  parallel do
+!$omp  parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(TRAIN(I,J,LL)<spval)THEN
                    GRID1(I,J) = TRAIN(I,J,LL)*RRNUM
                  ELSE
@@ -2093,11 +2139,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    fld_info(cfld)%ntrange=1
                  endif
                  fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2113,9 +2160,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ELSE
                  RRNUM=0.
                ENDIF
-!$omp  parallel do
+!$omp  parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(TCUCN(I,J,LL)<spval)THEN
                    GRID1(I,J) = TCUCN(I,J,LL)*RRNUM
                  ELSE
@@ -2149,11 +2196,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    fld_info(cfld)%ntrange=1
                  endif
                  fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2166,7 +2214,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = O3(I,J,LL)
                  ENDDO
                ENDDO
@@ -2174,11 +2222,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(267))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(267))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2189,27 +2238,46 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! AQF
 !===============
 
-        if (aqfcmaq_on) then
+        if (aqf_on) then
 
            IF (IGET(994)>0) THEN
              IF (LVLS(L,IGET(994))>0) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J) = OZCON(I,J,LL)*1000.    ! convert ppm to ppb
+                 DO I=ISTA,IEND
+                   IF(AVGOZCON(I,J,LL)<SPVAL) THEN
+                   GRID1(I,J) = AVGOZCON(I,J,LL)    ! in ppb
+                   ELSE
+                   GRID1(I,J) = SPVAL
+                   ENDIF
                  ENDDO
                ENDDO
-
+               ID(1:25) = 0
+               ITHEAT     = INT(THEAT)
+               ID(19) = IFHR
+               ID(20) = 3
+               IF (IFHR==0) THEN
+                  ID(18) = 0
+               ELSE
+                  ID(18) = IFHR-1
+               ENDIF
                if(grib=="grib2") then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(994))
-!$omp parallel do private(i,j,jj)
+                 if(IFHR==0) then
+                   fld_info(cfld)%ntrange=0
+                 else
+                   fld_info(cfld)%ntrange=1
+                 endif
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                   ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2224,21 +2292,35 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
-                   DENS=PMID(I,J,LL)/(RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
-                   GRID1(I,J) = PMTF(I,J,LL)*DENS      ! ug/kg-->ug/m3
+                 DO I=ISTA,IEND
+                   GRID1(I,J) = AVGPMTF(I,J,LL)      !ug/m3
                  ENDDO
                ENDDO
-
+               ID(1:25) = 0
+               ITHEAT     = INT(THEAT)
+               ID(19) = IFHR
+               ID(20) = 3
+               IF (IFHR==0) THEN
+                  ID(18) = 0
+               ELSE
+                  ID(18) = IFHR-1
+               ENDIF
                if(grib=="grib2") then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(995))
-!$omp parallel do private(i,j,jj)
+                 if(IFHR==0) then
+                   fld_info(cfld)%ntrange=0
+                 else
+                   fld_info(cfld)%ntrange=1
+                 endif
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                   ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2257,9 +2339,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                IF(PMID(I,J,LL)<spval.and.T(I,J,LL)<spval.and.SMOKE(I,J,LL,1)<spval)THEN
-                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*SMOKE(I,J,LL,1)
+                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*SMOKE(I,J,LL,1)/(1E9)
                ELSE
                  GRID1(I,J) = spval
                ENDIF
@@ -2269,24 +2351,56 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(737))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(737))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+! E. James - 14 Sep 2022: Dust from RRFS
+!          DUST
+           IF (IGET(742)>0) THEN
+             IF (LVLS(L,IGET(742))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=ista,iend
+               IF(PMID(I,J,LL)<spval.and.T(I,J,LL)<spval.and.FV3DUST(I,J,LL,1)<spval)THEN
+                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*FV3DUST(I,J,LL,1)/(1E9)
+               ELSE
+                 GRID1(I,J) = spval
+               ENDIF
+               ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(742))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(742))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
              END IF
            ENDIF
 !
+       if ( gocart_on .or. nasa_on ) then
 !          DUST 1
            IF (IGET(629)>0) THEN
              IF (LVLS(L,IGET(629))>0) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                IF(DUST(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                  !GRID1(I,J) = DUST(I,J,LL,1)
                  GRID1(I,J) = DUST(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
@@ -2299,11 +2413,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(629))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(629))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2316,7 +2431,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                IF(DUST(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                  !GRID1(I,J) = DUST(I,J,LL,2)
                  GRID1(I,J) = DUST(I,J,LL,2)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
@@ -2329,11 +2444,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(630))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(630))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2346,7 +2462,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(DUST(I,J,LL,3)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = DUST(I,J,LL,3)
                    GRID1(I,J) = DUST(I,J,LL,3)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
@@ -2359,11 +2475,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(631))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(631))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2376,7 +2493,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(DUST(I,J,LL,4)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = DUST(I,J,LL,4)
                    GRID1(I,J) = DUST(I,J,LL,4)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
@@ -2389,11 +2506,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(632))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(632))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2406,7 +2524,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(DUST(I,J,LL,5)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = DUST(I,J,LL,5)
                    GRID1(I,J) = DUST(I,J,LL,5)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
@@ -2419,11 +2537,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(633))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(633))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2436,7 +2555,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SALT(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
                  ELSE
@@ -2448,11 +2567,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(634))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(634))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2465,7 +2585,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SALT(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,2)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
                  ELSE
@@ -2477,11 +2597,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(635))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(635))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2494,7 +2615,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SALT(I,J,LL,3)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,3)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
                  ELSE
@@ -2506,11 +2627,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(636))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(636))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2523,7 +2645,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SALT(I,J,LL,4)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,4)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
                  ELSE
@@ -2535,11 +2657,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(637))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(637))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2552,7 +2675,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SALT(I,J,LL,5)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,5)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
                  ELSE
@@ -2564,11 +2687,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(638))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(638))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2581,7 +2705,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SUSO(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = SUSO(I,J,LL,1)
                    GRID1(I,J) = SUSO(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
@@ -2594,11 +2718,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(639))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(639))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2611,7 +2736,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(WASO(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = WASO(I,J,LL,1)
                    GRID1(I,J) = WASO(I,J,LL,1)*RHOMID(I,J,LL) !lzhang
@@ -2624,11 +2749,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(640))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(640))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2641,7 +2767,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(WASO(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = WASO(I,J,LL,2)
                    GRID1(I,J) = WASO(I,J,LL,2)*RHOMID(I,J,LL) !lzhang
@@ -2654,11 +2780,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(641))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(641))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2671,7 +2798,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SOOT(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = SOOT(I,J,LL,1)
                    GRID1(I,J) = SOOT(I,J,LL,1)*RHOMID(I,J,LL) !lzhang
@@ -2684,11 +2811,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(642))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(642))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2701,7 +2829,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                  IF(SOOT(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = SOOT(I,J,LL,2)
                    GRID1(I,J) = SOOT(I,J,LL,2)*RHOMID(I,J,LL) !lzhang
@@ -2714,24 +2842,89 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(643))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(643))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
              END IF
            ENDIF
 
+
+         if (nasa_on) then
+!          NITRATE 
+           IF (IGET(688)>0) THEN
+             IF (LVLS(L,IGET(688))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=ista,iend
+                 IF(NO3(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
+                   GRID1(I,J) = NO3(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
+                 ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(688))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(688))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+
+!          NH4 
+           IF (IGET(689)>0) THEN
+             IF (LVLS(L,IGET(689))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=ista,iend
+                 IF(NH4(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
+                   GRID1(I,J) = NH4(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
+                 ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(689))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(689))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+          endif !nasa_on
+         endif !gocart_on
+         
 !          AIR DENSITY
            IF (IGET(644)>0) THEN
              IF (LVLS(L,IGET(644))>0) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = RHOMID(I,J,LL)
                  ENDDO
                ENDDO
@@ -2739,11 +2932,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(644))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(644))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2756,7 +2950,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = DPRES(I,J,LL)
                  ENDDO
                ENDDO
@@ -2764,11 +2958,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(645))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(645))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2795,7 +2990,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !MEB Eta-specific code
 !            NEED TO CALCULATE RAIN WATER AND SNOW MIXING RATIOS
 !      DO J=JSTA,JEND
-!      DO I=1,IM
+!      DO I=ista,iend
 !MEB     IF (PREC(I,J)==0) THEN
 !MEB       QSNO(I,J)=0.
 !MEB       QRAIN(I,J)=0.
@@ -2824,13 +3019,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !      ENDDO
 !      CALL CALVIS(QV,QCD,QRAIN1,QICE1,QSNO1,TT,PPP,VIS)
 !              DO J=JSTA,JEND
-!              DO I=1,IM
+!              DO I=ista,iend
 !                GRID1(I,J)=VIS(I,J)
 !              ENDDO
 !              ENDDO
 !      ID(1:25) = 0
 !      CALL GRIBIT(IGET(180),LVLS(1,IGET(180)),
-!    X           GRID1,IM,JM)
+!    X           GRIDista,iend,JM)
 !      ENDIF
 !
 !     INSTANTANEOUS CONVECTIVE PRECIPITATION RATE.
@@ -2838,13 +3033,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !      IF (IGET(249)>0) THEN
 !         RDTPHS=1000./DTQ2
 !         DO J=JSTA,JEND
-!         DO I=1,IM
+!         DO I=ista,iend
 !           GRID1(I,J)=CPRATE(I,J)*RDTPHS
 !           GRID1(I,J)=SPVAL
 !         ENDDO
 !         ENDDO
 !         ID(1:25) = 0
-!	 CALL GRIBIT(IGET(249),LM,GRID1,IM,JM)
+!	 CALL GRIBIT(IGET(249),LM,GRIDista,iend,JM)
 !      ENDIF
 !
 !     COMPOSITE RADAR REFLECTIVITY (maximum dBZ in each column)
@@ -2853,7 +3048,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         IF(IMP_PHYSICS /= 8 .and. IMP_PHYSICS /= 28) THEN
 !$omp parallel do private(i,j,l)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
                GRID1(I,J) = DBZmin
                DO L=1,NINT(LMH(I,J))
                   GRID1(I,J) = MAX( GRID1(I,J), DBZ(I,J,L) )
@@ -2873,7 +3068,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   GRID1(I,J) = DBZmin
                   DO L=1,NINT(LMH(I,J))
                     GRID1(I,J) = MAX( GRID1(I,J), REF_10CM(I,J,L) )
@@ -2883,7 +3078,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ELSE
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   GRID1(I,J) = REFC_10CM(I,J)
                 ENDDO
               ENDDO
@@ -2892,7 +3087,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           ELSE
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=1,IM
+              DO I=ista,iend
                 GRID1(I,J) = refl(i,j)
               ENDDO
             ENDDO
@@ -2902,11 +3097,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(252))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
          endif
@@ -2917,12 +3113,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     on emprical conversion factors (0.00344) 
       IF (IGET(581)>0) THEN
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ista,iend
             GRID1(I,J)=0.0
             DO L=1,NINT(LMH(I,J))
               if(zint(i,j,l) < spval .and.zint(i,j,l+1)<spval.and.DBZ(I,J,L)<spval) then
                 GRID1(I,J)=GRID1(I,J)+0.00344* &
                 (10.**(DBZ(I,J,L)/10.))**0.57143*(ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+              else
+                GRID1(I,J)=spval
               endif
             ENDDO
           ENDDO
@@ -2930,11 +3128,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(581))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
         endif
@@ -2944,7 +3143,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
       IF (IGET(276)>0) THEN
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
                GRID1(I,J)=DBZmin
                DO L=1,NINT(LMH(I,J))
                   GRID1(I,J)=MAX( GRID1(I,J), DBZR(I,J,L) )
@@ -2954,11 +3153,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(276))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
          endif
@@ -2969,7 +3169,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
       IF (IGET(277)>0) THEN
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
                GRID1(I,J)=DBZmin
                DO L=1,NINT(LMH(I,J))
                   GRID1(I,J)=MAX( GRID1(I,J), DBZI(I,J,L) )
@@ -2979,11 +3179,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(277))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
          endif
@@ -2996,7 +3197,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
       IF (IGET(278)>0) THEN
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
                GRID1(I,J)=DBZmin
                DO L=1,NINT(LMH(I,J))
                   GRID1(I,J)=MAX( GRID1(I,J), DBZC(I,J,L) )
@@ -3006,11 +3207,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(278))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
          endif
@@ -3022,7 +3224,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
       IF (IGET(426)>0) THEN
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
                GRID1(I,J)=0.0
                DO L=1,NINT(LMH(I,J))
                   IF (DBZ(I,J,L)>=18.0) THEN
@@ -3035,11 +3237,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(426))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
          endif
@@ -3057,7 +3260,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       IF (IGET(768) > 0) THEN
         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = -999.
               DO L=1,NINT(LMH(I,J))
                 IF (REF_10CM(I,J,L)>=18.0) THEN
@@ -3086,7 +3289,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           ENDDO
         ELSE
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = -999.
               DO L=1,NINT(LMH(I,J))
                 IF (DBZ(I,J,L) >= 18.0) THEN
@@ -3100,11 +3303,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(768))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
          do j=1,jend-jsta+1
            jj = jsta+j-1
-           do i=1,im
-             datapd(i,j,cfld) = GRID1(i,jj)
+           do i=1,iend-ista+1
+             ii = ista+i-1
+             datapd(i,j,cfld) = GRID1(ii,jj)
            enddo
          enddo
        endif
@@ -3114,7 +3318,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
       IF (IGET(769)>0) THEN
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
                GRID1(I,J)=0.0
                DO L=1,NINT(LMH(I,J))
                IF(QQR(I,J,L)<spval.and.QQS(I,J,L)<spval.and.QQG(I,J,L)<spval.and.&
@@ -3133,11 +3337,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(769))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
              enddo
            enddo
          endif
@@ -3150,7 +3355,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       IF (IGET(770) > 0) THEN
         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = 0.0
               DO L=1,NINT(LMH(I,J))
                 IF (REF_10CM(I,J,L) > -10.0 ) THEN
@@ -3163,7 +3368,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           ENDDO
         ELSE
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = 0.0
               DO L=1,NINT(LMH(I,J))
                 GRID1(I,J) = GRID1(I,J) + 0.00344 *                 &
@@ -3176,11 +3381,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         if(grib=="grib2") then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(770))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=1,im
-              datapd(i,j,cfld) = GRID1(i,jj)
+            do i=1,iend-ista+1
+              ii = ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
             enddo
           enddo
         endif
@@ -3196,7 +3402,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
   !--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
   !
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ista,iend
             LLMH=NINT(LMH(I,J))
             Q1D(I,J)=Q(I,J,LLMH)
            if(Q1D(I,J)<=0.) Q1D(I,J)=0.         !tgs
@@ -3264,7 +3470,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 !-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
 !
-        ii=im/2
+        ii=(ista+iend)/2
         jj=(jsta+jend)/2
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj)
 !     +,QI1(ii,jj) ,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
@@ -3276,7 +3482,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 
 	 DO J=JSTA,JEND
-	 DO I=1,IM
+	 DO I=ista,iend
 	  IF(vis(i,j)/=spval.and.abs(vis(i,j))>24135.1)print*,'bad visbility'     &
        , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
        , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
@@ -3288,7 +3494,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(180))
          fld_info(cfld)%lvl=LVLSXML(1,IGET(180))
-         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
        endif
        ENDIF
 
@@ -3298,7 +3504,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       IF (IGET(410)>0) THEN
         CALL CALVIS_GSD(CZEN,VIS)
         DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ista,iend
           GRID1(I,J)=VIS(I,J)
         END DO
         END DO
@@ -3306,7 +3512,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(410))
          fld_info(cfld)%lvl=LVLSXML(1,IGET(410))
-         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
       ENDIF
 !
@@ -3321,7 +3527,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           GRID1 = -20.0
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = REF1KM_10CM(I,J)
             END DO
           END DO
@@ -3329,7 +3535,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ELSE
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = refl1km(I,J)
             END DO
           END DO
@@ -3340,7 +3546,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(748))
          fld_info(cfld)%lvl=LVLSXML(1,IGET(748))
-         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
        ENDIF
 
@@ -3355,7 +3561,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = REF4KM_10CM(I,J)
             END DO
           END DO
@@ -3363,7 +3569,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ELSE
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ista,iend
               GRID1(I,J) = refl4km(I,J)
             END DO
           END DO
@@ -3374,7 +3580,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(757))
          fld_info(cfld)%lvl=LVLSXML(1,IGET(757))
-         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
        ENDIF
 
@@ -3382,7 +3588,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        IF (IGET(912)>0) THEN
          Zm10c=spval
          DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
 ! dong handle missing value
           if (slp(i,j) < spval) then
           Zm10c(I,J)=ZMID(I,J,NINT(LMH(I,J)))
@@ -3406,7 +3612,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          IF(IMP_PHYSICS==8 .or. IMP_PHYSICS==28) THEN 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ista,iend
             GRID1(I,J)=spval
 ! dong handle missing value
             if (slp(i,j) < spval) then
@@ -3417,7 +3623,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          ELSE 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ista,iend
             GRID1(I,J)=spval
 ! dong handle missing value
             if (slp(i,j) < spval) then
@@ -3433,7 +3639,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(912))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(912))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
        ENDIF
 !     
@@ -3450,14 +3656,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          IF (IGET(147)>0) THEN
 !
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                  GRID1(I,J) = EL0(I,J)
                ENDDO
                ENDDO
             if(grib=="grib2") then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(147))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+              datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
             endif
          ENDIF
 !     
@@ -3470,7 +3676,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp  parallel do private(i,j,l)
             DO L=1,LM
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                    EL(I,J,L) = D00
                 ENDDO
               ENDDO
@@ -3481,7 +3687,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ELSE IF(MODELNAME == 'NMM')THEN
               DO L=1,LM
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                  EL(I,J,L)=EL_PBL(I,J,L)  !NOW EL COMES OUT OF WRF NMM
                ENDDO
                ENDDO
@@ -3504,7 +3710,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp  parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = EL(I,J,LL)
                  ENDDO
                ENDDO
@@ -3512,11 +3718,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(146))
                 fld_info(cfld)%lvl=LVLSXML(L,IGET(146))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
+                  do i=1,iend-ista+1
+                    ii = ista+i-1
+                    datapd(i,j,cfld) = GRID1(ii,jj)
                   enddo
                 enddo
                endif
@@ -3531,7 +3738,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ista,iend
                    GRID1(I,J) = RICHNO(I,J,LL)
                  ENDDO
                ENDDO
@@ -3539,11 +3746,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(111))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(111))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -3575,7 +3783,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             IF (IGET(289) > 0) THEN
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                      GRID1(I,J) = PBLRI(I,J)
 !                    PBLH(I,J) = PBLRI(I,J)
                   ENDDO
@@ -3583,11 +3791,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 if(grib=="grib2") then
                   Cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(289))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                 endif
@@ -3600,7 +3809,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             IF ( (IGET(389) > 0) .OR. (IGET(454) > 0) ) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                 IF(PBLRI(I,J)<spval.and.ZINT(I,J,LM+1)<spval)THEN
                   EGRID3(I,J) = PBLRI(I,J) + ZINT(I,J,LM+1)
                 ELSE
@@ -3609,21 +3818,21 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 END DO
               END DO  
 ! compute U and V separately because they are on different locations for B grid
-              CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4)
+              CALL H2U(EGRID3(ista_2l:iend_2u,JSTA_2L:JEND_2U),EGRID4)
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ista,iend
                   EGRID1(I,J) = 0.0
                   EGRID2(I,J) = 0.0
                 END DO
               END DO
   vert_loopu: DO L=LM,1,-1
-                 CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),  EGRID5)
-                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6)
-                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),  EGRID7)
+                 CALL H2U(ZMID(ista_2l:iend_2u,JSTA_2L:JEND_2U,L),  EGRID5)
+                 CALL H2U(PINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,L+1),EGRID6)
+                 CALL H2U(PINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,L),  EGRID7)
                  HCOUNT=0
                  DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                    if (EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
                        EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
                        UH(I,J,1)<spval)THEN
@@ -3645,7 +3854,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               ENDDO vert_loopu
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                     IF(EGRID2(I,J) > 0.)THEN
                       GRID1(I,J) = EGRID1(I,J)/EGRID2(I,J)
                     ELSE
@@ -3654,10 +3863,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   END DO
                 END DO 
 ! compute v component now
-                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4)
+                CALL H2V(EGRID3(ista_2l:iend_2u,JSTA_2L:JEND_2U),EGRID4)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                     EGRID1(i,j) = 0.
                     EGRID2(i,j) = 0.
                     EGRID5(i,j) = 0.
@@ -3666,12 +3875,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   END DO
                 END DO
   vert_loopv:   DO L=LM,1,-1
-	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),  EGRID5)
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6)
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),  EGRID7)
+	         CALL H2V(ZMID(ista_2l:iend_2u,JSTA_2L:JEND_2U,L),  EGRID5)
+		 CALL H2V(PINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,L+1),EGRID6)
+		 CALL H2V(PINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,L),  EGRID7)
 		 HCOUNT=0
                  DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                    if (EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
                        EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
                        VH(I,J,1)<spval)THEN
@@ -3690,7 +3899,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 ENDDO vert_loopv
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                     IF(EGRID2(I,J) > 0.)THEN
                       GRID2(I,J) = EGRID1(I,J)/EGRID2(I,J)
                     ELSE
@@ -3700,11 +3909,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 END DO 
 
 
-                CALL U2H(GRID1(1,JSTA_2L),EGRID1)
-                CALL V2H(GRID2(1,JSTA_2L),EGRID2)
+                CALL U2H(GRID1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID1)
+                CALL V2H(GRID2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID2)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
 
 ! EGRID1 is transport wind speed
                      ! prevent floating overflow if either component is undefined
@@ -3726,20 +3935,22 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 if(grib=='grib2') then
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(389))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii=ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(390))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID2(i,jj)
+                    do i=1,iend-ista+1
+                    ii=ista+i-1
+                      datapd(i,j,cfld) = GRID2(ii,jj)
                     enddo
                   enddo
                 endif 
@@ -3756,7 +3967,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !       write(0,*) 'IM is: ', IM
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
 
                     IF (PBLRI(I,J) /= SPVAL .and. EGRID3(I,J)/=SPVAL) then
                       GRID1(I,J) = EGRID3(I,J)*PBLRI(I,J)
@@ -3776,11 +3987,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 if(grib=='grib2') then
                   Cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(454))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                 endif
@@ -3805,7 +4017,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           if(me==0)print *,'dxm=',dxm
            NSMOOTH = nint(5.*(13500./dxm))
            do j = jsta_2l, jend_2u
-             do i = 1, im
+             do i = ista_2l, iend_2u
                GRID1(i,j)=PBLHGUST(i,j)
              enddo
            enddo
@@ -3814,14 +4026,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
              CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
            end do
            do j = jsta_2l, jend_2u
-             do i = 1, im
+             do i = ista_2l, iend_2u
                PBLHGUST(i,j)=GRID1(i,j)
              enddo
            enddo
         ENDIF
 
        DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ista,iend
          LPBL(I,J)=LM
 
          if(ZINT(I,J,NINT(LMH(I,J))+1) <spval) then
@@ -3854,9 +4066,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         CALL CALGUST(LPBL,PBLRI,GUST)
        END IF
        IF (IGET(245)>0) THEN
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j)
        DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ista,iend
 !         if(GUST(I,J) > 200. .and. gust(i,j)<spval)    &
 !      	 print*,'big gust at ',i,j
            GRID1(I,J) = GUST(I,J)
@@ -3865,11 +4077,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(245))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
         do j=1,jend-jsta+1
           jj = jsta+j-1
-          do i=1,im
-            datapd(i,j,cfld) = GRID1(i,jj)
+          do i=1,iend-ista+1
+            ii = ista+i-1
+            datapd(i,j,cfld) = GRID1(ii,jj)
           enddo
         enddo
        endif
@@ -3880,22 +4093,23 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 
             IF (IGET(344)>0) THEN
-                allocate(PBLREGIME(im,jsta_2l:jend_2u))
+                allocate(PBLREGIME(ista_2l:iend_2u,jsta_2l:jend_2u))
                 CALL CALPBLREGIME(PBLREGIME)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ista,iend
                     GRID1(I,J) = PBLREGIME(I,J)
                   ENDDO
                 ENDDO
                 if(grib=="grib2") then
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(344))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                 endif
@@ -3906,7 +4120,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
       IF(IGET(400)>0)THEN
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ista,iend
 !Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
 !changed from SPVAL to -5000. to distinguish missing grids and undetected 
 !           GRID1(I,J) = SPVAL      	      
@@ -3934,11 +4148,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(400))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
          do j=1,jend-jsta+1
            jj = jsta+j-1
-           do i=1,im
-             datapd(i,j,cfld) = GRID1(i,jj)
+           do i=1,iend-ista+1
+             ii = ista+i-1
+             datapd(i,j,cfld) = GRID1(ii,jj)
            enddo
          enddo
         endif
@@ -3947,7 +4162,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0)THEN
-        i=IM/2
+        i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
@@ -3957,10 +4172,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
         call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
         uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,&
-        ZINT(1:IM,JSTA_2L:JEND_2U,LP1),pblh,sfcshx,sfclhx,ustar,&
+        ZINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,LP1),pblh,sfcshx,sfclhx,ustar,&
         z0,gdlat,gdlon,dx,dy,u10,v10,GUST,avgprec,sm,sice,catedr,mwt,EL,gtg,RICHNO,item)
 
-        i=IM/2
+        i=iend
         j=jend ! 321,541
 !        print*,'GTG output: l,cat,mwt,gtg at',i,j
 !        do l=1,lm
@@ -3973,7 +4188,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             IF (LVLS(L,IGET(470))>0) THEN
                LL=LM-L+1
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                   GRID1(I,J)=gtg(i,j,LL)
                ENDDO
                ENDDO
@@ -3981,18 +4196,19 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(470))
                   fld_info(cfld)%lvl=LVLSXML(L,IGET(470))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                      jj = jsta+j-1
-                     do i=1,im
-                        datapd(i,j,cfld) = GRID1(i,jj)
+                     do i=1,iend-ista+1
+                       ii = ista+i-1
+                       datapd(i,j,cfld) = GRID1(ii,jj)
                      enddo
                   enddo
                endif
 
 
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                   GRID1(I,J)=catedr(i,j,LL)
                ENDDO
                ENDDO
@@ -4000,17 +4216,18 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(471))
                   fld_info(cfld)%lvl=LVLSXML(L,IGET(471))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                      jj = jsta+j-1
-                     do i=1,im
-                        datapd(i,j,cfld) = GRID1(i,jj)
+                     do i=1,iend-ista+1
+                       ii = ista+i-1
+                       datapd(i,j,cfld) = GRID1(ii,jj)
                      enddo
                   enddo
                endif
 
                DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ista,iend
                   GRID1(I,J)=mwt(i,j,LL)
                ENDDO
                ENDDO
@@ -4018,11 +4235,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(472))
                   fld_info(cfld)%lvl=LVLSXML(L,IGET(472))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                      jj = jsta+j-1
-                     do i=1,im
-                        datapd(i,j,cfld) = GRID1(i,jj)
+                     do i=1,iend-ista+1
+                       ii = ista+i-1
+                       datapd(i,j,cfld) = GRID1(ii,jj)
                      enddo
                   enddo
                endif
@@ -4045,7 +4263,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         icing_gfip = spval
         icing_gfis = spval
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ista,iend
             if(debugprint .and. i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),cprate(i,j),prec(i,j),avgcprate(i,j),cape(i,j),cin(i,j)
@@ -4079,12 +4297,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !	do l=1,lm
 !      if(LVLS(L,IGET(450))>0 .or. LVLS(L,IGET(480))>0)then
 !	  do j=jsta,jend
-!	   do i=1,im
+!	   do i=ista,iend
 !	     grid1(i,j)=icing_gfip(i,j,l)
 !	   end do
 !	  end do   
 !          ID(1:25) = 0
-!          CALL GRIBIT(IGET(450),L,GRID1,IM,JM)
+!          CALL GRIBIT(IGET(450),L,GRIDista,iend,JM)
 !	 end if
 !	end do  
       ENDIF

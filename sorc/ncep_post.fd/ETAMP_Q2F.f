@@ -2,13 +2,14 @@
       ! This subroutine is to be used with the WRF "advected Ferrier
       ! scheme" to calculate the F_ICE, F_RIMEF and F_RAIN arrays from
       ! the QQW, QQR, QQI and the input array QRIMEF.
-        use CTLBLK_mod, only: lm,im,jsta,jend,jsta_2l,jend_2u
+        use CTLBLK_mod, only: lm,im,jsta,jend,jsta_2l,jend_2u,&
+                                    ista,iend,ista_2l,iend_2u
         implicit none
 
-        real, intent(in),dimension(im,jsta_2l:jend_2u,lm) :: &
+        real, intent(in),dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm) :: &
              QRIMEF,QQW,QQR,QQI, T
 
-        real, intent(out),dimension(im,jsta_2l:jend_2u,lm) :: &
+        real, intent(out),dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm) :: &
              f_rain,f_ice,f_rimef,CWM
 
         integer :: i,j,l
@@ -21,7 +22,7 @@
 
       bigl: do l=1,lm
          bigj: do j=jsta,jend
-            bigi: do i=1,im
+            bigi: do i=ista,iend
                QT=QQW(I,J,L)+QQR(I,J,L)+QQI(I,J,L)
                CWM(i,j,l)=QT
                if(QQI(i,j,l)<=EPSQ) then

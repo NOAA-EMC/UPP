@@ -2,17 +2,20 @@
 !> @brief Subroutine that computes drag cofficient.
 !     
 !> This rountine computes a surface layer drag coefficient using
-!> equation (7.4.1A) in "An introduction to boundary layer
-!> meteorology" by Stull (1988, Kluwer Academic Publishers).
+!> equation (7.4.1A) in ["An introduction to boundary layer
+!> meteorology" by Stull (1988, Kluwer Academic
+!> Publishers)](https://link.springer.com/book/10.1007/978-94-009-3027-8).
 !>     
-!> @param[out] DRAGCO surface layer drag coefficient
+!> @param[out] DRAGCO surface layer drag coefficient.
 !>
-!> Program history
-!> - 93-09-01  Russ Treadon
-!> - 98-06-15  T Black - Conversion from 1-D to 2-D
-!> - 00-01-04  Jim Tuccillo - MPI version           
-!> - 02-01-15  Mike Baldwin - WRF version
-!> - 05-02-22  H Chuang - Add WRF NMM components 
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-09-01 | Russ Treadon | Initial
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2002-01-15 | Mike Baldwin | WRF version
+!> 2005-02-22 | H Chuang     | Add WRF NMM components 
 !>
 !> @author Russ Treadon W/NP2 @date 1993-09-01
       SUBROUTINE CALDRG(DRAGCO)
@@ -24,7 +27,7 @@
       use masks, only: lmh
       use params_mod, only: d00, d50, d25
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, modelname, spval, im, jm,  &
-                            jsta_2l, jend_2u
+                            jsta_2l, jend_2u, ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -32,7 +35,7 @@
 !     INCLUDE/SET PARAMETERS.
 !     
 !     DECLARE VARIABLES.
-      REAL,intent(inout) ::  DRAGCO(IM,jsta_2l:jend_2u)
+      REAL,intent(inout) ::  DRAGCO(ista_2l:iend_2u,jsta_2l:jend_2u)
       INTEGER IHE(JM),IHW(JM)
       integer I,J,LHMK,IE,IW,LMHK
       real UBAR,VBAR,WSPDSQ,USTRSQ,SUMU,SUMV,ULMH,VLMH,UZ0H,VZ0H
@@ -44,7 +47,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 !          DRAGCO(I,J) = D00
           DRAGCO(I,J) = 0.0 
 
@@ -54,7 +57,7 @@
 
       IF(gridtype=='A')THEN 
        DO J=JSTA,JEND
-       DO I=1,IM
+       DO I=ISTA,IEND
 !     
 
        IF (USTAR(I,J) /= SPVAL) THEN
@@ -88,7 +91,7 @@
        ENDDO
        
        DO J=JSTA_M,JEND_M
-       DO I=2,IM-1
+       DO I=ISTA_M,IEND_M
 !
 !        COMPUTE A MEAN MASS POINT WIND IN THE
 !        FIRST ATMOSPHERIC ETA LAYER.
@@ -125,7 +128,7 @@
        END DO
       ELSE IF(gridtype=='B')THEN 
        DO J=JSTA_M,JEND_M
-       DO I=2,IM-1
+       DO I=ISTA_M,IEND_M
 !
 !        COMPUTE A MEAN MASS POINT WIND IN THE
 !        FIRST ATMOSPHERIC ETA LAYER.
@@ -171,7 +174,7 @@
       
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             DRAGCO(I,J) = SPVAL
           ENDDO
         ENDDO

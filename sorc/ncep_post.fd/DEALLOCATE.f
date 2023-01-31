@@ -1,35 +1,17 @@
 !> @file
-!
-!> SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
-!!   PRGRMMR: TUCCILLO        ORG: IBM
-!!
-!! ABSTRACT:
-!!     SETS UP MESSAGE PASSING INFO
-!!
-!! PROGRAM HISTORY LOG:
-!!   00-01-06  TUCCILLO - ORIGINAL
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-19  MIKE BALDWIN - WRF VERSION
-!!
-!! USAGE:    CALL MPI_FIRST
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!
-!!   OUTPUT FILES:
-!!     STDOUT  - RUN TIME STANDARD OUT.
-!!
-!!   SUBPROGRAMS CALLED:
-!!       PARA_RANGE
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!       COMMON - CTLBLK.comm
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM RS/6000 SP
-!!
+!> @brief MPI_FIRST set up message passing info.
+!>
+!> This routine sets up message passing info.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2000-01-06 | Jim Tuccillo | Initial
+!> 2001-10-25 | H Chuang     | Modified to process hybrid model output
+!> 2002-06-19 | Mike Baldwin | WRF version
+!> 2022-11-08 | Kai Wang     | Replace aqfcmaq_on with aqf_on
+!>
+!> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 
 !
@@ -72,6 +54,7 @@
 !      deallocate(rainw(im,jsta_2l:jend_2u,lm))
       deallocate(q2)
       deallocate(omga)
+      deallocate(dpres)
       deallocate(T_ADJ)
       deallocate(ttnd)
       deallocate(rswtt)
@@ -156,6 +139,9 @@
       deallocate(stc)
       deallocate(sh2o)
       deallocate(SLDPTH)
+      deallocate(CAPE)
+      deallocate(CIN)
+      deallocate(IFI_APCP)
       deallocate(RTDPTH)
       deallocate(SLLEVEL)
 !
@@ -206,6 +192,7 @@
       deallocate(tsnow)
       deallocate(qvg)
       deallocate(qv2m)
+      deallocate(qvl1)
       deallocate(rswin)
       deallocate(swddni)
       deallocate(swddif)
@@ -214,10 +201,11 @@
       deallocate(swddnic)
       deallocate(swddifc)
       deallocate(swupt)
-      deallocate(int_smoke)
       deallocate(mean_frp)
-      deallocate(int_aod)
+      deallocate(ebb)
+      deallocate(hwp)
       deallocate(smoke)
+      deallocate(fv3dust)
       deallocate(taod5502d)
       deallocate(aerasy2d)
       deallocate(aerssa2d)
@@ -372,6 +360,7 @@
       deallocate(avgetrans)
       deallocate(avgesnow)
       deallocate(avgpotevp)
+      deallocate(aod550)
       deallocate(ti)
       deallocate(du_aod550)
       deallocate(ss_aod550)
@@ -386,6 +375,7 @@
       deallocate(tedir)
       deallocate(twa)
       deallocate(fdnsst)
+      deallocate(pwat)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainc_bucket1)
@@ -397,6 +387,9 @@
       deallocate(snow_bucket1)
       deallocate(graup_bucket)
       deallocate(graup_bucket1)
+      deallocate(frzrn_bucket)
+      deallocate(snow_acm)
+      deallocate(snow_bkt)
       deallocate(qrmax)
       deallocate(tmax)
       deallocate(snownc)
@@ -478,7 +471,7 @@
       deallocate(gtg)
 
 !
-      if (gocart_on) then
+      if (gocart_on .or. nasa_on) then
 ! Deallocate GOCART fields
 ! vrbls4d
         deallocate(dust)
@@ -486,6 +479,10 @@
         deallocate(soot)
         deallocate(waso)
         deallocate(suso)
+      if (nasa_on) then
+        deallocate(no3)
+        deallocate(nh4)
+      endif
         deallocate(pp25)
         deallocate(pp10)
 ! vrbls3d
@@ -517,7 +514,6 @@
         deallocate(ssdp)
         deallocate(sswt)
         deallocate(sssv)
-        deallocate(dpres)
         deallocate(rhomid)
 ! vrbls2d
         deallocate(dusmass)
@@ -547,10 +543,16 @@
         deallocate(pp25cb)
         deallocate(pp10cb)
         deallocate(sscb)
+        if (nasa_on) then
+        deallocate(no3cb)
+        deallocate(nh4cb)
+        endif
         deallocate(dustallcb)
         deallocate(ssallcb)
         deallocate(dustpm)
+	deallocate(dustpm10)
         deallocate(sspm)
+	deallocate(maod)
       endif
 !
 ! HWRF RRTMG output 
@@ -563,9 +565,10 @@
       deallocate(uuavg)
 
 ! AQF
-      if (aqfcmaq_on) then
-        deallocate(ozcon)
-        deallocate(pmtf)
+      if (aqf_on) then
+        deallocate(avgozcon)
+        deallocate(avgpmtf)
+        deallocate(aqm_aod550)
       endif
 
       end

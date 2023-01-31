@@ -30,6 +30,7 @@ echo " Mar 21 - Meng - Update POSTGRB2TBL default setting."
 echo " Jun 21 - Mao  - Instead of err_chk, catch err and print out"
 echo "                 WAFS failure warnings to avoid job crashing"
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
+echo " Feb 22 - Lin - Exception handling if anl input not found."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -80,7 +81,7 @@ export machine=${machine:-WCOSS_C}
 ###########################
 # Specify Output layers
 ###########################
-export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,"
+export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,rdaod=.true.,"
 
 ##########################################################
 # Specify variable to directly output pgrb2 files for GDAS/GFS
@@ -235,7 +236,11 @@ then
    fi
   fi
 ##########################  WAFS U/V/T analysis end  ##########################
-
+else
+  #### atmanl file not found need failing job
+  echo " *** FATAL ERROR: No model anl file output "
+  export err=9
+  err_chk
 fi
 
 #----------------------------------

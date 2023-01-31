@@ -10,7 +10,8 @@
 !
 !-----------------------------------------------------------------------
       use ctlblk_mod, only: jsta, jend, spl, smflag, lm, im, jsta_2l, jend_2u, &
-                            lsm, jm, grib, spval
+                            lsm, jm, grib, spval, &
+                            ista, iend, ista_2l, iend_2u
       use gridspec_mod, only: maptype, dxval
       use vrbls3d, only: pmid, t, pint
       use vrbls2d, only: pslp, fis
@@ -21,11 +22,11 @@
 !      
       INCLUDE "mpif.h"
 !
-      REAL TPRES(IM,JSTA_2L:JEND_2U,LSM)
+      REAL TPRES(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM)
  
       real LAPSES, EXPo,EXPINV,TSFCNEW
 
-      REAL,dimension(im, jsta_2l:jend_2u) :: T700
+      REAL,dimension(ista_2l:iend_2u, jsta_2l:jend_2u) :: T700
       real,dimension(im,2) :: sdummy
       REAL,dimension(im,jm) :: GRID1, TH700
       INTEGER NSMOOTH
@@ -42,7 +43,7 @@
 
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             if(SPL(L) == 70000.)THEN
               if(TPRES(I,J,L) <spval)THEN
                 T700(i,j)  = TPRES(I,J,L) 
@@ -77,13 +78,13 @@
           CALL SMOOTH(TH700,SDUMMY,IM,JM,0.5)
         end do
         ENDIF
-          ii=im/2
+          ii=(ista+iend)/2
           jj=(jsta+jend)/2
 !          if(i==ii.and.j==jj)                              &
 !             print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
 
        DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ISTA,IEND
          if(T700(I,J) <spval) then
          T700(I,J) = TH700(I,J)*(70000./P1000)**CAPA
           IF (T700(I,J)>100.) THEN
@@ -112,7 +113,7 @@
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
                PSLP(I,J)=GRID1(I,J)
             ENDDO
          ENDDO

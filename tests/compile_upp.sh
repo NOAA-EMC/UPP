@@ -1,28 +1,34 @@
 #!/bin/bash
 # Wen Meng 01/2020, Set up for cmake build.
 # Wen Meng 01/2022, Add option for building with gtg code
+# Sam Trahan 01/2023, Add option for building with libIFI
 ############################################################
 
 set -eu
 
 usage() {
   echo
-  echo "Usage: $0 [-g] [-w] -h"
+  echo "Usage: $0 [-p] [-g] [-w] [-v] [-c] [-i] -h"
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
-  echo "  -g  Build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
-  echo "  -w  Build without WRF-IO            DEFAULT: ON"
-  echo "  -v  Build with cmake verbose        DEFAULT: NO"
+  echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
+  echo "  -I  build with libIFI(users with ifi repos. access only)  DEFAULT: OFF"
+  echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
+  echo "  -w  build without WRF-IO            DEFAULT: ON"
+  echo "  -v  build with cmake verbose        DEFAULT: NO"
+  echo "  -c  Compiler to use for build       DEFAULT: intel"
   echo "  -h  display this message and quit"
   echo
   exit 1
 }
 
 prefix="../install"
+ifi_opt=" -DBUILD_WITH_IFI=OFF"
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
+compiler="intel"
 verbose_opt=""
-while getopts ":p:gwvh" opt; do
+while getopts ":p:gwc:vhiI" opt; do
   case $opt in
     p)
       prefix=$OPTARG
@@ -33,6 +39,15 @@ while getopts ":p:gwvh" opt; do
     w)
       wrfio_opt=" -DBUILD_WITH_WRFIO=OFF"
       ;;
+    I)
+      ifi_opt=" -DINTERNAL_IFI=ON"
+      ;;
+    i)
+      ifi_opt=" -DREQUIRE_IFI=ON"
+      ;;
+    c)
+      compiler=$OPTARG
+      ;;
     v)
       verbose_opt="VERBOSE=1"
       ;;
@@ -41,9 +56,8 @@ while getopts ":p:gwvh" opt; do
       ;;
   esac
 done
-cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}
+cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}${ifi_opt}
 
-hostname
 source ./detect_machine.sh
 if [[ $(uname -s) == Darwin ]]; then
   readonly MYDIR=$(cd "$(dirname "$(greadlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
@@ -54,9 +68,23 @@ PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 
 #Load required modulefiles
 if [[ $MACHINE_ID != "unknown" ]]; then
-   module purge
+   if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
+      module reset
+   else
+      module purge
+   fi
    module use $PATHTR/modulefiles
-   modulefile=${MACHINE_ID}
+   if [[ $compiler == "intel" ]]; then
+      modulefile=${MACHINE_ID}
+   else
+      modulefile=${MACHINE_ID}_${compiler}
+   fi
+   if [ -f "${PATHTR}/modulefiles/${modulefile}" -o -f "${PATHTR}/modulefiles/${modulefile}.lua" ]; then
+      echo "Building for machine ${MACHINE_ID}, compiler ${compiler}"
+   else
+      echo "Modulefile does not exist for machine ${MACHINE_ID}, compiler ${compiler}"
+      exit 1
+   fi
    module load $modulefile
    module list
 fi

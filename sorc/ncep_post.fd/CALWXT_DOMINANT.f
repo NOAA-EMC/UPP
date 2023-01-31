@@ -1,28 +1,32 @@
        SUBROUTINE CALWXT_DOMINANT_POST(PREC,RAIN,FREEZR,SLEET,SNOW,     &
      &                                 DOMR,DOMZR,DOMIP,DOMS)
 !
-!     WRITTEN: 24 AUGUST 2005, G MANIKIN 
+!     WRITTEN: 24 AUGUST 2005, G MANIKIN
+! 
+!     PROGRAM HISTORY LOG:
+!     21-10-31  JESSE MENG - 2D DECOMPOSITION
 !      
 !     THIS ROUTINE TAKES THE PRECIP TYPE SOLUTIONS FROM DIFFERENT
 !       ALGORITHMS AND SUMS THEM UP TO GIVE A DOMINANT TYPE
 !
 !     use params_mod
-      use ctlblk_mod, only: jsta, jend, pthresh, im, jsta_2l, jend_2u
+      use ctlblk_mod, only: jsta, jend, pthresh, im, jsta_2l, jend_2u, &
+                            ista, iend, ista_2l, iend_2u
 !     use ctlblk_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
       integer,PARAMETER :: NALG=5
 !    INPUT:
-      REAL PREC(IM,jsta_2l:jend_2u)
-      real,DIMENSION(IM,jsta:jend),     intent(inout) ::  DOMS,DOMR,DOMZR,DOMIP
-      real,DIMENSION(IM,jsta:jend,NALG),intent(in)    ::  RAIN,SNOW,SLEET,FREEZR
+      REAL PREC(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real,DIMENSION(ista:iend,jsta:jend),     intent(inout) ::  DOMS,DOMR,DOMZR,DOMIP
+      real,DIMENSION(ista:iend,jsta:jend,NALG),intent(in)    ::  RAIN,SNOW,SLEET,FREEZR
       integer I,J,L
       real TOTSN,TOTIP,TOTR,TOTZR
 !--------------------------------------------------------------------------
 !$omp  parallel do  private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           DOMR(I,J)  = 0.
           DOMS(I,J)  = 0.
           DOMZR(I,J) = 0.
@@ -32,7 +36,7 @@
 !
 !$omp  parallel do private(i,j,totsn,totip,totr,totzr)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
           IF (PREC(I,J) <= PTHRESH) cycle
           TOTSN = 0
