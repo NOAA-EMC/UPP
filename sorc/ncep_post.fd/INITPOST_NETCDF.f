@@ -27,6 +27,7 @@
 !> 2022-11-16 | Eric James    | Read smoke, dust, biomass burning, and hourly wildfire potential from RRFS
 !> 2022-12-07 | Wen Meng      | Read AOD from AQM model
 !> 2022-12-23 | Eric Aligo    | Read six winter weather diagnostics from model
+!> 2023-01-30 | Sam Trahan    | Read cldfra or cldfra_bl, whichever is available
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -153,7 +154,7 @@
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
               nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
-      integer ncid3d,ncid2d,varid,nhcas
+      integer ncid3d,ncid2d,varid,nhcas,varid_bl,iret_bl
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv, tx1, tx2
 
@@ -889,9 +890,25 @@
         call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
         spval,VarName,cfr(ista_2l,jsta_2l,1),lm)
       else
-        VarName='cldfra'
-        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-        spval,VarName,cfr(ista_2l,jsta_2l,1),lm)
+
+        iret_bl = nf90_inq_varid(ncid2d,'cldfra_bl',varid_bl)
+        iret = nf90_inq_varid(ncid2d,'cldfra',varid)
+
+        if(iret_bl==NF90_NOERR .and. iret==NF90_NOERR) then
+          write(0,*) 'WARNING: BOTH cldfra_bl AND cldfra ARE AVAILABLE. USING cldfra.'
+          VarName='cldfra'
+        else if(iret_bl==NF90_NOERR) then
+          VarName='cldfra_bl'
+        else if(iret==NF90_NOERR) then
+          VarName='cldfra'
+        else
+          VarName='nope'
+        endif
+          
+        if(VarName /= 'nope') then
+          call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+               spval,VarName,cfr(ista_2l,jsta_2l,1),lm)
+        endif
       endif
 !      do l=1,lm
 !       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &

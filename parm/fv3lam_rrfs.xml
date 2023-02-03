@@ -1790,7 +1790,7 @@
        <param>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <pname>VIL</pname>
-       <scale>4.0</scale>
+       <scale>7.0</scale>
        </param>
 
        <param>
