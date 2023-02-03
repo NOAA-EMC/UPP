@@ -69,6 +69,7 @@
 !> 2022-11-16 | Eric James        | Adding total column dust, biomass burning emissions, hourly wildfire potential from RRFS
 !> 2022-1207  | Wen Meng          | Add AOD for AQM 
 !> 2022-12-15 | Eric James        | experimental cloud base height diagnostic from HRRR, to correct a low bias in cloud cover
+!> 2023-02-02 | Wen Meng          | Remove GSL specified clear-sky upward/downward SW
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -3832,20 +3833,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 
-! Instantaneous clear-sky upwelling SW at the surface
-      IF (IGET(743)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            GRID1(I,J) = SWUPBC(I,J)
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(743))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
-      ENDIF
-
 !     CURRENT OUTGOING LW RADIATION AT THE SURFACE.
       IF (IGET(142)>0) THEN
 !$omp parallel do private(i,j)
@@ -3960,20 +3947,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           fld_info(cfld)%ifld=IAVBLFLD(IGET(262))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
-      ENDIF
-
-! Instantaneous clear-sky downwelling SW at surface (GSD version)
-      IF (IGET(742)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            GRID1(I,J) = SWDNBC(I,J)
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(742))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
       ENDIF
 
 ! Instantaneous SWDDNI
