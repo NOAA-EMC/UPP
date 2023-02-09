@@ -65,7 +65,8 @@
                             IEND_2U,nasa_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_STEENBURGH
+
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none
@@ -3857,7 +3858,8 @@
       IF ( IGET(1006)>0 ) THEN
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
-         call calslr_roebber(TPRS,RHPRS,EGRID1)
+      !   call calslr_roebber(TPRS,RHPRS,EGRID1)
+         call calslr_steenburgh(EGRID1(ista:iend,jsta:jend))
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend
