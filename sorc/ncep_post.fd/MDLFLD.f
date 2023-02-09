@@ -207,7 +207,7 @@
       ALLOCATE(PBLRI  (ista_2l:iend_2u,JSTA_2L:JEND_2U))    
 !     
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
-      IF (IGET(105) > 0 .OR. IGET(445) > 0) THEN
+      IF (IGET(023) > 0 .OR. IGET(105) > 0 .OR. IGET(445) > 0) THEN
         CALL NGMSLP   ! this value is used in some later calculation.
       ENDIF
       IF (IGET(105) > 0) THEN
