@@ -2259,7 +2259,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               do jc = max(1,J-numr),min(JM,J+numr)
               do ic = max(1,I-numr),min(IM,I+numr)
                 ceil_neighbor = max( full_ceil(ic,jc)-full_fis(ic,jc)*GI , 5.0) !  ceil_neighbor in AGL
-                ceil_min = min( ceil_min, ceil_neighbor )
+!                ceil_min = min( ceil_min, ceil_neighbor )
               enddo
               enddo
               CLDZ(I,J) = ceil_min + FIS(I,J)*GI ! convert back to ASL and store
