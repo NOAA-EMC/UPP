@@ -8,7 +8,7 @@ set -eu
 
 usage() {
   echo
-  echo "Usage: $0 [-p] [-g] [-w] [-v] [-c] [-i] -h"
+  echo "Usage: $0 [-p] [-g] [-w] [-v] [-c] [-i] [-d] -h"
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
@@ -17,6 +17,7 @@ usage() {
   echo "  -w  build without WRF-IO            DEFAULT: ON"
   echo "  -v  build with cmake verbose        DEFAULT: NO"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
+  echo "  -d  Debug mode of CMAKE_BUILD_TYPE  DEFAULT: Release"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -28,7 +29,8 @@ gtg_opt=" -DBUILD_WITH_GTG=OFF"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
 compiler="intel"
 verbose_opt=""
-while getopts ":p:gwc:vhiI" opt; do
+debug_opt=""
+while getopts ":p:gwc:vhiI:d" opt; do
   case $opt in
     p)
       prefix=$OPTARG
@@ -51,12 +53,15 @@ while getopts ":p:gwc:vhiI" opt; do
     v)
       verbose_opt="VERBOSE=1"
       ;;
+    d)
+      debug_opt=" -DCMAKE_BUILD_TYPE=Debug"
+      ;;
     h|\?|:)
       usage
       ;;
   esac
 done
-cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}${ifi_opt}
+cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}
 
 source ./detect_machine.sh
 if [[ $(uname -s) == Darwin ]]; then
