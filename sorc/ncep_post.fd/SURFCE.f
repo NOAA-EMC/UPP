@@ -45,6 +45,7 @@
 !! -  22-11-16  E JAMES - Adding dust from RRFS
 !! -  22-12-23  E Aligo - Read six winter weather diagnostics from model.
 !! -  23-01-24  Sam Trahan - store hourly accumulated precip for IFI and bucket time
+!! -  23-02-11  W Meng  - Add fix of time accumulation in bucket graupel for FV3 based models
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -4077,6 +4078,10 @@
                 endif
                 fld_info(cfld)%ntrange=1
               end if
+              if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
+                fld_info(cfld)%ntrange=1
+                fld_info(cfld)%tinvstat=IFHR-ID(18)
+              endif
 !$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
