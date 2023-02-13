@@ -3884,6 +3884,7 @@
        <post_avblfldidx>445</post_avblfldidx>
        <shortname>MAPS_PRMSL_ON_MEAN_SEA_LVL</shortname>
        <pname>MSLMA</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>mean_sea_lvl</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
