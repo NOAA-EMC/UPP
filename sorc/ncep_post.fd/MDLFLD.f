@@ -48,6 +48,7 @@
 !!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
 !!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
 !!   22-11-16  E James - Adding dust from RRFS
+!!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -207,7 +208,7 @@
       ALLOCATE(PBLRI  (ista_2l:iend_2u,JSTA_2L:JEND_2U))    
 !     
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
-      IF (IGET(105) > 0 .OR. IGET(445) > 0) THEN
+      IF (IGET(023) > 0 .OR. IGET(105) > 0 .OR. IGET(445) > 0) THEN
         CALL NGMSLP   ! this value is used in some later calculation.
       ENDIF
       IF (IGET(105) > 0) THEN
