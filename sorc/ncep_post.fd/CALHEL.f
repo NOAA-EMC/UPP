@@ -13,7 +13,7 @@
 !> 'non-classic' hodographs (such as Northwest-flow events) and do as well or 
 !> better than the old method in more classic situations.
 !>     
-!> @param[in] DPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
+!> @param[in] DEPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
 !> @param[out] UST Estimated U Component (m/s) Of Storm motion.
 !> @param[out] VST Estimated V Component (m/s) Of Storm motion.
 !> @param[out] HELI Storm-relative heliciry (m**2/s**2).
