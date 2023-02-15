@@ -3859,14 +3859,14 @@
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
       !   call calslr_roebber(TPRS,RHPRS,EGRID1)
-         call calslr_steenburgh(EGRID1(ista:iend,jsta:jend))
+         call calslr_steenburgh(EGRID1)
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend
+            grid1(i,j)=spval
             if(egrid1(i,j) < spval) then
-                grid1(i,j)=1000./egrid1(i,j)
-            else
-                grid1(i,j)=spval
+            !   grid1(i,j)=egrid1(i,j)
+                if(egrid1(i,j)>0.) grid1(i,j)=1000./egrid1(i,j)
             endif
          enddo
          enddo

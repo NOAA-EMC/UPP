@@ -33,6 +33,7 @@
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
 !> 2022-07-11 | Jesse Meng | CALSLR_ROEBBER
+!> 2023-02-14 | Jesse Meng | CALSLR_STEENBURGH      
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -4337,15 +4338,14 @@
 
       SUBROUTINE CALSLR_STEENBURGH(SLR)
 
-      use vrbls3d,    only: ZMID, T, UH, VH
-      use vrbls2d,    only: FIS
-      use masks,      only: LMH
-      use params_mod, only: GI
-      use ctlblk_mod, only: ISTA, IEND, JSTA, JEND, LM, SPVAL
+      use vrbls3d,    only: ZINT,ZMID,PMID,T,Q,UH,VH
+      use masks,      only: LMH,HTM
+      use ctlblk_mod, only: ISTA,IEND,JSTA,JEND,ista_2l,iend_2u,jsta_2l,jend_2u,&
+                            LM,SPVAL
 
       implicit none
 
-      real,dimension(ISTA:IEND,JSTA:JEND),intent(out) :: SLR
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(out) :: slr !slr=snod/weasd=1000./sndens
 
       integer, parameter :: NFL=3
       real,    parameter :: HTFL(NFL)=(/ 500., 1000., 2000. /)
@@ -4362,10 +4362,18 @@
       real, parameter :: m6 = 0.096273
       real, parameter ::  b = 118.35844
 
-      integer I,J,L,LLMH,IFD
+      integer,dimension(ISTA:IEND,JSTA:JEND) :: KARR
+      integer,dimension(ISTA:IEND,JSTA:JEND) :: TWET05
+      real,dimension(ISTA:IEND,JSTA:JEND)    :: ZWET
+
+      REAL, ALLOCATABLE :: TWET(:,:,:)
+
+      integer I,J,L,LLMH,LMHK,IFD
 !
 !***************************************************************************
 !
+      ALLOCATE(TWET(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
+
 !$omp parallel do
       DO IFD = 1,NFL
         DO J=JSTA,JEND
@@ -4382,7 +4390,8 @@
 
       DO J=JSTA,JEND
       DO I=ISTA,IEND
-         HTSFC = FIS(I,J)*GI
+      IF(ZINT(I,J,LM+1)<SPVAL) THEN
+         HTSFC = ZINT(I,J,LM+1)
          LLMH  = NINT(LMH(I,J))
       IFD = 1
       DO L = LLMH,1,-1
@@ -4414,11 +4423,13 @@
            VFD(I,J,IFD) = VH(I,J,L)
          ENDIF
       ENDDO
-
+      ENDIF !IF(ZINT(I,J,LM+1)<SPVAL)
       ENDDO !I loop
       ENDDO !J loop
 
 !        COMPUTE SLR
+
+      SLR = SPVAL
 
       DO J=JSTA,JEND
       DO I=ISTA,IEND
@@ -4428,12 +4439,47 @@
          SWND(3)=sqrt(UFD(I,J,3)*UFD(I,J,3)+VFD(I,J,3)+VFD(I,J,3))
          SLR(I,J) = m1*SWND(2)+m2*TFD(I,J,3)+m3*SWND(3)+m4*SWND(1)+m5*TFD(I,J,2)+m6*TFD(I,J,1)+b
          SLR(I,J) = max(SLR(I,J),3.)
-         SLR(I,J) = ZMID(I,J,NINT(LMH(I,J)))
-      ELSE
-         SLR(I,J) = SPVAL
       ENDIF
       ENDDO
       ENDDO
+
+!        COMPUTE WETBULB TEMPERATURE AND SEARCH FOR TWET > 0.5C
+
+      KARR = 1
+      CALL WETBULB(T,Q,PMID,HTM,KARR,TWET)
+
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         ZWET(I,J)=ZMID(I,J,LM)
+         TWET05(I,J)=-1
+      ENDDO
+      ENDDO
+
+      DO L=LM,1,-1
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         IF(TWET05(I,J) < 0) THEN
+            IF(TWET(I,J,L) >= 273.15+0.5) THEN
+               ZWET(I,J)=ZMID(I,J,L)
+               TWET05(I,J)=1
+            ENDIF
+         ENDIF
+      ENDDO
+      ENDDO
+      ENDDO
+
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         IF(TWET05(I,J) > 0 .AND. SLR(I,J)<SPVAL) THEN
+            HTABH=ZWET(I,J)-ZINT(I,J,LM+1)
+            IF(HTABH<0.) HTABH=0.
+!            SLR(I,J)=SLR(I,J)*(1.-HTABH/200.)
+            IF(SLR(I,J)<0.) SLR(I,J)=0.
+         ENDIF
+      ENDDO
+      ENDDO
+
+      DEALLOCATE (TWET)
 
       END SUBROUTINE CALSLR_STEENBURGH
 !
