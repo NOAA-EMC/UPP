@@ -3,8 +3,10 @@
 !
 !> This routine computes surface wind gust by mixing
 !> down momentum from the level at the height of the PBL.
-!>     
-!> @param[out] GUST Speed of the maximum surface wind gust.
+!> 
+!> @param[in] LPBL Model level that is closest to the planetary boundary layer height.
+!> @param[in] ZPBL Height of the planetary boundary layer.
+!> @param[inout] GUST Speed of the maximum surface wind gust.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
