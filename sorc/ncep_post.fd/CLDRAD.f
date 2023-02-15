@@ -68,8 +68,9 @@
 !> 2022-10-20 | Li(Kate Zhang)    | Add nitrate look-up table and nitrate AOD for NASA GOCART (UFS-Aerosols).
 !> 2022-11-16 | Eric James        | Adding total column dust, biomass burning emissions, hourly wildfire potential from RRFS
 !> 2022-1207  | Wen Meng          | Add AOD for AQM 
-!> 2022-12-15 | Eric James        | experimental cloud base height diagnostic from HRRR, to correct a low bias in cloud cover
+!> 2022-12-15 | Eric James        | Modifying GSL exp2 ceiling diagnostic from HRRR, to correct a low bias in cloud cover
 !> 2023-02-02 | Wen Meng          | Remove GSL specified clear-sky upward/downward SW
+!> 2023-02-10 | Eric James        | Removing neighbourhood check from GSL exp2 ceiling diagnostic
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -2259,7 +2260,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               do jc = max(1,J-numr),min(JM,J+numr)
               do ic = max(1,I-numr),min(IM,I+numr)
                 ceil_neighbor = max( full_ceil(ic,jc)-full_fis(ic,jc)*GI , 5.0) !  ceil_neighbor in AGL
-                ceil_min = min( ceil_min, ceil_neighbor )
+!                ceil_min = min( ceil_min, ceil_neighbor )
               enddo
               enddo
               CLDZ(I,J) = ceil_min + FIS(I,J)*GI ! convert back to ASL and store

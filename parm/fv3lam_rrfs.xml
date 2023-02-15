@@ -283,12 +283,6 @@
        </param>
 
        <param>
-       <shortname>MAPS_PRMSL_ON_MEAN_SEA_LVL</shortname>
-       <pname>PRMSL</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>TMP</pname>
        <scale>4.0</scale>
@@ -2105,12 +2099,6 @@
        <pname>MSLET</pname>
        <table_info>NCEP</table_info>
         <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>MAPS_PRMSL_ON_MEAN_SEA_LVL</shortname>
-       <pname>PRMSL</pname>
-       <scale>6.0</scale>
        </param>
 
        <param>
