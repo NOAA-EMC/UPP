@@ -3624,5 +3624,23 @@
        <scale>4.0</scale>
        </param>
 
+       <param>
+       <shortname>GSD_MAX_LTG_THREAT1_ON_ENTIRE_ATMOS</shortname>
+       <pname>LTGTHREAT1</pname>
+       <scale>-5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_LTG_THREAT2_ON_ENTIRE_ATMOS</shortname>
+       <pname>LTGTHREAT2</pname>
+       <scale>-5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS</shortname>
+       <pname>LTGTHREAT3</pname>
+       <scale>-5.0</scale>
+       </param>
+
     </paramset>
    </postxml>
