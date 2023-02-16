@@ -4356,11 +4356,11 @@
 
       real, parameter :: m1 = -0.174848
       real, parameter :: m2 = -0.52644
-      real, parameter :: m3 = 0.034911
+      real, parameter :: m3 =  0.034911
       real, parameter :: m4 = -0.270473
-      real, parameter :: m5 = 0.028299
-      real, parameter :: m6 = 0.096273
-      real, parameter ::  b = 118.35844
+      real, parameter :: m5 =  0.028299
+      real, parameter :: m6 =  0.096273
+      real, parameter ::  b =118.35844
 
       integer,dimension(ISTA:IEND,JSTA:JEND) :: KARR
       integer,dimension(ISTA:IEND,JSTA:JEND) :: TWET05
@@ -4434,9 +4434,9 @@
       DO J=JSTA,JEND
       DO I=ISTA,IEND
       IF(TFD(I,J,1)<SPVAL .AND. UFD(I,J,1)<SPVAL .AND. VFD(I,J,1)<SPVAL) THEN
-         SWND(1)=sqrt(UFD(I,J,1)*UFD(I,J,1)+VFD(I,J,1)+VFD(I,J,1))
-         SWND(2)=sqrt(UFD(I,J,2)*UFD(I,J,2)+VFD(I,J,2)+VFD(I,J,2))
-         SWND(3)=sqrt(UFD(I,J,3)*UFD(I,J,3)+VFD(I,J,3)+VFD(I,J,3))
+         SWND(1)=sqrt(UFD(I,J,1)*UFD(I,J,1)+VFD(I,J,1)*VFD(I,J,1))
+         SWND(2)=sqrt(UFD(I,J,2)*UFD(I,J,2)+VFD(I,J,2)*VFD(I,J,2))
+         SWND(3)=sqrt(UFD(I,J,3)*UFD(I,J,3)+VFD(I,J,3)*VFD(I,J,3))
          SLR(I,J) = m1*SWND(2)+m2*TFD(I,J,3)+m3*SWND(3)+m4*SWND(1)+m5*TFD(I,J,2)+m6*TFD(I,J,1)+b
          SLR(I,J) = max(SLR(I,J),3.)
       ENDIF
@@ -4473,7 +4473,7 @@
          IF(TWET05(I,J) > 0 .AND. SLR(I,J)<SPVAL) THEN
             HTABH=ZWET(I,J)-ZINT(I,J,LM+1)
             IF(HTABH<0.) HTABH=0.
-!            SLR(I,J)=SLR(I,J)*(1.-HTABH/200.)
+            SLR(I,J)=SLR(I,J)*(1.-HTABH/200.)
             IF(SLR(I,J)<0.) SLR(I,J)=0.
          ENDIF
       ENDDO
