@@ -133,7 +133,7 @@
              else
                sfcwind = spval
              endif
-             if(MODELNAME == 'RAPR' .OR. MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R')) then
+             if(MODELNAME == 'RAPR' .OR. MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
                ZSFC = ZINT(I,J,LM+1)
                L = LPBL(I,J)
 ! in RUC do 342 k=2,k1-1, where k1 - first level above PBLH
