@@ -759,19 +759,33 @@
              DO J=JSTA,JEND
              DO I=ISTA,IEND
                GRID1(I,J)=LTG3_MAX(I,J)
+               if(GRID1(I,J) > 1) then
+                 print *, 'i,j,ltng = ', i,j, GRID1(I,J)
+               endif
              ENDDO
              ENDDO
              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(704))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(704))
+               print *, 'ltng ifld,lvl=',fld_info(cfld)%ifld,fld_info(cfld)%lvl
                if (ifhr == 0) then
                   fld_info(cfld)%tinvstat = 0
                else
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                   ii = ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                   if(GRID1(ii,jj) > 1) then
+                     print *, 'i,j,ii,jj,grid,datapd = ', i,j, ii,jj, GRID1(ii,jj),datapd(i,j,cfld)
+                   endif
+                   !datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+                 enddo
+               enddo
              endif
           END IF
 
