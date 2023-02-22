@@ -778,6 +778,7 @@
 !> 2017-06-01 | Y Mao        | Add FD levels for GTG(EDPARM CATEDR MWTURB) and allow levels input from control file
 !> 2019-09-25 | Y Mao        | Seperate mass from UV allow array of mass input to interpolate multiple fields with the same levels at one time. Dust=> AERFD can be processed when NIN=NBIN_DU
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!> 2022-05-25 | Y Mao        | Remove interpolation of w/omega/Hydrometeor fields on FD levels
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
@@ -976,9 +977,7 @@
                       endif
                    END IF       ! endif loop for deducing T and Q differently for GFS  
 
-                   if(QTYPE(N) == "W") QFD(I,J,IFD,N)=QIN(I,J,LM,N) ! W OMGA
                    if(QTYPE(N) == "K") QFD(I,J,IFD,N)= max(0.0,0.5*(QIN(I,J,LM,N)+QIN(I,J,LM-1,N))) ! TKE
-                   if(QTYPE(N) == "C") QFD(I,J,IFD,N)=0.0 ! Hydrometeor fields
                  END DO
 
               ENDIF ! Underground
