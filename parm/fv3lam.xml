@@ -1763,13 +1763,6 @@
        </param>
 
        <param>
-       <shortname>LTNG_ON_SURFACE</shortname>
-       <pname>LTNG</pname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-       </param>
-
-       <param>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <pname>VIL</pname>
        <scale>4.0</scale>
@@ -3402,20 +3395,6 @@
        <pname>SNOWC</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>GSD_MAX_LTG_THREAT1_ON_ENTIRE_ATMOS</shortname>
-       <pname>LTGTHREAT1</pname>
-       <table_info>NCEP</table_info>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
-       <shortname>GSD_MAX_LTG_THREAT2_ON_ENTIRE_ATMOS</shortname>
-       <pname>LTGTHREAT2</pname>
-       <table_info>NCEP</table_info>
-       <scale>4.0</scale>
        </param>
 
        <param>

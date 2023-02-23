@@ -769,12 +769,12 @@
                fld_info(cfld)%ifld=IAVBLFLD(IGET(704))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(704))
                print *, 'ltng ifld,lvl=',fld_info(cfld)%ifld,fld_info(cfld)%lvl
-               if (ifhr == 0) then
-                  fld_info(cfld)%tinvstat = 0
-               else
-                  fld_info(cfld)%tinvstat = 1
-               endif
-               fld_info(cfld)%ntrange = 1
+               ! if (ifhr == 0) then
+               !    fld_info(cfld)%tinvstat = 0
+               ! else
+               !    fld_info(cfld)%tinvstat = 1
+               ! endif
+               ! fld_info(cfld)%ntrange = 1
                do j=1,jend-jsta+1
                  jj = jsta+j-1
                  do i=1,iend-ista+1

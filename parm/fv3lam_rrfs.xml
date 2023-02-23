@@ -1781,13 +1781,6 @@
        </param>
 
        <param>
-       <shortname>LTNG_ON_SURFACE</shortname>
-       <pname>LTNG</pname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-       </param>
-
-       <param>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <pname>VIL</pname>
        <scale>4.0</scale>
