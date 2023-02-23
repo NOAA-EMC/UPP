@@ -40,7 +40,7 @@
 
 !
 !
-      use vrbls4d, only: DUST, SMOKE, FV3DUST
+      use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
                          RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
@@ -87,7 +87,8 @@
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
      &,                                      OSL_OLD, OSL995
-      REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:),  FV3DUSTSL(:,:,:)
+      REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:),  FV3DUSTSL(:,:,:)      &
+     &,                                      COARSEPMSL(:,:,:)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
@@ -157,6 +158,15 @@
         do j=1,jm
           do i=1,im
              FV3DUSTSL(i,j,l)  = SPVAL
+          enddo
+        enddo
+      enddo
+      if (.not. allocated(coarsepmsl)) allocate(coarsepmsl(im,jm,nbin_sm))
+!$omp parallel do private(i,j,l)
+      do l=1,nbin_sm
+        do j=1,jm
+          do i=1,im
+             COARSEPMSL(i,j,l)  = SPVAL
           enddo
         enddo
       enddo
@@ -342,6 +352,7 @@
                  DO K = 1, NBIN_SM
                    IF(SMOKE(I,J,1,K) < SPVAL) SMOKESL(I,J,K)=SMOKE(I,J,1,K)
                    IF(FV3DUST(I,J,1,K) < SPVAL) FV3DUSTSL(I,J,K)=FV3DUST(I,J,1,K)
+                   IF(COARSEPM(I,J,1,K) < SPVAL) COARSEPMSL(I,J,K)=COARSEPM(I,J,1,K)
                  ENDDO
 
 ! only interpolate GFS d3d fields when  reqested
@@ -501,6 +512,8 @@
                    SMOKESL(I,J,K)=SMOKE(I,J,LL,K)+(SMOKE(I,J,LL,K)-SMOKE(I,J,LL-1,K))*FACT
                    IF(FV3DUST(I,J,LL,K) < SPVAL .AND. FV3DUST(I,J,LL-1,K) < SPVAL)  &
                    FV3DUSTSL(I,J,K)=FV3DUST(I,J,LL,K)+(FV3DUST(I,J,LL,K)-FV3DUST(I,J,LL-1,K))*FACT
+                   IF(COARSEPM(I,J,LL,K) < SPVAL .AND. COARSEPM(I,J,LL-1,K) < SPVAL)  &
+                   COARSEPMSL(I,J,K)=COARSEPM(I,J,LL,K)+(COARSEPM(I,J,LL,K)-COARSEPM(I,J,LL-1,K))*FACT
                  ENDDO
 
 ! only interpolate GFS d3d fields when  == ested
@@ -2078,6 +2091,34 @@
                cfld = cfld + 1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(743))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(743))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+! E. James - 23 Feb 2023: COARSEPM from RRFS
+        IF (IGET(803) > 0) THEN
+          IF (LVLS(LP,IGET(803)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+               IF(COARSEPMSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*COARSEPMSL(I,J,1)*(SPL(LP)/(TSL(I,J)*(1E9)))
+               ELSE
+                 GRID1(I,J) = SPVAL
+               ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(803))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(803))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -3885,6 +3926,7 @@
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
+if(allocated(coarsepmsl)) deallocate(coarsepmsl)
       if(me==0)PRINT*,'MDL2P completed'
 !     END OF ROUTINE.
 !

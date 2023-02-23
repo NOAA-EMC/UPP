@@ -95,7 +95,7 @@
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, EBB, HWP,   &
-                         LWP, IWP, AVGCPRATE,                                 &
+                         AODTOT, LWP, IWP, AVGCPRATE,                         &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
                          PWAT,DUSTPM10,MAOD,NO3CB,NH4CB,aqm_aod550
@@ -444,8 +444,17 @@
 !     TOTAL COLUMN AOD (TAOD553D FROM HRRR-SMOKE)
 !
       IF (IGET(735) > 0) THEN
+       IF (MODELNAME == 'RAPR') THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),19)
          CALL BOUND(GRID1,D00,H99999)
+       ELSE IF (MODELNAME == 'FV3R') THEN
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+             if (AODTOT(I,J) < SPVAL) GRID1(I,J) = AODTOT(I,J)
+           ENDDO
+         ENDDO
+       ENDIF
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(735))
@@ -488,6 +497,25 @@
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(741))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+!     TOTAL COLUMN COARSEPM
+!
+      IF (IGET(801) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),23)
+         CALL BOUND(GRID1,D00,H99999)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(801))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
