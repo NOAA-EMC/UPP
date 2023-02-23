@@ -16,6 +16,7 @@
 !> 2005-07-07 | Binbin Zhou   | Add RSM   
 !> 2015-03-11 | S Moorthi     | Set sfcwind to spval if u10 and v10 are spvals for A grid and set gust to just wind (in GSM with nemsio, it appears u10 & v10 have spval)
 !> 2021-09-02 | Bo Cui        | Decompose UPP in X direction
+!> 2023-02-21 | Weizhong Zheng| Switch to GSL algorithm for FV3 based models
 !>   
 !> @author Geoff Manikin W/NP2 @date 1997-03-04
 
@@ -70,13 +71,13 @@
         JSTART = JSTA_M
         JSTOP  = JEND_M
         if ( num_procs > 1 ) then
-         !CALL EXCH(U10(1,jsta_2l))
-         !CALL EXCH(V10(1,jsta_2l))
+         !CALL EXCH(U10(ISTA_2L,jsta_2l))
+         !CALL EXCH(V10(ISTA_2L,jsta_2l))
          LMIN = max(1, minval(lpbl(ista:iend,jsta:jend)))
          CALL MPI_ALLREDUCE(LMIN,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
          DO L=LXXX,LM
-          CALL EXCH(UH(1,jsta_2l,L))
-          CALL EXCH(VH(1,jsta_2l,L))
+          CALL EXCH(UH(ISTA_2L,jsta_2l,L))
+          CALL EXCH(VH(ISTA_2L,jsta_2l,L))
          END DO 
         END IF 
       END IF
@@ -133,7 +134,8 @@
              else
                sfcwind = spval
              endif
-             if(MODELNAME == 'RAPR') then
+             if(MODELNAME == 'RAPR' .OR. MODELNAME == 'GFS' .OR. &
+                MODELNAME == 'FV3R') then
                ZSFC = ZINT(I,J,LM+1)
                L = LPBL(I,J)
 ! in RUC do 342 k=2,k1-1, where k1 - first level above PBLH
@@ -167,7 +169,8 @@
              return
            END IF
 
-           if(MODELNAME /= 'RAPR')then
+           if(MODELNAME /= 'RAPR' .AND. MODELNAME /= 'GFS' .AND. &
+              MODELNAME /= 'FV3R') then
              if (sfcwind < spval) then
                DELWIND   = WIND - SFCWIND
                ZSFC      = FIS(I,J)*GI
