@@ -71,6 +71,7 @@
 !> 2022-12-15 | Eric James        | Modifying GSL exp2 ceiling diagnostic from HRRR, to correct a low bias in cloud cover
 !> 2023-02-02 | Wen Meng          | Remove GSL specified clear-sky upward/downward SW
 !> 2023-02-10 | Eric James        | Removing neighbourhood check from GSL exp2 ceiling diagnostic
+!> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD

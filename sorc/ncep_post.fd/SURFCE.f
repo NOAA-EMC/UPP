@@ -46,6 +46,7 @@
 !! -  22-12-23  E Aligo - Read six winter weather diagnostics from model.
 !! -  23-01-24  Sam Trahan - store hourly accumulated precip for IFI and bucket time
 !! -  23-02-11  W Meng  - Add fix of time accumulation in bucket graupel for FV3 based models
+!! -  23-02-23  E James - Adding coarse PM from RRFS
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:

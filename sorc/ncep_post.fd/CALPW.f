@@ -37,6 +37,7 @@
 !> 2020-11-10 | Jesse Meng     | Use UPP_PHYSICS Module
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
 !> 2022-11-16 | Eric James     | Adding calculation of vertically integrated dust from RRFS
+!> 2023-02-23 | Eric James     | Adding vertically integrated coarse PM from RRFS
 !>     
 !> @author Russ Treadon W/NP2 @date 1992-12-24
       SUBROUTINE CALPW(PW,IDECID)
