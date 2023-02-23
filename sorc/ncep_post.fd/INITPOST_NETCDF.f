@@ -943,7 +943,7 @@
 !============================
 
 ! read for regional FV3
-      if_FV3R: if (modelname == 'FV3R') then
+      if (modelname == 'FV3R') then
 ! max hourly updraft velocity
       VarName='upvvelmax'
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -1000,7 +1000,7 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
-      endif if_FV3R
+      endif
 
 ! lightning threat index 1
       VarName='ltg1_max'
