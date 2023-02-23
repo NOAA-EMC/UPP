@@ -68,6 +68,9 @@
 !> 2022-10-20 | Li(Kate Zhang)    | Add nitrate look-up table and nitrate AOD for NASA GOCART (UFS-Aerosols).
 !> 2022-11-16 | Eric James        | Adding total column dust, biomass burning emissions, hourly wildfire potential from RRFS
 !> 2022-1207  | Wen Meng          | Add AOD for AQM 
+!> 2022-12-15 | Eric James        | Modifying GSL exp2 ceiling diagnostic from HRRR, to correct a low bias in cloud cover
+!> 2023-02-02 | Wen Meng          | Remove GSL specified clear-sky upward/downward SW
+!> 2023-02-10 | Eric James        | Removing neighbourhood check from GSL exp2 ceiling diagnostic
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -2098,11 +2101,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !    However, for RAPv5/HRRRv4, paramater 711 will be supplied as
 !    the GSD cloud-base height, and parameter 798 will be the
 !    corresponding cloud-base pressure. (J. Kenyon, 4 Nov 2019)
+! -- E. James, 15 Dec 2022
+!    The above experimental diagnostic, developed for the HRRR with
+!    lots of "add-ons" to correct for the HRRR's low bias in cloud
+!    cover, needs to be revised for the RRFS with its more extensive
+!    cloudiness.  For an FAA deliverable due Feb 2023, the diagnostic
+!    is being modified to get rid of some of the add ons.
 
 !    Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
         IF ((IGET(711)>0) .OR. (IGET(798)>0)) THEN
           ! set minimum cloud fraction to represent a ceiling
-          ceiling_thresh_cldfra = 0.4
+!          ceiling_thresh_cldfra = 0.4
+          ceiling_thresh_cldfra = 0.5
           ! set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
           rhoice = 970.
           coeffp = 10.36
@@ -2192,23 +2202,24 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                 end do
                 !-- end of search 2
 
-                zceil = min(zceil1,zceil2) ! choose lower of zceil1 and zceil2
+!                zceil = min(zceil1,zceil2) ! choose lower of zceil1 and zceil2
+                zceil = zceil1
 
                 !-- Search for "indefinite ceiling" (vertical visibility) conditions:  consider
                 ! lowering of apparent ceiling due to falling snow (retained from legacy
                 ! diagnostic); this is extracted from calvis.f (visibility diagnostic)
-                if (QQS(i,j,LM)>1.e-10) then
-                  TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
-                  RHOAIR=PMID(I,J,lm)/(RD*TV)
-                  vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
-                  concfp = QQS(i,j,LM)/vovermd*1000.
-                  betav = coeffp*concfp**exponfp + 1.e-10
-                  vertvis = 1000.*min(90., const1/betav)
-                  if (vertvis < zceil-FIS(I,J)*GI ) then ! if vertvis is more restictive than zceil found above; set zceil to vertvis
-                    ! note that FIS is geopotential of the surface (ground), and GI is 1/g
-                    zceil = FIS(I,J)*GI + vertvis
-                  end if
-                end if
+!                if (QQS(i,j,LM)>1.e-10) then
+!                  TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+!                  RHOAIR=PMID(I,J,lm)/(RD*TV)
+!                  vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
+!                  concfp = QQS(i,j,LM)/vovermd*1000.
+!                  betav = coeffp*concfp**exponfp + 1.e-10
+!                  vertvis = 1000.*min(90., const1/betav)
+!                  if (vertvis < zceil-FIS(I,J)*GI ) then ! if vertvis is more restictive than zceil found above; set zceil to vertvis
+!                    ! note that FIS is geopotential of the surface (ground), and GI is 1/g
+!                    zceil = FIS(I,J)*GI + vertvis
+!                  end if
+!                end if
 
                 ceil(I,J) = zceil
             ENDDO      ! i loop
@@ -2249,7 +2260,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               do jc = max(1,J-numr),min(JM,J+numr)
               do ic = max(1,I-numr),min(IM,I+numr)
                 ceil_neighbor = max( full_ceil(ic,jc)-full_fis(ic,jc)*GI , 5.0) !  ceil_neighbor in AGL
-                ceil_min = min( ceil_min, ceil_neighbor )
+!                ceil_min = min( ceil_min, ceil_neighbor )
               enddo
               enddo
               CLDZ(I,J) = ceil_min + FIS(I,J)*GI ! convert back to ASL and store
@@ -3823,20 +3834,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 
-! Instantaneous clear-sky upwelling SW at the surface
-      IF (IGET(743)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            GRID1(I,J) = SWUPBC(I,J)
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(743))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
-      ENDIF
-
 !     CURRENT OUTGOING LW RADIATION AT THE SURFACE.
       IF (IGET(142)>0) THEN
 !$omp parallel do private(i,j)
@@ -3951,20 +3948,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           fld_info(cfld)%ifld=IAVBLFLD(IGET(262))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
-      ENDIF
-
-! Instantaneous clear-sky downwelling SW at surface (GSD version)
-      IF (IGET(742)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            GRID1(I,J) = SWDNBC(I,J)
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(742))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
       ENDIF
 
 ! Instantaneous SWDDNI

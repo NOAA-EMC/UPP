@@ -62,6 +62,7 @@ jobs:
           spack add mpich@3.4.2
           spack concretize
           spack install -v --fail-fast --dirty
+          spack clean --all
 
   build:
     needs: setup

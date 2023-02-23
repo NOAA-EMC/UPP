@@ -32,3 +32,6 @@ module load sigio/2.3.2
 module load sp/2.3.3
 module load w3emc/2.9.2
 module load wrf_io/1.1.1
+
+module use /lfs4/BMC/ifi/modulefiles
+module try-load ifi/20230118-intel-18.0.5.274

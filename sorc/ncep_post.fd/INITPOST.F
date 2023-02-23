@@ -19,6 +19,7 @@
 !> 2002-06-19 | Mike Baldwin | WRF Version
 !> 2002-08-15 | H CHuang     | Unit correction and generalize projection options
 !> 2021-03-11 | Bo Cui       | Change local arrays to dimension (im,jsta:jend)
+!> 2023-01-24 | Sam Trahan   | Comment-out wordy debug writes
 !>
 !> @author Russ Treadon W/NP2 @date 1993-11-10
       SUBROUTINE INITPOST
@@ -373,15 +374,15 @@
         do j = jsta_2l, jend_2u
           do i = 1, im
             if((PMID(I,J,ll-1) - PMID(I,J,ll))>=0.) then
-            write(*,*) 'non-monotonic PMID, i,j,ll ', i,j,ll
-            write(*,*) 'PMID: ll-1,ll,ll+1', PMID(I,J,LL-1) &
-                  ,PMID(I,J,LL), PMID(I,J,LL+1)
+!               write(*,*) 'non-monotonic PMID, i,j,ll ', i,j,ll
+!               write(*,*) 'PMID: ll-1,ll,ll+1', PMID(I,J,LL-1) &
+!                     ,PMID(I,J,LL), PMID(I,J,LL+1)
 
               PMID(I,J,LL)=0.5*(PMID(I,J,LL+1)+PMID(I,J,LL-1))
 
-            write(*,*) 'after adjustment-i,j,ll ', i,j,ll
-            write(*,*) 'PMID: ll-1,ll,ll+1', PMID(I,J,LL-1) &
-                  ,PMID(I,J,LL), PMID(I,J,LL+1)
+!               write(*,*) 'after adjustment-i,j,ll ', i,j,ll
+!               write(*,*) 'PMID: ll-1,ll,ll+1', PMID(I,J,LL-1) &
+!                     ,PMID(I,J,LL), PMID(I,J,LL+1)
             endif
           end do
         end do
@@ -400,16 +401,16 @@
       do j = jsta_2l, jend_2u
         do i = 1, im
           if((PMID(I,J,ll-1) - PMID(I,J,ll))>=0.) then
-            write(*,*) 'non-monotonic PMID, i,j,ll ', i,j,ll
-            write(*,*) 'PMID: ll-2,ll-1,ll', PMID(I,J,LL-2) &
-                  ,PMID(I,J,LL-1), PMID(I,J,LL)
+            ! write(*,*) 'non-monotonic PMID, i,j,ll ', i,j,ll
+            ! write(*,*) 'PMID: ll-2,ll-1,ll', PMID(I,J,LL-2) &
+            !       ,PMID(I,J,LL-1), PMID(I,J,LL)
 
             PMID(I,J,LL)=PMID(I,J,ll-1) +                   &
                          fact*(PMID(I,J,LL-1)-PMID(I,J,LL-2))
 
-            write(*,*) 'after adjustment-i,j,ll ', i,j,ll
-            write(*,*) 'PMID: ll-2,ll-1,ll', PMID(I,J,LL-2) &
-                  ,PMID(I,J,LL-1), PMID(I,J,LL)
+            ! write(*,*) 'after adjustment-i,j,ll ', i,j,ll
+            ! write(*,*) 'PMID: ll-2,ll-1,ll', PMID(I,J,LL-2) &
+            !       ,PMID(I,J,LL-1), PMID(I,J,LL)
           endif
         end do
       end do
@@ -846,10 +847,10 @@
       DO J=Jsta,jend
       DO I=1,IM
         if((PINT(I,J,lm) - DUMMY(I,J))>=0.) then 
-           write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
-           write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM),DUMMY(I,J), PMID(I,J,LM)
+           ! write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
+           ! write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM),DUMMY(I,J), PMID(I,J,LM)
            DUMMY(I,J)=PMID(I,J,LM)*1.001
-           write(*,*) 'after adjustment-i,j,lm+1 ', i,j,lm+1,DUMMY(I,J)
+           ! write(*,*) 'after adjustment-i,j,lm+1 ', i,j,lm+1,DUMMY(I,J)
         endif
         PINT(I,J,LM+1)=DUMMY(I,J)
         ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
@@ -944,10 +945,10 @@
 ! KRF - check surface pressure for monotonic correctness
 
          if((PINT(I,J,lm) - PINT(I,J,LM+1))>=0. ) then
-            write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
-            write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM), PINT(I,J,LM+1), PMID(I,J,LM)
+            ! write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
+            ! write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM), PINT(I,J,LM+1), PMID(I,J,LM)
             PINT(I,J,LM+1) = PINT(I,J,LM)*1.001
-            write(*,*) 'after adjustment-i,j,lm+1 PINT ', i,j,lm+1, PINT(I,J,LM+1)
+            ! write(*,*) 'after adjustment-i,j,lm+1 PINT ', i,j,lm+1, PINT(I,J,LM+1)
          endif
          ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
       ENDDO
