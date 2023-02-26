@@ -3774,7 +3774,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! should only compute pblri if pblh from model is not computed based on Ri 
 ! post does not yet read pbl scheme used by model.  Will do this soon
 ! For now, compute PBLRI for non GFS models.
-              IF(MODELNAME  ==  'GFS' .OR. MODELNAME == 'FV3R')THEN
+              IF(MODELNAME  ==  'GFS')THEN
                 PBLRI=PBLH
               ELSE
                CALL CALPBL(PBLRI)
