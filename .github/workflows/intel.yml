@@ -91,6 +91,7 @@ jobs:
 
       - name: install-intel
         run: |
+          sudo mv /usr/local/ /usr_local_mv
           echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bash_profile
 
       - name: cache-env
