@@ -4176,9 +4176,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         RICHNO=SPVAL
 
         call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
-        uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,&
-        ZINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,LP1),pblh,sfcshx,sfclhx,ustar,&
-        z0,gdlat,gdlon,dx,dy,u10,v10,GUST,avgprec,sm,sice,catedr,mwt,EL,gtg,RICHNO,item)
+        uh(ista:iend,:,:),vh(ista:iend,:,:),wh(ista:iend,:,:),&
+        zmid(ista:iend,:,:),pmid(ista:iend,:,:),t(ista:iend,:,:),&
+        q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
+        qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
+        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
+        sfclhx(ista:iend,:),ustar(ista:iend,:),&
+        z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
+        dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
+        GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
+        catedr(ista:iend,:,:),mwt(ista:iend,:,:),EL(ista:iend,:,:),&
+        gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
 
         i=iend
         j=jend ! 321,541
