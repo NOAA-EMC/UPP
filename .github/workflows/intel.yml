@@ -104,7 +104,6 @@ jobs:
 
       - name: build-upp
         run: |
-          sudo mv /usr/local/ /usr_local_mv
           source spack/share/spack/setup-env.sh
           spack env activate upp-env
           export CC=mpiicc
