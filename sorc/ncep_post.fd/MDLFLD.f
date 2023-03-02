@@ -2397,8 +2397,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            ENDIF
 ! E. James - 23 Feb 2023: COARSEPM from RRFS
 !          DUST
-           IF (IGET(802)>0) THEN
-             IF (LVLS(L,IGET(802))>0) THEN
+           IF (IGET(1012)>0) THEN
+             IF (LVLS(L,IGET(1012))>0) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -2412,8 +2412,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
                if(grib=="grib2") then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(802))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(802))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1012))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1012))
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1

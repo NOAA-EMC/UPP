@@ -2179,7 +2179,7 @@
 !
 ! E. James - 23 Feb 2023: COARSEPM from RRFS on lowest model level
 !
-         IF (IGET(804)>0) THEN
+         IF (IGET(1014)>0) THEN
            GRID1=SPVAL
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -2189,7 +2189,7 @@
            ENDDO
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(804))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(1014))
              datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
            endif
          ENDIF

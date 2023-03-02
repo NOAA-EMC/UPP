@@ -511,12 +511,12 @@
 !
 !     TOTAL COLUMN COARSEPM
 !
-      IF (IGET(801) > 0) THEN
+      IF (IGET(1011) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:iend),23)
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
-          fld_info(cfld)%ifld = IAVBLFLD(IGET(801))
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(1011))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1

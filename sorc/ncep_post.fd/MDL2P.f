@@ -2104,8 +2104,8 @@
           ENDIF
          ENDIF
 ! E. James - 23 Feb 2023: COARSEPM from RRFS
-        IF (IGET(803) > 0) THEN
-          IF (LVLS(LP,IGET(803)) > 0) THEN
+        IF (IGET(1013) > 0) THEN
+          IF (LVLS(LP,IGET(1013)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -2118,8 +2118,8 @@
              ENDDO
              if(grib == 'grib2')then
                cfld = cfld + 1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(803))
-               fld_info(cfld)%lvl=LVLSXML(LP,IGET(803))
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1013))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1013))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
