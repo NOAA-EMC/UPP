@@ -1016,7 +1016,6 @@
      if(debugprint)print*,'sample ',VarName,' =',ltg2_max(isa,jsa)
 
 ! lightning threat index 3
-     ltg3_max = 5
       VarName='ltg3_max'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ltg3_max(ista_2l,jsta_2l))
