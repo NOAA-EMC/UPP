@@ -28,6 +28,7 @@
 !> 2022-12-07 | Wen Meng      | Read AOD from AQM model
 !> 2022-12-23 | Eric Aligo    | Read six winter weather diagnostics from model
 !> 2023-01-30 | Sam Trahan    | Read cldfra or cldfra_bl, whichever is available
+!> 2023-03-02 | Sam Trahan    | Read lightning threat index fields
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)

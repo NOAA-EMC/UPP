@@ -17,6 +17,7 @@
 !!   21-04-01  J MENG - computation on defined points only
 !!   21-07-26  W Meng - Restrict computation from undefined grids
 !!   21-10-14  J MENG - 2D DECOMPOSITION
+!! 2023-03-02  S TRAHAN - copy lightning threat index 3 element-by-element
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
