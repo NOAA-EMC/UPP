@@ -13,6 +13,7 @@
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
 !> 2022-06-10 | Wen Meng   | Modify dvdxdudy to retrict computation on undefined grids  
+!> 2023-03-03 | Sam Trahan | Add some missing exchanges (grids that only need i-direction exchanges)
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_math
