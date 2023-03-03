@@ -49,6 +49,7 @@
 !!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
 !!   22-11-16  E James - Adding dust from RRFS
 !!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
+!!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -144,7 +145,8 @@
                                              DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1, &
                                              QI,     QINT,  TT,     PPP,    QV,     &
                                              QCD,    QICE1, QRAIN1, QSNO1,  refl,   &
-                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1,Zm10c
+                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1,Zm10c, &
+                                             USTORE, VSTORE
 !                                            T700,   TH700   
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
@@ -188,6 +190,15 @@
 !
 !     ALLOCATE LOCAL ARRAYS
 !
+! Initialize halo regions of USTORE & VSTORE for cases when the halo extends
+! beyond the computational domain boundary.
+!$OMP PARALLEL DO COLLAPSE(2)
+      DO J=jsta_2l,jend_2u
+        DO I=ista_2l,iend_2u
+          USTORE(I,J) = 0
+          VSTORE(I,J) = 0
+        ENDDO
+      ENDDO
 ! Set up logical flag to indicate whether model outputs radar directly
       Model_Radar = .false.
 !      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
@@ -3861,6 +3872,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     ELSE
                       GRID1(I,J) = U10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
                     END IF
+                    USTORE(I,J) = GRID1(I,J)
                   END DO
                 END DO 
 ! compute v component now
@@ -3906,12 +3918,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     ELSE
                       GRID2(I,J) = V10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
                     END IF
+                    VSTORE(I,J) = GRID2(I,J)
                   END DO
                 END DO 
 
 
-                CALL U2H(GRID1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID1)
-                CALL V2H(GRID2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID2)
+                CALL U2H(USTORE,EGRID1)
+                CALL V2H(VSTORE,EGRID2)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=ista,iend
