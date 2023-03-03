@@ -143,7 +143,8 @@
                                              DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1, &
                                              QI,     QINT,  TT,     PPP,    QV,     &
                                              QCD,    QICE1, QRAIN1, QSNO1,  refl,   &
-                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1,Zm10c
+                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1,Zm10c, &
+                                             USTORE, VSTORE
 !                                            T700,   TH700   
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
@@ -3860,6 +3861,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     ELSE
                       GRID1(I,J) = U10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
                     END IF
+                    USTORE(I,J) = GRID1(I,J)
                   END DO
                 END DO 
 ! compute v component now
@@ -3905,12 +3907,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     ELSE
                       GRID2(I,J) = V10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
                     END IF
+                    VSTORE(I,J) = GRID2(I,J)
                   END DO
                 END DO 
 
 
-                CALL U2H(GRID1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID1)
-                CALL V2H(GRID2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID2)
+                CALL U2H(USTORE,EGRID1)
+                CALL V2H(VSTORE,EGRID2)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=ista,iend
