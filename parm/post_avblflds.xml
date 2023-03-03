@@ -3883,7 +3883,8 @@
     <param>
        <post_avblfldidx>445</post_avblfldidx>
        <shortname>MAPS_PRMSL_ON_MEAN_SEA_LVL</shortname>
-       <pname>PRMSL</pname>
+       <pname>MSLMA</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>mean_sea_lvl</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6551,7 +6552,10 @@
     <param>
        <post_avblfldidx>702</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT1_ON_ENTIRE_ATMOS</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>LTGTHREAT1</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -6559,7 +6563,10 @@
     <param>
        <post_avblfldidx>703</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT2_ON_ENTIRE_ATMOS</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>LTGTHREAT2</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -6567,7 +6574,10 @@
     <param>
        <post_avblfldidx>704</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>LTNG</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>

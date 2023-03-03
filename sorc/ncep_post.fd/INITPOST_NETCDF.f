@@ -28,6 +28,7 @@
 !> 2022-12-07 | Wen Meng      | Read AOD from AQM model
 !> 2022-12-23 | Eric Aligo    | Read six winter weather diagnostics from model
 !> 2023-01-30 | Sam Trahan    | Read cldfra or cldfra_bl, whichever is available
+!> 2023-03-02 | Sam Trahan    | Read lightning threat index fields
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -66,7 +67,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550
+              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1001,6 +1002,24 @@
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
       endif
+
+! lightning threat index 1
+      VarName='ltg1_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ltg1_max(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',ltg1_max(isa,jsa)
+
+! lightning threat index 2
+      VarName='ltg2_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ltg2_max(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',ltg2_max(isa,jsa)
+
+! lightning threat index 3
+      VarName='ltg3_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ltg3_max(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',ltg3_max(isa,jsa)
 
 ! surface pressure
       VarName='pressfc'
