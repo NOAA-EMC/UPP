@@ -189,6 +189,15 @@
 !
 !     ALLOCATE LOCAL ARRAYS
 !
+! Initialize halo regions of USTORE & VSTORE for cases when the halo extends
+! beyond the computational domain boundary.
+!$OMP PARALLEL DO COLLAPSE(2)
+      DO J=jsta_2l,jend_2u
+        DO I=ista_2l,iend_2u
+          USTORE(I,J) = 0
+          VSTORE(I,J) = 0
+        ENDDO
+      ENDDO
 ! Set up logical flag to indicate whether model outputs radar directly
       Model_Radar = .false.
 !      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
