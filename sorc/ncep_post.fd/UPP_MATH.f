@@ -169,6 +169,7 @@
         END DO
        END IF      
       ELSE IF(GRIDTYPE == 'C')THEN
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA,JEND
         DO I=ISTA,IEND_M
           outgrid(i,j)=(ingrid(i,j)+ingrid(i+1,j))/2.0
@@ -262,6 +263,7 @@
 	end do
        end do
       ELSE IF(GRIDTYPE == 'C')THEN
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA,JEND
         DO I=ISTA_M,IEND
 	 outgrid(i,j)=(ingrid(i-1,j)+ingrid(i,j))/2.0
