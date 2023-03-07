@@ -4374,8 +4374,8 @@
 !
       ALLOCATE(TWET(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
 
-!$omp parallel do
       DO IFD = 1,NFL
+!$omp parallel do private(i,j)      
         DO J=JSTA,JEND
           DO I=ISTA,IEND
              TFD(I,J,IFD)     = SPVAL
@@ -4431,6 +4431,7 @@
 
       SLR = SPVAL
 
+!$omp parallel do private(i,j)      
       DO J=JSTA,JEND
       DO I=ISTA,IEND
       IF(TFD(I,J,1)<SPVAL .AND. UFD(I,J,1)<SPVAL .AND. VFD(I,J,1)<SPVAL) THEN
@@ -4448,6 +4449,7 @@
       KARR = 1
       CALL WETBULB(T,Q,PMID,HTM,KARR,TWET)
 
+!$omp parallel do private(i,j)      
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          ZWET(I,J)=ZMID(I,J,LM)
@@ -4456,10 +4458,11 @@
       ENDDO
 
       DO L=LM,1,-1
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          IF(TWET05(I,J) < 0) THEN
-            IF(TWET(I,J,L) >= 273.15+0.5) THEN
+            IF(TWET(I,J,L) <= 273.15+0.5) THEN
                ZWET(I,J)=ZMID(I,J,L)
                TWET05(I,J)=1
             ENDIF
@@ -4468,6 +4471,7 @@
       ENDDO
       ENDDO
 
+!$omp parallel do private(i,j,HTABH)      
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          IF(TWET05(I,J) > 0 .AND. SLR(I,J)<SPVAL) THEN
