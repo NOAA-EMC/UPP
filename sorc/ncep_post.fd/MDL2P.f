@@ -65,7 +65,7 @@
                             IEND_2U,nasa_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_STEENBURGH
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
@@ -3859,7 +3859,7 @@
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
       !   call calslr_roebber(TPRS,RHPRS,EGRID1)
-         call calslr_steenburgh(EGRID1)
+         call calslr_uutah(EGRID1)
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend

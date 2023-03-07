@@ -20,7 +20,7 @@
 !>
 !> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm.
 !>      
-!> calslr_steenburgh() computes snow solid-liquid-ratio slr using the Steenburgh algorithm.
+!> calslr_uutah() computes snow solid-liquid-ratio slr using the UUtah Steenburgh algorithm.
 !>   
 !> calvor() computes absolute vorticity.   
 !>      
@@ -33,7 +33,7 @@
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
 !> 2022-07-11 | Jesse Meng | CALSLR_ROEBBER
-!> 2023-02-14 | Jesse Meng | CALSLR_STEENBURGH      
+!> 2023-02-14 | Jesse Meng | CALSLR_UUTAH     
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -48,7 +48,7 @@
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
-  public :: CALSLR_ROEBBER, CALSLR_STEENBURGH
+  public :: CALSLR_ROEBBER, CALSLR_UUTAH
   public :: CALVOR
 
   public :: FPVSNEW
@@ -4304,7 +4304,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> calslr_steenburgh() computes snow solid-liquid-ratio slr using the Steenburgh algorithm.
+!> calslr_uutah() computes snow solid-liquid-ratio slr using the Steenburgh algorithm.
 !>
 !> Obtained the code and data from U of Utah Jim Steenburgh and Peter Veals.
 !> SLR = m1X1 + m2X2 + m3X3 + m4X4 + m5X5 + m6X6 + b.
@@ -4336,7 +4336,7 @@
 !>
 !> @author Jesse Meng @date 2023-01-03
 
-      SUBROUTINE CALSLR_STEENBURGH(SLR)
+      SUBROUTINE CALSLR_UUTAH(SLR)
 
       use vrbls3d,    only: ZINT,ZMID,PMID,T,Q,UH,VH
       use masks,      only: LMH,HTM
@@ -4481,7 +4481,7 @@
 
       DEALLOCATE (TWET)
 
-      END SUBROUTINE CALSLR_STEENBURGH
+      END SUBROUTINE CALSLR_UUTAH
 !
 !-------------------------------------------------------------------------------------
 !
