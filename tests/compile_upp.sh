@@ -30,7 +30,7 @@ wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
 compiler="intel"
 verbose_opt=""
 debug_opt=""
-while getopts ":p:gwc:vhiI:d" opt; do
+while getopts ":p:gwc:vhiId" opt; do
   case $opt in
     p)
       prefix=$OPTARG
