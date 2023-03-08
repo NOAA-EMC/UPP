@@ -2869,7 +2869,10 @@
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=ista,iend
-          acsnow(i,j) = buf(i,j) + buf2(i,j)
+          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
+            acsnow(i,j) = buf(i,j) + buf2(i,j)
+          else
+            acsnow(i,j) = spval
         enddo
       enddo
       VarName='snacc_land'
@@ -2881,7 +2884,10 @@
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=ista,iend
-          sndepac(i,j) = buf(i,j) + buf2(i,j)
+          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
+            sndepac(i,j) = buf(i,j) + buf2(i,j)
+          else
+            sndepac(i,j) = spval
         enddo
       enddo
 !$omp parallel do private(i,j)
