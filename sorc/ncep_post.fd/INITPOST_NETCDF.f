@@ -2873,6 +2873,7 @@
             acsnow(i,j) = buf(i,j) + buf2(i,j)
           else
             acsnow(i,j) = spval
+          endif
         enddo
       enddo
       VarName='snacc_land'
@@ -2888,6 +2889,7 @@
             sndepac(i,j) = buf(i,j) + buf2(i,j)
           else
             sndepac(i,j) = spval
+          endif
         enddo
       enddo
 !$omp parallel do private(i,j)
