@@ -6785,6 +6785,9 @@
        <pname>COLMD</pname>
        <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>5.0</scale>
     </param>
 
@@ -6795,6 +6798,9 @@
        <pname>MASSDEN</pname>
        <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>6.0</scale>
     </param>
 
@@ -6805,6 +6811,9 @@
        <pname>MASSDEN</pname>
        <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>6.0</scale>
     </param>
 
@@ -6815,6 +6824,9 @@
        <pname>MASSDEN</pname>
        <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <level>8.</level>
        <scale>6.0</scale>
     </param>
@@ -6836,6 +6848,9 @@
        <pname>COLMD</pname>
        <aerosol_type>dust_dry</aerosol_type>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>5.0</scale>
     </param>
 
@@ -6846,6 +6861,9 @@
        <pname>MASSDEN</pname>
        <aerosol_type>dust_dry</aerosol_type>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>6.0</scale>
     </param>
 
@@ -6856,6 +6874,9 @@
        <pname>MASSDEN</pname>
        <aerosol_type>dust_dry</aerosol_type>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>6.0</scale>
     </param>
 
@@ -6866,6 +6887,9 @@
        <pname>MASSDEN</pname>
        <aerosol_type>dust_dry</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <level>8.</level>
        <scale>6.0</scale>
     </param>
@@ -8255,6 +8279,67 @@
        <!-- Level units are in 0.1 feet, so final output will be in units of 0.1 meters -->
        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
        <level>5000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 95000. 100000. 105000. 110000. 115000. 120000. 125000. 130000. 135000. 140000. 145000. 150000. 155000. 160000. 165000. 170000. 175000. 180000. 185000. 190000. 195000. 200000. 205000. 210000. 215000. 220000. 225000. 230000. 235000. 240000. 245000. 250000. 255000. 260000. 265000. 270000. 275000. 280000. 285000. 290000. 295000. 300000.</level>
+    </param>
+
+    <param>
+       <post_avblfldidx>1011</post_avblfldidx>
+       <shortname>COARSEPM_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale>5.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1012</post_avblfldidx>
+       <shortname>COARSEPM_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1013</post_avblfldidx>
+       <shortname>COARSEPM_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1014</post_avblfldidx>
+       <shortname>COARSEPM_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>8.</level>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale>6.0</scale>
     </param>
 
   </post_avblflds>
