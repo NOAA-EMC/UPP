@@ -28,6 +28,7 @@
 !> 2022-12-07 | Wen Meng      | Read AOD from AQM model
 !> 2022-12-23 | Eric Aligo    | Read six winter weather diagnostics from model
 !> 2023-01-30 | Sam Trahan    | Read cldfra or cldfra_bl, whichever is available
+!> 2023-02-23 | Eric James    | Read coarse PM and aodtot from RRFS
 !> 2023-03-02 | Sam Trahan    | Read lightning threat index fields
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
@@ -35,7 +36,8 @@
 
 
       use netcdf
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, no3,nh4, PP25, PP10 
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, coarsepm,                &
+              no3,nh4, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
@@ -67,7 +69,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max
+              pwat, ebb, hwp, aodtot, aqm_aod550, ltg1_max,ltg2_max,ltg3_max
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -500,13 +502,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=18
+       nrec=19
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'smoke_ext','dust_ext']
+                                     'coarsepm','smoke_ext','dust_ext']
       else
        nrec=8
        allocate (recname(nrec))
@@ -865,10 +867,12 @@
        spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(17),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(17),extsmoke(ista_2l,jsta_2l,1),lm)
+       spval,recname(18),extsmoke(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(18),extdust(ista_2l,jsta_2l,1),lm)
+       spval,recname(19),extdust(ista_2l,jsta_2l,1),lm)
        endif
 
 ! calculate CWM from FV3 output
@@ -1001,6 +1005,11 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
+! total aod
+      VarName='aodtot'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,aodtot(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',aodtot(isa,jsa)
       endif
 
 ! lightning threat index 1
@@ -2860,7 +2869,11 @@
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=ista,iend
-          acsnow(i,j) = buf(i,j) + buf2(i,j)
+          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
+            acsnow(i,j) = buf(i,j) + buf2(i,j)
+          else
+            acsnow(i,j) = spval
+          endif
         enddo
       enddo
       VarName='snacc_land'
@@ -2872,7 +2885,11 @@
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=ista,iend
-          sndepac(i,j) = buf(i,j) + buf2(i,j)
+          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
+            sndepac(i,j) = buf(i,j) + buf2(i,j)
+          else
+            sndepac(i,j) = spval
+          endif
         enddo
       enddo
 !$omp parallel do private(i,j)
