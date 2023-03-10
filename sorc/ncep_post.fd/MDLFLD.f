@@ -50,6 +50,7 @@
 !!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
 !!   22-11-16  E James - Adding dust from RRFS
 !!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
+!!   23-02-23  E James - Adding coarse PM from RRFS
 !!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
 !!
 !! USAGE:    CALL MDLFLD
@@ -88,7 +89,8 @@
       SUBROUTINE MDLFLD
 
 !    
-      use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust
+      use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust,&
+              coarsepm
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
@@ -2397,6 +2399,36 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(742))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(742))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+! E. James - 23 Feb 2023: COARSEPM from RRFS
+!          DUST
+           IF (IGET(1012)>0) THEN
+             IF (LVLS(L,IGET(1012))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=ista,iend
+               IF(PMID(I,J,LL)<spval.and.T(I,J,LL)<spval.and.COARSEPM(I,J,LL,1)<spval)THEN
+                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*COARSEPM(I,J,LL,1)/(1E9)
+               ELSE
+                 GRID1(I,J) = spval
+               ENDIF
+               ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1012))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1012))
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
