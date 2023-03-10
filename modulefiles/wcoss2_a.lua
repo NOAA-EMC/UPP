@@ -68,6 +68,6 @@ setenv("FC","ftn")
 
 
 prepend_path("MODULEPATH", "/lfs/h1/oar/esrl/noscrub/samuel.trahan/ifi/modulefiles")
-try_load("ifi/20221006-intel-" .. intel_ver)
+load("ifi/20230118-intel-19.1.3.304")
 
 whatis("Description: post build environment")
