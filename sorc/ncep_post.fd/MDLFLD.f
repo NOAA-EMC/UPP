@@ -933,7 +933,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(464)>0).OR.(IGET(467)>0).OR.      &
            (IGET(470)>0).OR.(IGET(476)>0).OR.      &
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
-           (IGET(470)>0).OR.                       &
            (IGET(909)>0).OR.(IGET(737)>0).OR.      &
            (IGET(742)>0).OR.                       &
            (IGET(994)>0).OR.(IGET(995)>0) ) THEN

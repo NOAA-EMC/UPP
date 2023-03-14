@@ -4538,7 +4538,7 @@
        <scale>6.0</scale>
     </param>
 
-<!-- 518-522 on std_isobaric_sfc for WAFS products  -->
+<!-- 518-521 on std_isobaric_sfc for WAFS products  -->
     <param>
        <post_avblfldidx>518</post_avblfldidx>
        <shortname>HGT_ON_ICAO_STD_SFC</shortname>
@@ -4569,14 +4569,6 @@
        <pname>VGRD</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>522</post_avblfldidx>
-       <shortname>RH_ON_ICAO_STD_SFC</shortname>
-       <pname>RH</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>2.0</scale>
     </param>
 
     <param>
