@@ -108,6 +108,7 @@ export POSTGPEXEC=${POSTGPEXEC:-$EXECgfs/gfs_ncep_post}
 ####################################
 # Specify Special Post Vars
 ####################################
+numx=${numx:-2}
 if [ $RUN = gfs ];then
   export FHOUT_PGB=${FHOUT_GFS:-3} #Output frequency of gfs pgb file at 1.0 and 0.5 deg.
 fi
