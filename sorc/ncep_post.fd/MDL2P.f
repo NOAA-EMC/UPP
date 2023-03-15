@@ -3900,8 +3900,8 @@
       IF ( IGET(1006)>0 ) THEN
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
-      !   call calslr_roebber(TPRS,RHPRS,EGRID1)
-         call calslr_uutah(EGRID1)
+         call calslr_roebber(TPRS,RHPRS,EGRID1)
+      !   call calslr_uutah(EGRID1)
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend
