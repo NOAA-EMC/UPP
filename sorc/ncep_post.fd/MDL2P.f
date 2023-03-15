@@ -4089,7 +4089,7 @@
          do i=ista,iend
             grid1(i,j)=spval
             if(egrid1(i,j) < spval) then
-              if(egrid1(i,j)>0.01) then
+              if(egrid1(i,j)>=1.) then
                  grid1(i,j)=1000./egrid1(i,j)
               else
                  grid1(i,j)=spval
