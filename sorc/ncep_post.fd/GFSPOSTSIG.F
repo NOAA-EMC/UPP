@@ -459,19 +459,19 @@ end subroutine
 !> @param[in] ntrac integer number of tracers.
 !> @param[in] idvc integer 
 !> @param[in] idvm integer mass variable id.
-!> @param[in] idsl integer type of sigma structure (1 for phillips or 2 for mean).
+!> @param[in] idsl integer
 !> @param[in] nvcoord integer number of vertical coordinates.
 !> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
-!> @param[in] cpi real ____________________.
+!> @param[in] cpi real
 !> @param[in] idrt integer data representation type.
 !> @param[in] lonb integer number of longitudes.
 !> @param[in] latb integer number of latitudes.
 !> @param[in] ijl integer horizontal dimension.
-!> @param[in] ijn integer ____________________.
+!> @param[in] ijn integer
 !> @param[in] j1 integer first latitude.
 !> @param[in] j2 integer last latitude.
 !> @param[in] jc integer number of cpus.
-!> @param[in] chgq0 integer ____________________.
+!> @param[in] chgq0 integer
 !> @param[in] szs real (nc) orography.
 !> @param[in] sps real (nc) log surface pressure.
 !> @param[in] st real (nc,levs) virtual temperature.
@@ -664,37 +664,28 @@ end subroutine
 !> @param[in] jcap integer spectral truncation.
 !> @param[in] nc integer first dimension (nc>=(jcap+1)*(jcap+2)).
 !> @param[in] km integer number of levels.
-!> @param[in] idvc integer vertical coordinate id (1 for sigma and 2 for hybrid).
+!> @param[in] idvc integer
 !> @param[in] idvm integer mass variable id.
 !> @param[in] idrt integer data representation type.
-!> @param[in] idsl integer type of sigma structure (1 for phillips or 2 for mean).
+!> @param[in] idsl integer
 !> @param[in] nvcoord integer number of vertical coordinates.
 !> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
 !> @param[in] lonb number of longitudes.
 !> @param[in] latb number of latitudes.
+!> @param[in] ijn
 !> @param[in] j1 integer first latitude.
 !> @param[in] j2 integer last latitude.
 !> @param[in] jc integer number of cpus.
-!> @param[in] ijn _____________.
-!> @param[in] sd real (nc,km) _____________.
+!> @param[in] sd real (nc,km) divergence.
 !> @param[in] sps real (nc) log surface pressure.
-!> @param[in] psi real (ijn) interface surface pressure.
-!> @param[in] ti real (ijn,km) interface temperature.
-!> @param[in] ui real (ijn,km) interface x-component wind.
-!> @param[in] vi real (ijn,km) interface y-component wind.
-!> @param[out] wi real (ijn,km) _____________.
-!> @param[out] pm real (ijn,km) mid-layer pressure (Pa).
-!> @param[out] pd real (ijn,km) _____________.
+!> @param[in] psi real (ijn)
+!> @param[in] ti real (ijn,km)
+!> @param[in] ui real (ijn,km)
+!> @param[in] vi real (ijn,km)
+!> @param[out] wi real (ijn,km)
+!> @param[out] pm real (ijn,km)
+!> @param[out] pd real (ijn,km)
 !>
-!> ### Program History Log
-!> Date | Programmer | Comments
-!> -----|------------|---------
-!> 1999-10-18 | Mark Iredell      | Initial
-!> 2013-04-19 | Jun  Wang         | Add option to get pi by using 8 byte real computation
-!> 2013-08-13 | Shrinivas Moorthi | Modified to include im points and thread
-!>
-!> @author Mark Iredell np23 @date 1999-10-18
-
       subroutine getomega(jcap,nc,km,idvc,idvm,idrt,idsl,nvcoord,vcoord,  &
             lonb,latb,ijn,j1,j2,jc,sd,sps,psi,ti,ui,vi,wi,pm,pd)
 !!!!!
