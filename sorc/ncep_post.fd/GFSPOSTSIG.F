@@ -31,8 +31,50 @@
 !>                                   1 = specific humidity (kg/kg)
 !>                                   2 = Ozone mixing ratio (kg/kg)
 !>                                   3 = cloud condensate mixing ratio (kg/kg)
-!>                                   .
-!>                                   .
+!>                                       atomic oxyge, oxygen etc
+!>
+!></pre>
+!> @param[out] iret Integer return code.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell      | Initial
+!> 2013-04-19 | Jun  Wang         | Add option to get tmp and ps(in pascal) from enthalpy and ps(cb) option
+!> 2013-05-06 | Shrinivas Moorthi | Initialize midea to 0
+!> 2013-05-07 | Shrinivas Moorthi | Remove mo3, mct, midea and define io3, ict etc correctly and get correct cloud condensate.
+!> 2013-08-02 | Shrinivas Moorthi | Rewrote the whole routine to read the sigma file differently and to read all tracers. Added sptezj for two 2d fields
+!> 2014-02-20 | Shrinivas Moorthi | Modified conversion from spectral to grid taking advantage of threding in SP library. This really speeds up the code. Also threaded loop for Temperature from Tv
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> rtsig() reads and transforms sigma file.
+!>
+!> @param[out] lusig integer(sigio_intkind) sigma file unit number.
+!> @param[out] head type(sigio_head) sigma file header.
+!> @param[out] k1 integer first model level to return.
+!> @param[out] k2 integer last model level to return.
+!> @param[out] kgds integer (200) GDS to which to transform.
+!> @param[out] ijo integer dimension of output fields.
+!> @param[out] levs integer number of total vertical levels.
+!> @param[out] ntrac integer number of output tracers.
+!> @param[out] jcap integer number of waves.
+!> @param[out] lnt2 integer (jcap+1)*(jcap+2).
+!> @param[in] me integer
+!> @param[out] h real (ijo) surface orography (m).
+!> @param[out] p real (ijo) surface pressure (Pa).
+!> @param[out] px real (ijo) log surface pressure x-gradient (1/m).
+!> @param[out] py real (ijo) log surface pressure y-gradient (1/m).
+!> @param[out] t real (ijo,k1:k2) temperature (K).
+!> @param[out] u real (ijo,k1:k2) x-component wind (m/s).
+!> @param[out] v real (ijo,k1:k2) y-component wind (m/s).
+!> @param[out] d real (ijo,k1:k2) wind divergence (1/s).
+!> @param[out] trc real (ijo,k1:k2,ntrac) tracers.
+!><pre>
+!>                                   1 = specific humidity (kg/kg)
+!>                                   2 = Ozone mixing ratio (kg/kg)
+!>                                   3 = cloud condensate mixing ratio (kg/kg)
 !>                                       atomic oxyge, oxygen etc
 !>
 !></pre>
@@ -321,6 +363,7 @@ end subroutine
 !> @param[out] pi real (km+1) interface pressure (Pa).
 !> @param[out] pm real (km) mid-layer pressure (Pa).
 !> @param[out] om real (km) vertical velocity (Pa/s).
+!> @param[in] me integer
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -414,26 +457,36 @@ end subroutine
 !> @param[in] nc integer first dimension (nc>=(jcap+1)*(jcap+2)).
 !> @param[in] km integer number of levels.
 !> @param[in] ntrac integer number of tracers.
+!> @param[in] idvc integer 
 !> @param[in] idvm integer mass variable id.
+!> @param[in] idsl integer type of sigma structure (1 for phillips or 2 for mean).
+!> @param[in] nvcoord integer number of vertical coordinates.
+!> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
+!> @param[in] cpi real ____________________.
 !> @param[in] idrt integer data representation type.
 !> @param[in] lonb integer number of longitudes.
 !> @param[in] latb integer number of latitudes.
 !> @param[in] ijl integer horizontal dimension.
+!> @param[in] ijn integer ____________________.
 !> @param[in] j1 integer first latitude.
 !> @param[in] j2 integer last latitude.
 !> @param[in] jc integer number of cpus.
+!> @param[in] chgq0 integer ____________________.
 !> @param[in] szs real (nc) orography.
 !> @param[in] sps real (nc) log surface pressure.
 !> @param[in] st real (nc,levs) virtual temperature.
 !> @param[in] sd real (nc,levs) divergence.
 !> @param[in] sz real (nc,levs) vorticity.
 !> @param[in] sq real (nc,levs*ntrac) tracers.
-!> @param[out] zs real (ijl) orography.
-!> @param[out] ps real (ijl) surface pressure.
-!> @param[out] t real (ijl,km) temperature.
-!> @param[out] u real (ijl,km) zonal wind.
-!> @param[out] v real (ijl,km) meridional wind.
-!> @param[out] q real (ijl,km*ntrac) tracers.
+!> @param[inout] gfszs real (ijn)
+!> @param[inout] gfsps real (ijn)
+!> @param[inout] gfsp real (ijn, km)
+!> @param[inout] gfsdp real (ijn, km)
+!> @param[inout] gfst real (ijn, km)
+!> @param[inout] gfsu real (ijn, km)
+!> @param[inout] gfsv real (ijn, km)
+!> @param[inout] gfsq real (ijn, km*ntrac)
+!> @param[inout] gfsw real (ijn, km)
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -606,6 +659,42 @@ end subroutine
       return
       end
 !-----------------------------------------------------------------------
+!> getomega() computes omega.
+!>
+!> @param[in] jcap integer spectral truncation.
+!> @param[in] nc integer first dimension (nc>=(jcap+1)*(jcap+2)).
+!> @param[in] km integer number of levels.
+!> @param[in] idvc integer vertical coordinate id (1 for sigma and 2 for hybrid).
+!> @param[in] idvm integer mass variable id.
+!> @param[in] idrt integer data representation type.
+!> @param[in] idsl integer type of sigma structure (1 for phillips or 2 for mean).
+!> @param[in] nvcoord integer number of vertical coordinates.
+!> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
+!> @param[in] lonb number of longitudes.
+!> @param[in] latb number of latitudes.
+!> @param[in] j1 integer first latitude.
+!> @param[in] j2 integer last latitude.
+!> @param[in] jc integer number of cpus.
+!> @param[in] ijn _____________.
+!> @param[in] sd real (nc,km) _____________.
+!> @param[in] sps real (nc) log surface pressure.
+!> @param[in] psi real (ijn) interface surface pressure.
+!> @param[in] ti real (ijn,km) interface temperature.
+!> @param[in] ui real (ijn,km) interface x-component wind.
+!> @param[in] vi real (ijn,km) interface y-component wind.
+!> @param[out] wi real (ijn,km) _____________.
+!> @param[out] pm real (ijn,km) mid-layer pressure (Pa).
+!> @param[out] pd real (ijn,km) _____________.
+!>
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1999-10-18 | Mark Iredell      | Initial
+!> 2013-04-19 | Jun  Wang         | Add option to get pi by using 8 byte real computation
+!> 2013-08-13 | Shrinivas Moorthi | Modified to include im points and thread
+!>
+!> @author Mark Iredell np23 @date 1999-10-18
+
       subroutine getomega(jcap,nc,km,idvc,idvm,idrt,idsl,nvcoord,vcoord,  &
             lonb,latb,ijn,j1,j2,jc,sd,sps,psi,ti,ui,vi,wi,pm,pd)
 !!!!!
