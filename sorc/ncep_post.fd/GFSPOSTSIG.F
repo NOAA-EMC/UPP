@@ -670,9 +670,9 @@ end subroutine
 !> @param[in] idsl integer
 !> @param[in] nvcoord integer number of vertical coordinates.
 !> @param[in] vcoord real (km+1,nvcoord) vertical coordinates.
-!> @param[in] lonb number of longitudes.
-!> @param[in] latb number of latitudes.
-!> @param[in] ijn
+!> @param[in] lonb integer number of longitudes.
+!> @param[in] latb integer number of latitudes.
+!> @param[in] ijn integer
 !> @param[in] j1 integer first latitude.
 !> @param[in] j2 integer last latitude.
 !> @param[in] jc integer number of cpus.
