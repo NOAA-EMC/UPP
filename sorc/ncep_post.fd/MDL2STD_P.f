@@ -12,6 +12,8 @@
 !> 2020-11-10 | J Meng | Use UPP_PHYSICS Module
 !> 2021-03-11 | B Cui  | Change local arrays to dimension (im,jsta:jend)
 !> 2021-10-14 | J MENG | 2D DECOMPOSITION
+!> 2022-05-25 | Y Mao  | Remove interpolation of VVEL/ABSV/CLWMR
+!> 2023-03-14 | Y Mao  | Remove interpolation of RH, remove use CALRH and CALVOR
 !>
 !> @author Y Mao W/NP22 @date 2019-09-24
       SUBROUTINE MDL2STD_P()
@@ -27,7 +29,6 @@
                             ista, iend, ista_2l, iend_2u
       use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: CALRH, CALVOR
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
@@ -70,18 +71,13 @@
 !     519 TMP
 !     520 UGRD
 !     521 VGRD
-!     522 RH
-!     523 VVEL
-!     524 ABSV
-!     525 CLWMR=QQW+QQR+QQS+QQG+QQI
       IF(IGET(450)>0 .or. IGET(480)>0 .or. &
          IGET(464)>0 .or. IGET(465)>0 .or. IGET(466)>0 .or. &
          IGET(518)>0 .or. IGET(519)>0 .or. IGET(520)>0 .or. &
-         IGET(521)>0 .or. IGET(522)>0 .or. IGET(523)>0 .or. &
-         IGET(524)>0 .or. IGET(525)>0) then
+         IGET(521)>0) then
 
 !        STEP 1 -- U V (POSSIBLE FOR ABSV) INTERPLOCATION
-         IF(IGET(520)>0 .or. IGET(521)>0 .or. IGET(524) > 0 ) THEN
+         IF(IGET(520)>0 .or. IGET(521)>0 ) THEN
 !           U/V are always paired, use any for HTFDCTL          
             iID=520
             N = IAVBLFLD(IGET(iID))
@@ -151,31 +147,6 @@
                      enddo
                   endif
                ENDIF
-               ! ABSV
-               IF (LVLS(IFD,IGET(524)) > 0) THEN
-                  EGRID1=VAR3D1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,IFD)
-                  EGRID2=VAR3D2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,IFD)
-                  call CALVOR(EGRID1,EGRID2,EGRID3)
-!$omp parallel do private(i,j)
-                  DO J=JSTA,JEND
-                  DO I=ISTA,IEND
-                     GRID1(I,J)=EGRID3(I,J)
-                  ENDDO
-                  ENDDO
-                  if(grib=='grib2') then
-                     cfld=cfld+1
-                     fld_info(cfld)%ifld=IAVBLFLD(IGET(524))
-                     fld_info(cfld)%lvl=LVLSXML(IFD,IGET(524))
-!$omp parallel do private(i,j,ii,jj)
-                     do j=1,jend-jsta+1
-                        jj = jsta+j-1
-                        do i=1,iend-ista+1
-                        ii = ista+i-1
-                           datapd(i,j,cfld) = GRID1(ii,jj)
-                        enddo
-                     enddo
-                  endif
-               ENDIF
             ENDDO
 
             deallocate(VAR3D1)
@@ -230,22 +201,6 @@
             QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=T(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="T"
          end if
-         IF(IGET(523) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 523
-            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=OMGA(ISTA:IEND,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="W"
-         end if
-         IF(IGET(525) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 525
-            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=QQW(ISTA:IEND,JSTA:JEND,1:LM)+ &
-                                          QQR(ISTA:IEND,JSTA:JEND,1:LM)+ &
-                                          QQS(ISTA:IEND,JSTA:JEND,1:LM)+ &
-                                          QQG(ISTA:IEND,JSTA:JEND,1:LM)+ &
-                                          QQI(ISTA:IEND,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="C"
-         end if
 
 !        FOR WAFS, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, USE ANY
          iID=IDS(1)
@@ -283,20 +238,6 @@
                      if(QFD(I,J,IFD,N) < SPVAL) then
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                         QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
-                     endif
-                  ENDDO
-                  ENDDO
-               ENDDO
-            endif
-
-
-            if(iID==525) then
-               N1=N
-               DO IFD = 1,NFDCTL
-                  DO J=JSTA,JEND
-                  DO I=ISTA,IEND
-                     if(QFD(I,J,IFD,N) < SPVAL) then
-                        QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                      endif
                   ENDDO
                   ENDDO
@@ -422,90 +363,9 @@
             ENDDO            
          ENDIF
 
-         ! RH
-         IF(IGET(522) > 0) THEN
-            iID=522
-            N = IAVBLFLD(IGET(iID))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
-            DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(iID))
-            ENDDO
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-            DO i = 1, NFDCTL
-               HTFDCTL(i)=P2H(HTFDCTL(i)/100.)
-            ENDDO
-
-            if(allocated(QIN)) deallocate(QIN)
-            if(allocated(QTYPE)) deallocate(QTYPE)
-            ALLOCATE(QIN(ISTA:IEND,JSTA:JEND,LM,2))
-            ALLOCATE(QTYPE(2))
-            QIN(ISTA:IEND,JSTA:JEND,1:LM,1)=T(ISTA:IEND,JSTA:JEND,1:LM)
-            QIN(ISTA:IEND,JSTA:JEND,1:LM,2)=Q(ISTA:IEND,JSTA:JEND,1:LM)
-            QTYPE(1)="T"
-            QTYPE(2)="Q"
-
-            if(allocated(QFD)) deallocate(QFD)
-            ALLOCATE(QFD(ISTA:IEND,JSTA:JEND,NFDCTL,2))
-            QFD=SPVAL
-
-            print *, "wafs levels",pset%param(N)%level
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,pset%param(N)%level,HTFDCTL,2,QIN,QTYPE,QFD)
-
-            HTFDCTL=pset%param(N)%level ! Save back to pressure
-
-            DO IFD = 1,NFDCTL
-               IF (LVLS(IFD,IGET(iID)) > 0) THEN
-!$omp parallel do private(i,j)
-                  DO J=JSTA,JEND
-                  DO I=ISTA,IEND
-                     EGRID2(I,J) = HTFDCTL(IFD)                    ! P
-                  ENDDO
-                  ENDDO
-
-                  EGRID3(ISTA:IEND,JSTA:JEND)=QFD(ISTA:IEND,JSTA:JEND,IFD,1) ! T
-                  EGRID4(ISTA:IEND,JSTA:JEND)=QFD(ISTA:IEND,JSTA:JEND,IFD,2) ! Q
-                  EGRID1 = SPVAL
-
-            CALL CALRH(EGRID2(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend),EGRID4(ista:iend,jsta:jend),EGRID1(ista:iend,jsta:jend))
-
-!$omp  parallel do private(i,j)
-                  DO J=JSTA,JEND
-                  DO I=ISTA,IEND
-                     IF(EGRID1(I,J) < SPVAL) THEN
-                        GRID1(I,J) = EGRID1(I,J)*100.
-                     ELSE
-                        GRID1(I,J)  = EGRID1(I,J)
-                     ENDIF
-                  ENDDO
-                  ENDDO
-
-                  if(grib=='grib2') then
-                     cfld=cfld+1
-                     fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
-                     fld_info(cfld)%lvl=LVLSXML(IFD,IGET(iID))
-!$omp parallel do private(i,j,ii,jj)
-                     do j=1,jend-jsta+1
-                        jj = jsta+j-1
-                        do i=1,iend-ista+1
-                        ii = ista+i-1
-                           datapd(i,j,cfld) = GRID1(i,jj)
-                        enddo
-                     enddo
-                  endif
-               ENDIF
-            ENDDO
-            deallocate(QIN,QFD)
-            deallocate(QTYPE)
-         ENDIF
-
-
          ! Relabel the pressure level to reference levels
 !         IDS = 0
-         IDS = (/ 450,480,464,465,466,518,519,520,521,522,523,524,525,(0,I=14,50) /)
+         IDS = (/ 450,480,464,465,466,518,519,520,521,(0,I=10,50) /)
          do i = 1, NFDMAX
             iID=IDS(i)
             if(iID == 0) exit
