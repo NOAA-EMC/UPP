@@ -64,7 +64,7 @@
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
                             JEND_2U, LSM, d3d_on, ioform, NBIN_SM,  &
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L,  &
-                            IEND_2U,nasa_on
+                            IEND_2U, nasa_on, slrutah_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
       use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH
@@ -4082,8 +4082,11 @@
       IF ( IGET(1006)>0 ) THEN
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
-         call calslr_roebber(TPRS,RHPRS,EGRID1)
-      !   call calslr_uutah(EGRID1)
+         if(slrutah_on) then
+            call calslr_uutah(EGRID1)
+         else
+            call calslr_roebber(TPRS,RHPRS,EGRID1)
+         endif
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend
@@ -4094,7 +4097,6 @@
               else
                  grid1(i,j)=spval
               endif
-            !  grid1(i,j)=egrid1(i,j)
             endif
          enddo
          enddo
