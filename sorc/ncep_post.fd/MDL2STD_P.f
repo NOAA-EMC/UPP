@@ -62,17 +62,17 @@
 !
 
 !     --------------WAFS block----------------------
-!     450 ICIP
-!     480 ICSEV
-!     464 EDPARM
-!     465 CAT
-!     466 MWTURB
+!     479 ICSEV
+!     481 ICIP
+!     476 EDPARM
+!     477 CAT
+!     478 MWTURB
 !     518 HGT
 !     519 TMP
 !     520 UGRD
 !     521 VGRD
-      IF(IGET(450)>0 .or. IGET(480)>0 .or. &
-         IGET(464)>0 .or. IGET(465)>0 .or. IGET(466)>0 .or. &
+      IF(IGET(479)>0 .or. IGET(481)>0 .or. &
+         IGET(476)>0 .or. IGET(477)>0 .or. IGET(478)>0 .or. &
          IGET(518)>0 .or. IGET(519)>0 .or. IGET(520)>0 .or. &
          IGET(521)>0) then
 
@@ -165,33 +165,33 @@
 
 !        INITIALIZE INPUTS
          nFDS = 0
-         IF(IGET(450) > 0) THEN
+         IF(IGET(479) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 450
+            IDS(nFDS) = 479
             QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=icing_gfip(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
-         IF(IGET(480) > 0) THEN
+         IF(IGET(481) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 480
+            IDS(nFDS) = 481
             QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=icing_gfis(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
-         IF(IGET(464) > 0) THEN
+         IF(IGET(476) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 464
+            IDS(nFDS) = 476
             QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=gtg(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
-         IF(IGET(465) > 0) THEN
+         IF(IGET(477) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 465
+            IDS(nFDS) = 477
             QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=catedr(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
-         IF(IGET(466) > 0) THEN
+         IF(IGET(478) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 466
+            IDS(nFDS) = 478
             QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=mwt(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
@@ -230,7 +230,7 @@
             iID=IDS(N)
 
 !           Icing Potential
-            if(iID==450) then
+            if(iID==481) then
                N1=N
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
@@ -251,7 +251,7 @@
 !              3 = moderate (0.37, 0.67]
 !              4 = severe (0.67, 1]
 !              http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-207.shtml
-            if(iID==480) then
+            if(iID==479) then
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
                   DO I=ISTA,IEND
@@ -277,7 +277,7 @@
             endif
 
 !           GTG turbulence:  EDRPARM, CAT, MWTURB
-            if(iID==464 .or. iID==465 .or. iID==466) then
+            if(iID==476 .or. iID==477 .or. iID==478) then
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
                   DO I=ISTA,IEND
@@ -365,7 +365,7 @@
 
          ! Relabel the pressure level to reference levels
 !         IDS = 0
-         IDS = (/ 450,480,464,465,466,518,519,520,521,(0,I=10,50) /)
+         IDS = (/ 481,479,476,477,478,518,519,520,521,(0,I=10,50) /)
          do i = 1, NFDMAX
             iID=IDS(i)
             if(iID == 0) exit
