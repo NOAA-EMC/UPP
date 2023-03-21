@@ -52,7 +52,7 @@
       jbl=max(jsta-1,1)
 !
 
-!     write(0,*) 'mype=',me,'num_procs=',num_procs,'im=',im,'jsta_2l=', &
+!     write(*,*) 'mype=',me,'num_procs=',num_procs,'im=',im,'jsta_2l=', &
 !             jsta_2l,'jend_2u=',jend_2u,'jend=',jend,'iup=',iup,'jsta=', &
 !             jsta,'idn=',idn
       if ( num_procs <= 1 ) return
@@ -140,7 +140,7 @@
                ii=ibcoords(iend+1,j)/10000
                jj=ibcoords( iend+1,j)-(ii*10000)
                if( j .ne. jj .or. ii .ne. iend+1 .and. ii .ne. im .and. ii .ne. 1) &
-               write(0,921) j,iend+1,ii,jj,ibcoords(iend+1,j),'IEXCH COORD FAIL j,iend+1,ii,jj,ibcoord '
+               write(*,921) j,iend+1,ii,jj,ibcoords(iend+1,j),'IEXCH COORD FAIL j,iend+1,ii,jj,ibcoord '
             endif !IFIRST
           endif !checkcoords
         end do
@@ -214,7 +214,7 @@
               ii=ibcoords(ista-1,j)/10000
               jj=ibcoords( ista-1,j)-(ii*10000)
               if( j .ne. jj .or. ii .ne. ista-1 .and. ii .ne. im .and. ii .ne. 1) &
-                write(0,921) j,ista-1,ii,jj,ibcoords(ista-1,j),'EXCH COORD FAIL j,ista-1,ii,jj,ibcoord '
+                write(*,921) j,ista-1,ii,jj,ibcoords(ista-1,j),'EXCH COORD FAIL j,ista-1,ii,jj,ibcoord '
             endif !IFIRST
           endif !checkcoords
         end do
@@ -228,7 +228,7 @@
             do i=ista,iend
               ii=ibcoords(i,j)/10000
               jj=ibcoords( i,j)-(ii*10000)
-              if(ii .ne. i .or. jj .ne. j) write(0,151) 'INFAILED IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
+              if(ii .ne. i .or. jj .ne. j) write(*,151) 'INFAILED IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
             end do
           end do
         endif !IFIRST
@@ -314,29 +314,29 @@
           ii=ibcoords(icc,jcc)/10000
           jj=ibcoords(icc,jcc)-(ii*10000)
 
-          if(ii .ne. icc .and. icc .ne. 0) write(0,151) ' CORNER FAILI ilb  ll ',icc,jcc,ibcoords(icc,jcc),ii,jj
-          if( jj .ne. jcc)  write(0,151) ' CORNER FAILJ ilb  ll ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if(ii .ne. icc .and. icc .ne. 0) write(*,151) ' CORNER FAILI ilb  ll ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if( jj .ne. jcc)  write(*,151) ' CORNER FAILJ ilb  ll ',icc,jcc,ibcoords(icc,jcc),ii,jj
 
           icc=ibu
           jcc=jbl
           ii=ibcoords(icc,jcc)/10000
           jj=ibcoords(icc,jcc)-(ii*10000)
-          if(ii .ne. icc .and. icc .ne. im+1 ) write(0,151) ' CORNER FAILI ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
-          if( jj .ne. jcc  ) write(0,151) ' CORNER FAILJ ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if(ii .ne. icc .and. icc .ne. im+1 ) write(*,151) ' CORNER FAILI ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if( jj .ne. jcc  ) write(*,151) ' CORNER FAILJ ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
 
           icc=ibu
           jcc=jbu
           ii=ibcoords(icc,jcc)/10000
           jj=ibcoords(icc,jcc)-(ii*10000)
-          if(ii .ne. icc  .and. icc .ne. im+1) write(0,151) ' CORNER FAILI ilb uu  ',icc,jcc,ibcoords(icc,jcc),ii,jj
-          if( jj .ne. jcc  ) write(0,151) ' CORNER FAILJ ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if(ii .ne. icc  .and. icc .ne. im+1) write(*,151) ' CORNER FAILI ilb uu  ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if( jj .ne. jcc  ) write(*,151) ' CORNER FAILJ ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
 
           icc=ibl
           jcc=jbu
           ii=ibcoords(icc,jcc)/10000.
           jj=ibcoords(icc,jcc)-(ii*10000)
-          if(ii .ne. icc  .and. icc .ne. 0 ) write(0,151) ' CORNER FAILI ilb lu  ',icc,jcc,ibcoords(icc,jcc),ii,jj
-          if( jj .ne. jcc  ) write(0,151) ' CORNER FAILJ ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if(ii .ne. icc  .and. icc .ne. 0 ) write(*,151) ' CORNER FAILI ilb lu  ',icc,jcc,ibcoords(icc,jcc),ii,jj
+          if( jj .ne. jcc  ) write(*,151) ' CORNER FAILJ ilb ul  ',icc,jcc,ibcoords(icc,jcc),ii,jj
 
 !         if(ileft .ge. 0) then
 !119  format(' GWX LEFT EXCHANGE ileft,me,ibcoords(ista-1,jend+1),ibcoords(ista-1,jend-1),ista-1,jend-1,jend+1', &
@@ -344,7 +344,7 @@
 !         endif
 
 !        if(iright .ge. 0) then
-!!         write(0,129) iright,me,ibcoords(ista+1,jend+1),ibcoords(ista+1,jend-1),ista-1,jend-1,jend+1 !GWVX
+!!         write(*,129) iright,me,ibcoords(ista+1,jend+1),ibcoords(ista+1,jend-1),ista-1,jend-1,jend+1 !GWVX
 !129  format(' GWX RIGHT  EXCHANGE iright,me,ibcoords(ista+1,jend+1),ibcoords(ista-1,jend+1),ista-1,jend-1,jend+1', &
 !     10i10)                                                                           
 !        endif
@@ -355,7 +355,7 @@
             do i=ista,iend
               ii=ibcoords(i,j)/10000
               jj=ibcoords( i,j)-(ii*10000)
-              if(ii .ne. i .or. jj .ne. j) write(0,151) 'GWVX FAILED IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
+              if(ii .ne. i .or. jj .ne. j) write(*,151) 'GWVX FAILED IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
             end do
           end do 
 
@@ -368,14 +368,14 @@
           do i=ista,iend
             ii=ibcoords(i,j)/10000
             jj=ibcoords( i,j)-(ii*10000)
-            if(ii .ne. i .or. jj .ne. j) write(0,151) 'GWVX FAILEDI JBU IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
+            if(ii .ne. i .or. jj .ne. j) write(*,151) 'GWVX FAILEDI JBU IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
           end do
 
           j=jbl
           do i=ista,iend
             ii=ibcoords(i,j)/10000
             jj=ibcoords( i,j)-(ii*10000)
-            if(ii .ne. i .or. jj .ne. j) write(0,151) 'GWVX FAILEDI JBL IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
+            if(ii .ne. i .or. jj .ne. j) write(*,151) 'GWVX FAILEDI JBL IJ ',i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
           end do
 
 ! second and last, check left and right halo columns
@@ -384,17 +384,17 @@
           do j=jsta,jend
             ii=ibcoords(i,j)/10000
             jj=ibcoords( i,j)-(ii*10000)
-            if(ii .ne. i .and. ii .ne. im  .or. jj .ne. j) write(0,151) 'GWVX FAILED IBL IJ ',ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
+            if(ii .ne. i .and. ii .ne. im  .or. jj .ne. j) write(*,151) 'GWVX FAILED IBL IJ ',ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
           end do
 
           i=ibu
           do j=jsta,jend
             ii=ibcoords(i,j)/10000
             jj=ibcoords( i,j)-(ii*10000)
-            if(ii .ne. i .and. ii .ne. 1  .or. jj .ne. j) write(0,151) 'GWVX FAILED IBU ii i j ibcoords ibl,jbl,ibu,jbu',ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
+            if(ii .ne. i .and. ii .ne. 1  .or. jj .ne. j) write(*,151) 'GWVX FAILED IBU ii i j ibcoords ibl,jbl,ibu,jbu',ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu
           end do
 
-          if(me .eq. 0) write(0,*) '  IFIRST CHECK'
+          if(me .eq. 0) write(*,*) '  IFIRST CHECK'
 
         endif ! IFIRST
       endif !checkcoords

@@ -112,7 +112,7 @@
       isumm2=0
 
       if ( me == 0 ) then
-        write(0,*) ' NUM_PROCS,NUMX,NUMY = ',num_procs,numx,num_procs/numx
+        write(*,*) ' NUM_PROCS,NUMX,NUMY = ',num_procs,numx,num_procs/numx
       end if
 
       if ( num_procs > 1024 ) then
@@ -345,10 +345,10 @@
             ii=rpoles(i,j)/4000
             jj=rpoles(i,j) -ii*4000
             if(ii .ne. i .or.  jj .ne. 1 .and. jj .ne. jm ) then
-               write(0,169)' IPOLES BAD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
+               write(*,169)' IPOLES BAD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
             else
               continue
-!             write(0,169)'  IPOLES GOOD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
+!             write(*,169)'  IPOLES GOOD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
             endif
           end do
         end do
@@ -360,7 +360,7 @@
       print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
                'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
                'lp1=',lp1
-      write(0,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
+      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
 
       end
 

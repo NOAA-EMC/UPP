@@ -42,7 +42,7 @@
         do jj=jsxa(me),jexa(me)
           do ii=isxa(me),iexa(me)
             if(isum .gt. im*jm .or. ii .gt. im .or. ii .lt. 1 .or. jj .gt. jm .or. jj.lt. 1) &
-              write(0,901)' BOUNDS2 FAIL in reshape ',isum,ii,jj,im*jm,im,im*jm
+              write(*,901)' BOUNDS2 FAIL in reshape ',isum,ii,jj,im*jm,im,im*jm
               rbufs(isum)=a(ii,jj)
               isum=isum+1
           end do
@@ -60,7 +60,7 @@
             do jj=jsxa(n),jexa(n)
               do ii=isxa(n),iexa(n)
                 if(isum .gt. im*jm .or. ii .gt. im .or. ii .lt. 1 .or. jj .gt. jm .or. jj .lt. 1) &
-                 write(0,901)' BOUNDS FAIL in reshape ',isum,ii,jj,im*jm,im,im*jm
+                 write(*,901)' BOUNDS FAIL in reshape ',isum,ii,jj,im*jm,im,im*jm
                  b(ii,jj)=buff(isum)
                  isum=isum+1
               end do
@@ -106,7 +106,7 @@
         do jj=jsxa(me),jexa(me)
           do ii=isxa(me),iexa(me)
             if(isum .gt. im*jm .or. ii .gt. im .or. ii .lt. 1 .or. jj .gt. jm .or. jj.lt. 1) &
-               write(0,901)' BOUNDS2 FAIL in reshape',isum,ii,jj,im*jm,im,im*jm
+               write(*,901)' BOUNDS2 FAIL in reshape',isum,ii,jj,im*jm,im,im*jm
             rbufs(isum)=a(ii,jj)
             isum=isum+1
           end do
@@ -122,7 +122,7 @@
           do jj=jsxa(n),jexa(n)
             do ii=isxa(n),iexa(n)
               if(isum .gt. im*jm .or. ii .gt. im .or. ii .lt. 1 .or. jj .gt. jm .or. jj .lt. 1) &
-              write(0,901)' BOUNDS FAIL in reshape',isum,ii,jj,im*jm,im,im*jm
+              write(*,901)' BOUNDS FAIL in reshape',isum,ii,jj,im*jm,im,im*jm
               b(ii,jj)=buff(isum)
               isum=isum+1
             end do
