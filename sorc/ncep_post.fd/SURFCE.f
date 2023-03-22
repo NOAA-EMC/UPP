@@ -47,6 +47,7 @@
 !! -  23-01-24  Sam Trahan - store hourly accumulated precip for IFI and bucket time
 !! -  23-02-11  W Meng  - Add fix of time accumulation in bucket graupel for FV3 based models
 !! -  23-02-23  E James - Adding coarse PM from RRFS
+!! -  23-03-22  S Trahan - Fixed out-of-bounds access calling BOUND with wrong array dimensions
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -370,7 +371,11 @@
                jj = jsta+j-1
                do i=1,iend-ista+1
                ii = ista+i-1
+               if(RHSFC(ii,jj) /= spval) then
                  datapd(i,j,cfld) = max(H1,min(H100,RHSFC(ii,jj)))
+               else
+                 datapd(i,j,cfld) = spval
+               endif
                enddo
              enddo
             endif
