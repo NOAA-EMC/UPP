@@ -10,6 +10,7 @@
 !> 2001-10-25 | H Chuang     | Modified to process hybrid model output
 !> 2002-06-19 | Mike Baldwin | WRF version
 !> 2022-11-08 | Kai Wang     | Replace aqfcmaq_on with aqf_on
+!> 2023-03-22 | WM Lewis     | Add effective radius arrays
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
@@ -84,6 +85,9 @@
       deallocate(EXTCOF55)
       deallocate(QC_BL)
       deallocate(CFR)
+      deallocate(EFFRI)
+      deallocate(EFFRL)
+      deallocate(EFFRS)
       deallocate(CFR_RAW)
       deallocate(DBZ)
       deallocate(DBZR)
