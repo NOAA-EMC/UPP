@@ -24,6 +24,7 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
+!> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -2822,13 +2823,12 @@
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          if(qshltr(i,j) /= spval)then
-            RH2M(I,J) = RH1D(I,J)*100.
+            RH2M(I,J) = min(H100,max(H1,RH1D(I,J)*100.))
          else
             RH2M(I,J) = spval 
          endif
       ENDDO
       ENDDO
-      CALL BOUND(RH2M,H1,H100)
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
