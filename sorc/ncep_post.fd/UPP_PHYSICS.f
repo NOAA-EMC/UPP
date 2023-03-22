@@ -24,7 +24,7 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
-!> 2022-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
+!> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -2757,7 +2757,6 @@
       real :: lprob_tot
 
       integer :: i,j,k,ks,L,LL,imo,iday
-
 !
 !***************************************************************************
 !
