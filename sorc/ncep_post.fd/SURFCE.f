@@ -362,7 +362,6 @@
 !     
 !        SURFACE RELATIVE HUMIDITY.
          IF (IGET(076)>0) THEN
-            CALL BOUND(RHSFC,H1,H100)
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(076))
@@ -371,7 +370,7 @@
                jj = jsta+j-1
                do i=1,iend-ista+1
                ii = ista+i-1
-                 datapd(i,j,cfld) = RHSFC(ii,jj)
+                 datapd(i,j,cfld) = max(H1,min(H100,RHSFC(ii,jj)))
                enddo
              enddo
             endif
