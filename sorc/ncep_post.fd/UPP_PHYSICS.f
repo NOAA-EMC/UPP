@@ -2756,6 +2756,7 @@
       real :: lprob_tot
 
       integer :: i,j,k,ks,L,LL,imo,iday
+
 !
 !***************************************************************************
 !
@@ -2822,13 +2823,12 @@
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          if(qshltr(i,j) /= spval)then
-            RH2M(I,J) = RH1D(I,J)*100.
+            RH2M(I,J) = min(H100,max(H1,RH1D(I,J)*100.))
          else
             RH2M(I,J) = spval 
          endif
       ENDDO
       ENDDO
-      CALL BOUND(RH2M,H1,H100)
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
