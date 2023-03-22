@@ -31,6 +31,7 @@
 !> 2022-09-22 | L Zhang                   | Add option of nasa_on to process ufs-aerosols
 !> 2022-11-08 | K Wang                    | Replace aqfamaq_on with aqf_on
 !> 2023-01-24 | Sam Trahan                | write_ifi_debug_files flag for IFI debug capability
+!> 2023-03-21 | Jesse Meng                | Add slrutah_on option to use U Utah SLR
 !>
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
       PROGRAM WRFPOST
@@ -119,7 +120,7 @@
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,nasa_on,                  &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqf_on,numx,  &
-              run_ifi_tim
+              run_ifi_tim, slrutah_on
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use upp_ifi_mod, only: write_ifi_debug_files
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -146,7 +147,7 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,nasa_on,popascal &
-                     ,hyb_sigp,rdaod,aqf_on,vtimeunits,numx,write_ifi_debug_files
+                     ,hyb_sigp,rdaod,aqf_on,slrutah_on,vtimeunits,numx,write_ifi_debug_files
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
                      ,fileNameFlux,fileNameFlat
@@ -266,6 +267,7 @@
         gocart_on   = .false.
         nasa_on     = .false.
         aqf_on      = .false.
+        slrutah_on  = .false.
         popascal    = .false.
         fileNameAER = ''
         rdaod       = .false.

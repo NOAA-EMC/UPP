@@ -75,7 +75,7 @@ contains !==============================================================
         if(.not.wrote_message) then
           !$OMP CRITICAL
           if(.not.wrote_message) then
-            write(0,'(A)') 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
+            print '(A)', 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
             wrote_message = .true.
           endif
           !$OMP END CRITICAL
