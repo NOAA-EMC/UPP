@@ -1927,25 +1927,25 @@
       END DO
       if (me==0) then
         print*,'finish deriving geopotential in nmm'
-        write(0,*)' after ZINT lm=',lm,' js=',js,' je=',je,' im=',im
-        write(0,*)' zmid lbounds=',lbound(zmid),' ubounds=',ubound(zmid)
-        write(0,*)' zint lbounds=',lbound(zint),' ubounds=',ubound(zint)
-        write(0,*)' pmid lbounds=',lbound(pmid),' ubounds=',ubound(pmid)
-        write(0,*)' pint lbounds=',lbound(pint),' ubounds=',ubound(pint)
+        write(*,*)' after ZINT lm=',lm,' js=',js,' je=',je,' im=',im
+        write(*,*)' zmid lbounds=',lbound(zmid),' ubounds=',ubound(zmid)
+        write(*,*)' zint lbounds=',lbound(zint),' ubounds=',ubound(zint)
+        write(*,*)' pmid lbounds=',lbound(pmid),' ubounds=',ubound(pmid)
+        write(*,*)' pint lbounds=',lbound(pint),' ubounds=',ubound(pint)
       endif
       deallocate(fi)
 !
       DO L=1,LM
-!      write(0,*)' zmid l=',l
+!      write(*,*)' zmid l=',l
 !$omp parallel do private(i,j,fact)
         DO J=Jsta,Jend
-!      write(0,*)' zmid j=',j
+!      write(*,*)' zmid j=',j
           DO I=1,IM
-!      write(0,*)' zmid i=',i
+!      write(*,*)' zmid i=',i
 !         ZMID(I,J,L)=(ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
-!      write(0,*)' pmid=',pmid(i,j,l)
-!      write(0,*)' pint=',pint(i,j,l),pint(i,j,l+1)
-!      write(0,*)' zint=',zint(i,j,l),zint(i,j,l+1)
+!      write(*,*)' pmid=',pmid(i,j,l)
+!      write(*,*)' pint=',pint(i,j,l),pint(i,j,l+1)
+!      write(*,*)' zint=',zint(i,j,l),zint(i,j,l+1)
             FACT = (LOG(PMID(I,J,L))-LOG(PINT(I,J,L)))                      &
                  / (LOG(PINT(I,J,L+1))-LOG(PINT(I,J,L)))
             ZMID(I,J,L) = ZINT(I,J,L) + (ZINT(I,J,L+1)-ZINT(I,J,L))*FACT
@@ -2828,7 +2828,7 @@
 ! close all files
         call nemsio_close(nfile,iret=status)
 !
-       if(me==0)write(0,*)'end of INIT_NEMS'
+       if(me==0)write(*,*)'end of INIT_NEMS'
 
       RETURN
       END

@@ -1001,7 +1001,7 @@
         endif   
         DELY=14259./DY_m
         numr=NINT(DELY)
-       write (0,*) 'numr,dyval,DY_m=',numr,dyval,DY_m
+       write (*,*) 'numr,dyval,DY_m=',numr,dyval,DY_m
         DO L=LM,1,-1
           DO J=JSTA,JEND
             DO I=ISTA,IEND
@@ -1596,7 +1596,7 @@
 !
 !--- Various convective cloud base & cloud top levels
 !
-!     write(0,*)' hbot=',hbot(i,j),' hbotd=',hbotd(i,j),'
+!     write(*,*)' hbot=',hbot(i,j),' hbotd=',hbotd(i,j),'
 !     hbots=',hbots(i,j)&
 !  ,' htop=',htop(i,j),' htopd=',htopd(i,j),' htops=',htops(i,j),i,j
 ! Initilize

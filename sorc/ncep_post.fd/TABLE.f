@@ -101,7 +101,7 @@
       enddo
 !--------------COARSE LOOK-UP TABLE FOR T(P) FROM CONSTANT THE----------
       P = PL - DP
-!     write(0,*)' kpm=',kpm,' P=',P,' DP=',DP,' thl=',thl,' dth=',dth
+!     write(*,*)' kpm=',kpm,' P=',P,' DP=',DP,' thl=',thl,' dth=',dth
       DO KP=1,KPM
         P  = P + DP
         TH = THL - DTH
@@ -120,11 +120,11 @@
             ENDIF
 !           QS=PQ0/P*EXP(A2*(TH-A3*APE)/(TH-A4*APE))
             TOLD(KTH) = TH / APE
-!           write(0,*)' TH=',TH,' QS=',QS,' TOLD=',TOLD(kth),' kth=',kth
+!           write(*,*)' TH=',TH,' QS=',QS,' TOLD=',TOLD(kth),' kth=',kth
             THEOLD(KTH) = TH*EXP(ELIWV*QS/(CP*TOLD(KTH)))
           endif
         enddo
-!         write(0,*)' theold=',theold
+!         write(*,*)' theold=',theold
 !
         THE0K = THEOLD(1)
         STHEK = THEOLD(KTHM) - THEOLD(1)

@@ -108,10 +108,10 @@
 ! Take the first line as paramset_count
 	read(22,*)paramset_count
 
-        if(me==0)write(0,*)'xml_perl_data read Post flat file'
+        if(me==0)write(*,*)'xml_perl_data read Post flat file'
 
 ! Allocate paramset array size
-        if(me==0)write(0,*)'allocate paramset to :', paramset_count
+        if(me==0)write(*,*)'allocate paramset to :', paramset_count
 
         allocate(paramset(paramset_count))
 
@@ -123,14 +123,14 @@
 
         do i = paramset_count, 1, -1
           read(22,*)param_count
-          if(me==0)write(0,*)'allocate param to :', param_count
+          if(me==0)write(*,*)'allocate param to :', param_count
 
           allocate(paramset(i)%param(param_count))
 
 ! LinGan lvlsxml is now a sum of flat file read out
 ! Also allocate lvlsxml for rqstfld_mod
           num_post_afld = num_post_afld + param_count
-          if(me==0)write(0,*)'sum num_post_afld :', num_post_afld
+          if(me==0)write(*,*)'sum num_post_afld :', num_post_afld
 
         end do
         

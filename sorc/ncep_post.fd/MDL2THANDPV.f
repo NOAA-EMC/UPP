@@ -73,7 +73,7 @@
 !
 !     START MDL2TH. 
 !
-      if(me==0) write(0,*) 'MDL2THANDPV starts'     
+      if(me==0) write(*,*) 'MDL2THANDPV starts'     
 !
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
@@ -1166,7 +1166,7 @@
                     DUM1D14,wrk1, wrk2, wrk3, wrk4, cosl, dum2d)
 
       END IF ! end of selection for isentropic and constant PV fields	
-      if(me==0) write(0,*) 'MDL2THANDPV ends'
+      if(me==0) write(*,*) 'MDL2THANDPV ends'
 !
 !     
 !     END OF ROUTINE.

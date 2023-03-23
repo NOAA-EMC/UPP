@@ -13,6 +13,7 @@
 !  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
 !  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
 !  2023-01-24 Sam Trahan - IFI flight levels, runtime of IFI, and record of the bucket time
+!  2023-03-21 Jesse Meng - Add slrutah_on option to use U Utah SLR
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -45,7 +46,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqf_on
+  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqf_on, slrutah_on
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
