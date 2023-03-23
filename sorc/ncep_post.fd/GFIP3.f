@@ -243,7 +243,7 @@ contains
     real :: surfaceTemp,surfaceDewPtTemp,surfacePressure,surfaceMIXR
     real :: tempAtLCL, theta, pressAtLCL, thetaEAtLCL, tempFromThetaE, tem
 
-! write(0,*)' nz=',nz,' pres=',pres(:)
+! write(*,*)' nz=',nz,' pres=',pres(:)
     t500hPa   = t(nz)
     t700hPa   = t(nz)
     dpt700hPa = td(nz)
@@ -254,7 +254,7 @@ contains
 
        ! use linear interpolation
 
-!      write(0,*)'k=',k,' pres=',pres(k)
+!      write(*,*)'k=',k,' pres=',pres(k)
        if ((pres(k)- 50000.0 >= 0.) .and. (pres(k-1)- 50000.0 < 0.) ) then
           if (abs(pres(k)- 50000.0) <= 0.1) then
              t500hPa = t(k)
@@ -280,7 +280,7 @@ contains
           end if
        endif
 
-!      write(0,*)'k=',k,' pres=',pres(k),pres(k-1)
+!      write(*,*)'k=',k,' pres=',pres(k),pres(k-1)
        if ((pres(k)- 85000.0 >= 0.) .and. (pres(k-1)- 85000.0 < 0.) ) then
           if (abs(pres(k)- 85000.0) <= 0.1) then
              t850hPa   = t(k)

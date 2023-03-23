@@ -59,7 +59,7 @@ contains !==============================================================
       return
     endif
 
-    write(0,*) 'ient,iget = ',ient,iget(ient)
+    write(*,*) 'ient,iget = ',ient,iget(ient)
 
     if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
       return
@@ -1036,7 +1036,7 @@ contains !==============================================================
     type(var_info),target :: var_data(maxvars)
 
     if(me==0) then
-      write(0,'(A,A)') trim(output_file),': writing IFI debug data'
+      write(*,'(A,A)') trim(output_file),': writing IFI debug data'
     endif
 
     call ifi_check(ifi_data%get_dims(ids,ide, jds,jde, kds,kde, ips,ipe, jps,jpe, kps,kpe),"get_dims")
@@ -1096,13 +1096,13 @@ contains !==============================================================
     nvars=ivar
 
     if(nvars<1) then
-      write(0,"(A,A)") output_file,': no data to write!'
+      write(*,"(A,A)") output_file,': no data to write!'
       return
     endif
 
     call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
 
-    write(0,*) 'before write loop ',me
+    write(*,*) 'before write loop ',me
     do ivar=1,nvars
 24     format('  put var ',A)
        print 24,trim(var_data(ivar)%varname)

@@ -220,7 +220,7 @@
 !
  303  format('MODELNAME="',A,'" SUBMODELNAME="',A,'"')
 
-       write(0,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
+       write(*,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
 
       if (me==0) print 303,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
@@ -694,14 +694,14 @@
 !                      --------    grib2 processing  ---------------
 !                                 ------------------
 !        elseif (grib == "grib2") then
-        if (me==0) write(0,*) ' in WRFPOST OUTFORM= ',grib
-        if (me==0) write(0,*) '  GRIB1 IS NOT SUPPORTED ANYMORE'    
+        if (me==0) write(*,*) ' in WRFPOST OUTFORM= ',grib
+        if (me==0) write(*,*) '  GRIB1 IS NOT SUPPORTED ANYMORE'    
         if (grib == "grib2") then
           do while (npset < num_pset)
             npset = npset+1
-            if (me==0) write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
+            if (me==0) write(*,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
             CALL SET_OUTFLDS(kth,th,kpv,pv)
-            if (me==0) write(0,*)' in WRFPOST size datapd',size(datapd) 
+            if (me==0) write(*,*)' in WRFPOST size datapd',size(datapd) 
             if(allocated(datapd)) deallocate(datapd)
 !Jesse x-decomposition
 !           allocate(datapd(im,1:jend-jsta+1,nrecout+100))
@@ -717,8 +717,8 @@
               enddo
             enddo
             call get_postfilename(post_fname)
-            if (me==0) write(0,*)'post_fname=',trim(post_fname)
-            if (me==0) write(0,*)'get_postfilename,post_fname=',trim(post_fname), &
+            if (me==0) write(*,*)'post_fname=',trim(post_fname)
+            if (me==0) write(*,*)'get_postfilename,post_fname=',trim(post_fname), &
                       'npset=',npset, 'num_pset=',num_pset,            &
                       'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
 !     
@@ -730,11 +730,11 @@
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
             IF(ME == 0) WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
 !
-!           write(0,*)'enter gribit2 before mpi_barrier'
+!           write(*,*)'enter gribit2 before mpi_barrier'
             call mpi_barrier(mpi_comm_comp,ierr)
 
 !           if(me==0)call w3tage('bf grb2  ')
-!           write(0,*)'enter gribit2 after mpi barrier'
+!           write(*,*)'enter gribit2 after mpi barrier'
             call gribit2(post_fname)
             deallocate(datapd)
             deallocate(fld_info)

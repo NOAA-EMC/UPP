@@ -516,7 +516,7 @@
                                      'hypres', 'clwmr','dpres']
       endif
 
-!     write(0,*)'nrec=',nrec
+!     write(*,*)'nrec=',nrec
       !allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(jm),glon1d(im))
 
@@ -900,7 +900,7 @@
         iret = nf90_inq_varid(ncid2d,'cldfra',varid)
 
         if(iret_bl==NF90_NOERR .and. iret==NF90_NOERR) then
-          write(0,*) 'WARNING: BOTH cldfra_bl AND cldfra ARE AVAILABLE. USING cldfra.'
+          write(*,*) 'WARNING: BOTH cldfra_bl AND cldfra ARE AVAILABLE. USING cldfra.'
           VarName='cldfra'
         else if(iret_bl==NF90_NOERR) then
           VarName='cldfra_bl'
@@ -1724,7 +1724,7 @@
       do j=jsta,jend
         do i=ista,iend
           if (ths(i,j) /= spval) then
-!    write(0,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
+!    write(*,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
             ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
           endif
           QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
