@@ -18,12 +18,13 @@
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
 !> 2022-05-26 | WM Lewis       | added support for GOES-18 ABI IR Channels 7-16
 !> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
+!> 2023-03-22 | WM Lewis       | Added support for using effective radius arrays from RRFS
 !>
 !> @author Chuang @date 2007-01-17       
       SUBROUTINE CALRAD_WCLOUD
 
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &
-                     qqnr, qqni, qqnw, cfr
+                     qqnr, qqni, qqnw, cfr, effri, effrl, effrs
   use vrbls2d, only: czen, ivgtyp, sno, pctsno, ths, vegfrc, si, u10h, v10h, u10,&
        v10, smstot, hbot, htop, cnvcfr
   use masks, only: gdlat, gdlon, sm, lmh, sice
@@ -1656,18 +1657,31 @@
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
                              atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
                              atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'C')
-                             atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'I')
+!                            use the effective radii output directly by the model where possible
+                             if(effrl(i,j,k)/=spval)then
+                              atmosphere(1)%cloud(1)%effective_radius(k)=min(max(effrl(i,j,k),2.5),50.)
+                             else
+                              atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'C')
+                             endif
+                             if(effri(i,j,k)/=spval)then
+                              atmosphere(1)%cloud(2)%effective_radius(k)=min(max(effri(i,j,k),2.5),125.)
+                             else
+                              atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'I')
+                             endif
+                             if(effrs(i,j,k)/=spval)then
+                              atmosphere(1)%cloud(4)%effective_radius(k)=min(max(effrs(i,j,k),2.5),1000.)
+                             else
+                              atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'S')
+                             endif
                              atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'R')
-                             atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'S')
                              atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'G')
@@ -1721,7 +1735,7 @@
                           if(i==ii.and.j==jj) then
                              do n=1,channelinfo(sensorindex)%n_channels
  3303                           format('Sample rtsolution(',I0,',',I0,') in CALRAD = ',F0.3)
-                                print 3303,n,1,rtsolution(n,1)%brightness_temperature
+!                               print 3303,n,1,rtsolution(n,1)%brightness_temperature
                              enddo
                              do n=1,channelinfo(sensorindex)%n_channels
  3304                           format('Sample tb(',I0,',',I0,',',I0,') in CALRAD = ',F0.3)

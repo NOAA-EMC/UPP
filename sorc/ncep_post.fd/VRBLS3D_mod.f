@@ -4,6 +4,7 @@
 !   11-12-15  SARAH LU - MODIFIED TO INCLUDE AEROSOL DIAG FIELDS
 !   12-01-06  SARAH LU - MODIFIED TO INCLUDE AIR DENSITY AND LAYER THICKNESS
 !   15-07-02  SARAH LU - MODIFIED TO INCLUDE SCATTERING AEROSOL OPTICAL THICKNESS
+!   23-03-22  WM LEWIS - ADDED EFFECTIVE RADIUS ARRAYS
       module vrbls3d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -22,7 +23,7 @@
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
       ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:),CFR_RAW(:,:,:)       &
 !! Wm Lewis: added
-      ,NRAIN(:,:,:)                                                  &
+      ,NRAIN(:,:,:),EFFRI(:,:,:), EFFRL(:,:,:), EFFRS(:,:,:)         &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &
 ! KRS Add HWRF fields     
       ,REFL_10CM(:,:,:)             &
