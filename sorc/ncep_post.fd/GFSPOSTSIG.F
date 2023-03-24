@@ -138,7 +138,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 
   idvm  = head%idvm
 ! jc = omp_get_num_threads()
-! write(0,*)' in RTSIG lnt2=',lnt2,' threads=',jc,' latch=',latch,   &
+! write(*,*)' in RTSIG lnt2=',lnt2,' threads=',jc,' latch=',latch,   &
 !          ' jcap=',jcap,' io=',io,' jo=',jo,' ijo=',ijo
 !
   if (k2 < k1) return
@@ -191,7 +191,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
   if (k2 >= k1) then
     klen = k2-k1+1
     do k=k1,k2
-      write(0,*)' retriving T for k=',k,' k1=',k1,' k2=',k2
+      write(*,*)' retriving T for k=',k,' k1=',k1,' k2=',k2
       dati%i = k + 2                        ! Virtual Temperature or CpT
       dati%f => trisca(:,k)
 
@@ -214,10 +214,10 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
     call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),d(1,k1),1)
 
 !   call sptezm(0,jcap,idrt,io,jo,1,triscb,z(1,k),1)
-    write(0,*)' retriving d/z for k=',k,' k1=',k1,' k2=',k2
+    write(*,*)' retriving d/z for k=',k,' k1=',k1,' k2=',k2
 !   datm%z(3,:) = datm%z(3,:)+2*con_omega/sqrt(1.5)
 !   call sptezm(0,jcap,idrt,io,jo,klen,datm%z,z,1)
-   write(0,*)' start get tracer'
+   write(*,*)' start get tracer'
     do nt=1,ntrac
       do k=k1,k2
         dati%i = levs * (2+nt) + 2 + k      ! Tracers starting with q
@@ -225,17 +225,17 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
         call sigio_rrdati(lusig,head,dati,irets)
       enddo
       call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),trc(1,k1,nt),1)
-      write(0,*)' retriving d/z for nt=',nt,'ntrac=',ntrac,'k=',k,' k1=',k1,' k2=',k2
+      write(*,*)' retriving d/z for nt=',nt,'ntrac=',ntrac,'k=',k,' k1=',k1,' k2=',k2
     enddo
     !t=t/(1+con_fvirt*sh)
-   write(0,*)' end get tracer,idvm=',idvm,'ijo=',ijo,'ntrac=',ntrac
+   write(*,*)' end get tracer,idvm=',idvm,'ijo=',ijo,'ntrac=',ntrac
 !
 !-- get temp 
     if (mod(idvm/10,10) == 3) then ! Enthalpy case
       allocate(cpi(0:ntrac))
-!     write(0,*)'aft read sig, cpi=',head%cpi
+!     write(*,*)'aft read sig, cpi=',head%cpi
       cpi(0:ntrac) = head%cpi(1:ntrac+1)
-!     write(0,*)'cpi=',cpi(0:ntrac)
+!     write(*,*)'cpi=',cpi(0:ntrac)
 !$omp parallel do private(k,i,xcp,sumq,n)
       do k=k1,k2
         do i=1,ijo
@@ -261,7 +261,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
       enddo
     endif
   endif
-! write(0,*)'end comput t'
+! write(*,*)'end comput t'
   iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine  
@@ -405,8 +405,8 @@ end subroutine
 
 !
 !   if (me == 0) then
-!     write(0,*)' pd8=',pd8(1,60:64)
-!     write(0,*)' pm8=',pm8(1,60:64)
+!     write(*,*)' pd8=',pd8(1,60:64)
+!     write(*,*)' pm8=',pm8(1,60:64)
 !    endif
 !jw: has to be 8 real for wam     
 

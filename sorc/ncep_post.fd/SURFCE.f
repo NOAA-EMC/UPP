@@ -47,6 +47,7 @@
 !! -  23-01-24  Sam Trahan - store hourly accumulated precip for IFI and bucket time
 !! -  23-02-11  W Meng  - Add fix of time accumulation in bucket graupel for FV3 based models
 !! -  23-02-23  E James - Adding coarse PM from RRFS
+!! -  23-03-22  S Trahan - Fixed out-of-bounds access calling BOUND with wrong array dimensions
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -362,7 +363,6 @@
 !     
 !        SURFACE RELATIVE HUMIDITY.
          IF (IGET(076)>0) THEN
-            CALL BOUND(RHSFC,H1,H100)
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(076))
@@ -371,7 +371,11 @@
                jj = jsta+j-1
                do i=1,iend-ista+1
                ii = ista+i-1
-                 datapd(i,j,cfld) = RHSFC(ii,jj)
+               if(RHSFC(ii,jj) /= spval) then
+                 datapd(i,j,cfld) = max(H1,min(H100,RHSFC(ii,jj)))
+               else
+                 datapd(i,j,cfld) = spval
+               endif
                enddo
              enddo
             endif
@@ -1018,7 +1022,7 @@
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
       IF (MODELNAME == 'NCAR'.OR. MODELNAME == 'NMM'                  &
         .OR. MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN
-!       write(0,*)'in surf,isltyp=',maxval(isltyp(1:im,jsta:jend)),   &
+!       write(*,*)'in surf,isltyp=',maxval(isltyp(1:im,jsta:jend)),   &
 !         minval(isltyp(1:im,jsta:jend)),'qwbs=',maxval(qwbs(1:im,jsta:jend)), &
 !         minval(qwbs(1:im,jsta:jend)),'potsvp=',maxval(potevp(1:im,jsta:jend)), &
 !         minval(potevp(1:im,jsta:jend)),'sno=',maxval(sno(1:im,jsta:jend)), &
@@ -4533,7 +4537,7 @@
                     freezr(ista:iend,jsta:jend,nalg), snow(ista:iend,jsta:jend,nalg))
            allocate(zwet(ista:iend,jsta:jend))
            CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,IWX1,ZWET)
-!          write(0,*)' after first CALWXT_POST'
+!          write(*,*)' after first CALWXT_POST'
 
 
            IF (IGET(160)>0) THEN 
@@ -4603,12 +4607,12 @@
 ! BOURGOUIN ALGORITHM
              ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &             MOD(IFHR*60+IFMIN,44641)+4357
-!            write(0,*)'in SURFCE,me=',me,'bef 1st CALWXT_BOURG_POST iseed=',iseed
+!            write(*,*)'in SURFCE,me=',me,'bef 1st CALWXT_BOURG_POST iseed=',iseed
              CALL CALWXT_BOURG_POST(IM,ISTA_2L,IEND_2U,ISTA,IEND,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                              ISEED,G,PTHRESH,                       &
      &                              T,Q,PMID,PINT,LMH,PREC,ZINT,IWX1,me)
-!            write(0,*)'in SURFCE,me=',me,'aft 1st CALWXT_BOURG_POST'
-!            write(0,*)'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA),'PTHRESH=',PTHRESH
+!            write(*,*)'in SURFCE,me=',me,'aft 1st CALWXT_BOURG_POST'
+!            write(*,*)'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA),'PTHRESH=',PTHRESH
 
 !     DECOMPOSE IWX1 ARRAY
 !
@@ -4787,7 +4791,7 @@
              ENDDO
            ENDDO
            if (allocated(zwet)) deallocate(zwet)
-!          write(0,*)' after second CALWXT_POST me=',me
+!          write(*,*)' after second CALWXT_POST me=',me
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DOMINANT PRECIPITATION TYPE
@@ -4815,11 +4819,11 @@
 ! BOURGOUIN ALGORITHM
            ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &           MOD(IFHR*60+IFMIN,44641)+4357
-!          write(0,*)'in SURFCE,me=',me,'bef sec CALWXT_BOURG_POST'
+!          write(*,*)'in SURFCE,me=',me,'bef sec CALWXT_BOURG_POST'
            CALL CALWXT_BOURG_POST(IM,ISTA_2L,IEND_2U,ISTA,IEND,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                        ISEED,G,PTHRESH,                            &
      &                        T,Q,PMID,PINT,LMH,AVGPREC,ZINT,IWX1,me)
-!          write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'
+!          write(*,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DECOMPOSE IWX1 ARRAY
@@ -4837,7 +4841,7 @@
 
 ! REVISED NCEP ALGORITHM
            CALL CALWXT_REVISED_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1)
-!          write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_REVISED_BOURG_POST'
+!          write(*,*)'in SURFCE,me=',me,'aft sec CALWXT_REVISED_BOURG_POST'
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !     DECOMPOSE IWX1 ARRAY
 !
@@ -4854,7 +4858,7 @@
               
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT OR GUARDIAN)
  
-!          write(0,*)'in SURFCE,me=',me,'imp_physics=',imp_physics
+!          write(*,*)'in SURFCE,me=',me,'imp_physics=',imp_physics
            IF(imp_physics == 5)then
              CALL CALWXT_EXPLICIT_POST(LMH,THS,PMID,AVGPREC,SR,F_RimeF,IWX1)
            else

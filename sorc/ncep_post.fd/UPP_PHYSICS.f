@@ -2,10 +2,14 @@
 !>
 !> @brief upp_physics is a collection of UPP subroutines for physics variables calculation.
 !> @author Jesse Meng @date 2020-05-20
-
+!>
 !> calcape() computes CAPE/CINS and other storm related variables.
 !>
 !> calcape2() computes additional storm related variables.
+!>
+!> caldiv() computes divergence.
+!>
+!> calgradps() computes gardients of a scalar field PS or LNPS. 
 !>
 !> calrh(), calrh_nam(), calrh_gfs(), calrh_gsd() compute RH using various algorithms.
 !>
@@ -16,6 +20,10 @@
 !>
 !> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm.
 !>      
+!> calslr_uutah() computes snow solid-liquid-ratio slr using the UUtah Steenburgh algorithm.
+!>   
+!> calvor() computes absolute vorticity.   
+!>      
 !> fpvsnew() computes saturation vapor pressure.
 !>
 !> tvirtual() computes virtual temperature.
@@ -24,6 +32,9 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2020-05-20 | Jesse Meng | Initial
+!> 2022-07-11 | Jesse Meng | CALSLR_ROEBBER
+!> 2023-02-14 | Jesse Meng | CALSLR_UUTAH     
+!> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -38,7 +49,7 @@
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
-  public :: CALSLR_ROEBBER
+  public :: CALSLR_ROEBBER, CALSLR_UUTAH
   public :: CALVOR
 
   public :: FPVSNEW
@@ -2822,13 +2833,12 @@
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          if(qshltr(i,j) /= spval)then
-            RH2M(I,J) = RH1D(I,J)*100.
+            RH2M(I,J) = min(H100,max(H1,RH1D(I,J)*100.))
          else
             RH2M(I,J) = spval 
          endif
       ENDDO
       ENDDO
-      CALL BOUND(RH2M,H1,H100)
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -4291,6 +4301,191 @@
         /), shape(outputSynapse))
  
       END SUBROUTINE Breadboard10        
+!
+!-------------------------------------------------------------------------------------
+!
+!> calslr_uutah() computes snow solid-liquid-ratio slr using the Steenburgh algorithm.
+!>
+!> Obtained the code and data from U of Utah Jim Steenburgh and Peter Veals.
+!> SLR = m1X1 + m2X2 + m3X3 + m4X4 + m5X5 + m6X6 + b.
+!>
+!>      X1 = wind speed at at 1km above ground level (AGL) in m/s
+!>      m1 = -0.174848
+!>
+!>      X2 = temperature at 2km AGL in Kelvin
+!>      m2 = -0.52644
+!>
+!>      X3 = wind speed at 2 km AGL in m/s
+!>      m3 = 0.034911
+!>
+!>      X4 = wind speed at 500 m AGL in m/s
+!>      m4 = -0.270473
+!>
+!>      X5 = temperature at 1 km AGL in Kelvin
+!>      m5 = 0.028299
+!>
+!>      X6 = temperature at 500 m AGL in m/s
+!>      m6 = 0.096273
+!>
+!>      b =  118.35844
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2023-01-23 | Jesse Meng | Initial
+!>
+!> @author Jesse Meng @date 2023-01-03
+
+      SUBROUTINE CALSLR_UUTAH(SLR)
+
+      use vrbls3d,    only: ZINT,ZMID,PMID,T,Q,UH,VH
+      use masks,      only: LMH,HTM
+      use ctlblk_mod, only: ISTA,IEND,JSTA,JEND,ista_2l,iend_2u,jsta_2l,jend_2u,&
+                            LM,SPVAL
+
+      implicit none
+
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(out) :: slr !slr=snod/weasd=1000./sndens
+
+      integer, parameter :: NFL=3
+      real,    parameter :: HTFL(NFL)=(/ 500., 1000., 2000. /)
+      real,dimension(ISTA:IEND,JSTA:JEND,NFL) :: TFD,UFD,VFD
+
+      real LHL(NFL),DZABH(NFL),SWND(NFL)
+      real HTSFC,HTABH,DZ,RDZ,DELT,DELU,DELV
+
+      real, parameter :: m1 = -0.174848
+      real, parameter :: m2 = -0.52644
+      real, parameter :: m3 =  0.034911
+      real, parameter :: m4 = -0.270473
+      real, parameter :: m5 =  0.028299
+      real, parameter :: m6 =  0.096273
+      real, parameter ::  b =118.35844
+
+      integer,dimension(ISTA:IEND,JSTA:JEND) :: KARR
+      integer,dimension(ISTA:IEND,JSTA:JEND) :: TWET05
+      real,dimension(ISTA:IEND,JSTA:JEND)    :: ZWET
+
+      REAL, ALLOCATABLE :: TWET(:,:,:)
+
+      integer I,J,L,LLMH,LMHK,IFD
+!
+!***************************************************************************
+!
+      ALLOCATE(TWET(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
+
+      DO IFD = 1,NFL
+!$omp parallel do private(i,j)      
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+             TFD(I,J,IFD)     = SPVAL
+             UFD(I,J,IFD)     = SPVAL
+             VFD(I,J,IFD)     = SPVAL
+          ENDDO
+        ENDDO
+      ENDDO        
+
+!        LOCATE VERTICAL INDICES OF T,U,V, LEVEL JUST
+!        ABOVE EACH FD LEVEL.
+
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+      IF(ZINT(I,J,LM+1)<SPVAL) THEN
+         HTSFC = ZINT(I,J,LM+1)
+         LLMH  = NINT(LMH(I,J))
+      IFD = 1
+      DO L = LLMH,1,-1
+         HTABH = ZMID(I,J,L)-HTSFC
+         IF(HTABH>HTFL(IFD)) THEN
+            LHL(IFD) = L
+            DZABH(IFD) = HTABH-HTFL(IFD)
+            IFD = IFD + 1
+         ENDIF
+         IF(IFD > NFL) exit
+      ENDDO
+
+!        COMPUTE T, U, V AT FD LEVELS.
+
+      DO IFD = 1,NFL 
+         L = LHL(IFD)
+         IF (L<LM .AND. T(I,J,L)<SPVAL .AND. UH(I,J,L)<SPVAL .AND. VH(I,J,L)<SPVAL) THEN
+           DZ   = ZMID(I,J,L)-ZMID(I,J,L+1)
+           RDZ  = 1./DZ
+           DELT = T(I,J,L)-T(I,J,L+1)
+           TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
+           DELU = UH(I,J,L)-UH(I,J,L+1)
+           DELV = VH(I,J,L)-VH(I,J,L+1)
+           UFD(I,J,IFD) = UH(I,J,L) - DELU*RDZ*DZABH(IFD)
+           VFD(I,J,IFD) = VH(I,J,L) - DELV*RDZ*DZABH(IFD)
+         ELSE
+           TFD(I,J,IFD) = T(I,J,L)
+           UFD(I,J,IFD) = UH(I,J,L)
+           VFD(I,J,IFD) = VH(I,J,L)
+         ENDIF
+      ENDDO
+      ENDIF !IF(ZINT(I,J,LM+1)<SPVAL)
+      ENDDO !I loop
+      ENDDO !J loop
+
+!        COMPUTE SLR
+
+      SLR = SPVAL
+
+!$omp parallel do private(i,j)      
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+      IF(TFD(I,J,1)<SPVAL .AND. UFD(I,J,1)<SPVAL .AND. VFD(I,J,1)<SPVAL) THEN
+         SWND(1)=sqrt(UFD(I,J,1)*UFD(I,J,1)+VFD(I,J,1)*VFD(I,J,1))
+         SWND(2)=sqrt(UFD(I,J,2)*UFD(I,J,2)+VFD(I,J,2)*VFD(I,J,2))
+         SWND(3)=sqrt(UFD(I,J,3)*UFD(I,J,3)+VFD(I,J,3)*VFD(I,J,3))
+         SLR(I,J) = m1*SWND(2)+m2*TFD(I,J,3)+m3*SWND(3)+m4*SWND(1)+m5*TFD(I,J,2)+m6*TFD(I,J,1)+b
+         SLR(I,J) = max(SLR(I,J),3.)
+      ENDIF
+      ENDDO
+      ENDDO
+
+!        COMPUTE WETBULB TEMPERATURE AND SEARCH FOR TWET > 0.5C
+
+      KARR = 1
+      CALL WETBULB(T,Q,PMID,HTM,KARR,TWET)
+
+!$omp parallel do private(i,j)      
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         ZWET(I,J)=ZMID(I,J,LM)
+         TWET05(I,J)=-1
+      ENDDO
+      ENDDO
+
+      DO L=LM,1,-1
+!$omp parallel do private(i,j)
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         IF(TWET05(I,J) < 0) THEN
+            IF(TWET(I,J,L) <= 273.15+0.5) THEN
+               ZWET(I,J)=ZMID(I,J,L)
+               TWET05(I,J)=1
+            ENDIF
+         ENDIF
+      ENDDO
+      ENDDO
+      ENDDO
+
+!$omp parallel do private(i,j,HTABH)      
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         IF(TWET05(I,J) > 0 .AND. SLR(I,J)<SPVAL) THEN
+            HTABH=ZWET(I,J)-ZINT(I,J,LM+1)
+            IF(HTABH<0.) HTABH=0.
+            SLR(I,J)=SLR(I,J)*(1.-HTABH/200.)
+            IF(SLR(I,J)<0.) SLR(I,J)=0.
+         ENDIF
+      ENDDO
+      ENDDO
+
+      DEALLOCATE (TWET)
+
+      END SUBROUTINE CALSLR_UUTAH
 !
 !-------------------------------------------------------------------------------------
 !

@@ -1490,7 +1490,7 @@
         ENDIF
       ENDIF
 
-!     write(0,*)' GMIN=',GMIN,' GMAX=',GMAX
+!     write(*,*)' GMIN=',GMIN,' GMAX=',GMAX
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  COMPUTE NUMBER OF BITS
       icnt = 0
@@ -1525,7 +1525,7 @@
           rng2 = range * 2. ** (-ibs)
           nbits = INT ( ALOG ( rng2 ) / rln2 ) + 1
       END IF
-!     write(0,*)'in g2getnits,ibs=',ibs,'ids=',ids,'nbits=',nbits,'range=',range
+!     write(*,*)'in g2getnits,ibs=',ibs,'ids=',ids,'nbits=',nbits,'range=',range
 !*
       IF(nbits <= 0) THEN
         nbits = 0
@@ -1538,7 +1538,7 @@
         ENDIF
       ENDIF
       nbits = min(nbits,MXBIT)
-!     write(0,*)'in g2getnits ibs=',ibs,'ids=',ids,'nbits=',nbits
+!     write(*,*)'in g2getnits ibs=',ibs,'ids=',ids,'nbits=',nbits
 !
       IF ( scl > 0.0 ) THEN 
         s=10.0 ** ids
@@ -1582,7 +1582,7 @@
         endif
 !
       endif
-!     write(0,*)'in g2getnits,2ibs=',ibs,'ids=',ids,'nbits=',nbits,'range=',& 
+!     write(*,*)'in g2getnits,2ibs=',ibs,'ids=',ids,'nbits=',nbits,'range=',& 
 !                range, 'scl=',scl,'data=',maxval(g),minval(g)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
@@ -1826,7 +1826,7 @@
 
      ENDIF
 
-!    write(0,*)'igds=',igds,'igdstempl=',ifield3(1:ifield3len)
+!    write(*,*)'igds=',igds,'igdstempl=',ifield3(1:ifield3len)
      end subroutine getgds
 !
 !-------------------------------------------------------------------------------------

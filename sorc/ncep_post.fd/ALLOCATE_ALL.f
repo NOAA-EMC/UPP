@@ -22,6 +22,7 @@
 !! -  22-09-22  Li(Kate) Zhang - Initializing NASA GOCART tracers of Nitrate, NH4,and their column burden.
 !! -  22-11-08  Kai Wang - Replace acfcmaq_on with aqf_on
 !! -  23-01-24  Sam Trahan - CAPE, CIN, and IFI_APCP varibles for input to IFI
+!! -  23-03-22  WM Lewis - Adding effective radius arrays
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -157,6 +158,9 @@
       allocate(EXTCOF55(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QC_BL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(CFR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EFFRI(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EFFRL(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(EFFRS(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(CFR_RAW(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(DBZ(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(DBZR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
@@ -189,6 +193,9 @@
             EXTCOF55(i,j,l)=0.
             QC_BL(i,j,l)=spval
             CFR(i,j,l)=spval
+            EFFRI(i,j,l)=spval
+            EFFRL(i,j,l)=spval
+            EFFRS(i,j,l)=spval
             CFR_RAW(i,j,l)=spval
             DBZ(i,j,l)=spval
             DBZR(i,j,l)=spval

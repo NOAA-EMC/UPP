@@ -1750,7 +1750,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
 !     
 !           MOISTURE CONVERGENCE ON MDL SURFACES.
-!           write(0,*)'iget083=',iget(083),' l=',l
+!           write(*,*)'iget083=',iget(083),' l=',l
             LLL = 0
             if (IGET(083) > 0) LLL = LVLS(L,IGET(083))
             IF (IGET(083)>0 .OR. IGET(295)>0) THEN
@@ -3885,7 +3885,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                        UH(I,J,1)<spval)THEN
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
 !       if (I == 50 .and. J == 50) then
-!        write(0,*) 'working with L : ', L
+!        write(*,*) 'working with L : ', L
 !       endif
                     HCOUNT      = HCOUNT+1
                     DP          = EGRID6(I,J) - EGRID7(I,J)
@@ -3973,13 +3973,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                      END IF
 
 !         if (mod(I,20) == 0 .and. mod(J,20) == 0) then
-!         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
+!         write(*,*) 'wind speed ', I,J, EGRID1(I,J)
 !         endif
 
                    ENDDO
                  ENDDO
 
-!        write(0,*) 'min, max of GRID1 (u comp transport wind): ', minval(grid1),maxval(grid1)
+!        write(*,*) 'min, max of GRID1 (u comp transport wind): ', minval(grid1),maxval(grid1)
                IF(IGET(389) > 0)THEN
                 if(grib=='grib2') then
                   cfld=cfld+1
@@ -4013,7 +4013,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
             IF ( (IGET(454) > 0) ) THEN
 
-!       write(0,*) 'IM is: ', IM
+!       write(*,*) 'IM is: ', IM
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=ista,iend
@@ -4025,9 +4025,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     ENDIF
 
 !       if ( (I >= 15 .and. I <= 17)  .and. J >= 193 .and. J <= 195) then
-!       write(0,*) 'I,J,EGRID1(I,J) (wind speed): ', I,J, EGRID1(I,J)
-!       write(0,*) 'I,J,PBLH: ', I,J, EGRID4(I,J)
-!       write(0,*) 'I,J,GRID1 (ventilation rate): ', I,J, GRID1(I,J)
+!       write(*,*) 'I,J,EGRID1(I,J) (wind speed): ', I,J, EGRID1(I,J)
+!       write(*,*) 'I,J,PBLH: ', I,J, EGRID4(I,J)
+!       write(*,*) 'I,J,GRID1 (ventilation rate): ', I,J, GRID1(I,J)
 !       endif
 
                   ENDDO
