@@ -237,7 +237,7 @@
         end do
       end do
 
-!     write(0,*)'nrec=',nrec
+!     write(*,*)'nrec=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(im*jm),glon1d(im*jm))
       allocate(vcoord4(lm+1,3,2))
@@ -1156,7 +1156,7 @@
                          vcrd, pint(1,j,lp1), psx2d(1,j), psy2d(1,j),   &
                          d2d,  u2d, v2d, pi2d, pm2d, omga2d, me)
 !     if (j ==1 .or. j == jm) &
-!     write (0,*)' omga2d=',omga2d(1,:),' j=',j
+!     write (*,*)' omga2d=',omga2d(1,:),' j=',j
 
           if (npass <= 0 ) then
 !$omp parallel do private(i,l,ll)
@@ -1198,7 +1198,7 @@
 !         Average omega for the last point near the poles - moorthi
           if (j ==1 .or. j == jm) then
             tx1 = 1.0 / im
-!     write(0,*)' j=',j,' omgamax=',maxval(omga(:,j,:)),' omgamin=',minval(omga(:,j,:))
+!     write(*,*)' j=',j,' omgamax=',maxval(omga(:,j,:)),' omgamin=',minval(omga(:,j,:))
 !$omp parallel do private(i,l,tx2)
             do l=1,lm
               tx2 = 0.0
@@ -1898,7 +1898,7 @@
       do j=jsta,jend
         do i=1,im
           if (ths(i,j) /= spval) then
-!    write(0,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
+!    write(*,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
             ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
           endif
           QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
