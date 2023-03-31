@@ -45,12 +45,13 @@
 !>  This data is characterized by 74 points.
 !>
 !>
-!> @param[in] day Julian day (positive scalar or vector), (spring equinox =  80), (summer solstice= 171), (fall equinox   = 266), (winter solstice= 356).
-!> @param[in] time Universal Time in hours (scalar or vector).
-!> @param[in] lat Geographic latitude of point on earth's surface (degrees).
-!> @param[in] lon Geographic longitude of point on earth's surface (degrees).
-!> @param[out] sun_zenith  - solar zenith angle.
-!> @param[out] sun_azimuth - solar azimuth angle.
+!> @param[in] day integer Julian day (positive scalar or vector), (spring equinox =  80), (summer solstice= 171), (fall equinox   = 266), (winter solstice= 356).
+!> @param[in] time real Universal Time in hours (scalar or vector).
+!> @param[in] lat real Geographic latitude of point on earth's surface (degrees).
+!> @param[in] lon real Geographic longitude of point on earth's surface (degrees).
+!> @param[in] pi real The mathematical constant pi.
+!> @param[out] sun_zenith real Solar zenith angle.
+!> @param[out] sun_azimuth real Solar azimuth angle.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
