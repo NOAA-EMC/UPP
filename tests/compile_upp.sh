@@ -98,7 +98,7 @@ rm -rf build install
 mkdir build && cd build
 cmake $cmake_opts ../..
 make -j6 $verbose_opt 
-make install
+make doc
 
 rm -rf $PATHTR/exec && mkdir $PATHTR/exec
 cp $PATHTR/tests/install/bin/upp.x $PATHTR/exec/.

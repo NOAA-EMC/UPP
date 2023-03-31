@@ -44,6 +44,7 @@
 !!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !!   21-04-01  J MENG - COMPUTATION ON DEFINED POINTS ONLY
 !!   21-07-07  J MENG - 2D DECOMPOSITION
+!!   22-05-25  Y Mao - Add WAFS icing/turbulence on pressure levels
 !!   22-09-22  L Zhang - ADD NO3 and NH4 output for UFS-Aerosols model
 !!   22-10-20  W Meng - Bug fix for cloud fraction and vertically integrated liquid
 !!   22-11-08  W Meng - Output hourly averaged PM2.5 and O3 for AQM model only (aqf_on) 
@@ -927,10 +928,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(752)>0).OR.(IGET(754)>0).OR.      &
            (IGET(278)>0).OR.(IGET(264)>0).OR.      &
            (IGET(450)>0).OR.(IGET(480)>0).OR.      &
+           (IGET(479)>0).OR.(IGET(481)>0).OR.      &
            (IGET(774)>0).OR.(IGET(747)>0).OR.      &
            (IGET(464)>0).OR.(IGET(467)>0).OR.      &
+           (IGET(470)>0).OR.(IGET(476)>0).OR.      &
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
-           (IGET(470)>0).OR.                       &
            (IGET(909)>0).OR.(IGET(737)>0).OR.      &
            (IGET(742)>0).OR.                       &
            (IGET(994)>0).OR.(IGET(995)>0) ) THEN
@@ -1604,7 +1606,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           RELATIVE HUMIDITY ON MDL SURFACES.
             item = -1
             IF (IGET(006) > 0) item = LVLS(L,IGET(006))
-            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0) THEN
+            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0 .OR. &
+                IGET(479) > 0 .OR. IGET(481) > 0 ) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3813,7 +3816,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
             IF ( (IGET(289)>0) .OR. (IGET(389)>0) .OR. (IGET(454)>0)   &
             .OR. (IGET(245)>0)  .or. IGET(464)>0 .or. IGET(467)>0  &
-            .or. IGET(470)>0 ) THEN
+            .or. IGET(470)>0 .or. IGET(476)>0) THEN
 ! should only compute pblri if pblh from model is not computed based on Ri 
 ! post does not yet read pbl scheme used by model.  Will do this soon
 ! For now, compute PBLRI for non GFS models.
@@ -4047,7 +4050,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
 !	    
 ! CALCULATE Gust based on Ri PBL
-      IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0) THEN
+      IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
         IF(MODELNAME=='RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
@@ -4207,7 +4210,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0)THEN
+      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0 .or. IGET(476)>0)THEN
         i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
@@ -4217,9 +4220,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         RICHNO=SPVAL
 
         call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
-        uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,&
-        ZINT(ista_2l:iend_2u,JSTA_2L:JEND_2U,LP1),pblh,sfcshx,sfclhx,ustar,&
-        z0,gdlat,gdlon,dx,dy,u10,v10,GUST,avgprec,sm,sice,catedr,mwt,EL,gtg,RICHNO,item)
+        uh(ista:iend,:,:),vh(ista:iend,:,:),wh(ista:iend,:,:),&
+        zmid(ista:iend,:,:),pmid(ista:iend,:,:),t(ista:iend,:,:),&
+        q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
+        qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
+        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
+        sfclhx(ista:iend,:),ustar(ista:iend,:),&
+        z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
+        dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
+        GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
+        catedr(ista:iend,:,:),mwt(ista:iend,:,:),EL(ista:iend,:,:),&
+        gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
 
         i=iend
         j=jend ! 321,541
@@ -4296,7 +4307,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       end IF
 
 ! COMPUTE NCAR FIP
-      IF(IGET(450)>0 .or. IGET(480)>0)THEN
+      IF(IGET(450)>0 .or. IGET(480)>0 .or. IGET(479)>0 .or. IGET(481)>0)THEN
 
 !       cape and cin
         ITYPE  = 1

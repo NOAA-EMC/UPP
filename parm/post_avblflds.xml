@@ -4074,7 +4074,7 @@
        <scale>3.0</scale>
     </param>
 
-<!-- 467-469 EDR on FD_HEIGHT_LVL -->
+<!-- 467-469 EDR on FD_HEIGHT_LVL (for regional model)-->
     <param>
        <post_avblfldidx>467</post_avblfldidx>
        <shortname>EDPARM_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
@@ -4149,6 +4149,40 @@
        <scale>6.0</scale>
     </param>
 
+<!-- 476-478 EDR on ISOBARIC_SFC -->
+    <param>
+       <post_avblfldidx>476</post_avblfldidx>
+       <shortname>EDPARM_ON_ISOBARIC_SFC</shortname>
+       <pname>EDPARM</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>477</post_avblfldidx>
+       <shortname>CAT_ON_ISOBARIC_SFC</shortname>
+       <pname>CATEDR</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>478</post_avblfldidx>
+       <shortname>MWTURB_ON_ISOBARIC_SFC</shortname>
+       <pname>MWTURB</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+<!-- 479-481 -->
+    <param>
+       <post_avblfldidx>479</post_avblfldidx>
+       <shortname>ICESEV_ON_ISOBARIC_SFC</shortname>
+       <pname>ICESEV</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>1.0</scale>
+    </param>
+
     <param>
        <post_avblfldidx>480</post_avblfldidx>
        <shortname>ICESEV_ON_ICAO_STD_SFC</shortname>
@@ -4156,6 +4190,14 @@
        <pname>ICESEV</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>1.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>481</post_avblfldidx>
+       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
+       <pname>ICIP</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
     </param>
 
     <param>
@@ -4496,7 +4538,7 @@
        <scale>6.0</scale>
     </param>
 
-<!-- 518-525 on std_isobaric_sfc for WAFS products  -->
+<!-- 518-521 on std_isobaric_sfc for WAFS products  -->
     <param>
        <post_avblfldidx>518</post_avblfldidx>
        <shortname>HGT_ON_ICAO_STD_SFC</shortname>
@@ -4525,38 +4567,6 @@
        <post_avblfldidx>521</post_avblfldidx>
        <shortname>VGRD_ON_ICAO_STD_SFC</shortname>
        <pname>VGRD</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>522</post_avblfldidx>
-       <shortname>RH_ON_ICAO_STD_SFC</shortname>
-       <pname>RH</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>2.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>523</post_avblfldidx>
-       <shortname>VVEL_ON_ICAO_STD_SFC</shortname>
-       <pname>VVEL</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>5.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>524</post_avblfldidx>
-       <shortname>ABSV_ON_ICAO_STD_SFC</shortname>
-       <pname>ABSV</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>525</post_avblfldidx>
-       <shortname>CLMR_ON_ICAO_STD_SFC</shortname>
-       <pname>CLMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
