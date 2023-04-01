@@ -146,7 +146,7 @@
                                             UBND,   VBND,   RHBND,     &
                                             WBND,   T7D,    Q7D,       &
                                             U7D,    V6D,    P7D,       &
-                                            ICINGFD,GTGFD,CATFD,MWTFD
+                                            ICINGFD,GTGFD,CATFD,MWTFD,MIDCAL
 
       real, dimension(:,:),allocatable ::   QM8510, RH4710, RH8498,    &
                                             RH4796, RH1847, UST, VST,  &
@@ -159,10 +159,11 @@
       real, dimension(:,:),  allocatable :: USHR1, VSHR1, USHR6, VSHR6, &
                                             MAXWP, MAXWZ, MAXWU, MAXWV, &
                                             MAXWT
-      INTEGER,dimension(:,:),allocatable :: LLOW, LUPP
+      INTEGER,dimension(:,:),allocatable :: LLOW,LUPP,LLOW_ZINT,IEQL_ZINT, &
+					    Z_MIDCAL
       REAL, dimension(:,:),allocatable   :: CANGLE,ESHR,UVECT,VVECT,&
                                             EFFUST,EFFVST,FSHR,HTSFC,&
-                                            ESRH
+                                            ESRH,Z_TEMP
 !
       integer I,J,ii,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
               iget1, iget2, iget3, LLMH,imax,jmax,lmax
@@ -176,7 +177,7 @@
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
-      integer ISTART,ISTOP,JSTART,JSTOP,MIDCAL
+      integer ISTART,ISTOP,JSTART,JSTOP
       real    dummy(ista:iend,jsta:jend)
       integer idummy(ista:iend,jsta:jend)
 !     NEW VARIABLES USED FOR EFFECTIVE LAYER
@@ -1206,28 +1207,6 @@
             allocate(GTGFD(ISTA:IEND,JSTA:JEND,NFDCTL))
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
 !           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
-
-            ! Regional GTG has a legend of special defination
-            ! 0 m holds the max value of the whole vertical column
-            DO IFD = 1,NFDCTL
-               if(NINT(HTFDCTL(IFD)) == 0) then
-                  N=IFD
-                  exit
-               endif
-            ENDDO
-            DO IFD = 1,NFDCTL
-               DO J=JSTA,JEND
-               DO I=ISTA,IEND
-                  work1=GTGFD(I,J,IFD)
-                  if(GTGFD(I,J,N)>=SPVAL) then
-                     GTGFD(I,J,N)=work1
-                  elseif(work1<SPVAL) then
-                     if(GTGFD(I,J,N)<work1) GTGFD(I,J,N)=work1
-                  endif
-               ENDDO
-               ENDDO
-            ENDDO
-
             DO IFD = 1,NFDCTL
               IF (LVLS(IFD,IGET(467))>0) THEN
 !$omp parallel do private(i,j)
@@ -3724,7 +3703,10 @@
                   HELI(ista_2l:iend_2u,jsta_2l:jend_2u,2))
          allocate(LLOW(ista_2l:iend_2u,jsta_2l:jend_2u),LUPP(ista_2l:iend_2u,jsta_2l:jend_2u),   &
                   CANGLE(ista_2l:iend_2u,jsta_2l:jend_2u))
-
+         allocate(LLOW_ZINT(ista_2l:iend_2u,jsta_2l:jend_2u), 					 &
+                  IEQL_ZINT(ista_2l:iend_2u,jsta_2l:jend_2u),Z_TEMP(ista_2l:iend_2u,jsta_2l:jend_2u))
+         allocate(MIDCAL(ista_2l:iend_2u,jsta_2l:jend_2u,1:LM))
+         allocate(Z_MIDCAL(ista_2l:iend_2u,jsta_2l:jend_2u))
        iget1 = IGET(953)
        iget2 = -1
        iget3 = -1
@@ -3732,7 +3714,7 @@
          iget2 = LVLS(1,iget1)
          iget3 = LVLS(2,iget1)
        endif
-      if(me==0) write(*,*) '953 ',iget1,iget2,iget3
+      if(me==0) write(0,*) '953 ',iget1,iget2,iget3
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0
@@ -3768,7 +3750,6 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IREC = IREC + 1
-!               WRITE(IUNIT,'(1x,I6,2x,I6,2x,I6,2x,I6)')I,J,LLOW(I,J),LUPP(I,J)
                WRITE(IUNIT,'(1x,I6,2x,I6,2(2x,I6,2x,F12.3))') I, J,                &
                     LLOW(I,J),PMID(I,J,LLOW(I,J)),                                 &
                     LUPP(I,J),PMID(I,J,LUPP(I,J))
@@ -3778,7 +3759,6 @@
          ENDIF
 
 
-!         CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
          CALL CALHEL2(LLOW,LUPP,DEPTH,UST,VST,HELI,CANGLE)
 !                                                  
          IF (iget2 > 0) then
@@ -3786,7 +3766,6 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                GRID1(I,J) = HELI(I,J,1)
-             !  GRID1(I,J) = HELI(I,J,2)
              ENDDO
            ENDDO
            if(grib=='grib2') then
@@ -3846,8 +3825,17 @@
                  ENDIF 
                ENDDO
              ENDDO
-
+              DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                  LLOW(I,J) = EL_BASE(I,J)
+                  LLOW_ZINT(I,J)=ZINT(I,J,LLOW(I,J))
+                  IEQL_ZINT(I,J)=ZINT(I,J,IEQL(I,J))
+                  Z_TEMP(I,J)=LLOW_ZINT(I,J)+D50*(IEQL_ZINT(I,J)-LLOW_ZINT(I,J))
+                  MIDCAL(I,J,L)=ABS(ZINT(I,J,L)-Z_TEMP(I,J))
+               ENDDO
+             ENDDO
            ENDDO
+           Z_MIDCAL=MINLOC(MIDCAL,DIM=3) 
 
 !
 !get surface height
@@ -3955,11 +3943,7 @@
              DO J=JSTA,JEND
                DO I=ISTA,IEND
                   IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval) THEN
-                       MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))       
-                                                            !mid-layer 
-                                                            !vertical
-                                                            !index
-                       UVECT(I,J)=UH(I,J,MIDCAL)-UH(I,J,LLOW(I,J))
+                       UVECT(I,J)=UH(I,J,Z_MIDCAL(I,J))-UH(I,J,LLOW(I,J))
                        GRID1(I,J)=UVECT(I,J)
                   ENDIF
                ENDDO
@@ -3984,13 +3968,8 @@
              GRID1=spval
              DO J=JSTA,JEND
                DO I=ISTA,IEND
-                 IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval.and.&
-                 VH(I,J,MIDCAL)<spval.and.VH(I,J,LLOW(I,J))<spval)THEN
-                       MIDCAL=INT(LLOW(I,J)+D50*(IEQL(I,J)-LLOW(I,J)))
-                                                            !mid-layer 
-                                                            !vertical
-                                                            !index
-                       VVECT(I,J)=VH(I,J,MIDCAL)-VH(I,J,LLOW(I,J))
+                 IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval) THEN
+                       VVECT(I,J)=VH(I,J,Z_MIDCAL(I,J))-VH(I,J,LLOW(I,J))
                        GRID1(I,J)=VVECT(I,J)
                  ENDIF
                ENDDO
@@ -4039,6 +4018,13 @@
             ENDIF
 
 ! Effective Helicity
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+                LLOW(I,J) = EL_BASE(I,J)
+                LUPP(I,J) = EL_TOPS(I,J)
+             ENDDO
+           ENDDO
 
        CALL CALHEL3(LLOW,LUPP,EFFUST,EFFVST,ESRH)
 
@@ -4551,6 +4537,8 @@
       if (allocated(wbnd))   deallocate(wbnd)
       if (allocated(lvlbnd)) deallocate(lvlbnd)
       if (allocated(lb2))    deallocate(lb2)
+      if (allocated(el_base)) deallocate(el_base)
+      if (allocated(el_tops)) deallocate(el_tops)
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
