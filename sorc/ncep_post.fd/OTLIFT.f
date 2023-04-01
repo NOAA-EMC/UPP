@@ -2,7 +2,7 @@
 !> @brief otlift() computes SFC to 500mb lifted index.
 !>
 !> This routine computes a surface to 500mb lifted index.
-!> The lifted parcel is from the first atmpspheric ETA
+!> The lifted parcel is from the first atmospheric ETA
 !> layer (ie, the ETA layer closest to the model ground).
 !> The lifted index is the difference between this parcel's
 !> temperature at 500mb and the ambient 500mb temperature.
@@ -28,7 +28,7 @@
 !> otlift() computes SFC to 500mb lifted index.
 !>
 !> This routine computes a surface to 500mb lifted index.
-!> The lifted parcel is from the first atmpspheric ETA
+!> The lifted parcel is from the first atmospheric ETA
 !> layer (ie, the ETA layer closest to the model ground).
 !> The lifted index is the difference between this parcel's
 !> temperature at 500mb and the ambient 500mb temperature.

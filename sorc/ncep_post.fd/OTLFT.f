@@ -1,9 +1,9 @@
 !> @file
 !> @brief otlft() computes lifted index.
 !>
-!> This routine computes lifts a parcel specified by the
+!> This routine lifts a parcel specified by the
 !> passed pressure, temperature, and specific humidity to
-!> 500mb and then computes a lifted index.  This lifted
+!> 500mb and then computes a lifted index. This
 !> lifted index is the difference between the lifted
 !> parcel's temperature at 500mb and the ambient 500mb
 !> temperature.
@@ -29,9 +29,9 @@
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !> otlft() computes lifted index.
 !>
-!> This routine computes lifts a parcel specified by the
+!> This routine lifts a parcel specified by the
 !> passed pressure, temperature, and specific humidity to
-!> 500mb and then computes a lifted index.  This lifted
+!> 500mb and then computes a lifted index. This 
 !> lifted index is the difference between the lifted
 !> parcel's temperature at 500mb and the ambient 500mb
 !> temperature.
