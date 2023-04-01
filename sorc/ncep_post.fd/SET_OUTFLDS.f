@@ -91,11 +91,11 @@
 
       post_avblflds%param =>paramset(npset)%param
       if (me==0) then
-        write(0,*)'Size of pset is: ',MFLD
-        write(0,*)'datset is: ',datset
-        write(0,*)'MXFLD is: ',MXFLD
-        write(0,*)'size of lvlsxml: ',size(lvlsxml)
-        write(0,*)'size of post_avblflds param',size(post_avblflds%param)
+        write(*,*)'Size of pset is: ',MFLD
+        write(*,*)'datset is: ',datset
+        write(*,*)'MXFLD is: ',MXFLD
+        write(*,*)'size of lvlsxml: ',size(lvlsxml)
+        write(*,*)'size of post_avblflds param',size(post_avblflds%param)
       endif
       if(size(post_avblflds%param) <= 0) then
          write(0,*)'WRONG: post available fields not ready!!!'
@@ -115,8 +115,8 @@
 
          FOUND_FLD = .false.
 
-!        write(0,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
-!        write(0,*)'size(post_avblflds%param)=',size(post_avblflds%param)
+!        write(*,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
+!        write(*,*)'size(post_avblflds%param)=',size(post_avblflds%param)
 
          IFLD = IFLD + 1
 
@@ -153,7 +153,7 @@
         fld_info(i)%ntrange  = 0
         fld_info(i)%tinvstat = 0
       enddo
-      if(me==0)write(0,*)'in readxml. nfld=',nfld,'nrecout=',nrecout
+      if(me==0)write(*,*)'in readxml. nfld=',nfld,'nrecout=',nrecout
 !
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
 !     if(kth == 0 .and. iget(013) <= 0) go to 999
@@ -167,10 +167,10 @@
 !      DO 50 IFLD = 1,NFLD
 !        IF(ME==0)THEN
 !         i=IAVBLFLD(IFLD)
-!         write(0,*)'readxml,ifld=',ifld,'iget(',IDENT(ifld),')=',iget(ident(ifld)),'iavbl=',IAVBLFLD(iget(ident(ifld))),'postvar=',trim(pset%param(i)%pname),  &
+!         write(*,*)'readxml,ifld=',ifld,'iget(',IDENT(ifld),')=',iget(ident(ifld)),'iavbl=',IAVBLFLD(iget(ident(ifld))),'postvar=',trim(pset%param(i)%pname),  &
 !             trim(pset%param(i)%fixed_sfc1_type),'lvls=',LVLS(:,ifld)
 !         if(size(pset%param(i)%level)>0) then
-!           WRITE(0,*) pset%param(i)%level
+!           WRITE(*,*) pset%param(i)%level
 !         endif
 !        ENDIF
 ! 50   CONTINUE

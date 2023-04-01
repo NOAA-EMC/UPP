@@ -64,10 +64,11 @@
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
                             JEND_2U, LSM, d3d_on, ioform, NBIN_SM,  &
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L,  &
-                            IEND_2U,nasa_on
+                            IEND_2U, nasa_on, slrutah_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH
+
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none
@@ -216,9 +217,9 @@
 ! ADD DUST FIELDS
          (IGET(455) > 0) .OR.      &
 ! Add WAFS hazard fields: Icing and GTG turbulence
-         (IGET(476) > 0) .OR. (IGET(477) > 0) .OR.      &
-         (IGET(478) > 0) .OR. (IGET(479) > 0) .OR.      &
-         (IGET(481) > 0) .OR.                           &
+         (IGET(464) > 0) .OR. (IGET(465) > 0) .OR.      &
+         (IGET(466) > 0) .OR. (IGET(450) > 0) .OR.      &
+         (IGET(480) > 0) .OR.                           &
 ! ADD SMOKE FIELDS
          (IGET(738) > 0) .OR. (IGET(743) > 0) .OR.      &
          (MODELNAME == 'RAPR') .OR.&
@@ -2069,8 +2070,8 @@
 !     
  
 !---  GFIP IN-FLIGHT ICING POTENTIAL: ADDED BY H CHUANG
-        IF(IGET(481) > 0)THEN
-          IF(LVLS(LP,IGET(481)) > 0)THEN                                  
+        IF(IGET(450) > 0)THEN
+          IF(LVLS(LP,IGET(450)) > 0)THEN                                  
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -2079,8 +2080,8 @@
              ENDDO
             if(grib == 'grib2') then
               cfld = cfld + 1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(481))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(481))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(450))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(450))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -2093,8 +2094,8 @@
           ENDIF
         ENDIF
 !---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
-        IF(IGET(479) >  0) THEN
-          IF(LVLS(LP,IGET(479)) > 0) THEN
+        IF(IGET(480) >  0) THEN
+          IF(LVLS(LP,IGET(480)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -2103,8 +2104,8 @@
              ENDDO
              if(grib == 'grib2') then
               cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(479))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(479))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -2117,8 +2118,8 @@
           ENDIF
         ENDIF
 !---  GTG EDR turbulence: ADDED BY Y. MAO
-        IF(IGET(476) >  0) THEN
-          IF(LVLS(LP,IGET(476)) > 0) THEN
+        IF(IGET(464) >  0) THEN
+          IF(LVLS(LP,IGET(464)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -2127,8 +2128,8 @@
              ENDDO
              if(grib == 'grib2') then
               cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(476))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(476))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(464))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(464))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -2141,8 +2142,8 @@
           ENDIF
         ENDIF
 !---  GTG CAT turbulence: ADDED BY Y. MAO
-        IF(IGET(477) >  0) THEN
-          IF(LVLS(LP,IGET(477)) > 0) THEN
+        IF(IGET(465) >  0) THEN
+          IF(LVLS(LP,IGET(465)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -2151,8 +2152,8 @@
              ENDDO
              if(grib == 'grib2') then
               cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(477))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(477))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(465))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(465))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -2165,8 +2166,8 @@
           ENDIF
         ENDIF
 !---  GTG MWT turbulence: ADDED BY Y. MAO
-        IF(IGET(478) >  0) THEN
-          IF(LVLS(LP,IGET(478)) > 0) THEN
+        IF(IGET(466) >  0) THEN
+          IF(LVLS(LP,IGET(466)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -2175,8 +2176,8 @@
              ENDDO
              if(grib == 'grib2') then
               cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(478))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(478))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(466))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(466))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -4081,14 +4082,21 @@
       IF ( IGET(1006)>0 ) THEN
          if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
-         call calslr_roebber(TPRS,RHPRS,EGRID1)
+         if(slrutah_on) then
+            call calslr_uutah(EGRID1)
+         else
+            call calslr_roebber(TPRS,RHPRS,EGRID1)
+         endif
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend
+            grid1(i,j)=spval
             if(egrid1(i,j) < spval) then
-                grid1(i,j)=1000./egrid1(i,j)
-            else
-                grid1(i,j)=spval
+              if(egrid1(i,j)>=1.) then
+                 grid1(i,j)=1000./egrid1(i,j)
+              else
+                 grid1(i,j)=spval
+              endif
             endif
          enddo
          enddo

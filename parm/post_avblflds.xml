@@ -3924,8 +3924,7 @@
 <!-- 450-451 -->
     <param>
        <post_avblfldidx>450</post_avblfldidx>
-       <shortname>ICIP_ON_ICAO_STD_SFC</shortname>
-       <longname>Total Icing Potential Diagnostic on standard atmospheric isobaric sfc</longname>
+       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
        <pname>ICIP</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4049,10 +4048,10 @@
        <scale>4.0</scale>
     </param>
 
-<!-- 464-466 EDR on STD ISOBARIC_SFC -->
+<!-- 464-466 EDR on ISOBARIC_SFC -->
     <param>
        <post_avblfldidx>464</post_avblfldidx>
-       <shortname>EDPARM_GTG_ON_ICAO_STD_SFC</shortname>
+       <shortname>EDPARM_ON_ISOBARIC_SFC</shortname>
        <pname>EDPARM</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4060,7 +4059,7 @@
 
     <param>
        <post_avblfldidx>465</post_avblfldidx>
-       <shortname>CAT_GTG_ON_ICAO_STD_SFC</shortname>
+       <shortname>CAT_ON_ISOBARIC_SFC</shortname>
        <pname>CATEDR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4068,7 +4067,7 @@
 
     <param>
        <post_avblfldidx>466</post_avblfldidx>
-       <shortname>MWTURB_GTG_ON_ICAO_STD_SFC</shortname>
+       <shortname>MWTURB_ON_ISOBARIC_SFC</shortname>
        <pname>MWTURB</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4149,10 +4148,10 @@
        <scale>6.0</scale>
     </param>
 
-<!-- 476-478 EDR on ISOBARIC_SFC -->
+<!-- 476-478 EDR on STD ISOBARIC_SFC -->
     <param>
        <post_avblfldidx>476</post_avblfldidx>
-       <shortname>EDPARM_ON_ISOBARIC_SFC</shortname>
+       <shortname>EDPARM_GTG_ON_ICAO_STD_SFC</shortname>
        <pname>EDPARM</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4160,7 +4159,7 @@
 
     <param>
        <post_avblfldidx>477</post_avblfldidx>
-       <shortname>CAT_ON_ISOBARIC_SFC</shortname>
+       <shortname>CAT_GTG_ON_ICAO_STD_SFC</shortname>
        <pname>CATEDR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4168,7 +4167,7 @@
 
     <param>
        <post_avblfldidx>478</post_avblfldidx>
-       <shortname>MWTURB_ON_ISOBARIC_SFC</shortname>
+       <shortname>MWTURB_GTG_ON_ICAO_STD_SFC</shortname>
        <pname>MWTURB</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4177,14 +4176,6 @@
 <!-- 479-481 -->
     <param>
        <post_avblfldidx>479</post_avblfldidx>
-       <shortname>ICESEV_ON_ISOBARIC_SFC</shortname>
-       <pname>ICESEV</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>480</post_avblfldidx>
        <shortname>ICESEV_ON_ICAO_STD_SFC</shortname>
        <longname>Icing severity on standard atmospheric isobaric levels</longname>
        <pname>ICESEV</pname>
@@ -4193,8 +4184,17 @@
     </param>
 
     <param>
+       <post_avblfldidx>480</post_avblfldidx>
+       <shortname>ICESEV_ON_ISOBARIC_SFC</shortname>
+       <pname>ICESEV</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>1.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>481</post_avblfldidx>
-       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
+       <shortname>ICIP_ON_ICAO_STD_SFC</shortname>
+       <longname>Total Icing Potential Diagnostic on standard atmospheric isobaric sfc</longname>
        <pname>ICIP</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>

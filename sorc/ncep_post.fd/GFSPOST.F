@@ -537,7 +537,7 @@ end subroutine
       jx(n)=j2(n)-j1(n)+1
       msize=msn
       mrank=mod(mrank,msn)
-      write(0,*)' mrank=',mrank,' j1=',j1(n),' j2=',j2(n),' jx=',jx(n),' jm=',jm(n)
+      write(*,*)' mrank=',mrank,' j1=',j1(n),' j2=',j2(n),' jx=',jx(n),' jm=',jm(n)
     else
       jm(n)=0
       jn(n)=1

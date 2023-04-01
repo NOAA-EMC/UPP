@@ -30,6 +30,7 @@
 !> 2023-01-30 | Sam Trahan    | Read cldfra or cldfra_bl, whichever is available
 !> 2023-02-23 | Eric James    | Read coarse PM and aodtot from RRFS
 !> 2023-03-02 | Sam Trahan    | Read lightning threat index fields
+!> 2023-03-22 | WM Lewis      | Read RRFS effective radii (EFFRL, EFFRI, EFFRS)
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -45,7 +46,8 @@
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
               dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp,ocwt,ocsv, &
-              wh, qqg, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d
+              wh, qqg, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d,         &
+              effri, effrl, effrs
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
@@ -516,7 +518,7 @@
                                      'hypres', 'clwmr','dpres']
       endif
 
-!     write(0,*)'nrec=',nrec
+!     write(*,*)'nrec=',nrec
       !allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(jm),glon1d(im))
 
@@ -900,7 +902,7 @@
         iret = nf90_inq_varid(ncid2d,'cldfra',varid)
 
         if(iret_bl==NF90_NOERR .and. iret==NF90_NOERR) then
-          write(0,*) 'WARNING: BOTH cldfra_bl AND cldfra ARE AVAILABLE. USING cldfra.'
+          write(*,*) 'WARNING: BOTH cldfra_bl AND cldfra ARE AVAILABLE. USING cldfra.'
           VarName='cldfra'
         else if(iret_bl==NF90_NOERR) then
           VarName='cldfra_bl'
@@ -919,6 +921,21 @@
 !       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
 !          ,cfr(isa,jsa,l),isa,jsa,l
 !      enddo
+
+!     WL add cieffr for Thompson scheme cloud ice effective radius
+      VarName='cieffr'
+      call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,effri(ista_2l,jsta_2l,1),lm)
+
+!     WL add cleffr for Thompson scheme cloud water effective radius
+      VarName='cleffr'
+      call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,effrl(ista_2l,jsta_2l,1),lm)
+
+!     WL add cseffr for Thompson scheme snow effective radius
+      VarName='cseffr'
+      call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,effrs(ista_2l,jsta_2l,1),lm)
 
 !=====================================
 ! For AQF Hourly average field PM2.5
@@ -1724,7 +1741,7 @@
       do j=jsta,jend
         do i=ista,iend
           if (ths(i,j) /= spval) then
-!    write(0,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
+!    write(*,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
             ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
           endif
           QS(i,j)    = SPVAL ! GFS does not have surface specific humidity

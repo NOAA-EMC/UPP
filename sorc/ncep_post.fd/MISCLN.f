@@ -1206,6 +1206,28 @@
             allocate(GTGFD(ISTA:IEND,JSTA:JEND,NFDCTL))
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
 !           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
+
+            ! Regional GTG has a legend of special defination
+            ! 0 m holds the max value of the whole vertical column
+            DO IFD = 1,NFDCTL
+               if(NINT(HTFDCTL(IFD)) == 0) then
+                  N=IFD
+                  exit
+               endif
+            ENDDO
+            DO IFD = 1,NFDCTL
+               DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                  work1=GTGFD(I,J,IFD)
+                  if(GTGFD(I,J,N)>=SPVAL) then
+                     GTGFD(I,J,N)=work1
+                  elseif(work1<SPVAL) then
+                     if(GTGFD(I,J,N)<work1) GTGFD(I,J,N)=work1
+                  endif
+               ENDDO
+               ENDDO
+            ENDDO
+
             DO IFD = 1,NFDCTL
               IF (LVLS(IFD,IGET(467))>0) THEN
 !$omp parallel do private(i,j)
@@ -3710,7 +3732,7 @@
          iget2 = LVLS(1,iget1)
          iget3 = LVLS(2,iget1)
        endif
-      if(me==0) write(0,*) '953 ',iget1,iget2,iget3
+      if(me==0) write(*,*) '953 ',iget1,iget2,iget3
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0

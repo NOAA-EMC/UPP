@@ -202,7 +202,7 @@
               endif
             enddo iloop411
             if(.not.found) then
-              write(0,*) 'ERROR: No such IFI flight level: ',param%level(j)/10
+              write(*,*) 'ERROR: No such IFI flight level: ',param%level(j)/10
               LVLS(i,ifld)=0
             endif
           enddo

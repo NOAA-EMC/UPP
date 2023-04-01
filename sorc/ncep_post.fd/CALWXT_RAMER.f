@@ -471,7 +471,7 @@
           kd = td
           cflag = 0
       END IF
-      if (kd == 0.0) write(0,*)' kd=',kd,' t=',t,' p=',p,' td=',td
+      if (kd == 0.0) write(*,*)' kd=',kd,' t=',t,' p=',p,' td=',td
 !
       ed = c0 - c1 * kd - c2 / kd
       IF (ed<-14.0.or.ed>7.0) RETURN

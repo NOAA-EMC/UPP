@@ -15,6 +15,7 @@
 !!   12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
 !!   21-07-07  JESSE MENG - 2D DECOMPOSITION
 !!   22-09-22  Li(Kate) Zhang - Add new aerosols fields for UFS-Aerosols
+!!   23-03-22  WM LEWIS: ADDED EFFRI, EFFRS, EFFRL
 !!
 !! USAGE:    CALL MPI_FIRST
 !!   INPUT ARGUMENT LIST:
@@ -49,7 +50,8 @@
               mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx, cnvctdetmflx,&
               cnvctzgdrag, cnvctmgdrag, icing_gfip, asy, ssa, duem, dusd, dudp,        &
               duwt, suem, susd, sudp, suwt, ocem, ocsd, ocdp, ocwt, bcem, bcsd,        &
-              bcdp, bcwt, ssem, sssd, ssdp, sswt, ext, dpres, rhomid
+              bcdp, bcwt, ssem, sssd, ssdp, sswt, ext, dpres, rhomid, effri, effrl,    &
+              effrs
       use vrbls2d, only: wspd10max, w_up_max, w_dn_max, w_mean, refd_max, up_heli_max, &
               prate_max, fprate_max, swupt,                                            &
               up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max, ltg2_max,         &
@@ -112,7 +114,7 @@
       isumm2=0
 
       if ( me == 0 ) then
-        write(0,*) ' NUM_PROCS,NUMX,NUMY = ',num_procs,numx,num_procs/numx
+        write(*,*) ' NUM_PROCS,NUMX,NUMY = ',num_procs,numx,num_procs/numx
       end if
 
       if ( num_procs > 1024 ) then
@@ -345,10 +347,10 @@
             ii=rpoles(i,j)/4000
             jj=rpoles(i,j) -ii*4000
             if(ii .ne. i .or.  jj .ne. 1 .and. jj .ne. jm ) then
-               write(0,169)' IPOLES BAD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
+               write(*,169)' IPOLES BAD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
             else
               continue
-!             write(0,169)'  IPOLES GOOD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
+!             write(*,169)'  IPOLES GOOD POINT',rpoles(i,j),ii,i,jj,' jm= ',jm
             endif
           end do
         end do
@@ -360,7 +362,7 @@
       print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
                'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
                'lp1=',lp1
-      write(0,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
+      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
 
       end
 

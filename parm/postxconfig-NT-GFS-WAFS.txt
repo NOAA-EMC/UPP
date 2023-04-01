@@ -16,7 +16,7 @@ complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
 lossless
-476
+464
 EDPARM_ON_ISOBARIC_SFC
 ?
 1
@@ -53,7 +53,7 @@ isobaric_sfc
 ?
 ?
 ?
-477
+465
 CAT_ON_ISOBARIC_SFC
 ?
 1
@@ -90,7 +90,7 @@ isobaric_sfc
 ?
 ?
 ?
-478
+466
 MWTURB_ON_ISOBARIC_SFC
 ?
 1
@@ -127,7 +127,7 @@ isobaric_sfc
 ?
 ?
 ?
-479
+480
 ICESEV_ON_ISOBARIC_SFC
 ?
 1
