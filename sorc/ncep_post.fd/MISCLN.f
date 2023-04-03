@@ -1205,8 +1205,30 @@
             HTFDCTL=pset%param(N)%level
 !           print *, "GTG 467 levels=",pset%param(N)%level
             allocate(GTGFD(ISTA:IEND,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
-!           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
+            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD
+!	    print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
+
+            ! Regional GTG has a legend of special defination
+            ! 0 m holds the max value of the whole vertical column
+            DO IFD = 1,NFDCTL
+               if(NINT(HTFDCTL(IFD)) == 0) then
+                  N=IFD
+                  exit
+               endif
+            ENDDO
+            DO IFD = 1,NFDCTL
+               DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                  work1=GTGFD(I,J,IFD)
+                  if(GTGFD(I,J,N)>=SPVAL) then
+                     GTGFD(I,J,N)=work1
+                  elseif(work1<SPVAL) then
+                     if(GTGFD(I,J,N)<work1) GTGFD(I,J,N)=work1
+                  endif
+               ENDDO
+               ENDDO
+            ENDDO
+
             DO IFD = 1,NFDCTL
               IF (LVLS(IFD,IGET(467))>0) THEN
 !$omp parallel do private(i,j)
