@@ -13,6 +13,16 @@
 !> 2006-11-01 | Rozumalski | Swiped from WRF si package
 !>
 !> @author Rozumalski @date 2006-11-01
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> msfps() computes the map scale factor for a polar stereographic grid at a give latitude.
+!>
+!> This subroutine computes the map scale factor for a polar stereographic grid at a give latitude.
+!>
+!> @param[in] LAT Latitude at which map factor is valid.
+!> @param[in] TRUELAT1 TRUELAT 1.
+!> @param[out] MSF Map scale factor.
+
       SUBROUTINE MSFPS(LAT,TRUELAT1,MSF)
 
 

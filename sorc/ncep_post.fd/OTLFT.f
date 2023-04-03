@@ -1,9 +1,9 @@
 !> @file
 !> @brief otlft() computes lifted index.
 !>
-!> This routine computes lifts a parcel specified by the
+!> This routine lifts a parcel specified by the
 !> passed pressure, temperature, and specific humidity to
-!> 500mb and then computes a lifted index.  This lifted
+!> 500mb and then computes a lifted index. This
 !> lifted index is the difference between the lifted
 !> parcel's temperature at 500mb and the ambient 500mb
 !> temperature.
@@ -25,6 +25,22 @@
 !> 2021-09-30 | JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1993-03-10
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> otlft() computes lifted index.
+!>
+!> This routine lifts a parcel specified by the
+!> passed pressure, temperature, and specific humidity to
+!> 500mb and then computes a lifted index. This 
+!> lifted index is the difference between the lifted
+!> parcel's temperature at 500mb and the ambient 500mb
+!> temperature.
+!>
+!> @param[in] PBND Parcel pressure.
+!> @param[in] TBND Parcel temperature.
+!> @param[in] QBND Parcel specific humidity.
+!> @param[out] SLINDX Lifted index.
+
       SUBROUTINE OTLFT(PBND,TBND,QBND,SLINDX)
 
 !     

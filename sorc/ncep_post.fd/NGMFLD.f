@@ -4,7 +4,7 @@
 !> This routine computes a handful of NGM layer mean 
 !> fields.  This is done to provide a fully complete 
 !> ETA NGM look-alike output file.
-!> ### The sigma (layer) fields computed bu this routine are tabulated below.
+!> ### The sigma (layer) fields computed by this routine are tabulated below.
 !> Sigma (layer) | Field(s) | 
 !> --------------|----------|
 !> 0.47191 - 1.00000 |  RH    |
@@ -43,6 +43,19 @@
 !> 2021-09-30 | JESSE MENG   | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+
+!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!> ngmfld() computes layer mean NGM fields
+!>
+!> This routine computes a handful of NGM layer mean 
+!> fields. 
+!>
+!> @param[out] RH4710 Sigma layer 0.47-1.00 mean relative humidity.
+!> @param[out] RH4796 Sigma layer 0.47-0.96 mean relative humidity.
+!> @param[out] RH1847 Sigma layer 0.18-0.47 mean relative humidity.
+!> @param[out] RH8498 Sigma layer 0.84-0.98 mean relative humidity.
+!> @param[out] QM8510 Sigma layer 0.85-1.00 mean moisture convergence.
+
       SUBROUTINE NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
 
 !     
