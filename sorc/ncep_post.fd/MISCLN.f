@@ -52,7 +52,7 @@
 !!   22-09-22  L Zhang -  Li(Kate) Zhang - Remove Dust=> AERFD
 !!   22-10-06  W Meng - Generate SPC fields with RRFS input
 !!   23-01-24  Sam Trahan - when IFI is enabled, calculate and store CAPE & CIN. Add allocate_cape_arrays
-!!     
+!!   23-04-03  E Colon - Added additional array assignments to resolve SPC fields crashes for RRFS input
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
 !!
@@ -1205,7 +1205,7 @@
             HTFDCTL=pset%param(N)%level
 !           print *, "GTG 467 levels=",pset%param(N)%level
             allocate(GTGFD(ISTA:IEND,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD
+            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
 !	    print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
 
             ! Regional GTG has a legend of special defination
@@ -3736,7 +3736,7 @@
          iget2 = LVLS(1,iget1)
          iget3 = LVLS(2,iget1)
        endif
-      if(me==0) write(0,*) '953 ',iget1,iget2,iget3
+      if(me==0) write(*,*) '953 ',iget1,iget2,iget3
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0
