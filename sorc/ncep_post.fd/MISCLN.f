@@ -4548,6 +4548,12 @@
        if (allocated(esrh))  deallocate(esrh)
        if (allocated(htsfc)) deallocate(htsfc)
        if (allocated(fshr))  deallocate(fshr)
+       if (allocated(llow_zint)) deallocate(llow_zint)
+       if (allocated(ieql_zint)) deallocate(ieql_zint)
+       if (allocated(z_temp)) deallocate(z_temp)
+       if (allocated(midcal)) deallocate(midcal)
+       if (allocated(z_midcal)) deallocate(z_midcal)
+     
        ENDIF
 
       if (allocated(pbnd))   deallocate(pbnd)
