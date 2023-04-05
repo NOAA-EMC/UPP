@@ -4553,6 +4553,8 @@
        if (allocated(z_temp)) deallocate(z_temp)
        if (allocated(midcal)) deallocate(midcal)
        if (allocated(z_midcal)) deallocate(z_midcal)
+       if (allocated(el_base)) deallocate(el_base)
+       if (allocated(el_tops)) deallocate(el_tops)
      
        ENDIF
 
@@ -4565,8 +4567,7 @@
       if (allocated(wbnd))   deallocate(wbnd)
       if (allocated(lvlbnd)) deallocate(lvlbnd)
       if (allocated(lb2))    deallocate(lb2)
-      if (allocated(el_base)) deallocate(el_base)
-      if (allocated(el_tops)) deallocate(el_tops)
+     
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
