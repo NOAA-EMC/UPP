@@ -1082,7 +1082,8 @@
       enddo
 
       if (me == 0) print *,' gocart_on=',gocart_on
-      if (gocart_on .or. nasa_on) then
+      if (me == 0) print *,' gccpp_on=',gccpp_on
+      if (gocart_on .or.gccpp_on .or. nasa_on) then
 !  
 ! Add GOCART fields
 ! vrbls4d
@@ -1191,6 +1192,7 @@
             enddo
           enddo
         enddo
+       if ( d2d_chem ) then
         allocate(duem(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
         allocate(dusd(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
         allocate(dudp(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
@@ -1275,6 +1277,7 @@
             enddo
           enddo
         enddo
+       endif
         allocate(rhomid(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 !Initialization
 !$omp parallel do private(i,j,l)

@@ -72,8 +72,8 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, &
-              iSF_SURFACE_PHYSICS
+              nbin_oc, nbin_su, gocart_on, gccpp_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, &
+              iSF_SURFACE_PHYSICS, d2d_chem
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use nemsio_module_mpi
@@ -1331,8 +1331,9 @@
 !      deallocate(wrk1,wrk2)
 
 
-      print *, 'gocart_on2=',gocart_on
-      if (gocart_on) then
+      print *, 'gocart_on=',gocart_on
+      print *, 'gccpp_on=',gccpp_on
+      if (gocart_on .or. gccpp_on) then
 
 ! GFS output dust in nemsio (GOCART)
         dustcb=0.0
@@ -3606,40 +3607,8 @@
           CUPPT(i,j) = SPVAL 
         enddo
       enddo
-      
-! Retrieve aer fields if it's listed (GOCART)
-      print *, 'iostatus for aer file=', iostatusAER
-      if (gocart_on) then      
-!      if(iostatusAER == 0) then ! start reading aer file
-!       call nemsio_open(rfile,trim(fileNameAER),'read',mpi_comm_comp &
-!                       ,iret=status)
-!       if ( Status /= 0 ) then
-!        print*,'error opening ',fileNameAER, ' Status = ', Status
-!       endif
-!       call nemsio_getfilehead(rfile,iret=status,nrec=nrec)
-!       print*,'nrec for aer file=',nrec
-!       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
-!       call nemsio_getfilehead(rfile,iret=iret,recname=recname       &
-!                              ,reclevtyp=reclevtyp,reclev=reclev)
-!       if(debugprint)then
-!         if (me == 0)then
-!           do i=1,nrec
-!             print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
-!                      trim(reclevtyp(i)),reclev(i)
-!           end do
-!         end if
-!       end if
-!! start reading nemsio aer files using parallel read
-!      fldsize=(jend-jsta+1)*im
-!      allocate(tmp(fldsize*nrec))
-!      print*,'allocate tmp successfully'
-!      tmp=0.
-!      call nemsio_denseread(rfile,1,im,jsta,jend,tmp,iret=iret)
-!      if(iret/=0)then
-!        print*,"fail to read aer file using mpi io read, stopping"
-!        stop 
-!      end if
 
+      if ((gocart_on .or. gccpp_on) .and. d2d_chem ) then
 ! retrieve dust emission fluxes
       do K = 1, nbin_du
        if ( K == 1) VarName='duem001'
@@ -3924,61 +3893,8 @@
                            ,recname,reclevtyp,reclev,VarName,VcoordName&
                            ,maod(1,jsta_2l))
 
-
+       endif
 ! done with flux file, close it for now
-!      call nemsio_close(ffile,iret=status)
-!      deallocate(tmp,recname,reclevtyp,reclev)
-      
-!lzhang
-!! retrieve sfc mass concentration
-!      VarName='DUSMASS'
-!      VcoordName='atmos col'
-!      l=1
-!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-!                          ,l,nrec,fldsize,spval,tmp                    &
-!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-!                          ,dusmass)
-!     if(debugprint)print*,'sample ',VarName,' = ',dusmass(isa,jsa)
-
-!lzhang
-!! retrieve col mass density
-!      VarName='DUCMASS'
-!      VcoordName='atmos col'
-!      l=1
-!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-!                          ,l,nrec,fldsize,spval,tmp                    &
-!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-!                          ,ducmass)
-!!     if(debugprint)print*,'sample ',VarName,' = ',ducmass(isa,jsa)
-
-!lzhang
-!! retrieve sfc mass concentration (pm2.5)
-!      VarName='DUSMASS25'
-!      VcoordName='atmos col'
-!      l=1
-!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-!                          ,l,nrec,fldsize,spval,tmp                    &
-!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-!                          ,dusmass25)
-!     if(debugprint)print*,'sample ',VarName,' = ',dusmass25(isa,jsa)
-
-!lzhang
-!! retrieve col mass density (pm2.5)
-!      VarName='DUCMASS25'
-!      VcoordName='atmos col'
-!      l=1
-!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-!                          ,l,nrec,fldsize,spval,tmp                    &
-!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-!                          ,ducmass25)
-!     if(debugprint)print*,'sample ',VarName,' = ',ducmass25(isa,jsa)
-
-!       if (me == 0) print *,'after aer files reading,mype=',me
-!       call nemsio_close(rfile,iret=status)
-!       deallocate(tmp,recname,reclevtyp,reclev)
-      end if ! end of aer file read
-
-! done with flux file, close it for now      
       call nemsio_close(ffile,iret=status)
       deallocate(tmp,recname,reclevtyp,reclev)
       

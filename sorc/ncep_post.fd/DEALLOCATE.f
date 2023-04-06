@@ -477,7 +477,7 @@
       deallocate(gtg)
 
 !
-      if (gocart_on .or. nasa_on) then
+      if (gocart_on .or. gccpp_on .or. nasa_on) then
 ! Deallocate GOCART fields
 ! vrbls4d
         deallocate(dust)
@@ -496,6 +496,7 @@
         deallocate(asy)
         deallocate(ssa)
         deallocate(sca)
+       if (d2d_chem) then
         deallocate(duem)
         deallocate(dusd)
         deallocate(dudp)
@@ -520,6 +521,7 @@
         deallocate(ssdp)
         deallocate(sswt)
         deallocate(sssv)
+       endif
         deallocate(rhomid)
 ! vrbls2d
         deallocate(dusmass)

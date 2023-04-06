@@ -46,7 +46,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, nasa_on, d3d_on, hyb_sigp, rdaod, aqf_on, slrutah_on
+  logical :: gocart_on, gccpp_on, nasa_on, d3d_on, hyb_sigp, rdaod, d2d_chem, aqf_on, slrutah_on
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG

@@ -108,8 +108,8 @@
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
-                            JM, LM, gocart_on, nasa_on, me, rdaod,ISTA, IEND, &
-                            aqf_on
+                            JM, LM, gocart_on, gccpp_on, nasa_on, me, rdaod,  &
+                            ISTA, IEND,aqf_on
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -4614,7 +4614,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 !
-      if (gocart_on .or. nasa_on) then
+      if (gocart_on .or. gccpp_on .or. nasa_on) then
 !
 !***  BLOCK 4. GOCART AEROSOL FIELDS
 !
@@ -4678,7 +4678,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ALLOCATE ( asyrhd_NI(KRHLEV,nbin_no3,NBDSW))
          ALLOCATE ( ssarhd_NI(KRHLEV,nbin_no3,NBDSW))
 
-         if (gocart_on) then
+         if (gocart_on .or. gccpp_on) then
          nAero=KCM1
          else if (nasa_on) then
          nAero=KCM2
@@ -4692,6 +4692,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           CLOSE(UNIT=NOAER)
           if (gocart_on) then
           aerosol_file='optics_luts_'//AerosolName(i)//'.dat'
+          else if ( gccpp_on ) then
+          aerosol_file='optics_luts_'//AerosolName(i)//'_nasa.dat'
           else if ( nasa_on ) then
           aerosol_file='optics_luts_'//AerosolName(i)//'_nasa.dat'
           endif
@@ -5156,7 +5158,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
      &                 ASY_SU(I,J) + ASY_SS(I,J) + ASY_NI(I,J)
            endif
            
-           if (gocart_on ) then
+           if (gocart_on .or. gccpp_on) then
             AOD(I,J)    = AOD_DU(I,J) + AOD_BC(I,J) + AOD_OC(I,J) +   &
      &                     AOD_SU(I,J) + AOD_SS(I,J)
             SCA2D(I,J) = SCA_DU(I,J) + SCA_BC(I,J) + SCA_OC(I,J) +    &
@@ -5584,7 +5586,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
       endif  !nasa_on
 
-      if (gocart_on) then
+      if (gocart_on .or. gccpp_on ) then
 !! ADD EMISSION FLUXES,dry depostion, wet/convective depostion (kg/m2/sec)
 !! The AER file uses 1.E6 to scale all 2d diagnosis fields
 !! Multiply by 1.E-6 to revert these fields back

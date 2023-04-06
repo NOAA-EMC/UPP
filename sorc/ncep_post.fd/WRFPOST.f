@@ -117,10 +117,10 @@
               ista, iend, ista_m, iend_m, ista_2l, iend_2u,                                          &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
-              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,nasa_on,                  &
+              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,nasa_on,gccpp_on,         &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqf_on,numx,  &
-              run_ifi_tim, slrutah_on
+              run_ifi_tim, slrutah_on, d2d_chem
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use upp_ifi_mod, only: write_ifi_debug_files
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -146,8 +146,8 @@
 !
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
-      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,nasa_on,popascal &
-                     ,hyb_sigp,rdaod,aqf_on,slrutah_on,vtimeunits,numx,write_ifi_debug_files
+      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,popascal &
+                     ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
                      ,fileNameFlux,fileNameFlat
@@ -265,14 +265,14 @@
         hyb_sigp    = .true.
         d3d_on      = .false.
         gocart_on   = .false.
+        gccpp_on    = .false.
         nasa_on     = .false.
         aqf_on      = .false.
         slrutah_on  = .false.
         popascal    = .false.
         fileNameAER = ''
         rdaod       = .false.
-!       gocart_on   = .true.
-!       d3d_on      = .true.
+        d2d_chem     = .false.
 
 !set control file name
         fileNameFlat='postxconfig-NT.txt'
