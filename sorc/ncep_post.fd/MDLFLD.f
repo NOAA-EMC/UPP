@@ -52,7 +52,7 @@
 !!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
 !!   23-02-23  E James - Adding coarse PM from RRFS
 !!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
-!!
+!!   23-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!

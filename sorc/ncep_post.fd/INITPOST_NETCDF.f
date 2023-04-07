@@ -31,6 +31,8 @@
 !> 2023-02-23 | Eric James    | Read coarse PM and aodtot from RRFS
 !> 2023-03-02 | Sam Trahan    | Read lightning threat index fields
 !> 2023-03-22 | WM Lewis      | Read RRFS effective radii (EFFRL, EFFRI, EFFRS)
+!> !> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem(UFS-Chem) 
+!         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)

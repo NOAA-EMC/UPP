@@ -32,7 +32,8 @@
 !> 2022-11-08 | K Wang                    | Replace aqfamaq_on with aqf_on
 !> 2023-01-24 | Sam Trahan                | write_ifi_debug_files flag for IFI debug capability
 !> 2023-03-21 | Jesse Meng                | Add slrutah_on option to use U Utah SLR
-!>
+!> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
       PROGRAM WRFPOST
 

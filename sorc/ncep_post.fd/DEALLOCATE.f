@@ -11,7 +11,8 @@
 !> 2002-06-19 | Mike Baldwin | WRF version
 !> 2022-11-08 | Kai Wang     | Replace aqfcmaq_on with aqf_on
 !> 2023-03-22 | WM Lewis     | Add effective radius arrays
-!>
+!> !> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem
+!(UFS-Chem) and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 

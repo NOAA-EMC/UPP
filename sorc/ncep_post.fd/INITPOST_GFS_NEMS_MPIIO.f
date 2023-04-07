@@ -25,6 +25,8 @@
 !> 2019-07-24 | Li(Kate) Zhang | Merge and update NGAC UPP into FV3-Chem
 !> 2021-03-11 | Bo Cui         | Change local arrays to dimension (im,jsta:jend)
 !> 2022-09-22 | Li(Kate) Zhang | Remove duplicated initializations which have been done in ALLCOCATE_ALL.f
+!> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !>
 !> @author Hui-Ya Chuang @date 2007-03-04
       SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)

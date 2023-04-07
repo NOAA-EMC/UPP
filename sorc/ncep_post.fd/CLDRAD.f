@@ -72,6 +72,7 @@
 !> 2023-02-02 | Wen Meng          | Remove GSL specified clear-sky upward/downward SW
 !> 2023-02-10 | Eric James        | Removing neighbourhood check from GSL exp2 ceiling diagnostic
 !> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
+!> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
