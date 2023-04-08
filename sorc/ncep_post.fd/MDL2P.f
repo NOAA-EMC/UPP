@@ -64,7 +64,7 @@
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
                             JEND_2U, LSM, d3d_on, ioform, NBIN_SM,  &
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L,  &
-                            IEND_2U, nasa_on, slrutah_on
+                            IEND_2U, slrutah_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
       use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH

@@ -52,7 +52,7 @@
 !!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
 !!   23-02-23  E James - Adding coarse PM from RRFS
 !!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
-!!
+!!   23-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -108,7 +108,7 @@
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
-      ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, nasa_on
+      ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, gccpp_on, nasa_on
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
       use upp_physics, only: CALRH, CALCAPE, CALVOR
@@ -2440,7 +2440,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
              END IF
            ENDIF
 !
-       if ( gocart_on .or. nasa_on ) then
+       if ( gocart_on .or. gccpp_on .or. nasa_on ) then
 !          DUST 1
            IF (IGET(629)>0) THEN
              IF (LVLS(L,IGET(629))>0) THEN

@@ -51,7 +51,7 @@
       use masks,      only: LMH
       use params_mod, only: GI, G
       use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, &
-                            JEND_M, HTFD, NFD, IM, JM, NBIN_DU, gocart_on,   &
+                            JEND_M, HTFD, NFD, IM, JM, NBIN_DU,    &
                             MODELNAME, ISTA, IEND, ISTA_2L, IEND_2U, ISTA_M, IEND_M
       use gridspec_mod, only: GRIDTYPE
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
