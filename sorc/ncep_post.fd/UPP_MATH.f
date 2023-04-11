@@ -2,7 +2,7 @@
 !>
 !> @brief upp_math is a collection of UPP subroutines for numerical math functions calculation.
 !> @author Jesse Meng @date 2020-05-20
-
+!> 
 !> dvdxdudy() computes dudy, dvdx, uwnd
 !>
 !> h2u(), h2v(), u2h(), v2h() interpolate variables between U, V, H, points
@@ -31,15 +31,26 @@
   public :: dvdxdudy
   public :: H2U, H2V, U2H, V2H
 
-  REAL, ALLOCATABLE :: DDVDX(:,:)
-  REAL, ALLOCATABLE :: DDUDY(:,:)
-  REAL, ALLOCATABLE :: UUAVG(:,:)
+!> DDVDX @public @memberof upp_math 
+  REAL, ALLOCATABLE :: DDVDX(:,:) 
+
+!> DDUDY @public @memberof upp_math 
+  REAL, ALLOCATABLE :: DDUDY(:,:) 
+
+!> UUAVG @public @memberof upp_math 
+  REAL, ALLOCATABLE :: UUAVG(:,:) 
 ! 
 !-------------------------------------------------------------------------------------
 !
   contains
 !
 !-------------------------------------------------------------------------------------
+!> dvdxdudy() computes dudy, dvdx, uwnd
+!>
+!> @param[in] uwnd real U horizontal wind component on velocity points 
+!> @param[in] vwnd real V horizontal wind component on velocity points 
+!
+
   subroutine dvdxdudy(uwnd,vwnd)
 !
       implicit none
@@ -124,8 +135,14 @@
 !-------------------------------------------------------------------------------------
 !
       subroutine H2U(ingrid,outgrid)
-! This subroutine interpolates from H points onto U points
-! Author: CHUANG, EMC, Dec. 2010
+!
+!> H2U() interpolates from H points onto U points
+!>
+!> @param[in] ingrid Input grid on H points
+!> @param[out] outgrid Output grid on U points
+!> 
+!> Author: CHUANG, EMC, Dec. 2010
+!
 
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, me, num_procs, jm,&
               im, jsta_2l, jend_2u, ista, iend, ista_m, iend_m, ista_2l, iend_2u 
@@ -183,8 +200,14 @@
 !-------------------------------------------------------------------------------------
 !	
       subroutine H2V(ingrid,outgrid)
-! This subroutine interpolates from H points onto V points
-! Author: CHUANG, EMC, Dec. 2010
+! 
+!> H2V() interpolates from H points onto V points
+!>
+!> @param[in] ingrid Input grid on H points.
+!> @param[out] outgrid Output grid on V points.
+!> 
+!> Author: CHUANG, EMC, Dec. 2010
+!
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, im, jsta_2l, jend_2u,&
                                    ista, iend, ista_m, iend_m,     ista_2l, iend_2u
       use gridspec_mod, only: gridtype
@@ -230,8 +253,14 @@
 !-------------------------------------------------------------------------------------
 !
       subroutine U2H(ingrid,outgrid)
-! This subroutine interpolates from U points onto H points
-! Author: CHUANG, EMC, Dec. 2010
+! 
+!> U2H() interpolates from U points onto H points
+!>
+!> @param[in] ingrid Input grid on U points.
+!> @param[out] outgrid Output grid on H points.
+!> 
+!> Author: CHUANG, EMC, Dec. 2010
+!
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, im, jsta_2l, jend_2u,&
                                    ista, iend, ista_m, iend_m,     ista_2l, iend_2u
       use gridspec_mod, only: gridtype
@@ -277,8 +306,14 @@
 !-------------------------------------------------------------------------------------
 !      	 
       subroutine V2H(ingrid,outgrid)
-! This subroutine interpolates from V points onto H points
-! Author: CHUANG, EMC, Dec. 2010
+! 
+!> V2H() interpolates from V points onto H points
+!>
+!> @param[in] ingrid Input grid on V points.
+!> @param[out] outgrid Output grid on H points. 
+!> 
+!> Author: CHUANG, EMC, Dec. 2010
+!
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, im, jsta_2l, jend_2u,&
                                    ista, iend, ista_m, iend_m,     ista_2l, iend_2u
       use gridspec_mod, only: gridtype
