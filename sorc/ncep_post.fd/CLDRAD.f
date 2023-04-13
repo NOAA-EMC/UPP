@@ -446,16 +446,9 @@
 !     TOTAL COLUMN AOD (TAOD553D FROM HRRR-SMOKE)
 !
       IF (IGET(735) > 0) THEN
-       IF (MODELNAME == 'RAPR') THEN
+       IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R') THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),19)
          CALL BOUND(GRID1,D00,H99999)
-       ELSE IF (MODELNAME == 'FV3R') THEN
-         GRID1=SPVAL
-         DO J=JSTA,JEND
-           DO I=ISTA,IEND
-             if (AODTOT(I,J) < SPVAL) GRID1(I,J) = AODTOT(I,J)
-           ENDDO
-         ENDDO
        ENDIF
         if(grib == "grib2" )then
           cfld = cfld + 1

@@ -200,11 +200,10 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
-      real, allocatable :: extsmoke(:,:,:), extdust(:,:,:)
+      real, allocatable :: ext550(:,:,:)
 
       if (modelname == 'FV3R') then
-         allocate(extsmoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-         allocate(extdust(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(ext550(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       endif
 
 !***********************************************************************
@@ -506,13 +505,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=19
+       nrec=18
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'coarsepm','smoke_ext','dust_ext']
+                                     'coarsepm','ext550']
       else
        nrec=8
        allocate (recname(nrec))
@@ -874,9 +873,7 @@
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(17),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(18),extsmoke(ista_2l,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(19),extdust(ista_2l,jsta_2l,1),lm)
+       spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
        endif
 
 ! calculate CWM from FV3 output
@@ -2472,8 +2469,8 @@
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = ista_2l, iend_2u
-          if(extsmoke(i,j,l)<spval.and.extdust(i,j,l)<spval)then
-            taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
+          if(ext550(i,j,l)<spval)then
+            taod5503d ( i, j, l) = ext550 ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
           endif
@@ -2486,8 +2483,7 @@
          end do
         end do
        end do
-       deallocate(extsmoke)
-       deallocate(extdust)
+       deallocate(ext550)
       end if
 
 !$omp parallel do private(i,j)
