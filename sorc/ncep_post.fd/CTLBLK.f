@@ -16,6 +16,7 @@
 !  2023-03-21 Jesse Meng - Add slrutah_on option to use U Utah SLR
 !  2023-04-04 Li(Kate Zhang) Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!  2023-04-17 Eric James - Adding 160 and 320 m above ground to HTFD for RRFS output.
 !-----------------------------------------------------------------------
 !
   implicit none
