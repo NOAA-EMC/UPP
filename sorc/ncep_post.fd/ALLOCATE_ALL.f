@@ -23,7 +23,8 @@
 !! -  22-11-08  Kai Wang - Replace acfcmaq_on with aqf_on
 !! -  23-01-24  Sam Trahan - CAPE, CIN, and IFI_APCP varibles for input to IFI
 !! -  23-03-22  WM Lewis - Adding effective radius arrays
-!!
+!! -2023-04-04  Li(Kate Zhang) Add namelist optoin for CCPP-Chem(UFS-Chem) 
+!         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
 !!
@@ -1082,7 +1083,8 @@
       enddo
 
       if (me == 0) print *,' gocart_on=',gocart_on
-      if (gocart_on .or. nasa_on) then
+      if (me == 0) print *,' gccpp_on=',gccpp_on
+      if (gocart_on .or.gccpp_on .or. nasa_on) then
 !  
 ! Add GOCART fields
 ! vrbls4d
@@ -1191,6 +1193,7 @@
             enddo
           enddo
         enddo
+       if ( d2d_chem ) then
         allocate(duem(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
         allocate(dusd(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
         allocate(dudp(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
@@ -1275,6 +1278,7 @@
             enddo
           enddo
         enddo
+       endif
         allocate(rhomid(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 !Initialization
 !$omp parallel do private(i,j,l)
