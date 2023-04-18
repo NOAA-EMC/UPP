@@ -43,13 +43,16 @@
   use Getopt::Std;
   use XML::LibXML;	                                        # use XML LibXML package
   use POSIX qw(strftime);                                       # for strftime
-
+  use Cwd qw(getcwd);
+  use File::Spec;
   sub usage;
 
 #-------------------------------------------------------------- 
 # POST XML library
 #-------------------------------------------------------------- 
-  require 'POST-XML-Library-NT.pl';
+  my $rel_path = 'POST-XML-Library-NT.pl';
+  my $abs_path = File::Spec->rel2abs( $rel_path ) ;
+  require $abs_path;
  
   sub logmsg($$);
   sub silence_used_once_warnings();
