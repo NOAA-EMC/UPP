@@ -32,6 +32,20 @@
 !> 1995-04-14 | Baldwin | Modify following Keith Brill's code to use sig digits to compute DEC scale
 !>
 !> @author Iredell W/NP23 @date 1992-10-31
+!-----------------------------------------------------------------------
+!> get_bits() computes number of bits and round field.
+!> 
+!> @param[in] IBM Integer bitmap flag (=0 for no bitmap).
+!> @param[in] SGDS Maximum significant digits to keep.
+!> @param[in] LEN Integer length of the field and bitmap.
+!> @param[in] MG Integet (LEN) bitmap if IBM=1 (0 to skip, 1 tp keep).
+!> @param[in] G Real (LEN) field.
+!> @param[out] ISCALE Integer decimal scaling.
+!> @param[out] GROUND Real (LEN) field rounded to decimal scaling.
+!> @param[out] GMIN Real minimum valid rounded field value.
+!> @param[out] GMAX Real maximum valid rounded field value.
+!> @param[out] NBIT Integer number of bits to pack.
+!>
       SUBROUTINE GET_BITS(IBM,SGDS,LEN,MG,G,ISCALE,GROUND,           &
                           GMIN,GMAX,NBIT)
 
@@ -96,10 +110,10 @@
 !>
 !> Note that a fractional number of significant digits is allowed.
 !>
-!> @param[in] AMIN Real Minimum value.
-!> @param[in] AMAX Real Maximum value.
+!> @param[in] RMIN Real Minimum value.
+!> @param[in] RMAX Real Maximum value.
 !> @param[in] RDB Real Maximum # of significant digits OR binary precision if < 0.
-!> @param[out] NBITS Integer Number of bits for packing.
+!> @param[out] NMBTS Integer Number of bits for packing.
 !> @param[out] ISCALE Integer Power of 10 scaling to use.
 !> @param[out] IRET Integer Return code. 0 = normal return.
 !>
