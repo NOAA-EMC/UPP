@@ -2,7 +2,6 @@
 !> @brief smooth() smooths a meteorological field using Shapiro smoother.
 !>
 !> @author Stan Benjamin FSL/PROFS @date 1990-06-15
-
 !>
 !> @note Reference: Shapiro, 1970: "Smoothing, filtering, and
 !> boundary effects", REV. GEOPHYS. SP. PHYS., 359-387.
@@ -20,7 +19,7 @@
 !> @param[in] IX Integer X Coordinates of field.
 !> @param[in] IY Integer Y Coordinates of field.
 !> @param[in] SMTH Real.
-!> @param[out] FIELD Real array FIELD(IX,IY) Smoothed meteorological field.
+!> @return FIELD Real array FIELD(IX,IY) Smoothed meteorological field.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -31,7 +30,15 @@
 !> @author Stan Benjamin FSL/PROFS @date 1990-06-15
 !**********************************************************************
 !**********************************************************************
-
+!> smooth() smooths a meteorological field using Shapiro smoother.
+!>
+!> @param[inout] FIELD Real array FIELD(IX,IY) Meteorological field.
+!> @note FIELD is converted to *smoothed* meteorological field in this function.
+!> @param[in] HOLD Real array HOLD(IX,2) Holding the value for field.
+!> @param[in] IX Integer X Coordinates of field.
+!> @param[in] IY Integer Y Coordinates of field.
+!> @param[in] SMTH Real.
+!>
       SUBROUTINE SMOOTH (FIELD,HOLD,IX,IY,SMTH)
 
 !**********************************************************************
@@ -94,7 +101,6 @@
 !> @brief smoothc() smooths a meteorological field using Shapiro smoother.
 !>
 !> @author Stan Benjamin FSL/PROFS @date 1990-06-15
-
 !> @note Reference: Shapiro, 1970: "Smoothing, filtering, and
 !> boundary effects", REV. GEOPHYS. SP. PHYS., 359-387.
 !> This filter is of the type 
@@ -106,12 +112,12 @@
 !> it should be run with 2 passes using SMTH (or s) of 0.5
 !> and -0.5.
 !>
-!> @param[in] FIELD Real array FIELD(IX,IY) Meteorological field.
+!> @param[inout] FIELD Real array FIELD(IX,IY) Meteorological field.
+!> @note FIELD is converted to *smoothed* meteorological field in this function.
 !> @param[in] HOLD Real array HOLD(IX,2) Holding the value for field.
 !> @param[in] IX Integer X Coordinates of field.
 !> @param[in] IY Integer Y Coordinates of field.
 !> @param[in] SMTH Real.
-!> @param[out] FIELD Real array FIELD(IX,IY) Smoothed meteorological field.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
