@@ -16,6 +16,7 @@
 !  2023-03-21 Jesse Meng - Add slrutah_on option to use U Utah SLR
 !  2023-04-04 Li(Kate Zhang) Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!  2023-04-17 Eric James - Adding 160 and 320 m above ground to HTFD for RRFS output.
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -29,7 +30,7 @@
   end type
   integer, parameter :: komax=70
   integer, parameter :: LSMDEF=46             ! default number of p levels
-  integer,PARAMETER  :: NFD=18,NBND=6
+  integer,PARAMETER  :: NFD=20,NBND=6
   REAL,  PARAMETER   :: QMIN = 1.E-15
 !
   integer :: novegtype ! max number of veg type
@@ -115,7 +116,7 @@
   integer, parameter :: nbin_sm = 1             ! smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
-      DATA HTFD  / 20.E0,30.E0,40.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,   &
+      DATA HTFD  / 20.E0,30.E0,40.E0,50.E0,80.E0,100.E0,160.E0,305.E0,320.E0,457.E0,610.E0,   &
            914.E0,1524.E0,1829.E0,2134.E0,2743.E0,3658.E0,4572.E0, &
 	   6000.E0,7010.E0/
 !
