@@ -5125,10 +5125,19 @@
              ENDDO
            ENDDO
 
+           IF (MODELNAME .eq. 'FV3R') THEN
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 SNOW_BUCKET(I,J) = SNOW_BKT(I,J)
+                 RAINNC_BUCKET(I,J) = 0.0
+               ENDDO
+             ENDDO
+           ENDIF
+
            DO J=JSTA,JEND
              DO I=ISTA,IEND
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
-               totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
+               totprcp = (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600./DTQ2)
                snowratio = 0.0
                if(graup_bucket(i,j)*1.e-3 > totprcp)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j

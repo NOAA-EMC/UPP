@@ -63,7 +63,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
               mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
-              snow_acm, snow_bkt,                                                               &
+              snow_acm, snow_bkt, snownc, graupelnc,                                            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -1716,6 +1716,16 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,frzrn_bucket)
 
+! time step snow (in m)
+      VarName='snow'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,snownc)
+
+! time step graupel (in m)
+      VarName='graupel'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,graupelnc)
+
 ! aerodynamic conductance
       VarName='acond'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2878,22 +2888,6 @@
       do j=jsta,jend
         do i=ista,iend
           smstav(i,j) = buf(i,j)
-        enddo
-      enddo
-      VarName='accswe_land'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,buf)
-      VarName='accswe_ice'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,buf2)
-!$omp parallel do private(i,j)
-      do j = jsta_2l, jend_2u
-        do i=ista,iend
-          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
-            acsnow(i,j) = buf(i,j) + buf2(i,j)
-          else
-            acsnow(i,j) = spval
-          endif
         enddo
       enddo
       VarName='snacc_land'
