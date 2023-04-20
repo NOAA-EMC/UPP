@@ -37,6 +37,28 @@
 !> 1999-10-18 | Mark Iredell | Initial
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
+!-------------------------------------------------------------------------------
+!> pvetc() computes potential vorticity, etc.
+!>
+!> @param[in] km integer number of levels.
+!> @param[in] p real (km) pressure (Pa).
+!> @param[in] px real (km) pressure x-gradient (Pa/m).
+!> @param[in] py real (km) pressure y-gradient (Pa/m).
+!> @param[in] t real (km) (virtual) temperature (K).
+!> @param[in] tx real (km) (virtual) temperature x-gradient (K/m).
+!> @param[in] ty real (km) (virtual) temperature y-gradient (K/m).
+!> @param[in] h real (km) height (m).
+!> @param[in] u real (km) x-component wind (m/s).
+!> @param[in] v real (km) y-component wind (m/s).
+!> @param[in] av real (km) absolute vorticity (1/s).
+!> @param[out] hm real (km) Montgomery streamfunction (m**2/s**2).
+!> @param[out] s real (km) specific entropy (J/K/kg).
+!> @param[out] bvf2 real (km) Brunt-Vaisala frequency squared (1/s**2).
+!> @param[out] pvn real (km) potential vorticity (m**2/kg/s).
+!> @param[out] theta real (km) (virtual) potential temperature (K).
+!> @param[out] sigma real (km) static stability (K/m).
+!> @param[out] pvu real (km) potential vorticity (10**-6*K*m**2/kg/s).
+!
     subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
 
     use physcons_post, only: con_cp, con_g, con_rd, con_rocp
@@ -78,7 +100,7 @@
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> p2th() interpolates to isentropic level.
+!> p2th() interpolates from pressure level to isentropic (theta) level.
 !>
 !> This subprogram interpolates fields to given isentropic levels.
 !> The interpolation is linear in entropy.
@@ -91,14 +113,20 @@
 !> @param[in] h real (km) height (m).
 !> @param[in] t real (km) temperature (K).
 !> @param[in] pvu real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s).
+!> @param[in] sigma real (km) static stability (K/m).
+!> @param[in] rh real (km) relative humidity.
+!> @param[in] omga real (km) vertical vorticity.
 !> @param[in] kth integer number of isentropic levels.
 !> @param[in] th real (kth) isentropic levels (K).
-!> @param[out] lpv logical*1 (kth) bitmap.
+!> @param[in] lth logical*1 (kth) bitmap.
 !> @param[out] uth real (kth) x-component wind (m/s).
 !> @param[out] vth real (kth) y-component wind (m/s).
 !> @param[out] hth real (kth) height (m).
 !> @param[out] tth real (kth) temperature (K).
 !> @param[out] zth real (kth) potential vorticity in PV units (10**-6*K*m**2/kg/s).
+!> @param[out] sigmath (kth) real static stability (K/m).
+!> @param[out] rhth (kth) real relative humidity.
+!> @param[out] oth (kth) real vertical vorticity.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
