@@ -36,24 +36,24 @@
 ! Integer type definitions below
 
 ! Integer types
-!> i_byte @memberof kinds 
+  !> byte integer
   integer, parameter, public  :: i_byte  = selected_int_kind(1)      ! byte  integer
-!> i_short @memberof kinds 
+  !> short integer
   integer, parameter, public  :: i_short = selected_int_kind(4)      ! short integer
-!> i_long @memberof kinds 
+  !> long  integer
   integer, parameter, public  :: i_long  = selected_int_kind(8)      ! long  integer
   integer, parameter, private :: llong_t = selected_int_kind(16)     ! llong integer
-!> i_llong @memberof kinds 
+  !> i_llong @memberof kinds 
   integer, parameter, public  :: i_llong = max( llong_t, i_long )
 
 ! Expected 8-bit byte sizes of the integer kinds
-!> num_bytes_for_i_byte @memberof kinds
+  !> Expected 8-bit byte size for byte integer
   integer, parameter, public :: num_bytes_for_i_byte  = 1
-!> num_bytes_for_i_short @memberof kinds
+  !> Expected 8-bit byte size for short integer
   integer, parameter, public :: num_bytes_for_i_short = 2
-!> num_bytes_for_i_long @memberof kinds
+  !> Expected 8-bit byte size for long integer
   integer, parameter, public :: num_bytes_for_i_long  = 4
-!> num_bytes_for_i_llong @memberof kinds
+  !> Expected 8-bit byte size for llong integer
   integer, parameter, public :: num_bytes_for_i_llong = 8
 
 ! Define arrays for default definition
@@ -74,9 +74,9 @@
                                                       ! 2=short, 
                                                       ! 3=long, 
                                                       ! 4=llong
-!> i_kind @memberof kinds
+  !> i_kind @memberof kinds
   integer, parameter, public  :: i_kind = integer_types( default_integer )
-!> num_bytes_for_i_kind @memberof kinds
+  !> num_bytes_for_i_kind @memberof kinds
   integer, parameter, public  :: num_bytes_for_i_kind = &
        integer_byte_sizes( default_integer )
 
@@ -84,20 +84,20 @@
 ! Real definitions below
 
 ! Real types
-!> r_single @memberof kinds 
+  !> single precision 
   integer, parameter, public  :: r_single = selected_real_kind(6)  ! single precision
-!> r_double @memberof kinds 
+  !> double precision
   integer, parameter, public  :: r_double = selected_real_kind(15) ! double precision
   integer, parameter, private :: quad_t   = selected_real_kind(20) ! quad precision
-!> r_quad @memberof kinds 
+  !> r_quad @memberof kinds 
   integer, parameter, public  :: r_quad   = max( quad_t, r_double )
 
 ! Expected 8-bit byte sizes of the real kinds
-!> num_bytes_for_r_single @memberof kinds
+  !> Expected 8-bit byte size for single precision types
   integer, parameter, public :: num_bytes_for_r_single = 4
-!> num_bytes_for_r_double @memberof kinds
+  !> Expected 8-bit byte size for double precision types
   integer, parameter, public :: num_bytes_for_r_double = 8
-!> num_bytes_for_r_quad @memberof kinds
+  !> Expected 8-bit byte size for quad precision types
   integer, parameter, public :: num_bytes_for_r_quad   = 16
 
 ! Define arrays for default definition
@@ -113,9 +113,9 @@
   integer, parameter, private :: default_real = 1  ! 1=single, 
                                                    ! 2=double, 
                                                    ! 3=quad
-!> r_kind @memberof kinds
+  !> r_kind @memberof kinds
   integer, parameter, public  :: r_kind = real_kinds( default_real )
-!> num_bytes_for_r_kind @memberof kinds
+  !> num_bytes_for_r_kind @memberof kinds
   integer, parameter, public  :: num_bytes_for_r_kind = &
        real_byte_sizes( default_real )
 
