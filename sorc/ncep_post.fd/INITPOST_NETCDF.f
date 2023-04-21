@@ -34,6 +34,7 @@
 !> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem(UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
+!> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)

@@ -19574,10 +19574,10 @@ spec_hgt_lvl_above_grnd
 GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS
 ?
 1
-tmpl4_0
+tmpl4_8
 LTNG
-?
-?
+NCEP
+MAX
 entire_atmos
 0
 ?

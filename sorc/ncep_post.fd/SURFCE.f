@@ -48,6 +48,7 @@
 !! -  23-02-11  W Meng  - Add fix of time accumulation in bucket graupel for FV3 based models
 !! -  23-02-23  E James - Adding coarse PM from RRFS
 !! -  23-03-22  S Trahan - Fixed out-of-bounds access calling BOUND with wrong array dimensions
+!! -  23-04-21  E James - Enabling GSL precip type for RRFS
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
