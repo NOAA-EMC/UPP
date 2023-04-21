@@ -31,13 +31,13 @@
   public :: dvdxdudy
   public :: H2U, H2V, U2H, V2H
 
-!> DDVDX @public @memberof upp_math 
+  !> DDVDX dv/dx derivative
   REAL, ALLOCATABLE :: DDVDX(:,:) 
 
-!> DDUDY @public @memberof upp_math 
+  !> DDUDY du/dy derivative
   REAL, ALLOCATABLE :: DDUDY(:,:) 
 
-!> UUAVG @public @memberof upp_math 
+  !> UUAVG u wind velocity on mass points
   REAL, ALLOCATABLE :: UUAVG(:,:) 
 ! 
 !-------------------------------------------------------------------------------------

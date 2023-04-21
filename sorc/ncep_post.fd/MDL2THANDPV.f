@@ -25,7 +25,7 @@
 !> @param[in] kth integer Number of isentropic levels.
 !> @param[in] kpv integer Number of potential vorticity levels.
 !> @param[in] th real (kth) Isentropic levels (K).
-!> @param[in] pv real (kpv) Potential vorticity.
+!> @param[in] pv real (kpv) Potential vorticity (in PV units: 10**-6*K*m**2/kg/s).
 !>
       SUBROUTINE MDL2THANDPV(kth,kpv,th,pv)
 
