@@ -1,8 +1,8 @@
 !> @file
-!> @brief mdl2thandpv() vert intrp of model lvls to isentropic and PV.
+!> @brief mdl2thandpv() vertical interpolation of model levels to isentropic and PV levels.
 !>
 !> For most applications this routine is the workhorse
-!> of the post processor.  In a nutshell it interpolates
+!> of the post processor. In a nutshell it interpolates
 !> data from model to THETA and PV surfaces.
 !>
 !> ### Program History Log
@@ -19,6 +19,14 @@
 !> 2021-10-26 | J MENG     | 2D DECOMPOSITION
 !>
 !> @author Chuang W/NP22 @date 2007-03-26
+!-----------------------------------------------------------------------------------------------------
+!> mdl2thandpv() vertical interpolation of model levels to isentropic and potential vorticity levels.
+!>
+!> @param[in] kth integer Number of isentropic levels.
+!> @param[in] kpv integer Number of potential vorticity levels.
+!> @param[in] th real (kth) Isentropic levels (K).
+!> @param[in] pv real (kpv) Potential vorticity.
+!>
       SUBROUTINE MDL2THANDPV(kth,kpv,th,pv)
 
 !
