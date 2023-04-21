@@ -31,7 +31,7 @@
  public byte_swap
  public is_little_endian
 
-!> byte_swap @memberof native_endianness
+ !> false if machine and wrf binary file are same endian, true if different
  logical byte_swap
 
  contains
