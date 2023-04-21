@@ -64,7 +64,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
               mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
-              snow_acm, snow_bkt, snownc, graupelnc,                                            &
+              snow_acm, snow_bkt, snownc, graupelnc, qrmax,                                     &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -877,10 +877,18 @@
        spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
        endif
 
+! Compute max QRAIN in the column to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=0.
+        end do
+       end do
+
 ! calculate CWM from FV3 output
        do l=1,lm
        do j=jsta,jend
          do i=ista,iend
+            qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
             cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
          enddo
        enddo
