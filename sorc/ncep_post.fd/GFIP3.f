@@ -2393,11 +2393,11 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
   return
 end subroutine icing_algo
 
-!-----------------------------------------------------------------------+
-!> getTopoK() Map the topography to the model's vertical coordinates. 
+!-------------------------------------------------------------------------+
+!> getTopoK() Map the topography height to the model's vertical coordinate
 !>
-!> @param[in] hgt real Height. 
-!> @param[in] alt real Altitude. 
+!> @param[in] hgt real Geopotential height (m). 
+!> @param[in] alt real Topography height (m). 
 !> @param[in] nz integer Number of vertical levels. 
 !> @return getTopoK integer 
 !>
