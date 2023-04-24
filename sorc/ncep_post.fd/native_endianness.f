@@ -38,7 +38,7 @@
 
  logical function is_little_endian()
 !> is_little_endian() tests to see if machine is little-endian. Returns true for little-endian, false for big-endian.
-!> @return boolean value (true or false)
+!> @return is_little_endian logical Returns true or false
 !> 
 !> ### Program History Log
 !> Date | Programmer | Comments
