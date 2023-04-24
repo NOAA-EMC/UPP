@@ -6562,6 +6562,7 @@
     <param>
        <post_avblfldidx>702</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>LTNGSD</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
@@ -6572,6 +6573,7 @@
     <param>
        <post_avblfldidx>703</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT2_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>LTNGSD</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>

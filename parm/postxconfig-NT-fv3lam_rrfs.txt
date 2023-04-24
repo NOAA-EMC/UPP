@@ -19278,7 +19278,7 @@ top_of_atmos
 GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND
 ?
 1
-tmpl4_0
+tmpl4_8
 LTNGSD
 ?
 MAX
@@ -19315,7 +19315,7 @@ spec_hgt_lvl_above_grnd
 GSD_MAX_LTG_THREAT2_ON_SPEC_HGT_LVL_ABOVE_GRND
 ?
 1
-tmpl4_0
+tmpl4_8
 LTNGSD
 ?
 MAX
