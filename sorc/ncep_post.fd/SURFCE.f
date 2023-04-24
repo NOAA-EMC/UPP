@@ -5369,7 +5369,7 @@
             enddo
            endif
 
-        ENDIF
+        ENDIF ! End of GSD PRECIPITATION TYPE
 !     
         if (allocated(psfc))  deallocate(psfc)
         if (allocated(domr))  deallocate(domr)

@@ -727,37 +727,6 @@
        </param>
 
        <param>
-       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
-       <pname>TSNOWP</pname>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
-       <shortname>ACM_GRAUPEL_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>ACM_FRAIN_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>ACM_SNOM_ON_SURFACE</shortname>
        <pname>SNOM</pname>
        <scale>4.0</scale>
@@ -3576,12 +3545,12 @@
        </param>
 
        <param>
-       <shortname>GSD_MAX_LTG_THREAT1_ON_ENTIRE_ATMOS</shortname>
+       <shortname>GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <scale>4.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_MAX_LTG_THREAT2_ON_ENTIRE_ATMOS</shortname>
+       <shortname>GSD_MAX_LTG_THREAT2_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <scale>4.0</scale>
        </param>
 
