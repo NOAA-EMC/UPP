@@ -36,11 +36,11 @@
 ! Integer type definitions below
 
 ! Integer types
-  !> byte integer
+  !> Specification kind for byte (1-byte) integer variable
   integer, parameter, public  :: i_byte  = selected_int_kind(1)      ! byte  integer
-  !> short integer
+  !> Specification kind for short (2-byte) integer variable
   integer, parameter, public  :: i_short = selected_int_kind(4)      ! short integer
-  !> long  integer
+  !> Specification kind for long (4-byte) integer variable
   integer, parameter, public  :: i_long  = selected_int_kind(8)      ! long  integer
   integer, parameter, private :: llong_t = selected_int_kind(16)     ! llong integer
   !> Specification kind for double long (8-byte) integer variable
@@ -83,9 +83,9 @@
 ! Real definitions below
 
 ! Real types
-  !> single precision real number
+  !> Specification kind for single precision (4-byte) real variable
   integer, parameter, public  :: r_single = selected_real_kind(6)  ! single precision
-  !> double precision real number
+  !> Specification kind for double precision (8-byte) real variable
   integer, parameter, public  :: r_double = selected_real_kind(15) ! double precision
   integer, parameter, private :: quad_t   = selected_real_kind(20) ! quad precision
   !> r_quad Specification kind for quad precision (16-byte) real variable
