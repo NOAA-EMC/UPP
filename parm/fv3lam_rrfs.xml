@@ -1201,7 +1201,7 @@
        <param>
        <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
        <pname>TMP</pname>
-       <level>30. 50. 80. 100.</level>
+       <level>30. 50. 80. 100. 160. 320.</level>
        <scale>3.0</scale>
         </param>
 
@@ -1215,7 +1215,7 @@
        <param>
        <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
        <pname>UGRD</pname>
-       <level>30. 50. 80. 100.</level>
+       <level>30. 50. 80. 100. 160. 320.</level>
        <scale>4.0</scale>
         </param>
 
@@ -1229,7 +1229,7 @@
        <param>
        <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
        <pname>VGRD</pname>
-       <level>30. 50. 80. 100.</level>
+       <level>30. 50. 80. 100. 160. 320.</level>
        <scale>4.0</scale>
         </param>
 
@@ -1243,14 +1243,14 @@
        <param>
        <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
        <pname>SPFH</pname>
-       <level>30. 50. 80. 100.</level>
+       <level>30. 50. 80. 100. 160. 320.</level>
        <scale>5.0</scale>
         </param>
 
        <param>
        <shortname>PRES_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
        <pname>PRES</pname>
-       <level>30. 50. 80. 100.</level>
+       <level>30. 50. 80. 100. 160. 320.</level>
        <scale>3.0</scale>
         </param>
 
