@@ -35,16 +35,16 @@
 !-----------------------------------------------------------------------
 !> get_bits() computes number of bits and round field.
 !> 
-!> @param[in] IBM Integer bitmap flag (=0 for no bitmap).
-!> @param[in] SGDS Maximum significant digits to keep.
-!> @param[in] LEN Integer length of the field and bitmap.
-!> @param[in] MG Integet (LEN) bitmap if IBM=1 (0 to skip, 1 tp keep).
-!> @param[in] G Real (LEN) field.
-!> @param[out] ISCALE Integer decimal scaling.
-!> @param[out] GROUND Real (LEN) field rounded to decimal scaling.
-!> @param[out] GMIN Real minimum valid rounded field value.
-!> @param[out] GMAX Real maximum valid rounded field value.
-!> @param[out] NBIT Integer number of bits to pack.
+!> @param[in] IBM integer bitmap flag (=0 for no bitmap).
+!> @param[in] SGDS real Maximum significant digits to keep.
+!> @param[in] LEN integer Length of the field and bitmap.
+!> @param[in] MG integer (LEN) Bitmap if IBM=1 (0 to skip, 1 tp keep).
+!> @param[in] G real (LEN) Field.
+!> @param[inout] ISCALE integer Decimal scaling.
+!> @param[inout] GROUND real (LEN) Field rounded to decimal scaling.
+!> @param[out] GMIN real Minimum valid rounded field value.
+!> @param[out] GMAX real Maximum valid rounded field value.
+!> @param[inout] NBIT integer Number of bits to pack.
 !>
       SUBROUTINE GET_BITS(IBM,SGDS,LEN,MG,G,ISCALE,GROUND,           &
                           GMIN,GMAX,NBIT)
