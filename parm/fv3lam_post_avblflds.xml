@@ -4532,6 +4532,17 @@
     </param>
 
     <param>
+       <post_avblfldidx>950</post_avblfldidx>
+       <shortname>CAPE_ON_0_3KM_ABOVE_GRND</shortname>
+       <pname>CAPE</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>567</post_avblfldidx>
        <shortname>BEST_CIN_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <pname>CIN</pname>
@@ -5422,6 +5433,14 @@
     </param>
 
     <param>
+       <post_avblfldidx>774</post_avblfldidx>
+       <shortname>FRACCC_ON_HYBRID_LVL</shortname>
+       <pname>FRACCC</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>785</post_avblfldidx>
        <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
        <longname>maximum reflectivity on -10C suface</longname>
@@ -5444,6 +5463,32 @@
        <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
        <level2>2000.</level2>
        <scale>-3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>788</post_avblfldidx>
+       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>MXUPHL</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2000.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>0000.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>789</post_avblfldidx>
+       <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>MNUPHL</pname>
+       <stats_proc>MIN</stats_proc>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2000.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>0000.</level2>
+       <scale>3.0</scale>
     </param>
 
     <param>
@@ -5685,6 +5730,26 @@
        <pname>SBTA1716</pname>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>957</post_avblfldidx>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>CANGLE</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>500.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>166</post_avblfldidx>
+       <shortname>CICE_ON_ISOBARIC_SFC</shortname>
+       <pname>CICE</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>6.0</scale>
     </param>
 
     <param>
