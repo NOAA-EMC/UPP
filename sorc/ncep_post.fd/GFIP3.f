@@ -21,7 +21,7 @@ module DerivedFields
     integer :: OTHER = 3
     integer :: CONVECTION = 4
   end type precipitations_t
-  !> PRECIPS Type of precipitation @memberof DerivedFields
+  !> Type of precipitation @memberof DerivedFields
   type(precipitations_t), parameter :: PRECIPS = precipitations_t()  
 
 contains
@@ -1160,7 +1160,7 @@ module SeverityMaps
      integer :: CONVECTION = 7
   end type scenarios_t
 
-  !> SCENARIOS Precipitation scenarios @memberof SeverityMaps
+  !> Precipitation scenarios @memberof SeverityMaps
   type(scenarios_t), parameter :: SCENARIOS = scenarios_t()
 
 contains
