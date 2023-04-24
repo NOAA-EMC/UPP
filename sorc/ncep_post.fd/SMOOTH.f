@@ -15,11 +15,11 @@
 !> and -0.5.
 !>
 !> @param[inout] FIELD Real array FIELD(IX,IY) Meteorological field.
+!> @note FIELD is converted to *smoothed* meteorological field in this function.
 !> @param[in] HOLD Real array HOLD(IX,2) Holding the value for field.
 !> @param[in] IX Integer X Coordinates of field.
 !> @param[in] IY Integer Y Coordinates of field.
 !> @param[in] SMTH Real.
-!> @return FIELD Real array FIELD(IX,IY) Smoothed meteorological field.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
