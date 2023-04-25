@@ -727,12 +727,6 @@
        </param>
 
        <param>
-       <shortname>ACM_WEASD_ON_SURFACE</shortname>
-       <pname>WEASD</pname>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
        <shortname>ACM_SNOM_ON_SURFACE</shortname>
        <pname>SNOM</pname>
        <scale>4.0</scale>
@@ -759,28 +753,28 @@
        </param>
 
        <param>
-       <shortname>INST_CRAIN_ON_SURFACE</shortname>
+       <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
         </param>
 
        <param>
-       <shortname>CSNOW_ON_SURFACE</shortname>
+       <shortname>GSD_CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
         </param>
 
        <param>
-       <shortname>CICEP_ON_SURFACE</shortname>
+       <shortname>GSD_CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
         </param>
 
        <param>
-       <shortname>CFRZR_ON_SURFACE</shortname>
+       <shortname>GSD_CFRZR_ON_SURFACE</shortname>
        <pname>CFRZR</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
@@ -2396,8 +2390,8 @@
        </param>
 
        <param>
-       <shortname>ACM_WEASD_ON_SURFACE</shortname>
-       <pname>WEASD</pname>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <pname>TSNOWP</pname>
        <scale>4.0</scale>
        </param>
 
@@ -3551,9 +3545,19 @@
        </param>
 
        <param>
+       <shortname>GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_LTG_THREAT2_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
        <shortname>GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS</shortname>
        <pname>LTNG</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
