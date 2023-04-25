@@ -34,6 +34,7 @@
 !> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem(UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
+!> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -64,7 +65,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
               mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
-              snow_acm, snow_bkt,                                                               &
+              snow_acm, snow_bkt, snownc, graupelnc, qrmax,                                     &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -877,10 +878,18 @@
        spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
        endif
 
+! Compute max QRAIN in the column to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=0.
+        end do
+       end do
+
 ! calculate CWM from FV3 output
        do l=1,lm
        do j=jsta,jend
          do i=ista,iend
+            qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
             cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
          enddo
        enddo
@@ -1708,6 +1717,16 @@
       VarName='frzrb'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,frzrn_bucket)
+
+! time step snow (in m)
+      VarName='snow'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,snownc)
+
+! time step graupel (in m)
+      VarName='graupel'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,graupelnc)
 
 ! aerodynamic conductance
       VarName='acond'
@@ -2870,22 +2889,6 @@
       do j=jsta,jend
         do i=ista,iend
           smstav(i,j) = buf(i,j)
-        enddo
-      enddo
-      VarName='accswe_land'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,buf)
-      VarName='accswe_ice'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,buf2)
-!$omp parallel do private(i,j)
-      do j = jsta_2l, jend_2u
-        do i=ista,iend
-          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
-            acsnow(i,j) = buf(i,j) + buf2(i,j)
-          else
-            acsnow(i,j) = spval
-          endif
         enddo
       enddo
       VarName='snacc_land'
