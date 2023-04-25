@@ -115,7 +115,7 @@
 !> @param[in] pvu real (km) potential vorticity in PV units (10**-6*K*m**2/kg/s).
 !> @param[in] sigma real (km) static stability (K/m).
 !> @param[in] rh real (km) relative humidity.
-!> @param[in] omga real (km) vertical vorticity.
+!> @param[in] omga real (km) vertical velocity in pressure coordinates.
 !> @param[in] kth integer number of isentropic levels.
 !> @param[in] th real (kth) isentropic levels (K).
 !> @param[in] lth logical*1 (kth) bitmap.
@@ -126,7 +126,7 @@
 !> @param[out] zth real (kth) potential vorticity in PV units (10**-6*K*m**2/kg/s).
 !> @param[out] sigmath (kth) real static stability (K/m).
 !> @param[out] rhth (kth) real relative humidity.
-!> @param[out] oth (kth) real vertical vorticity.
+!> @param[out] oth (kth) real vertical velocity in pressure coordinates.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
