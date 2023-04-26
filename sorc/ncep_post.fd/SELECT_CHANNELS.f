@@ -2,7 +2,6 @@
 !> @brief select_channels() verifies channel information.
 !>
 !> @author HWRF @date 2012-09-27
-
 !> This subroutine verifies channel information and print error to output file if
 !> detected, finally excuting a program STOP - which may cause
 !> a hang condifition if run on multiple processors.
@@ -16,6 +15,13 @@
 !> @param[in] channels.
 !>
 !> @author HWRF @date 2012-09-27
+!----------------------------------------------------------------------
+!> @brief select_channels() verifies channel information.
+!>
+!> @param[inout] channelinfo Structure defining channel object.
+!> @param[in] nchannels integer Number of channels for sensor.
+!> @param[in] channels integer array Holds infomation on available channels.
+!>
       subroutine SELECT_CHANNELS(channelinfo,nchannels,channels)
 
       use crtm_channelinfo_define, only: crtm_channelinfo_type
