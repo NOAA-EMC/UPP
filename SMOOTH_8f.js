@@ -1,5 +1,5 @@
 var SMOOTH_8f =
 [
-    [ "SMOOTH", "SMOOTH_8f.html#af9c92db912a15135b507ebfdb6991793", null ],
-    [ "SMOOTHC", "SMOOTH_8f.html#a0616581f5a06ecdd55a22af3459e2156", null ]
+    [ "smooth", "SMOOTH_8f.html#aa7d5d6e486d2f312b547b0ba23b9d774", null ],
+    [ "smoothc", "SMOOTH_8f.html#a8c90f994585305837058033d473f78d3", null ]
 ];

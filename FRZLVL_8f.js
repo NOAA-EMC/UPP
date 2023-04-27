@@ -1,4 +1,4 @@
 var FRZLVL_8f =
 [
-    [ "FRZLVL", "FRZLVL_8f.html#a40b891f62b130840ade9eb8916854c82", null ]
+    [ "frzlvl", "FRZLVL_8f.html#a5fa279afa0834b5c44a897f2ee41c6a6", null ]
 ];
