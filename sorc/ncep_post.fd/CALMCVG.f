@@ -32,6 +32,14 @@
 !> 2021-09-30 | J MENG       | 2D DECOMPOSITION
 !>     
 !> @author Russ Treadon W/NP2 @date 1993-01-22
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes moisture convergence.
+!>   
+!> @param[in] Q1D      - Specific humidity at P-points (kg/kg).
+!> @param[in] U1D      - U wind component (m/s) at P-points.
+!> @param[in] V1D      - V wind component (m/s) at P-points.
+!> @param[out] QCNVG    - Moisture convergence (1/s) at P-points.
+!-----------------------------------------------------------------------
       SUBROUTINE CALMCVG(Q1D,U1D,V1D,QCNVG)
 
 !

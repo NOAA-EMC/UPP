@@ -18,6 +18,13 @@
 !> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-24
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes potential temperature.
+!>
+!> @param[in] P1D pressures (Pa).
+!> @param[in] T1D temperatures (K).
+!> @param[out] THETA potential temperatures (K).
+!-----------------------------------------------------------------------
       SUBROUTINE CALPOT(P1D,T1D,THETA)
 
 !     

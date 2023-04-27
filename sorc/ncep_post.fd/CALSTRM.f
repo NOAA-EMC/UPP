@@ -22,6 +22,12 @@
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes geo streamfunction.
+!>
+!> @param[in] Z1D Geopotential height (m).
+!> @param[out] STRM Geostrophic streamfunction.
+!-----------------------------------------------------------------------
       SUBROUTINE CALSTRM(Z1D,STRM)
 
 !     
