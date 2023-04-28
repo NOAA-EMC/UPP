@@ -611,6 +611,12 @@
        <scale>3.0</scale>
        </param>
 
+    <param>
+       <shortname>GFS_4LFTX_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+
        <param>
        <shortname>PLI_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <pname>PLI</pname>
@@ -1990,8 +1996,12 @@
            <fixed_sfc2_type>isothermal</fixed_sfc2_type>
            <level2>256.</level2>
            <scale>4.0</scale>
-    </param>
+       </param>
 
+       <param>
+          <shortname>GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+          <scale>-4.0</scale>
+       </param>
 
     </paramset>
 
@@ -2432,6 +2442,12 @@
        <level2>0.</level2>
        <scale>3.0</scale>
        </param>
+
+    <param>
+       <shortname>GFS_4LFTX_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
 
        <param>
        <shortname>PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>

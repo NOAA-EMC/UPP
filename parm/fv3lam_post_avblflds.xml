@@ -4554,6 +4554,14 @@
     </param>
 
     <param>
+       <post_avblfldidx>573</post_avblfldidx>
+       <shortname>GFS_4LFTX_ON_SURFACE</shortname>
+       <pname>4LFTX</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>575</post_avblfldidx>
        <shortname>CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pname>CWAT</pname>
@@ -5750,6 +5758,14 @@
        <pname>CICE</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>125</post_avblfldidx>
+       <shortname>CICE_ON_HYBRID_LVL</shortname>
+       <pname>CICE</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
     </param>
 
     <param>
