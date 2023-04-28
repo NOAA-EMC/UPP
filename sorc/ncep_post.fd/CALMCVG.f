@@ -13,10 +13,10 @@
 !> moisture convergence which is returned by this routine.
 !></pre>
 !>   
-!> @param[in] Q1D      - Specific humidity at P-points (kg/kg).
-!> @param[in] U1D      - U wind component (m/s) at P-points.
-!> @param[in] V1D      - V wind component (m/s) at P-points.
-!> @param[out] QCNVG    - Moisture convergence (1/s) at P-points.
+!> @param[in] Q1D real Specific humidity at P-points (kg/kg).
+!> @param[in] U1D real U-wind component (m/s) at P-points.
+!> @param[in] V1D real V-wind component (m/s) at P-points.
+!> @param[out] QCNVG real Moisture convergence (1/s) at P-points.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -35,10 +35,10 @@
 !-----------------------------------------------------------------------
 !> @brief Subroutine that computes moisture convergence.
 !>   
-!> @param[in] Q1D      - Specific humidity at P-points (kg/kg).
-!> @param[in] U1D      - U wind component (m/s) at P-points.
-!> @param[in] V1D      - V wind component (m/s) at P-points.
-!> @param[out] QCNVG    - Moisture convergence (1/s) at P-points.
+!> @param[in] Q1D real Specific humidity at P-points (kg/kg).
+!> @param[in] U1D real U-wind component (m/s) at P-points.
+!> @param[in] V1D real V-wind component (m/s) at P-points.
+!> @param[out] QCNVG real Moisture convergence (1/s) at P-points.
 !-----------------------------------------------------------------------
       SUBROUTINE CALMCVG(Q1D,U1D,V1D,QCNVG)
 
