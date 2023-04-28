@@ -46,6 +46,7 @@
   public :: CALCAPE, CALCAPE2
   public :: CALDIV
   public :: CALGRADPS
+
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
@@ -58,6 +59,15 @@
   contains
 !
 !-------------------------------------------------------------------------------------
+!> CALRH() computes relative humidity
+!>
+!> @param[in] P1 real Pressure (Pa)
+!> @param[in] T1 real Temperature (K)
+!> @param[inout] Q1 real Specific humidity (kg/kg)
+!> @note P1/T1/Q1 refer to pressure/temperature/specific humidity at the selected
+!> /requested level. For example, if the user wants relative humidity at 500mb, 
+!> then T/P/Q at 500mb is input into the call to output RH@500mb
+!> @param[out] RH real Relative humidity (decimal form)
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
@@ -89,9 +99,8 @@
 !>
 !> @param[in] P1 Pressure (pa)
 !> @param[in] T1 Temperature (K)
-!> @param[in] Q1 Specific humidity (kg/kg)
-!> @param[out] RH Relative humidity  (decimal form)
-!> @param[out] Q1 Specific humidity (kg/kg)
+!> @param[inout] Q1 Specific humidity (kg/kg)
+!> @param[out] RH Relative humidity (decimal form)
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -168,9 +177,8 @@
 !>
 !> @param[in] P1 Pressure (pa)
 !> @param[in] T1 Temperature (K)
-!> @param[in] Q1 Specific humidity (kg/kg)
-!> @param[out] RH Relative humidity  (decimal form)
-!> @param[out] Q1 Specific humidity (kg/kg)
+!> @param[inout] Q1 Specific humidity (kg/kg)
+!> @param[out] RH Relative humidity (decimal form)
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -248,11 +256,18 @@
       END SUBROUTINE CALRH_GFS
 !
 !-------------------------------------------------------------------------------------
+!> CALRH_GSD() Compute RH with the NOAA GSL (formerly NOAA GSD) algorithm used for RUC and Rapid Refresh
+!>
+!> @param P1 real Pressure (Pa)
+!> @param T1 real Temperature (K)
+!> @param Q1 real Specific humidity (kg/kg)
+!> @note P1/T1/Q1 refer to pressure/temperature/specific humidity at the selected
+!> /requested level. For example, if the user wants relative humidity at 500mb, 
+!> then T/P/Q at 500mb is input into the call to output RH@500mb
+!> @param RHB real Relative humidity (decimal form)
+!> 
 !      
       SUBROUTINE CALRH_GSD(P1,T1,Q1,RHB)
-!
-! Algorithm use at GSD for RUC and Rapid Refresh                           
-!------------------------------------------------------------------
 !
 
       use ctlblk_mod, only: ista, iend, jsta, jend, spval
@@ -289,9 +304,13 @@
 !
 !-------------------------------------------------------------------------------------
 !
+!> CALRH_PW() algorithm used at GSL for RUC and Rapid Refresh.
+!>
+!> @param RHPW real Relative humidity with respect to precipitable water (entire atmosphere)
+!> 
+
       SUBROUTINE CALRH_PW(RHPW)
 !
-! Algorithm use at GSD for RUC and Rapid Refresh                           
 !------------------------------------------------------------------
 !
 
@@ -368,7 +387,7 @@
 !> This function should be expanded inline in the calling routine.
 !>
 !> @param[in] t Real(krealfp) Temperature in Kelvin.
-!> @param[out] fpvsnew Real(krealfp) Saturation vapor pressure in Pascals.
+!> @return fpvsnew Real(krealfp) Saturation vapor pressure in Pascals.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -519,6 +538,8 @@
 !> @param[out] CAPE Convective available potential energy (J/kg).
 !> @param[out] CINS Convective inhibition (J/kg).
 !> @param[out] PPARC Pressure level of parcel lifted when one searches over a particular depth to compute CAPE/CIN.
+!> @param[inout] ZEQL Equivalent level height.
+!> @param THUND Thunder parameter.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -1680,7 +1701,11 @@
 !
       elemental function TVIRTUAL(T,Q)
 !
-! COMPUTE VIRTUAL TEMPERATURE
+!> TVIRTUAL() Computes virtual temperature
+!>
+!> @param[in] T real Temperature
+!> @param[in] Q real Specific humidity
+!> 
 !
       IMPLICIT NONE
       REAL TVIRTUAL
@@ -1692,10 +1717,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> @file
-!> @brief Subroutine that computes absolute vorticity.
-!>
-!> This routine computes the absolute vorticity.
+!> CALVOR() computes absolute vorticity. 
 !>
 !> @param[in] UWND U wind (m/s) mass-points.
 !> @param[in] VWND V wind (m/s) mass-points.
@@ -1718,9 +1740,9 @@
 !> 2022-05-26 | H Chuang     | Use GSL approach for FV3R
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
-      SUBROUTINE CALVOR(UWND,VWND,ABSV)
 
-!     
+      SUBROUTINE CALVOR(UWND,VWND,ABSV)
+   
 !
       use vrbls2d,      only: f
       use masks,        only: gdlat, gdlon, dx, dy
@@ -2146,6 +2168,10 @@
 !> 2016-07-22 | S Moorthi | Modified polar divergence calculation
 !>
 !> @author Sajal Kar W/NP2 @date 2016-05-05
+
+!-----------------------------------------------------------------------------
+!> caldiv() computes divergence.
+!
       SUBROUTINE CALDIV(UWND,VWND,DIV)
       use masks,        only: gdlat, gdlon
       use params_mod,   only: d00, dtr, small, erad
@@ -2416,7 +2442,7 @@
 
       END SUBROUTINE CALDIV
 
-      SUBROUTINE CALGRADPS(PS,PSX,PSY)
+!------------------------------------------------------------------------
 !> CALGRADPS computes gardients of a scalar field PS or LNPS.
 !>
 !> For GFS, this routine computes horizontal gradients of PS or LNPS.
@@ -2432,6 +2458,9 @@
 !> 2016-05-05 | Sajal Kar | Reduced from CALVORT to zonal and meridional gradients of given surface pressure PS, or LNPS
 !>
 !> @author Sajal Kar W/NP2 @date 2016-05-05
+!>
+      SUBROUTINE CALGRADPS(PS,PSX,PSY)
+
       use masks,        only: gdlat, gdlon
       use params_mod,   only: dtr, d00, small, erad
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
@@ -2660,7 +2689,11 @@
 !> SLR climatology is not used in UPP calculation but the data is saved in fix directory 
 !> for reference. Breadboard coefficients are included in this module to enhance the 
 !> performance. Original Breadboard coefficients files are also saved in fix directory.
-!>  
+!> 
+!> @param[in] tprs real Temperature on pressure levels.
+!> @param[in] rhprs real Relative humidity on pressure levels.
+!> @param[out] slr real Solid snow to liquid ratio.
+!> 
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
@@ -4329,6 +4362,8 @@
 !>
 !>      b =  118.35844
 !>
+!> @param[out] SLR real Solid snow to liquid ratio
+!> 
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------

@@ -9,8 +9,8 @@
 !  2011-02    Jun Wang  - ADD variables for grib2
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
-!  2021-09-30 JESSE MENG- 2D DECOMPOSITION
-!  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
+!  2021-09-30 JESSE MENG - 2D DECOMPOSITION
+!  2022-09-22 Li(Kate) Zhang - Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
 !  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
 !  2023-01-24 Sam Trahan - IFI flight levels, runtime of IFI, and record of the bucket time
 !  2023-03-21 Jesse Meng - Add slrutah_on option to use U Utah SLR
@@ -22,10 +22,16 @@
   implicit none
 !
   type field_info
+!> ifld @memberof CTLBLK_mod
     integer ifld
+!> lvl @memberof CTLBLK_mod
     integer lvl
+!> lvl1 @memberof CTLBLK_mod
+!> lvl2 @memberof CTLBLK_mod
     integer lvl1,lvl2
+!> ntrange @memberof CTLBLK_mod
     integer ntrange
+!> tinvstat @memberof CTLBLK_mod
     integer tinvstat
   end type
   integer, parameter :: komax=70

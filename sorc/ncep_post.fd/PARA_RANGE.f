@@ -16,6 +16,16 @@
 !> 2000-01-06 | Jim Tuccillo | Initial
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
+!-----------------------------------------------------------------
+!> para_range() sets up decomposition values.
+!>
+!> @param[in] N1 First interate value.
+!> @param[in] N2 Last interate value.
+!> @param[in] NPROCS Number of MPI tasks.
+!> @param[in] IRANK My taks ID.
+!> @param[out] ISTA First loop value.
+!> @param[out] IEND Last loop value.
+!>
       SUBROUTINE PARA_RANGE (N1,N2,NPROCS,IRANK,ISTA,IEND)
 
       implicit none

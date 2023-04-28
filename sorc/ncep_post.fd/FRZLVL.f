@@ -38,6 +38,13 @@
 !> 2021-10-15 |JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!-----------------------------------------------------------------------------
+!> FRZLVL() Subroutine that computes FRZING LVL, Z and RH.
+!> 
+!> @param[out] ZFRZ real Above ground level freezing height.
+!> @param[out] RHFRZ real Relative humidity at freezing level.
+!> @param[out] PFRZL real Pressure at freezing level.
+!>
       SUBROUTINE FRZLVL(ZFRZ,RHFRZ,PFRZL)
 
 !     
