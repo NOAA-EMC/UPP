@@ -9,27 +9,34 @@
 !  2011-02    Jun Wang  - ADD variables for grib2
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
-!  2021-09-30 JESSE MENG- 2D DECOMPOSITION
-!  2022-09-22 Li(Kate) Zhang- Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
+!  2021-09-30 JESSE MENG - 2D DECOMPOSITION
+!  2022-09-22 Li(Kate) Zhang - Add option for NASA GOCART as "nasa_on", add NBIN for NO3 and NH4
 !  2022-11-08 Kai Wang  - Replace aqfcmaq_on with aqf_on
 !  2023-01-24 Sam Trahan - IFI flight levels, runtime of IFI, and record of the bucket time
 !  2023-03-21 Jesse Meng - Add slrutah_on option to use U Utah SLR
 !  2023-04-04 Li(Kate Zhang) Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!  2023-04-17 Eric James - Adding 160 and 320 m above ground to HTFD for RRFS output.
 !-----------------------------------------------------------------------
 !
   implicit none
 !
   type field_info
+!> ifld @memberof CTLBLK_mod
     integer ifld
+!> lvl @memberof CTLBLK_mod
     integer lvl
+!> lvl1 @memberof CTLBLK_mod
+!> lvl2 @memberof CTLBLK_mod
     integer lvl1,lvl2
+!> ntrange @memberof CTLBLK_mod
     integer ntrange
+!> tinvstat @memberof CTLBLK_mod
     integer tinvstat
   end type
   integer, parameter :: komax=70
   integer, parameter :: LSMDEF=46             ! default number of p levels
-  integer,PARAMETER  :: NFD=18,NBND=6
+  integer,PARAMETER  :: NFD=20,NBND=6
   REAL,  PARAMETER   :: QMIN = 1.E-15
 !
   integer :: novegtype ! max number of veg type
@@ -115,7 +122,7 @@
   integer, parameter :: nbin_sm = 1             ! smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
-      DATA HTFD  / 20.E0,30.E0,40.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,   &
+      DATA HTFD  / 20.E0,30.E0,40.E0,50.E0,80.E0,100.E0,160.E0,305.E0,320.E0,457.E0,610.E0,   &
            914.E0,1524.E0,1829.E0,2134.E0,2743.E0,3658.E0,4572.E0, &
 	   6000.E0,7010.E0/
 !

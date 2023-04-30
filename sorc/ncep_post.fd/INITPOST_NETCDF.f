@@ -31,8 +31,10 @@
 !> 2023-02-23 | Eric James    | Read coarse PM and aodtot from RRFS
 !> 2023-03-02 | Sam Trahan    | Read lightning threat index fields
 !> 2023-03-22 | WM Lewis      | Read RRFS effective radii (EFFRL, EFFRI, EFFRS)
-!> !> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem(UFS-Chem) 
+!> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem(UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
+!> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -63,7 +65,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
               mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
-              snow_acm, snow_bkt,                                                               &
+              snow_acm, snow_bkt, snownc, graupelnc, qrmax,                                     &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -73,7 +75,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aodtot, aqm_aod550, ltg1_max,ltg2_max,ltg3_max
+              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -200,11 +202,10 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
-      real, allocatable :: extsmoke(:,:,:), extdust(:,:,:)
+      real, allocatable :: ext550(:,:,:)
 
       if (modelname == 'FV3R') then
-         allocate(extsmoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-         allocate(extdust(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(ext550(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       endif
 
 !***********************************************************************
@@ -506,13 +507,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=19
+       nrec=18
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'coarsepm','smoke_ext','dust_ext']
+                                     'coarsepm','ext550']
       else
        nrec=8
        allocate (recname(nrec))
@@ -874,15 +875,21 @@
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(17),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(18),extsmoke(ista_2l,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(19),extdust(ista_2l,jsta_2l,1),lm)
+       spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
        endif
+
+! Compute max QRAIN in the column to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=0.
+        end do
+       end do
 
 ! calculate CWM from FV3 output
        do l=1,lm
        do j=jsta,jend
          do i=ista,iend
+            qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
             cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
          enddo
        enddo
@@ -1024,11 +1031,6 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
-! total aod
-      VarName='aodtot'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,aodtot(ista_2l,jsta_2l))
-     if(debugprint)print*,'sample ',VarName,' =',aodtot(isa,jsa)
       endif
 
 ! lightning threat index 1
@@ -1715,6 +1717,16 @@
       VarName='frzrb'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,frzrn_bucket)
+
+! time step snow (in m)
+      VarName='snow'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,snownc)
+
+! time step graupel (in m)
+      VarName='graupel'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,graupelnc)
 
 ! aerodynamic conductance
       VarName='acond'
@@ -2472,8 +2484,8 @@
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = ista_2l, iend_2u
-          if(extsmoke(i,j,l)<spval.and.extdust(i,j,l)<spval)then
-            taod5503d ( i, j, l) = extsmoke ( i, j, l ) + extdust ( i, j, l )
+          if(ext550(i,j,l)<spval)then
+            taod5503d ( i, j, l) = ext550 ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
           endif
@@ -2486,8 +2498,7 @@
          end do
         end do
        end do
-       deallocate(extsmoke)
-       deallocate(extdust)
+       deallocate(ext550)
       end if
 
 !$omp parallel do private(i,j)
@@ -2878,22 +2889,6 @@
       do j=jsta,jend
         do i=ista,iend
           smstav(i,j) = buf(i,j)
-        enddo
-      enddo
-      VarName='accswe_land'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,buf)
-      VarName='accswe_ice'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,buf2)
-!$omp parallel do private(i,j)
-      do j = jsta_2l, jend_2u
-        do i=ista,iend
-          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
-            acsnow(i,j) = buf(i,j) + buf2(i,j)
-          else
-            acsnow(i,j) = spval
-          endif
         enddo
       enddo
       VarName='snacc_land'

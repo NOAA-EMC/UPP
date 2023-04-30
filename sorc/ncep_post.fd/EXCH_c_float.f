@@ -17,6 +17,13 @@
 !> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
+!--------------------------------------------------------------------------
+!> EXCH_c_float Subroutines that exchange one halo row.
+!> 
+!> @param[inout] A 
+!> @note As input, A is the array that will have halos exchanged. As output, 
+!> A is the array with halos exchanged.
+!--------------------------------------------------------------------------
       SUBROUTINE EXCH_c_float(A)
 
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&

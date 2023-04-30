@@ -41,6 +41,13 @@
 !> 2021-10-31 | J Meng       | 2D Decomposition
 !>
 !> @author Jim Tuccillo W/NP2 @date 1990-05-19
+!--------------------------------------------------------------------------
+!> DEWPOINT() Subroutine that computes dewpoints from vapor pressure.
+!> It computes the dewpoints for the N values of vapor pressure in array VP.
+!>
+!> @param[in] VP Array of N vapor pressures(centibars).
+!> @param[out] TD Dewpoint in degrees absolute.
+!--------------------------------------------------------------------------
       SUBROUTINE DEWPOINT( VP, TD)
 
        use ctlblk_mod, only: jsta, jend, im, spval, ista, iend

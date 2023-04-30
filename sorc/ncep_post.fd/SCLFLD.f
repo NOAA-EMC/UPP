@@ -2,7 +2,6 @@
 !> @brief sclfld() scale array element by constant.
 !>
 !> @author Russ Treadon W/NP2 @date 1992-09-13
-
 !> This routine multiples (scales) the first IMO*JMO
 !> elements of array fld by the real scalar scale.
 !> Array elements which equal a special value will
@@ -10,10 +9,10 @@
 !> The special value, spval, is passed through common
 !> block options.  It is set in include file options.
 !>
-!> @param[in] FLD Array whose elements are to be scaled.
+!> @param[inout] FLD Array whose elements are to be scaled.
+!> @note sclfld() scales FLD array elements by scale before FLD is used as output.
 !> @param[in] SCALE Constant by which to scale elements of fld.
 !> @param[in] IMO,JMO Dimension of array fld.
-!> @param[out] FLD Array whose elements have been scaled by scale.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -23,6 +22,14 @@
 !> 2021-09-29 | JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-09-13
+!-------------------------------------------------------------
+!> sclfld() scale array element by constant.
+!>
+!> @param[inout] FLD Array whose elements are to be scaled.
+!> @note sclfld() scales FLD array elements by scale before FLD is used as output.
+!> @param[in] SCALE Constant by which to scale elements of fld.
+!> @param[in] IMO,JMO Dimension of array fld.
+!>
       SUBROUTINE SCLFLD(FLD,SCALE,IMO,JMO)
 !
 

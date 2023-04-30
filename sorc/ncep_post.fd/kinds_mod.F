@@ -24,6 +24,9 @@
 !> 2004-08-15 | Russ Treadon | Initial
 !>
 !> @author Russ Treadon np23 @date 2004-08-15
+!
+! ----------------------------------------------------------------------
+!
 
       module kinds
 
@@ -33,16 +36,24 @@
 ! Integer type definitions below
 
 ! Integer types
+  !> Specification kind for byte (1-byte) integer variable
   integer, parameter, public  :: i_byte  = selected_int_kind(1)      ! byte  integer
+  !> Specification kind for short (2-byte) integer variable
   integer, parameter, public  :: i_short = selected_int_kind(4)      ! short integer
+  !> Specification kind for long (4-byte) integer variable
   integer, parameter, public  :: i_long  = selected_int_kind(8)      ! long  integer
   integer, parameter, private :: llong_t = selected_int_kind(16)     ! llong integer
+  !> Specification kind for double long (8-byte) integer variable
   integer, parameter, public  :: i_llong = max( llong_t, i_long )
 
 ! Expected 8-bit byte sizes of the integer kinds
+  !> Expected 8-bit byte size for byte integer
   integer, parameter, public :: num_bytes_for_i_byte  = 1
+  !> Expected 8-bit byte size for short integer
   integer, parameter, public :: num_bytes_for_i_short = 2
+  !> Expected 8-bit byte size for long integer
   integer, parameter, public :: num_bytes_for_i_long  = 4
+  !> Expected 8-bit byte size for llong integer
   integer, parameter, public :: num_bytes_for_i_llong = 8
 
 ! Define arrays for default definition
@@ -63,22 +74,29 @@
                                                       ! 2=short, 
                                                       ! 3=long, 
                                                       ! 4=llong
+  !> i_kind Generic specification kind for default integer
   integer, parameter, public  :: i_kind = integer_types( default_integer )
+  !> Number of bytes for i_kind
   integer, parameter, public  :: num_bytes_for_i_kind = &
        integer_byte_sizes( default_integer )
-
 
 ! Real definitions below
 
 ! Real types
+  !> Specification kind for single precision (4-byte) real variable
   integer, parameter, public  :: r_single = selected_real_kind(6)  ! single precision
+  !> Specification kind for double precision (8-byte) real variable
   integer, parameter, public  :: r_double = selected_real_kind(15) ! double precision
   integer, parameter, private :: quad_t   = selected_real_kind(20) ! quad precision
+  !> r_quad Specification kind for quad precision (16-byte) real variable
   integer, parameter, public  :: r_quad   = max( quad_t, r_double )
 
 ! Expected 8-bit byte sizes of the real kinds
+  !> Expected 8-bit byte size for single precision types
   integer, parameter, public :: num_bytes_for_r_single = 4
+  !> Expected 8-bit byte size for double precision types
   integer, parameter, public :: num_bytes_for_r_double = 8
+  !> Expected 8-bit byte size for quad precision types
   integer, parameter, public :: num_bytes_for_r_quad   = 16
 
 ! Define arrays for default definition
@@ -94,7 +112,9 @@
   integer, parameter, private :: default_real = 1  ! 1=single, 
                                                    ! 2=double, 
                                                    ! 3=quad
+  !> r_kind Generic specification kind for default floating point
   integer, parameter, public  :: r_kind = real_kinds( default_real )
+  !> Number of bytes for r_kind
   integer, parameter, public  :: num_bytes_for_r_kind = &
        real_byte_sizes( default_real )
 

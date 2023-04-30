@@ -73,6 +73,7 @@
 !> 2023-02-10 | Eric James        | Removing neighbourhood check from GSL exp2 ceiling diagnostic
 !> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
+!> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
       SUBROUTINE CLDRAD
@@ -97,7 +98,7 @@
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, EBB, HWP,   &
-                         AODTOT, LWP, IWP, AVGCPRATE,                         &
+                         LWP, IWP, AVGCPRATE,                                 &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
                          PWAT,DUSTPM10,MAOD,NO3CB,NH4CB,aqm_aod550
@@ -446,16 +447,9 @@
 !     TOTAL COLUMN AOD (TAOD553D FROM HRRR-SMOKE)
 !
       IF (IGET(735) > 0) THEN
-       IF (MODELNAME == 'RAPR') THEN
+       IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R') THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),19)
          CALL BOUND(GRID1,D00,H99999)
-       ELSE IF (MODELNAME == 'FV3R') THEN
-         GRID1=SPVAL
-         DO J=JSTA,JEND
-           DO I=ISTA,IEND
-             if (AODTOT(I,J) < SPVAL) GRID1(I,J) = AODTOT(I,J)
-           ENDDO
-         ENDDO
        ENDIF
         if(grib == "grib2" )then
           cfld = cfld + 1

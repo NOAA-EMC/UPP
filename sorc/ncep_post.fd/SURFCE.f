@@ -1,73 +1,66 @@
 !> @file
-!
-!> SUBPROGRAM:    SURFCE      POST SURFACE BASED FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-21       
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE POSTS SURFACE BASED FIELDS.
-!!     
-!! PROGRAM HISTORY LOG:
-!! -  92-12-21  RUSS TREADON
-!! -  94-08-04  MICHAEL BALDWIN - ADDED OUTPUT OF SFC FLUXES OF
-!!                               SENS AND LATENT HEAT AND THETA AT Z0
-!! -  94-11-04  MICHAEL BALDWIN - ADDED INSTANTANEOUS PRECIP TYPE
-!! -  96-03-19  MICHAEL BALDWIN - CHANGE SOIL PARAMETERS
-!! -  96-09-25  MICHAEL BALDWIN - ADDED SNOW RATIO FROM EXPLICIT SCHEME
-!! -  96-10-17  MICHAEL BALDWIN - CHANGED SFCEVP,POTEVP TO ACCUM.  TOOK
-!!                               OUT -PTRACE FOR ACSNOW,SSROFF,BGROFF.
-!! -  97-04-23  MICHAEL BALDWIN - TOOK OUT -PTRACE FOR ALL PRECIP FIELDS
-!! -  98-06-12  T BLACK         - CONVERSION FROM 1-D TO 2-D
-!! -  98-07-17  MIKE BALDWIN - REMOVED LABL84
-!! -  98-08-18  MIKE BALDWIN - COMPUTE RH OVER ICE
-!! -  98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!! -  00-01-04  JIM TUCCILLO - MPI VERSION
-!! -  01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!! -  02-06-11  MIKE BALDWIN - WRF VERSION ASSUMING ALL ACCUM VARS
-!!                            HAVE BUCKETS THAT FILL FROM T=00H ON
-!! -  02-08-28  H CHUANG - COMPUTE FIELDS AT SHELTER LEVELS FOR WRF
-!! -  04-12-09  H CHUANG - ADD ADDITIONAL LSM FIELDS
-!! -  05-07-07  BINBIN ZHOU - ADD RSM MODEL
-!! -  05-08-24  GEOFF MANIKIN - ADDED DOMINANT PRECIP TYPE
-!! -  11-02-06  JUN WANG  - ADDED GRIB2 OPTION
-!! -  13-08-05  S Moorthi - Eliminate unnecessary arrays (reduce memory)
-!!                         and some cosmetic changes
-!! -  14-02-26  S Moorthi - threading datapd assignment
-!! -  14-11-26  S Moorthi - cleanup and some bug fix (may be?)
-!! -  20-03-25  J MENG    - remove grib1
-!! -  20-05-20  J MENG    - CALRH unification with NAM scheme
-!! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
-!! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
-!! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
-!! -  21-07-26  W Meng  - Restrict computation from undefined grids
-!! -  21-10-31  J MENG    - 2D DECOMPOSITION
-!! -  22-02-01  E JAMES - Cleaning up GRIB2 encoding for six variables
-!!                        that cause issues with newer wgrib2 builds in RRFS system.
-!! -  22-11-16  E JAMES - Adding dust from RRFS
-!! -  22-12-23  E Aligo - Read six winter weather diagnostics from model.
-!! -  23-01-24  Sam Trahan - store hourly accumulated precip for IFI and bucket time
-!! -  23-02-11  W Meng  - Add fix of time accumulation in bucket graupel for FV3 based models
-!! -  23-02-23  E James - Adding coarse PM from RRFS
-!! -  23-03-22  S Trahan - Fixed out-of-bounds access calling BOUND with wrong array dimensions
-!!     
-!! USAGE:    CALL SURFCE
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       BOUND    - ENFORCE LOWER AND UPPER LIMITS ON ARRAY ELEMENTS.
-!!       DEWPOINT - COMPUTE DEWPOINT TEMPERATURE.
-!!       CALDRG   - COMPUTE SURFACE LAYER DRAG COEFFICENT
-!!       CALTAU   - COMPUTE SURFACE LAYER U AND V WIND STRESSES.
-!!
-!!     LIBRARY:
-!!       COMMON   - CTLBLK
-!!                  RQSTFLD
-!!     
+!> @brief This routine posts surface-based fields.
+!>     
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-21 | RUSS TREADON    | Initial
+!> 1994-08-04 | MICHAEL BALDWIN | ADDED OUTPUT OF SFC FLUXES OF SENS AND LATENT HEAT AND THETA AT Z0
+!> 1994-11-04 | MICHAEL BALDWIN | ADDED INSTANTANEOUS PRECIP TYPE
+!> 1996-03-19 | MICHAEL BALDWIN | CHANGE SOIL PARAMETERS
+!> 1996-09-25 | MICHAEL BALDWIN | ADDED SNOW RATIO FROM EXPLICIT SCHEME
+!> 1996-10-17 | MICHAEL BALDWIN | CHANGED SFCEVP,POTEVP TO ACCUM. TOOK OUT -PTRACE FOR ACSNOW,SSROFF,BGROFF.
+!> 1997-04-23 | MICHAEL BALDWIN | TOOK OUT -PTRACE FOR ALL PRECIP FIELDS
+!> 1998-06-12 | T BLACK         | CONVERSION FROM 1-D TO 2-D
+!> 1998-07-17 | MIKE BALDWIN | REMOVED LABL84
+!> 1998-08-18 | MIKE BALDWIN | COMPUTE RH OVER ICE
+!> 1998-12-22 | MIKE BALDWIN | BACK OUT RH OVER ICE
+!> 2000-01-04 | JIM TUCCILLO | MPI VERSION
+!> 2001-10-22 | H CHUANG     | MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!> 2002-06-11 | MIKE BALDWIN | WRF VERSION ASSUMING ALL ACCUM VARS HAVE BUCKETS THAT FILL FROM T=00H ON
+!> 2002-08-28 | H CHUANG      | COMPUTE FIELDS AT SHELTER LEVELS FOR WRF
+!> 2004-12-09 | H CHUANG      | ADD ADDITIONAL LSM FIELDS
+!> 2005-07-07 | BINBIN ZHOU   | ADD RSM MODEL
+!> 2005-08-24 | GEOFF MANIKIN | ADDED DOMINANT PRECIP TYPE
+!> 2011-02-06 | JUN WANG  | ADDED GRIB2 OPTION
+!> 2013-08-05 | S Moorthi | Eliminate unnecessary arrays (reduce memory) and some cosmetic changes
+!> 2014-02-26 | S Moorthi | threading datapd assignment
+!> 2014-11-26 | S Moorthi | cleanup and some bug fix (may be?)
+!> 2020-03-25 | J MENG    | remove grib1
+!> 2020-05-20 | J MENG    | CALRH unification with NAM scheme
+!> 2020-11-10 | J MENG    | USE UPP_PHYSICS MODULE
+!> 2021-03-11 | B Cui     | change local arrays to dimension (im,jsta:jend)
+!> 2021-04-01 | J MENG    | COMPUTATION ON DEFINED POINTS ONLY
+!> 2021-07-26 | W Meng    | Restrict computation from undefined grids
+!> 2021-10-31 | J MENG    | 2D DECOMPOSITION
+!> 2022-02-01 | E JAMES   | Cleaning up GRIB2 encoding for six variables that cause issues with newer wgrib2 builds in RRFS system.
+!> 2022-11-16 | E JAMES   | Adding dust from RRFS
+!> 2022-12-23 | E Aligo   | Read six winter weather diagnostics from model.
+!> 2023-01-24 | Sam Trahan | store hourly accumulated precip for IFI and bucket time
+!> 2023-02-11 | W Meng     | Add fix of time accumulation in bucket graupel for FV3 based models
+!> 2023-02-23 | E James    | Adding coarse PM from RRFS
+!> 2023-03-22 | S Trahan   | Fixed out-of-bounds access calling BOUND with wrong array dimensions
+!> 2023-04-21 | E James    | Enabling GSL precip type for RRFS
+!>     
+!> @note
+!> USAGE:    CALL SURFCE
+!> @note
+!> OUTPUT FILES:
+!>   NONE
+!> @note
+!> SUBPROGRAMS CALLED:
+!>   UTILITIES:
+!>     @li BOUND    - ENFORCE LOWER AND UPPER LIMITS ON ARRAY ELEMENTS.
+!>     @li DEWPOINT - COMPUTE DEWPOINT TEMPERATURE.
+!>     @li CALDRG   - COMPUTE SURFACE LAYER DRAG COEFFICENT
+!>     @li CALTAU   - COMPUTE SURFACE LAYER U AND V WIND STRESSES.
+!> @note
+!>   LIBRARY:
+!>     COMMON   - @li CTLBLK
+!>                @li RQSTFLD
+!>
+!--------------------------------------------------------------------
+!> SURFCE posts surface-based fields.
       SUBROUTINE SURFCE
 
 !
@@ -5125,10 +5118,19 @@
              ENDDO
            ENDDO
 
+           IF (MODELNAME .eq. 'FV3R') THEN
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 SNOW_BUCKET(I,J) = SNOW_BKT(I,J)
+                 RAINNC_BUCKET(I,J) = 0.0
+               ENDDO
+             ENDDO
+           ENDIF
+
            DO J=JSTA,JEND
              DO I=ISTA,IEND
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
-               totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
+               totprcp = (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600./DTQ2)
                snowratio = 0.0
                if(graup_bucket(i,j)*1.e-3 > totprcp)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j
@@ -5359,7 +5361,7 @@
             enddo
            endif
 
-        ENDIF
+        ENDIF ! End of GSD PRECIPITATION TYPE
 !     
         if (allocated(psfc))  deallocate(psfc)
         if (allocated(domr))  deallocate(domr)
@@ -6693,12 +6695,15 @@
 
       RETURN
       END
+!-------------------------------------------------------------------------------------
+!> qpf_comp() Read in QPF threshold for exceedance grid. Calculate exceedance grid.
+!> 
+!> @param[in] compfile character File name for reference grid.
+!> @param[in] fcst integer Forecast length in hours.
+!> @param[in] igetfld integer ID of grib2 field. 
 
       subroutine qpf_comp(igetfld,compfile,fcst)
-!     Read in QPF threshold for exceedance grid.
-!     Calculate exceedance grid.
-!     compfile: file name for reference grid.
-!     fcst: forecast length in hours.
+
       use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,GRIB,   &
                             MODELNAME,JM,CFLD,DATAPD,FLD_INFO,JSTA_2L,JEND_2U,&
                             ISTA,IEND,ISTA_2L,IEND_2U

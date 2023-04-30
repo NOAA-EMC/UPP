@@ -4,7 +4,7 @@
 !> This routine computes three layer mean relative humidities
 !> and a precipitable water field from ETA level data.  The
 !> computed fields are intended to mimic similar fields com-
-!> puted by the LFM.  The algorithm used here is fairly pri-
+!> puted by the LFM. The algorithm used here is fairly pri-
 !> mative.
 !> <pre>
 !> In each column above a mass point on the ETA grid we set the following target pressures:
@@ -20,9 +20,9 @@
 !> There is, obviously, no normalization for precipitable water.
 !>
 !> @param[out] RH3310 Sigma layer 0.33-1.00 mean relative humidity.
-!> @param[out] RH6610 Sigma layer 0.66-1.00 mean relative humidity.
-!> @param[out] RH3366 Sigma layer 0.33-0.66 mean relative humidity.
-!> @param[out] PW3310 Sigma layer 0.33-1.00 precipitable water.
+!> @param[out] RH4410 Sigma layer 0.44-1.00 mean relative humidity.
+!> @param[out] RH7294 Sigma layer 0.72-0.94 mean relative humidity.
+!> @param[out] RH4472 Sigma layer 0.44-0.72 mean relative humidity.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -42,6 +42,15 @@
 !> 2021-10-14 | JESSE MENG   | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!---------------------------------------------------------------------------
+!> LFMFLD_GFS() computes layer mean LFM fields. 
+!> 
+!> @param[out] RH3310 Sigma layer 0.33-1.00 mean relative humidity.
+!> @param[out] RH4410 Sigma layer 0.44-1.00 mean relative humidity.
+!> @param[out] RH7294 Sigma layer 0.72-0.94 mean relative humidity.
+!> @param[out] RH4472 Sigma layer 0.44-0.72 mean relative humidity.
+!> 
+!---------------------------------------------------------------------------
       SUBROUTINE LFMFLD_GFS(RH4410,RH7294,RH4472,RH3310)
 
 !     

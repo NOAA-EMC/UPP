@@ -1,5 +1,5 @@
 !> @file
-!> @brief  mdl2std_p() vert intrp of model lvls to standard atmospheric pressure.
+!> @brief mdl2std_p() vertical interpolation of model levels to standard atmospheric pressure.
 !>
 !> Originated from MISCLN.f. This routine interpolate to standard
 !> atmospheric pressure, instead of model pressure.
@@ -16,6 +16,9 @@
 !> 2023-03-14 | Y Mao  | Remove interpolation of RH, remove use CALRH and CALVOR
 !>
 !> @author Y Mao W/NP22 @date 2019-09-24
+!--------------------------------------------------------------------------------------
+!> mdl2std_p() vertical interpolation of model levels to standard atmospheric pressure.
+!>
       SUBROUTINE MDL2STD_P()
 
 !
@@ -384,13 +387,19 @@
       RETURN
       END
 
+!--------------------------------------------------------------------------------------
+!> P2H() converts pressure levels (hPa) to geopotential heights.
+!> Uses ICAO standard atmosphere parameters as defined here:
+!>        https://www.nen.nl/pdfpreview/preview_29424.pdf
+!>
+!> @param[in] p real Pressure (hPa)
+!> @return P2H Geopotential height. 
+!> 
+
       FUNCTION P2H(p)
       implicit none
       real, intent(in) :: p
       real :: P2H
-!     To convert pressure levels (hPa) to geopotantial heights
-!     Uses ICAO standard atmosphere parameters as defined here:
-!        https://www.nen.nl/pdfpreview/preview_29424.pdf
       real, parameter :: lapse = 0.0065
       real, parameter :: surf_temp = 288.15
       real, parameter :: gravity = 9.80665
@@ -402,6 +411,14 @@
 
       P2H = (surf_temp/lapse)*(1-(p/surf_pres)**(1/power_const))
       END
+
+!--------------------------------------------------------------------------------------
+!> relabel() relabels the pressure level to reference (or standard atmospheric) 
+!> pressure levels rather than model pressure.
+!>
+!> @param[in] p real Pressure (Pa).
+!> @return relabel Relabeled pressure value in reference (standard atmospheric) pressure levels. 
+!>
 
       function relabel(p)
       implicit none

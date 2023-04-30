@@ -7,9 +7,9 @@
 !>
 !> @param[in] string Mnemonic for variable desired.
 !> @param[in] varname_all List of all mnemonics obtained from inventory of file.
-!> @param[in] nrecs Total number of sequential records counted in wrf binary restart file.
-!> @param[out] index Desired record number.
-!> @param[out] iret Return status, set to 0 if variable was found, non-zero if not.
+!> @param[in] nrecs integer Total number of sequential records counted in wrf binary restart file.
+!> @param[out] index integer Desired record number.
+!> @param[out] iret integer Return status, set to 0 if variable was found, non-zero if not.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -17,6 +17,15 @@
 !> 2004-11-29 | Parrish | Initial
 !>
 !> @author Parrish np22 @date 2004-11-29
+!---------------------------------------------------------------------
+!> @brief retrieve_index() gets record number of desired variable.
+!>
+!> @param[in] string Mnemonic for variable desired.
+!> @param[in] varname_all List of all mnemonics obtained from inventory of file.
+!> @param[in] nrecs integer Total number of sequential records counted in wrf binary restart file.
+!> @param[out] index integer Desired record number.
+!> @param[out] iret integer Return status, set to 0 if variable was found, non-zero if not.
+!>
       subroutine retrieve_index(index,string,varname_all,nrecs,iret)
 
 
