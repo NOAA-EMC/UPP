@@ -43,6 +43,15 @@
 !> 2021-07-28 | W. Meng      | Restrict compuatation from undefined grids
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!-------------------------------------------------------------------------------
+!> Subroutine that computes FRZING LVL, Z and RH.
+!>
+!> @param[in] ISOTHERM real Isothermal value of height to be output.
+!> @param[out] ZFRZ real Above ground level/ZFL at isotherm height.
+!> @param[out] RHFRZ real Relative humidity at isotherm level.
+!> @param[out] PFRZL real Pressure at isotherm level.
+!>
+
       SUBROUTINE FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
 
 !     

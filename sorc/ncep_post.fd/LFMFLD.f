@@ -4,7 +4,7 @@
 !> This routine computes three layer mean relative humidities
 !> and a precipitable water field from ETA level data.  The
 !> computed fields are intended to mimic similar fields com-
-!> puted by the LFM.  The algorithm used here is fairly pri-
+!> puted by the LFM. The algorithm used here is fairly pri-
 !> mative.
 !> <pre>
 !> In each column above a mass point on the ETA grid we set the following target pressures:
@@ -15,7 +15,7 @@
 !> Given there pressures a surface up summation is made of
 !> relative humidity and/or precipitable water between these
 !> target pressures.  Each term in the summation is weighted
-!> By the thickness of the ETA layer.  The final layer mean
+!> By the thickness of the ETA layer. The final layer mean
 !> is this sum normalized by the total depth of the layer. 
 !> There is, obviously, no normalization for precipitable water.
 !>
@@ -41,6 +41,14 @@
 !> 2021-10-14 | JESSE MENG   | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!--------------------------------------------------------------------------------------
+!> LFMFLD() computes layer mean LFM fields. 
+!> 
+!> @param[out] RH3310 real Sigma layer 0.33-1.00 mean relative humidity.
+!> @param[out] RH6610 real Sigma layer 0.66-1.00 mean relative humidity.
+!> @param[out] RH3366 real Sigma layer 0.33-0.66 mean relative humidity.
+!> @param[out] PW3310 real Sigma layer 0.33-1.00 precipitable water.
+!> 
       SUBROUTINE LFMFLD(RH3310,RH6610,RH3366,PW3310)
 
 !     

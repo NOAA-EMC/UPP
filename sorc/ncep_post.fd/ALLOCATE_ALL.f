@@ -615,7 +615,6 @@
       allocate(mean_frp(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(hwp(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(aodtot(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -643,7 +642,6 @@
           mean_frp(i,j)=spval
           ebb(i,j)=spval
           hwp(i,j)=spval
-          aodtot(i,j)=spval
         enddo
       enddo
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))

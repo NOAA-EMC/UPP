@@ -209,7 +209,6 @@
       deallocate(mean_frp)
       deallocate(ebb)
       deallocate(hwp)
-      deallocate(aodtot)
       deallocate(smoke)
       deallocate(fv3dust)
       deallocate(coarsepm)
