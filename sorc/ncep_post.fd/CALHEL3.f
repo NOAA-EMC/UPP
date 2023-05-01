@@ -2,7 +2,7 @@
 !> @brief Subroutine that computes storm relative helicity.
 !
 !> This routine computes estimated storm motion and storm-relative
-!> environmental helicity. (Davies-Jones et al 1990) the algorithm
+!> environmental helicity. (Davies-Jones, et al., 1990) the algorithm
 !> processd as follows.
 !>     
 !> The storm motion computation no longer employs the Davies and Johns (1993)
@@ -18,11 +18,11 @@
 !> @param[out] UST Estimated U Component (m/s) Of Storm motion.
 !> @param[out] VST Estimated V Component (m/s) Of Storm motion.
 !> @param[out] HELI Storm-relative heliciry (m**2/s**2).
-!> @param[out] CANGLE Critical angle.
-!> @param[out] USHR1 U Component (m/s) Of 0-1 km shear.
-!> @param[out] VSHR1 V Component (m/s) Of 0-1 km shear.
-!> @param[out] USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
-!> @param[out] VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> @var CANGLE Critical angle.
+!> @var USHR1 U Component (m/s) Of 0-1 km shear.
+!> @var VSHR1 V Component (m/s) Of 0-1 km shear.
+!> @var USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> @var VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
 !>     
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -43,6 +43,16 @@
 !> 2022-05-12 | E Colon         | Resolved a bug  which looped over the calculation of SRH at two fixed levels, erroneously doubling the magnitude.
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes storm relative helicity.
+!
+!> @param[in] LLOW Lower bound CAPE>=100 and CINS>=-250.
+!> @param[in] LUPP Upper bound CAPE< 100  or CINS< -250; allows one to distinguish 0-3 km and 0-1 km values.
+!> @param[out] UST Estimated U Component (m/s) Of Storm motion.
+!> @param[out] VST Estimated V Component (m/s) Of Storm motion.
+!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
+!-----------------------------------------------------------------------
+
       SUBROUTINE CALHEL3(LLOW,LUPP,UST,VST,HELI)
 
 !
