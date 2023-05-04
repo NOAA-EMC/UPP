@@ -21,6 +21,13 @@
 !> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1993-10-11
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes GRD RCH number.
+!> 
+!> @param[in] EL Mixing length scale.
+!> @param[out] RICHNO Gradient Richardson number. 
+!-----------------------------------------------------------------------
+
       SUBROUTINE CALRCH(EL,RICHNO)
 
 !

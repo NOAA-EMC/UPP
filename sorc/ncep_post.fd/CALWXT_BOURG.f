@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine that calculate precipitation type (Bourgouin).
+!> @brief Subroutine that calculates precipitation type (Bourgouin).
 !>
 !> This routine computes precipitation type.
 !> using a decision tree approach that uses the so-called
@@ -35,6 +35,7 @@
 !>                         ptype=4 freezing rain/mix with freezing rain
 !>                         ptype=8 rain
 !></pre>
+!> @param[in] me integer Identifier for the processor used in the current instance. 
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -50,8 +51,36 @@
 !>          and layer lmh = bottom
 !>
 !> @author M Baldwin np22 @date 1999-07-06
-
-      subroutine calwxt_bourg_post(im,ista_2l,iend_2u,ista,iend,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
+!--------------------------------------------------------------------------------------
+!> @brief calwxt_bourg_post Subroutine that calculates precipitation type (Bourgouin).
+!> 
+!> @param[in] im integer i dimension.
+!> @param[in] ista_2l integer i dimension start point (including haloes).
+!> @param[in] iend_2u integer i dimension end point (including haloes).
+!> @param[in] ista integer i dimension start point (excluding haloes).
+!> @param[in] iend integer i dimension end point (excluding haloes).
+!> @param[in] jm integer j dimension.
+!> @param[in] jsta_2l integer j dimension start point (including haloes).
+!> @param[in] jend_2u integer j dimension end point (including haloes).
+!> @param[in] jsta integer j dimension start point (excluding haloes).
+!> @param[in] jend integer j dimension end point (excluding haloes).
+!> @param[in] lm integer k dimension.
+!> @param[in] lp1 integer k dimension plus 1.
+!> @param[in] iseed integer random number seed.
+!> @param[in] g real gravity (m/s**2).
+!> @param[in] pthresh real precipitation threshold (m).
+!> @param[in] t real(im,jsta_2l:jend_2u,lm) mid layer temp (K).
+!> @param[in] q real(im,jsta_2l:jend_2u,lm) specific humidity (kg/kg).
+!> @param[in] pmid real(im,jsta_2l:jend_2u,lm) mid layer pressure (Pa).
+!> @param[in] pint real(im,jsta_2l:jend_2u,lp1) interface pressure (Pa).
+!> @param[in] lmh real(im,jsta_2l:jend_2u) max number of layers.
+!> @param[in] prec real(im,jsta_2l:jend_2u) precipitation (m).
+!> @param[in] zint real(im,jsta_2l:jend_2u,lp1) interface height (m).
+!> @param[out] ptype integer(im,jm) instantaneous weather type () acts like a 4 bit binary 1111 = rain/freezing rain/ice pellets/snow.
+!> @param[in] me integer Identifier for the processor used in the current instance. 
+!------------------------------------------------------------------------------------------------------------
+      subroutine calwxt_bourg_post(im,ista_2l,iend_2u,ista,iend,jm,     &
+     &                              jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                             iseed,g,pthresh,                          &
      &                             t,q,pmid,pint,lmh,prec,zint,ptype,me)
       implicit none
