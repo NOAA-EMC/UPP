@@ -20,7 +20,14 @@
 !> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>     
 !> @author Russ Treadon W/NP2 @date 1993-06-18
-
+!--------------------------------------------------------------------------------------
+!> @brief Subroutine that computes Theta-E.
+!> 
+!> @param[in] P1D pressure (Pa).
+!> @param[in] T1D temperature (K).
+!> @param[in] Q1D specific humidity(kg/kg).
+!> @param[out] THTE Theta-E (K).
+!--------------------------------------------------------------------------------------
       SUBROUTINE CALTHTE(P1D,T1D,Q1D,THTE)
 
 !

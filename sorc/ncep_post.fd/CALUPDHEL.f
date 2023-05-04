@@ -15,6 +15,11 @@
 !> 2022-05-12 | E James  | Adding a check for extremely large positive or negative UH values
 !>     
 !> @author M Pyle W/NP2 @date 2007-10-22
+!--------------------------------------------------------------------------------------
+!> @brief Subroutine that computes the updraft helicity.
+!> 
+!> @param[out] UPDHEL Updraft helicity (m^2/s^2).
+!--------------------------------------------------------------------------------------
       SUBROUTINE CALUPDHEL(UPDHEL)
 
 !     

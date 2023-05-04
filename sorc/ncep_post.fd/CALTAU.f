@@ -24,7 +24,12 @@
 !> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1993-09-01
-
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes U and V wind stresses.
+!>
+!> @param[out] TAUX Suface layer U component wind stress.
+!> @param[out] TAUY Suface layer V component wind stress.
+!-----------------------------------------------------------------------
       SUBROUTINE CALTAU(TAUX,TAUY)
 
 !     

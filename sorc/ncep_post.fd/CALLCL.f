@@ -28,6 +28,16 @@
 !> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Russ Treadon W/NP2 @date 1993-03-15
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes the lifting condensation level (LCL) 
+!> height (above ground level) and pressure in each column at mass points.
+!>
+!> @param[in] P1D Array of parcel pressures (Pa).
+!> @param[in] T1D Array of parcel temperatures (K).
+!> @param[in] Q1D Array of parcel specific humidities (kg/kg).
+!> @param[out] PLCL Parcel Pressure at LCL (Pa).
+!> @param[out] ZLCL Parcel AGL height at LCL (m).
+!-----------------------------------------------------------------------
       SUBROUTINE CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
 
 !     
