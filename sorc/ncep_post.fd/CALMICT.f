@@ -1,7 +1,7 @@
 !> @file
 !> @brief Subroutine that computes hydrometeors.
 !>
-!> This routin computes the mixing ratios of cloud water,
+!> This routine computes the mixing ratios of cloud water,
 !> cloud ice, rain, and snow. The code is based on subroutines
 !> GSMDRIVE and GSMCOLUMN in the NMM model.
 !>
@@ -21,6 +21,8 @@
 !> @param[out] DBZR Equivalent radar reflectivity factor from rain in dBZ.
 !> @param[out] DBZI Equivalent radar reflectivity factor from ice (all forms) in dBZ.
 !> @param[out] DBZC Equivalent radar reflectivity factor from parameterized convection in dBZ.
+!> @param[inout] NLICE1 Time-averaged number concentration of large ice. 
+!> @param[inout] NRAIN1 Number concentration of rain drops (m).
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -33,8 +35,35 @@
 !> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
 !>
 !> @author Yi Jin W/NP2 @date 2001-08-14
-      SUBROUTINE CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
-                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes hydrometeors.
+!>
+!> This routine computes the mixing ratios of cloud water,
+!> cloud ice, rain, and snow. The code is based on subroutines
+!> GSMDRIVE and GSMCOLUMN in the NMM model.
+!>
+!> @param[in] P1D Pressure (Pa).
+!> @param[in] T1D Temperature (K).
+!> @param[in] Q1D Specific humidity (kg/kg).
+!> @param[in] C1D Total condensate (CWM, kg/kg).
+!> @param[in] FI1D F_ice (fraction of condensate in form of ice).
+!> @param[in] FR1D F_rain (fraction of liquid water in form of rain).
+!> @param[in] FS1D F_RimeF ("Rime Factor", ratio of total ice growth to deposition growth).
+!> @param[in] CUREFL Radar reflectivity contribution from convection (mm**6/m**3).
+!> @param[inout] QW1 Cloud water mixing ratio (kg/kg).
+!> @param[inout] QI1 Cloud ice mixing ratio (kg/kg).
+!> @param[inout] QR1 Rain mixing ratio (kg/kg).
+!> @param[inout] QS1 "Snow" (precipitation ice) mixing ratio (kg/kg).
+!> @param[inout] DBZ1 Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z).
+!> @param[inout] DBZR1 Equivalent radar reflectivity factor from rain in dBZ.
+!> @param[inout] DBZI1 Equivalent radar reflectivity factor from ice (all forms) in dBZ.
+!> @param[inout] DBZC1 Equivalent radar reflectivity factor from parameterized convection in dBZ.
+!> @param[inout] NLICE1 Time-averaged number concentration of large ice. 
+!> @param[inout] NRAIN1 Number concentration of rain drops (m).
+!>
+!-----------------------------------------------------------------------
+      SUBROUTINE CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL, &
+                  QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
 
 !
       use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608
@@ -299,11 +328,12 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !
 !-- For the old version of the microphysics:
 !
-      SUBROUTINE CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
-                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
+      SUBROUTINE CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL, &
+                  QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
+!-----------------------------------------------------------------------
 !> CALMICT_old computes hydrometeors from the older version of the microphysics.
 !>
-!> This routin computes the mixing ratios of cloud water, cloud ice, 
+!> This routine computes the mixing ratios of cloud water, cloud ice, 
 !> rain, and snow. The code is based on option MP_PHYSICS==95 in the
 !> WRF namelist and option MICRO='fer' in NMMB configure files.
 !>
@@ -315,14 +345,16 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !> @param[in] FR1D F_rain (fraction of liquid water in form of rain).
 !> @param[in] FS1D F_RimeF ("Rime Factor", ratio of total ice growth to deposition growth).
 !> @param[in] CUREFL Radar reflectivity contribution from convection (mm**6/m**3).
-!> @param[out] QW1 Cloud water mixing ratio (kg/kg).
-!> @param[out] QI1 Cloud ice mixing ratio (kg/kg).
-!> @param[out] QR1 Rain mixing ratio (kg/kg).
-!> @param[out] QS1 "Snow" (precipitation ice) mixing ratio (kg/kg).
-!> @param[out] DBZ1 Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z).
-!> @param[out] DBZR Equivalent radar reflectivity factor from rain in dBZ.
-!> @param[out] DBZI Equivalent radar reflectivity factor from ice (all forms) in dBZ.
-!> @param[out] DBZC Equivalent radar reflectivity factor from parameterized convection in dBZ.
+!> @param[inout] QW1 Cloud water mixing ratio (kg/kg).
+!> @param[inout] QI1 Cloud ice mixing ratio (kg/kg).
+!> @param[inout] QR1 Rain mixing ratio (kg/kg).
+!> @param[inout] QS1 "Snow" (precipitation ice) mixing ratio (kg/kg).
+!> @param[inout] DBZ1 Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z).
+!> @param[inout] DBZR1 Equivalent radar reflectivity factor from rain in dBZ.
+!> @param[inout] DBZI1 Equivalent radar reflectivity factor from ice (all forms) in dBZ.
+!> @param[inout] DBZC1 Equivalent radar reflectivity factor from parameterized convection in dBZ.
+!> @param[inout] NLICE1 Time-averaged number concentration of large ice. 
+!> @param[inout] NRAIN1 Number concentration of rain drops (m).
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
