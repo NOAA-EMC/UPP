@@ -1,5 +1,6 @@
 !> @file
 !> @brief wrfpost() drives the external wrf post processor.
+!> @return wrfpost 
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -35,6 +36,9 @@
 !> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
+!---------------------------------------------------------------------
+!> @return wrfpost
+!---------------------------------------------------------------------
       PROGRAM WRFPOST
 
 !
@@ -201,7 +205,7 @@
        read(5,nml=model_inputs,iostat=itag_ierr,err=888)
        !print*,'itag_ierr=',itag_ierr
 888    if (itag_ierr /= 0) then
-       print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
+       print*,'Incorrect namelist variable(s) found in the itag file,stopping.'
        stop
        endif
        
