@@ -180,8 +180,6 @@
 !     IF WE HAVE MORE THAN 1 MPI TASK THEN WE WILL FIRE UP THE IO SERVER
 !     THE LAST TASK ( IN THE CONTEXT OF MPI_COMM_WORLD ) IS THE I/O SERVER
 !
-      print*,'ME,NUM_PROCS,NUM_SERVERS=',ME,NUM_PROCS,NUM_SERVERS
-
       if (me == 0) CALL W3TAGB('nems     ',0000,0000,0000,'np23   ')
 
       if ( me >= num_procs ) then
@@ -199,20 +197,11 @@
 !open namelist
        open(5,file='itag')
        read(5,nml=model_inputs,iostat=itag_ierr,err=888)
-       !print*,'itag_ierr=',itag_ierr
 888    if (itag_ierr /= 0) then
        print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
        stop
        endif
        
-       if (me==0) print*,'fileName= ',fileName
-         if (me==0) print*,'IOFORM= ',IOFORM
-         !if (me==0) print*,'OUTFORM= ',grib
-         if (me==0) print*,'OUTFORM= ',grib
-         if (me==0) print*,'DateStr= ',DateStr
-         if (me==0) print*,'MODELNAME= ',MODELNAME
-         if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
-          if (me==0) print*,'numx= ',numx
 !       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
 ! 1114   format(a4)
@@ -223,7 +212,6 @@
 
        write(*,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
 
-      if (me==0) print 303,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         if (me==0) write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
@@ -244,16 +232,9 @@
  121    format(a4)
 
 !KaYee: Read in GFS/FV3 runs in Fortran Namelist Format.
-        if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
-        if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
-          if (me == 0) print*,'first two file names in GFS or FV3= '  &
-                               ,trim(fileName),trim(fileNameFlux)
-        end if
-
       if(grib=='grib2') then
         gdsdegr = 1.d6
       endif
-      if (me==0) print *,'gdsdegr=',gdsdegr
 ! 
 ! set default for kpo, kth, th, kpv, pv     
         kpo = 0
@@ -279,8 +260,6 @@
         fileNameFlat='postxconfig-NT.txt'
         read(5,nampgb,iostat=iret,end=119)
  119    continue
-       if (me==0) print*,'in itag, write_ifi_debug_files=', write_ifi_debug_files
-       if (me==0) print*,'in itag, mod(num_procs,numx)=', mod(num_procs,numx)
        if(mod(num_procs,numx)/=0) then
          if (me==0) then
            print*,'total proces, num_procs=', num_procs 
@@ -355,7 +334,6 @@
           end if
         end if
         LSMP1 = LSM+1
-        if (me==0) print*,'LSM, SPL = ',lsm,spl(1:lsm)        
       
  116    continue
 
@@ -369,10 +347,8 @@
         if(TRIM(IOFORM) == 'netcdf' .OR. TRIM(IOFORM) == 'netcdfpara') THEN
          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
           call ext_ncd_ioinit(SysDepInfo,Status)
-          print*,'called ioinit', Status
           call ext_ncd_open_for_read( trim(fileName), 0, 0, " ",          &
             DataHandle, Status)
-          print*,'called open for read', Status
           if ( Status /= 0 ) then
             print*,'error opening ',fileName, ' Status = ', Status ; stop
           endif
@@ -389,13 +365,10 @@
           LM1   = LM-1
           IM_JM = IM*JM
        
-          print*,'im jm lm from wrfout= ',im,jm, lm
-       
 ! Read and set global value for surface physics scheme
           call ext_ncd_get_dom_ti_integer(DataHandle                      &
             ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
           iSF_SURFACE_PHYSICS = itmp
-          print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
           NSOIL = 4
@@ -406,7 +379,6 @@
           ELSE IF(itmp == 7) then ! Pleim Xu
             NSOIL = 2
           END IF
-          print*,'NSOIL from wrfout= ',NSOIL
 
           call ext_ncd_ioclose ( DataHandle, Status )
          ELSE
@@ -438,15 +410,12 @@
             print*,'nsoil not found; assigning to 4'
             NSOIL=4 !set nsoil to 4 for NOAH
           endif
-          if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
-          if(me==0)print*,'NSOIL= ',NSOIL
 ! read imp_physics
           Status=nf90_get_att(ncid2d,nf90_global,'imp_physics',imp_physics)
           if(Status/=0)then
             print*,'imp_physics not found; assigning to GFDL 11'
             imp_physics=11
           endif
-          if (me == 0) print*,'MP_PHYSICS= ',imp_physics
 ! get dimesions
           Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
           if ( Status /= 0 ) then
@@ -484,8 +453,6 @@
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
 !          NSOIL = 4
-
-          print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
 
         ELSE IF(TRIM(IOFORM) == 'binary'       .OR.                       &
@@ -499,7 +466,6 @@
           spval = 9.99e20
           IF(ME == 0)THEN
             call nemsio_init(iret=status)
-            print *,'nemsio_init, iret=',status
             call nemsio_open(nfile,trim(filename),'read',iret=status)
             if ( Status /= 0 ) then
               print*,'error opening ',fileName, ' Status = ', Status ; stop
@@ -526,9 +492,7 @@
           call mpi_bcast(lm,   1,MPI_INTEGER,0, mpi_comm_comp,status)
           call mpi_bcast(nsoil,1,MPI_INTEGER,0, mpi_comm_comp,status)
 
-          if (me == 0) print*,'im jm lm nsoil from NEMS= ',im,jm, lm ,nsoil
           call mpi_bcast(global,1,MPI_LOGICAL,0,mpi_comm_comp,status)
-          if (me == 0) print*,'Is this a global run ',global
           LP1   = LM+1
           LM1   = LM-1
           IM_JM = IM*JM
@@ -560,8 +524,6 @@
 
 
         CALL MPI_FIRST()
-        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u,spval=',jsta,        &
-                jend,jsta_m,jend_m, jsta_2l,jend_2u,spval
         CALL ALLOCATE_ALL()
      
 !
@@ -592,11 +554,9 @@
  
         IF(TRIM(IOFORM) == 'netcdf' .OR. TRIM(IOFORM) == 'netcdfpara') THEN
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
-            print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
             CALL INITPOST
           ELSE IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
 ! use parallel netcdf library to read output directly
-            print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid2d,ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'

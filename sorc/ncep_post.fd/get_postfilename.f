@@ -48,11 +48,6 @@
          IF (KENV<=0) KENV = LEN(ENVAR)
          KTHR = INDEX(RESTHR,' ') -1
          IF (KTHR<=0) KTHR = LEN(RESTHR)
-         if(me==0) print *,'PGBOUT=',trim(PGBOUT)
-!
-      if(me==0)print *,'in get postfilename, ritehd=',ritehd,'ifhr=',ifhr,'modelname=',modelname, &
-        'ENVAR(1:4)=',ENVAR(1:4),'RESTHR(1:4)=',RESTHR(1:4),'ifmin=',ifmin,'DATSET(1:KDAT)=', &
-        DATSET(1:KDAT)
 !
 !        CONSTRUCT FULL PATH-FILENAME FOR OUTPUT FILE
          IF(MODELNAME=='GFS')THEN
@@ -69,7 +64,6 @@
              (IGET(372)>0).OR.(IGET(373)>0).OR.  &
              (IGET(374)>0).OR.(IGET(375)>0)))THEN
               FNAME = D3DOUT
-              if(me==0)PRINT*,' FNAME FROM D3DOUT=',trim(FNAME)
           ELSE IF(IPVOUT(1:4)/=BLANK .AND.           &
               index(DATSET(1:KDAT),"IPV")>0 .AND.  &
              ((IGET(332)>0).OR.(IGET(333)>0).OR.  &
@@ -77,17 +71,14 @@
              (IGET(351)>0).OR.(IGET(352)>0).OR.  &
              (IGET(353)>0).OR.(IGET(378)>0)))THEN
               FNAME = IPVOUT
-              if(me==0)PRINT*,' FNAME FROM IPVOUT=',trim(FNAME)
           ELSE IF(PGBOUT(1:4)/=BLANK)THEN
             FNAME = PGBOUT
-            if(me==0)PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
           ELSE
               NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
 !          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
               WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
               WRITE(CFHOUR,CFORM) IHR
               FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
-              if(me==0)print *,' FNAME=',trim(FNAME)
           END IF
 !         IF(MODELNAME=='GFS'.AND.PGBOUT(1:4)/=BLANK)THEN
 !          FNAME = PGBOUT
@@ -104,7 +95,6 @@
            WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFHOUR,CFORM) IHR
            FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
-           if(me==0)print *,' FNAME=',trim(FNAME)
 !
 !          IF(IHR<100)THEN
 !           WRITE(DESCR2,1011) IHR
@@ -165,9 +155,5 @@
          ENDIF
 !
       ENDIF
-      if(me==0) then
-        print*,'FNAME= ',trim(FNAME)
-        print *,'end of get post filename'
-      endif
 
       end subroutine get_postfilename 

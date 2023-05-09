@@ -59,7 +59,6 @@ contains !==============================================================
       return
     endif
 
-    write(*,*) 'ient,iget = ',ient,iget(ient)
 
     if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
       return
