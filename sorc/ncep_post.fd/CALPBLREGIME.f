@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine that computes PBL height based on bulk RCH number.
+!> @brief Subroutine that determines the PBL regime.
 !>
 !> This routine computes the bulk Richardson number based on algorithms
 !> from WRF surface layer and then derives PBL regime as follows:
@@ -16,7 +16,7 @@
 !> 4. BR < 0.0
 !> Represnets free convection conditions (Regime=4).    
 !>    
-!> @param[out] PBLREGIME real PBL Height above ground.
+!> @param[out] PBLREGIME PBL regime.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -26,10 +26,9 @@
 !>   
 !> @author H Chuang @date 2007-04-27
 !-----------------------------------------------------------------------
-!> @brief Subroutine that computes PBL height based on WRF algorithm for 
-!> bulk Richardson number and then derives PBL regime.
+!> @brief Subroutine that determines the PBL regime.
 !>
-!> @param[inout] PBLREGIME real PBL Height above ground.
+!> @param[inout] PBLREGIME PBL regime.
 !-----------------------------------------------------------------------
       SUBROUTINE CALPBLREGIME(PBLREGIME)
 
