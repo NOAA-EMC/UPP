@@ -36,6 +36,13 @@
        </param>
 
        <param>
+       <shortname>DPT_ON_ISOBARIC_SFC</shortname>
+       <pname>DPT</pname>
+       <level>10000. 20000. 30000. 50000. 70000. 85000.</level>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
        <shortname>SPFH_ON_ISOBARIC_SFC</shortname>
        <pname>SPFH</pname>
        <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
