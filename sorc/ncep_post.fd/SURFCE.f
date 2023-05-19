@@ -41,6 +41,7 @@
 !> 2023-02-23 | E James    | Adding coarse PM from RRFS
 !> 2023-03-22 | S Trahan   | Fixed out-of-bounds access calling BOUND with wrong array dimensions
 !> 2023-04-21 | E James    | Enabling GSL precip type for RRFS
+!> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
