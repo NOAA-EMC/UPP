@@ -15,3 +15,10 @@ Applications.
 This software package can be run inline, built as a library to be used by the model, and offline,
 built stand-alone and run separate from the model. This documentation largely details the offline
 procedures.
+
+=====================
+Terms of Use Notice
+=====================
+
+The UPP Terms of Use Notice is available at: 
+https://github.com/NOAA-EMC/UPP/wiki/UPP-Terms-of-Use-Notice

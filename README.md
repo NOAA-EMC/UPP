@@ -128,3 +128,7 @@ Commerce. The Department of Commerce seal and logo, or the seal and
 logo of a DOC bureau, shall not be used in any manner to imply
 endorsement of any commercial product or activity by DOC or the United
 States Government.
+
+## UPP Terms of Use Notice
+
+The UPP Terms of Use Notice is available at: https://github.com/NOAA-EMC/UPP/wiki/UPP-Terms-of-Use-Notice
