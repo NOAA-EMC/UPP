@@ -36,26 +36,31 @@ UFS Unified Model Variables
 ITAG
 ----
 
-The file called :bolditalic:`itag` is a text file that contains the fortran namelist &model_inputs. It is
-read in by the :bolditalic:`upp.x` executable from stdin (unit 5) and is
-generated automatically within the UFS application workflow or stand-alone run script based on
-user-defined options. It should not be necessary to edit this. For description purposes, the namelist
-&model_inputs (:bolditalic:`itag` file) contains 7 lines for FV3:
+The file called :bolditalic:`itag` is a text file that contains the fortran namelist &model_inputs as
+well as the 2D decomposition specification in &nampgb. It is read in by the :bolditalic:`upp.x` executable
+from stdin (unit 5) and is generated automatically within the UFS application workflow or stand-alone run script based on user-defined options. It should not be necessary to edit this. For description purposes,
+the namelist &model_inputs and &nampgb (:bolditalic:`itag` file) contain the following lines for FV3:
 
-#. Name of the FV3 (pressure level) output file to be post-processed.
+&model_inputs
 
-#. Format of FV3 model output (netcdfpara).
+#. fileName: Name of the FV3 (pressure level) output file to be post-processed.
 
-#. Format of UPP output (GRIB2)
+#. IOFORM: Format of FV3 model output (netcdfpara).
 
-#. Forecast valid time (not model start time) in YYYY-MM-DD_HH:00:00 format (the forecast time desired
-   to be post-processed).
+#. grib: Format of UPP output (grib2)
 
-#. Model used (GFS, FV3R - regional FV3 also known as the LAM - Limited Area Model).
+#. DateStr: Forecast valid time (not model start time) in YYYY-MM-DD_HH:00:00 format (the forecast time
+   desired to be post-processed).
 
-#. Name of the FV3 (surface) output file to be post-processed.
+#. MODELNAME: Model used (GFS, FV3R - regional FV3 also known as the LAM - Limited Area Model).
 
-#. Name of configuration file (postxconfig-NT.txt)
+#. fileNameFlux: Name of the FV3 (surface) output file to be post-processed.
+
+#. fileNameFlat: Name of configuration file (postxconfig-NT.txt)
+
+&nampgb
+
+#. numx: Number of subdomains in the x-direction used for 2D decomposition. 
 
 ------------
 Control File
