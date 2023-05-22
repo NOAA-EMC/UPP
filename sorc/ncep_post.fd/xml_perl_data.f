@@ -20,14 +20,22 @@
 	    character(len=10)                    :: table_info=''
 	    character(len=80)                    :: stats_proc=''
 	    character(len=80)                    :: fixed_sfc1_type=''
-            integer, dimension(:), pointer       :: scale_fact_fixed_sfc1 => null()
-	    real, dimension(:), pointer          :: level => null()
-	    character(len=80)                    :: fixed_sfc2_type=''
-	    integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null()
-	    real, dimension(:), pointer          :: level2 => null()
-	    character(len=80)                    :: aerosol_type=''
+       integer, dimension(:), pointer       :: scale_fact_fixed_sfc1 => null()    !< scale_fact_fixed_sfc1 _____. 
+	    
+       real, dimension(:), pointer          :: level => null()    !< level _____. 
+	    
+       character(len=80)                    :: fixed_sfc2_type=''
+	    
+       integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null()   !< scale_fact_fixed_sfc2 _____. 
+	    
+       real, dimension(:), pointer          :: level2 => null()   !< level2 _____. 
+	    
+       character(len=80)                    :: aerosol_type=''    !< aerosol_type _____. 
+
 	    character(len=80)                    :: typ_intvl_size=''
- 	    integer                              :: scale_fact_1st_size=0
+
+ 	    integer                              :: scale_fact_1st_size=0    !< scale_fact_1st_size _____. 
+
 	    real                                 :: scale_val_1st_size=0.0
 	    integer                              :: scale_fact_2nd_size=0
 	    real                                 :: scale_val_2nd_size=0.0
@@ -36,7 +44,9 @@
 	    real                                 :: scale_val_1st_wvlen=0.0
 	    integer                              :: scale_fact_2nd_wvlen=0
 	    real                                 :: scale_val_2nd_wvlen=0.0
-	    real, dimension(:), pointer          :: scale => null()
+
+	    real, dimension(:), pointer          :: scale => null()    !< scale _____. 
+
 	    integer                              :: stat_miss_val=0
 	    integer                              :: leng_time_range_prev=0
 	    integer                              :: time_inc_betwn_succ_fld=0
@@ -62,13 +72,13 @@
 	    character(len=30)                    :: order_of_sptdiff='1st_ord_sptdiff'
 	    character(len=20)                    :: field_datatype=''
 	    character(len=30)                    :: comprs_type=''
-            character(len=50)                    :: type_ens_fcst=''
-            character(len=50)                    :: type_derived_fcst=''
-            type(param_t), dimension(:), pointer :: param => null()
+            character(len=50)                    :: type_ens_fcst=''       !< _____.
+            character(len=50)                    :: type_derived_fcst=''   !< _____.
+            type(param_t), dimension(:), pointer :: param => null()        !< _____.
           end type paramset_t
  
           type post_avblfld_t
-            type(param_t), dimension(:), pointer :: param => null()
+            type(param_t), dimension(:), pointer :: param => null()        !< _____.
           end type post_avblfld_t
 
           type (paramset_t), dimension(:), pointer :: paramset
@@ -317,4 +327,3 @@
         end subroutine filter_char_inp
 
         end module
-

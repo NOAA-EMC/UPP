@@ -19,6 +19,11 @@
 !>
 !> @note Lookup tables for the saturation vapor pressure w/r/t water & ice.
 !> @author N Phillips W/NP2 @date 1982-12-30
+!-----------------------------------------------------------------------
+!>
+!> gpvs computes saturation vapor pressure table as a function of
+!> temperature for the table lookup function FPVS.
+!>
       SUBROUTINE GPVS
 !     ******************************************************************
 
@@ -51,9 +56,9 @@
 !-----------------------------------------------------------------------
 !***********************************************************************
 !-----------------------------------------------------------------------
-                           FUNCTION FPVS(T)
-!-----------------------------------------------------------------------
-!> fpvs() computes saturation vapor pressure.
+!> @brief fpvs() computes saturation vapor pressure.
+!> @note This function is mostly replaced by FPVSNEW in UPP_PHYSICS.f. 
+!> The only routine that uses FPVS is CALMICT.f.
 !>
 !> Compute saturation vapor pressure from the temperature.
 !> A linear interpolation is done between values in a lookup table
@@ -64,8 +69,8 @@
 !> This function should be expanded inline in the calling routine.
 !>
 !> @param[in] T real temperature in Kelvin.
-!> @param[out] FPVS real saturation vapor pressure in kilopascals (CB).
-!>
+!> @return FPVS real Saturation vapor pressure in kilopascals (CB).
+!> 
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
@@ -75,6 +80,8 @@
 !> 1996-02-19 | Hong         | Ice effect
 !>
 !> @author N Phillips W/NP2 @date 1982-12-30
+!-----------------------------------------------------------------------
+                           FUNCTION FPVS(T)
 !-----------------------------------------------------------------------
       use svptbl_mod, only : NX,C1XPVS,C2XPVS,TBPVS
 !
@@ -96,6 +103,17 @@
       END
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
+!> @brief FPVS0() computes saturation vapor pressure.
+!> @note This function is no longer used. 
+!>
+!> @param T real Temperature (K).
+!> @param NX integer Number of grid cells in the X direction _____.
+!> @param C1XPVS0 real _____.
+!> @param C2XPVS0 real _____.
+!> @param TBPVS0 array _____.
+!> @return FPVS0 real Saturation vapor pressure in kilopascals (CB).
+!>
+
                        FUNCTION FPVS0(T,NX,C1XPVS0,C2XPVS0,TBPVS0)
 !-----------------------------------------------------------------------
 !      use svptbl_mod, only : NX,C1XPVS0,C2XPVS0,TBPVS0
@@ -118,15 +136,13 @@
 !-----------------------------------------------------------------------
 !***********************************************************************
 !-----------------------------------------------------------------------
-                         FUNCTION FPVSX(T)
-!-----------------------------------------------------------------------
-!> fpvsx() computes saturation vapor pressure.
+!> @brief fpvsx() computes saturation vapor pressure.
 !>
 !> Exactly compute saturation vapor pressure from temperature.
 !> The water model assumes a perfect gas, constant specific heats
 !> for gas and liquid, and neglects the volume of the liquid.
 !> The model does account for the variation of the latent heat
-!> of condensation with temperature.  The ice option is not included.
+!> of condensation with temperature. The ice option is not included.
 !> The Clausius-Clapeyron equation is integrated from the triple point
 !> To get the formula
 !> @code
@@ -135,8 +151,8 @@
 !> where TR is TTP/T and other values are physical constants
 !> This function should be expanded inline in the calling routine.
 !>
-!> @param[in] T real temperature in Kelvin.
-!> @param[out] FPVSX real saturation vapor pressure in kilopascals (CB).
+!> @param[in] T real Temperature (K).
+!> @return FPVSX real Saturation vapor pressure in kilopascals (CB).
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -147,6 +163,8 @@
 !> 1996-02-19 | Hong         | Ice effect
 !>
 !> @author N Phillips W/NP2 @date 1982-12-30
+!-----------------------------------------------------------------------
+                         FUNCTION FPVSX(T)
 !-----------------------------------------------------------------------
     implicit none
 !
@@ -171,6 +189,11 @@
     END
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
+!> @brief fpvsx0() computes saturation vapor pressure.
+!> 
+!> @param T real Temperature (K).
+!> @return FPVSX0 real Saturation vapor pressure in kilopascals (CB).
+!
                         FUNCTION FPVSX0(T)
 !-----------------------------------------------------------------------
     implicit none

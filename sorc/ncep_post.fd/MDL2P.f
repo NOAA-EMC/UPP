@@ -1,9 +1,9 @@
 !> @file
-!> @brief mdl2p() computes vert intrp of model lvls to pressure.
+!> @brief mdl2p() computes vertical interpolation of model levels to pressure.
 !>
 !> For most applications this routine is the workhorse of the post processor.
 !> In a nutshell it interpolates data from model to pressure surfaces.
-!> It origiaated from the vertical interpolation code in the old ETA
+!> It origiated from the vertical interpolation code in the old ETA
 !> post processor subroutine outmap() and is a revision of subroutine eta2p().
 !>
 !> ### Program History Log
@@ -38,6 +38,11 @@
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !>
 !> @author T Black W/NP2 @date 1999-09-23
+!--------------------------------------------------------------------------------------
+!> MDL2P() computes vertical interpolation of model levels to pressure. 
+!> 
+!> @param[in] iostatusD3D integer _____. 
+!> 
       SUBROUTINE MDL2P(iostatusD3D)
 
 !
