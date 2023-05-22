@@ -8,11 +8,11 @@ diagnostic fields and interpolate to pressure levels or other vertical coordinat
 The UPP also incorporates the Joint Center for Satellite Data Assimilation (JCSDA) Community Radiative
 Transfer Model (CRTM) to compute model derived brightness temperature (TB) for various instruments and
 channels. This additional feature enables the generation of a number of simulated satellite products
-including GOES products.
+including GOES products. For CRTM documentation, refer to the `CRTM User Guide <https://github.com/JCSDA/crtm/wiki/files/CRTM_User_Guide.pdf>`__. 
 
 Output from the UPP is in National Weather Service (NWS) and World Meteorological Organization (WMO)
-`GRIB2 <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/>`_ format and can be used directly by
-visualization, plotting, or verification packages, or for further downstream post-processing, e.g.
+`GRIB2 <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/>`__ format and can be used directly by
+visualization, plotting, or verification packages, or for further downstream post-processing, e.g.,
 statistical post-processing techniques.
 
 Examples of UPP products include:
@@ -34,4 +34,59 @@ The UPP has 2D decomposition capabilities (V11.0.0) and is also backwards compat
 The functionality demonstrates run-time improvements, especially for larger domains. Support for this
 feature is available for standalone UPP applications.
 
-Support for the community UPP is provided through `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_.
+Support for the community UPP is provided through `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`__.
+
+==============================
+System Architecture Overview
+==============================
+
+The UPP can be run inline --- built as a library to be used by the model --- and offline --- built stand-alone and run separately from the model. The basic components of the offline UPP are shown in the schematic below. 
+
+.. figure:: https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/UPP_schematic.png
+   :width: 75%
+   :alt: The model output files are used as input to the UPP executable. The UPP executable uses the parameter files to determine the list of output fields. The executable generates post-processed output files in grib2 format, which can be used in downstream applications for regridding, visualization, verification, etc. 
+
+The ``upp.x`` component performs the bulk of the post-processing. Its functions include:
+
+   * Vertical interpolation from model levels/surfaces to isobaric, height, and other levels/surfaces
+   * Computing diagnostics from model data such as CAPE, relative humidity, radar reflectivities, etc.
+
+=====================
+Directory Structure
+=====================
+
+The main repository for the Unified Post Processor repository is named ``UPP``; it is available on GitHub at https://github.com/NOAA-EMC/UPP. When the ``develop`` branch of the UPP repository is cloned, the basic directory structure will be similar to the example below. Some files and directories have been removed for brevity. 
+
+.. code-block:: console
+
+   UPP      
+    ├── ci                          -------- Automated testing file
+    ├── cmake                       -------- CMake build system
+    ├── docs                        -------- User Guide files
+    │   └── Doxyfile.in             -------- Doxygen configuration file
+    ├── fix/Breadboard
+    ├── jobs                        -------- Scripts that set up the environment and call ex-scripts from the scripts directory
+    │    ├── JGLOBAL_ATMOS_NCEPPOST
+    │    ├── JGLOBAL_ATMOS_POST_MANAGER
+    │    └── J_NCEPPOST
+    ├── modulefiles                 -------- Modulefiles for supported machines
+    ├── parm                        -------- Parameter files
+    │    ├── post_avblflds.xml         -------- Lists all fields available in UPP
+    │    ├── postcntrl*.xml            -------- User editable control files that list the variables to be output
+    │    └── postxconfig-NT-*.txt      -------- Text file of requested output that UPP reads (processed from postcntrl)
+    ├── scripts                     -------- Ex-scripts
+    │    ├── exgdas_atmos_nceppost.sh  -------- 
+    │    ├── exgfs_atmos_nceppost.sh   -------- 
+    │    ├── exglobal_atmos_pmgr.sh    -------- Script that monitors the progress of the gfs_fcst job
+    │    └── run_upp                   -------- Script for running the standalone UPP package
+    ├── sorc                        -------- Top source code directory
+    │    ├── libIFI.fd                 -------- Private repository (submodule) for in-flight icing
+    │    └── ncep_post.fd              -------- Main post-processing routines
+    ├── tests
+    │    ├── compile_upp.sh            -------- UPP build script
+    │    └── detect_machine.sh
+    ├── ush                         -------- Utility scripts (referenced & run in /scripts)
+    ├── CMakeLists.txt
+    ├── LICENSE.md
+    ├── README.md
+    └── VERSION 
