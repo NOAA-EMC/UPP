@@ -12,7 +12,7 @@ of re-gridding for all available grid definitions can be found at:
 
 http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
 
-.. _Examples-of-wgrib2
+.. _Examples-of-wgrib2:
 
 ==================
 Examples of wgrib2

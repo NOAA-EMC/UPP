@@ -168,9 +168,10 @@ with examples in the sections below.
 
                  2 0 231 1 TG3
 
-            e) Add the new variable to the UPP/parm/post_avblflds.xml, which lists all fields available
-               for output in GRIB2 format. This file is generally not modified unless adding a new field or
+            e) **Add the new variable to the UPP/parm/post_avblflds.xml, which lists all fields available
+               for output in GRIB2 format.** This file is generally not modified unless adding a new field or
                modifying an existing one.
+
                 - Post_avblfldidx: the unique array index number used to store this variable. The number chosen here
                   is just an example and it is important to pick one that is not yet in use.
                 - Shortname: name describing the variable and level type
@@ -231,6 +232,7 @@ with examples in the sections below.
     ::
 
       allocate(tg3(ista_2l:iend_2u,jsta_2l:jend_2u))
+      
     - Initialize in the initialization section that comes after the allocations section you added to.
 
     ::

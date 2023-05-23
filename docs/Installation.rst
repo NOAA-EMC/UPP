@@ -77,7 +77,7 @@ tar file.
 
 .. note::
    To make a clean build, simply remove both the **tests/build** and **tests/install** directories and the
-   :bolditalic:`exec/upp.x` executable and then rerun the :bolditalic:`compile_upp.sh script. This is
+   :bolditalic:`exec/upp.x` executable and then rerun the :bolditalic:`compile_upp.sh` script. This is
    recommended if a mistake is made during the installation process.
    
 =======================
