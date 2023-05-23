@@ -2696,6 +2696,11 @@
 !
 ! MAXIMUM INSTANTANEOUS PRECIPITATION RATE.
       IF (IGET(508)>0) THEN
+         IF (IFHR==0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
 !-- PRATE_MAX in units of mm/h from NMMB history files
          GRID1=SPVAL
          DO J=JSTA,JEND
@@ -2703,6 +2708,7 @@
             if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
            ENDDO
          ENDDO
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(508))
