@@ -1,5 +1,5 @@
 Field Description,Name in Grib2 Control File,Grib2 pname,Vertical Level,UPP ID
-Radar reflectivity on model surface*,REFD_ON_HYBRID_LVL,REFD,109,250
+Radar reflectivity on model surface,REFD_ON_HYBRID_LVL,REFD,109,250
 Pressure on model surface,PRES_ON_HYBRID_LVL,PRES,109,1
 Height on model surface,HGT_ON_HYBRID_LVL,HGT,109,77
 Temperature on model surface,TMP_ON_HYBRID_LVL,TMP,109,2
@@ -22,7 +22,7 @@ Turbulent kinetic energy on model surface,TKE_ON_HYBRID_LVL,TKE,109,11
 Richardson number on model surface,RI_ON_HYBRID_LVL,RI,109,111
 Master length scale on model surface,BMIXL_ON_HYBRID_LVL,BMIXL,109,146
 Asymptotic length scale on model surface,AMIXL_ON_HYBRID_LVL,AMIXL,109,147
-Radar reflectivity on pressure surface*,REFD_ON_ISOBARIC_SFC,REFD,100,251
+Radar reflectivity on pressure surface,REFD_ON_ISOBARIC_SFC,REFD,100,251
 Height on pressure surface,HGT_ON_ISOBARIC_SFC,HGT,100,12
 Temperature on pressure surface,TMP_ON_ISOBARIC_SFC,TMP,100,13
 Potential temperature on pressure surface,POT_ON_ISOBARIC_SFC,POT,100,14
@@ -72,8 +72,8 @@ Ground heat flux - instantaneous,INST_GFLUX_ON_SURFACE,GFLUX,1,152
 Lifted index—surface based,LFTX_ON_ISOBARIC_SFC_500-1000hpa,LFTX,101,30
 Lifted index—best,4LFTX_ON_SPEC_PRES_ABOVE_GRND,4LFTX,116,31
 Lifted index—from boundary layer,PLI_ON_SPEC_PRES_ABOVE_GRND,PLI,116,75
-CAPE (4 types) ***,CAPE_ON_SURFACE,CAPE,1,32
-CIN (4 types) ***,CIN_ON_SURFACE,CIN,1,107
+Surface CAPE,CAPE_ON_SURFACE,CAPE,1,32
+Surface CIN,CIN_ON_SURFACE,CIN,1,107
 Column integrated precipitable water,PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,PWAT,200,80
 Column integrated cloud water,TCOLW_ON_ENTIRE_ATMOS,TCOLW,200,200
 Column integrated cloud ice,TCOLI_ON_ENTIRE_ATMOS,TCOLI,200,201
@@ -92,7 +92,7 @@ Accumulated large scale snow,Not currently available for grib2,NA,1,244
 Accumulated total snow melt,ACM_SNOM_ON_SURFACE,SNOM,1,121
 Precipitation type (4 types) – instantaneous,INST_CRAIN_ON_SURFACE,CRAIN,1,160
 Precipitation rate - instantaneous,INST_PRATE_ON_SURFACE,PRATE,1,167
-Composite radar reflectivity*,REFC_ON_ENTIRE_ATMOS,REFC,200,252
+Composite radar reflectivity,REFC_ON_ENTIRE_ATMOS,REFC,200,252
 Low level cloud fraction,LCDC_ON_LOW_CLOUD_LYR,LCDC,214,37
 Mid level cloud fraction,MCDC_ON_MID_CLOUD_LYR,MCDC,224,38
 High level cloud fraction,HCDC_ON_HIGH_CLOUD_LYR,HCDC,234,39
@@ -200,7 +200,7 @@ Potential evaporation,PEVPR_ON_SURFACE,PEVPR,1,242
 Heat diffusivity on sigma surface,VEDH_ON_SIGMA_LVLS,VEDH,107,243
 Surface wind gust,GUST_ON_SURFACE,GUST,1,245
 Convective precipitation rate,CPRAT_ON_SURFACE,CPRAT,1,249
-Radar reflectivity at certain above ground heights*,REFD_ON_SPEC_HGT_LVL_ABOVE_GRND,REFD,105,253
+Radar reflectivity at certain above ground heights,REFD_ON_SPEC_HGT_LVL_ABOVE_GRND,REFD,105,253
 MAPS Sea Level Pressure,MAPS_PRMSL_ON_MEAN_SEA_LVL,PRMSL,102,445
 Total soil moisture,SOILM_ON_DEPTH_BEL_LAND_SFC,SOILM,112,36
 Plant canopy surface water,CNWAT_ON_SURFACE,CNWAT,1,118
