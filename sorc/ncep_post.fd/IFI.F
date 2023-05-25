@@ -1,48 +1,71 @@
-#ifndef USE_IFI
-
-! IFI stubs
-
 module upp_ifi_mod
-  use iso_c_binding, only: c_float
+
+#ifdef USE_IFI
+  ! Use the libIFI API modules.
+  use ifi_type_mod
+  use ifi_mod
+#endif
+
+  use iso_c_binding, only: c_bool, c_int64_t, c_ptr, c_double, c_float
   implicit none
 
   private
+
   public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files
 
-  integer, parameter :: ifi_real_t = c_float
   logical :: write_ifi_debug_files = .false.
+
+#ifndef USE_IFI
+  ! Stubs need their own version of the ifi_real_t since it is defined in ifi_type_mod
+  integer, parameter :: ifi_real_t = c_float
+
+#else
+  ! Actual IFI code needs a few more module-scope variables.
+
+  real, parameter :: feet2meters = 0.3048
+
+  type(IFIConfig) :: ifi_config
+  logical :: have_read_ifi_config = .false.
+
+  ! Communication-related variables for gathers and
+  ! scatters. Gathering is done in the i direction first, all to one
+  ! rank in each row. Then that rank in each row gathers to the
+  ! destination rank. Scatter follows the same process, in reverse.
+
+  integer :: ifi_mpi_real_kind=-999
+  integer :: row_comm = -999 ! communicator for i-direction messages
+  integer :: col_comm = -999 ! communicator for j-direction messages
+  integer :: row_comm_rank=-999, col_comm_rank=-999 ! Rank in the i & j comm communicators
+  integer :: row_comm_size=-999, col_comm_size=-999 ! Size of the i & j comm communicators
+  integer :: grid_rank ! rank within mpi_comm_comp
+
+  integer, allocatable :: ista_grid(:) ! ista for each rank in mpi_comm_comp in i direction
+  integer, allocatable :: jsta_grid(:) ! jsta for each rank in mpi_comm_comp in j direction
+
+  real, allocatable :: rearrange(:,:) ! for rearranging data on local processor
+  integer, allocatable :: row_comm_count(:) ! scatterv&gatherv receive counts for i-direction collectives
+  integer, allocatable :: row_comm_displ(:) ! scatterv&gatherv displacements for i-direction collectives
+  integer, allocatable :: row_ista(:) ! i starts for rearranging data (icomm_size)
+  integer, allocatable :: row_iend(:) ! i ends for rearranging data (icomm_size)
+  real, allocatable :: rearrange_row1d(:) ! for rearranging data for an entire row (roots of icomm communicators)
+
+  real, allocatable :: rearrange_row2d(:,:) ! for rearranging data for an entire row (roots of icomm communicators)
+  integer, allocatable :: col_comm_count(:) ! scatterv&gatherv receive counts for j-direction collectives
+  integer, allocatable :: col_comm_displ(:) ! scatterv&gatherv displacements for j-direction collectives
+  integer, allocatable :: col_jsta(:) ! j starts for rearranging data (jcomm_size)
+  integer, allocatable :: col_jend(:) ! j ends for rearranging data (jcomm_size)
+
+  integer, allocatable :: isize_grid(:) ! iend-ista+1 for each gridpoint
+#endif
   
 contains !==============================================================
 
-  subroutine set_ifi_dims()
-    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
-    implicit none
-    integer :: i
-
-    ! Bogus fill value for flight levels to prevent a crash
-    ifi_nflight = 60
-    if(allocated(ifi_flight_levels)) then
-      deallocate(ifi_flight_levels)
-    endif
-    allocate(ifi_flight_levels(ifi_nflight))
-    do i=1,ifi_nflight
-      ifi_flight_levels(i) = 500*i
-    enddo
-  end subroutine set_ifi_dims
-
-  ! --------------------------------------------------------------------
-
-  subroutine run_ifi()
-    ! Fill any requested IFI fields with missing data.
-    call send_missing_data(1007)  ! ICE_PROB = missing
-    call send_missing_data(1008)  ! SLD = missing
-    call send_missing_data(1009)  ! ICE_SEV_CAT = missing
-    call send_missing_data(1010)  ! ICE_SEV_CAT = missing
-  end subroutine run_ifi
-
-  ! --------------------------------------------------------------------
-
   subroutine send_missing_data(ient)
+    ! Fills IFI fields in index ient (of IGET) with missing values.
+    !
+    ! This subroutine is both in the stub and actual IFI code.
+    ! The stubs always send missing data, while the actual code
+    ! sends missing data for unsupported hours.
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
     use ctlblk_mod, only: spval, ista, iend, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
     use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
@@ -58,7 +81,6 @@ contains !==============================================================
     if(size(IGET)<ient) then
       return
     endif
-
 
     if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
       return
@@ -93,7 +115,35 @@ contains !==============================================================
       endif
     enddo
   end subroutine send_missing_data
-end module upp_ifi_mod
+
+#ifndef USE_IFI
+! IFI stubs
+
+  subroutine set_ifi_dims()
+    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
+    implicit none
+    integer :: i
+
+    ! Bogus fill value for flight levels to prevent a crash
+    ifi_nflight = 60
+    if(allocated(ifi_flight_levels)) then
+      deallocate(ifi_flight_levels)
+    endif
+    allocate(ifi_flight_levels(ifi_nflight))
+    do i=1,ifi_nflight
+      ifi_flight_levels(i) = 500*i
+    enddo
+  end subroutine set_ifi_dims
+
+  ! --------------------------------------------------------------------
+
+  subroutine run_ifi()
+    ! Fill any requested IFI fields with missing data.
+    call send_missing_data(1007)  ! ICE_PROB = missing
+    call send_missing_data(1008)  ! SLD = missing
+    call send_missing_data(1009)  ! ICE_SEV_CAT = missing
+    call send_missing_data(1010)  ! ICE_SEV_CAT = missing
+  end subroutine run_ifi
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -101,54 +151,7 @@ end module upp_ifi_mod
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-! Actual IFI code.
-module upp_ifi_mod
-  use ifi_type_mod
-  use ifi_mod
-  use iso_c_binding, only: c_bool, c_int64_t, c_ptr, c_double
-
-  implicit none
-
-  private
-  public run_ifi, set_ifi_dims, ifi_real_t
-
-  real, parameter :: feet2meters = 0.3048
-
-  type(IFIConfig) :: ifi_config
-  logical :: have_read_ifi_config = .false.
-  logical, public :: write_ifi_debug_files = .false.
-
-  ! Communication-related variables for gathers and
-  ! scatters. Gathering is done in the i direction first, all to one
-  ! rank in each row. Then that rank in each row gathers to the
-  ! destination rank. Scatter follows the same process, in reverse.
-
-  integer :: ifi_mpi_real_kind=-999
-  integer :: row_comm = -999 ! communicator for i-direction messages
-  integer :: col_comm = -999 ! communicator for j-direction messages
-  integer :: row_comm_rank=-999, col_comm_rank=-999 ! Rank in the i & j comm communicators
-  integer :: row_comm_size=-999, col_comm_size=-999 ! Size of the i & j comm communicators
-  integer :: grid_rank ! rank within mpi_comm_comp
-
-  integer, allocatable :: ista_grid(:) ! ista for each rank in mpi_comm_comp in i direction
-  integer, allocatable :: jsta_grid(:) ! jsta for each rank in mpi_comm_comp in j direction
-
-  real, allocatable :: rearrange(:,:) ! for rearranging data on local processor
-  integer, allocatable :: row_comm_count(:) ! scatterv&gatherv receive counts for i-direction collectives
-  integer, allocatable :: row_comm_displ(:) ! scatterv&gatherv displacements for i-direction collectives
-  integer, allocatable :: row_ista(:) ! i starts for rearranging data (icomm_size)
-  integer, allocatable :: row_iend(:) ! i ends for rearranging data (icomm_size)
-  real, allocatable :: rearrange_row1d(:) ! for rearranging data for an entire row (roots of icomm communicators)
-
-  real, allocatable :: rearrange_row2d(:,:) ! for rearranging data for an entire row (roots of icomm communicators)
-  integer, allocatable :: col_comm_count(:) ! scatterv&gatherv receive counts for j-direction collectives
-  integer, allocatable :: col_comm_displ(:) ! scatterv&gatherv displacements for j-direction collectives
-  integer, allocatable :: col_jsta(:) ! j starts for rearranging data (jcomm_size)
-  integer, allocatable :: col_jend(:) ! j ends for rearranging data (jcomm_size)
-
-  integer, allocatable :: isize_grid(:) ! iend-ista+1 for each gridpoint
-  
-contains !==============================================================
+! Actual IFI code
 
   subroutine make_communicators
     use ctlblk_mod, only: jsta, jend, ista, iend, mpi_comm_comp, im, jm
@@ -728,6 +731,15 @@ contains !==============================================================
     real :: to_hourly
     real(c_double) :: fcst_lead_sec
     integer :: i, j
+
+    if(IFHR < 1 .or. IFHR > 18) then
+      print '(A)', 'IFI fields are only available from hours 1 through 18. Will output missing data for IFI fields for this time.'
+      call send_missing_data(1007)
+      call send_missing_data(1008)
+      call send_missing_data(1009)
+      call send_missing_data(1010)
+      return
+    endif
 
     ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
@@ -1363,8 +1375,6 @@ contains !==============================================================
     end function read_var
   end subroutine write_fip_output
 
+#endif
 
 end module upp_ifi_mod
-
-
-#endif

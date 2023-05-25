@@ -107,7 +107,14 @@ Run Script Overview
        |       >> IBM: ``mpirun.lsf upp.x < itag > outpost``
        |       >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
 
-6. Set naming convention for prefix and extension of output file name
+6. Set the value for numx.
+
+       | **numx**: The number of subdomains in the x-direction used for decomposition.
+
+       |     - For 1D decomposition, set numx=1 (default)
+       |     - For 2D decomposition, set numx>1
+
+7. Set naming convention for prefix and extension of output file name
     - **comsp** is the initial string of the output file name. By default it is not set and the prefix
       of the output file will be the string set in the XML file DATSET parameter. If set it will
       concatenate the setting to the front of the string specified in the XML file DATSET parameter.

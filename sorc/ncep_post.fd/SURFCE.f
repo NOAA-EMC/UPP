@@ -41,6 +41,7 @@
 !> 2023-02-23 | E James    | Adding coarse PM from RRFS
 !> 2023-03-22 | S Trahan   | Fixed out-of-bounds access calling BOUND with wrong array dimensions
 !> 2023-04-21 | E James    | Enabling GSL precip type for RRFS
+!> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -2695,6 +2696,11 @@
 !
 ! MAXIMUM INSTANTANEOUS PRECIPITATION RATE.
       IF (IGET(508)>0) THEN
+         IF (IFHR==0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
 !-- PRATE_MAX in units of mm/h from NMMB history files
          GRID1=SPVAL
          DO J=JSTA,JEND
@@ -2702,16 +2708,17 @@
             if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
            ENDDO
          ENDDO
+         ITSRFC = NINT(TSRFC)
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(508))
            fld_info(cfld)%lvl=LVLSXML(1,IGET(508))
-           fld_info(cfld)%tinvstat=1
-           if (IFHR > 0) then
+           if(ITSRFC>0) then
              fld_info(cfld)%ntrange=1
            else
              fld_info(cfld)%ntrange=0
            endif
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
