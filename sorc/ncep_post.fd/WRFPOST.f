@@ -201,6 +201,7 @@
        print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
        stop
        endif
+       if (me == 0) write(6, model_inputs)
        
 !       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
@@ -260,6 +261,7 @@
         fileNameFlat='postxconfig-NT.txt'
         read(5,nampgb,iostat=iret,end=119)
  119    continue
+        if (me == 0) write(6, nampgb)
        if(mod(num_procs,numx)/=0) then
          if (me==0) then
            print*,'total proces, num_procs=', num_procs 
