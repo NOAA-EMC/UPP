@@ -269,8 +269,8 @@
       iup=MPI_PROC_NULL
       idn=MPI_PROC_NULL
 
-      if(mod(me,numx) .eq. 0) print *,' LEFT POINT',me
-      if(mod(me+1,numx) .eq. 0) print *,' RIGHT  POINT',me
+      !if(mod(me,numx) .eq. 0) print *,' LEFT POINT',me
+      !if(mod(me+1,numx) .eq. 0) print *,' RIGHT  POINT',me
       if(mod(me,numx) .eq. 0) ileft=MPI_PROC_NULL
       if(mod(me,numx) .eq. 0) ileftb=me+numx-1
       if(mod(me+1,numx) .eq. 0 .or. me .eq. num_procs-1)  iright=MPI_PROC_NULL
@@ -278,7 +278,7 @@
       if(me .ge. numx) idn=me-numx
       if(me+1  .le. num_procs-numx) iup=me+numx
 
-      print 102,me,ileft,iright,iup,idn,num_procs,'GWVX BOUNDS'
+      !print 102,me,ileft,iright,iup,idn,num_procs,'GWVX BOUNDS'
 
 !     allocate arrays
 
@@ -338,7 +338,7 @@
       end do ! end check code
 
 !  test pole gather
-      print 105,' GWVX GATHER DISP ',icnt2(me),idsp2(me),me
+      !print 105,' GWVX GATHER DISP ',icnt2(me),idsp2(me),me
  105  format(a30,3i12)
 
       call mpi_gatherv(ipole(ista),icnt2(me),MPI_INTEGER,  ipoles,icnt2,idsp2,MPI_INTEGER,0,MPI_COMM_WORLD, ierr ) 
@@ -362,10 +362,10 @@
  107    format(a20,10i10)
  169    format(a25,f20.1,3i10,a10,4i10)
 !
-      print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
-               'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
-               'lp1=',lp1
-      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
+!      print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
+!               'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
+!               'lp1=',lp1
+!      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
 
       end
 

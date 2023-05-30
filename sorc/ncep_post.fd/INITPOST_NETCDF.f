@@ -211,6 +211,7 @@
 !***********************************************************************
 !     START INIT HERE.
 !
+      if(me==0)then
       WRITE(6,*)'INITPOST:  ENTER INITPOST_NETCDF'
       WRITE(6,*)'me=',me,  &
            'jsta_2l=',jsta_2l,'jend_2u=', &
@@ -218,6 +219,7 @@
            'ista_2l=',ista_2l,'iend_2u=',iend_2u, &
            'ista=',ista,'iend=',iend, &
            'iend_m=',iend_m
+      endif
 !     
       isa = (ista+iend) / 2
       jsa = (jsta+jend) / 2
@@ -238,10 +240,10 @@
       end if 
       Status=nf90_get_att(ncid3d,nf90_global,'idrt',idrt)
       if(Status/=0)then
-       print*,'idrt not in netcdf file,reading grid'
+       if(me==0)print*,'idrt not in netcdf file,reading grid'
        Status=nf90_get_att(ncid3d,nf90_global,'grid',varcharval)
        if(Status/=0)then
-        print*,'idrt and grid not in netcdf file, set default to latlon'
+        if(me==0)print*,'idrt and grid not in netcdf file, set default to latlon'
         idrt=0
         MAPTYPE=0
        else
@@ -381,8 +383,8 @@
           dyval=dum_const*gdsdegr
          end if
 
-         print*,'lonstart,latstart,dyval,dxval', &
-         lonstart,lonlast,latstart,latlast,dyval,dxval
+!         print*,'lonstart,latstart,dyval,dxval', &
+!         lonstart,lonlast,latstart,latlast,dyval,dxval
 
 ! Jili Dong add support for regular lat lon (2019/03/22) end 
  
@@ -459,9 +461,9 @@
           end if
 
           STANDLON = cenlon
-          print*,'lonstart,latstart,cenlon,cenlat,truelat1,truelat2, &
-                  stadlon,dyval,dxval', &
-          lonstart,latstart,cenlon,cenlat,truelat1,truelat2,standlon,dyval,dxval
+!          print*,'lonstart,latstart,cenlon,cenlat,truelat1,truelat2, &
+!                  stadlon,dyval,dxval', &
+!          lonstart,latstart,cenlon,cenlat,truelat1,truelat2,standlon,dyval,dxval
 
         else if(trim(varcharval)=='gaussian')then
          MAPTYPE=4
@@ -502,7 +504,7 @@
 
       Status=nf90_get_att(ncid3d,nf90_global,'nhcas',nhcas)
       if(Status/=0)then
-       print*,'nhcas not in netcdf file, set default to nonhydro'
+      if(me==0) print*,'nhcas not in netcdf file, set default to nonhydro'
        nhcas=0
       end if
       if(me==0)print*,'nhcas= ',nhcas
@@ -535,9 +537,9 @@
       else
        Status=nf90_get_att(ncid3d,varid,'units',varcharval)
        if(Status/=0)then
-         print*,'time unit not available'
+         if(me==0)print*,'time unit not available'
        else
-         print*,'time unit read from netcdf file= ',varcharval
+         if(me==0)print*,'time unit read from netcdf file= ',varcharval
 ! assume use hours as unit
 !       idate_loc=index(varcharval,'since')+6
          read(varcharval,101)idate(1),idate(2),idate(3),idate(4),idate(5)
@@ -553,7 +555,7 @@
 !       end if
       end if
  101  format(T13,i4,1x,i2,1x,i2,1x,i2,1x,i2)
-      print*,'idate= ',idate(1:5)
+      !print*,'idate= ',idate(1:5)
 
 ! Jili Dong check output format for coordinate reading
       Status=nf90_inq_varid(ncid3d,'grid_xt',varid)
@@ -637,7 +639,7 @@
 ! Jili Dong add support for regular lat lon (2019/03/22) end 
 
       end if
-      print*,'lonstart,lonlast ',lonstart,lonlast 
+!      print*,'lonstart,lonlast ',lonstart,lonlast 
 ! Jili Dong add support for new write component output
 ! get latitude
       if (read_lonlat) then
@@ -686,7 +688,7 @@
          latnw    = nint(dummy(1,jm)*gdsdegr)
         end if
       end if
-      print*,'laststart,latlast = ',latstart,latlast
+      !print*,'laststart,latlast = ',latstart,latlast
       if(debugprint)print*,'me sample gdlon gdlat= ' &
      ,me,gdlon(isa,jsa),gdlat(isa,jsa)
 
@@ -716,18 +718,18 @@
 
       deallocate(glat1d,glon1d)
 
-      print*,'idate = ',(idate(i),i=1,7)
+!      print*,'idate = ',(idate(i),i=1,7)
 !      print*,'nfhour = ',nfhour
       
 ! sample print point
       ii = im/2
       jj = jm/2
       
-      print *,me,'max(gdlat)=', maxval(gdlat),  &
-                 'max(gdlon)=', maxval(gdlon)
+!      print *,me,'max(gdlat)=', maxval(gdlat),  &
+!                 'max(gdlon)=', maxval(gdlon)
       CALL EXCH(gdlat(ISTA_2L,JSTA_2L))
       CALL EXCH(gdlon(ISTA_2L,JSTA_2L))
-      print *,'after call EXCH,me=',me
+!      print *,'after call EXCH,me=',me
 
 !$omp parallel do private(i,j,ip1)
       do j = jsta, jend_m
@@ -766,9 +768,11 @@
       jdate = 0
       idate = 0 
 !
+      if(me==0)then
       print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
       print*,'processing yr mo day hr min='                            &
              ,idat(3),idat(1),idat(2),idat(4),idat(5)
+      endif
 !
       idate(1) = iyear
       idate(2) = imn
@@ -784,21 +788,21 @@
       jdate(5) = idat(4)
       jdate(6) = idat(5)
 !
-      print *,' idate=',idate
-      print *,' jdate=',jdate
+      !print *,' idate=',idate
+      !print *,' jdate=',jdate
 !
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
 !
-      print *,' rinc=',rinc
+!      print *,' rinc=',rinc
       ifhr = nint(rinc(2)+rinc(1)*24.)
-      print *,' ifhr=',ifhr
+      !print *,' ifhr=',ifhr
       ifmin = nint(rinc(3))
 !      if(ifhr /= nint(fhour))print*,'find wrong Grib file';stop
-      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
+!      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
       
 ! Getting tstart
       tstart = 0.
-      print*,'tstart= ',tstart
+      !print*,'tstart= ',tstart
       
 ! Getiing restart
       
@@ -814,9 +818,9 @@
         SDAT(2) = idate(3)
         SDAT(3) = idate(1)
         IHRST   = idate(5)       
-        print*,'new forecast hours for restrt run= ',ifhr
-        print*,'new start yr mo day hr min =',sdat(3),sdat(1)           &
-               ,sdat(2),ihrst,imin
+        !print*,'new forecast hours for restrt run= ',ifhr
+        !print*,'new start yr mo day hr min =',sdat(3),sdat(1)           &
+        !       ,sdat(2),ihrst,imin
       END IF 
       
 ! GFS does not need DT to compute accumulated fields, set it to one
@@ -1155,9 +1159,6 @@
       end do
 
       
-      print *, 'gocart_on=',gocart_on
-      print *, 'gccpp_on=',gccpp_on
-      print *, 'nasa_on=',nasa_on
       if (gocart_on .or.gccpp_on .or. nasa_on) then
 
 ! GFS output dust in nemsio (GOCART)
@@ -1557,7 +1558,7 @@
       VarName='IVEGSRC'
       Status=nf90_get_att(ncid2d,nf90_global,'IVEGSRC',IVEGSRC)
       if (Status /= 0) then
-       print*,VarName,' not found-Assigned 1 for IGBP as default'
+       if(me==0)print*,VarName,' not found-Assigned 1 for IGBP as default'
        IVEGSRC=1
       end if
       if (me == 0) print*,'IVEGSRC= ',IVEGSRC
@@ -1598,7 +1599,7 @@
         tsrfc   = tprec
         tmaxmin = tprec
         td3d    = tprec
-        print*,'tprec = ',tprec
+        !print*,'tprec = ',tprec
 
 
       VarName='refl_10cm'
@@ -3383,9 +3384,6 @@
       enddo
 
 
-      print *, 'gocart_on=',gocart_on
-      print *, 'gccpp_on=',gccpp_on
-      print *, 'nasa_on=',nasa_on
       if ((gocart_on .or. gccpp_on) .and. d2d_chem) then
 
 

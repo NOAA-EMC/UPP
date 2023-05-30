@@ -32,8 +32,9 @@
 !> 2022-11-08 | K Wang                    | Replace aqfamaq_on with aqf_on
 !> 2023-01-24 | Sam Trahan                | write_ifi_debug_files flag for IFI debug capability
 !> 2023-03-21 | Jesse Meng                | Add slrutah_on option to use U Utah SLR
-!> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!> 2023-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!> 2023-05-20 | Rahul Mahajan             | Bug fix for fileNameFlat as namelist configurable
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
       PROGRAM WRFPOST
 
@@ -193,6 +194,8 @@
 !KaYee: Read itag in Fortran Namelist format
 !Set default 
        SUBMODELNAME='NONE'
+!Set control file name
+       fileNameFlat='postxconfig-NT.txt'
        numx=1
 !open namelist
        open(5,file='itag')
@@ -211,7 +214,7 @@
 !
  303  format('MODELNAME="',A,'" SUBMODELNAME="',A,'"')
 
-       write(*,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
+        if(me==0) write(*,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
 
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
@@ -256,9 +259,8 @@
         fileNameAER = ''
         rdaod       = .false.
         d2d_chem     = .false.
+        vtimeunits  = ''
 
-!set control file name
-        fileNameFlat='postxconfig-NT.txt'
         read(5,nampgb,iostat=iret,end=119)
  119    continue
         if (me == 0) write(6, nampgb)
