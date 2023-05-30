@@ -69,7 +69,7 @@ Run Script Overview
        | **DOMAINPATH**: Working directory for this run
        | **UPP_HOME**: Location of the **UPP** directory
        | **POSTEXEC**: Location of the **UPP** executable
-       | **modelDataPath**: Location of the model output data files to be processed
+       | **modelDataPath**: Location of the model output data files to be processed by the UPP
        | **txtCntrlFile**: Name and location of the flat text file that lists desired fields for
          output.
 
@@ -81,7 +81,7 @@ Run Script Overview
 
 2. Specify dynamical core being run:
 
-       | **model**: What model is used ("GFS" or "LAM" - Limited Area Model)?
+       | **model**: Which model is used? ("GFS" or "LAM" - Limited Area Model)
 
 3. Specify the format for the input model files and output UPP files:
 
@@ -94,7 +94,10 @@ Run Script Overview
        | **fhr**: First forecast hour to be post-processed
        | **lastfhr**: Last forecast hour to be post-processed
        | **incrementhr**: Increment (in hours) between forecast files
-       |                  *Do not set to 0 or the script will loop continuously*
+       
+       .. attention::
+         
+         Do not set :bolditalic:`incrementhr` to 0 or the script will loop continuously! 
 
 5. Set/uncomment the run command for your system (e.g., mpirun).
 
@@ -110,7 +113,7 @@ Run Script Overview
        |       >> IBM: ``mpirun.lsf upp.x < itag > outpost``
        |       >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
 
-6. Set the value for numx.
+6. Set the value for :bolditalic:`numx`.
 
        | **numx**: The number of subdomains in the x-direction used for decomposition.
 
@@ -118,11 +121,11 @@ Run Script Overview
        |     - For 2D decomposition, set numx>1
 
 7. Set naming convention for prefix and extension of output file name
-    - **comsp** is the initial string of the output file name. By default it is not set and the prefix
-      of the output file will be the string set in the XML file DATSET parameter. If set it will
-      concatenate the setting to the front of the string specified in the XML file DATSET parameter.
-    - **tmmark** is used for the file extension (in :bolditalic:`run_upp`, *tmmark=tm00*; if not set,
-      it is set to .GrbF)
+    - **comsp** is the initial string of the output file name. By default, it is not set, and the prefix
+      of the output file will be the string set in the :bolditalic:`postcntrl.xml` file :bolditalic:`DATSET` parameter. If set, it will
+      concatenate the setting to the front of the string specified in the XML file :bolditalic:`DATSET` parameter.
+    - **tmmark** is used for the file extension (in :bolditalic:`run_upp`, ``tmmark=tm00``; if not set,
+      it is set to ``.GrbF``)
 
 Upon a successful run, UPP will generate output files for each forecast hour in the **/postprd** directory.
 

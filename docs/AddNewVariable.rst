@@ -2,122 +2,124 @@
 Adding a New Variable
 *********************
 
-This document provides general procedures and an example of how to add a new variable to the UPP code.
-Please keep in mind it may not be an exhaustive step-by-step depending on your particular situation.
+This chapter provides general procedures and an example of how to add a new variable to the UPP code.
+Please keep in mind that it may not be an exhaustive step-by-step process depending on your particular situation.
 While we can provide general assistance for adding a new variable, users should be aware that this
-requires good knowledge of Fortran and thorough understanding of the code.
+requires good knowledge of Fortran and a thorough understanding of the code.
 
-NOAA UPP developers who wish to add new variables to the UPP, please follow the following procedures:
+NOAA UPP developers who wish to add new variables to the UPP should follow the following procedures:
 
 1.  Read and follow procedures on the `UPP wiki page <https://github.com/NOAA-EMC/UPP/wiki/UPP-Code-Development>`_
-    on how to contribute your code changes to the UPP main development. Doing so will ensure your changes are merged
-    to the UPP development quickly.
+    on how to contribute your code changes to the UPP main development branch. Doing so will ensure your changes are merged
+    to the UPP development branch quickly.
 
 2.  Submit your pull request with small incremental changes. Advantages of doing this include avoiding
-    conflicts with other UPP developers in terms of using the UPP internal Index and variables.
+    conflicts with other UPP developers in terms of using the UPP internal index and variables.
 
 3.  Please do not modify existing algorithms without coordinating with UPP code managers (Wen Meng and
-    Hui-Ya Chuang). UPP supports many NOAA operational models and we can not change operational products
-    without coordination and advanced notices.
+    Hui-Ya Chuang). UPP supports many NOAA operational models, and we can not change operational products
+    without coordination and advanced notice.
 
-We encourage non NOAA UPP developers to contact EPIC via
+We encourage non-NOAA UPP developers to contact EPIC via
 `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_ to make them aware of modifications you
 are making. In some cases, if they determine the changes you are making may be relevant for operational
 and/or community purposes, they will be interested in incorporating your changes into the code base for
 support and future release. We would then work with you to make this possible.
 
-The following outlines a brief description of the steps to be taken and are described in more detail
+The following outlines a brief description of the steps to be taken; they are described in more detail
 with examples in the sections below.
 
-1.  Check whether your new variable has been defined in the file parm/post_avblflds.xml in your UPP working
-    version. This file defines all available GRIB2 fields in UPP.
+.. COMMENT: Edit^^ Is it a brief description or details?!
 
-    A.  If no (not available in post_avblflds.xml)
+#. Check whether your new variable has been defined in the file ``parm/post_avblflds.xml`` in your UPP working
+   directory. This file defines all available GRIB2 fields in the UPP.
 
-        i.  Check whether your new variable has been defined in the
-            `NCEP Grib2 Table <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`_
-            (Product Discipline and Parameter Category).
+   A. If NO (not available in ``post_avblflds.xml``), check whether your new variable has been defined in the
+      `NCEP Grib2 Table <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`__
+      (Product Discipline and Parameter Category).
 
-            1.  If no (not available in the NCEP Grib2 Table)
+      \i. If NO (not available in the NCEP Grib2 Table):
 
-                a.  NOAA users can email Andrew.Benjamin@noaa.gov with the following information for your new
-                    variable: variable definition, unit, and what Grib2 discipline and category you think this
-                    variable should belong to. Andrew will define your new variable in the `NCEP Grib2 Table
-                    <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`_ and
-                    inform you of the Grib2 discipline and category numbers you should use.
+         a. NOAA users can email Andrew.Benjamin@noaa.gov with the following information for your new
+            variable: variable definition, unit, and what Grib2 discipline and category you think this
+            variable should belong to. Andrew will define your new variable in the `NCEP Grib2 Table
+            <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`_ and
+            inform you of the Grib2 discipline and category numbers you should use.
 
-                b.  Contact with Andrew to update parm/params_grib2_tbl_new.text with your new variable and
-                    generate a params_grib2_tbl_new which lists in alphabetical order to improve post
-                    processing efficiency.
+         b. Contact Andrew to update ``parm/params_grib2_tbl_new.text`` with your new variable and
+            generate a ``params_grib2_tbl_new`` that lists variables in alphabetical order to improve post-processing
+            efficiency.
 
-                c.  Save new params_grib2_tbl_new.text and params_grib2_tbl_new under parm/ of your UPP
-                    working version.
+         c. Save new ``params_grib2_tbl_new.text`` and ``params_grib2_tbl_new`` under ``parm/`` of your UPP
+            working directory.
 
-                d.  Other users please coordinate through EPIC for the above three steps.
+         d. Non-NOAA users should coordinate through EPIC for the above three steps. Users may post a
+            `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions/categories/ideas>`__ 
+            topic and tag @FernandoAndrade-NOAA and @gspetro-NOAA for directions in steps a-c. 
 
-                e.  Add a new entry in post_avblflds.xml with your new variable, then follow step B), then step 2)
-                    and beyond. You should assign a new UPP ID for your new variable.
+         e. Add a new entry in ``post_avblflds.xml`` with your new variable; then follow step B), then step 2)
+            and beyond. You should assign a new UPP ID for your new variable.
 
-            2.  If yes (available in the NCEP Grib2 Table)
+      \ii. If YES (variable is available in the NCEP Grib2 Table):
 
-                a.  Add a new entry in post_avblflds.xml with your new variable, then follow step B), then step 2)
-                    and beyond. You should assign a new UPP ID for your new variable.
+          a. Add a new entry in ``post_avblflds.xml`` with your new variable, then follow step B), then step 2)
+             and beyond. You should assign a new UPP ID for your new variable.
 
-    B.  If yes (available in post_avblflds.xml), then your new variable is already available in UPP. Follow the
-        following two steps i) and ii), make a test UPP run, and then look for your new variable in your output.
-        You can skip the remaining steps about modifying the source codes.
+   B. If YES (variable is in ``post_avblflds.xml``), then your new variable is already available in the UPP. 
+      Follow steps i) and ii), make a test UPP run, and then look for your new variable in your output.
+      You can skip the remaining steps about modifying the source code.
 
-        i.  Add a new entry in your application’s control xml file (e.g. fv3lam.xml for FV3LAM application,
-            postcntrl_gfs.xml for FV3GFS application). This file lets users control which variables to output
-            from UPP for Grib2.
+      \i. Add a new entry in your application’s control xml file (e.g., ``fv3lam.xml`` for the FV3LAM application, ``postcntrl_gfs.xml`` for the FV3GFS application). This file lets users control which variables to output from UPP for Grib2.
 
-        ii. Generate your_user_defined_flat file (e.g. postxconfig-NT-fv3lam.txt for FV3LAM application) by
-            executing:
+      \ii. Generate ``your_user_defined_flat`` file (e.g., ``postxconfig-NT-fv3lam.txt`` for FV3LAM application) by executing:
+
+         .. code-block:: console
 
             /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
-            This flat file (instead of the xml file) is read in by UPP as it was much faster to read a text file
-            than an xml file.
+         This flat file (instead of the xml file) is read in by the UPP because it is much faster to read a text file
+         than an xml file.
 
-2.  Allocate and initialize the field: ALLOCATE.f
+#. Allocate and initialize the field in ``sorc/ncep_post.fd/ALLOCATE_ALL.f``.
 
-    This file is the instantiation or allocation of the variable. Note that the variables are defined
-    based on the parallel processing capability of UPP - use an example from the file.
+   This file contains the instantiation or allocation of each variable. Note that the variables are defined
+   based on the parallel processing capability of UPP. Use an example from the file.
 
-3.  Deallocate the field: DEALLOCATE.f
+#. Deallocate the field in ``sorc/ncep_post.fd/DEALLOCATE.f``.
 
-    All good programmers give back their resources when they are done. Please update this routine to
-    return your resource to the system.
+   All good programmers give back their resources when they are done. Please update this routine to
+   return your resource to the system.
 
-4.  Declare the new variable: VRBLS2D_mod.f, VRBLS3D_mod.f, or VRBLS4D_mod.f
+#. Declare the new variable in ``VRBLS2D_mod.f``, ``VRBLS3D_mod.f``, or ``VRBLS4D_mod.f``.
     
-    The variable is declared in one of these modules defining files depending on its dimension.
+   The variable is declared in one of these module-defining files depending on its dimension.
 
-5.  Read model output if necessary: INITPOST_NETCDF.f
+#. Read model output if necessary using ``INITPOST_NETCDF.f``.
 
-    Check first to see if all variables needed to derive your new variable are already available in UPP. If not,
-    you will need to use one of these files for reading the model output files. The appropriate one will need to
-    be chosen based on the model and model output format.
+   Check first to see if all variables needed to derive your new variable are already available in the UPP. If not,
+   you will need to use this file (or another appropriate ``INITPOST_*.f`` file) for reading the model output files. 
+   The appropriate one should be chosen based on the model and the model output format.
 
-6.  Add to appropriate routine for filling the new variable: e.g. SURFCE.f, MDLFLD.f, MDL2P.f, etc
+#. Add to appropriate routine(s) for filling the new variable (e.g., ``SURFCE.f``, ``MDLFLD.f``, ``MDL2P.f``).
 
-    This is the place where you will derive your new variable and then fill the Grib2 array with the data to be
-    written out later on.
+   This is the place where you will derive your new variable and then fill the Grib2 array with the data to be
+   written out later on.
 
-7. Build or rebuild the code for changes to take effect before running your UPP run script.
+#. Build or rebuild the code for changes to take effect before running your UPP run script.
 
+.. COMMENT: I feel like steps 5-7 could be clearer...
 
 **Example Procedure: Steps for adding a new variable ‘TG3’**
 
+- TG3 is the averaged climatology of surface temperature, which the land surface models (LSMs) use to specify 
+  bottom soil T, where the depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
 - This example illustrates adding a new variable from GFS output that will be read into UPP
-  and directly output into the Grib2 output files (i.e. in this case no additional computations/calculations
+  and directly output into the Grib2 output files (i.e., no additional computations/calculations
   are needed for the field).
 - Additions to each of the routines are highlighted. 
-- Locations of routines are in UPP/sorc/ncep_post.fd unless specified otherwise.
-- The new variable, TG3, added in this example is found in the gfs.t00z.sfcf006.nc; however, both the
-  gfs.t00z.sfcf006.nc and gfs.t00z.atmf006.nc output files are required to run UPP for GFS.
-- TG3 is the averaged climatology of surface temperature, which the LSMs use to specify bottom soil T,
-  where the depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
+- Locations of routines are in ``UPP/sorc/ncep_post.fd`` unless specified otherwise.
+- The new variable, TG3, added in this example is found in the ``gfs.t00z.sfcf006.nc`` file; however, both the
+  ``gfs.t00z.sfcf006.nc`` and ``gfs.t00z.atmf006.nc`` output files are required to run UPP for GFS.
 
   New variable to add::
 
@@ -133,7 +135,7 @@ with examples in the sections below.
 
    A. This variable is not available in parm/post_avblflds.xml.
 
-      i. Check whether your new variable has been defined in the NCEP Grib2 Table.
+      \i. Check whether your new variable has been defined in the NCEP Grib2 Table.
 
          1) This variable is not defined in the NCEP Grib2 Table.
 
