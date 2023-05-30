@@ -130,24 +130,24 @@ with examples in the sections below.
          tg3:cell_methods = "time: point" ;
          tg3:output_file = "sfc" ;
 
-1. Check whether your new variable has been defined in the file parm/post_avblflds.xml in your UPP working
+1. Check whether your new variable has been defined in the file ``parm/post_avblflds.xml`` in your UPP working
    version.
 
-   A. This variable is not available in parm/post_avblflds.xml.
+   A. This variable is not available in ``parm/post_avblflds.xml``.
 
       \i. Check whether your new variable has been defined in the NCEP Grib2 Table.
 
          1) This variable is not defined in the NCEP Grib2 Table.
 
             a)-d) For the purpose of this example alone, steps a) - d) are not executed as instructed.
-               Instead, manual instructions are provided here for adding to the params_grib2_table_new in order
+               Instead, manual instructions are provided here for adding to the ``params_grib2_table_new`` in order
                to create a working example. 
 
-               For this example, the variable will be added to parm/params_grib2_tbl_new manually. You would only
-               do this if you had no plans to contribute your addition to UPP develop, otherwise, follow the
+               For this example, the variable will be added to ``parm/params_grib2_tbl_new`` manually. You would only
+               do this if you had no plans to contribute your addition to the UPP ``develop`` branch; otherwise, follow the
                instructions as a NOAA or Other user in steps a) - d). 
  
-               For all current UPP output fields, the params_grib2_table_new lists, in order, the:
+               For all current UPP output fields, the ``params_grib2_table_new`` lists, in order, the following attributes:
                 - Discipline (https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table0-0.shtml)
                 - Category (https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml)
                 - Parameter Number (https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml)
@@ -160,28 +160,28 @@ with examples in the sections below.
                 - TG3 is a vegetation/biomass product (category=0)
                 - Pick an unused parameter number from the table defined by discipline=2 and category=0
                   (Table 4.2-0-0: https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-2-0.shtml). 
-                  The parameter number should not be in use in table 4.2 or the current params_grib2_tbl_new.
-                  In this case, the unused parameter number 231 was chosen.
+                  The parameter number should not be in use in Table 4.2 or the current ``params_grib2_tbl_new``.
+                  In this case, the unused parameter number 251 was chosen.
                 - Add using the NCEP local table (table=1)
-                - Choose an abbreviated parameter name to describe your field (e.g. TG3)
-                - Add alphabetically to the table as:
+                - Choose an abbreviated parameter name to describe your field (e.g., TG3)
+                - Add alphabetically (by variable name) to the table as:
       
                 ::
 
-                 2 0 231 1 TG3
+                 2 0 251 1 TG3
 
-            e) **Add the new variable to the UPP/parm/post_avblflds.xml, which lists all fields available
+            e) **Add the new variable to** ``UPP/parm/post_avblflds.xml``, **which lists all fields available
                for output in GRIB2 format.** This file is generally not modified unless adding a new field or
-               modifying an existing one.
+               modifying an existing one. Users should indicate the following variable attributes in the XML file:
 
-                - Post_avblfldidx: the unique array index number used to store this variable. The number chosen here
-                  is just an example and it is important to pick one that is not yet in use.
-                - Shortname: name describing the variable and level type
-                - Pname: the abbreviation for your variable (should match what is used in params_grib2_tbl_new)
-                - Table info: table used if not standard WMO
-                - Fixed_sfc1_type: level type
-                - Level: Generally only used here if it's a fixed level specific to the variable (e.g. T2m, TSOIL5m)
-                - Scale: precision of data written out to Grib2 file
+                - ``post_avblfldidx``: the unique array index number used to store this variable. The number chosen here
+                  is just an example, and it is important to pick one that is not yet in use.
+                - ``shortname``: name describing the variable and level type
+                - ``pname``: the abbreviation for your variable (should match what is used in ``params_grib2_tbl_new``)
+                - ``table info``: table used if not standard WMO
+                - ``fixed_sfc1_type``: level type
+                - ``level``: generally only used here if it is a fixed level specific to the variable (e.g., T2m, TSOIL5m)
+                - ``scale``: precision of data written out to Grib2 file
 
                User procedure
                 - Add as:
@@ -189,7 +189,7 @@ with examples in the sections below.
                 ::
 
                  <param>
-                   <post_avblfldidx>1003</post_avblfldidx>
+                   <post_avblfldidx>1063</post_avblfldidx>
                    <shortname>DEEP_TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
                    <pname>TG3</pname>
                    <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
@@ -198,11 +198,11 @@ with examples in the sections below.
                    <scale>3.0</scale>
                  </param>
 
-   B. Add the variable to the user defined control file.
+   B. Add the variable to the user-defined control file.
 
-      i. Add a new entry in your application’s control xml file (e.g. fv3lam.xml for FV3LAM application,
-         postcntrl_gfs.xml for FV3GFS application). This file lets users control which variables to output
-         from UPP for Grib2.
+      i. Add a new entry in your application’s control XML file (e.g., ``fv3lam.xml`` for the FV3LAM application,
+         ``postcntrl_gfs.xml`` for the ``FV3GFS`` application). This file lets users control which variables to output
+         from the UPP for Grib2.
 
          User procedure
           - Add as:
@@ -214,22 +214,22 @@ with examples in the sections below.
              <scale>4.0</scale>
            </param>
 
-      ii. Generate your_user_defined_flat file (e.g. postxconfig-NT-fv3lam.txt for FV3LAM application) by
+      ii. Generate your_user_defined_flat file (e.g., ``postxconfig-NT-fv3lam.txt`` for the FV3LAM application) by
           executing:
 
           ::
 
            >> /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
-          This flat file (instead of the xml file) is read in by UPP as it was much faster to read a text file
-          than an xml file.
+          This flat file (instead of the XML file) is read in by the UPP as it was much faster to read a text file
+          than an XML file.
 
-2. Allocate and initialize the new variable in ALLOCATE_ALL.f
+2. Allocate and initialize the new variable in ``ALLOCATE_ALL.f``
    This file is the instantiation or allocation of the variable. Note that the variables are defined
-   based on the parallel processing capability of UPP - use an example from the file.
+   based on the parallel processing capability of UPP. Use an example from the file.
 
    User Procedure
-    - Allocate in VRBLS2D GFS section as:
+    - Allocate in ``VRBLS2D`` GFS section as:
 
     ::
 
@@ -241,12 +241,12 @@ with examples in the sections below.
 
       tg3(i,j)=spval
 
-3. De-allocate the variable to give the resources back in DEALLOCATE.f
+3. De-allocate the variable to give the resources back in ``DEALLOCATE.f``.
    All good programmers give back their resources when they are done. Please update this
    routine to return your resources to the system.
 
    User procedure
-    - Add in VRBLS2D GFS section as:
+    - Add in ``VRBLS2D`` GFS section as:
       
     ::
 
@@ -346,7 +346,7 @@ with examples in the sections below.
 
      wgrib2 -V GFSPRS.006
 
-     716:37731711:vt=2019061506:500 m underground:6 hour fcst:var discipline=2 center=7 local_table=1 parmcat=0 parm=231:
+     716:37731711:vt=2019061506:500 m underground:6 hour fcst:var discipline=2 center=7 local_table=1 parmcat=0 parm=251:
          ndata=73728:undef=0:mean=278.383:min=215.47:max=302.4
          grid_template=40:winds(N/S):
          Gaussian grid: (384 x 192) units 1e-06 input WE:NS output WE:SN
