@@ -67,7 +67,7 @@ contains !==============================================================
     ! The stubs always send missing data, while the actual code
     ! sends missing data for unsupported hours.
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
-    use ctlblk_mod, only: spval, ista, iend, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
+    use ctlblk_mod, only: spval, ista, iend, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u,me
     use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
     implicit none
 
@@ -95,8 +95,8 @@ contains !==============================================================
       if(LVLS(k,IGET(ient))>0) then
         if(.not.wrote_message) then
           !$OMP CRITICAL
-          if(.not.wrote_message) then
-            print '(A)', 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
+          if(.not.wrote_message.and.me==0) then
+            write(*,*) 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
             wrote_message = .true.
           endif
           !$OMP END CRITICAL
