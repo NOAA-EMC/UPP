@@ -14,13 +14,17 @@ Once built, the UPP can be run stand-alone (outside the UFS Applications) to pos
 Software Requirements
 =====================
 
-The UPP is tested on a variety of research platforms, including NOAA HPC systems (e.g. Hera, Orion) and
+The UPP is tested on a variety of research platforms, including NOAA HPC systems (e.g., Hera, Orion) and
 the NCAR HPC Cheyenne. These supported platforms are pre-configured for building and running the UPP and already
 have the required libraries available via `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`_ in a centralized
-location. The HPC-Stack is a script-based build system that builds the software stack required by UFS components.
+location. The :term:`HPC-Stack` is a script-based build system that builds the software stack required by UFS components.
 
 Users working on unsupported platforms will need to install the HPC-Stack on their system and can do so following
 the instructions in the `HPC-Stack User's Guide <https://hpc-stack.readthedocs.io/en/latest/>`_.
+
+.. note::
+
+   UFS applications are gradually shifting to :term:`spack-stack`, which is a :term:`Spack`-based method for installing the same UFS prerequisite software libraries installed by HPC-Stack. The spack-stack is currently used on NOAA Cloud platforms and in containerized UFS applications, while HPC-Stack is still used on other Level 1 systems and is the software stack validated by the UFS Weather Model. Users are encouraged to check out `spack-stack <https://github.com/NOAA-EMC/spack-stack>`__ to prepare for the upcoming shift in support from HPC-Stack to spack-stack. 
 
 ============================
 Obtaining and Installing UPP
@@ -40,13 +44,15 @@ Building and running UPP V10.1.0 has been tested and is supported on the followi
 | NOAA Orion    | Intel 2018.4         |
 +---------------+----------------------+
 
-Move to the directory where you want to install UPP and clone the repository.
+.. COMMENT: Fix version #!
+
+To install the UPP, navigate to the directory where you want to install UPP and clone the repository.
 
 .. code-block:: console
 
     git clone -b branch-or-tag-name https://github.com/NOAA-EMC/UPP
 
-where, ``branch-or-tag-name`` is the release branch or tag you wish to clone.
+where, ``branch-or-tag-name`` is the release branch or tag you wish to clone. (Leaving this off the ``-b`` argument will clone all branches of the repository.)
 
 Move to the directory with the build script and build the UPP.
 
@@ -57,16 +63,17 @@ Move to the directory with the build script and build the UPP.
     ./compile_upp.sh
 
 .. note::
-   To build in debug mode, you can add :bolditalic:`-DCMAKE_BUILD_TYPE=Debug` to the *cmake_opts*
+   To build in debug mode, you can add ``-DCMAKE_BUILD_TYPE=Debug`` to the *cmake_opts*
    parameter in the :bolditalic:`compile_upp.sh` script.
-   This removes compiler optimization flags and adds -g to the fortran compilation. You can also use
-   :bolditalic:`-DCMAKE_BUILD_TYPE=RELWITHDEBINFO`, which gives the -g, but keeps the -O2 optimization
+   This removes compiler optimization flags and adds ``-g`` to the fortran compilation. You can also use
+   ``-DCMAKE_BUILD_TYPE=RELWITHDEBINFO``, which gives the ``-g``, but keeps the ``-O2`` optimization
    for the fortran compilation.
 
-Move back to the top level UPP directory and create a directory for the CRTM fix files to be unpacked
-in. Download the fix files from the Github `release page
-<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v10.1.0>`_ or use the wget command. Unpack the
+Move back to the top level UPP directory and create a directory where the CRTM fix files will be unpacked. Download the fix files from the GitHub `release page
+<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v10.1.0>`__ or use the ``wget`` command. Unpack the
 tar file.
+
+.. COMMENT: Only v10.1.0? No v11.0.0?
 
 .. code-block:: console
 
@@ -84,7 +91,7 @@ tar file.
 UPP Directory Structure
 =======================
 
-Under the main directory **UPP** reside the following relevant subdirectories (The * indicates a
+Under the main **UPP** directory reside the following relevant subdirectories (The * indicates a
 directory that exists only after the build is complete):
 
      | **exec***: Contains the :bolditalic:`upp.x` executable after successful compilation
@@ -98,9 +105,11 @@ directory that exists only after the build is complete):
      | **scripts**: Contains a sample run script to process fv3 history files.
      |   - **run_upp**: runs :bolditalic:`upp.x`.
 
-     | **sorc**: Contains source codes for:
+     | **sorc**: Contains source code for:
      |   - **ncep_post.fd**: Source code for the UPP
 
      | **tests**: Contains the scripts used to install UPP
      |   - **build***: Contains the UPP build
      |   - **install***: Contains the installed executable (bin/upp.x), modules, and libraries
+
+.. COMMENT: Delete this section and link to Ch. 2? Add exec there? Is some of this out-of date? (e.g., tests info?)

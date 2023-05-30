@@ -15,17 +15,17 @@ Input files
 
 The UPP requires the following input files:
  - The model forecast file
- - The itag namelist file
- - The GRIB2 control file
- - Additional data files (e.g. lookup tables, coefficient files for satellite)
+ - The :bolditalic:`itag` namelist file
+ - The :term:`GRIB2` control file
+ - Additional data files (e.g. lookup tables, coefficient files for satellites)
 
 --------------
 Model Forecast
 --------------
 
-The UPP ingests FV3 write component files in parallel netCDF format.
+The UPP ingests FV3 :term:`write component` files in parallel :term:`netCDF` format.
 
-The table below is a list of the unified model variables available from the FV3 model core. Whether a
+The table below is a list of the unified model variables available from the :term:`FV3` model core. Whether a
 specific variable is able to be read by UPP relies on dependencies such as physics options and model.
 This table does not include variables that are diagnosed when running the UPP.
 
@@ -36,12 +36,13 @@ UFS Unified Model Variables
 ITAG
 ----
 
-The file called :bolditalic:`itag` is a text file that contains the fortran namelist &model_inputs as
-well as the 2D decomposition specification in &nampgb. It is read in by the :bolditalic:`upp.x` executable
-from stdin (unit 5) and is generated automatically within the UFS application workflow or stand-alone run script based on user-defined options. It should not be necessary to edit this. For description purposes,
-the namelist &model_inputs and &nampgb (:bolditalic:`itag` file) contain the following lines for FV3:
+The file called :bolditalic:`itag` is a text file that contains the fortran namelist ``&model_inputs`` as
+well as the 2D decomposition specification in ``&nampgb``. It is read in by the :bolditalic:`upp.x` executable
+from stdin (unit 5) and is generated automatically within the UFS application workflow or stand-alone run 
+script based on user-defined options. It should not be necessary to edit this. For description purposes,
+the namelists ``&model_inputs`` and ``&nampgb`` (:bolditalic:`itag` file) contain the following lines for FV3:
 
-&model_inputs
+:bolditalic:`&model_inputs`
 
 #. fileName: Name of the FV3 (pressure level) output file to be post-processed.
 
@@ -58,7 +59,7 @@ the namelist &model_inputs and &nampgb (:bolditalic:`itag` file) contain the fol
 
 #. fileNameFlat: Name of configuration file (postxconfig-NT.txt)
 
-&nampgb
+:bolditalic:`&nampgb`
 
 #. numx: Number of subdomains in the x-direction used for 2D decomposition. 
 
@@ -87,7 +88,7 @@ To output a field, the body of the control file needs to contain an entry for th
 If an entry for a particular field is not yet available in the control file, it may be added to the
 control file with the appropriate entries for that field. For variables found on vertical levels (e.g.
 isobaric or height levels), the desired levels to be output must be listed (see next section:
-:ref:`control_levels`). A list of available Grib2 fields that can be output by UPP can be found in the 
+:ref:`control_levels`). A list of available GRIB2 fields that can be output by UPP can be found in the 
 table :doc:`UPP_GRIB2_Table_byID`. Please note that some fields are dependent on model, physics, and other fields.
 
 .. _control_levels:
@@ -102,15 +103,15 @@ levels are currently available for output:
   then every 25 mb from 75 to 1000 mb*). The complete list of levels is specified in
   :bolditalic:`sorc/ncep_post.fd/CTLBLK.f`.
   
-   - Modify specification of variable LSMDEF to change the number of pressure levels: LSMDEF=47
-   - Modify specification of SPLDEF array to change the values of pressure levels:
+   - Modify specification of variable ``LSMDEF`` to change the number of pressure levels: LSMDEF=47
+   - Modify specification of ``SPLDEF`` array to change the values of pressure levels:
      (/200.,500.,700.,1000.,2000.,3000.,5000.,7000.,7500.,10000.,12500.,15000.,17500.,20000., …/)
       
 - For model-level output, all model levels are possible, from the highest to the lowest.
 - When using the Noah LSM, the soil layers are 0-10 cm, 10-40 cm, 40-100 cm, and 100-200 cm.
 - When using the RUC LSM, the soil levels are 0 cm, 1 cm, 4 cm, 10 cm, 30 cm, 60 cm, 100 cm, 160 cm,
-  and 300 cm. (For the old RUC LSM, there are only 6 layers and if using this, you will need to change
-  “RUC LSM” from 9 to 6 in the :bolditalic:`sorc/ncep_post.fd/WRFPOST.f` routine.)
+  and 300 cm. (For the old RUC LSM, there are only 6 layers, and if using this, you will need to change
+  ``NSOIL`` for “RUC LSM” from 9 to 6 in the :bolditalic:`sorc/ncep_post.fd/WRFPOST.f` routine.)
 - When using Pliem-Xiu LSM, there are two layers: 0-1 cm, 1-100 cm
 - For low, mid, and high cloud layers, the layers are :math:`\geq`\ 642 hPa, :math:`\geq`\ 350 hPa, and
   <350 hPa, respectively.
@@ -133,9 +134,9 @@ file to declare which fields are to be output from the UPP.
 In order to ensure that the user-edited xml files are error free, XML stylesheets
 (:bolditalic:`parm/EMC\_POST\_CTRL\_Schema.xsd` and :bolditalic:`EMC\_POST\_Avblflds\_Schema.xsd`) can
 be used to validate both the :bolditalic:`postcntrl.xml` and :bolditalic:`post\_avblflds.xml` files,
-respectively. Confirmation of validation will be given (e.g. postcntrl.xml validates) or otherwise
-return errors if it does not match the schema. This step is optional, but acts as a safe-guard to avoid
-run-time failures with UPP. To run the validation:
+respectively. Confirmation of validation will be given (e.g., :bolditalic:`postcntrl.xml` validates) or otherwise
+return errors if it does not match the schema. This step is optional, but acts as a safeguard to avoid
+run-time failures with the UPP. To run the validation:
 
 .. code-block:: console
 
@@ -143,8 +144,7 @@ run-time failures with UPP. To run the validation:
     xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds.xml
 
 Once the xmls are validated, the user will need to generate the flat file. The below command will run the
-perl program :bolditalic:`parm/POSTXMLPreprocessor.pl` to generate the post flat file. Generate the flat
-file:
+Perl program :bolditalic:`parm/POSTXMLPreprocessor.pl` to generate the post flat file:
 
 .. code-block:: console
 
@@ -159,7 +159,7 @@ Output Files
 Upon a successful run, :bolditalic:`upp.x` will generate GRIB2 output files in the post-processor
 working directory. These files will include all fields that were requested in the control file.
 
-When running UPP stand-alone, the following Grib2 output files will be generated:
+When running UPP stand-alone, the following GRIB2 output files will be generated:
 
    | **GFS Model**: GFSPRS.HHH
    | **LAM (Limited Area Model)**: NATLEV.HHH and PRSLEV.HHH
