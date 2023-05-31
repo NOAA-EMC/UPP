@@ -35,6 +35,7 @@
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
 !> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
+!> 2023-05-31 | Wen Meng      | Bug fix in qrmax initialization
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
@@ -884,7 +885,7 @@
 
 ! Compute max QRAIN in the column to be used later in precip type computation
        do j = jsta_2l, jend_2u
-        do i = 1, im
+        do i = ista_2l, iend_2u
            qrmax(i,j)=0.
         end do
        end do
