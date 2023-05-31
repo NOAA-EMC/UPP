@@ -26,10 +26,14 @@ are making. In some cases, if they determine the changes you are making may be r
 and/or community purposes, they will be interested in incorporating your changes into the code base for
 support and future release. We would then work with you to make this possible.
 
-The following outlines a brief description of the steps to be taken; they are described in more detail
-with examples in the sections below.
+.. _add-var-process:
 
-.. COMMENT: Edit^^ Is it a brief description or details?!
+=========================================
+Process Overview: Adding a New Variable
+=========================================
+
+The following steps outline the process for adding a new variable. This description is followed by a detailed
+example in :numref:`Section %s <add-var-example>` below.
 
 #. Check whether your new variable has been defined in the file ``parm/post_avblflds.xml`` in your UPP working
    directory. This file defines all available GRIB2 fields in the UPP.
@@ -107,12 +111,16 @@ with examples in the sections below.
 
 #. Build or rebuild the code for changes to take effect before running your UPP run script.
 
-.. COMMENT: I feel like steps 5-7 could be clearer...
+.. _add-var-example:
 
-**Example Procedure: Steps for adding a new variable ‘TG3’**
+===========================================================
+Example Procedure: Steps for adding a new variable ‘TG3’
+===========================================================
 
-- TG3 is the averaged climatology of surface temperature, which the land surface models (LSMs) use to specify 
-  bottom soil T, where the depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
+This example adds TG3 to the UPP. TG3 is the averaged climatology of surface temperature, 
+which the land surface models (LSMs) use to specify bottom soil temperature, where the 
+depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
+
 - This example illustrates adding a new variable from GFS output that will be read into UPP
   and directly output into the Grib2 output files (i.e., no additional computations/calculations
   are needed for the field).
@@ -200,7 +208,7 @@ with examples in the sections below.
 
    B. Add the variable to the user-defined control file.
 
-      i. Add a new entry in your application’s control XML file (e.g., ``fv3lam.xml`` for the FV3LAM application,
+      i. Add a new entry in your application's control XML file (e.g., ``fv3lam.xml`` for the FV3LAM application,
          ``postcntrl_gfs.xml`` for the ``FV3GFS`` application). This file lets users control which variables to output
          from the UPP for Grib2.
 
@@ -214,67 +222,64 @@ with examples in the sections below.
              <scale>4.0</scale>
            </param>
 
-      ii. Generate your_user_defined_flat file (e.g., ``postxconfig-NT-fv3lam.txt`` for the FV3LAM application) by
+      ii. Generate ``your_user_defined_flat`` file (e.g., ``postxconfig-NT-fv3lam.txt`` for the FV3LAM application) by
           executing:
 
           ::
 
            >> /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
-          This flat file (instead of the XML file) is read in by the UPP as it was much faster to read a text file
-          than an XML file.
+          This flat file (instead of the XML file) is read in by the UPP.
 
-2. Allocate and initialize the new variable in ``ALLOCATE_ALL.f``
-   This file is the instantiation or allocation of the variable. Note that the variables are defined
-   based on the parallel processing capability of UPP. Use an example from the file.
+2. Allocate and initialize the new variable in ``ALLOCATE_ALL.f`` using an example from the file.
+   Note that the variables are defined based on the parallel processing capability of the UPP. 
 
    User Procedure
-    - Allocate in ``VRBLS2D`` GFS section as:
+    - Allocate in the *VRBLS2D* GFS section of ``ALLOCATE_ALL.f`` as:
 
     ::
 
       allocate(tg3(ista_2l:iend_2u,jsta_2l:jend_2u))
       
-    - Initialize in the initialization section that comes after the allocations section you added to.
+    - Initialize TG3 in the initialization section that comes after the allocation section you added to.
 
     ::
 
       tg3(i,j)=spval
 
 3. De-allocate the variable to give the resources back in ``DEALLOCATE.f``.
-   All good programmers give back their resources when they are done. Please update this
-   routine to return your resources to the system.
+   Updating this routine returns your resources to the system.
 
    User procedure
-    - Add in ``VRBLS2D`` GFS section as:
+    - Add in *VRBLS2D* GFS section of ``DEALLOCATE.f`` as:
       
     ::
 
      deallocate(tg3)
 
-4. Declare the new variable in the appropriate file depending on its dimensions;
-   VRBLS2D_mod.f, VRBLS3D_mod.f or VRBLS4D_mod.f
+4. Declare the new variable in the appropriate file (e.g., ``VRBLS2D_mod.f``, 
+   ``VRBLS3D_mod.f``, or ``VRBLS4D_mod.f``) depending on its dimensions.
 
    User procedure
-    - tg3 is a 2-dimensional field, so declare it in VRBLS2D_mod.f
-    - Add to the GFS section for adding new fields as:
+    - TG3 is a 2-dimensional field, so declare it in ``VRBLS2D_mod.f``.
+    - Add to the GFS section as:
       
     ::
 
      tg3(:,:)
 
-5. Read the field from the GFS model output file by adding the new variable into INITPOST_NETCDF.f.
-   This file is used for reading the GFS model FV3 output files in parallel netcdf format.
+5. Read the field from the GFS model output file by adding the new variable into ``INITPOST_NETCDF.f``.
+   This file is used for reading the GFS model FV3 output files in parallel netCDF format.
 
    User procedure
-    - Add to top section of the routine in ‘use vrbls2d’ to initiate the new variable as:
+    - Add to top section of the routine in the ‘use vrbls2d’ section to initiate the new variable as:
       
     ::
 
      tg3
 
-    - Read in the new variable in the section for reading the 2D netcdf file using another 2D variable
-      as an example, such as 'hpbl'. Add as:
+    - Read in the new variable in the section for reading the 2D netCDF file using another 2D variable
+      as an example, such as ``hpbl``. Add as:
       
     ::
 
@@ -283,19 +288,21 @@ with examples in the sections below.
            call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
            spval,VarName,tg3)
 
-6. Determine the appropriate routine to add the new variable to (e.g. SURFCE.f, MDLFLD.f,
-   MDL2P.f, etc). This is the place that you will fill the Grib2 array with the data to be written out later on.
-   The appropriate routine will depend on what your field is. For example, if you have a new diagnostic called foo,
-   and you want it interpolated to pressure levels, you would need to add it to MDL2P.f. If foo was only a
-   surface variable, you would add it to SURFCE.f. If you wanted foo on native model levels, you
-   would add it to MDLFLD.f. If you’re not sure which routine to add the new variable to, choose a
-   similar variable as a template.
+6. Determine the appropriate routine to add the new variable to (e.g., ``SURFCE.f``, ``MDLFLD.f``,
+   ``MDL2P.f``). The appropriate routine will depend on what your field is. 
+   For example, if you have a new diagnostic called *foo*,
+   and you want it interpolated to pressure levels, you would need to add it to ``MDL2P.f``. If *foo* were only a
+   surface variable, you would add it to ``SURFCE.f``. If you wanted *foo* on native model levels, you
+   would add it to ``MDLFLD.f``. If you are not sure which routine to add the new variable to, choose a
+   similar variable as a template, and add it in the same places.
 
-   Note: This is also where you would add any calculations needed for your new variable, should it
-   be required.
+   .. note:: 
+      
+      This is also where you would add any calculations needed for your new variable, should they
+      be required.
 
    User procedure
-    - Treat tg3 like a surface field (SURFCE.f), similar to the other soil fields.
+    - Treat TG3 like a surface field, similar to the other soil fields, and add it to ``SURFCE.f``.
     - Use another 2D variable, such as 'SNOW WATER EQUIVALENT' as a template. This variable is also
       being read through and output, similar to what we want.
     - Add to top section in ‘use vrbls2d, only’ to initiate the new variable as:
@@ -309,11 +316,11 @@ with examples in the sections below.
     ::
 
      ! DEEP SOIL TEMPERATURE
-     IF ( IGET(1003).GT.0 ) THEN
+     IF ( IGET(1063).GT.0 ) THEN
        ID(1:25) = 0
        If(grib=='grib2') then
          cfld=cfld+1
-         fld_info(cfld)%ifld=IAVBLFLD(IGET(1003))
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(1063))
      !$omp parallel do private(i,j,jj)
          do j=1,jend-jsta+1
            jj = jsta+j-1
@@ -322,25 +329,22 @@ with examples in the sections below.
              datapd(i,j,cfld) = TG3(ii,jj)
            enddo
          enddo
-       endiF
+       endif
      ENDIF
 
 7. Build or rebuild the code for changes to take effect before running your UPP run script.
    
-   User procedure for building on pre-configured machines. Otherwise, see the User's Guide for instructions on building.
+   User procedure for building on pre-configured machines: 
 
     ::
 
     >> cd UPP/tests
     >> ./compile_upp.sh
 
-   Assuming the modified code built successfully and you were able to produce Grib2 output, you can check the Grib2
+   Assuming the modified code built successfully, and you were able to produce Grib2 output, you can check the Grib2
    file for your new variable.
 
-   GRIB2 output of the new variable from this example procedure (using the wgrib2 utility if available on your system).
-    - For this example, since the new variable was not added to the NCEP Grib2 table, it will not be defined by the
-      variable name. Instead it will be defined using the Grib2 parameter information entered into params_grib2_tbl_new
-      from step 1 of this procedure.
+   **GRIB2 output of the new variable from this example procedure (using the wgrib2 utility if available on your system):**
 
     ::
 
@@ -353,3 +357,7 @@ with examples in the sections below.
          number of latitudes between pole-equator=96 #points=73728
          lat 89.284225 to -89.284225
          lon 0.000000 to 359.062500 by 0.937500
+
+   - For this example, since the new variable was not added to the NCEP Grib2 table, it will not be defined by the
+     variable name. Instead it will be defined using the Grib2 parameter information entered into ``params_grib2_tbl_new``
+     from step 1 of this procedure.
