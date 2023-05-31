@@ -11,9 +11,12 @@ module upp_ifi_mod
 
   private
 
-  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files
+  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files, &
+       first_supported_ifi_hour, last_supported_ifi_hour
 
   logical :: write_ifi_debug_files = .false.
+  real, parameter :: first_supported_ifi_hour = 1
+  real, parameter :: last_supported_ifi_hour = 21
 
 #ifndef USE_IFI
   ! Stubs need their own version of the ifi_real_t since it is defined in ifi_type_mod
@@ -732,8 +735,13 @@ contains !==============================================================
     real(c_double) :: fcst_lead_sec
     integer :: i, j
 
-    if(IFHR < 1 .or. IFHR > 18) then
-      print '(A)', 'IFI fields are only available from hours 1 through 18. Will output missing data for IFI fields for this time.'
+    if(IFHR < first_supported_ifi_hour .or. IFHR > last_supported_ifi_hour) then
+1838  format('You requested IFI fields for hour ',I0)
+      print 1838, IFHR
+1839  format('IFI fields are only available from hours ',I0,' through ',I0,'.')
+      print 1839, first_supported_ifi_hour, last_supported_ifi_hour
+1840  format(A)
+      print 1840, 'Will output missing data for IFI fields for this time.'
       call send_missing_data(1007)
       call send_missing_data(1008)
       call send_missing_data(1009)
