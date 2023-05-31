@@ -12,5 +12,5 @@ uses to store the variable in parallel arrays (column 5).
 
 .. csv-table::
    :file: UPP_GRIB2_Table.csv
-   :widths: 25, 30, 15, 15, 15
+   :widths: 25, 30, 15, 15
    :header-rows: 1
