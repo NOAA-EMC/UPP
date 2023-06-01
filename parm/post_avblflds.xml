@@ -6384,6 +6384,7 @@
        <scale> 11.0</scale>
     </param>
 
+<!-- comment out duplicated id 689
     <param>
        <post_avblfldidx>689</post_avblfldidx>
        <shortname>SU_AER_SFC_MASS_CON</shortname>
@@ -6397,6 +6398,7 @@
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 9.0</scale>
     </param>
+-->
 
     <param>
        <post_avblfldidx>690</post_avblfldidx>
