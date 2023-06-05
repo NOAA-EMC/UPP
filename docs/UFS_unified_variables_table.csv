@@ -23,6 +23,8 @@ Min hourly 0-3km updraft helicity,uhmin03,up_heli_min03,2d,dyn,regional FV3
 Max 0-1km relative vorticity max,maxvort01,rel_vort_max01,2d,dyn,regional FV3
 Max 0-2km relative vorticity max,maxvort02,rel_vort_max,2d,dyn,regional FV3
 Max hybrid level 1 relative vorticity max,maxvorthy1,rel_vort_maxhy1,2d,dyn,regional FV3
+Biomass burning emissions,ebb_smoke_hr,ebb,2d,phy,regional FV3
+Hourly wildfire potential,hwp,hwp,2d,phy,regional FV3
 Surface height,hgtsfc,"zint(:,:,LM+1)",2d,dyn,
 Reflectivity,refl_10cm,REF_10CM,3d,phy,
 Turbulence kinetic energy,qke,q2,3d,phy,
@@ -67,14 +69,15 @@ Plant canopy sfc water in m,cnwat,cmc,2d,phy,
 Frozen precip fraction,cpofp,sr,2d,phy,
 Sea ice skin temperature,tisfc,ti,2d,phy,
 Vegetation fraction,veg,vegfrc,2d,phy,
-Liquid volumetric soil moisture,soill1/soill2/soill3/soill4,sh2o,2d>3d,phy,all soil levels read into array
-Volumetric soil moisture,soilw1/soilw2/soilw3/soilw4.....,smc,2d>3d,phy,"all soil levels read into array, L5-9 RUC only"
-Soil temperature,soilt1/soilt2/soilt3/soilt4.....,stc,2d>3d,phy,"all soil levels read into array, L5-9 RUC only"
+Liquid volumetric soil moisture,soill1/.../soill4,sh2o,2d,phy,all soil levels read into 3d array
+Volumetric soil moisture,soilw1/.../soilw9,smc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
+Soil temperature,soilt1/.../soilt9,stc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
 Time averaged incoming surface longwave,dlwrf_ave,alwin,2d,phy,
 Instantaneous incoming surface longwave,dlwrf,rlwin,2d,phy,
 Time averaged outgoing surface longwave,ulwrf_ave,alwout,2d,phy,
 Instataneous outgoing surface longwave,ulwrf,radot,2d,phy,
 Time average outgoing model top longwave,ulwrf_avetoa,alwtoa,2d,phy,
+Instantaneous outgoing model top longwave,ulwrf_toa,rlwtoa,2d,phy,
 Time averaged incoming surface shortwave,dswrf_ave,aswin,2d,phy,
 Instantaneous incoming surface shortwave,dswrf,rswin,2d,phy,
 Time averaged incoming sfc uv-b,duvb_ave,auvbin,2d,phy,
@@ -101,6 +104,7 @@ Instantaneous potential evaporation,pevpr,potevp,2d,phy,
 10 m v-wind component,vgrd10m,v10,2d,phy,
 Vegetation type,vtype,ivgtyp,2d,phy,
 Soil type,sotyp,isltyp,2d,phy,
+Soil moisture availability,wetness,smstav,2d,phy,not GFS**GFS does not have soil moisture availability???**
 Instantaneous convective cloud top pressure,prescnvclt,ptop,2d,phy,
 Instantaneous convective cloud bottom pressure,prescnvclb,pbot,2d,phy,
 Time averaged low cloud top pressure,pres_avelct,ptopl,2d,phy,
@@ -148,97 +152,55 @@ Averaged precipitation advected heat flux,pah_ave,paha,2d,phy,
 Instantaneous precipitation advected heat flux,pahi,pahi,2d,phy,
 Plant transpiration,trans_ave,avgetrans,2d,phy,
 Snow sublimation,sbsno_ave,avgesnow,2d,phy,
-Total soil moisture,soilm,smstot,2d,phy,
+Total soil moisture,soilm,smstot,2d,phy,not GFS
 Snow phase change heat flux,snohf,snopcx,2d,phy,
 Precipitable water,pwat,pwat,2d,phy,
-AQF chemical species,aalk1j,aalk1j,3d,dyn,aqfcmaq_on = True
-,aalk2j,aalk2j,3d,dyn,aqfcmaq_on = True
-,abnz1j,abnz1j,3d,dyn,aqfcmaq_on = True
-,abnz2j,abnz2j,3d,dyn,aqfcmaq_on = True
-,abnz3j,abnz3j,3d,dyn,aqfcmaq_on = True
-,acaj,acaj,3d,dyn,aqfcmaq_on = True
-,acet,acet,3d,dyn,aqfcmaq_on = True
-,acli,acli,3d,dyn,aqfcmaq_on = True
-,aclj,aclj,3d,dyn,aqfcmaq_on = True
-,aclk,aclk,3d,dyn,aqfcmaq_on = True
-,acors,acors,3d,dyn,aqfcmaq_on = True
-,acro_primary,acro_primary,3d,dyn,aqfcmaq_on = True
-,acrolein,acrolein,3d,dyn,aqfcmaq_on = True
-,aeci,aeci,3d,dyn,aqfcmaq_on = True
-,aecj,aecj,3d,dyn,aqfcmaq_on = True
-,afej,afej,3d,dyn,aqfcmaq_on = True
-,aglyj,aglyj,3d,dyn,aqfcmaq_on = True
-,ah2oi,ah2oi,3d,dyn,aqfcmaq_on = True
-,ah2oj,ah2oj,3d,dyn,aqfcmaq_on = True
-,ah2ok,ah2ok,3d,dyn,aqfcmaq_on = True
-,ah3opi,ah3opi,3d,dyn,aqfcmaq_on = True
-,ah3opj,ah3opj,3d,dyn,aqfcmaq_on = True
-,ah3opk,ah3opk,3d,dyn,aqfcmaq_on = True
-,aiso1j,aiso1j,3d,dyn,aqfcmaq_on = True
-,aiso2j,aiso2j,3d,dyn,aqfcmaq_on = True
-,aiso3j,aiso3j,3d,dyn,aqfcmaq_on = True
-,aivpo1j,aivpo1j,3d,dyn,aqfcmaq_on = True
-,akj,akj,3d,dyn,aqfcmaq_on = True
-,ald2,ald2,3d,dyn,aqfcmaq_on = True
-,ald2_primary,ald2_primary,3d,dyn,aqfcmaq_on = True
-,aldx,aldx,3d,dyn,aqfcmaq_on = True
-,alvoo1i,alvoo1i,3d,dyn,aqfcmaq_on = True
-,alvoo1j,alvoo1j,3d,dyn,aqfcmaq_on = True
-,alvoo2i,alvoo2i,3d,dyn,aqfcmaq_on = True
-,alvoo2j,alvoo2j,3d,dyn,aqfcmaq_on = True
-,alvpo1i,alvpo1i,3d,dyn,aqfcmaq_on = True
-,alvpo1j,alvpo1j,3d,dyn,aqfcmaq_on = True
-,amgj,amgj,3d,dyn,aqfcmaq_on = True
-,amnj,amnj,3d,dyn,aqfcmaq_on = True
-,anai,anai,3d,dyn,aqfcmaq_on = True
-,anaj,anaj,3d,dyn,aqfcmaq_on = True
-,anh4i,anh4i,3d,dyn,aqfcmaq_on = True
-,anh4j,anh4j,3d,dyn,aqfcmaq_on = True
-,anh4k,anh4k,3d,dyn,aqfcmaq_on = True
-,ano3i,ano3i,3d,dyn,aqfcmaq_on = True
-,ano3j,ano3j,3d,dyn,aqfcmaq_on = True
-,ano3k,ano3k,3d,dyn,aqfcmaq_on = True
-,aolgaj,aolgaj,3d,dyn,aqfcmaq_on = True
-,aolgbj,aolgbj,3d,dyn,aqfcmaq_on = True
-,aorgcj,aorgcj,3d,dyn,aqfcmaq_on = True
-,aothri,aothri,3d,dyn,aqfcmaq_on = True
-,aothrj,aothrj,3d,dyn,aqfcmaq_on = True
-,apah1j,apah1j,3d,dyn,aqfcmaq_on = True
-,apah2j,apah2j,3d,dyn,aqfcmaq_on = True
-,apah3j,apah3j,3d,dyn,aqfcmaq_on = True
-,apcsoj,apcsoj,3d,dyn,aqfcmaq_on = True
-,aseacat,aseacat,3d,dyn,aqfcmaq_on = True
-,asij,asij,3d,dyn,aqfcmaq_on = True
-,aso4i,aso4i,3d,dyn,aqfcmaq_on = True
-,aso4j,aso4j,3d,dyn,aqfcmaq_on = True
-,aso4k,aso4k,3d,dyn,aqfcmaq_on = True
-,asoil,asoil,3d,dyn,aqfcmaq_on = True
-,asqtj,asqtj,3d,dyn,aqfcmaq_on = True
-,asvoo1i,asvoo1i,3d,dyn,aqfcmaq_on = True
-,asvoo1j,asvoo1j,3d,dyn,aqfcmaq_on = True
-,asvoo2i,asvoo2i,3d,dyn,aqfcmaq_on = True
-,asvoo2j,asvoo2j,3d,dyn,aqfcmaq_on = True
-,asvoo3j,asvoo3j,3d,dyn,aqfcmaq_on = True
-,asvpo1i,asvpo1i,3d,dyn,aqfcmaq_on = True
-,asvpo1j,asvpo1j,3d,dyn,aqfcmaq_on = True
-,asvpo2i,asvpo2i,3d,dyn,aqfcmaq_on = True
-,asvpo2j,asvpo2j,3d,dyn,aqfcmaq_on = True
-,asvpo3j,asvpo3j,3d,dyn,aqfcmaq_on = True
-,atij,atij,3d,dyn,aqfcmaq_on = True
-,atol1j,atol1j,3d,dyn,aqfcmaq_on = True
-,atol2j,atol2j,3d,dyn,aqfcmaq_on = True
-,atol3j,atol3j,3d,dyn,aqfcmaq_on = True
-,atrp1j,atrp1j,3d,dyn,aqfcmaq_on = True
-,atrp2j,atrp2j,3d,dyn,aqfcmaq_on = True
-,axyl1j,axyl1j,3d,dyn,aqfcmaq_on = True
-,axyl2j,axyl2j,3d,dyn,aqfcmaq_on = True
-,axyl3j,axyl3j,3d,dyn,aqfcmaq_on = True
-,pm25ac,pm25ac,3d,dyn,aqfcmaq_on = True
-,pm25at,pm25at,3d,dyn,aqfcmaq_on = True
-,pm25co,pm25co,3d,dyn,aqfcmaq_on = True
+Average ozone concentration,o3_ave,avgozcon,3d,dyn,aqf_on=True
+Average particulate matter (fine),pm25_ave,avgpmtf,3d,dyn,aqf_on=True
+Aerosol optical depth,aod,aqm_aod550,2d,phy,aqf_on=True
 Instantaneous aod550 optical depth,aod550,aod550,2d,phy,rdaod = True
 ,du_aod550,du_aod550,2d,phy,rdaod = True
 ,ss_aod550,ss_aod550,2d,phy,rdaod = True
 ,su_aod550,su_aod550,2d,phy,rdaod = True
 ,oc_aod550,oc_aod550,2d,phy,rdaod = True
 ,bc_aod550,bc_aod550,2d,phy,rdaod = True
+Dust 1,dust1,dt1,3d,dyn,GOCART
+Dust 2,dust2,dt2,3d,dyn,GOCART
+Dust 3,dust3,dt3,3d,dyn,GOCART
+Dust 4,dust4,dt4,3d,dyn,GOCART
+Dust 5,dust5,dt5,3d,dyn,GOCART
+Sea salt (1-5),seas1/.../seas5,salt,3d,dyn,GOCART - all requested read into 4d array
+Black carbon,bc1/bc2,soot,3d,dyn,GOCART - all requested read into 4d array
+Organic carbon,oc1/oc2,waso,3d,dyn,GOCART - all requested read into 4d array
+Sulfate,sulf,suso,3d,dyn,gocart_on=True or gccpp_on=True
+Sulfate,so4,suso,3d,dyn,nasa_on=True
+Nitrate,no3an1/no3an2/no3an3,no3,3d,dyn,GOCART - all requested read into 4d array
+NH4,nh4a,nh4,3d,dyn,GOCART
+**Particulate matter (PP25) (???)**,pp25,pp25,3d,dyn,gocart_on=True
+**Particulate matter (PM25) (???)**,pm25,pp25,3d,dyn,nasa_on=True
+**Particulate matter (PP10) (???)**,pp10,pp10,3d,dyn,gocart_on=True
+**Particulate matter (PM10) (???)**,pm10,pp10,3d,dyn,nasa_on=True
+Dust emission fluxes (1-5),duem001/.../duem005,duem,2d,phy, all requested read into 3d array
+Dust sedimentation fluxes (1-5),dust1sd/.../dust5sd, dusd,2d, phy, all requested read into 3d array
+Dust dry deposition fluxes (1-5),dust1dp/.../dust5dp,dupd,2d,phy, all requested read into 3d array
+Dust wet deposition fluxes (1-5),dust1wtl/.../dust5wtl,duwt,2d,phy, all requested read into 3d array
+Dust scavenging fluxes (1-5),dust1wtc/.../dust5wtc,dusv,2d,phy, all requested read into 3d array
+Seasalt emission fluxes (1-5),ssem001/.../ssem005,ssem,2d,phy, all requested read into 3d array
+Seasalt emission fluxes (1-5) **Should these be Seasalt sedimentation fluxes???**,seas1sd/.../seas5sd,sssd,2d,phy, all requested read into 3d array
+Seasalt dry deposition fluxes (1-5),seas1dp/.../seas5dp,ssdp,2d,phy,all requested read into 3d array
+Seasalt wet deposition fluxes (1-5),seas1wtl/.../seas5wtl,sswt,2d,phy,all requested read into 3d array
+Seasalt scavenging fluxes (1-5),seas1wtc,sssv,2d,phy,all requested read into 3d array
+Black carbon emission fluxes,bceman,bcem,2d,phy,all requested read into 3d array
+Black carbon emission fluxes,bcembb,bcem,2d,phy,all requested read into 3d array
+Black carbon sedimentation fluxes,bc1sd/bc2sd,bcsd,2d,phy,all requested read into 3d array
+Black carbon dry deposition fluxes,bc1dp/bc2dp,bcdp,2d,phy,all requested read into 3d array
+Black carbon large wet deposition fluxes,bc1wtl/bc2wtl,bcwt,2d,phy,all requested read into 3d array
+Black carbon convective wet deposition fluxes,bc1wtc/bc2wtc,bcsv,2d,phy,all requested read into 3d array
+Organic carbon emission fluxes,oceman,ocem,2d,phy,all requested read into 3d array
+Organic carbon emission fluxes,ocembb,ocem,2d,phy,all requested read into 3d array
+Organic carbon sedimentation fluxes,oc1sd/oc2sd,ocsd,2d,phy,all requested read into 3d array
+Organic carbon dry deposition fluxes,oc1dp/oc2dp,ocdp,2d,phy,all requested read into 3d array
+Organic carbon large wet deposition fluxes,oc1wtl/oc2wtl,ocwt,2d,phy,all requested read into 3d array
+Organic carbon convective wet deposition fluxes,oc1wtc/oc2wtc,ocsv,2d,phy,all requested read into 3d array
+**MIE AOD ???**,maod,maod,2d,phy,
+
