@@ -14,7 +14,7 @@ Snow mixing ratio,snmr,qqs,3d,dyn,
 Graupel mixing ratio,grle,qqg,3d,dyn,
 Instantaneous 3d cloud fraction,cld_amt,cfr,3d,dyn,imp_physics = 11
 Instantaneous 3d cloud fraction,cldfra,cfr,3d,phy,imp_physics ≠ 11
-Instantaneous 3d cloud fraction,cldfra_bl,cfr,3d,phy,imp_physics ≠ 11
+Instantaneous 3d cloud fraction from boundary layer scheme,cldfra_bl,cfr,3d,phy,imp_physics ≠ 11
 Thompson scheme cloud ice effective radius,cieffr,effri,3d,phy
 Thompson scheme cloud water effective radius,cleffr,effrl,3d,phy
 Thompson scheme snow effective radius,cseffr,effrs,3d,phy
@@ -33,7 +33,8 @@ Lightning threat index 1,ltg1_max,ltg1_max,2d,phy,regional FV3
 Lightning threat index 2,ltg2_max,ltg2_max,2d,phy,regional FV3
 Lightning threat index 3,ltg3_max,ltg3_max,2d,phy,regional FV3
 Surface pressure,pressfc,"pint(:,:,LM+1)",2d,dyn,regional FV3
-Surface height,hgtsfc,"zint(:,:,LM+1)",2d,dyn,
+Surface height,hgtsfc,"zint(:,:,LM+1)",2d,dyn,regional FV3
+Unified extinction ext550/Aerosol optical depth,recname(18),ext550,3d,phy,regional FV3
 Reflectivity,refl_10cm,REF_10CM,3d,phy,
 Turbulence kinetic energy,qke,q2,3d,phy,
 Ice-friendly aerosol number concentration,nifa,qqnwfa,3d,phy,
@@ -120,7 +121,9 @@ Instantaneous potential evaporation,pevpr,potevp,2d,phy,
 10 m v-wind component,vgrd10m,v10,2d,phy,
 Vegetation type,vtype,ivgtyp,2d,phy,
 Soil type,sotyp,isltyp,2d,phy,
-Soil moisture availability,wetness,smstav,2d,phy,**not GFS**
+Soil moisture availability,wetness,smstav,2d,phy,not GFS
+Accumulated snow depth over land,snacc_land,for computing *sndepac*,2d,phy,
+Accumulated snow depth over ice,snacc_ice,for computing *sndepac*,2d,phy,
 Instantaneous convective cloud top pressure,prescnvclt,ptop,2d,phy,
 Instantaneous convective cloud bottom pressure,prescnvclb,pbot,2d,phy,
 Time averaged low cloud top pressure,pres_avelct,ptopl,2d,phy,
@@ -175,11 +178,11 @@ Average ozone concentration,o3_ave,avgozcon,3d,dyn,aqf_on=True
 Average particulate matter (fine),pm25_ave,avgpmtf,3d,dyn,aqf_on=True
 Aerosol optical depth,aod,aqm_aod550,2d,phy,aqf_on=True
 Instantaneous aod550 optical depth,aod550,aod550,2d,phy,rdaod = True
-,du_aod550,du_aod550,2d,phy,rdaod = True
-,ss_aod550,ss_aod550,2d,phy,rdaod = True
-,su_aod550,su_aod550,2d,phy,rdaod = True
-,oc_aod550,oc_aod550,2d,phy,rdaod = True
-,bc_aod550,bc_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (dust),du_aod550,du_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (seasalt),ss_aod550,ss_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (sulfates),su_aod550,su_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (organic carbon),oc_aod550,oc_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (black carbon),bc_aod550,bc_aod550,2d,phy,rdaod = True
 Dust 1,dust1,dt1,3d,dyn,GOCART
 Dust 2,dust2,dt2,3d,dyn,GOCART
 Dust 3,dust3,dt3,3d,dyn,GOCART
@@ -192,17 +195,17 @@ Sulfate,sulf,suso,3d,dyn,gocart_on=True or gccpp_on=True
 Sulfate,so4,suso,3d,dyn,nasa_on=True
 Nitrate,no3an1/no3an2/no3an3,no3,3d,dyn,GOCART - all requested read into 4d array
 NH4,nh4a,nh4,3d,dyn,GOCART
-**Particulate matter (PP25) (???)**,pp25,pp25,3d,dyn,gocart_on=True
-**Particulate matter (PM25) (???)**,pm25,pp25,3d,dyn,nasa_on=True
-**Particulate matter (PP10) (???)**,pp10,pp10,3d,dyn,gocart_on=True
-**Particulate matter (PM10) (???)**,pm10,pp10,3d,dyn,nasa_on=True
+Particulate matter (PP25),pp25,pp25,3d,dyn,gocart_on=True
+Particulate matter (PM25),pm25,pp25,3d,dyn,nasa_on=True
+Particulate matter (PP10),pp10,pp10,3d,dyn,gocart_on=True
+Particulate matter (PM10),pm10,pp10,3d,dyn,nasa_on=True
 Dust emission fluxes (1-5),duem001/.../duem005,duem,2d,phy, all requested read into 3d array
 Dust sedimentation fluxes (1-5),dust1sd/.../dust5sd,dusd,2d, phy, all requested read into 3d array
 Dust dry deposition fluxes (1-5),dust1dp/.../dust5dp,dupd,2d,phy, all requested read into 3d array
 Dust wet deposition fluxes (1-5),dust1wtl/.../dust5wtl,duwt,2d,phy, all requested read into 3d array
 Dust scavenging fluxes (1-5),dust1wtc/.../dust5wtc,dusv,2d,phy, all requested read into 3d array
 Seasalt emission fluxes (1-5),ssem001/.../ssem005,ssem,2d,phy, all requested read into 3d array
-Seasalt emission fluxes (1-5) **Should these be Seasalt sedimentation fluxes???**,seas1sd/.../seas5sd,sssd,2d,phy, all requested read into 3d array
+Seasalt **emission/sedimentation** fluxes (1-5),seas1sd/.../seas5sd,sssd,2d,phy, all requested read into 3d array
 Seasalt dry deposition fluxes (1-5),seas1dp/.../seas5dp,ssdp,2d,phy,all requested read into 3d array
 Seasalt wet deposition fluxes (1-5),seas1wtl/.../seas5wtl,sswt,2d,phy,all requested read into 3d array
 Seasalt scavenging fluxes (1-5),seas1wtc,sssv,2d,phy,all requested read into 3d array
@@ -218,4 +221,4 @@ Organic carbon sedimentation fluxes,oc1sd/oc2sd,ocsd,2d,phy,all requested read i
 Organic carbon dry deposition fluxes,oc1dp/oc2dp,ocdp,2d,phy,all requested read into 3d array
 Organic carbon large wet deposition fluxes,oc1wtl/oc2wtl,ocwt,2d,phy,all requested read into 3d array
 Organic carbon convective wet deposition fluxes,oc1wtc/oc2wtc,ocsv,2d,phy,all requested read into 3d array
-**MIE AOD ???**,maod,maod,2d,phy,
+Mie-based aerosol optical depth,maod,maod,2d,phy,
