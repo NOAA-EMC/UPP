@@ -1,123 +1,34 @@
-#ifndef USE_IFI
-
-! IFI stubs
-
 module upp_ifi_mod
-  use iso_c_binding, only: c_float
-  implicit none
 
-  private
-  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files
-
-  integer, parameter :: ifi_real_t = c_float
-  logical :: write_ifi_debug_files = .false.
-  
-contains !==============================================================
-
-  subroutine set_ifi_dims()
-    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
-    implicit none
-    integer :: i
-
-    ! Bogus fill value for flight levels to prevent a crash
-    ifi_nflight = 60
-    if(allocated(ifi_flight_levels)) then
-      deallocate(ifi_flight_levels)
-    endif
-    allocate(ifi_flight_levels(ifi_nflight))
-    do i=1,ifi_nflight
-      ifi_flight_levels(i) = 500*i
-    enddo
-  end subroutine set_ifi_dims
-
-  ! --------------------------------------------------------------------
-
-  subroutine run_ifi()
-    ! Fill any requested IFI fields with missing data.
-    call send_missing_data(1007)  ! ICE_PROB = missing
-    call send_missing_data(1008)  ! SLD = missing
-    call send_missing_data(1009)  ! ICE_SEV_CAT = missing
-    call send_missing_data(1010)  ! ICE_SEV_CAT = missing
-  end subroutine run_ifi
-
-  ! --------------------------------------------------------------------
-
-  subroutine send_missing_data(ient)
-    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
-    use ctlblk_mod, only: spval, ista, iend, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u
-    use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
-    implicit none
-
-    integer, intent(in) :: ient
-
-    ! Locals
-    integer :: i,j,k
-
-    logical, save :: wrote_message = .false. ! guarded by an OMP CRITICAL below
-
-    if(size(IGET)<ient) then
-      return
-    endif
-
-    write(*,*) 'ient,iget = ',ient,iget(ient)
-
-    if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
-      return
-    endif
-
-    ! Go level-by-level writing grib2 if requested
-    do k=1,ifi_nflight
-      if(k>size(LVLS,1)) then
-        write(0,*) 'ERROR: LVLS is too small to handle ',ifi_nflight,' vertical levels'
-        return
-      endif
-      if(LVLS(k,IGET(ient))>0) then
-        if(.not.wrote_message) then
-          !$OMP CRITICAL
-          if(.not.wrote_message) then
-            print '(A)', 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
-            wrote_message = .true.
-          endif
-          !$OMP END CRITICAL
-        endif
-
-        cfld = cfld+1
-        fld_info(cfld)%ifld = IAVBLFLD(IGET(ient))
-        fld_info(cfld)%lvl  = k
-
-        !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)
-        do j=jsta,jend
-          do i=ista,iend
-            datapd(i-ista+1,j-jsta+1,cfld) = spval
-          enddo
-        enddo
-      endif
-    enddo
-  end subroutine send_missing_data
-end module upp_ifi_mod
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-#else
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-! Actual IFI code.
-module upp_ifi_mod
+#ifdef USE_IFI
+  ! Use the libIFI API modules.
   use ifi_type_mod
   use ifi_mod
-  use iso_c_binding, only: c_bool, c_int64_t, c_ptr, c_double
+#endif
 
+  use iso_c_binding, only: c_bool, c_int64_t, c_ptr, c_double, c_float
   implicit none
 
   private
-  public run_ifi, set_ifi_dims, ifi_real_t
+
+  public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files, &
+       first_supported_ifi_hour, last_supported_ifi_hour
+
+  logical :: write_ifi_debug_files = .false.
+  real, parameter :: first_supported_ifi_hour = 1
+  real, parameter :: last_supported_ifi_hour = 21
+
+#ifndef USE_IFI
+  ! Stubs need their own version of the ifi_real_t since it is defined in ifi_type_mod
+  integer, parameter :: ifi_real_t = c_float
+
+#else
+  ! Actual IFI code needs a few more module-scope variables.
 
   real, parameter :: feet2meters = 0.3048
 
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
-  logical, public :: write_ifi_debug_files = .false.
 
   ! Communication-related variables for gathers and
   ! scatters. Gathering is done in the i direction first, all to one
@@ -148,8 +59,102 @@ module upp_ifi_mod
   integer, allocatable :: col_jend(:) ! j ends for rearranging data (jcomm_size)
 
   integer, allocatable :: isize_grid(:) ! iend-ista+1 for each gridpoint
+#endif
   
 contains !==============================================================
+
+  subroutine send_missing_data(ient)
+    ! Fills IFI fields in index ient (of IGET) with missing values.
+    !
+    ! This subroutine is both in the stub and actual IFI code.
+    ! The stubs always send missing data, while the actual code
+    ! sends missing data for unsupported hours.
+    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
+    use ctlblk_mod, only: spval, ista, iend, jsta, jend, lm, im, cfld, datapd, fld_info, ifi_flight_levels, jsta_2l, jend_2u,me
+    use rqstfld_mod, only: iget, iavblfld, lvlsxml, lvls
+    implicit none
+
+    integer, intent(in) :: ient
+
+    ! Locals
+    integer :: i,j,k
+
+    logical, save :: wrote_message = .false. ! guarded by an OMP CRITICAL below
+
+    if(size(IGET)<ient) then
+      return
+    endif
+
+    if(IGET(ient)<1 .or. IGET(ient)>size(LVLS,2)) then
+      return
+    endif
+
+    ! Go level-by-level writing grib2 if requested
+    do k=1,ifi_nflight
+      if(k>size(LVLS,1)) then
+        write(0,*) 'ERROR: LVLS is too small to handle ',ifi_nflight,' vertical levels'
+        return
+      endif
+      if(LVLS(k,IGET(ient))>0) then
+        if(.not.wrote_message) then
+          !$OMP CRITICAL
+          if(.not.wrote_message.and.me==0) then
+            write(*,*) 'This post cannot produce IFI icing products because it was not compiled with libIFI.'
+            wrote_message = .true.
+          endif
+          !$OMP END CRITICAL
+        endif
+
+        cfld = cfld+1
+        fld_info(cfld)%ifld = IAVBLFLD(IGET(ient))
+        fld_info(cfld)%lvl  = k
+
+        !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)
+        do j=jsta,jend
+          do i=ista,iend
+            datapd(i-ista+1,j-jsta+1,cfld) = spval
+          enddo
+        enddo
+      endif
+    enddo
+  end subroutine send_missing_data
+
+#ifndef USE_IFI
+! IFI stubs
+
+  subroutine set_ifi_dims()
+    use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
+    implicit none
+    integer :: i
+
+    ! Bogus fill value for flight levels to prevent a crash
+    ifi_nflight = 60
+    if(allocated(ifi_flight_levels)) then
+      deallocate(ifi_flight_levels)
+    endif
+    allocate(ifi_flight_levels(ifi_nflight))
+    do i=1,ifi_nflight
+      ifi_flight_levels(i) = 500*i
+    enddo
+  end subroutine set_ifi_dims
+
+  ! --------------------------------------------------------------------
+
+  subroutine run_ifi()
+    ! Fill any requested IFI fields with missing data.
+    call send_missing_data(1007)  ! ICE_PROB = missing
+    call send_missing_data(1008)  ! SLD = missing
+    call send_missing_data(1009)  ! ICE_SEV_CAT = missing
+    call send_missing_data(1010)  ! ICE_SEV_CAT = missing
+  end subroutine run_ifi
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#else
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Actual IFI code
 
   subroutine make_communicators
     use ctlblk_mod, only: jsta, jend, ista, iend, mpi_comm_comp, im, jm
@@ -729,6 +734,20 @@ contains !==============================================================
     real :: to_hourly
     real(c_double) :: fcst_lead_sec
     integer :: i, j
+
+    if(IFHR < first_supported_ifi_hour .or. IFHR > last_supported_ifi_hour) then
+1838  format('You requested IFI fields for hour ',I0)
+      print 1838, IFHR
+1839  format('IFI fields are only available from hours ',I0,' through ',I0,'.')
+      print 1839, first_supported_ifi_hour, last_supported_ifi_hour
+1840  format(A)
+      print 1840, 'Will output missing data for IFI fields for this time.'
+      call send_missing_data(1007)
+      call send_missing_data(1008)
+      call send_missing_data(1009)
+      call send_missing_data(1010)
+      return
+    endif
 
     ! FIXME: Once the post is i-decomposed, replace the appropriate 1..im in this routine.
     
@@ -1364,8 +1383,6 @@ contains !==============================================================
     end function read_var
   end subroutine write_fip_output
 
+#endif
 
 end module upp_ifi_mod
-
-
-#endif
