@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
+  <paramset>   <!-- WAFS on ISOBARIC_SFC -->
+    <datset>GFSPRS</datset>
+    <grid_num>0</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>gfs_avn</gen_proc>
+    <packing_method>complex_packing_spatial_diff</packing_method>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+    <param>
+       <shortname>EDPARM_ON_ISOBARIC_SFC</shortname>
+       <level>14750. 19680. 25000. 30090. 34430. 39270. </level>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ICESEV_ON_ISOBARIC_SFC</shortname>
+       <level>39270. 50600. 59520. 69680. 84310. </level>
+       <scale>1.0</scale>
+    </param>
+
+    <!--  comments wherever I like -->
+  </paramset>
+</postxml>
