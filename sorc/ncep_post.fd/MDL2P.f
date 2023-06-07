@@ -130,8 +130,6 @@
 !
 !     START MDL2P. 
 !
-    if(me==0) print*, 'MDL2P SMFLAG=',SMFLAG
-
       if (modelname == 'GFS') then
         zero = 0.0
        else
@@ -3948,12 +3946,8 @@
 ! OUTPUT MEMBRANCE SLP
       IF(IGET(023) > 0)THEN
         IF(gridtype == 'A'.OR. gridtype == 'B') then                  
-          if(me==0)PRINT*,'CALLING MEMSLP for A or B grid'
           CALL MEMSLP(TPRS,QPRS,FPRS)
-          if(me==0)PRINT*,'aft CALLING MEMSLP for A or B grid,pslp=', &
-            maxval(pslp(ista:iend,jsta:jend)),minval(pslp(ista:iend,jsta:jend)),pslp((ista+iend)/2,(jsta+jend)/2)
         ELSE IF (gridtype == 'E')THEN
-          if(me==0)PRINT*,'CALLING MEMSLP_NMM for E grid'
 !          CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
         ELSE
           PRINT*,'unknow grid type-> WONT DERIVE MESINGER SLP'
@@ -3982,7 +3976,6 @@
 
 ! OUTPUT of MAPS SLP
       IF(IGET(445) > 0)THEN
-        if(me==0)PRINT*,'CALLING MAPS SLP'
         CALL MAPSSLP(TPRS)
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
@@ -4080,7 +4073,6 @@
 
 ! SNOW DESITY SOLID-LIQUID-RATION SLR
       IF ( IGET(1006)>0 ) THEN
-         if(me==0)PRINT*,'CALLING SLR'
          egrid1=spval
          if(slrutah_on) then
             call calslr_uutah(EGRID1)
@@ -4118,7 +4110,6 @@ if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
 if(allocated(coarsepmsl)) deallocate(coarsepmsl)
-      if(me==0)PRINT*,'MDL2P completed'
 !     END OF ROUTINE.
 !
       RETURN

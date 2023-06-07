@@ -311,10 +311,6 @@
             BETAV = BETAV + aextc55(i,j,lm)*1000.
         endif
 
-       if (i==290 .and. j==112) then
-         write (6,*) 'BETAV, extcof55 =',BETAV,extcof55(i,j,lm)
-       end if
-
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
         VIS(I,J)=MIN(90.,CONST1/(BETAV+extcof55(i,j,lm)))      ! max of 90km
 
@@ -329,15 +325,7 @@
        vis_night = 1.69 * ((vis(i,j)/1.609)**0.86) * 1.609
 
        zen_fac = min(0.1,max(czen(i,j),0.))/ 0.1
-       if (i==290 .and. j==112) then
-         write (6,*) 'zen_fac,vis_night, vis =',zen_fac,vis_night, vis(i,j)
-       end if
-
        vis(i,j) = zen_fac * vis(i,j) + (1.-zen_fac)*vis_night
-
-       if (i==290 .and. j==112) then
-         write (6,*) 'visrh, vis =',visrh, vis(i,j)
-       end if
 
        if(method == 1 .or. method == 3)then ! RH method (if lower vis)
          vis(i,j) = min(vis(i,j),visrh)
