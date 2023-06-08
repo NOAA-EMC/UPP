@@ -1,3 +1,8 @@
+.. role:: underline
+    :class: underline
+.. role:: bolditalic
+    :class: bolditalic
+
 *******************
 Technical Overview
 *******************
@@ -81,21 +86,16 @@ Under the main **UPP** directory reside the following relevant subdirectories
        processing is performed.
 
      | **scripts**: Contains a sample run script to process fv3 history files.
-     |   - **run_upp**: runs :bolditalic:`upp.x`.
-
+     |   - **run_upp**: Script that runs the stand-alone UPP package (:bolditalic:`upp.x`)
      | **sorc**: Contains source code for:
      |   - **ncep_post.fd**: Source code for the UPP
 
      | **tests**: Contains the scripts used to install UPP
+     |   - **compile_upp.sh**: UPP build script
      |   - **build***: Contains the UPP build
      |   - **install***: Contains the installed executable (bin/upp.x), modules, and libraries
 
-.. COMMENT: Is exec there? If so, add to dir tree. Is some of this out-of date? (e.g., tests info?)
-
-
-
-
-When the ``develop`` branch of the UPP repository is cloned, the basic directory structure will be similar to the example below. Some files and directories have been removed for brevity. 
+When the ``develop`` branch of the UPP repository is cloned, the basic directory structure follows the example below. Some files and directories have been removed for brevity. 
 
 .. code-block:: console
 
@@ -103,27 +103,29 @@ When the ``develop`` branch of the UPP repository is cloned, the basic directory
     ├── ci                          -------- Automated testing files
     ├── cmake                       -------- CMake build files
     ├── docs                        -------- User's Guide files
-    │   └── Doxyfile.in                -------- Doxygen configuration file
-    ├── fix/Breadboard
+    │   └── Doxyfile.in             -------- Doxygen configuration file
+    ├── exec*
+    ├── fix
     ├── jobs                        -------- Scripts that set up the environment and call ex-scripts from the scripts directory
-    ├── modulefiles                 -------- Modulefiles for specific platforms and compilers for building on pre-configured machines
-    ├── parm                        -------- Parameter files that can be modified to control how post-processing is performed.
-    │    ├── post_avblflds.xml         -------- List of all fields available in UPP
-    │    ├── postcntrl*.xml            -------- User-editable control files that list the variables to be output
-    │    └── postxconfig-NT-*.txt      -------- Text file of requested output that UPP reads (processed from postcntrl)
-    ├── scripts                     -------- Ex-scripts for performing post-processing
-    │    └── run_upp                   -------- Script for running the stand-alone UPP package
-    ├── sorc                        -------- Top source code directory
-    │    ├── libIFI.fd                 -------- Private repository (submodule) for in-flight icing
-    │    └── ncep_post.fd              -------- Main post-processing routines
-    ├── tests                       -------- Scripts used to install UPP
-    │    └── compile_upp.sh            -------- UPP build script
+    ├── modulefiles
+    ├── parm
+    │    ├── post_avblflds.xml      -------- List of all fields available in UPP
+    │    ├── postcntrl*.xml         -------- User-editable control files that list the variables to be output
+    │    └── postxconfig-NT-*.txt   -------- Text file of requested output that UPP reads (processed from postcntrl)
+    ├── scripts
+    │    └── run_upp                -------- Script that runs the stand-alone UPP package (upp.x)
+    ├── sorc
+    │    ├── libIFI.fd              -------- Private repository (submodule) for in-flight icing
+    │    └── ncep_post.fd           -------- Main post-processing routines
+    ├── tests
+    │    ├── build*
+    │    ├── install*
+    │    └── compile_upp.sh         -------- UPP build script
     ├── ush                         -------- Utility scripts (referenced & run in /scripts)
     ├── CMakeLists.txt
     ├── LICENSE.md
     ├── README.md
     └── VERSION 
-
 
 
 
