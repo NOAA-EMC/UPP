@@ -228,16 +228,16 @@ Plant canopy surface water,CNWAT_ON_SURFACE,CNWAT,118
 Accumulated storm surface runoff,ACM_SSRUN_ON_SURFACE,SSRUN,122
 Accumulated baseflow runoff,ACM_BGRUN_ON_SURFACE,BGRUN,123
 Fraction of frozen precipitation,CPOFP_ON_SURFACE,CPOFP,172
-** Global Systems Division (GSD) Minimum updraft helicity 2-5km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MNUPHL,786
-** GSD Minimum updraft helicity 1-6 km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MNUPHL,787
-** GSD Maximum updraft helicity 0-2km**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MXUPHL,788
-** GSD Minimum updraft helicity 0-2km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MNUPHL,789
-** GSD Maximum updraft helicity 0-3km**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MXUPHL,790
-** GSD Minimum updraft helicity 0-3km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MNUPHL,791
-** GSD Maximum relative vertical vorticity 0-2 km**,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,RELV,792
-** GSD Maximum relative vertical vorticity 0-1 km**,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,RELV,793
-** GSD Maximum hail diameter in column**,GSD_MAX_COLMAX_GRAUPEL_HAIL_DIAMETER,HAIL,794
-** GSD Maximum hail diameter at k=1???**,GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER,HAIL,795
+**Global Systems Division (GSD) Minimum updraft helicity 2-5km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MNUPHL,786
+**GSD Minimum updraft helicity 1-6 km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MNUPHL,787
+**GSD Maximum updraft helicity 0-2km**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MXUPHL,788
+**GSD Minimum updraft helicity 0-2km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MNUPHL,789
+**GSD Maximum updraft helicity 0-3km**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MXUPHL,790
+**GSD Minimum updraft helicity 0-3km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MNUPHL,791
+**GSD Maximum relative vertical vorticity 0-2 km**,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,RELV,792
+**GSD Maximum relative vertical vorticity 0-1 km**,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,RELV,793
+**GSD Maximum hail diameter in column**,GSD_MAX_COLMAX_GRAUPEL_HAIL_DIAMETER,HAIL,794
+**GSD Maximum hail diameter at k=1???**,GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER,HAIL,795
 **Experimental cloud base pressure**,GSD_PRES1_ON_CLOUD_BASE,PRES,798
 GSD Cloud top pressure,GSD_PRES_ON_CLOUD_TOP,PRES,406
 Averaged temperature tendency from grid scale latent heat release,AVE_LRGHR_ON_HYBRID_LVL,LRGHR,78
@@ -500,31 +500,31 @@ Maximum V-component wind at 10m,MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,5
 **Maximum instantaneous precipitation rate on surface ???**,MAX_PRATE_ON_SURFACE,PRATE,508
 **Maximum specific humidity at 2m**,MAX_QMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMAX,510
 **Minimum specific humidity at 2m**,MIN_QMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMIN,511
-** _____ ???**,ACOND_ON_SURFACE,ACOND,512
-** _____ ???**,AVE_EVCW_ON_SURFACE,EVCW,513
-** _____ ???**,AVE_EVBS_ON_SURFACE,EVBS,514
-** _____ ???**,AVE_TRANS_ON_SURFACE,TRANS,515
+**Aerodynamic conductance on surface???**,ACOND_ON_SURFACE,ACOND,512
+**Canopy water evaporation on surface???**,AVE_EVCW_ON_SURFACE,EVCW,513
+**Direct surface evaporation from bare soil???**,AVE_EVBS_ON_SURFACE,EVBS,514
+**Transpiration on surface???**,AVE_TRANS_ON_SURFACE,TRANS,515
 **Sublimation on surface ???**,AVE_SBSNO_ON_SURFACE,SBSNO,516
 **Potential evaporation rate on surface ???**,AVE_PEVPR_ON_SURFACE,PEVPR,517
 **Height on standard atmospheric isobaric levels**,HGT_ON_ICAO_STD_SFC,HGT,518
 **Temperature on standard atmospheric isobaric levels**,TMP_ON_ICAO_STD_SFC,TMP,519
-** U-component wind on standard atmospheric isobaric levels???**,UGRD_ON_ICAO_STD_SFC,UGRD,520
-** V-component wind on standard atmospheric isobaric levels???**,VGRD_ON_ICAO_STD_SFC,VGRD,521
+**U-component wind on standard atmospheric isobaric levels???**,UGRD_ON_ICAO_STD_SFC,UGRD,520
+**V-component wind on standard atmospheric isobaric levels???**,VGRD_ON_ICAO_STD_SFC,VGRD,521
 **Bucket total precipitation on surface**,BUCKET1_APCP_ON_SURFACE,APCP,526
 **Bucket convective precipitation on surface**,BUCKET1_ACPCP_ON_SURFACE,ACPCP,527
 **Bucket large scale precipitation on surface**,BUCKET1_NCPCP_ON_SURFACE,NCPCP,528
 **Bucket snow precipitation on surface**,BUCKET1_WEASD_ON_SURFACE,WEASD,529
 **Bucket graupel precipitation on surface**,BUCKET1_GRAUPEL_ON_SURFACE,FROZR,530
-**Simulated Brightness Temperature for ABI GOES-18, Band-7**,SBTA187_ON_TOP_OF_ATMOS,SBTA187,531
-**Simulated Brightness Temperature for ABI GOES-18, Band-8**,SBTA188_ON_TOP_OF_ATMOS,SBTA188,532
-**Simulated Brightness Temperature for ABI GOES-18, Band-9**,SBTA189_ON_TOP_OF_ATMOS,SBTA189,533
-**Simulated Brightness Temperature for ABI GOES-18, Band-10**,SBTA1810_ON_TOP_OF_ATMOS,SBTA1810,534
-**Simulated Brightness Temperature for ABI GOES-18, Band-11**,SBTA1811_ON_TOP_OF_ATMOS,SBTA1811,535
-**Simulated Brightness Temperature for ABI GOES-18, Band-12**,SBTA1812_ON_TOP_OF_ATMOS,SBTA1812,536
-**Simulated Brightness Temperature for ABI GOES-18, Band-13**,SBTA1813_ON_TOP_OF_ATMOS,SBTA1813,537
-**Simulated Brightness Temperature for ABI GOES-18, Band-14**,SBTA1814_ON_TOP_OF_ATMOS,SBTA1814,538
-**Simulated Brightness Temperature for ABI GOES-18, Band-15**,SBTA1815_ON_TOP_OF_ATMOS,SBTA1815,539
-**Simulated Brightness Temperature for ABI GOES-18, Band-16**,SBTA1816_ON_TOP_OF_ATMOS,SBTA1816,540
+**Simulated Brightness Temperature for ABI GOES-18 Band-7**,SBTA187_ON_TOP_OF_ATMOS,SBTA187,531
+**Simulated Brightness Temperature for ABI GOES-18 Band-8**,SBTA188_ON_TOP_OF_ATMOS,SBTA188,532
+**Simulated Brightness Temperature for ABI GOES-18 Band-9**,SBTA189_ON_TOP_OF_ATMOS,SBTA189,533
+**Simulated Brightness Temperature for ABI GOES-18 Band-10**,SBTA1810_ON_TOP_OF_ATMOS,SBTA1810,534
+**Simulated Brightness Temperature for ABI GOES-18 Band-11**,SBTA1811_ON_TOP_OF_ATMOS,SBTA1811,535
+**Simulated Brightness Temperature for ABI GOES-18 Band-12**,SBTA1812_ON_TOP_OF_ATMOS,SBTA1812,536
+**Simulated Brightness Temperature for ABI GOES-18 Band-13**,SBTA1813_ON_TOP_OF_ATMOS,SBTA1813,537
+**Simulated Brightness Temperature for ABI GOES-18 Band-14**,SBTA1814_ON_TOP_OF_ATMOS,SBTA1814,538
+**Simulated Brightness Temperature for ABI GOES-18 Band-15**,SBTA1815_ON_TOP_OF_ATMOS,SBTA1815,539
+**Simulated Brightness Temperature for ABI GOES-18 Band-16**,SBTA1816_ON_TOP_OF_ATMOS,SBTA1816,540
 **GSD shelter level potential temperature**,GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,POT,546
 **GSD shelter level dewpoint depression**,GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,DEPR,547
 **GSD shelter level surface equivalent potential temperature**,GSD_EPOT_ON_SURFACE,EPOT,548
@@ -629,7 +629,7 @@ Simulated AMSR-E channel 12 brightness temperature,AMSRE12_ON_TOP_OF_ATMOS,AMSRE
 **Hydrophobic organic carbon on model surface**,OCPHOBIC_ON_HYBRID_LVL,PMTF,640
 **Hydrophilic organic carbon on model surface**,OCPHILIC_ON_HYBRID_LVL,PMTF,641
 **Hydrophobic black carbon on model surface**,BCPHOBIC_ON_HYBRID_LVL,PMTF,642
-**Hydrophilic black carbon on model surface,BCPHILIC_ON_HYBRID_LVL,PMTF,643
+**Hydrophilic black carbon on model surface**,BCPHILIC_ON_HYBRID_LVL,PMTF,643
 **Air density on model surface**,AIR_DENSITY_ON_HYBRID_LVL,DEN,644
 **Layer thickness on model surface**,LAYER_THICKNESS_ON_HYBRID_LVL,THICK,645
 **Dust PM2.5 column mass density**,DUST_COL_MASS_DEN,COLMD,646
@@ -766,10 +766,10 @@ SSMI F13 (19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,800
 SSMI F14 (19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,806
 SSMI F15 (19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,812
 SSMIS F16 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,818
-**Simulated Brightness Temperature for SSMIS-F17, Channel 15**,SSMS1715_ON_TOP_OF_ATMOS,SSMS1715,825
-**Simulated Brightness Temperature for SSMIS-F17, Channel 16**,SSMS1716_ON_TOP_OF_ATMOS,SSMS1716,826
-**Simulated Brightness Temperature for SSMIS-F17, Channel 17**,SSMS1717_ON_TOP_OF_ATMOS,SSMS1717,827
-**Simulated Brightness Temperature for SSMIS-F17, Channel 18**,SSMS1718_ON_TOP_OF_ATMOS,SSMS1718,828
+**Simulated Brightness Temperature for SSMIS-F17 Channel 15**,SSMS1715_ON_TOP_OF_ATMOS,SSMS1715,825
+**Simulated Brightness Temperature for SSMIS-F17 Channel 16**,SSMS1716_ON_TOP_OF_ATMOS,SSMS1716,826
+**Simulated Brightness Temperature for SSMIS-F17 Channel 17**,SSMS1717_ON_TOP_OF_ATMOS,SSMS1717,827
+**Simulated Brightness Temperature for SSMIS-F17 Channel 18**,SSMS1718_ON_TOP_OF_ATMOS,SSMS1718,828
 SSMIS F18 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,832
 SSMIS F19 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,839
 SSMIS F20 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,846
