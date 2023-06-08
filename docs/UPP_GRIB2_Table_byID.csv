@@ -468,7 +468,7 @@ Simulated GOES 11 channel 5 brightness temperature with satellite angle correcti
 **GTG EDR turbulence on model surface**,EDPARM_ON_HYBRID_LVL,EDPARM,470
 **GTG CAT turbulence on model surface**,CAT_ON_HYBRID_LVL,CATEDR,471
 **GTG MWT turbulence on model surface**,MWTURB_ON_HYBRID_LVL,MWTURB,472
-**Horizontal extent of cumulonimbus (CB) % **,CBHE_ON_ENTIRE_ATMOS,CBHE,473
+**Horizontal extent of cumulonimbus (CB) %**,CBHE_ON_ENTIRE_ATMOS,CBHE,473
 **Height of base of cumulonimbus**,ICAHT_ON_CB_BASE,ICAHT,474
 **Height of top of cumulonimbus**,ICAHT_ON_CB_TOP,ICAHT,475
 **GTG EDR turbulence on standard atmospheric isobaric levels**,EDPARM_GTG_ON_ICAO_STD_SFC,EDPARM,476
