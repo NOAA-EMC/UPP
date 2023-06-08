@@ -317,7 +317,7 @@ Surface zonal momentum flux,AVE_UFLX_ON_SURFACE,UFLX,269
 Surface meridional momentum flux,AVE_VFLX_ON_SURFACE,VFLX,270
 Average precipitation rate,AVE_PRATE_ON_SURFACE,PRATE,271
 Average convective precipitation rate,AVE_CPRAT_ON_SURFACE,CPRAT,272
-**Sigma pressure thickness requested by CMAQ ???**,PRES_ON_HYBRID_LVL_LLM,PRES,273
+**Sigma pressure thickness on model surface**,PRES_ON_HYBRID_LVL_LLM,PRES,273
 Instantaneous outgoing longwave at top of atmosphere,INST_ULWRF_ON_TOP_OF_ATMOS,ULWRF,274
 Total spectrum brightness temperature,BRTMP_ON_TOP_OF_ATMOS,BRTMP,275
 Model top pressure,PRES_ON_TOP_OF_ATMOS,PRES,282
@@ -327,7 +327,7 @@ Composite radar reflectivity from convection,REFZC_ON_ENTIRE_ATMOS,REFZC,278
 Rain radar reflecting angle,REFZR_ON_SPEC_HGT_LVL_ABOVE_GRND,REFZR,279
 Ice radar reflecting angle,REFZI_ON_SPEC_HGT_LVL_ABOVE_GRND,REFZI,280
 Convection radar reflecting angle,REFZC_ON_SPEC_HGT_LVL_ABOVE_GRND,REFZC,281
-**Pressure thickness requested by CMAQ ???**,PRES_ON_HYBRID_LVL_1L,PRES,283
+**Pressure thickness on model surface**,PRES_ON_HYBRID_LVL_1L,PRES,283
 Model level vertical velocity,DZDT_ON_ISOBARIC_SFC,DZDT,284
 Column integrated super cool liquid water,TCLSW_ON_ENTIRE_ATMOS,TCLSW,285
 Column integrated melting ice,TCOLM_ON_ENTIRE_ATMOS,TCOLM,286
@@ -838,38 +838,38 @@ Simulated Himawari-8 band 13 brightness temperature,SBTAHI13_ON_TOP_OF_ATMOS,SBT
 Simulated Himawari-8 band 14 brightness temperature,SBTAHI14_ON_TOP_OF_ATMOS,SBTAHI14,976
 Simulated Himawari-8 band 15 brightness temperature,SBTAHI15_ON_TOP_OF_ATMOS,SBTAHI15,977
 Simulated Himawari-8 band 16 brightness temperature,SBTAHI16_ON_TOP_OF_ATMOS,SBTAHI16,978
-**???**,EFSH_ON_EFBL,EFSH,979
-**???**,EFSH_ON_EFTL,EFSH,980
-**???**,ELMELT_ON_EFTL,ELMELT,982
-**???**,UESH_ON_EFL,UESH,983
-**???**,VESH_ON_EFL,VESH,984
-**???**,ESHR_ON_EFL,ESHR,985
-**???**,UEID_ON_EFL,UEID,986
-**???**,VEID_ON_EFL,VEID,987
-**???**,E3KH_ON_EFL,E3KH,988
-**???**,STPC_ON_EFL,STPC,989
-**???**,SIGT_ON_EFL,SIGT,990
-**???**,SCCP_ON_EFL,SCCP,991
-**???**,MLFC_ON_EFL,MLFC,992
-**???**,SIGH_ON_EFL,SIGH,993
-**???**,AVE_OZCON_ON_HYBRID_LVL,OZCON,994
-**???**,AVE_PM25TOT_ON_HYBRID_LVL,PMTF,995
-**???**,LAND_FRAC,LANDFRC,996
-**???**,INST_PREC_ADVEC_HEAT,PAHFLX,997
-**???**,WATER_AQUIFER,WATERSA,998
-**???**,ACM_EIWATER_ON_SURFACE,EIWATER,999
-**???**,ACM_PLANTTR_ON_SURFACE,PLANTTR,1000
-**???**,ACM_SOILSE_ON_SURFACE,SOILSE,1001
-**???**,AVE_PREC_ADVEC_HEAT,PAHFLX,1002
-**???**,BUCKET_FRAIN_ON_SURFACE,FRZR,1003
-**???**,ACM_SNOWFALL_ON_SURFACE,TSNOWP,1004
-**???**,BUCKET_SNOWFALL_ON_SURFACE,TSNOWP,1005
-**???**,SDEN_ON_SURFACE,SDEN,1006
-**???**,ICE_PROB_IFI_FLIGHT_LEVEL,ICPRB,1007
-**???**,SLD_IFI_FLIGHT_LEVEL,SIPD,1008
-**???**,ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICSEV,1009
-**???**,WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICESEV,1010
-**???**,COARSEPM_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,1011
-**???**,COARSEPM_ON_HYBRID_LVL,MASSDEN,1012
-**???**,COARSEPM_ON_ISOBARIC_SFC,MASSDEN,1013
-**???**,COARSEPM_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,1014
+**Effective surface height on effective layer bottom???**,EFSH_ON_EFBL,EFSH,979
+**Effective surface height on effective layer top???**,EFSH_ON_EFTL,EFSH,980
+**Temperature at EL top???**,ELMELT_ON_EFTL,ELMELT,982
+**U-inflow based to 50% EL shear vector**,UESH_ON_EFL,UESH,983
+**V-inflow based to 50% EL shear vector**,VESH_ON_EFL,VESH,984
+**Inflow based (ESFC) to (50%) EL shear magnitude???**,ESHR_ON_EFL,ESHR,985
+**U-component Bunkers Effective right motion???**,UEID_ON_EFL,UEID,986
+**V-component Bunkers Effective right motion???**,VEID_ON_EFL,VEID,987
+**Effective layer helicity???**,E3KH_ON_EFL,E3KH,988
+**Effective layer significant tornado parameter with CIN**,STPC_ON_EFL,STPC,989
+**Fixed layer tornado parameter**,SIGT_ON_EFL,SIGT,990
+**Effective layer supercell composite parameter**,SCCP_ON_EFL,SCCP,991
+**Mixed Layer (100 mb) virtual LFC**,MLFC_ON_EFL,MLFC,992
+**Significant hail parameter**,SIGH_ON_EFL,SIGH,993
+**Average ozone concentration on model surface???**,AVE_OZCON_ON_HYBRID_LVL,OZCON,994
+**Average PM25 on model surface???**,AVE_PM25TOT_ON_HYBRID_LVL,PMTF,995
+**Land fraction**,LAND_FRAC,LANDFRC,996
+**Instantaneous precipitation advected heat flux**,INST_PREC_ADVEC_HEAT,PAHFLX,997
+**Water storage in aquifer**,WATER_AQUIFER,WATERSA,998
+**Accumulated evaporation of intercepted water**,ACM_EIWATER_ON_SURFACE,EIWATER,999
+**Accumulated plant transpiration on surface**,ACM_PLANTTR_ON_SURFACE,PLANTTR,1000
+**Accumulated soil surface evaporation**,ACM_SOILSE_ON_SURFACE,SOILSE,1001
+**Average precipitation advected heat flux**,AVE_PREC_ADVEC_HEAT,PAHFLX,1002
+**Bucket freezing rain on surface**,BUCKET_FRAIN_ON_SURFACE,FRZR,1003
+**Accumulated snowfall on surface???**,ACM_SNOWFALL_ON_SURFACE,TSNOWP,1004
+**Bucket snowfall on surface**,BUCKET_SNOWFALL_ON_SURFACE,TSNOWP,1005
+**Snow density solid-liquid ratio on surface???**,SDEN_ON_SURFACE,SDEN,1006
+**Icing probability on flight levels???**,ICE_PROB_IFI_FLIGHT_LEVEL,ICPRB,1007
+**Supercooled large droplet icing on flight levels???**,SLD_IFI_FLIGHT_LEVEL,SIPD,1008
+**Icing severity category on flight levels???**,ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICSEV,1009
+**WMO icing severity category on flight levels???**,WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICESEV,1010
+**Total column coarse articulate matter (PM)**,COARSEPM_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,1011
+**Coarse particulate matter on model surface**,COARSEPM_ON_HYBRID_LVL,MASSDEN,1012
+**Coarse particulate matter on pressure surface**,COARSEPM_ON_ISOBARIC_SFC,MASSDEN,1013
+**Coarse particulate matter at 8m above ground**,COARSEPM_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,1014
