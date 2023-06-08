@@ -8,8 +8,8 @@ Dew point temperature on model surface,DPT_ON_HYBRID_LVL,DPT,4
 Specific humidity on model surface,SPFH_ON_HYBRID_LVL,SPFH,5
 Relative humidity on model surface,RH_ON_HYBRID_LVL,RH,6
 Moisture convergence on model surface,MCONV_ON_HYBRID_LVL,MCONV,83
-U component wind on model surface,UGRD_ON_HYBRID_LVL,UGRD,7
-V component wind on model surface,VGRD_ON_HYBRID_LVL,VGRD,8
+U-component wind on model surface,UGRD_ON_HYBRID_LVL,UGRD,7
+V-component wind on model surface,VGRD_ON_HYBRID_LVL,VGRD,8
 Cloud water on model surface,CLMR_ON_HYBRID_LVL,CLMR,124
 Cloud ice on model surface,ICMR_ON_HYBRID_LVL,ICMR,125
 Rain on model surface,RWMR_ON_HYBRID_LVL,RWMR,181
@@ -30,8 +30,8 @@ Dew point temperature on pressure surface,DPT_ON_ISOBARIC_SFC,DPT,15
 Specific humidity on pressure surface,SPFH_ON_ISOBARIC_SFC,SPFH,16
 Relative humidity on pressure surface,RH_ON_ISOBARIC_SFC,RH,17
 Moisture convergence on pressure surface,MCONV_ON_ISOBARIC_SFC,MCONV,85
-U component wind on pressure surface,UGRD_ON_ISOBARIC_SFC,UGRD,18
-V component wind on pressure surface,VGRD_ON_ISOBARIC_SFC,VGRD,19
+U-component wind on pressure surface,UGRD_ON_ISOBARIC_SFC,UGRD,18
+V-component wind on pressure surface,VGRD_ON_ISOBARIC_SFC,VGRD,19
 Omega on pressure surface,VVEL_ON_ISOBARIC_SFC,VVEL,20
 Absolute vorticity on pressure surface,ABSV_ON_ISOBARIC_SFC,ABSV,21
 Geostrophic streamfunction on pressure surface,STRM_ON_ISOBARIC_SFC,STRM,86
@@ -49,8 +49,8 @@ Shuell sea level pressure,PRES_ON_MEAN_SEA_LVL,PRMSL,105
 2 M mixing ratio,Not currently available for grib2,NA,414
 2 M dew point temperature,DPT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,DPT,113
 2 M RH,RH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,RH,114
-10 M u component wind,UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,UGRD,64
-10 M v component wind,VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,VGRD,65
+10 M u-component wind,UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,UGRD,64
+10 M v-component wind,VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,VGRD,65
 10 M potential temperature,POT_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,POT,158
 10 M specific humidity,SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,SPFH,159
 Surface pressure,PRES_ON_SURFACE,PRES,24
@@ -88,8 +88,8 @@ Column integrated snow,TCOLS_ON_ENTIRE_ATMOS,TCOLS,203
 Column integrated total condensate,TCOLC_ON_ENTIRE_ATMOS,TCOLC,204
 Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
 Helicity,HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND,HLCY,162
-U component storm motion,USTM_ON_SPEC_HGT_LVL_ABOVE_GRND,USTM,163
-V component storm motion,VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND,VSTM,164
+U-component storm motion,USTM_ON_SPEC_HGT_LVL_ABOVE_GRND,USTM,163
+V-component storm motion,VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND,VSTM,164
 Accumulated total precipitation,ACM_APCP_ON_SURFACE,APCP,87
 Accumulated convective precipitation,ACM_ACPCP_ON_SURFACE,ACPCP,33
 Accumulated grid-scale precipitation,ACM_NCPCP_ON_SURFACE,NCPCP,34
@@ -298,7 +298,7 @@ Turbulent kinetic energy on sigma surface,TKE_ON_SIGMA_LVLS,TKE,217
 Cloud fraction on sigma surface,TCDC_ON_SIGMA_LVLS,TCDC,222
 Graupel on sigma surface,GRLE_ON_SIGMA_LVLS,GRLE,255
 LCL level pressure,PLPL_ON_SPEC_PRES_ABOVE_GRND,PLPL,246
-LOWEST WET BULB ZERO HEIGHT,HGT_ON_LWST_LVL_OF_WET_BULB_ZERO,HGT,247
+Lowest wet bulb zero height,HGT_ON_LWST_LVL_OF_WET_BULB_ZERO,HGT,247
 Leaf area index,LAI_ON_SURFACE,LAI,254
 Accumulated land surface model precipitation,ACM_LSPA_ON_SURFACE,LSPA,256
 In-flight icing,TIPD_ON_ISOBARIC_SFC,TIPD,257
@@ -432,13 +432,13 @@ Average clear-sky outgoing longwave at top of atmosphere,AVE_CSULF_ON_TOP_OF_ATM
 Average clear-sky outgoing shortwave at surface,AVE_CSUSF_ON_SURFACE,CSUSF,386
 Average clear-sky outgoing shortwave at top of atmosphere,AVE_CSUSF_ON_TOP_OF_ATMOS,CSUSF,387
 Average incoming shortwave at top of atmosphere,AVE_DSWRF_ON_TOP_OF_ATMOS,DSWRF,388
-Transport wind u component,UGRD_ON_PLANETARY_BOUND_LYR,UGRD,389
-Transport wind v component,VGRD_ON_PLANETARY_BOUND_LYR,VGRD,390
+Transport wind u-component,UGRD_ON_PLANETARY_BOUND_LYR,UGRD,389
+Transport wind v-component,VGRD_ON_PLANETARY_BOUND_LYR,VGRD,390
 **Convective updraft mass flux on pressure surface ???**,CNVUMF_ON_ISOBARIC_SFC,CNVUMF,391
 **Convective downdraft mass flux on pressure surface ???**,CNVDMF_ON_ISOBARIC_SFC,CNVDMF,392
 **Convective detrainment mass flux	(kg m-2 s-1) on pressure surface ???**,CNVEMF_ON_ISOBARIC_SFC,CNVEMF,393
-**Convective gravity grag zonal acceleration on pressure surface ???**,CNVWDU_ON_ISOBARIC_SFC,CNVWDU,394
-**Convective gravity grag meridional acceleration on pressure surface ???**,CNVWDV_ON_ISOBARIC_SFC,CNVWDV,395
+**Convective gravity drag zonal acceleration on pressure surface ???**,CNVWDU_ON_ISOBARIC_SFC,CNVWDU,394
+**Convective gravity drag meridional acceleration on pressure surface ???**,CNVWDV_ON_ISOBARIC_SFC,CNVWDV,395
 Sunshine duration,SUNSD_ON_SURFACE,SUNSD,396
 Field capacity,FLDCP_ON_SURFACE,FLDCP,397
 ICAO height at maximum wind level,ICAHT_ON_MAX_WIND,ICAHT,398
@@ -750,21 +750,18 @@ Echo top height (Highest height in meters of the 18-dBZ reflectivity on a model 
 **Instantaneous shortwave surface downward diffuse irradiance**,INST_SWDDIF_ON_SURFACE,VDDSF,773
 **Model-state cloud fraction (unprocessed) on model surface**,FRACCC_ON_HYBRID_LVL,FRACCC,774
 Bucket graupel precipitation on surface,BUCKET_GRAUPEL_ON_SURFACE,FROZR,775
-Height on highest tropospheric -10C level,HGT_ON_HGHST_TROP_-10C_LVL,HGT,776
-Relative humidity on highest tropospheric -10C level,RH_ON_HGHST_TROP_-10C_LVL,RH,777
-Pressure on highest tropospheric -10C level,PRES_ON_HGHST_TROP_-10C_LVL,PRES,778
-Height on highest tropospheric -20C level,HGT_ON_HGHST_TROP_-20C_LVL,HGT,779
-Relative humidity on highest tropospheric -20C level,RH_ON_HGHST_TROP_-20C_LVL,RH,780
-Pressure on highest tropospheric -20C level,PRES_ON_HGHST_TROP_-20C_LVL,PRES,781
+Height on highest tropospheric -10C level,`HGT_ON_HGHST_TROP_-10C_LVL`,HGT,776
+Relative humidity on highest tropospheric -10C level,`RH_ON_HGHST_TROP_-10C_LVL`,RH,777
+Pressure on highest tropospheric -10C level,`PRES_ON_HGHST_TROP_-10C_LVL`,PRES,778
+Height on highest tropospheric -20C level,`HGT_ON_HGHST_TROP_-20C_LVL`,HGT,779
+Relative humidity on highest tropospheric -20C level,`RH_ON_HGHST_TROP_-20C_LVL`,RH,780
+Pressure on highest tropospheric -20C level,`PRES_ON_HGHST_TROP_-20C_LVL`,PRES,781
 **Accumulated freezing rain**,ACM_FRAIN_ON_SURFACE,FRZR,782
 Maximum u wind on 10 meter above ground,MAX_UGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXUW,783
 Maximum v wind on 10 meter above ground,MAX_VGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,784
-Maximum reflectivity on -10C surface,MAX_REF_ON_ISOTHERMAL_-10C,REFD,785
+Maximum reflectivity on -10C surface,`MAX_REF_ON_ISOTHERMAL_-10C`,REFD,785
 **GSD maximum cloud fraction in (PBL + 1 km)**,TCDC_ON_BOUND_LYR,TCDC,799
 **Shelter level apparent temperature**,APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,APTMP,808
-SSMI F13 (19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,800
-SSMI F14 (19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,806
-SSMI F15 (19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,812
 SSMIS F16 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,818
 **Simulated Brightness Temperature for SSMIS-F17 Channel 15**,SSMS1715_ON_TOP_OF_ATMOS,SSMS1715,825
 **Simulated Brightness Temperature for SSMIS-F17 Channel 16**,SSMS1716_ON_TOP_OF_ATMOS,SSMS1716,826
