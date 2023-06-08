@@ -83,29 +83,3 @@ tar file.
    :bolditalic:`exec/upp.x` executable and then rerun the :bolditalic:`compile_upp.sh` script. This is
    recommended if a mistake is made during the installation process.
    
-=======================
-UPP Directory Structure
-=======================
-
-Under the main **UPP** directory reside the following relevant subdirectories (The * indicates a
-directory that exists only after the build is complete):
-
-     | **exec***: Contains the :bolditalic:`upp.x` executable after successful compilation
-
-     | **modulefiles**: Contains modulefiles for specific platforms and compilers for building on
-       pre-configured machines.
-
-     | **parm**: Contains parameter files, which can be modified by the user to control how the post
-       processing is performed.
-
-     | **scripts**: Contains a sample run script to process fv3 history files.
-     |   - **run_upp**: runs :bolditalic:`upp.x`.
-
-     | **sorc**: Contains source code for:
-     |   - **ncep_post.fd**: Source code for the UPP
-
-     | **tests**: Contains the scripts used to install UPP
-     |   - **build***: Contains the UPP build
-     |   - **install***: Contains the installed executable (bin/upp.x), modules, and libraries
-
-.. COMMENT: Delete this section and link to Ch. 2? Add exec there? Is some of this out-of date? (e.g., tests info?)
