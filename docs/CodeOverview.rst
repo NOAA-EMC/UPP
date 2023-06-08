@@ -46,10 +46,6 @@ This additional feature enables the generation of simulated satellite products s
    * Geostationary Operational Environmental Satellite (GOES)
    * Advanced Microwave Scanning Radiometer (AMSRE)
    * Special Sensor Microwave Imager/Sounder (SSMIS)
-   * Special Sensor Microwave Imager (SSMI)
-   * Multi-functional Transport Satellite (MTSAT2 and MTSAT1R)
-   * Spinning Enhanced Visible and Infrared Imager (SEVIRI)
-   * Indian Satellite Image (INSAT3D)
 
 For CRTM documentation, refer to the `CRTM User Guide <https://github.com/JCSDA/crtm/wiki/files/CRTM_User_Guide.pdf>`__. 
 
@@ -68,11 +64,38 @@ The ``upp.x`` component performs the bulk of the post-processing. Its functions 
    * Vertical interpolation from model levels/surfaces to isobaric, height, and other levels/surfaces
    * Computing diagnostics from model data such as CAPE, relative humidity, radar reflectivities, etc.
 
-=====================
-Directory Structure
-=====================
+========================
+UPP Directory Structure
+========================
 
-The main UPP repository is named ``UPP``; it is available on GitHub at https://github.com/NOAA-EMC/UPP. When the ``develop`` branch of the UPP repository is cloned, the basic directory structure will be similar to the example below. Some files and directories have been removed for brevity. 
+The main UPP repository is named ``UPP``; it is available on GitHub at https://github.com/NOAA-EMC/UPP. 
+Under the main **UPP** directory reside the following relevant subdirectories 
+(the * indicates a directory that exists only after the build is complete):
+
+     | **exec***: Contains the :bolditalic:`upp.x` executable after successful compilation
+
+     | **modulefiles**: Contains modulefiles for specific platforms and compilers for building on
+       pre-configured machines.
+
+     | **parm**: Contains parameter files, which can be modified by the user to control how the post
+       processing is performed.
+
+     | **scripts**: Contains a sample run script to process fv3 history files.
+     |   - **run_upp**: runs :bolditalic:`upp.x`.
+
+     | **sorc**: Contains source code for:
+     |   - **ncep_post.fd**: Source code for the UPP
+
+     | **tests**: Contains the scripts used to install UPP
+     |   - **build***: Contains the UPP build
+     |   - **install***: Contains the installed executable (bin/upp.x), modules, and libraries
+
+.. COMMENT: Is exec there? If so, add to dir tree. Is some of this out-of date? (e.g., tests info?)
+
+
+
+
+When the ``develop`` branch of the UPP repository is cloned, the basic directory structure will be similar to the example below. Some files and directories have been removed for brevity. 
 
 .. code-block:: console
 
@@ -100,3 +123,7 @@ The main UPP repository is named ``UPP``; it is available on GitHub at https://g
     ├── LICENSE.md
     ├── README.md
     └── VERSION 
+
+
+
+

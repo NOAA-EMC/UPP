@@ -30,7 +30,7 @@ the instructions in the `HPC-Stack User's Guide <https://hpc-stack.readthedocs.i
 Obtaining and Installing UPP
 ============================
 
-Building and running UPP V10.1.0 has been tested and is supported on the following pre-configured platforms.
+Building and running UPP v11.0.0 has been tested and is supported on the following pre-configured platforms.
 
 +---------------+----------------------+
 | System        | Compiler and Version |
@@ -43,8 +43,6 @@ Building and running UPP V10.1.0 has been tested and is supported on the followi
 +---------------+----------------------+
 | NOAA Orion    | Intel 2018.4         |
 +---------------+----------------------+
-
-.. COMMENT: Fix version #!
 
 To install the UPP, navigate to the directory where you want to install UPP and clone the repository.
 
@@ -70,16 +68,14 @@ Move to the directory with the build script and build the UPP.
    for the fortran compilation.
 
 Move back to the top level UPP directory and create a directory where the CRTM fix files will be unpacked. Download the fix files from the GitHub `release page
-<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v10.1.0>`__ or use the ``wget`` command. Unpack the
+<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v11.0.0>`__ or use the ``wget`` command. Unpack the
 tar file.
-
-.. COMMENT: Only v10.1.0? No v11.0.0?
 
 .. code-block:: console
 
     cd ../
     mkdir crtm && cd crtm
-    wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v10.1.0/fix.tar.gz
+    wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v11.0.0/fix.tar.gz
     tar -xzf fix.tar.gz
 
 .. note::
