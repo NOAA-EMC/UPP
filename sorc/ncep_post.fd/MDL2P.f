@@ -3,7 +3,7 @@
 !>
 !> For most applications this routine is the workhorse of the post processor.
 !> In a nutshell it interpolates data from model to pressure surfaces.
-!> It origiated from the vertical interpolation code in the old ETA
+!> It originated from the vertical interpolation code in the old ETA
 !> post processor subroutine outmap() and is a revision of subroutine eta2p().
 !>
 !> ### Program History Log

@@ -40,7 +40,7 @@
 !!
 !@PROCESS NOEXTCHK
 !-----------------------------------------------------------------------
-!> @brief MPI_FIRST() _____.
+!> @brief MPI_FIRST() Sets up message passing info (MPI).
 !-----------------------------------------------------------------------
       SUBROUTINE MPI_FIRST()
 

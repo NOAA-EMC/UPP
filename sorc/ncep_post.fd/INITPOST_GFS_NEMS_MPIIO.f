@@ -4041,7 +4041,7 @@
       END
 
 !----------------------------------------------------------------------
-!> @brief _____.
+!> @brief rg2gg() _____.
 !> 
 !> @param[in] im integer _____.
 !> @param[in] jm integer _____.
@@ -4069,7 +4069,7 @@
       end subroutine rg2gg
 
 !----------------------------------------------------------------------
-!> @brief _____.
+!> @brief gg2rg() _____.
 !> 
 !> @param[in] im integer _____.
 !> @param[in] jm integer _____.
@@ -4097,7 +4097,7 @@
       end subroutine gg2rg
 
 !----------------------------------------------------------------------
-!> @brief _____.
+!> @brief uninterpred () _____.
 !> 
 !> @param[in] iord integer _____.
 !> @param[in] kmsk integer _____.
@@ -4129,7 +4129,7 @@
       end subroutine
 
 !----------------------------------------------------------------------
-!> @brief _____.
+!> @brief intlon() _____.
 !> 
 !> @param[in] iord integer _____.
 !> @param[in] imsk integer _____.
