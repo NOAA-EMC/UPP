@@ -21,8 +21,8 @@
 !> @brief INITPOST_NEMS This routine initializes constants and
 !> variables at the start of an NEMS model or post processor run.
 !> 
-!> @param[in] NREC integer _____.
-!> @param[inout] nfile nemsio_gfile _____.
+!> @param[in] NREC integer Number of records in file.
+!> @param[inout] nfile nemsio_gfile Name of the NEMS-formatted model output file.
 !----------------------------------------------------------------------
       SUBROUTINE INITPOST_NEMS(NREC,nfile)
 
