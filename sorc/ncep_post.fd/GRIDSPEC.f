@@ -1,5 +1,5 @@
 !> @file
-!> @brief GRIDSPEC_mod assigns constants for _____.
+!> @brief GRIDSPEC_mod assigns values to variables that define the model grid.
 !----------------------------------------------------------------------------
      module GRIDSPEC_mod
 !

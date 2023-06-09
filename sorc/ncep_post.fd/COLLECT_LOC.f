@@ -14,10 +14,10 @@
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
 !--------------------------------------------------------------------------------
-!> COLLECT_LOC _____.
+!> @brief COLLECT_LOC _____.
 !>
-!> @param[in] A real array Array being gathered _____.
-!> @param[out] B real array Gathered array - only valid on task 0 _____.
+!> @param[in] A real array Array being gathered.
+!> @param[out] B real array Gathered array - only valid on task 0.
 !--------------------------------------------------------------------------------
       SUBROUTINE COLLECT_LOC ( A, B ) 
 
@@ -84,10 +84,10 @@
       end               
 !
 !-----------------------------------------------------------------------
-!> COLLECT_ALL() _____.
+!> @brief COLLECT_ALL() _____.
 !>
-!> @param[in] A real array Array being gathered _____.
-!> @param[out] B real array Gathered array - only valid on task 0. _____.
+!> @param[in] A real array Array being gathered.
+!> @param[out] B real array Gathered array - only valid on task 0.
 !-----------------------------------------------------------------------
 !
       SUBROUTINE COLLECT_ALL ( A, B )
