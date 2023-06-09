@@ -56,15 +56,9 @@
 !     START READCNTRL_XML HERE.
 !     
 !     READ post available field table
-      if (me==0) write(*,*)'in readxml,bf readxml,size(post_avblflds%param)=', &
-                            size(post_avblflds%param)
       call read_postxconfig()
       num_post_afld=size(paramset(1)%param)
       num_pset=size(paramset)
-      if (me==0) write(*,*)'in readxml, aft read flat file.xml,num_post_afld=', &
-                            num_post_afld
-      if (me==0) write(*,*)'in readxml, aft read flat file.xml,num_pset=',num_pset
-
 
 ! LinGan below line removed because now we only read one flat file
 !

@@ -1000,7 +1000,6 @@
         endif   
         DELY=14259./DY_m
         numr=NINT(DELY)
-       write (*,*) 'numr,dyval,DY_m=',numr,dyval,DY_m
         DO L=LM,1,-1
           DO J=JSTA,JEND
             DO I=ISTA,IEND
@@ -2000,11 +1999,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO      !--- End I loop
         ENDDO        !--- End J loop
 
-      write(6,*)'No. pts with PBL-cloud  =',npblcld
-      write(6,*)'No. pts to eliminate fog =',nfog
-      do k=2,7
-       write(6,*)'No. pts with fog below lev',k,' =',nfogn(k)
-      end do
+      !write(6,*)'No. pts with PBL-cloud  =',npblcld
+      !write(6,*)'No. pts to eliminate fog =',nfog
+      !do k=2,7
+      ! write(6,*)'No. pts with fog below lev',k,' =',nfogn(k)
+      !end do
 
       nlifr = 0
       DO J=JSTA,JEND
@@ -2013,7 +2012,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         if (CLDZ(i,j)>=0..and.zcld<160.) nlifr = nlifr+1
       end do
       end do
-      write(6,*)'No. pts w/ LIFR ceiling =',nlifr
+      !write(6,*)'No. pts w/ LIFR ceiling =',nlifr
 
 !    Parameter 408: legacy ceiling diagnostic
           IF (IGET(408)>0) THEN

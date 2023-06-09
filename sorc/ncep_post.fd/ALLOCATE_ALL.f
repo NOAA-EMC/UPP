@@ -1080,8 +1080,8 @@
         enddo
       enddo
 
-      if (me == 0) print *,' gocart_on=',gocart_on
-      if (me == 0) print *,' gccpp_on=',gccpp_on
+      !if (me == 0) print *,' gocart_on=',gocart_on
+      !if (me == 0) print *,' gccpp_on=',gccpp_on
       if (gocart_on .or.gccpp_on .or. nasa_on) then
 !  
 ! Add GOCART fields

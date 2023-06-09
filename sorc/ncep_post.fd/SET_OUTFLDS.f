@@ -76,7 +76,6 @@
 !
       pset   = paramset(npset)
       datset = pset%datset
-      if (me==0)print *,'in SET_OUTFLDS, num_pset=',num_pset,'datset=',trim(pset%datset),'npset=',npset
 ! 
 !     NOW READ WHICH FIELDS ON 
 !     WHICH LEVELS TO INTERPOLATE TO THE OUTPUT GRID.  THE
@@ -90,13 +89,6 @@
 ! This is required for flat file solution to work for nmm
 
       post_avblflds%param =>paramset(npset)%param
-      if (me==0) then
-        write(*,*)'Size of pset is: ',MFLD
-        write(*,*)'datset is: ',datset
-        write(*,*)'MXFLD is: ',MXFLD
-        write(*,*)'size of lvlsxml: ',size(lvlsxml)
-        write(*,*)'size of post_avblflds param',size(post_avblflds%param)
-      endif
       if(size(post_avblflds%param) <= 0) then
          write(0,*)'WRONG: post available fields not ready!!!'
          return
@@ -153,7 +145,6 @@
         fld_info(i)%ntrange  = 0
         fld_info(i)%tinvstat = 0
       enddo
-      if(me==0)write(*,*)'in readxml. nfld=',nfld,'nrecout=',nrecout
 !
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
 !     if(kth == 0 .and. iget(013) <= 0) go to 999
@@ -179,6 +170,5 @@
 !     
  999  CONTINUE
 
-       if(me==0)print *,'end of read_postcntrl_xml'
       RETURN
       END
