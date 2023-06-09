@@ -43,13 +43,13 @@
 !
   character(len=256) :: fileName                   !< Name of input dynamics file; name of full 3-D model output file.
   character(len=256) :: fileNameFlux               !< Name of input physics file; name of 2-D model output file with physics and surface fields.
-  character(len=256) :: fileNameD3D                !< fileNameD3D _____.
-  character(len=256) :: fileNameAER                !< fileNameAER _____.
+  character(len=256) :: fileNameD3D                !< _____.
+  character(len=256) :: fileNameAER                !< _____.
   character(len=256) :: fileNameFlat               !< Input configuration text file defining the requested fields.
   character(len=19)  :: DateStr                    !< Time stamp being processed (e.g., 2022-08-02_19:00:00).
   character(len=4)   :: MODELNAME                  !< Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF).
   character(len=4)   :: SUBMODELNAME               !< Name of submodel for output differing from parent domain; used to treat a subset of model output in a special way; typically used only for outputting RTMA-specific fields now; previously used with HWRF and NMM to identify and process moving nests.
-  character(len=8)   :: FULLMODELNAME              !< FULLMODELNAME _____.
+  character(len=8)   :: FULLMODELNAME              !< _____.
   character(len=20)  :: IOFORM                     !< Input file format.
   character(len=4)   :: VTIMEUNITS                 !< Valid time units.
 ! 
@@ -61,6 +61,7 @@
   real*8 :: gdsdegr                             !< gdsdegr real _____.
   real,allocatable :: datapd(:,:,:)             !< datapd real _____.
 !
+!> Logicals to turn on/off different post-processing packages/output depending on model output.
   logical :: gocart_on     !< Turn on option to process the aerosol/chemical tracers related output from GEFS-Aerosols model (GOCART).
   logical :: gccpp_on      !< Turn on option to process the aerosol/chemical tracers related output from UFS-Chem (CCPP-Chem) model.
   logical :: nasa_on       !< Turn on option to process the aerosol/chemical tracers related output from UFS-Aerosols model (NASA GOCART).
@@ -68,8 +69,8 @@
   logical :: hyb_sigp      !< _____.
   logical :: rdaod         !< Turn on option to process the AOD from GFS scheme.
   logical :: d2d_chem      !< Turn on option to process the 2D aerosol/chemical tracers.
-  logical :: aqf_on        !< _____.
-  logical :: slrutah_on    !< _____.
+  logical :: aqf_on        !< Turn on Air Quality Forecasting (CMAQ-based).
+  logical :: slrutah_on    !< Calculate snow to liquid ratio (SLR) using method from University of Utah.
 !
   logical :: SIGMA      !< _____.
   logical :: RUN        !< No longer used/supported.
@@ -78,13 +79,6 @@
   logical :: global     !< _____.
   logical :: SMFLAG     !< Smoothing flag for isobaric output.
 !
-  
-  !> NPREC _____.
-  !> NPHS _____.
-  !> DataHandle _____.
-  !> ISEC _____.
-  !> icount_calmict _____.
-  !> ivegsrc _____.
   integer :: IDAT(5)             !< Array storing input month, day, year, hour, min of file being processed (parsed from DateStr)
   integer :: IHRST               !< Hour of file being processed (parsed from DateStr).
   integer :: IFHR                !< Forecast hour (lead time).
@@ -96,9 +90,10 @@
   integer :: DataHandle          !< _____. 
   integer :: NPREC               !< _____. 
   integer :: NPHS                !< _____. 
-  integer :: ISEC                !< _____. 
+  integer :: ISEC                !< Seconds of file being processed (not parsed from DateStr, hard-coded set to 0).
   integer :: icount_calmict      !< _____. 
-  integer :: ivegsrc             !< _____. 
+  integer :: ivegsrc             !< Flag for vegetation classification source (0=USGS, 1=IGBP, 2=UMD)
+. 
 !
 !> @ingroup CTLBLK_mod 
 !> @{
@@ -107,11 +102,6 @@
              NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 !
-  !> ALSL real _____.
-  !> PREC_ACC_DT real _____.
-  !> PT_TBL real _____.
-  !> PREC_ACC_DT1 real _____.
-  !> spval real _____.
   real :: DT            !< Model time step in seconds.
   real :: SDAT(3)       !< Array of month, day, year of restart run _____.
   real :: AVRAIN        !< _____.
@@ -172,7 +162,7 @@ information from neighboring ranks (halos).
   integer :: ileftb           !< MPI rank containing the last longitude before ista but for cyclic boundary conditions where "last" at the beginning is the other end of the domain (apparently unused and replaced with local calculation).
   integer :: irightb          !< MPI rank containing the first longitude after iend but for cyclic boundary conditions where "first" at the beginning is the other end of the domain (apparently unused and replaced with local calculation).
   integer :: ibsize           !< Defines the size of the buffer used in mpi_scatter and mpi_gather. It is necessary because the post-processed variables are not contiguous in the 2D ista_2l:iend_2u,jsta_2l:jsta_2u arrays, so they have to be stored in a contigous buffer and that buffer is what is scattered or gathered.
-  integer :: ibsum            !< Dead variable; no longer supported.
+  integer :: ibsum            !< No longer supported.
   !comm mpi
   integer :: lsm              !< _____.
   integer :: lsmp1            !< _____.
@@ -182,10 +172,10 @@ information from neighboring ranks (halos).
 !> Arrays that store the coordinates of their elements; used to validate communications; 
 !> when scattered or otherwise dispersed, the receiving ranks check that the values of 
 !> the arrays match the I and J indices of the receiver.
-  integer, allocatable :: icoords(:,:)    !< _____.
-  integer, allocatable :: ibcoords(:,:)   !< _____.
-  real, allocatable :: rcoords(:,:)       !< _____.
-  real, allocatable :: rbcoords(:,:)      !< _____.
+  integer, allocatable :: icoords(:,:)
+  integer, allocatable :: ibcoords(:,:)
+  real, allocatable :: rcoords(:,:)
+  real, allocatable :: rbcoords(:,:)
 !> @}
 
   real, allocatable :: bufs(:)            !< Unused/no longer supported; replaced by rbufs. 
@@ -214,7 +204,7 @@ information from neighboring ranks (halos).
   real PTHRESH !< Threshold for precipitation (used to check if there is precipitation, mainly in ptype routines).
 !
 !> @ingroup CTLBLK_mod
-!> @{ _____
+!> @{ Time to execute named routines. Note that ETAFLD2 and ETA2P refer to MDLFLD and MDL2P routines respectively.
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
                   MDL2SIGMA_tim=0.,READxml_tim=0.,MDL2AGL_tim=0.,      &
