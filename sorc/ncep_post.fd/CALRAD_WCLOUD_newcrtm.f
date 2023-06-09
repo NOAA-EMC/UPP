@@ -2205,7 +2205,7 @@ end SUBROUTINE CALRAD_WCLOUD
 !-------------------------------------------------------------------------------
 !> @brief EFFR Computes effective particle radii channel selection using LVLS from WRF_CNTRL.PARM. 
 !>
-!> @param pmid real Mid layer pressure.
+!> @param pmid real Mid-layer pressure.
 !> @param t real Temperature.
 !> @param q real Specific humidity.
 !> @param qqw real Cloud water mixing ratio.
@@ -2216,9 +2216,9 @@ end SUBROUTINE CALRAD_WCLOUD
 !> @param nrain real Number concentration of rain drops.
 !> @param qqs real Snow mixing ratio.
 !> @param qqg real Graupel mixing ratio.
-!> @param qqnr real _____.
-!> @param qqni real _____.
-!> @param qqnw real _____.
+!> @param qqnr real Rain number concentration.
+!> @param qqni real Ice number concentration.
+!> @param qqnw real cloud water number concentration.
 !> @param mp_opt integer Microphysics option.
 !> @param species character Particle type (e.g., cloud, rain, graupel, snow, ice).
 !> @return EFFR Effective particle radii channel selection. 
