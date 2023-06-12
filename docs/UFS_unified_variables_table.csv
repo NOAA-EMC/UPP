@@ -186,11 +186,7 @@ Instantaneous aod550 optical depth (seasalt),ss_aod550,ss_aod550,2d,phy,rdaod = 
 Instantaneous aod550 optical depth (sulfates),su_aod550,su_aod550,2d,phy,rdaod = True
 Instantaneous aod550 optical depth (organic carbon),oc_aod550,oc_aod550,2d,phy,rdaod = True
 Instantaneous aod550 optical depth (black carbon),bc_aod550,bc_aod550,2d,phy,rdaod = True
-Dust 1,dust1,dt1,3d,dyn,GOCART
-Dust 2,dust2,dt2,3d,dyn,GOCART
-Dust 3,dust3,dt3,3d,dyn,GOCART
-Dust 4,dust4,dt4,3d,dyn,GOCART
-Dust 5,dust5,dt5,3d,dyn,GOCART
+Dust (1-5),dust1/.../dust5,dust,3d,dyn,GOCART - all requested read into 4d array
 Sea salt (1-5),seas1/.../seas5,salt,3d,dyn,GOCART - all requested read into 4d array
 Black carbon,bc1/bc2,soot,3d,dyn,GOCART - all requested read into 4d array
 Organic carbon,oc1/oc2,waso,3d,dyn,GOCART - all requested read into 4d array
