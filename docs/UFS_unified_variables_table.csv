@@ -212,14 +212,12 @@ Seasalt **emission/sedimentation** fluxes (1-5),seas1sd/.../seas5sd,sssd,2d,phy,
 Seasalt dry deposition fluxes (1-5),seas1dp/.../seas5dp,ssdp,2d,phy,all requested read into 3d array
 Seasalt wet deposition fluxes (1-5),seas1wtl/.../seas5wtl,sswt,2d,phy,all requested read into 3d array
 Seasalt scavenging fluxes (1-5),seas1wtc,sssv,2d,phy,all requested read into 3d array
-Black carbon emission fluxes,bceman,bcem,2d,phy,all requested read into 3d array
-Black carbon emission fluxes,bcembb,bcem,2d,phy,all requested read into 3d array
+Black carbon emission fluxes,bceman/bcembb,bcem,2d,phy,all requested read into 3d array
 Black carbon sedimentation fluxes,bc1sd/bc2sd,bcsd,2d,phy,all requested read into 3d array
 Black carbon dry deposition fluxes,bc1dp/bc2dp,bcdp,2d,phy,all requested read into 3d array
 Black carbon large wet deposition fluxes,bc1wtl/bc2wtl,bcwt,2d,phy,all requested read into 3d array
 Black carbon convective wet deposition fluxes,bc1wtc/bc2wtc,bcsv,2d,phy,all requested read into 3d array
-Organic carbon emission fluxes,oceman,ocem,2d,phy,all requested read into 3d array
-Organic carbon emission fluxes,ocembb,ocem,2d,phy,all requested read into 3d array
+Organic carbon emission fluxes,oceman/ocembb,ocem,2d,phy,all requested read into 3d array
 Organic carbon sedimentation fluxes,oc1sd/oc2sd,ocsd,2d,phy,all requested read into 3d array
 Organic carbon dry deposition fluxes,oc1dp/oc2dp,ocdp,2d,phy,all requested read into 3d array
 Organic carbon large wet deposition fluxes,oc1wtl/oc2wtl,ocwt,2d,phy,all requested read into 3d array
