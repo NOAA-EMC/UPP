@@ -36,7 +36,8 @@ The following steps outline the process for adding a new variable. This descript
 example in :numref:`Section %s <add-var-example>` below.
 
 #. Check whether your new variable has been defined in the file ``parm/post_avblflds.xml`` in your UPP working
-   directory. This file defines all available GRIB2 fields in the UPP.
+   directory. This file defines all available GRIB2 fields in the UPP. Users may also check the table showing 
+   :doc:`UPP_GRIB2_Table_byID`.
 
    A. If NO (not available in ``post_avblflds.xml``), check whether your new variable has been defined in the
       `NCEP Grib2 Table <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`__
