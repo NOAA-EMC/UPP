@@ -34,7 +34,10 @@ Lightning threat index 2,ltg2_max,ltg2_max,2d,phy,regional FV3
 Lightning threat index 3,ltg3_max,ltg3_max,2d,phy,regional FV3
 Surface pressure,pressfc,"pint(:,:,LM+1)",2d,dyn,regional FV3
 Surface height,hgtsfc,"zint(:,:,LM+1)",2d,dyn,regional FV3
-Unified extinction ext550/Aerosol optical depth,recname(18),ext550,3d,phy,regional FV3
+Smoke,smoke,smoke,3d,dyn,regional FV3
+FV3 dust,fv3dust,fv3dust,3d,dyn,regional FV3
+Coarse particulate matter,coarsepm,coarsepm,3d,dyn,regional FV3
+Unified extinction ext550/Aerosol optical depth,ext550,ext550,3d,phy,regional FV3
 Reflectivity,refl_10cm,REF_10CM,3d,phy,
 Turbulence kinetic energy,qke,q2,3d,phy,
 Ice-friendly aerosol number concentration,nifa,qqnwfa,3d,phy,
