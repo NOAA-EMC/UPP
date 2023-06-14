@@ -63,8 +63,15 @@ Code Managers: Wen Meng, Huiya Chuang, Kate Fossell
 
 ## Prerequisites
 
-The UPP requires certain NCEPLIB packages to be installed via
-the HPC-Stack project.  
+The UPP requires certain NCEPLIBS packages to be installed via the 
+HPC-Stack project. For instructions on installing these packages as a 
+bundle via HPC-Stack, see: https://hpc-stack.readthedocs.io/en/latest/.
+Users may instead install packages via spack-stack. For instructions,
+see: https://spack-stack.readthedocs.io/en/latest/.
+The `UPP/modulefiles` directory indicates which package versions are 
+used and supported on Level 1 systems. 
+
+Required NCEPLIBS packages:
 
 - [NCEPLIBS-g2](https://github.com/NOAA-EMC/NCEPLIBS-g2)
 - [NCEPLIBS-g2tmpl](https://github.com/NOAA-EMC/NCEPLIBS-g2tmpl)
@@ -72,7 +79,6 @@ the HPC-Stack project.
 - [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip)
 - [NCEPLIBS-bacio](https://github.com/NOAA-EMC/NCEPLIBS-bacio)
 - [NCEPLIBS-w3emc](https://github.com/NOAA-EMC/NCEPLIBS-w3emc)
-- [NCEPLIBS-w3nco](https://github.com/NOAA-EMC/NCEPLIBS-w3nco)
 - [CRTM](https://github.com/noaa-emc/emc_crtm)
 
 Also required to build NCEPpost executable (cmake option
@@ -89,6 +95,7 @@ option BUILD_WITH_WRFIO).
 
 The following third-party libraries are required:
 
+- [netcdf](https://github.com/Unidata/netcdf)
 - [netcdf-c](https://github.com/Unidata/netcdf-c)
 - [netcdf-fortran](https://github.com/Unidata/netcdf-fortran)
 - [Jasper](https://github.com/jasper-software/jasper)
