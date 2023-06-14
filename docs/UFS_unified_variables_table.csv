@@ -207,7 +207,7 @@ Seasalt emission fluxes (1-5),ssem001/.../ssem005,ssem,2d,phy, all requested rea
 Seasalt **emission/sedimentation** fluxes (1-5),seas1sd/.../seas5sd,sssd,2d,phy, all requested read into 3d array
 Seasalt dry deposition fluxes (1-5),seas1dp/.../seas5dp,ssdp,2d,phy,all requested read into 3d array
 Seasalt wet deposition fluxes (1-5),seas1wtl/.../seas5wtl,sswt,2d,phy,all requested read into 3d array
-Seasalt scavenging fluxes (1-5),seas1wtc,sssv,2d,phy,all requested read into 3d array
+Seasalt scavenging fluxes (1-5),seas1wtc/.../seas5wtc,sssv,2d,phy,all requested read into 3d array
 Black carbon emission fluxes,bceman/bcembb,bcem,2d,phy,all requested read into 3d array
 Black carbon sedimentation fluxes,bc1sd/bc2sd,bcsd,2d,phy,all requested read into 3d array
 Black carbon dry deposition fluxes,bc1dp/bc2dp,bcdp,2d,phy,all requested read into 3d array
