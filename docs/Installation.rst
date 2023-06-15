@@ -36,7 +36,7 @@ As of June 14, 2023, the UPP uses the following common modules from HPC-Stack:
 
    cmake 3.16.1+
    hdf5/1.10.6
-   netcdf/4.7.4
+   netcdf 4.7.4
    jasper 2.0.22+
    libpng 1.6.37 / png 1.6.35
    zlib 1.2.11
