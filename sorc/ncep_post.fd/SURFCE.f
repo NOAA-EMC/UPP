@@ -5137,7 +5137,9 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
-               totprcp = (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600./DTQ2)
+!-- RAP/HRRR and RRFS use 1-h bucket. GFS uses 3-h bucket
+!-- so this section will need to be revised for GFS
+               totprcp = (AVGPREC(I,J)*3600.*1000./DTQ2)
                snowratio = 0.0
                if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j
