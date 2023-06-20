@@ -148,7 +148,7 @@ Perl program :bolditalic:`parm/POSTXMLPreprocessor.pl` to generate the post flat
 
 .. code-block:: console
 
-    /usr/bin/perl POSTXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
+    /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
 where *your_user_defined_xml* is your modified xml and *your_user_defined_flat* is the output text file.
 
