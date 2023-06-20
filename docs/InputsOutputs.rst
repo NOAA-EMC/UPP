@@ -144,7 +144,7 @@ run-time failures with the UPP. To run the validation:
     xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds.xml
 
 Once the xmls are validated, the user will need to generate the flat file. The below command will run the
-Perl program :bolditalic:`parm/POSTXMLPreprocessor.pl` to generate the post flat file:
+Perl program :bolditalic:`parm/PostXMLPreprocessor.pl` to generate the post flat file:
 
 .. code-block:: console
 
