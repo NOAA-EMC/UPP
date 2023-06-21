@@ -33,7 +33,7 @@
 !> @brief initializes constants and variables at the start of GFS model
 !> or post processor run.
 !> 
-!> @param[in] iostatusAER integer _____. 
+!> @param[in] iostatusAER integer Status of GFS aer file. 
 !----------------------------------------------------------------------
       SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)
 
@@ -4041,12 +4041,12 @@
       END
 
 !----------------------------------------------------------------------
-!> @brief rg2gg() _____.
+!> @brief rg2gg() No longer used/supported.
 !> 
-!> @param[in] im integer _____.
-!> @param[in] jm integer _____.
-!> @param[in] numi integer _____.
-!> @param[inout] a real _____.
+!> @param[in] im integer No longer used/supported.
+!> @param[in] jm integer No longer used/supported.
+!> @param[in] numi integer No longer used/supported.
+!> @param[inout] a real No longer used/supported.
 !----------------------------------------------------------------------
       subroutine rg2gg(im,jm,numi,a)
 !
@@ -4069,12 +4069,12 @@
       end subroutine rg2gg
 
 !----------------------------------------------------------------------
-!> @brief gg2rg() _____.
+!> @brief gg2rg() No longer used/supported.
 !> 
-!> @param[in] im integer _____.
-!> @param[in] jm integer _____.
-!> @param[in] numi integer _____.
-!> @param[inout] a real _____.
+!> @param[in] im integer No longer used/supported.
+!> @param[in] jm integer No longer used/supported.
+!> @param[in] numi integer No longer used/supported.
+!> @param[inout] a real No longer used/supported.
 !----------------------------------------------------------------------
       subroutine gg2rg(im,jm,numi,a)
 !
@@ -4097,15 +4097,15 @@
       end subroutine gg2rg
 
 !----------------------------------------------------------------------
-!> @brief uninterpred () _____.
+!> @brief uninterpred () No longer used/supported.
 !> 
-!> @param[in] iord integer _____.
-!> @param[in] kmsk integer _____.
-!> @param[in] lonsperlat integer _____.
-!> @param[in] lonr integer _____.
-!> @param[in] latr integer _____.
-!> @param[in] fi real _____.
-!> @param[out] f real _____.
+!> @param[in] iord integer No longer used/supported.
+!> @param[in] kmsk integer No longer used/supported.
+!> @param[in] lonsperlat integer No longer used/supported.
+!> @param[in] lonr integer No longer used/supported.
+!> @param[in] latr integer No longer used/supported.
+!> @param[in] fi real No longer used/supported.
+!> @param[out] f real No longer used/supported.
 !----------------------------------------------------------------------
       subroutine uninterpred(iord,kmsk,lonsperlat,lonr,latr,fi,f)
 !!
@@ -4129,15 +4129,15 @@
       end subroutine
 
 !----------------------------------------------------------------------
-!> @brief intlon() _____.
+!> @brief intlon() No longer used/supported.
 !> 
-!> @param[in] iord integer _____.
-!> @param[in] imsk integer _____.
-!> @param[in] m1 integer _____.
-!> @param[in] m2 integer _____.
-!> @param[in] k1 integer _____.
-!> @param[in] f1 real _____.
-!> @param[out] f2 real _____.
+!> @param[in] iord integer No longer used/supported.
+!> @param[in] imsk integer No longer used/supported.
+!> @param[in] m1 integer No longer used/supported.
+!> @param[in] m2 integer No longer used/supported.
+!> @param[in] k1 integer No longer used/supported.
+!> @param[in] f1 real No longer used/supported.
+!> @param[out] f2 real No longer used/supported.
 !----------------------------------------------------------------------
       subroutine intlon(iord,imsk,m1,m2,k1,f1,f2)
       implicit none
