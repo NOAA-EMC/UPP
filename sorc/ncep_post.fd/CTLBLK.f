@@ -33,7 +33,7 @@
     integer tinvstat    !< _____.
   end type
 !
-  integer, parameter :: komax=70          !< komax _____.
+  integer, parameter :: komax=70          !< _____.
   integer, parameter :: LSMDEF=46         !< Default number of pressure levels.
   integer,PARAMETER  :: NFD=20            !< Default number of flight level heights in geopotential meters. 
   integer,PARAMETER  :: NBND=6            !< Default number of ETA boundary layers.
@@ -49,17 +49,17 @@
   character(len=19)  :: DateStr                    !< Time stamp being processed (e.g., 2022-08-02_19:00:00).
   character(len=4)   :: MODELNAME                  !< Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF).
   character(len=4)   :: SUBMODELNAME               !< Name of submodel for output differing from parent domain; used to treat a subset of model output in a special way; typically used only for outputting RTMA-specific fields now; previously used with HWRF and NMM to identify and process moving nests.
-  character(len=8)   :: FULLMODELNAME              !< _____.
+  character(len=8)   :: FULLMODELNAME              !< No longer used/supported.
   character(len=20)  :: IOFORM                     !< Input file format.
   character(len=4)   :: VTIMEUNITS                 !< Valid time units.
 ! 
   character(5) :: grib                          !< Grib type (Note that UPP only supports Grib2 currently).
-  type(field_info),allocatable :: fld_info(:)   !< fld_info _____.
-  integer :: cfld                               !< cfld _____.
-  integer :: ntlfld                             !< ntlfld _____.
-  integer :: npset                              !< npset _____.
-  real*8 :: gdsdegr                             !< gdsdegr real _____.
-  real,allocatable :: datapd(:,:,:)             !< datapd real _____.
+  type(field_info),allocatable :: fld_info(:)   !< _____.
+  integer :: cfld                               !< _____.
+  integer :: ntlfld                             !< _____.
+  integer :: npset                              !< _____.
+  real*8 :: gdsdegr                             !< _____.
+  real,allocatable :: datapd(:,:,:)             !< _____.
 !
 !> Logicals to turn on/off different post-processing packages/output depending on model output.
   logical :: gocart_on     !< Turn on option to process the aerosol/chemical tracers related output from GEFS-Aerosols model (GOCART).
@@ -72,7 +72,7 @@
   logical :: aqf_on        !< Turn on Air Quality Forecasting (CMAQ-based).
   logical :: slrutah_on    !< Calculate snow to liquid ratio (SLR) using method from University of Utah.
 !
-  logical :: SIGMA      !< _____.
+  logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.
   logical :: FIRST      !< No longer used/supported.
   logical :: RESTRT     !< Indicates whether it is a restart run.
@@ -103,9 +103,9 @@
 !> @}
 !
   real :: DT            !< Model time step in seconds.
-  real :: SDAT(3)       !< Array of month, day, year of restart run _____.
-  real :: AVRAIN        !< _____.
-  real :: AVCNVC        !< _____.
+  real :: SDAT(3)       !< Array of month, day, year of restart run.
+  real :: AVRAIN        !< Counter for summing latent heating from grid microphysics.
+  real :: AVCNVC        !< Counter for summing latent heating from convection.
   real :: DTQ2          !< Model physics time step in seconds.
   real :: PT            !< Model top requested by CMAQ.
   real :: PDTOP         !< Pressure thickness requested by CMAQ.
@@ -165,7 +165,7 @@ information from neighboring ranks (halos).
   integer :: ibsum            !< No longer supported.
   !comm mpi
   integer :: lsm              !< _____.
-  integer :: lsmp1            !< _____.
+  integer :: lsmp1            !< LSM+1.
 !
 !> @ingroup CTLBLK_mod
 !> @{
@@ -189,22 +189,22 @@ information from neighboring ranks (halos).
   real, allocatable :: rbufs(:)           !< The buffer used for scatters of the real coordinate array to each MPI rank; analagous to buff in the state variable scatter. 
 !
 !comm rad
-  real :: ARDSW      !< _____.
-  real :: ARDLW      !< _____.
-  real :: ASRFC      !< _____.
-  real :: TSRFC      !< _____.
-  real :: TRDLW      !< _____.
-  real :: TRDSW      !< _____.
-  real :: TCLOD      !< _____.
-  real :: THEAT      !< _____.
-  real :: TPREC      !< _____.
+  real :: ARDSW      !< Shortwave flux accumulation array.
+  real :: ARDLW      !< Longwave flux accumulation array.
+  real :: ASRFC      !< Surface flux array.
+  real :: TSRFC      !< Number of hours in surface flux buckets.
+  real :: TRDLW      !< Number of hours in long wave buckets.
+  real :: TRDSW      !< Number of hours in shortwave buckets.
+  real :: TCLOD      !< Number of hours in cloud fraction average.
+  real :: THEAT      !< Number of hours in latent heating bucket.
+  real :: TPREC      !< Number of hours in precipitation bucket.
   real :: TMAXMIN    !< _____.
   real :: TD3D       !< _____.
 !
   real PTHRESH !< Threshold for precipitation (used to check if there is precipitation, mainly in ptype routines).
 !
 !> @ingroup CTLBLK_mod
-!> @{ Time to execute named routines. Note that ETAFLD2 and ETA2P refer to MDLFLD and MDL2P routines respectively.
+!> @{ Time to execute named routine; note that ETAFLD2 and ETA2P refer to MDLFLD and MDL2P routines respectively.
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
                   MDL2SIGMA_tim=0.,READxml_tim=0.,MDL2AGL_tim=0.,      &
@@ -228,7 +228,7 @@ information from neighboring ranks (halos).
       ,87500.,90000.,92500.,95000.,97500.,100000./)
 !
   REAL HTFD(NFD)        !< The fixed flight level heights available for output (gpm).
-  REAL PETABND(NBND)    !< The fixed ETA levels available for output _____.
+  REAL PETABND(NBND)    !< The fixed ETA levels available for output.
   REAL SIGBND(NBND)     !< The fixed sigma levels available for output.
 
 ! Add GOCART aerosol specification
