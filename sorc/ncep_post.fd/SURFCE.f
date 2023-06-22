@@ -42,6 +42,7 @@
 !> 2023-03-22 | S Trahan   | Fixed out-of-bounds access calling BOUND with wrong array dimensions
 !> 2023-04-21 | E James    | Enabling GSL precip type for RRFS
 !> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
+!> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -5137,7 +5138,9 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
-               totprcp = (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600./DTQ2)
+!-- RAP/HRRR and RRFS use 1-h bucket. GFS uses 3-h bucket
+!-- so this section will need to be revised for GFS
+               totprcp = (AVGPREC(I,J)*3600.*1000./DTQ2)
                snowratio = 0.0
                if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j
