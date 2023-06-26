@@ -313,9 +313,9 @@ Temperature at maximum wind level,TMP_ON_MAX_WIND,TMP,314
 Time averaged zonal gravity wave stress,AVE_U-GWD_ON_SURFACE,U-GWD,315
 Time averaged meridional gravity wave stress,AVE_V-GWD_ON_SURFACE,V-GWD,316
 Average precipitation type,AVE_CRAIN_ON_SURFACE,CRAIN,317
-**Relative humidity on sigma level 0.44-1.0**,RH_ON_SIGMA_LVL_0.44-1.0,RH,318
-**Relative humidity on sigma level 0.72-0.94**,RH_ON_SIGMA_LVL_0.72-0.94,RH,319
-**Relative humidity on sigma level 0.44-0.72**,RH_ON_SIGMA_LVL_0.44-0.72,RH,320
+Relative humidity on sigma layer (0.44-1.0 mean),RH_ON_SIGMA_LVL_0.44-1.0,RH,318
+Relative humidity on sigma layer (0.72-0.94 mean),RH_ON_SIGMA_LVL_0.72-0.94,RH,319
+Relative humidity on sigma layer (0.44-0.72 mean),RH_ON_SIGMA_LVL_0.44-0.72,RH,320
 **Temperature on sigma level 0.9950**,TMP_ON_SIGMA_LVL_0.9950,TMP,321
 **Potential temperature on sigma level 0.9950**,POT_ON_SIGMA_LVL_0.9950,POT,322
 **Relative humidity on sigma level 0.9950**,RH_ON_SIGMA_LVL_0.9950,RH,323
@@ -349,20 +349,20 @@ Highest freezing level relative humidity,RH_ON_HGHST_TROP_FRZ_LVL,RH,350
 **Lapse rate on theta surface**,LAPR_ON_ISENTROPIC_LVL,LAPR,351
 Relative humidity on theta surface,RH_ON_ISENTROPIC_LVL,RH,352
 Montgomery streamfunction on theta surface,MNTSF_ON_ISENTROPIC_LVL,MNTSF,353
-Shortwave tendency on pressure surface,SWHR_ON_ISOBARIC_SFC,SWHR,354
-Longwave tendency on pressure surface,LWHR_ON_ISOBARIC_SFC,LWHR,355
-**Vertical diffusion tendency on pressure surface**,VDFHR_ON_ISOBARIC_SFC,VDFHR,356
-Deep convective tendency on pressure surface,CNVHR_ON_ISOBARIC_SFC,CNVHR,357
-Shallow convective tendency on pressure surface,SHAHR_ON_ISOBARIC_SFC,SHAHR,358
-Grid scale tendency on pressure surface,LRGHR_ON_ISOBARIC_SFC,LRGHR,359
-**Vertical diffusion moistening on pressure surface**,VDFMR_ON_ISOBARIC_SFC,VDFMR,360
-Deep convective moisture on pressure surface,CNVMR_ON_ISOBARIC_SFC,CNVMR,361
-Shallow convective moisture on pressure surface,SHAMR_ON_ISOBARIC_SFC,SHAMR,362
-**Large scale moistening on pressure surface**,LRGMR_ON_ISOBARIC_SFC,LRGMR,363
+Shortwave temperature tendency on pressure surface,SWHR_ON_ISOBARIC_SFC,SWHR,354
+Longwave temperature tendency on pressure surface,LWHR_ON_ISOBARIC_SFC,LWHR,355
+Vertical diffusion temperature tendency on pressure surface,VDFHR_ON_ISOBARIC_SFC,VDFHR,356
+Deep convective temperature tendency on pressure surface,CNVHR_ON_ISOBARIC_SFC,CNVHR,357
+Shallow convective temperature tendency on pressure surface,SHAHR_ON_ISOBARIC_SFC,SHAHR,358
+Grid scale temperature tendency on pressure surface,LRGHR_ON_ISOBARIC_SFC,LRGHR,359
+Vertical diffusion moistening rate on pressure surface,VDFMR_ON_ISOBARIC_SFC,VDFMR,360
+Deep convective moistening rate on pressure surface,CNVMR_ON_ISOBARIC_SFC,CNVMR,361
+Shallow convective moistening rate on pressure surface,SHAMR_ON_ISOBARIC_SFC,SHAMR,362
+Grid scale moistening rate on pressure surface,LRGMR_ON_ISOBARIC_SFC,LRGMR,363
 **Ozone vertical diffusion on pressure surface**,VDFOZ_ON_ISOBARIC_SFC,VDFOZ,364
 **Ozone production on pressure surface**,POZ_ON_ISOBARIC_SFC,POZ,365
 Ozone tendency on pressure surface,TOZ_ON_ISOBARIC_SFC,TOZ,366
-Mass weighted potential vorticity,PVMW_ON_ISOBARIC_SFC,PVMW,367
+Mass weighted potential vorticity on pressure surface,PVMW_ON_ISOBARIC_SFC,PVMW,367
 **Snow temperature on pressure surface**,SNOT_ON_ISOBARIC_SFC,SNOT,368
 **Vertical diffusion zonal acceleration on pressure surface**,VDFUA_ON_ISOBARIC_SFC,VDFUA,369
 **Gravity wave drag zonal acceleration on pressure surface**,GWDU_ON_ISOBARIC_SFC,GWDU,370
@@ -370,7 +370,7 @@ Mass weighted potential vorticity,PVMW_ON_ISOBARIC_SFC,PVMW,367
 **Vertical diffusion meridional acceleration on pressure surface**,VDFVA_ON_ISOBARIC_SFC,VDFVA,372
 **Gravity wave drag meridional acceleration on pressure surface**,GWDV_ON_ISOBARIC_SFC,GWDV,373
 **Convective meridional momentum mixing acceleration on pressure surface**,CNVV_ON_ISOBARIC_SFC,CNVV,374
-**Non-Convective Cloud Cover% on pressure surface**,CDLYR_ON_ISOBARIC_SFC,CDLYR,375
+**Non-Convective Cloud Cover % on pressure surface**,CDLYR_ON_ISOBARIC_SFC,CDLYR,375
 Simulated GOES 12 channel 3 brightness count,SBC123_ON_TOP_OF_ATMOS,SBC123,376
 Simulated GOES 12 channel 4 brightness count,SBC124_ON_TOP_OF_ATMOS,SBC124,377
 Omega on theta surface,VVEL_ON_ISENTROPIC_LVL,VVEL,378
@@ -388,7 +388,7 @@ Transport wind u-component,UGRD_ON_PLANETARY_BOUND_LYR,UGRD,389
 Transport wind v-component,VGRD_ON_PLANETARY_BOUND_LYR,VGRD,390
 **Convective updraft mass flux on pressure surface**,CNVUMF_ON_ISOBARIC_SFC,CNVUMF,391
 **Convective downdraft mass flux on pressure surface**,CNVDMF_ON_ISOBARIC_SFC,CNVDMF,392
-"**Convective detrainment mass flux	(kg m-2 s-1) on pressure surface**",CNVEMF_ON_ISOBARIC_SFC,CNVEMF,393
+Convective detrainment mass flux	on pressure surface,CNVEMF_ON_ISOBARIC_SFC,CNVEMF,393
 **Convective gravity drag zonal acceleration on pressure surface**,CNVWDU_ON_ISOBARIC_SFC,CNVWDU,394
 **Convective gravity drag meridional acceleration on pressure surface**,CNVWDV_ON_ISOBARIC_SFC,CNVWDV,395
 Sunshine duration,SUNSD_ON_SURFACE,SUNSD,396
