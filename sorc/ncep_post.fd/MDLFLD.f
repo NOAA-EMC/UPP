@@ -52,7 +52,8 @@
 !!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
 !!   23-02-23  E James - Adding coarse PM from RRFS
 !!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
-!!   23-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!!   23-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!!   23-06-26 | W Meng | Output composite radar reflectivity when GFS uses Thompson MP
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -3109,6 +3110,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !NMMB does not have composite radar ref in model output
            IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
               MODELNAME=='NCAR'.or.  MODELNAME=='FV3R' .or. &
+              MODELNAME=='GFS' .or. &
               MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND
