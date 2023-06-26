@@ -87,14 +87,14 @@ Accumulated total precipitation,ACM_APCP_ON_SURFACE,APCP,87
 Moisture convergence in boundary layer (30 mb mean),MCONV_ON_SPEC_PRES_ABOVE_GRND,MCONV,88
 Precipitable water in boundary layer (30 mb mean),PWAT_ON_SPEC_PRES_ABOVE_GRND,PWAT,89
 Omega in boundary layer (30 mb mean),VVEL_ON_SPEC_PRES_ABOVE_GRND,VVEL,90
-**Pressure on sigma level 0.98230**,PRES_ON_SIGMA_LVL_0.98230,PRES,91
-**Temperature on sigma level 0.98230**,TMP_ON_SIGMA_LVL_0.98230,TMP,92
-**Specific humidity on sigma level 0.98230**,SPFH_ON_SIGMA_LVL_0.98230,SPFH,93
-**Relative humidity on sigma level 0.98230**,RH_ON_SIGMA_LVL_0.98230,RH,94
-**U-wind on sigma level 0.98230**,UGRD_ON_SIGMA_LVL_0.98230,UGRD,95
-**V-wind on sigma level 0.98230**,VGRD_ON_SIGMA_LVL_0.98230,VGRD,96
-**Temperature on sigma level 0.89671**,TMP_ON_SIGMA_LVL_0.89671,TMP,97
-**Temperature on sigma level 0.78483**,TMP_ON_SIGMA_LVL_0.78483,TMP,98
+Pressure on sigma level 0.98230,PRES_ON_SIGMA_LVL_0.98230,PRES,91
+Temperature on sigma level 0.98230,TMP_ON_SIGMA_LVL_0.98230,TMP,92
+Specific humidity on sigma level 0.98230,SPFH_ON_SIGMA_LVL_0.98230,SPFH,93
+Relative humidity on sigma level 0.98230,RH_ON_SIGMA_LVL_0.98230,RH,94
+U-wind on sigma level 0.98230,UGRD_ON_SIGMA_LVL_0.98230,UGRD,95
+V-wind on sigma level 0.98230,VGRD_ON_SIGMA_LVL_0.98230,VGRD,96
+Temperature on sigma level 0.89671,TMP_ON_SIGMA_LVL_0.89671,TMP,97
+Temperature on sigma level 0.78483,TMP_ON_SIGMA_LVL_0.78483,TMP,98
 Relative humidity on sigma layer (0.47_1.0* mean)RH_ON_SIGMA_LVL_0.47_1.0,RH,99
 Relative humidity on sigma layer (0.47_0.96 mean),RH_ON_SIGMA_LVL_0.47_0.96,RH,100
 Relative humidity on sigma layer (0.18_0.47 mean),RH_ON_SIGMA_LVL_0.18_0.47,RH,101
@@ -268,7 +268,7 @@ Surface zonal momentum flux,AVE_UFLX_ON_SURFACE,UFLX,269
 Surface meridional momentum flux,AVE_VFLX_ON_SURFACE,VFLX,270
 Average precipitation rate,AVE_PRATE_ON_SURFACE,PRATE,271
 Average convective precipitation rate,AVE_CPRAT_ON_SURFACE,CPRAT,272
-**Sigma pressure thickness on model surface**,PRES_ON_HYBRID_LVL_LLM,PRES,273
+Sigma pressure thickness on model surface,PRES_ON_HYBRID_LVL_LLM,PRES,273
 Instantaneous outgoing longwave at top of atmosphere,INST_ULWRF_ON_TOP_OF_ATMOS,ULWRF,274
 Total spectrum brightness temperature,BRTMP_ON_TOP_OF_ATMOS,BRTMP,275
 Composite rain radar reflectivity,REFZR_ON_ENTIRE_ATMOS,REFZR,276
@@ -278,7 +278,7 @@ Rain radar reflecting angle,REFZR_ON_SPEC_HGT_LVL_ABOVE_GRND,REFZR,279
 Ice radar reflecting angle,REFZI_ON_SPEC_HGT_LVL_ABOVE_GRND,REFZI,280
 Convection radar reflecting angle,REFZC_ON_SPEC_HGT_LVL_ABOVE_GRND,REFZC,281
 Model top pressure,PRES_ON_TOP_OF_ATMOS,PRES,282
-**Pressure thickness on model surface**,PRES_ON_HYBRID_LVL_1L,PRES,283
+Pressure thickness on model surface,PRES_ON_HYBRID_LVL_1L,PRES,283
 Model level vertical velocity,DZDT_ON_ISOBARIC_SFC,DZDT,284
 Column integrated super cool liquid water,TCLSW_ON_ENTIRE_ATMOS,TCLSW,285
 Column integrated melting ice,TCOLM_ON_ENTIRE_ATMOS,TCOLM,286
@@ -291,7 +291,7 @@ Total column gridded temperature tendency,AVE_LRGHR_ON_ENTIRE_ATMOS,LRGHR,292
 Total column convective temperature tendency,AVE_CNVHR_ON_ENTIRE_ATMOS,CNVHR,293
 Radiative flux temperature tendency on pressure level,TTRAD_ON_ISOBARIC_SFC,TTRAD,294
 Column integrated moisture convergence,MCONV_ON_ENTIRE_ATMOS,MCONV,295
-**Temperature on sigma levels**,TMP_ON_SIGMA_LVL_HPC,TMP,296
+Temperature on sigma levels,TMP_ON_SIGMA_LVL_HPC,TMP,296
 Time averaged clear sky incoming UV-B shortwave,AVE_CDUVB_ON_SURFACE,CDUVB,297
 Time averaged incoming UV-B shortwave,AVE_DUVB_ON_SURFACE,DUVB,298
 Total column ozone,TOZNE_ON_ENTIRE_ATMOS_SINGLE_LYR,TOZNE,299
@@ -316,12 +316,12 @@ Average precipitation type,AVE_CRAIN_ON_SURFACE,CRAIN,317
 Relative humidity on sigma layer (0.44-1.0 mean),RH_ON_SIGMA_LVL_0.44-1.0,RH,318
 Relative humidity on sigma layer (0.72-0.94 mean),RH_ON_SIGMA_LVL_0.72-0.94,RH,319
 Relative humidity on sigma layer (0.44-0.72 mean),RH_ON_SIGMA_LVL_0.44-0.72,RH,320
-**Temperature on sigma level 0.9950**,TMP_ON_SIGMA_LVL_0.9950,TMP,321
-**Potential temperature on sigma level 0.9950**,POT_ON_SIGMA_LVL_0.9950,POT,322
-**Relative humidity on sigma level 0.9950**,RH_ON_SIGMA_LVL_0.9950,RH,323
-**U-wind at sigma level 0.9950**,UGRD_ON_SIGMA_LVL_0.9950,UGRD,324
-**V-wind at sigma level 0.9950**,VGRD_ON_SIGMA_LVL_0.9950,VGRD,325
-**Omega at sigma level 0.9950**,VVEL_ON_SIGMA_LVL_0.9950,VVEL,326
+Temperature on sigma level 0.9950,TMP_ON_SIGMA_LVL_0.9950,TMP,321
+Potential temperature on sigma level 0.9950,POT_ON_SIGMA_LVL_0.9950,POT,322
+Relative humidity on sigma level 0.9950,RH_ON_SIGMA_LVL_0.9950,RH,323
+U-wind at sigma level 0.9950,UGRD_ON_SIGMA_LVL_0.9950,UGRD,324
+V-wind at sigma level 0.9950,VGRD_ON_SIGMA_LVL_0.9950,VGRD,325
+Omega at sigma level 0.9950,VVEL_ON_SIGMA_LVL_0.9950,VVEL,326
 Simulated GOES 12 channel 2 brightness temperature,SBT122_ON_TOP_OF_ATMOS,SBT122,327
 Simulated GOES 12 channel 3 brightness temperature,SBT123_ON_TOP_OF_ATMOS,SBT123,328
 Simulated GOES 12 channel 4 brightness temperature,SBT124_ON_TOP_OF_ATMOS,SBT124,329
@@ -346,7 +346,7 @@ Maximum 2m RH,MAX_MAXRH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,MAXRH,347
 Minimum 2m RH,MIN_MINRH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,MINRH,348
 Ice thickness,ICETK_ON_SURFACE,ICETK,349
 Highest freezing level relative humidity,RH_ON_HGHST_TROP_FRZ_LVL,RH,350
-**Lapse rate on theta surface**,LAPR_ON_ISENTROPIC_LVL,LAPR,351
+Lapse rate on theta surface,LAPR_ON_ISENTROPIC_LVL,LAPR,351
 Relative humidity on theta surface,RH_ON_ISENTROPIC_LVL,RH,352
 Montgomery streamfunction on theta surface,MNTSF_ON_ISENTROPIC_LVL,MNTSF,353
 Shortwave temperature tendency on pressure surface,SWHR_ON_ISOBARIC_SFC,SWHR,354
@@ -359,23 +359,23 @@ Vertical diffusion moistening rate on pressure surface,VDFMR_ON_ISOBARIC_SFC,VDF
 Deep convective moistening rate on pressure surface,CNVMR_ON_ISOBARIC_SFC,CNVMR,361
 Shallow convective moistening rate on pressure surface,SHAMR_ON_ISOBARIC_SFC,SHAMR,362
 Grid scale moistening rate on pressure surface,LRGMR_ON_ISOBARIC_SFC,LRGMR,363
-**Ozone vertical diffusion on pressure surface**,VDFOZ_ON_ISOBARIC_SFC,VDFOZ,364
-**Ozone production on pressure surface**,POZ_ON_ISOBARIC_SFC,POZ,365
+Ozone vertical diffusion on pressure surface,VDFOZ_ON_ISOBARIC_SFC,VDFOZ,364
+Ozone production on pressure surface,POZ_ON_ISOBARIC_SFC,POZ,365
 Ozone tendency on pressure surface,TOZ_ON_ISOBARIC_SFC,TOZ,366
 Mass weighted potential vorticity on pressure surface,PVMW_ON_ISOBARIC_SFC,PVMW,367
-**Snow temperature on pressure surface**,SNOT_ON_ISOBARIC_SFC,SNOT,368
-**Vertical diffusion zonal acceleration on pressure surface**,VDFUA_ON_ISOBARIC_SFC,VDFUA,369
-**Gravity wave drag zonal acceleration on pressure surface**,GWDU_ON_ISOBARIC_SFC,GWDU,370
-**Convective zonal momentum mixing acceleration on pressure surface**,CNVU_ON_ISOBARIC_SFC,CNVU,371
-**Vertical diffusion meridional acceleration on pressure surface**,VDFVA_ON_ISOBARIC_SFC,VDFVA,372
-**Gravity wave drag meridional acceleration on pressure surface**,GWDV_ON_ISOBARIC_SFC,GWDV,373
-**Convective meridional momentum mixing acceleration on pressure surface**,CNVV_ON_ISOBARIC_SFC,CNVV,374
+Snow temperature on pressure surface,SNOT_ON_ISOBARIC_SFC,SNOT,368
+Vertical diffusion zonal acceleration on pressure surface,VDFUA_ON_ISOBARIC_SFC,VDFUA,369
+Gravity wave drag zonal acceleration on pressure surface,GWDU_ON_ISOBARIC_SFC,GWDU,370
+Convective zonal momentum mixing acceleration on pressure surface,CNVU_ON_ISOBARIC_SFC,CNVU,371
+Vertical diffusion meridional acceleration on pressure surface,VDFVA_ON_ISOBARIC_SFC,VDFVA,372
+Gravity wave drag meridional acceleration on pressure surface,GWDV_ON_ISOBARIC_SFC,GWDV,373
+Convective meridional momentum mixing acceleration on pressure surface,CNVV_ON_ISOBARIC_SFC,CNVV,374
 Non-Convective Cloud Cover % on pressure surface,CDLYR_ON_ISOBARIC_SFC,CDLYR,375
 Simulated GOES 12 channel 3 brightness count,SBC123_ON_TOP_OF_ATMOS,SBC123,376
 Simulated GOES 12 channel 4 brightness count,SBC124_ON_TOP_OF_ATMOS,SBC124,377
 Omega on theta surface,VVEL_ON_ISENTROPIC_LVL,VVEL,378
-**Temperature tendency by all physics on pressure surface**,TTDIA_ON_ISOBARIC_SFC,TTDIA,379
-**Vertical eddy diffusivity heat exchange on model surface**,VEDH_ON_HYBRID_LVL,VEDH,380
+Temperature tendency by all physics on pressure surface,TTDIA_ON_ISOBARIC_SFC,TTDIA,379
+Vertical eddy diffusivity heat exchange on model surface,VEDH_ON_HYBRID_LVL,VEDH,380
 Mixing height,MIXHT_ON_SURFACE,MIXHT,381
 Average clear-sky incoming longwave at surface,AVE_CSDLF_ON_SURFACE,CSDLF,382
 Average clear-sky incoming shortwave at surface,AVE_CSDSF_ON_SURFACE,CSDSF,383
@@ -386,11 +386,11 @@ Average clear-sky outgoing shortwave at top of atmosphere,AVE_CSUSF_ON_TOP_OF_AT
 Average incoming shortwave at top of atmosphere,AVE_DSWRF_ON_TOP_OF_ATMOS,DSWRF,388
 Transport wind u-component,UGRD_ON_PLANETARY_BOUND_LYR,UGRD,389
 Transport wind v-component,VGRD_ON_PLANETARY_BOUND_LYR,VGRD,390
-**Convective updraft mass flux on pressure surface**,CNVUMF_ON_ISOBARIC_SFC,CNVUMF,391
-**Convective downdraft mass flux on pressure surface**,CNVDMF_ON_ISOBARIC_SFC,CNVDMF,392
+Convective updraft mass flux on pressure surface,CNVUMF_ON_ISOBARIC_SFC,CNVUMF,391
+Convective downdraft mass flux on pressure surface,CNVDMF_ON_ISOBARIC_SFC,CNVDMF,392
 Convective detrainment mass flux	on pressure surface,CNVEMF_ON_ISOBARIC_SFC,CNVEMF,393
-**Convective gravity drag zonal acceleration on pressure surface**,CNVWDU_ON_ISOBARIC_SFC,CNVWDU,394
-**Convective gravity drag meridional acceleration on pressure surface**,CNVWDV_ON_ISOBARIC_SFC,CNVWDV,395
+Convective gravity drag zonal acceleration on pressure surface,CNVWDU_ON_ISOBARIC_SFC,CNVWDU,394
+Convective gravity drag meridional acceleration on pressure surface,CNVWDV_ON_ISOBARIC_SFC,CNVWDV,395
 Sunshine duration,SUNSD_ON_SURFACE,SUNSD,396
 Field capacity,FLDCP_ON_SURFACE,FLDCP,397
 ICAO height at maximum wind level,ICAHT_ON_MAX_WIND,ICAHT,398
@@ -403,18 +403,18 @@ Time averaged surface Near IR diffuse downward solar flux,AVE_NDDSF_ON_SURFACE,N
 Average snowfall rate,AVE_SRWEQ_ON_SURFACE,SRWEQ,405
 GSD Cloud top pressure,GSD_PRES_ON_CLOUD_TOP,PRES,406
 GSD Instant precipitation type on surface,GSD_INST_CRAIN_ON_SURFACE,CRAIN,407
-**GSD cloud ceiling height**,GSD_HGT_ON_CLOUD_CEILING,HGT,408
+GSD cloud ceiling height,GSD_HGT_ON_CLOUD_CEILING,HGT,408
 GSD cloud top height,GSD_HGT_ON_CLOUD_TOP,HGT,409
-**GSD visibility**,GSD_VIS_ON_SURFACE,VIS,410
+GSD visibility,GSD_VIS_ON_SURFACE,VIS,410
 Wind energy potential,WMIXE_ON_SPEC_HGT_LVL_ABOVE_GRND,WMIXE,411
 U wind at 80 m above ground,UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND,UGRD,412
 V wind at 80 m above ground,VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND,VGRD,413
 2 M mixing ratio,Not currently available for grib2,NA,414
 Graupel on model surface,GRLE_ON_HYBRID_LVL,GRLE,415
 Graupel on pressure surface,GRLE_ON_ISOBARIC_SFC,GRLE,416
-**Continuous accumulated total precipitation**,CACM_APCP_ON_SURFACE,APCP,417
-**Continuous accumulated convective precipitation**,CACM_ACPCP_ON_SURFACE,ACPCP,418
-**Continuous accumulated grid-scale precipitation**,CACM_NCPCP_ON_SURFACE,NCPCP,419
+Continuous accumulated total precipitation,CACM_APCP_ON_SURFACE,APCP,417
+Continuous accumulated convective precipitation,CACM_ACPCP_ON_SURFACE,ACPCP,418
+Continuous accumulated grid-scale precipitation,CACM_NCPCP_ON_SURFACE,NCPCP,419
 Maximum updraft helicity,MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MXUPHL,420
 Maximum 1km reflectivity,MAX_REF_ON_SPEC_HGT_LVL_ABOVE_GRND_1km,MAXREF,421
 Maximum wind speed at 10m,MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,WIND,422
@@ -468,33 +468,33 @@ GTG mountain wave turbulence (MWT) at specific altitude above mean sea level,MWT
 GTG eddy dissipation parameter (EDR) on model surface,EDPARM_ON_HYBRID_LVL,EDPARM,470
 GTG clean air turbulence (CAT) on model surface,CAT_ON_HYBRID_LVL,CATEDR,471
 GTG mountain wave turbulence (MWT) on model surface,MWTURB_ON_HYBRID_LVL,MWTURB,472
-**Horizontal extent of cumulonimbus (CB) %**,CBHE_ON_ENTIRE_ATMOS,CBHE,473
+Horizontal extent of cumulonimbus (CB) %,CBHE_ON_ENTIRE_ATMOS,CBHE,473
 Standard atmosphere reference height of base of cumulonimbus,ICAHT_ON_CB_BASE,ICAHT,474
 Standard atmosphere reference height of top of cumulonimbus,ICAHT_ON_CB_TOP,ICAHT,475
 GTG eddy dissipation parameter (EDR) on standard atmospheric isobaric levels,EDPARM_GTG_ON_ICAO_STD_SFC,EDPARM,476
 GTG clean air turbulence (CAT) on standard atmospheric isobaric levels,CAT_GTG_ON_ICAO_STD_SFC,CATEDR,477
 GTG mountain wave turbulence (MWT) on standard atmospheric isobaric levels,MWTURB_GTG_ON_ICAO_STD_SFC,MWTURB,478
-**Icing severity on standard atmospheric isobaric levels**,ICESEV_ON_ICAO_STD_SFC,ICESEV,479
-**GFIP in-flight icing severity on pressure surface**,ICESEV_ON_ISOBARIC_SFC,ICESEV,480
-**Total icing potential diagnostic on standard atmospheric isobaric surface**,ICIP_ON_ICAO_STD_SFC,ICIP,481
+Icing severity on standard atmospheric isobaric levels,ICESEV_ON_ICAO_STD_SFC,ICESEV,479
+GFIP in-flight icing severity on pressure surface,ICESEV_ON_ISOBARIC_SFC,ICESEV,480
+Total icing potential diagnostic on standard atmospheric isobaric surface,ICIP_ON_ICAO_STD_SFC,ICIP,481
 Pressure at flight levels,PRES_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,PRES,482
 Simulated AMSR-E channel 9 brightness temperature,AMSRE9_ON_TOP_OF_ATMOS,AMSRE9,483
 Simulated AMSR-E channel 10 brightness temperature,AMSRE10_ON_TOP_OF_ATMOS,AMSRE10,484
 Simulated AMSR-E channel 11 brightness temperature,AMSRE11_ON_TOP_OF_ATMOS,AMSRE11,485
 Simulated AMSR-E channel 12 brightness temperature,AMSRE12_ON_TOP_OF_ATMOS,AMSRE12,486
-**GSD experimental ceiling diagnostic**,GSD_EXP_CEILING,CEIL,487
-**Simulated Brightness Temperature for TMI TRMM channel 6 on top of atmosphere**,TMITB6_ON_TOP_OF_ATMOS,AMSRE9,488
-**Simulated Brightness Temperature for TMI TRMM channel 7 on top of atmosphere**,TMITB7_ON_TOP_OF_ATMOS,AMSRE10,489
-**Simulated Brightness Temperature for TMI TRMM channel 8 on top of atmosphere**,TMITB8_ON_TOP_OF_ATMOS,AMSRE11,490
-**Simulated Brightness Temperature for TMI TRMM channel 9 on top of atmosphere**,TMITB9_ON_TOP_OF_ATMOS,AMSRE12,491
-**Simulated Brightness Temperature for SSMI TB channel 4 on top of atmosphere**,SSMITB4_ON_TOP_OF_ATMOS,AMSRE9,492
-**Simulated Brightness Temperature for SSMI TB channel 5 on top of atmosphere**,SSMITB5_ON_TOP_OF_ATMOS,AMSRE10,493
-**Simulated Brightness Temperature for SSMI TB channel 6 on top of atmosphere**,SSMITB6_ON_TOP_OF_ATMOS,AMSRE11,494
-**Simulated Brightness Temperature for SSMI TB channel 7 on top of atmosphere**,SSMITB7_ON_TOP_OF_ATMOS,AMSRE12,495
-**Simulated Brightness Temperature for SSMIS TB channel 15 on top of atmosphere**,SSMISTB15_ON_TOP_OF_ATMOS,AMSRE9,496
-**Simulated Brightness Temperature for SSMIS TB channel 16 on top of atmosphere**,SSMISTB16_ON_TOP_OF_ATMOS,AMSRE10,497
-**Simulated Brightness Temperature for SSMIS TB channel 17 on top of atmosphere**,SSMISTB17_ON_TOP_OF_ATMOS,AMSRE11,498
-**Simulated Brightness Temperature for SSMIS TB channel 18 on top of atmosphere**,SSMISTB18_ON_TOP_OF_ATMOS,AMSRE12,499
+GSD experimental ceiling diagnostic,GSD_EXP_CEILING,CEIL,487
+Simulated Brightness Temperature for TMI TRMM channel 6 on top of atmosphere,TMITB6_ON_TOP_OF_ATMOS,AMSRE9,488
+Simulated Brightness Temperature for TMI TRMM channel 7 on top of atmosphere,TMITB7_ON_TOP_OF_ATMOS,AMSRE10,489
+Simulated Brightness Temperature for TMI TRMM channel 8 on top of atmosphere,TMITB8_ON_TOP_OF_ATMOS,AMSRE11,490
+Simulated Brightness Temperature for TMI TRMM channel 9 on top of atmosphere,TMITB9_ON_TOP_OF_ATMOS,AMSRE12,491
+Simulated Brightness Temperature for SSMI TB channel 4 on top of atmosphere,SSMITB4_ON_TOP_OF_ATMOS,AMSRE9,492
+Simulated Brightness Temperature for SSMI TB channel 5 on top of atmosphere,SSMITB5_ON_TOP_OF_ATMOS,AMSRE10,493
+Simulated Brightness Temperature for SSMI TB channel 6 on top of atmosphere,SSMITB6_ON_TOP_OF_ATMOS,AMSRE11,494
+Simulated Brightness Temperature for SSMI TB channel 7 on top of atmosphere,SSMITB7_ON_TOP_OF_ATMOS,AMSRE12,495
+Simulated Brightness Temperature for SSMIS TB channel 15 on top of atmosphere,SSMISTB15_ON_TOP_OF_ATMOS,AMSRE9,496
+Simulated Brightness Temperature for SSMIS TB channel 16 on top of atmosphere,SSMISTB16_ON_TOP_OF_ATMOS,AMSRE10,497
+Simulated Brightness Temperature for SSMIS TB channel 17 on top of atmosphere,SSMISTB17_ON_TOP_OF_ATMOS,AMSRE11,498
+Simulated Brightness Temperature for SSMIS TB channel 18 on top of atmosphere,SSMISTB18_ON_TOP_OF_ATMOS,AMSRE12,499
 Time-averaged percentage snow cover,AVE_SNOWC_ON_SURFACE,SNOWC,500
 Time-averaged surface pressure,AVE_PRES_ON_SURFACE,PRES,501
 Time-averaged 10m temperature,AVE_TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,TMP,502
@@ -503,89 +503,89 @@ Time-averaged wind exchange coefficient,AVE_AKMS_ON_SURFACE,AKMS,504
 Temperature at 10m,TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,TMP,505
 Maximum U-component wind at 10m,MAX_MAXUW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXUW,506
 Maximum V-component wind at 10m,MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,507
-**Maximum instantaneous precipitation rate on surface**,MAX_PRATE_ON_SURFACE,PRATE,508
-**Maximum specific humidity at 2m**,MAX_QMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMAX,510
-**Minimum specific humidity at 2m**,MIN_QMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMIN,511
-**Aerodynamic conductance on surface**,ACOND_ON_SURFACE,ACOND,512
-**Canopy water evaporation on surface**,AVE_EVCW_ON_SURFACE,EVCW,513
+Maximum instantaneous precipitation rate on surface,MAX_PRATE_ON_SURFACE,PRATE,508
+Maximum specific humidity at 2m,MAX_QMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMAX,510
+Minimum specific humidity at 2m,MIN_QMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMIN,511
+Aerodynamic conductance on surface,ACOND_ON_SURFACE,ACOND,512
+Canopy water evaporation on surface,AVE_EVCW_ON_SURFACE,EVCW,513
 Direct evaporation from bare soil on surface,AVE_EVBS_ON_SURFACE,EVBS,514
-**Transpiration on surface**,AVE_TRANS_ON_SURFACE,TRANS,515
-**Sublimation on surface**,AVE_SBSNO_ON_SURFACE,SBSNO,516
-**Potential evaporation rate on surface**,AVE_PEVPR_ON_SURFACE,PEVPR,517
-**Height on standard atmospheric isobaric levels**,HGT_ON_ICAO_STD_SFC,HGT,518
-**Temperature on standard atmospheric isobaric levels**,TMP_ON_ICAO_STD_SFC,TMP,519
-**U-component wind on standard atmospheric isobaric levels**,UGRD_ON_ICAO_STD_SFC,UGRD,520
-**V-component wind on standard atmospheric isobaric levels**,VGRD_ON_ICAO_STD_SFC,VGRD,521
-**Bucket total precipitation on surface**,BUCKET1_APCP_ON_SURFACE,APCP,526
-**Bucket convective precipitation on surface**,BUCKET1_ACPCP_ON_SURFACE,ACPCP,527
-**Bucket large scale precipitation on surface**,BUCKET1_NCPCP_ON_SURFACE,NCPCP,528
+Transpiration on surface,AVE_TRANS_ON_SURFACE,TRANS,515
+Sublimation on surface,AVE_SBSNO_ON_SURFACE,SBSNO,516
+Potential evaporation rate on surface,AVE_PEVPR_ON_SURFACE,PEVPR,517
+Height on standard atmospheric isobaric levels,HGT_ON_ICAO_STD_SFC,HGT,518
+Temperature on standard atmospheric isobaric levels,TMP_ON_ICAO_STD_SFC,TMP,519
+U-component wind on standard atmospheric isobaric levels,UGRD_ON_ICAO_STD_SFC,UGRD,520
+V-component wind on standard atmospheric isobaric levels,VGRD_ON_ICAO_STD_SFC,VGRD,521
+Bucket total precipitation on surface,BUCKET1_APCP_ON_SURFACE,APCP,526
+Bucket convective precipitation on surface,BUCKET1_ACPCP_ON_SURFACE,ACPCP,527
+Bucket large scale precipitation on surface,BUCKET1_NCPCP_ON_SURFACE,NCPCP,528
 Bucket water equivalent accumulated snow depth on surface,BUCKET1_WEASD_ON_SURFACE,WEASD,529
-**Bucket graupel precipitation on surface**,BUCKET1_GRAUPEL_ON_SURFACE,FROZR,530
-**Simulated Brightness Temperature for ABI GOES-18 Band-7**,SBTA187_ON_TOP_OF_ATMOS,SBTA187,531
-**Simulated Brightness Temperature for ABI GOES-18 Band-8**,SBTA188_ON_TOP_OF_ATMOS,SBTA188,532
-**Simulated Brightness Temperature for ABI GOES-18 Band-9**,SBTA189_ON_TOP_OF_ATMOS,SBTA189,533
-**Simulated Brightness Temperature for ABI GOES-18 Band-10**,SBTA1810_ON_TOP_OF_ATMOS,SBTA1810,534
-**Simulated Brightness Temperature for ABI GOES-18 Band-11**,SBTA1811_ON_TOP_OF_ATMOS,SBTA1811,535
-**Simulated Brightness Temperature for ABI GOES-18 Band-12**,SBTA1812_ON_TOP_OF_ATMOS,SBTA1812,536
-**Simulated Brightness Temperature for ABI GOES-18 Band-13**,SBTA1813_ON_TOP_OF_ATMOS,SBTA1813,537
-**Simulated Brightness Temperature for ABI GOES-18 Band-14**,SBTA1814_ON_TOP_OF_ATMOS,SBTA1814,538
-**Simulated Brightness Temperature for ABI GOES-18 Band-15**,SBTA1815_ON_TOP_OF_ATMOS,SBTA1815,539
-**Simulated Brightness Temperature for ABI GOES-18 Band-16**,SBTA1816_ON_TOP_OF_ATMOS,SBTA1816,540
-**GSD shelter level potential temperature**,GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,POT,546
-**GSD shelter level dewpoint depression**,GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,DEPR,547
-**GSD shelter level surface equivalent potential temperature**,GSD_EPOT_ON_SURFACE,EPOT,548
+Bucket graupel precipitation on surface,BUCKET1_GRAUPEL_ON_SURFACE,FROZR,530
+Simulated Brightness Temperature for ABI GOES-18 Band-7,SBTA187_ON_TOP_OF_ATMOS,SBTA187,531
+Simulated Brightness Temperature for ABI GOES-18 Band-8,SBTA188_ON_TOP_OF_ATMOS,SBTA188,532
+Simulated Brightness Temperature for ABI GOES-18 Band-9,SBTA189_ON_TOP_OF_ATMOS,SBTA189,533
+Simulated Brightness Temperature for ABI GOES-18 Band-10,SBTA1810_ON_TOP_OF_ATMOS,SBTA1810,534
+Simulated Brightness Temperature for ABI GOES-18 Band-11,SBTA1811_ON_TOP_OF_ATMOS,SBTA1811,535
+Simulated Brightness Temperature for ABI GOES-18 Band-12,SBTA1812_ON_TOP_OF_ATMOS,SBTA1812,536
+Simulated Brightness Temperature for ABI GOES-18 Band-13,SBTA1813_ON_TOP_OF_ATMOS,SBTA1813,537
+Simulated Brightness Temperature for ABI GOES-18 Band-14,SBTA1814_ON_TOP_OF_ATMOS,SBTA1814,538
+Simulated Brightness Temperature for ABI GOES-18 Band-15,SBTA1815_ON_TOP_OF_ATMOS,SBTA1815,539
+Simulated Brightness Temperature for ABI GOES-18 Band-16,SBTA1816_ON_TOP_OF_ATMOS,SBTA1816,540
+GSD shelter level potential temperature,GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,POT,546
+GSD shelter level dewpoint depression,GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,DEPR,547
+GSD shelter level surface equivalent potential temperature,GSD_EPOT_ON_SURFACE,EPOT,548
 Foundation sea surface temperature on surface,FDNSSTMP_ON_SURFACE,FDNSSTMP,549
-**Categorical snow on surface**,CSNOW_ON_SURFACE,CSNOW,551
-**Categorical ice pellets on surface**,CICEP_ON_SURFACE,CICEP,552
-**Categorical freezing rain on surface**,CFRZR_ON_SURFACE,CFRZR,553
-**average Categorical snow on surface**,AVE_CSNOW_ON_SURFACE,CSNOW,555
-**average Categorical ice pellets on surface**,AVE_CICEP_ON_SURFACE,CICEP,556
-**average Categorical freezing rain on surface**,AVE_CFRZR_ON_SURFACE,CFRZR,557
-**GSD_Categorical snow on surface**,GSD_CSNOW_ON_SURFACE,CSNOW,559
-**GSD_Categorical ice pellets on surface**,GSD_CICEP_ON_SURFACE,CICEP,560
-**GSD_Categorical freezing rain on surface**,GSD_CFRZR_ON_SURFACE,CFRZR,561
-**GSD_average Categorical snow on surface**,GSD_AVE_CSNOW_ON_SURFACE,CSNOW,563
-**GSD_average Categorical ice pellets on surface**,GSD_AVE_CICEP_ON_SURFACE,CICEP,564
-**GSD_average Categorical freezing rain on surface**,GSD_AVE_CFRZR_ON_SURFACE,CFRZR,565
-**Best boundary layer CAPE**,BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,566
-**Best boundary layer CIN**,BEST_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,567
-**GFS sea level pressure**,GFS_PRES_ON_MEAN_SEA_LVL,PRES,568
+Categorical snow on surface,CSNOW_ON_SURFACE,CSNOW,551
+Categorical ice pellets on surface,CICEP_ON_SURFACE,CICEP,552
+Categorical freezing rain on surface,CFRZR_ON_SURFACE,CFRZR,553
+Average categorical snow on surface,AVE_CSNOW_ON_SURFACE,CSNOW,555
+Average categorical ice pellets on surface,AVE_CICEP_ON_SURFACE,CICEP,556
+Average categorical freezing rain on surface,AVE_CFRZR_ON_SURFACE,CFRZR,557
+GSD_Categorical snow on surface,GSD_CSNOW_ON_SURFACE,CSNOW,559
+GSD_Categorical ice pellets on surface,GSD_CICEP_ON_SURFACE,CICEP,560
+GSD_Categorical freezing rain on surface,GSD_CFRZR_ON_SURFACE,CFRZR,561
+GSD_average Categorical snow on surface,GSD_AVE_CSNOW_ON_SURFACE,CSNOW,563
+GSD_average Categorical ice pellets on surface,GSD_AVE_CICEP_ON_SURFACE,CICEP,564
+GSD_average Categorical freezing rain on surface,GSD_AVE_CFRZR_ON_SURFACE,CFRZR,565
+Best boundary layer CAPE,BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,566
+Best boundary layer CIN,BEST_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,567
+GFS sea level pressure,GFS_PRES_ON_MEAN_SEA_LVL,PRES,568
 GFS average convective cloud fraction,GFS_AVE_TCDC_ON_CONVECTIVE_CLOUD_LYR,TCDC,569
 GFS convective cloud fraction,GFS_TCDC_ON_CONVECTIVE_CLOUD_LYR,TCDC,570
 GFS Soil temperature at the bottom of soil layers,GFS_TMP_ON_DEPTH_BEL_LAND_SFC_3m,TMP,571
-**GFS lifted index on surface**,GFS_LFTX_ON_SURFACE,LFTX,572
-**GFS lifted index on surface - best**,GFS_4LFTX_ON_SURFACE,4LFTX,573
-**Soil temperature in between each of soil layers**,GFS_TMP_ON_DEPTH_BEL_LAND_SFC,TMP,574
+GFS lifted index on surface,GFS_LFTX_ON_SURFACE,LFTX,572
+GFS lifted index on surface - best,GFS_4LFTX_ON_SURFACE,4LFTX,573
+Soil temperature in between each of soil layers,GFS_TMP_ON_DEPTH_BEL_LAND_SFC,TMP,574
 Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
-**Flight-level u-component wind**,UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,UGRD,576
-**Flight-level v-component wind**,VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,VGRD,577
-**Flight level specific humidity**,SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,SPFH,578
-**Flight level pressure**,PRES_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,PRES,579
-**Flight level icing**,ICI_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT,ICI,580
-**Entire Atmosphere Vertically Integrated Liquid (kg/m-2)**,VIL_ON_ENTIRE_ATMOS,VIL,581
-**Mixed-layer CAPE**,MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,582
-**Mixed-layer CIN**,MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,583
-**Most unstable CAPE**,UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,584
-**Most unstable CIN**,UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,585
-**Flight level temperature**,TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,TMP,586
-**Flight level icing**,ICI_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,ICI,587
-**Ice growth rate**,ICEG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,ICEG,588
-**GFS 2D aerosol optical depth at 550 nm**,AER_OPT_GFS_at550,AOTK,600
-**GFS 2D dust aerosol optical depth at 550 nm**,DUST_AER_OPT_GFS_at550,AOTK,601
-**GFS 2D seasalt aerosol optical depth at 550 nm**,SEASALT_AER_OPT_GFS_at550,AOTK,602
-**GFS 2D sulfate aerosol optical depth at 550 nm**,SULFATE_AER_OPT_GFS_at550,AOTK,603
-**GFS 2D organic carbon aerosol optical depth at 550 nm**,ORGANIC_CARBON_AER_OPT_GFS_at550,AOTK,604
-**GFS 2D black carbon aerosol optical depth at 550 nm**,BLACK_CARBON_AER_OPT_GFS_at550,AOTK,605
+Flight-level u-component wind,UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,UGRD,576
+Flight-level v-component wind,VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,VGRD,577
+Flight level specific humidity,SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,SPFH,578
+Flight level pressure,PRES_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,PRES,579
+Flight level icing,ICI_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT,ICI,580
+Entire Atmosphere Vertically Integrated Liquid (kg/m-2),VIL_ON_ENTIRE_ATMOS,VIL,581
+Mixed-layer CAPE,MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,582
+Mixed-layer CIN,MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,583
+Most unstable CAPE,UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,584
+Most unstable CIN,UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,585
+Flight level temperature,TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,TMP,586
+Flight level icing,ICI_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT,ICI,587
+Ice growth rate,ICEG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,ICEG,588
+GFS 2D aerosol optical depth at 550 nm,AER_OPT_GFS_at550,AOTK,600
+GFS 2D dust aerosol optical depth at 550 nm,DUST_AER_OPT_GFS_at550,AOTK,601
+GFS 2D seasalt aerosol optical depth at 550 nm,SEASALT_AER_OPT_GFS_at550,AOTK,602
+GFS 2D sulfate aerosol optical depth at 550 nm,SULFATE_AER_OPT_GFS_at550,AOTK,603
+GFS 2D organic carbon aerosol optical depth at 550 nm,ORGANIC_CARBON_AER_OPT_GFS_at550,AOTK,604
+GFS 2D black carbon aerosol optical depth at 550 nm,BLACK_CARBON_AER_OPT_GFS_at550,AOTK,605
 Aerosol extinction coefficient on model surface,AECOEF_ON_HYBRID_LVL,AECOEF,606
-**Asymmetry factor on model surface**,ASYSFK_ON_HYBRID_LVL,ASYSFK,607
-**Single scattering albedo on model surface**,SSALBK_ON_HYBRID_LVL,SSALBK,608
-**Aerosol optical depth at 550nm**,AER_OPT_DEP_at550,AOTK,609
-**Dust aerosol optical depth at 550nm**,DUST_AER_OPT_DEP_at550,AOTK,610
-**Seasalt aerosol optical depth at 550nm**,SEASALT_AER_OPT_DEP_at550,AOTK,611
-**Sulfate aerosol optical depth at 550nm**,SULFATE_AER_OPT_DEP_at550,AOTK,612
-**Organic carbon aerosol optical depth at 550nm**,ORGANIC_CARBON_AER_OPT_DEP_at550,AOTK,613
-**Black carbon aerosol optical depth at 550nm**,BLACK_CARBON_AER_OPT_DEP_at550,AOTK,614
-**Nitrate aerosol optical depth at 550nm**,NITRATE_AER_OPT_DEP_at550,AOTK,615
+Asymmetry factor on model surface,ASYSFK_ON_HYBRID_LVL,ASYSFK,607
+Single scattering albedo on model surface,SSALBK_ON_HYBRID_LVL,SSALBK,608
+Aerosol optical depth at 550nm,AER_OPT_DEP_at550,AOTK,609
+Dust aerosol optical depth at 550nm,DUST_AER_OPT_DEP_at550,AOTK,610
+Seasalt aerosol optical depth at 550nm,SEASALT_AER_OPT_DEP_at550,AOTK,611
+Sulfate aerosol optical depth at 550nm,SULFATE_AER_OPT_DEP_at550,AOTK,612
+Organic carbon aerosol optical depth at 550nm,ORGANIC_CARBON_AER_OPT_DEP_at550,AOTK,613
+Black carbon aerosol optical depth at 550nm,BLACK_CARBON_AER_OPT_DEP_at550,AOTK,614
+Nitrate aerosol optical depth at 550nm,NITRATE_AER_OPT_DEP_at550,AOTK,615
 Black carbon column integrated mass density,BC_COL_MASS_DEN,COLMD,616
 Organic carbon column integrated mass density,OC_COL_MASS_DEN,COLMD,617
 Sulfate column integrated mass density,SULF_COL_MASS_DEN,COLMD,618
@@ -593,84 +593,84 @@ Aerosol surface particulate matter (PM) 10 mass concentration (ug/m3),PM10_SFC_M
 Aerosol surface particulate matter (PM) 2.5 mass concentration (ug/m3),PM25_SFC_MASS_CON,PMTF,620
 Total aerosol particulate matter (PM) 10 column integrated mass density,PM10_COL_MASS_DEN,COLMD,621
 Total aerosol particulate matter (PM) 2.5 column integrated mass density,PM25_COL_MASS_DEN,COLMD,622
-**Aerosol optical depth at 340nm**,AER_OPT_DEP_at340,AOTK,623
-**Aerosol optical depth at 440nm**,AER_OPT_DEP_at440,AOTK,624
-**Aerosol optical depth at 660nm**,AER_OPT_DEP_at660,AOTK,625
-**Aerosol optical depth at 860nm**,AER_OPT_DEP_at860,AOTK,626
-**Aerosol optical depth at 1630nm**,AER_OPT_DEP_at1630,AOTK,627
-**Aerosol optical depth at 11100nm**,AER_OPT_DEP_at11100,AOTK,628
-**Dust 1 on model surface**,DUST1_ON_HYBRID_LVL,PMTF,629
-**Dust 2 on model surface**,DUST2_ON_HYBRID_LVL,PMTF,630
-**Dust 3 on model surface**,DUST3_ON_HYBRID_LVL,PMTC,631
-**Dust 4 on model surface**,DUST4_ON_HYBRID_LVL,PMTC,632
-**Dust 5 on model surface**,DUST5_ON_HYBRID_LVL,PMTC,633
-**Seasalt 1 on model surface**,SEASALT1_ON_HYBRID_LVL,PMTF,634
-**Seasalt 2 on model surface**,SEASALT2_ON_HYBRID_LVL,PMTF,635
-**Seasalt 3 on model surface**,SEASALT3_ON_HYBRID_LVL,PMTC,636
-**Seasalt 4 on model surface**,SEASALT4_ON_HYBRID_LVL,PMTC,637
-**Seasalt 5 on model surface**,SEASALT5_ON_HYBRID_LVL,PMTC,638
-**SO4 on model surface**,SO4_ON_HYBRID_LVL,PMTF,639
-**Hydrophobic organic carbon on model surface**,OCPHOBIC_ON_HYBRID_LVL,PMTF,640
-**Hydrophilic organic carbon on model surface**,OCPHILIC_ON_HYBRID_LVL,PMTF,641
-**Hydrophobic black carbon on model surface**,BCPHOBIC_ON_HYBRID_LVL,PMTF,642
-**Hydrophilic black carbon on model surface**,BCPHILIC_ON_HYBRID_LVL,PMTF,643
-**Air density on model surface**,AIR_DENSITY_ON_HYBRID_LVL,DEN,644
-**Layer thickness on model surface**,LAYER_THICKNESS_ON_HYBRID_LVL,THICK,645
+Aerosol optical depth at 340nm,AER_OPT_DEP_at340,AOTK,623
+Aerosol optical depth at 440nm,AER_OPT_DEP_at440,AOTK,624
+Aerosol optical depth at 660nm,AER_OPT_DEP_at660,AOTK,625
+Aerosol optical depth at 860nm,AER_OPT_DEP_at860,AOTK,626
+Aerosol optical depth at 1630nm,AER_OPT_DEP_at1630,AOTK,627
+Aerosol optical depth at 11100nm,AER_OPT_DEP_at11100,AOTK,628
+Dust 1 on model surface,DUST1_ON_HYBRID_LVL,PMTF,629
+Dust 2 on model surface,DUST2_ON_HYBRID_LVL,PMTF,630
+Dust 3 on model surface,DUST3_ON_HYBRID_LVL,PMTC,631
+Dust 4 on model surface,DUST4_ON_HYBRID_LVL,PMTC,632
+Dust 5 on model surface,DUST5_ON_HYBRID_LVL,PMTC,633
+Seasalt 1 on model surface,SEASALT1_ON_HYBRID_LVL,PMTF,634
+Seasalt 2 on model surface,SEASALT2_ON_HYBRID_LVL,PMTF,635
+Seasalt 3 on model surface,SEASALT3_ON_HYBRID_LVL,PMTC,636
+Seasalt 4 on model surface,SEASALT4_ON_HYBRID_LVL,PMTC,637
+Seasalt 5 on model surface,SEASALT5_ON_HYBRID_LVL,PMTC,638
+SO4 on model surface,SO4_ON_HYBRID_LVL,PMTF,639
+Hydrophobic organic carbon on model surface,OCPHOBIC_ON_HYBRID_LVL,PMTF,640
+Hydrophilic organic carbon on model surface,OCPHILIC_ON_HYBRID_LVL,PMTF,641
+Hydrophobic black carbon on model surface,BCPHOBIC_ON_HYBRID_LVL,PMTF,642
+Hydrophilic black carbon on model surface,BCPHILIC_ON_HYBRID_LVL,PMTF,643
+Air density on model surface,AIR_DENSITY_ON_HYBRID_LVL,DEN,644
+Layer thickness on model surface,LAYER_THICKNESS_ON_HYBRID_LVL,THICK,645
 Dust particulate matter (PM) 2.5 column integrated mass density,DUST_COL_MASS_DEN,COLMD,646
 Sea salt particulate matter (PM) 2.5 column integrated mass density,SEAS_COL_MASS_DEN,COLMD,647
-**Aerosol single scattering albedo at 340 nm**,SINGLE_SCAT_ALBD_at340,SSALBK,648
-**Aersol asymmetry factor at 340nm**,AER_ASYM_FACTOR_at340,ASYSFK,649
-**Total aerosol scattering optical depth at 550nm**,AER_SCAT_OPT_DEP_at550,SCTAOTK,650
-**Dust aerosol scattering optical depth at 550nm**,DUST_AER_SCAT_OPT_DEP_at550,SCTAOTK,651
-**Seasalt aerosol scattering optical depth at 550nm**,SEASALT_AER_SCAT_OPT_DEP_at550,SCTAOTK,652
-**Sulfate aerosol scattering optical depth at 550nm**,SULFATE_AER_SCAT_OPT_DEP_at550,SCTAOTK,653
-**Organic carbon aerosol scattering optical depth at 550nm**,ORGANIC_CARBON_AER_SCAT_OPT_DEP_at550,SCTAOTK,654
-**Black carbon aerosol scattering optical depth at 550nm**,BLACK_CARBON_AER_SCAT_OPT_DEP_at550,SCTAOTK,655
-**Angstrom exponent**,ANGSTROM_EXP_at440_860,ANGSTEXP,656
+Aerosol single scattering albedo at 340 nm,SINGLE_SCAT_ALBD_at340,SSALBK,648
+Aersol asymmetry factor at 340nm,AER_ASYM_FACTOR_at340,ASYSFK,649
+Total aerosol scattering optical depth at 550nm,AER_SCAT_OPT_DEP_at550,SCTAOTK,650
+Dust aerosol scattering optical depth at 550nm,DUST_AER_SCAT_OPT_DEP_at550,SCTAOTK,651
+Seasalt aerosol scattering optical depth at 550nm,SEASALT_AER_SCAT_OPT_DEP_at550,SCTAOTK,652
+Sulfate aerosol scattering optical depth at 550nm,SULFATE_AER_SCAT_OPT_DEP_at550,SCTAOTK,653
+Organic carbon aerosol scattering optical depth at 550nm,ORGANIC_CARBON_AER_SCAT_OPT_DEP_at550,SCTAOTK,654
+Black carbon aerosol scattering optical depth at 550nm,BLACK_CARBON_AER_SCAT_OPT_DEP_at550,SCTAOTK,655
+Angstrom exponent,ANGSTROM_EXP_at440_860,ANGSTEXP,656
 NO3 column integrated mass density,NO3_COL_MASS_DEN,COLMD,657
 NH4 column integrated mass density,NH4_COL_MASS_DEN,COLMD,658
 Dust emission mass flux,DUST_EMISSION_FLUX,AEMFLX,659
-**Dust sedimentation flux**,DUST_SEDIMENTATION_FLUX,SEDMFLX,660
-**Dust dry deposition flux**,DUST DRY DEPOSITION,DDMFLX,661
-**Dust wet deposition flux**,DUST WET DEPOSITION,WLSMFLX,662
+Dust sedimentation flux,DUST_SEDIMENTATION_FLUX,SEDMFLX,660
+Dust dry deposition flux,DUST DRY DEPOSITION,DDMFLX,661
+Dust wet deposition flux,DUST WET DEPOSITION,WLSMFLX,662
 Seasalt emission mass flux,SEASALT_EMISSION_FLUX,AEMFLX,663
-**Seasalt sedimentation flux**,SEASALT_SEDIMENTATION_FLUX,SEDMFLX,664
-**Seasalt dry deposition flux**,SEASALT_DRY_DEPOSITION_FLUX,DDMFLX,665
-**Seasalt wet deposition flux**,SEASALT_WET_DEPOSITION_FLUX,WLSMFLX,666
+Seasalt sedimentation flux,SEASALT_SEDIMENTATION_FLUX,SEDMFLX,664
+Seasalt dry deposition flux,SEASALT_DRY_DEPOSITION_FLUX,DDMFLX,665
+Seasalt wet deposition flux,SEASALT_WET_DEPOSITION_FLUX,WLSMFLX,666
 Black carbon emission mass flux,BLACK_CARBON_EMISSION_FLUX,AEMFLX,667
-**Black carbon sedimentation flux**,BLACK_CARBON_SEDIMENTATION_FLUX,SEDMFLX,668
-**Black carbon dry deposition flux**,BLACK_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,669
-**Black carbon wet deposition flux**,BLACK_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,670
+Black carbon sedimentation flux,BLACK_CARBON_SEDIMENTATION_FLUX,SEDMFLX,668
+Black carbon dry deposition flux,BLACK_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,669
+Black carbon wet deposition flux,BLACK_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,670
 Organic carbon emission mass flux,ORGANIC_CARBON_EMISSION_FLUX,AEMFLX,671
-**Organic carbon sedimentation flux**,ORGANIC_CARBON_SEDIMENTATION_FLUX,SEDMFLX,672
-**Organic carbon dry deposition flux**,ORGANIC_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,673
-**Organic carbon wet deposition flux**,ORGANIC_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,674
+Organic carbon sedimentation flux,ORGANIC_CARBON_SEDIMENTATION_FLUX,SEDMFLX,672
+Organic carbon dry deposition flux,ORGANIC_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,673
+Organic carbon wet deposition flux,ORGANIC_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,674
 Sulfate emission mass flux,SULFATE_EMISSION_FLUX,AEMFLX,675
-**Sulfate sedimentation flux**,SULFATE_SEDIMENTATION_FLUX,SEDMFLX,676
-**Sulfate dry deposition flux**,SULFATE_DRY_DEPOSITION_FLUX,DDMFLX,677
-**Sulfate wet deposition flux**,SULFATE_WET_DEPOSITION_FLUX,WLSMFLX,678
-**Dust scavenging flux**,DUST_SCAVENGING_FLUX,WDCPMFLX,679
-**Seasalt scavenging flux**,SEASALT_SCAVENGING_FLUX,WDCPMFLX,680
-**Black carbon scavenging flux**,BLACK_CARBON_SCAVENGING_FLUX,WDCPMFLX,681
-**Organic carbon scavenging flux**,ORGANIC_CARBON_SCAVENGING_FLUX,WDCPMFLX,682
-**Seasalt coarse aersol mass density concentration on model surface**,SS_CR_AER_SFC_MASS_CON,MASSDEN,683
-**Seasalt 2.5 mass density concentration on model surface**,SEAS25_SFC_MASS_CON,PMTF,684
-**Dust 10 mass density concentration on model surface**,DUST10_SFC_MASS_CON,PMTC,685
-**Dust 2.5 mass density concentration on model surface**,DUST25_SFC_MASS_CON,PMTF,686
+Sulfate sedimentation flux,SULFATE_SEDIMENTATION_FLUX,SEDMFLX,676
+Sulfate dry deposition flux,SULFATE_DRY_DEPOSITION_FLUX,DDMFLX,677
+Sulfate wet deposition flux,SULFATE_WET_DEPOSITION_FLUX,WLSMFLX,678
+Dust scavenging flux,DUST_SCAVENGING_FLUX,WDCPMFLX,679
+Seasalt scavenging flux,SEASALT_SCAVENGING_FLUX,WDCPMFLX,680
+Black carbon scavenging flux,BLACK_CARBON_SCAVENGING_FLUX,WDCPMFLX,681
+Organic carbon scavenging flux,ORGANIC_CARBON_SCAVENGING_FLUX,WDCPMFLX,682
+Seasalt coarse aersol mass density concentration on model surface,SS_CR_AER_SFC_MASS_CON,MASSDEN,683
+Seasalt 2.5 mass density concentration on model surface,SEAS25_SFC_MASS_CON,PMTF,684
+Dust 10 mass density concentration on model surface,DUST10_SFC_MASS_CON,PMTC,685
+Dust 2.5 mass density concentration on model surface,DUST25_SFC_MASS_CON,PMTF,686
 Nitrate aerosol scattering optical depth at 550nm,NITRATE_AER_SCAT_OPT_DEP_at550,SCTAOTK,687
-**NO3 on model surface**,NO3_ON_HYBRID_LVL,PMTF,688
-**NH4 on model surface**,NH4_ON_HYBRID_LVL,PMTF,689
-**Sulfate aerosol surface mass density concentration**,SU_AER_SFC_MASS_CON,MASSDEN,689
-**Instantaneous sulfate aerosol surface mass concentration**,INST_SU_AER_SFC_MASS_CON,MASSDEN,690
-**Instantaneous organic carbon aerosol surface mass concentration**,INST_OC_AER_SFC_MASS_CON,MASSDEN,691
-**Instantaneous black carbon aerosol surface mass concentration**,INST_BC_AER_SFC_MASS_CON,MASSDEN,692
-**Instantaneous coarse dust aerosol surface mass concentration**,INST_DU_CR_AER_SFC_MASS_CON,MASSDEN,693
-**Instantaneous fine dust aerosol surface mass concentration**,INST_DU_FN_AER_SFC_MASS_CON,MASSDEN,694
-**Instantaneous coarse seasalt aerosol surface mass concentration**,INST_SS_CR_AER_SFC_MASS_CON,MASSDEN,695
-**Instantaneous fine seasalt aerosol surface mass concentration**,INST_SS_FN_AER_SFC_MASS_CON,MASSDEN,696
-**Instantaneous coarse aerosol surface mass concentration**,INST_CR_AER_SFC_MASS_CON,MASSDEN,697
-**Instantaneous fine aerosol surface mass concentration**,INST_FN_AER_SFC_MASS_CON,MASSDEN,698
-**Mie-based aerosol optical depth at 550nm**,MIE_OPT_DEP_at550,AOTK,699
+NO3 on model surface,NO3_ON_HYBRID_LVL,PMTF,688
+NH4 on model surface,NH4_ON_HYBRID_LVL,PMTF,689
+Sulfate aerosol surface mass density concentration,SU_AER_SFC_MASS_CON,MASSDEN,689
+Instantaneous sulfate aerosol surface mass concentration,INST_SU_AER_SFC_MASS_CON,MASSDEN,690
+Instantaneous organic carbon aerosol surface mass concentration,INST_OC_AER_SFC_MASS_CON,MASSDEN,691
+Instantaneous black carbon aerosol surface mass concentration,INST_BC_AER_SFC_MASS_CON,MASSDEN,692
+Instantaneous coarse dust aerosol surface mass concentration,INST_DU_CR_AER_SFC_MASS_CON,MASSDEN,693
+Instantaneous fine dust aerosol surface mass concentration,INST_DU_FN_AER_SFC_MASS_CON,MASSDEN,694
+Instantaneous coarse seasalt aerosol surface mass concentration,INST_SS_CR_AER_SFC_MASS_CON,MASSDEN,695
+Instantaneous fine seasalt aerosol surface mass concentration,INST_SS_FN_AER_SFC_MASS_CON,MASSDEN,696
+Instantaneous coarse aerosol surface mass concentration,INST_CR_AER_SFC_MASS_CON,MASSDEN,697
+Instantaneous fine aerosol surface mass concentration,INST_FN_AER_SFC_MASS_CON,MASSDEN,698
+Mie-based aerosol optical depth at 550nm,MIE_OPT_DEP_at550,AOTK,699
 **GSD Max updraft helicity at 1-6 km layer above ground**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MXUPHL,700
 **GSD updraft helicity at 1-6 km layer above ground**,GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,UPHL,701
 **GSD Max lightning threat 1**,GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND,LTNGSD,702
