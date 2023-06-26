@@ -79,8 +79,8 @@ Lifted index—from boundary layer,PLI_ON_SPEC_PRES_ABOVE_GRND,PLI,75
 Surface CAPE,CAPE_ON_SURFACE,CAPE,32
 Surface CIN,CIN_ON_SURFACE,CIN,107
 Column integrated precipitable water,PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,PWAT,80
-**Relative humidity on sigma levels 0.66-1.0**,RH_ON_SIGMA_LVL_0.66-1.0,RH,81
-**Relative humidity on sigma levels 0.33-0.66**,RH_ON_SIGMA_LVL_0.33-0.66,RH,82
+Relative humidity on sigma layer (0.66-1.0 mean),RH_ON_SIGMA_LVL_0.66-1.0,RH,81
+Relative humidity on sigma layer (0.33-0.66 mean),RH_ON_SIGMA_LVL_0.33-0.66,RH,82
 Column integrated cloud water,TCOLW_ON_ENTIRE_ATMOS,TCOLW,200
 Column integrated cloud ice,TCOLI_ON_ENTIRE_ATMOS,TCOLI,201
 Column integrated rain,TCOLR_ON_ENTIRE_ATMOS,TCOLR,202
@@ -167,7 +167,7 @@ V wind at flight levels,VGRD_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,VGRD,61
 Freezing level height (above mean sea level),HGT_ON_0C_ISOTHERM,HGT,62
 Freezing level RH,RH_ON_0C_ISOTHERM,RH,63
 Highest freezing level height,HGT_ON_HGHST_TROP_FRZ_LVL,HGT,165
-**Relative humidity on sigma levels 0.33-1.0**,RH_ON_SIGMA_LVL_0.33-1.0,RH,66
+Relative humidity on sigma layer (0.33-1.0 mean),RH_ON_SIGMA_LVL_0.33-1.0,RH,66
 Pressure in boundary layer (30 mb mean),PRES_ON_SPEC_PRES_ABOVE_GRND,PRES,67
 Temperature in boundary layer (30 mb mean),TMP_ON_SPEC_PRES_ABOVE_GRND,TMP,68
 Potential temperature in boundary layers (30 mb mean),POT_ON_SPEC_PRES_ABOVE_GRND,POT,69
@@ -187,12 +187,12 @@ Omega in boundary layer (30 mb mean),VVEL_ON_SPEC_PRES_ABOVE_GRND,VVEL,90
 **V-wind on sigma level 0.98230**,VGRD_ON_SIGMA_LVL_0.98230,VGRD,96
 **Temperature on sigma level 0.89671**,TMP_ON_SIGMA_LVL_0.89671,TMP,97
 **Temperature on sigma level 0.78483**,TMP_ON_SIGMA_LVL_0.78483,TMP,98
-**Relative humidity on sigma level 0.47_1.0**,RH_ON_SIGMA_LVL_0.47_1.0,RH,99
-**Relative humidity on sigma level 0.47_0.96**,RH_ON_SIGMA_LVL_0.47_0.96,RH,100
-**Relative humidity on sigma level 0.18_0.47**,RH_ON_SIGMA_LVL_0.18_0.47,RH,101
-**Relative humidity on sigma level 0.84_0.98**,RH_ON_SIGMA_LVL_0.84_0.98,RH,102
-**Moisture convergence on sigma level 0.85_1.0**,MCONV_ON_SIGMA_LVL_0.85_1.0,MCONV,103
-**Precipitable water on sigma level 0.33_1.0**,PWAT_ON_SIGMA_LVL_0.33_1.0,PWAT,104
+Relative humidity on sigma layer (0.47_1.0* mean)RH_ON_SIGMA_LVL_0.47_1.0,RH,99
+Relative humidity on sigma layer (0.47_0.96 mean),RH_ON_SIGMA_LVL_0.47_0.96,RH,100
+Relative humidity on sigma layer (0.18_0.47 mean),RH_ON_SIGMA_LVL_0.18_0.47,RH,101
+Relative humidity on sigma layer (0.84_0.98 mean),RH_ON_SIGMA_LVL_0.84_0.98,RH,102
+Moisture convergence on sigma layer (0.85_1.0 mean),MCONV_ON_SIGMA_LVL_0.85_1.0,MCONV,103
+Precipitable water on sigma layer (0.33_1.0 mean),PWAT_ON_SIGMA_LVL_0.33_1.0,PWAT,104
 Visibility,VIS_ON_SURFACE,VIS,180
 Vegetation type,VGTYP_ON_SURFACE,VGTYP,218
 Soil type,SOTYP_ON_SURFACE,SOTYP,219
