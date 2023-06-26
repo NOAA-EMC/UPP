@@ -370,7 +370,7 @@ Mass weighted potential vorticity on pressure surface,PVMW_ON_ISOBARIC_SFC,PVMW,
 **Vertical diffusion meridional acceleration on pressure surface**,VDFVA_ON_ISOBARIC_SFC,VDFVA,372
 **Gravity wave drag meridional acceleration on pressure surface**,GWDV_ON_ISOBARIC_SFC,GWDV,373
 **Convective meridional momentum mixing acceleration on pressure surface**,CNVV_ON_ISOBARIC_SFC,CNVV,374
-**Non-Convective Cloud Cover % on pressure surface**,CDLYR_ON_ISOBARIC_SFC,CDLYR,375
+Non-Convective Cloud Cover % on pressure surface,CDLYR_ON_ISOBARIC_SFC,CDLYR,375
 Simulated GOES 12 channel 3 brightness count,SBC123_ON_TOP_OF_ATMOS,SBC123,376
 Simulated GOES 12 channel 4 brightness count,SBC124_ON_TOP_OF_ATMOS,SBC124,377
 Omega on theta surface,VVEL_ON_ISENTROPIC_LVL,VVEL,378
@@ -423,7 +423,7 @@ Maximum downdraft vertical velocity,MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa,MAXDV
 Mean vertical velocity,AVE_DZDT_ON_SIGMA_LVL_0.5-0.8,DZDT,425
 Radar echo top in KDT,HGT_ON_SPEC_HGT_LVL_ABOVE_GRND,HGT,426
 Updraft helicity,UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MXUPHL,427
-**Total column graupel**,TCOLG_ON_ENTIRE_ATMOS,TCOLG,428
+Total column integrated graupel,TCOLG_ON_ENTIRE_ATMOS,TCOLG,428
 Column integrated maximum graupel,MAXVIG_ON_ENTIRE_ATMOS_SINGLE_LYR,TCOLG,429
 U-component of 0-1km level wind shear,VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,VUCSH,430
 V-component of 0-1km level wind shear,VVCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,VVCSH,431
@@ -459,21 +459,21 @@ Simulated GOES 11 channel 2 brightness temperature with satellite angle correcti
 Simulated GOES 11 channel 3 brightness temperature with satellite angle correction,SBT113_ON_TOP_OF_ATMOS,SBT113,461
 Simulated GOES 11 channel 4 brightness temperature with satellite angle correction,SBT114_ON_TOP_OF_ATMOS,SBT114,462
 Simulated GOES 11 channel 5 brightness temperature with satellite angle correction,SBT115_ON_TOP_OF_ATMOS,SBT115,463
-**GTG EDR turbulence on pressure surface**,EDPARM_ON_ISOBARIC_SFC,EDPARM,464
-**GTG CAT turbulence on pressure surface**,CAT_ON_ISOBARIC_SFC,CATEDR,465
-**GTG MWT turbulence on pressure surface**,MWTURB_ON_ISOBARIC_SFC,MWTURB,466
-**GTG EDR turbulence at specific altitude above mean sea level**,EDPARM_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,EDPARM,467
-**GTG CAT turbulence at specific altitude above mean sea level**,CAT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,CATEDR,468
-**GTG MWT turbulence at specific altitude above mean sea level**,MWTURB_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,MWTURB,469
-**GTG EDR turbulence on model surface**,EDPARM_ON_HYBRID_LVL,EDPARM,470
-**GTG CAT turbulence on model surface**,CAT_ON_HYBRID_LVL,CATEDR,471
-**GTG MWT turbulence on model surface**,MWTURB_ON_HYBRID_LVL,MWTURB,472
+GTG eddy dissipation parameter (EDR) on pressure surface,EDPARM_ON_ISOBARIC_SFC,EDPARM,464
+GTG clean air turbulence (CAT) on pressure surface,CAT_ON_ISOBARIC_SFC,CATEDR,465
+GTG mountain wave turbulence (MWT) on pressure surface,MWTURB_ON_ISOBARIC_SFC,MWTURB,466
+GTG eddy dissipation parameter (EDR) at specific altitude above mean sea level,EDPARM_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,EDPARM,467
+GTG clean air turbulence (CAT) at specific altitude above mean sea level,CAT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,CATEDR,468
+GTG mountain wave turbulence (MWT) at specific altitude above mean sea level,MWTURB_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,MWTURB,469
+GTG eddy dissipation parameter (EDR) on model surface,EDPARM_ON_HYBRID_LVL,EDPARM,470
+GTG clean air turbulence (CAT) on model surface,CAT_ON_HYBRID_LVL,CATEDR,471
+GTG mountain wave turbulence (MWT) on model surface,MWTURB_ON_HYBRID_LVL,MWTURB,472
 **Horizontal extent of cumulonimbus (CB) %**,CBHE_ON_ENTIRE_ATMOS,CBHE,473
-**Height of base of cumulonimbus**,ICAHT_ON_CB_BASE,ICAHT,474
-**Height of top of cumulonimbus**,ICAHT_ON_CB_TOP,ICAHT,475
-**GTG EDR turbulence on standard atmospheric isobaric levels**,EDPARM_GTG_ON_ICAO_STD_SFC,EDPARM,476
-**GTG CAT turbulence on standard atmospheric isobaric levels**,CAT_GTG_ON_ICAO_STD_SFC,CATEDR,477
-**GTG MWT turbulence on standard atmospheric isobaric levels**,MWTURB_GTG_ON_ICAO_STD_SFC,MWTURB,478
+Standard atmosphere reference height of base of cumulonimbus,ICAHT_ON_CB_BASE,ICAHT,474
+Standard atmosphere reference height of top of cumulonimbus,ICAHT_ON_CB_TOP,ICAHT,475
+GTG eddy dissipation parameter (EDR) on standard atmospheric isobaric levels,EDPARM_GTG_ON_ICAO_STD_SFC,EDPARM,476
+GTG clean air turbulence (CAT) on standard atmospheric isobaric levels,CAT_GTG_ON_ICAO_STD_SFC,CATEDR,477
+GTG mountain wave turbulence (MWT) on standard atmospheric isobaric levels,MWTURB_GTG_ON_ICAO_STD_SFC,MWTURB,478
 **Icing severity on standard atmospheric isobaric levels**,ICESEV_ON_ICAO_STD_SFC,ICESEV,479
 **GFIP in-flight icing severity on pressure surface**,ICESEV_ON_ISOBARIC_SFC,ICESEV,480
 **Total icing potential diagnostic on standard atmospheric isobaric surface**,ICIP_ON_ICAO_STD_SFC,ICIP,481
@@ -508,7 +508,7 @@ Maximum V-component wind at 10m,MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,5
 **Minimum specific humidity at 2m**,MIN_QMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,QMIN,511
 **Aerodynamic conductance on surface**,ACOND_ON_SURFACE,ACOND,512
 **Canopy water evaporation on surface**,AVE_EVCW_ON_SURFACE,EVCW,513
-**Direct surface evaporation from bare soil**,AVE_EVBS_ON_SURFACE,EVBS,514
+Direct evaporation from bare soil on surface,AVE_EVBS_ON_SURFACE,EVBS,514
 **Transpiration on surface**,AVE_TRANS_ON_SURFACE,TRANS,515
 **Sublimation on surface**,AVE_SBSNO_ON_SURFACE,SBSNO,516
 **Potential evaporation rate on surface**,AVE_PEVPR_ON_SURFACE,PEVPR,517
@@ -519,7 +519,7 @@ Maximum V-component wind at 10m,MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,5
 **Bucket total precipitation on surface**,BUCKET1_APCP_ON_SURFACE,APCP,526
 **Bucket convective precipitation on surface**,BUCKET1_ACPCP_ON_SURFACE,ACPCP,527
 **Bucket large scale precipitation on surface**,BUCKET1_NCPCP_ON_SURFACE,NCPCP,528
-**Bucket snow precipitation on surface**,BUCKET1_WEASD_ON_SURFACE,WEASD,529
+Bucket water equivalent accumulated snow depth on surface,BUCKET1_WEASD_ON_SURFACE,WEASD,529
 **Bucket graupel precipitation on surface**,BUCKET1_GRAUPEL_ON_SURFACE,FROZR,530
 **Simulated Brightness Temperature for ABI GOES-18 Band-7**,SBTA187_ON_TOP_OF_ATMOS,SBTA187,531
 **Simulated Brightness Temperature for ABI GOES-18 Band-8**,SBTA188_ON_TOP_OF_ATMOS,SBTA188,532
@@ -534,7 +534,7 @@ Maximum V-component wind at 10m,MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,5
 **GSD shelter level potential temperature**,GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,POT,546
 **GSD shelter level dewpoint depression**,GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,DEPR,547
 **GSD shelter level surface equivalent potential temperature**,GSD_EPOT_ON_SURFACE,EPOT,548
-**Foundation temperature**,FDNSSTMP_ON_SURFACE,FDNSSTMP,549
+Foundation sea surface temperature on surface,FDNSSTMP_ON_SURFACE,FDNSSTMP,549
 **Categorical snow on surface**,CSNOW_ON_SURFACE,CSNOW,551
 **Categorical ice pellets on surface**,CICEP_ON_SURFACE,CICEP,552
 **Categorical freezing rain on surface**,CFRZR_ON_SURFACE,CFRZR,553
@@ -550,8 +550,8 @@ Maximum V-component wind at 10m,MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,5
 **Best boundary layer CAPE**,BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND,CAPE,566
 **Best boundary layer CIN**,BEST_CIN_ON_SPEC_PRES_ABOVE_GRND,CIN,567
 **GFS sea level pressure**,GFS_PRES_ON_MEAN_SEA_LVL,PRES,568
-**GFS average total cloud fraction**,GFS_AVE_TCDC_ON_CONVECTIVE_CLOUD_LYR,TCDC,569
-**GFS total cloud fraction**,GFS_TCDC_ON_CONVECTIVE_CLOUD_LYR,TCDC,570
+GFS average convective cloud fraction,GFS_AVE_TCDC_ON_CONVECTIVE_CLOUD_LYR,TCDC,569
+GFS convective cloud fraction,GFS_TCDC_ON_CONVECTIVE_CLOUD_LYR,TCDC,570
 GFS Soil temperature at the bottom of soil layers,GFS_TMP_ON_DEPTH_BEL_LAND_SFC_3m,TMP,571
 **GFS lifted index on surface**,GFS_LFTX_ON_SURFACE,LFTX,572
 **GFS lifted index on surface - best**,GFS_4LFTX_ON_SURFACE,4LFTX,573
@@ -576,7 +576,7 @@ Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
 **GFS 2D sulfate aerosol optical depth at 550 nm**,SULFATE_AER_OPT_GFS_at550,AOTK,603
 **GFS 2D organic carbon aerosol optical depth at 550 nm**,ORGANIC_CARBON_AER_OPT_GFS_at550,AOTK,604
 **GFS 2D black carbon aerosol optical depth at 550 nm**,BLACK_CARBON_AER_OPT_GFS_at550,AOTK,605
-**Aerosol extinction coefficient on model surface**,AECOEF_ON_HYBRID_LVL,AECOFF,606
+Aerosol extinction coefficient on model surface,AECOEF_ON_HYBRID_LVL,AECOEF,606
 **Asymmetry factor on model surface**,ASYSFK_ON_HYBRID_LVL,ASYSFK,607
 **Single scattering albedo on model surface**,SSALBK_ON_HYBRID_LVL,SSALBK,608
 **Aerosol optical depth at 550nm**,AER_OPT_DEP_at550,AOTK,609
@@ -586,13 +586,13 @@ Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
 **Organic carbon aerosol optical depth at 550nm**,ORGANIC_CARBON_AER_OPT_DEP_at550,AOTK,613
 **Black carbon aerosol optical depth at 550nm**,BLACK_CARBON_AER_OPT_DEP_at550,AOTK,614
 **Nitrate aerosol optical depth at 550nm**,NITRATE_AER_OPT_DEP_at550,AOTK,615
-**Black carbon column mass density**,BC_COL_MASS_DEN,COLMD,616
-**Organic carbon column mass density**,OC_COL_MASS_DEN,COLMD,617
-**Sulfate column mass density**,SULF_COL_MASS_DEN,COLMD,618
-**Aerosol surface PM10 mass concentration (ug/m3)**,PM10_SFC_MASS_CON,PMTC,619
-**Aerosol surface PM2.5 mass concentration (ug/m3)**,PM25_SFC_MASS_CON,PMTF,620
-**Total aerosol PM10 column mass density**,PM10_COL_MASS_DEN,COLMD,621
-**Total aerosol (PM2.5) column mass density**,PM25_COL_MASS_DEN,COLMD,622
+Black carbon column integrated mass density,BC_COL_MASS_DEN,COLMD,616
+Organic carbon column integrated mass density,OC_COL_MASS_DEN,COLMD,617
+Sulfate column integrated mass density,SULF_COL_MASS_DEN,COLMD,618
+Aerosol surface particulate matter (PM) 10 mass concentration (ug/m3),PM10_SFC_MASS_CON,PMTC,619
+Aerosol surface particulate matter (PM) 2.5 mass concentration (ug/m3),PM25_SFC_MASS_CON,PMTF,620
+Total aerosol particulate matter (PM) 10 column integrated mass density,PM10_COL_MASS_DEN,COLMD,621
+Total aerosol particulate matter (PM) 2.5 column integrated mass density,PM25_COL_MASS_DEN,COLMD,622
 **Aerosol optical depth at 340nm**,AER_OPT_DEP_at340,AOTK,623
 **Aerosol optical depth at 440nm**,AER_OPT_DEP_at440,AOTK,624
 **Aerosol optical depth at 660nm**,AER_OPT_DEP_at660,AOTK,625
@@ -616,8 +616,8 @@ Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
 **Hydrophilic black carbon on model surface**,BCPHILIC_ON_HYBRID_LVL,PMTF,643
 **Air density on model surface**,AIR_DENSITY_ON_HYBRID_LVL,DEN,644
 **Layer thickness on model surface**,LAYER_THICKNESS_ON_HYBRID_LVL,THICK,645
-**Dust PM2.5 column mass density**,DUST_COL_MASS_DEN,COLMD,646
-**Sea salt PM2.5 column mass density**,SEAS_COL_MASS_DEN,COLMD,647
+Dust particulate matter (PM) 2.5 column integrated mass density,DUST_COL_MASS_DEN,COLMD,646
+Sea salt particulate matter (PM) 2.5 column integrated mass density,SEAS_COL_MASS_DEN,COLMD,647
 **Aerosol single scattering albedo at 340 nm**,SINGLE_SCAT_ALBD_at340,SSALBK,648
 **Aersol asymmetry factor at 340nm**,AER_ASYM_FACTOR_at340,ASYSFK,649
 **Total aerosol scattering optical depth at 550nm**,AER_SCAT_OPT_DEP_at550,SCTAOTK,650
@@ -627,25 +627,25 @@ Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
 **Organic carbon aerosol scattering optical depth at 550nm**,ORGANIC_CARBON_AER_SCAT_OPT_DEP_at550,SCTAOTK,654
 **Black carbon aerosol scattering optical depth at 550nm**,BLACK_CARBON_AER_SCAT_OPT_DEP_at550,SCTAOTK,655
 **Angstrom exponent**,ANGSTROM_EXP_at440_860,ANGSTEXP,656
-**NO3 column mass density**,NO3_COL_MASS_DEN,COLMD,657
-**NH4 column mass density**,NH4_COL_MASS_DEN,COLMD,658
-**Dust emission flux**,DUST_EMISSION_FLUX,AEMFLX,659
+NO3 column integrated mass density,NO3_COL_MASS_DEN,COLMD,657
+NH4 column integrated mass density,NH4_COL_MASS_DEN,COLMD,658
+Dust emission mass flux,DUST_EMISSION_FLUX,AEMFLX,659
 **Dust sedimentation flux**,DUST_SEDIMENTATION_FLUX,SEDMFLX,660
 **Dust dry deposition flux**,DUST DRY DEPOSITION,DDMFLX,661
 **Dust wet deposition flux**,DUST WET DEPOSITION,WLSMFLX,662
-**Seasalt emission flux**,SEASALT_EMISSION_FLUX,AEMFLX,663
+Seasalt emission mass flux,SEASALT_EMISSION_FLUX,AEMFLX,663
 **Seasalt sedimentation flux**,SEASALT_SEDIMENTATION_FLUX,SEDMFLX,664
 **Seasalt dry deposition flux**,SEASALT_DRY_DEPOSITION_FLUX,DDMFLX,665
 **Seasalt wet deposition flux**,SEASALT_WET_DEPOSITION_FLUX,WLSMFLX,666
-**Black carbon emission flux**,BLACK_CARBON_EMISSION_FLUX,AEMFLX,667
+Black carbon emission mass flux,BLACK_CARBON_EMISSION_FLUX,AEMFLX,667
 **Black carbon sedimentation flux**,BLACK_CARBON_SEDIMENTATION_FLUX,SEDMFLX,668
 **Black carbon dry deposition flux**,BLACK_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,669
 **Black carbon wet deposition flux**,BLACK_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,670
-**Organic carbon emission flux**,ORGANIC_CARBON_EMISSION_FLUX,AEMFLX,671
+Organic carbon emission mass flux,ORGANIC_CARBON_EMISSION_FLUX,AEMFLX,671
 **Organic carbon sedimentation flux**,ORGANIC_CARBON_SEDIMENTATION_FLUX,SEDMFLX,672
 **Organic carbon dry deposition flux**,ORGANIC_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,673
 **Organic carbon wet deposition flux**,ORGANIC_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,674
-**Sulfate emission flux**,SULFATE_EMISSION_FLUX,AEMFLX,675
+Sulfate emission mass flux,SULFATE_EMISSION_FLUX,AEMFLX,675
 **Sulfate sedimentation flux**,SULFATE_SEDIMENTATION_FLUX,SEDMFLX,676
 **Sulfate dry deposition flux**,SULFATE_DRY_DEPOSITION_FLUX,DDMFLX,677
 **Sulfate wet deposition flux**,SULFATE_WET_DEPOSITION_FLUX,WLSMFLX,678
@@ -657,7 +657,7 @@ Column integrated cloud water,CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR,CWAT,575
 **Seasalt 2.5 mass density concentration on model surface**,SEAS25_SFC_MASS_CON,PMTF,684
 **Dust 10 mass density concentration on model surface**,DUST10_SFC_MASS_CON,PMTC,685
 **Dust 2.5 mass density concentration on model surface**,DUST25_SFC_MASS_CON,PMTF,686
-**Nitrate aerosol scattering optimal depth at 550nm**,NITRATE_AER_SCAT_OPT_DEP_at550,SCTAOTK,687
+Nitrate aerosol scattering optical depth at 550nm,NITRATE_AER_SCAT_OPT_DEP_at550,SCTAOTK,687
 **NO3 on model surface**,NO3_ON_HYBRID_LVL,PMTF,688
 **NH4 on model surface**,NH4_ON_HYBRID_LVL,PMTF,689
 **Sulfate aerosol surface mass density concentration**,SU_AER_SFC_MASS_CON,MASSDEN,689
