@@ -42,6 +42,7 @@
 !> 2023-03-22 | S Trahan   | Fixed out-of-bounds access calling BOUND with wrong array dimensions
 !> 2023-04-21 | E James    | Enabling GSL precip type for RRFS
 !> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
+!> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -5137,9 +5138,11 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
-               totprcp = (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600./DTQ2)
+!-- RAP/HRRR and RRFS use 1-h bucket. GFS uses 3-h bucket
+!-- so this section will need to be revised for GFS
+               totprcp = (AVGPREC(I,J)*3600.*1000./DTQ2)
                snowratio = 0.0
-               if(graup_bucket(i,j)*1.e-3 > totprcp)then
+               if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j
                  print *,'totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket',&
                           totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket(i,j)
@@ -5251,9 +5254,9 @@
            ENDDO
 
 
-        write (6,*)' Snow/rain ratio'
-        write (6,*)' max/min 1h-SNOWFALL in [cm]',   &
-              maxval(snow_bucket)*0.1,minval(snow_bucket)*0.1
+        !write (6,*)' Snow/rain ratio'
+        !write (6,*)' max/min 1h-SNOWFALL in [cm]',   &
+        !      maxval(snow_bucket)*0.1,minval(snow_bucket)*0.1
 
         DO J=JSTA,JEND
         DO I=ISTA,IEND
@@ -5266,10 +5269,10 @@
         end do
         end do
 
-        write (6,*) 'Snow ratio point counts'
-           do icat=1,10
-        write (6,*) icat, cnt_snowratio(icat)
-           end do
+        !write (6,*) 'Snow ratio point counts'
+        !   do icat=1,10
+        !write (6,*) icat, cnt_snowratio(icat)
+        !   end do
 
         icnt_snow_rain_mixed = 0
         DO J=JSTA,JEND
@@ -5280,8 +5283,8 @@
           end do
         end do
 
-        write (6,*) 'No. of mixed snow/rain p-type diagnosed=',   &
-            icnt_snow_rain_mixed
+        !write (6,*) 'No. of mixed snow/rain p-type diagnosed=',   &
+        !    icnt_snow_rain_mixed
 
 
 !     SNOW.
@@ -6713,7 +6716,7 @@
 
       use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,GRIB,   &
                             MODELNAME,JM,CFLD,DATAPD,FLD_INFO,JSTA_2L,JEND_2U,&
-                            ISTA,IEND,ISTA_2L,IEND_2U
+                            ISTA,IEND,ISTA_2L,IEND_2U,ME
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use grib2_module, only: read_grib2_head, read_grib2_sngle
       use vrbls2d, only: AVGPREC, AVGPREC_CONT
@@ -6749,7 +6752,7 @@
          ntot = nx*ny
          call read_grib2_sngle(compfile,ntot,height,mscValue)
       else
-         write(*,*) 'WARNING: FFG file not available for hour: ', fcst
+         if(me==0)write(*,*) 'WARNING: FFG file not available for hour: ', fcst
       endif
 
 !     Set GRIB variables.

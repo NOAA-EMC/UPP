@@ -52,7 +52,8 @@
 !!   23-02-10  E James - Adding an extra IGET value to if statement for NGMSLP calculation
 !!   23-02-23  E James - Adding coarse PM from RRFS
 !!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
-!!   23-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!!   23-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!!   23-06-26 | W Meng | Output composite radar reflectivity when GFS uses Thompson MP
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -605,7 +606,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ELSE
           IICE = 1
         END IF
-        PRINT*,'IICE= ',IICE
 
 ! Chuang: add convective contribution for all MP schemes
         RDTPHS=3.6E6/DTQ2
@@ -897,7 +897,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        ze_smax = 10.*log10(ze_smax*1.e18)
        ze_gmax = 10.*log10(ze_gmax*1.e18)
 
-       write (6,*) 'dbze_max-r/s/g',ze_rmax,ze_smax,ze_gmax
       ENDIF     !tgs endif for Thompson scheme
 
       END IF
@@ -1750,7 +1749,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
 !     
 !           MOISTURE CONVERGENCE ON MDL SURFACES.
-!           write(*,*)'iget083=',iget(083),' l=',l
             LLL = 0
             if (IGET(083) > 0) LLL = LVLS(L,IGET(083))
             IF (IGET(083)>0 .OR. IGET(295)>0) THEN
@@ -3112,6 +3110,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !NMMB does not have composite radar ref in model output
            IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
               MODELNAME=='NCAR'.or.  MODELNAME=='FV3R' .or. &
+              MODELNAME=='GFS' .or. &
               MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND
@@ -3884,9 +3883,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                        EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
                        UH(I,J,1)<spval)THEN
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
-!       if (I == 50 .and. J == 50) then
-!        write(*,*) 'working with L : ', L
-!       endif
                     HCOUNT      = HCOUNT+1
                     DP          = EGRID6(I,J) - EGRID7(I,J)
                     EGRID1(I,J) = EGRID1(I,J) + UH(I,J,L)*DP
@@ -3971,15 +3967,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                      ELSe
                        EGRID3(I,J) = SPVAL
                      END IF
-
-!         if (mod(I,20) == 0 .and. mod(J,20) == 0) then
-!         write(*,*) 'wind speed ', I,J, EGRID1(I,J)
-!         endif
-
                    ENDDO
                  ENDDO
 
-!        write(*,*) 'min, max of GRID1 (u comp transport wind): ', minval(grid1),maxval(grid1)
                IF(IGET(389) > 0)THEN
                 if(grib=='grib2') then
                   cfld=cfld+1
@@ -4013,7 +4003,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
             IF ( (IGET(454) > 0) ) THEN
 
-!       write(*,*) 'IM is: ', IM
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=ista,iend
@@ -4023,12 +4012,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     else
                       GRID1(I,J) = 0.
                     ENDIF
-
-!       if ( (I >= 15 .and. I <= 17)  .and. J >= 193 .and. J <= 195) then
-!       write(*,*) 'I,J,EGRID1(I,J) (wind speed): ', I,J, EGRID1(I,J)
-!       write(*,*) 'I,J,PBLH: ', I,J, EGRID4(I,J)
-!       write(*,*) 'I,J,GRID1 (ventilation rate): ', I,J, GRID1(I,J)
-!       endif
 
                   ENDDO
                 ENDDO

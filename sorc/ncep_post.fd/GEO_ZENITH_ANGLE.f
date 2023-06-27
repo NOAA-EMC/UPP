@@ -89,8 +89,8 @@
 	ZA = PI - E
 	ZA = ZA * RTD
         ZA=MAX(ZA,0.)
-	if(abs(RLON-360.-SLON)<1. .and. abs(RLAT-30.)<1.)print*,'Debug GEO_ZENITH',  &
-	RLON,RLAT,RES,c1,c2,a,b,c,cosd,pp,p,cose,e,ZA
+	!if(abs(RLON-360.-SLON)<1. .and. abs(RLAT-30.)<1.)print*,'Debug GEO_ZENITH',  &
+	!RLON,RLAT,RES,c1,c2,a,b,c,cosd,pp,p,cose,e,ZA
 
 	RETURN
 	END

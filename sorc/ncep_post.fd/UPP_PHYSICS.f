@@ -1790,8 +1790,6 @@
         ENDDO
       endif
 
-!      print*,'dyval in CALVOR= ',DYVAL 
-  
       CALL EXCH(UWND)
       CALL EXCH(VWND)
 !
@@ -1840,9 +1838,6 @@
 
         call fullpole( cosl(ista_2l:iend_2u,jsta_2l:jend_2u),coslpoles)
         call fullpole(gdlat(ista_2l:iend_2u,jsta_2l:jend_2u),glatpoles)
-
-        if(me==0          ) print*,'CALVOR ',me,glatpoles(ista,1),glatpoles(ista,2)
-        if(me==num_procs-1) print*,'CALVOR ',me,glatpoles(ista,1),glatpoles(ista,2)
 
 !$omp  parallel do private(i,j,ii)
         DO J=JSTA,JEND
@@ -2028,8 +2023,6 @@
                           + F(I,J)
             ENDDO
           END IF
-!          if(ABSV(I,J)>1.0)print*,'Debug CALVOR',i,j,VWND(ip1,J),VWND(im1,J), &
-!          wrk2(i,j),UWND(I,J-1),COSL(I,J-1),UWND(I,J+1),COSL(I,J+1),wrk3(i,j),cosl(i,j),F(I,J),ABSV(I,J)
           if (npass > 0) then
             do i=ista,iend
               tx1(i) = absv(i,j)
@@ -2403,11 +2396,6 @@
               DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
      &                   +  (VWND(I,J-1,l)*COSL(I,J-1)                        &
                          -   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
-!sk06132016
-              if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
-     &           wrk2(i,j),VWND(I,J-1,l),COSL(I,J-1),VWND(I,J+1,l),COSL(I,J+1),         &
-     &           wrk3(i,j),wrk1(i,j),DIV(I,J,l)
-!--
             ENDDO
           ENDIF
         ENDDO                               ! end of J loop
@@ -2430,10 +2418,6 @@
 
         IF(JSTA== 1) DIV(ISTA:IEND, 1,L)=DIVTEMP(ISTA:IEND, 1)
         IF(JEND==JM) DIV(ISTA:IEND,JM,L)=DIVTEMP(ISTA:IEND,JM)
-
-!sk06142016e
-        if(DIV(ista,jsta,l)>1.0)print*,'Debug in CALDIV',jsta,DIV(ista,jsta,l)
-!       print*,'Debug in CALDIV',' jsta= ',jsta,DIV(1,jsta,l)
 
       enddo                        ! end of l looop
 !--
@@ -2663,14 +2647,6 @@
               im1 = iw(i)
               PSX(I,J)   = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
               PSY(I,J)   = (PS(I,J-1)-PS(I,J+1))*wrk3(i,j)/ERAD
-!sk06142016A
-              if(PSX(I,J)>100.0)print*,'Debug in CALGRADPS: PSX',i,j,PS(ip1,J),PS(im1,J), &
-!             print*,'Debug in CALGRADPS',i,j,PS(ip1,J),PS(im1,J), &
-     &           wrk2(i,j),wrk1(i,j),PSX(I,J)
-              if(PSY(I,J)>100.0)print*,'Debug in CALGRADPS: PSY',i,j,PS(i,J-1),PS(i,J+1), &
-!             print*,'Debug in CALGRADPS',i,j,PS(i,J-1),PS(i,J+1), &
-     &           wrk3(i,j),ERAD,PSY(I,J)
-!--
             ENDDO
           END IF
 !
