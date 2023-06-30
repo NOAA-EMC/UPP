@@ -93,7 +93,7 @@
   integer :: ISEC                !< Seconds of file being processed (not parsed from DateStr, hard-coded set to 0).
   integer :: icount_calmict      !< _____. 
   integer :: ivegsrc             !< Flag for vegetation classification source (0=USGS, 1=IGBP, 2=UMD)
-. 
+
 !
 !> @ingroup CTLBLK_mod 
 !> @{
