@@ -33,7 +33,7 @@
 !> @param[in] kpv integer Number of potential vorticity levels.
 !> @param[in] th real Isentropic levels (K).
 !> @param[in] pv real Potential vorticity (PV units).
-!> @param[in] iostatusD3D integer _____.
+!> @param[in] iostatusD3D integer No longer used/supported.
 !> 
       SUBROUTINE PROCESS(kth,kpv,th,pv,iostatusD3D)
 !

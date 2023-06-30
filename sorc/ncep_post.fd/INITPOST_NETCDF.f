@@ -42,8 +42,8 @@
 !> @brief INITPOST_NETCDF() This routine initializes constants and
 !> variables at the start of GFS model or post processor run. 
 !> 
-!> @param[in] ncid2d integer _____.
-!> @param[in] ncid3d integer _____.
+!> @param[in] ncid2d integer netCDF ID of physics model output file.
+!> @param[in] ncid3d integer netCDF ID of dynamics model output file.
 !----------------------------------------------------------------------
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
 
@@ -3763,9 +3763,9 @@
       END
 
 !----------------------------------------------------------------------
-!> @brief read_netcdf_3d_para() _____. 
+!> @brief read_netcdf_3d_para() reads dynamics variables from UFS model output. 
 !> 
-!> @param[in] ncid integer _____.
+!> @param[in] ncid integer netCDF ID.
 !> @param[in] im integer Full longitude domain.
 !> @param[in] jm integer Full latitude domain.
 !> @param[in] ista integer Start longitude latitude on a task subdomain.
@@ -3776,10 +3776,10 @@
 !> @param[in] jsta_2l integer Start latitude -2 of the subdomain.
 !> @param[in] jend integer End latitude on a task subdomain.
 !> @param[in] jend_2u integer End latitude +2 of the subdomain.
-!> @param[in] spval real _____.
-!> @param[in] varname character _____.
-!> @param[out] buf real _____.
-!> @param[in] lm integer _____.
+!> @param[in] spval real Missing value defined in UPP.
+!> @param[in] varname character Variable name in netCDF file.
+!> @param[out] buf real Variable values.
+!> @param[in] lm integer Model levels.
 !----------------------------------------------------------------------
       subroutine read_netcdf_3d_para(ncid,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
                  spval,varname,buf,lm)
@@ -3834,9 +3834,9 @@
       end subroutine read_netcdf_3d_para
 
 !----------------------------------------------------------------------
-!> @brief read_netcdf_2d_para() _____. 
+!> @brief read_netcdf_2d_para() reads physics variables from UFS model output. 
 !> 
-!> @param[in] ncid integer _____.
+!> @param[in] ncid integer netCDF ID.
 !> @param[in] ista integer Start longitude latitude on a task subdomain.
 !> @param[in] ista_2l integer Start longitude -2 of the subdomain.
 !> @param[in] iend integer End longitude on a task subdomain.
@@ -3845,9 +3845,9 @@
 !> @param[in] jsta_2l integer Start latitude -2 of the subdomain.
 !> @param[in] jend integer End latitude on a task subdomain.
 !> @param[in] jend_2u integer End latitude +2 of the subdomain.
-!> @param[in] spval real _____.
-!> @param[in] varname character _____.
-!> @param[out] buf real _____.
+!> @param[in] spval real Missing value defined in UPP.
+!> @param[in] varname character Variable name in netCDF file.
+!> @param[out] buf real Variable values.
 !----------------------------------------------------------------------
 
       subroutine read_netcdf_2d_para(ncid,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &

@@ -41,7 +41,7 @@
 !--------------------------------------------------------------------------------------
 !> MDL2P() computes vertical interpolation of model levels to pressure. 
 !> 
-!> @param[in] iostatusD3D integer _____. 
+!> @param[in] iostatusD3D integer No longer used/supported. 
 !> 
       SUBROUTINE MDL2P(iostatusD3D)
 

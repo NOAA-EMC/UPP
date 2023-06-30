@@ -5834,9 +5834,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       end do
       end subroutine cb_cover
 !------------------------------------------------------------------------------------
-!> @brief wrt_aero_diag _____. 
+!> @brief wrt_aero_diag outputs aerosol field in grib2. 
 !> 
-!> @param igetfld integer UPP field ID number _____. 
+!> @param igetfld integer UPP field ID number. 
 !> @param nbin integer _____. 
 !> @param data real _____. 
 !------------------------------------------------------------------------------------
