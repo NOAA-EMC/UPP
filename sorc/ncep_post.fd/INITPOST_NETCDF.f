@@ -36,6 +36,7 @@
 !> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
 !> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !> 2023-05-31 | Wen Meng      | Bug fix in qrmax initialization
+!> 2023-06-14 | Wen Meng      ! Bug fix of reading seaswtc and modification of sndepac calculation
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -2909,8 +2910,10 @@
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=ista,iend
-          if(buf(i,j)<spval .and. buf2(i,j)<spval) then
-            sndepac(i,j) = buf(i,j) + buf2(i,j)
+          if(buf(i,j)<spval) then
+            sndepac(i,j) = buf(i,j)
+          elseif(buf2(i,j)<spval) then
+            sndepac(i,j) = buf2(i,j)
           else
             sndepac(i,j) = spval
           endif
@@ -3508,10 +3511,10 @@
 ! retrieve seasalt scavenging fluxes
       do K = 1, nbin_ss
        if ( K == 1) VarName='seas1wtc'
-       if ( K == 2) VarName='seas1wtc'
-       if ( K == 3) VarName='seas1wtc'
-       if ( K == 4) VarName='seas1wtc'
-       if ( K == 5) VarName='seas1wtc'
+       if ( K == 2) VarName='seas2wtc'
+       if ( K == 3) VarName='seas3wtc'
+       if ( K == 4) VarName='seas4wtc'
+       if ( K == 5) VarName='seas5wtc'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u,&
       spval,VarName,chem_2d)
       sssv(1:im,jsta_2l:jend_2u,K)=chem_2d(1:im,jsta_2l:jend_2u)

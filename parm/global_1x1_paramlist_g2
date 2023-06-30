@@ -91,6 +91,8 @@ DPT:2 m above ground
 DSWRF:surface
 FLDCP:surface
 FRICV:surface
+FROZR:surface
+FRZR:surface
 GFLUX:surface
 GRLE:50 mb
 GRLE:1000 mb
@@ -535,6 +537,7 @@ TMP:PV=2e-06 (Km^2/kg/s) surface
 TMP:surface
 TMP:tropopause
 TOZNE:entire atmosphere (considered as a single layer)
+TSNOWP:surface
 UFLX:surface
 UGRD:0.995 sigma level
 UGRD:1000 mb
