@@ -2,7 +2,7 @@
 !> @brief initpost_gfs_nems_mpiio() initializes post for run.
 !>
 !> @author Hui-Ya Chuang @date 2007-03-04
-
+!>
 !> This routine initializes constants and
 !> variables at the start of GFS model or post
 !> processor run.
@@ -25,10 +25,16 @@
 !> 2019-07-24 | Li(Kate) Zhang | Merge and update NGAC UPP into FV3-Chem
 !> 2021-03-11 | Bo Cui         | Change local arrays to dimension (im,jsta:jend)
 !> 2022-09-22 | Li(Kate) Zhang | Remove duplicated initializations which have been done in ALLCOCATE_ALL.f
-!> 2023-04-04 |Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
+!> 2023-04-04 | Li(Kate Zhang) | Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !>
 !> @author Hui-Ya Chuang @date 2007-03-04
+!----------------------------------------------------------------------
+!> @brief initializes constants and variables at the start of GFS model
+!> or post processor run.
+!> 
+!> @param[in] iostatusAER integer Status of GFS aer file. 
+!----------------------------------------------------------------------
       SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)
 
 
@@ -4033,6 +4039,15 @@
 
       RETURN
       END
+
+!----------------------------------------------------------------------
+!> @brief rg2gg() No longer used/supported.
+!> 
+!> @param[in] im integer No longer used/supported.
+!> @param[in] jm integer No longer used/supported.
+!> @param[in] numi integer No longer used/supported.
+!> @param[inout] a real No longer used/supported.
+!----------------------------------------------------------------------
       subroutine rg2gg(im,jm,numi,a)
 !
       implicit none
@@ -4052,6 +4067,15 @@
         enddo
       enddo
       end subroutine rg2gg
+
+!----------------------------------------------------------------------
+!> @brief gg2rg() No longer used/supported.
+!> 
+!> @param[in] im integer No longer used/supported.
+!> @param[in] jm integer No longer used/supported.
+!> @param[in] numi integer No longer used/supported.
+!> @param[inout] a real No longer used/supported.
+!----------------------------------------------------------------------
       subroutine gg2rg(im,jm,numi,a)
 !
       implicit none
@@ -4072,6 +4096,17 @@
       enddo
       end subroutine gg2rg
 
+!----------------------------------------------------------------------
+!> @brief uninterpred () No longer used/supported.
+!> 
+!> @param[in] iord integer No longer used/supported.
+!> @param[in] kmsk integer No longer used/supported.
+!> @param[in] lonsperlat integer No longer used/supported.
+!> @param[in] lonr integer No longer used/supported.
+!> @param[in] latr integer No longer used/supported.
+!> @param[in] fi real No longer used/supported.
+!> @param[out] f real No longer used/supported.
+!----------------------------------------------------------------------
       subroutine uninterpred(iord,kmsk,lonsperlat,lonr,latr,fi,f)
 !!
       implicit none
@@ -4092,6 +4127,18 @@
         endif
       enddo
       end subroutine
+
+!----------------------------------------------------------------------
+!> @brief intlon() No longer used/supported.
+!> 
+!> @param[in] iord integer No longer used/supported.
+!> @param[in] imsk integer No longer used/supported.
+!> @param[in] m1 integer No longer used/supported.
+!> @param[in] m2 integer No longer used/supported.
+!> @param[in] k1 integer No longer used/supported.
+!> @param[in] f1 real No longer used/supported.
+!> @param[out] f2 real No longer used/supported.
+!----------------------------------------------------------------------
       subroutine intlon(iord,imsk,m1,m2,k1,f1,f2)
       implicit none
       integer,intent(in) :: iord,imsk,m1,m2

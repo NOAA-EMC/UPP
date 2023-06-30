@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine that post SNDING/CLOUD/RADTN fields.
+!> @brief Subroutine that posts SNDING/CLOUD/RADTN fields.
 !>
 !> This routine computes/posts sounding cloud
 !> related, and radiation fields. Under the heading of
@@ -76,6 +76,10 @@
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
+!---------------------------------------------------------------------------------
+!> @brief CLDRAD Subroutine that computes/posts SOUNDING/CLOUD/RADIATION fields.
+!---------------------------------------------------------------------------------
+
       SUBROUTINE CLDRAD
 
 !
@@ -5829,7 +5833,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       end do
       end do
       end subroutine cb_cover
-
+!------------------------------------------------------------------------------------
+!> @brief wrt_aero_diag outputs aerosol field in grib2. 
+!> 
+!> @param igetfld integer UPP field ID number. 
+!> @param nbin integer _____. 
+!> @param data real _____. 
+!------------------------------------------------------------------------------------
       subroutine wrt_aero_diag(igetfld,nbin,data)
       use ctlblk_mod, only: jsta, jend, SPVAL, im, jm, grib,     &
                   cfld, datapd, fld_info, jsta_2l, jend_2u,ista_2l,iend_2u,ista,iend

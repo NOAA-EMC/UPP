@@ -20,7 +20,10 @@
 !> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
 !> 2023-03-22 | WM Lewis       | Added support for using effective radius arrays from RRFS
 !>
-!> @author Chuang @date 2007-01-17       
+!> @author Chuang @date 2007-01-17
+!---------------------------------------------------------------------------
+!> @brief CALRAD_WCLOUD Subroutine that computes model derived brightness temperature. 
+!---------------------------------------------------------------------------
       SUBROUTINE CALRAD_WCLOUD
 
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &
@@ -2199,6 +2202,28 @@
   return
 end SUBROUTINE CALRAD_WCLOUD
 
+!-------------------------------------------------------------------------------
+!> @brief EFFR Computes effective particle radii channel selection using LVLS from WRF_CNTRL.PARM. 
+!>
+!> @param pmid real Mid-layer pressure.
+!> @param t real Temperature.
+!> @param q real Specific humidity.
+!> @param qqw real Cloud water mixing ratio.
+!> @param qqi real Ice mixing ratio.
+!> @param qqr real Rain mixing ratio.
+!> @param f_rimef real "Rime Factor", ratio of total ice growth to deposition growth.
+!> @param nlice real Time-averaged number concentration of large ice.
+!> @param nrain real Number concentration of rain drops.
+!> @param qqs real Snow mixing ratio.
+!> @param qqg real Graupel mixing ratio.
+!> @param qqnr real Rain number concentration.
+!> @param qqni real Ice number concentration.
+!> @param qqnw real cloud water number concentration.
+!> @param mp_opt integer Microphysics option.
+!> @param species character Particle type (e.g., cloud, rain, graupel, snow, ice).
+!> @return EFFR Effective particle radii channel selection. 
+!-------------------------------------------------------------------------------
+
 REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
                    qqs,qqg,qqnr,qqni,qqnw,mp_opt,species)
 
@@ -2815,6 +2840,13 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
 end function EFFR
 
+!-------------------------------------------------------------------------------
+!> @brief GAMMLN _____.
+!>
+!> @param[in] XX _____.
+!> @return GAMMLN Returns the value of LN(GAMMA(XX)) FOR XX > 0.
+!-------------------------------------------------------------------------------
+
       REAL FUNCTION GAMMLN(XX)
 !     --- RETURNS THE VALUE LN(GAMMA(XX)) FOR XX > 0.
       IMPLICIT NONE
@@ -2838,6 +2870,13 @@ end function EFFR
 11    CONTINUE
       GAMMLN=TMP+LOG(STP*SER/X)
       END FUNCTION GAMMLN
+
+!-------------------------------------------------------------------------------
+!> @brief WGAMMA _____. 
+!>
+!> @param[in] y _____.
+!> @return WGAMMA _____. 
+!-------------------------------------------------------------------------------
 
       REAL FUNCTION WGAMMA(y)
 

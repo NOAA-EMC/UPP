@@ -2,6 +2,9 @@
 !>
 !> @brief This file contains a collection of UPP modules used to calculate icing probability from the model.
 !> 
+!
+!------------------------------------------------------------------------
+!> @class DerivedFields
 !========================================================================
 ! = = = = = = = = = = = = module DerivedFields  = = = = = = = = = = = =
 !========================================================================
@@ -175,10 +178,12 @@ contains
   end function get_tLCL
 
 !-----------------------------------------------------------------------+
-! mixing ratio in g/kg = water vapr/dry air
-! td in K
-! pres in Pa
-!> mixing_ratio() @memberof DerivedFields
+!> @brief mixing_ratio() Calculate the mixing ratio in g/kg = water vapor/dry air.
+!> 
+!> @param[in] td real dew point temperture (K). 
+!> @param[in] pres real Pressure (Pa).
+!> @return mixing_ratio
+!-----------------------------------------------------------------------+
   elemental real function  mixing_ratio(td, pres)
     IMPLICIT NONE
     real, intent(in) :: td, pres
@@ -603,6 +608,8 @@ contains
 
 end module DerivedFields
 
+!------------------------------------------------------------------------
+!> @class CloudLayers
 !========================================================================
 ! = = = = = = = = = = = = = module CloudLayers = = = = = = = = = = = = =
 !========================================================================
@@ -949,7 +956,8 @@ contains
 
 end module cloudlayers
 
-
+!------------------------------------------------------------------------
+!> @class IcingPotential
 !========================================================================
 ! = = = = = = = = = = = = module IcingPotential = = = = = = = = = = = = =
 !========================================================================
@@ -1132,7 +1140,8 @@ contains
 
 end module IcingPotential
 
-
+!------------------------------------------------------------------------
+!> @class SeverityMaps
 !========================================================================
 ! = = = = = = = = = = = = module SeverityMaps = = = = = = = = = = = = =
 !========================================================================
@@ -1581,6 +1590,8 @@ contains
 
 end module SeverityMaps
 
+!------------------------------------------------------------------------
+!> @class IcingSeverity
 !========================================================================
 ! = = = = = = = = = = = = module IcingSeverity = = = = = = = = = = = = =
 !========================================================================
@@ -1611,7 +1622,29 @@ module IcingSeverity
 contains
 
 !-----------------------------------------------------------------------+
-  !> icing_sev @memberof IcingSeverity
+!> @brief icing_sev() calculates icing severity.
+!>
+!> @param[in] imp_physics integer Microphysics scheme. 
+!> @param[in] hgt real Geopotential height (m). 
+!> @param[in] rh real Relative humidity.
+!> @param[in] t real Temperature.
+!> @param[in] pres real Pressure.
+!> @param[in] vv real Vertical velocity. 
+!> @param[in] liqCond real 
+!> @param[in] iceCond real 
+!> @param[in] twp real Total water path. 
+!> @param[in] ice_pot real Icing potential. 
+!> @param[in] nz integer Number of vertical levels. 
+!> @param[in] hcprcp real Hourly accumulated convective precipitation.
+!> @param[in] cape real Convective Available Potential Energy (CAPE)
+!> @param[in] lx real Lifted index.
+!> @param[in] kx real k index.
+!> @param[in] tott real Total totals. 
+!> @param[in] pc real Precipitation condensate. 
+!> @param[in] prcpType integer Surface precipitation type.
+!> @param[in] clouds 
+!> @param[out] iseverity real Category of icing severity.
+!-----------------------------------------------------------------------+
   subroutine icing_sev(imp_physics,hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
        ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, &
        iseverity)

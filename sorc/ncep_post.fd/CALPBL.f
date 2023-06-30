@@ -1,10 +1,10 @@
 !> @file
-!> @brief Subroutine that computes PBL height based on bulk RCH number.
+!> @brief Subroutine that computes PBL height based on bulk Richardson number.
 !>
 !> This routine computes the bulk Richardson number
 !> and PBL height above surface.
 !>     
-!> @param[out] PBLRI PBL height above ground.
+!> @param[inout] PBLRI real PBL height above ground.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -13,6 +13,11 @@
 !> 2021-09-02 | Bo Cui     | Decompose UPP in X direction          
 !>   
 !> @author M Tsidulko @date 2006-05-04
+!-----------------------------------------------------------------------
+!> @brief Subroutine that computes PBL height based on bulk Richardson number.
+!>
+!> @param[inout] PBLRI real PBL height above ground.
+!-----------------------------------------------------------------------
       SUBROUTINE CALPBL(PBLRI)
 
 !
@@ -183,7 +188,7 @@
 !  IF BULK RICHARDSON NUMBER (RIB) EXCEEDS THE CRITICAL RICHARDSON
 !  NUMBER (RICR), DETERMINE ABL HEIGHT USING LINEAR INTERPOLATION
 !  BETWEEN HEIGHTS, AND PREVIOUS (RIBP) AND CURRENT (RIB) BULK
-!  RICHARDSON NUMBERS.  L IS BOUNDARY-LAYER TOP LEVEL NUMBER.
+!  RICHARDSON NUMBERS. L IS BOUNDARY-LAYER TOP LEVEL NUMBER.
 ! --------------------------------------------------------------------
             IF (RIB>=RICR.AND.ICALPBL(I,J)==0) THEN
               PBLRI(I,J) = ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))*      &

@@ -1,21 +1,23 @@
 !> @file
-!
-!> SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
+!>
+!> SUBPROGRAM:    MPI_FIRST   SET UP MESSAGE PASSING INFO
 !!   PRGRMMR: TUCCILLO        ORG: IBM
 !!
 !! ABSTRACT:
 !!     SETS UP MESSAGE PASSING INFO
 !!
-!! PROGRAM HISTORY LOG:
-!!   14-12-01   WM LEWIS: ADDED ADDNL VARIABLES FOR SAT OUTPUT
-!!   00-01-06  TUCCILLO - ORIGINAL
-!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!!   02-06-19  MIKE BALDWIN - WRF VERSION
-!!   11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
-!!   12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
-!!   21-07-07  JESSE MENG - 2D DECOMPOSITION
-!!   22-09-22  Li(Kate) Zhang - Add new aerosols fields for UFS-Aerosols
-!!   23-03-22  WM LEWIS: ADDED EFFRI, EFFRS, EFFRL
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2014-12-01 |  WM LEWIS | ADDED ADDNL VARIABLES FOR SAT OUTPUT
+!> 2000-01-06 | TUCCILLO | ORIGINAL
+!> 2001-10-25 | H CHUANG | MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!> 2002-06-19 | MIKE BALDWIN | WRF VERSION
+!> 2011-12-16 | SARAH LU | MODIFIED TO INITIALIZE AEROSOL FIELDS
+!> 2012-01-07 | SARAH LU | MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
+!> 2021-07-07 | JESSE MENG | 2D DECOMPOSITION
+!> 2022-09-22 | Li(Kate) Zhang | Add new aerosols fields for UFS-Aerosols
+!> 2023-03-22 | WM LEWIS | ADDED EFFRI, EFFRS, EFFRL
 !!
 !! USAGE:    CALL MPI_FIRST
 !!   INPUT ARGUMENT LIST:
@@ -37,6 +39,9 @@
 !!     MACHINE : IBM RS/6000 SP
 !!
 !@PROCESS NOEXTCHK
+!-----------------------------------------------------------------------
+!> @brief MPI_FIRST() Sets up message passing info (MPI).
+!-----------------------------------------------------------------------
       SUBROUTINE MPI_FIRST()
 
 !
@@ -374,6 +379,12 @@
 !             end
 
 
+!----------------------------------------------------------------------
+!> @brief fullpole() _____. 
+!> 
+!> @param[inout] a real _____.
+!> @param[inout] rpoles real _____.
+!----------------------------------------------------------------------
 
       subroutine fullpole(a,rpoles)
 

@@ -17,6 +17,12 @@
 !> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
+!----------------------------------------------------------------------
+!> @brief exch() Subroutine that exchanges one halo row. 
+!> 
+!> @param[inout] A Array to have halos exchanged.
+!> @note As output, A is the array with halos exchanged.
+!----------------------------------------------------------------------
       SUBROUTINE EXCH(A)
 
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&
@@ -414,6 +420,12 @@
 !> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
+!----------------------------------------------------------------------
+!> @brief exch_f() Subroutine that exchanges one halo row. 
+!> 
+!> @param[inout] A Array to have halos exchanged.
+!> @note As output, A is the array with halos exchanged.
+!----------------------------------------------------------------------
       subroutine exch_f(a)
  
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn,    &

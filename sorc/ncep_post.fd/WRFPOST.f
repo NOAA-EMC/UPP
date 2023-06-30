@@ -1,5 +1,6 @@
 !> @file
 !> @brief wrfpost() drives the external wrf post processor.
+!> @return wrfpost 
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -36,6 +37,9 @@
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-05-20 | Rahul Mahajan             | Bug fix for fileNameFlat as namelist configurable
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
+!---------------------------------------------------------------------
+!> @return wrfpost
+!---------------------------------------------------------------------
       PROGRAM WRFPOST
 
 !
@@ -201,7 +205,7 @@
        open(5,file='itag')
        read(5,nml=model_inputs,iostat=itag_ierr,err=888)
 888    if (itag_ierr /= 0) then
-       print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
+       print*,'Incorrect namelist variable(s) found in the itag file,stopping.'
        stop
        endif
        if (me == 0) write(6, model_inputs)
