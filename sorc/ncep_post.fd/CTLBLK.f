@@ -141,12 +141,10 @@
   integer :: IDSP2(0:1023)    !< Displacement in the array to be gathered where the portion of the array to be gathered from each MPI rank begins.
   integer :: JSTA_2L          !< Start latitude -2 of the subdomain.
   integer :: JEND_2U          !< End latitude +2 of the subdomain.
-  integer :: JVEND_2U         !< Defines the upper boundary for the subdomain used on each MPI rank. Includes
-information from neighboring ranks (halos).   
+  integer :: JVEND_2U         !< Defines the upper boundary for the subdomain used on each MPI rank. Includes information from neighboring ranks (halos).   
   integer :: ISTA_2L          !< Start longitude -2 of the subdomain.
   integer :: IEND_2U          !< End longitude +2 of the subdomain.
-  integer :: IVEND_2U         !< Defines the right most boundary for the subdomain used on each MPI rank. Includes
-information from neighboring ranks (halos).
+  integer :: IVEND_2U         !< Defines the right most boundary for the subdomain used on each MPI rank. Includes information from neighboring ranks (halos).
   integer :: NUM_SERVERS      !< An optional variable to support asynchronous writes of post-processed fields; one if there is more than one total MPI task - otherwise zero; note that the asynchronous write code is not in active development or used.
   integer :: MPI_COMM_INTER   !< An MPI communicator defining a subgroup of the MPI ranks used for asynchronous I/O; asynchronous writes are not in active development.
   integer :: MPI_COMM_COMP    !< an MPI communicator defining the subgroup of MPI ranks used to compute post-processed product fields; all current post implementations use all of the ranks so this again supports an unexploited development path in the code.
