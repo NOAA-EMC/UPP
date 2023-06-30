@@ -630,29 +630,29 @@ Angstrom exponent,ANGSTROM_EXP_at440_860,ANGSTEXP,656
 NO3 column integrated mass density,NO3_COL_MASS_DEN,COLMD,657
 NH4 column integrated mass density,NH4_COL_MASS_DEN,COLMD,658
 Dust emission mass flux,DUST_EMISSION_FLUX,AEMFLX,659
-Dust sedimentation flux,DUST_SEDIMENTATION_FLUX,SEDMFLX,660
-Dust dry deposition flux,DUST DRY DEPOSITION,DDMFLX,661
-Dust wet deposition flux,DUST WET DEPOSITION,WLSMFLX,662
+Dust sedimentation mass flux,DUST_SEDIMENTATION_FLUX,SEDMFLX,660
+Dust dry deposition mass flux,DUST DRY DEPOSITION,DDMFLX,661
+Dust wet deposition mass flux,DUST WET DEPOSITION,WLSMFLX,662
 Seasalt emission mass flux,SEASALT_EMISSION_FLUX,AEMFLX,663
-Seasalt sedimentation flux,SEASALT_SEDIMENTATION_FLUX,SEDMFLX,664
-Seasalt dry deposition flux,SEASALT_DRY_DEPOSITION_FLUX,DDMFLX,665
-Seasalt wet deposition flux,SEASALT_WET_DEPOSITION_FLUX,WLSMFLX,666
+Seasalt sedimentation mass flux,SEASALT_SEDIMENTATION_FLUX,SEDMFLX,664
+Seasalt dry deposition mass flux,SEASALT_DRY_DEPOSITION_FLUX,DDMFLX,665
+Seasalt wet deposition mass flux,SEASALT_WET_DEPOSITION_FLUX,WLSMFLX,666
 Black carbon emission mass flux,BLACK_CARBON_EMISSION_FLUX,AEMFLX,667
-Black carbon sedimentation flux,BLACK_CARBON_SEDIMENTATION_FLUX,SEDMFLX,668
-Black carbon dry deposition flux,BLACK_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,669
-Black carbon wet deposition flux,BLACK_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,670
+Black carbon sedimentation mass flux,BLACK_CARBON_SEDIMENTATION_FLUX,SEDMFLX,668
+Black carbon dry deposition mass flux,BLACK_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,669
+Black carbon wet deposition mass flux,BLACK_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,670
 Organic carbon emission mass flux,ORGANIC_CARBON_EMISSION_FLUX,AEMFLX,671
-Organic carbon sedimentation flux,ORGANIC_CARBON_SEDIMENTATION_FLUX,SEDMFLX,672
-Organic carbon dry deposition flux,ORGANIC_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,673
-Organic carbon wet deposition flux,ORGANIC_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,674
+Organic carbon sedimentation mass flux,ORGANIC_CARBON_SEDIMENTATION_FLUX,SEDMFLX,672
+Organic carbon dry deposition mass flux,ORGANIC_CARBON_DRY_DEPOSITION_FLUX,DDMFLX,673
+Organic carbon wet deposition mass flux,ORGANIC_CARBON_WET_DEPOSITION_FLUX,WLSMFLX,674
 Sulfate emission mass flux,SULFATE_EMISSION_FLUX,AEMFLX,675
-Sulfate sedimentation flux,SULFATE_SEDIMENTATION_FLUX,SEDMFLX,676
-Sulfate dry deposition flux,SULFATE_DRY_DEPOSITION_FLUX,DDMFLX,677
-Sulfate wet deposition flux,SULFATE_WET_DEPOSITION_FLUX,WLSMFLX,678
-Dust scavenging flux,DUST_SCAVENGING_FLUX,WDCPMFLX,679
-Seasalt scavenging flux,SEASALT_SCAVENGING_FLUX,WDCPMFLX,680
-Black carbon scavenging flux,BLACK_CARBON_SCAVENGING_FLUX,WDCPMFLX,681
-Organic carbon scavenging flux,ORGANIC_CARBON_SCAVENGING_FLUX,WDCPMFLX,682
+Sulfate sedimentation mass flux,SULFATE_SEDIMENTATION_FLUX,SEDMFLX,676
+Sulfate dry deposition mass flux,SULFATE_DRY_DEPOSITION_FLUX,DDMFLX,677
+Sulfate wet deposition mass flux,SULFATE_WET_DEPOSITION_FLUX,WLSMFLX,678
+Dust scavenging mass flux,DUST_SCAVENGING_FLUX,WDCPMFLX,679
+Seasalt scavenging mass flux,SEASALT_SCAVENGING_FLUX,WDCPMFLX,680
+Black carbon scavenging mass flux,BLACK_CARBON_SCAVENGING_FLUX,WDCPMFLX,681
+Organic carbon scavenging mass flux,ORGANIC_CARBON_SCAVENGING_FLUX,WDCPMFLX,682
 Seasalt coarse aersol mass density concentration on model surface,SS_CR_AER_SFC_MASS_CON,MASSDEN,683
 Seasalt 2.5 mass density concentration on model surface,SEAS25_SFC_MASS_CON,PMTF,684
 Dust 10 mass density concentration on model surface,DUST10_SFC_MASS_CON,PMTC,685
