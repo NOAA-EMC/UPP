@@ -757,20 +757,13 @@ GSD Maximum hail diameter at k=1,GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER,HAI
 GSD Experimental cloud base pressure,GSD_PRES1_ON_CLOUD_BASE,PRES,798
 GSD maximum cloud fraction in (PBL + 1 km),TCDC_ON_BOUND_LYR,TCDC,799
 Shelter level apparent temperature,APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,APTMP,808
-SSMIS F16 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,818
-Simulated Brightness Temperature for SSMIS-F17 Channel 15,SSMS1715_ON_TOP_OF_ATMOS,SSMS1715,825
-Simulated Brightness Temperature for SSMIS-F17 Channel 16,SSMS1716_ON_TOP_OF_ATMOS,SSMS1716,826
-Simulated Brightness Temperature for SSMIS-F17 Channel 17,SSMS1717_ON_TOP_OF_ATMOS,SSMS1717,827
-Simulated Brightness Temperature for SSMIS-F17 Channel 18,SSMS1718_ON_TOP_OF_ATMOS,SSMS1718,828
-SSMIS F18 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,832
-SSMIS F20 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,846
 Simulated GOES 13 channel 2 brightness temperature with satellite angle correction,Not currently available for grib2,NA,868
 Simulated GOES 15 channel 5 brightness temperature with satellite angle correction,Not currently available for grib2,NA,872
 Seviri brightness temperature channels 5-11,Not currently available for grib2,NA,876
 Hourly max relative vorticity on hybrid level 1,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1,RELV,890
-Virtual temperature on model surfaces,Not currently available for grib2,NA,909
-Virtual temperature on pressure surfaces,Not currently available for grib2,NA,910
-Virtual temperature on flight levels,Not currently available for grib2,NA,911
+Virtual temperature on model surfaces,VTMP_ON_HYBRID_LVL,VTMP,909
+Virtual temperature on pressure surfaces,VTMP_ON_ISOBARIC_SFC,VTMP,910
+Virtual temperature on flight levels,VTMP_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,VTMP,911
 Radar reflectivity at -10C,REFD_ON_ISOTHERMAL,REFD,912
 1h precipitation comparison to Flash Flood Guidance (FFG) thresholds,1H_FFG_EXCEEDANCE,FFLDRO,913
 Total accumulated precipitation comparison to FFG thresholds,ACM_FFG_EXCEEDANCE,FFLDRO,914
