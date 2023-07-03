@@ -671,68 +671,68 @@ Instantaneous fine seasalt aerosol surface mass concentration,INST_SS_FN_AER_SFC
 Instantaneous coarse aerosol surface mass concentration,INST_CR_AER_SFC_MASS_CON,MASSDEN,697
 Instantaneous fine aerosol surface mass concentration,INST_FN_AER_SFC_MASS_CON,MASSDEN,698
 Mie-based aerosol optical depth at 550nm,MIE_OPT_DEP_at550,AOTK,699
-**GSD Max updraft helicity at 1-6 km layer above ground**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MXUPHL,700
-**GSD updraft helicity at 1-6 km layer above ground**,GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,UPHL,701
-**GSD Max lightning threat 1**,GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND,LTNGSD,702
-**GSD Max lightning threat 2**,GSD_MAX_LTG_THREAT2_ON_SPEC_HGT_LVL_ABOVE_GRND,LTNGSD,703
-**GSD Max lightning threat 3**,GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS,LTNG,704
+GSD Max updraft helicity at 1-6 km layer above ground,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MXUPHL,700
+GSD updraft helicity at 1-6 km layer above ground,GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,UPHL,701
+GSD Max lightning threat 1,GSD_MAX_LTG_THREAT1_ON_SPEC_HGT_LVL_ABOVE_GRND,LTNGSD,702
+GSD Max lightning threat 2,GSD_MAX_LTG_THREAT2_ON_SPEC_HGT_LVL_ABOVE_GRND,LTNGSD,703
+GSD Max lightning threat 3,GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS,LTNG,704
 GSD Convective Initiation Lightning,GSD_NCI_LTG_ON_ENTIRE_ATMOS,NCILTG,705
 GSD Convective Activity Lightning,GSD_NCA_LTG_ON_ENTIRE_ATMOS,NCALTG,706
 GSD Convective Initiation Vertical Hydrometeor Flux,GSD_NCI_WQ_ON_ENTIRE_ATMOS,NCIWQ,707
 GSD Convective Activity Vertical Hydrometeor Flux,GSD_NCA_WQ_ON_ENTIRE_ATMOS,NCAWQ,708
 GSD Convective Initiation Reflectivity,GSD_NCI_REFL_ON_ENTIRE_ATMOS,TSEC,709
 GSD Convective Activity Reflectivity,GSD_NCA_REFL_ON_ENTIRE_ATMOS,TSEC,710
-**Experimental cloud base height**,GSD_EXP_CEILING_2,CEIL,711
-**AQM aerosol optical depth at 550 nm**,AER_OPT_AQM_at550,AOTK,712
-**Instantaneous all-sky outgoing shortwave flux at model top**,INST_USWRF_ON_TOP_OF_ATMOS,USWRF,719
-**GSD accumulated depth of snowfall**,GSD_ACM_SNOD_ON_SURFACE,ASNOW,725
-**Minimum green vegetation fraction**,VEG_MIN_ON_SURFACE,VEGMIN,726
-**GSD updraft helicity**,GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,UPHL,727
-**Max hail diameter at surface from WRF HAILCAST algorithm**,GSD_HAILCAST_HAIL_DIAMETER,HAIL,728
-**Maximum green vegetation fraction**,VEG_MAX_ON_SURFACE,VEGMAX,729
-**Time-averaged 10 M wind speed**,AVE_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,WIND,730
-**Time-averaged 10 M u-component wind**,AVE_UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,UGRD,731
-**Time-averaged 10 M v-component wind**,AVE_VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,VGRD,732
-**Time-averaged downward short-wave radiation flux**,GSD_AVE_DSWRF_ON_SURFACE,DSWRF,733
-**Time-averaged visible beam downward solar flux**,GSD_AVE_SWDDNI_ON_SURFACE,VBDSF,734
-**Total column aerosol optical depth**,AOD_ON_ENTIRE_ATMOS_SINGLE_LYR,AOTK,735
-**Total column fire smoke**,SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,736
-**Smoke on model surface**,SMOKE_ON_HYBRID_LVL,MASSDEN,737
-**Smoke on pressure surface**,SMOKE_ON_ISOBARIC_SFC,MASSDEN,738
-**Smoke at 8m above ground**,SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,739
-**Instantaneous mean fire radiative power (FRP)**,MEAN_FIRE_RDIATV_PWR,CFNSF,740
-**Total column dust**,DUST_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,741
-**Dust on model surface**,DUST_ON_HYBRID_LVL,MASSDEN,742
-**Dust on pressure surface**,DUST_ON_ISOBARIC_SFC,MASSDEN,743
-**Dust at 8m above ground**,DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,744
-**Biomass burning emissions**,BIOMASS_BURNING_EMISSIONS,AEMFLX,745
-**Accumulated graupel**,ACM_GRAUPEL_ON_SURFACE,FROZR,746
+Experimental cloud base height,GSD_EXP_CEILING_2,CEIL,711
+AQM aerosol optical depth at 550 nm,AER_OPT_AQM_at550,AOTK,712
+Instantaneous all-sky outgoing shortwave flux at model top,INST_USWRF_ON_TOP_OF_ATMOS,USWRF,719
+GSD accumulated depth of snowfall,GSD_ACM_SNOD_ON_SURFACE,ASNOW,725
+Minimum green vegetation fraction,VEG_MIN_ON_SURFACE,VEGMIN,726
+GSD updraft helicity (2-5 km),GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,UPHL,727
+Max hail diameter at surface from WRF HAILCAST algorithm,GSD_HAILCAST_HAIL_DIAMETER,HAIL,728
+Maximum green vegetation fraction,VEG_MAX_ON_SURFACE,VEGMAX,729
+Time-averaged 10 M wind speed,AVE_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,WIND,730
+Time-averaged 10 M u-component wind,AVE_UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,UGRD,731
+Time-averaged 10 M v-component wind,AVE_VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,VGRD,732
+Time-averaged downward short-wave radiation flux,GSD_AVE_DSWRF_ON_SURFACE,DSWRF,733
+Time-averaged visible beam downward solar flux,GSD_AVE_SWDDNI_ON_SURFACE,VBDSF,734
+Total column aerosol optical depth,AOD_ON_ENTIRE_ATMOS_SINGLE_LYR,AOTK,735
+Total column fire smoke,SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,736
+Smoke on model surface,SMOKE_ON_HYBRID_LVL,MASSDEN,737
+Smoke on pressure surface,SMOKE_ON_ISOBARIC_SFC,MASSDEN,738
+Smoke at 8m above ground,SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,739
+Instantaneous mean fire radiative power (FRP),MEAN_FIRE_RDIATV_PWR,CFNSF,740
+Total column dust,DUST_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,741
+Dust on model surface,DUST_ON_HYBRID_LVL,MASSDEN,742
+Dust on pressure surface,DUST_ON_ISOBARIC_SFC,MASSDEN,743
+Dust at 8m above ground,DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,744
+Biomass burning emissions,BIOMASS_BURNING_EMISSIONS,AEMFLX,745
+Accumulated graupel,ACM_GRAUPEL_ON_SURFACE,FROZR,746
 Number concentration for cloud water drops on hybrid level,GSD_NCCD_ON_HYBRID_LVL,NCONCD,747
-**Radar reflectivity at 1km above ground**,GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km,REFD,748
-RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER,GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS,RH_PWAT,749
-**Water vapor mixing ratio on model surface**,GSD_WV_MIXR_ON_HYBRID_LVL,MIXR,750
-**Virtual potential temperature on model surface**,GSD_VPTMP_ON_HYBRID_LVL,VPTMP,751
+Radar reflectivity at 1km above ground,GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km,REFD,748
+Relative humidity with respect to precipitable water,GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS,RH_PWAT,749
+Water vapor mixing ratio on model surface,GSD_WV_MIXR_ON_HYBRID_LVL,MIXR,750
+Virtual potential temperature on model surface,GSD_VPTMP_ON_HYBRID_LVL,VPTMP,751
 Number concentration for ice particles on hybrid level,GSD_NCIP_ON_HYBRID_LVL,NCIP,752
 GSD pressure on level of 0 deg (C) isotherm,GSD_PRES_ON_0C_ISOTHERM,PRES,753
-**Number concentration of rain drops on model surface**,GSD_NCRAIN_ON_HYBRID_LVL,NCRAIN,754
+Number concentration of rain drops on model surface,GSD_NCRAIN_ON_HYBRID_LVL,NCRAIN,754
 Hourly Wildfire Potential on surface,HWP_ON_SURFACE,FWINX,755
 GSD pressure on highest tropospheric freezing level,GSD_PRES_ON_HGHST_TROP_FRZ_LVL,PRES,756
-**GSD radar reflectivity at 4km above ground**,GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km,REFD,757
-**GSD convective cloud top height**,GSD_HGT_ON_CONVECTIVE_CLOUD_TOP_LVL,HGT,758
-**GSD shelter mixing ratio**,GSD_MIXR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,MIXR,760
-**GSD snow temperature**,GSD_INSIDE_SNOW_TMP_ON_SURFACE,TMP,761
-**GSD surface mixing ratio**,GSD_MIXR_ON_SURFACE,MIXR,762
-**GSD mixing ration on level of free convection (LFC)**,GSD_MIXR_ON_LFC,MIXR,763
-**Instantaneous clear-sky downwelling longwave at the surface**,CSDLF_ON_SURFACE,CSDLF,764
-**Instantaneous clear-sky upwelling longwave at the surface**,CSULF_ON_SURFACE,CSULF,765
-**GSD water-friendly aerosol number concentration on model surface**,GSD_NCWFA_ON_HYBRID_LVL,PMTF,766
-**GSD ice-friendly aerosol number concentration on model surface**,GSD_NCIFA_ON_HYBRID_LVL,PMTC,767
+GSD radar reflectivity at 4km above ground,GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km,REFD,757
+GSD convective cloud top height,GSD_HGT_ON_CONVECTIVE_CLOUD_TOP_LVL,HGT,758
+GSD shelter mixing ratio,GSD_MIXR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,MIXR,760
+GSD snow temperature,GSD_INSIDE_SNOW_TMP_ON_SURFACE,TMP,761
+GSD surface mixing ratio,GSD_MIXR_ON_SURFACE,MIXR,762
+GSD mixing ration on level of free convection (LFC),GSD_MIXR_ON_LFC,MIXR,763
+Instantaneous clear-sky downwelling longwave at the surface,CSDLF_ON_SURFACE,CSDLF,764
+Instantaneous clear-sky upwelling longwave at the surface,CSULF_ON_SURFACE,CSULF,765
+GSD water-friendly aerosol number concentration on model surface,GSD_NCWFA_ON_HYBRID_LVL,PMTF,766
+GSD ice-friendly aerosol number concentration on model surface,GSD_NCIFA_ON_HYBRID_LVL,PMTC,767
 Echo top height (Highest height in meters of the 18-dBZ reflectivity on a model level),GSD_ECHOTOP_ON_CLOUD_TOP,RETOP,768
-**GSD Vertically integrated liquid in kg/m^2**,GSD_VIL_ON_ENTIRE_ATMOS,VIL,769
-**GSD Vertically integrated liquid based on reflectivity factor in kg/m^2**,GSD_RADARVIL_ON_ENTIRE_ATMOS,RADARVIL,770
-**Instantaneous shortwave surface downward direct normal irradiance**,INST_SWDDNI_ON_SURFACE,VBDSF,772
-**Instantaneous shortwave surface downward diffuse irradiance**,INST_SWDDIF_ON_SURFACE,VDDSF,773
-**Model-state cloud fraction (unprocessed) on model surface**,FRACCC_ON_HYBRID_LVL,FRACCC,774
+GSD Vertically integrated liquid in kg/m^2,GSD_VIL_ON_ENTIRE_ATMOS,VIL,769
+GSD Vertically integrated liquid based on reflectivity factor in kg/m^2,GSD_RADARVIL_ON_ENTIRE_ATMOS,RADARVIL,770
+Instantaneous shortwave surface downward direct normal irradiance,INST_SWDDNI_ON_SURFACE,VBDSF,772
+Instantaneous shortwave surface downward diffuse irradiance,INST_SWDDIF_ON_SURFACE,VDDSF,773
+Model-state cloud fraction (unprocessed) on model surface,FRACCC_ON_HYBRID_LVL,FRACCC,774
 Bucket graupel precipitation on surface,BUCKET_GRAUPEL_ON_SURFACE,FROZR,775
 Height on highest tropospheric -10C level,`HGT_ON_HGHST_TROP_-10C_LVL`,HGT,776
 Relative humidity on highest tropospheric -10C level,`RH_ON_HGHST_TROP_-10C_LVL`,RH,777
@@ -740,28 +740,28 @@ Pressure on highest tropospheric -10C level,`PRES_ON_HGHST_TROP_-10C_LVL`,PRES,7
 Height on highest tropospheric -20C level,`HGT_ON_HGHST_TROP_-20C_LVL`,HGT,779
 Relative humidity on highest tropospheric -20C level,`RH_ON_HGHST_TROP_-20C_LVL`,RH,780
 Pressure on highest tropospheric -20C level,`PRES_ON_HGHST_TROP_-20C_LVL`,PRES,781
-**Accumulated freezing rain**,ACM_FRAIN_ON_SURFACE,FRZR,782
+Accumulated freezing rain,ACM_FRAIN_ON_SURFACE,FRZR,782
 Maximum u wind on 10 meter above ground,MAX_UGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXUW,783
 Maximum v wind on 10 meter above ground,MAX_VGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,MAXVW,784
 Maximum reflectivity on -10C surface,`MAX_REF_ON_ISOTHERMAL_-10C`,REFD,785
-**Global Systems Division (GSD) Minimum updraft helicity 2-5km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MNUPHL,786
-**GSD Minimum updraft helicity 1-6 km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MNUPHL,787
-**GSD Maximum updraft helicity 0-2km**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MXUPHL,788
-**GSD Minimum updraft helicity 0-2km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MNUPHL,789
-**GSD Maximum updraft helicity 0-3km**,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MXUPHL,790
-**GSD Minimum updraft helicity 0-3km**,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MNUPHL,791
-**GSD Maximum relative vertical vorticity 0-2 km**,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,RELV,792
-**GSD Maximum relative vertical vorticity 0-1 km**,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,RELV,793
-**GSD Maximum hail diameter in column**,GSD_MAX_COLMAX_GRAUPEL_HAIL_DIAMETER,HAIL,794
-**GSD Maximum hail diameter at k=1**,GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER,HAIL,795
-**Experimental cloud base pressure**,GSD_PRES1_ON_CLOUD_BASE,PRES,798
-**GSD maximum cloud fraction in (PBL + 1 km)**,TCDC_ON_BOUND_LYR,TCDC,799
-**Shelter level apparent temperature**,APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,APTMP,808
+Global Systems Division (GSD) Minimum updraft helicity 2-5km,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MNUPHL,786
+GSD Minimum updraft helicity 1-6 km,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km,MNUPHL,787
+GSD Maximum updraft helicity 0-2km,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MXUPHL,788
+GSD Minimum updraft helicity 0-2km,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,MNUPHL,789
+GSD Maximum updraft helicity 0-3km,GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MXUPHL,790
+GSD Minimum updraft helicity 0-3km,GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km,MNUPHL,791
+GSD Maximum relative vertical vorticity 0-2 km,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km,RELV,792
+GSD Maximum relative vertical vorticity 0-1 km,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,RELV,793
+GSD Maximum hail diameter in column,GSD_MAX_COLMAX_GRAUPEL_HAIL_DIAMETER,HAIL,794
+GSD Maximum hail diameter at k=1,GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER,HAIL,795
+GSD Experimental cloud base pressure,GSD_PRES1_ON_CLOUD_BASE,PRES,798
+GSD maximum cloud fraction in (PBL + 1 km),TCDC_ON_BOUND_LYR,TCDC,799
+Shelter level apparent temperature,APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m,APTMP,808
 SSMIS F16 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,818
-**Simulated Brightness Temperature for SSMIS-F17 Channel 15**,SSMS1715_ON_TOP_OF_ATMOS,SSMS1715,825
-**Simulated Brightness Temperature for SSMIS-F17 Channel 16**,SSMS1716_ON_TOP_OF_ATMOS,SSMS1716,826
-**Simulated Brightness Temperature for SSMIS-F17 Channel 17**,SSMS1717_ON_TOP_OF_ATMOS,SSMS1717,827
-**Simulated Brightness Temperature for SSMIS-F17 Channel 18**,SSMS1718_ON_TOP_OF_ATMOS,SSMS1718,828
+Simulated Brightness Temperature for SSMIS-F17 Channel 15,SSMS1715_ON_TOP_OF_ATMOS,SSMS1715,825
+Simulated Brightness Temperature for SSMIS-F17 Channel 16,SSMS1716_ON_TOP_OF_ATMOS,SSMS1716,826
+Simulated Brightness Temperature for SSMIS-F17 Channel 17,SSMS1717_ON_TOP_OF_ATMOS,SSMS1717,827
+Simulated Brightness Temperature for SSMIS-F17 Channel 18,SSMS1718_ON_TOP_OF_ATMOS,SSMS1718,828
 SSMIS F18 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,832
 SSMIS F20 (183H  19H  19V  37H  37V  85H  85V),Not currently available for grib2,NA,846
 Simulated GOES 13 channel 2 brightness temperature with satellite angle correction,Not currently available for grib2,NA,868
@@ -771,17 +771,17 @@ Hourly max relative vorticity on hybrid level 1,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL
 Virtual temperature on model surfaces,Not currently available for grib2,NA,909
 Virtual temperature on pressure surfaces,Not currently available for grib2,NA,910
 Virtual temperature on flight levels,Not currently available for grib2,NA,911
-**Radar reflectivity at -10C**,REFD_ON_ISOTHERMAL,REFD,912
-**1h precipitation comparison to Flash Flood Guidance (FFG) thresholds**,1H_FFG_EXCEEDANCE,FFLDRO,913
-**Total accumulated precipitation comparison to FFG thresholds**,ACM_FFG_EXCEEDANCE,FFLDRO,914
-**1h precipitation comparison with 2-year Average Recurrence Interval (ARI) threshold**,1H_2YARI_EXCEEDANCE,GWLOWS,915
-**Total accumulated precipitation comparison with 2-year ARI threshold**,ACM_2YARI_EXCEEDANCE,GWLOWS,916
-**1h precipitation comparison with 5-year ARI threshold**,1H_5YARI_EXCEEDANCE,GWLOWS,917
-**Total accumulated precipitation comparison with 5-year ARI threshold**,ACM_5YARI_EXCEEDANCE,GWLOWS,918
-**1h precipitation comparison with 10-year ARI threshold**,1H_10YARI_EXCEEDANCE,GWLOWS,919
-**Total accumulated precipitation comparison with 10-year ARI threshold**,ACM_10YARI_EXCEEDANCE,GWLOWS,920
-**1h precipitation comparison with 100-year ARI threshold**,1H_100YARI_EXCEEDANCE,GWLOWS,921
-**Total accumulated precipitation comparison with 100-year ARI threshold**,ACM_100YARI_EXCEEDANCE,GWLOWS,922
+Radar reflectivity at -10C,REFD_ON_ISOTHERMAL,REFD,912
+1h precipitation comparison to Flash Flood Guidance (FFG) thresholds,1H_FFG_EXCEEDANCE,FFLDRO,913
+Total accumulated precipitation comparison to FFG thresholds,ACM_FFG_EXCEEDANCE,FFLDRO,914
+1h precipitation comparison with 2-year Average Recurrence Interval (ARI) threshold,1H_2YARI_EXCEEDANCE,GWLOWS,915
+Total accumulated precipitation comparison with 2-year ARI threshold,ACM_2YARI_EXCEEDANCE,GWLOWS,916
+1h precipitation comparison with 5-year ARI threshold,1H_5YARI_EXCEEDANCE,GWLOWS,917
+Total accumulated precipitation comparison with 5-year ARI threshold,ACM_5YARI_EXCEEDANCE,GWLOWS,918
+1h precipitation comparison with 10-year ARI threshold,1H_10YARI_EXCEEDANCE,GWLOWS,919
+Total accumulated precipitation comparison with 10-year ARI threshold,ACM_10YARI_EXCEEDANCE,GWLOWS,920
+1h precipitation comparison with 100-year ARI threshold,1H_100YARI_EXCEEDANCE,GWLOWS,921
+Total accumulated precipitation comparison with 100-year ARI threshold,ACM_100YARI_EXCEEDANCE,GWLOWS,922
 Simulated GOES 16 band 7 brightness temperature,SBTA167_ON_TOP_OF_ATMOS,SBTA167,927
 Simulated GOES 16 band 8 brightness temperature,SBTA168_ON_TOP_OF_ATMOS,SBTA168,928
 Simulated GOES 16 band 9 brightness temperature,SBTA169_ON_TOP_OF_ATMOS,SBTA169,929
@@ -802,14 +802,14 @@ Simulated GOES 17 band 13 brightness temperature,SBTA1713_ON_TOP_OF_ATMOS,SBTA17
 Simulated GOES 17 band 14 brightness temperature,SBTA1714_ON_TOP_OF_ATMOS,SBTA1714,944
 Simulated GOES 17 band 15 brightness temperature,SBTA1715_ON_TOP_OF_ATMOS,SBTA1715,945
 Simulated GOES 17 band 16 brightness temperature,SBTA1716_ON_TOP_OF_ATMOS,SBTA1716,946
-**CAPE on 0-3 km above ground**,CAPE_ON_0_3KM_ABOVE_GRND,CAPE,950
-**CIN on 0-3 km above ground**,CIN_ON_0_3KM_ABOVE_GRND,CIN,951
-**LFC height**,HGT_ON_LFC,HGT,952
-**Effective storm relative helicity**,EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND,EFHL,953
-**Downdraft CAPE**,DOWNWARD_CAPE,DCAPE,954
-**Dendritic layer depth**,DENDRITIC_LAYER_DEPTH,LAYTH,955
-**Enhanced stretching potential**,ENHANCED_STRETCHING_POTENTIAL,ESP,956
-**Critical angle**,CRITICAL_ANGLE,DCAPE,957
+CAPE on 0-3 km above ground,CAPE_ON_0_3KM_ABOVE_GRND,CAPE,950
+CIN on 0-3 km above ground,CIN_ON_0_3KM_ABOVE_GRND,CIN,951
+Level of free convection (LFC) height,HGT_ON_LFC,HGT,952
+Effective storm relative helicity,EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND,EFHL,953
+Downdraft CAPE,DOWNWARD_CAPE,DCAPE,954
+Dendritic layer depth,DENDRITIC_LAYER_DEPTH,LAYTH,955
+Enhanced stretching potential,ENHANCED_STRETCHING_POTENTIAL,ESP,956
+Critical angle,CRITICAL_ANGLE,DCAPE,957
 Simulated GOES R band 7 brightness temperature,SBTAGR7_ON_TOP_OF_ATMOS,SBTAGR7,958
 Simulated GOES R band 8 brightness temperature,SBTAGR8_ON_TOP_OF_ATMOS,SBTAGR8,959
 Simulated GOES R band 9 brightness temperature,SBTAGR9_ON_TOP_OF_ATMOS,SBTAGR9,960
@@ -820,7 +820,7 @@ Simulated GOES R band 13 brightness temperature,SBTAGR13_ON_TOP_OF_ATMOS,SBTAGR1
 Simulated GOES R band 14 brightness temperature,SBTAGR14_ON_TOP_OF_ATMOS,SBTAGR14,965
 Simulated GOES R band 15 brightness temperature,SBTAGR15_ON_TOP_OF_ATMOS,SBTAGR15,966
 Simulated GOES R band 16 brightness temperature,SBTAGR16_ON_TOP_OF_ATMOS,SBTAGR16,967
-**Sea ice skin temperature**,ICETMP_ON_SURFACE,ICETMP,968
+Sea ice skin temperature,ICETMP_ON_SURFACE,ICETMP,968
 Simulated Himawari-8 band 7 brightness temperature,SBTAHI7_ON_TOP_OF_ATMOS,SBTAHI7,969
 Simulated Himawari-8 band 8 brightness temperature,SBTAHI8_ON_TOP_OF_ATMOS,SBTAHI8,970
 Simulated Himawari-8 band 9 brightness temperature,SBTAHI9_ON_TOP_OF_ATMOS,SBTAHI9,971
@@ -831,38 +831,38 @@ Simulated Himawari-8 band 13 brightness temperature,SBTAHI13_ON_TOP_OF_ATMOS,SBT
 Simulated Himawari-8 band 14 brightness temperature,SBTAHI14_ON_TOP_OF_ATMOS,SBTAHI14,976
 Simulated Himawari-8 band 15 brightness temperature,SBTAHI15_ON_TOP_OF_ATMOS,SBTAHI15,977
 Simulated Himawari-8 band 16 brightness temperature,SBTAHI16_ON_TOP_OF_ATMOS,SBTAHI16,978
-**Effective surface height on effective layer bottom (m)**,EFSH_ON_EFBL,EFSH,979
-**Effective surface height on effective layer top (m)**,EFSH_ON_EFTL,EFSH,980
-**Temperature at EL top**,ELMELT_ON_EFTL,ELMELT,982
-**U-inflow based to 50% EL shear vector**,UESH_ON_EFL,UESH,983
-**V-inflow based to 50% EL shear vector**,VESH_ON_EFL,VESH,984
-**Inflow based (ESFC) to (50%) EL shear magnitude**,ESHR_ON_EFL,ESHR,985
-**U-component Bunkers effective right motion**,UEID_ON_EFL,UEID,986
-**V-component Bunkers effective right motion**,VEID_ON_EFL,VEID,987
-**Effective layer helicity**,E3KH_ON_EFL,E3KH,988
-**Effective layer significant tornado parameter with CIN**,STPC_ON_EFL,STPC,989
-**Fixed layer tornado parameter**,SIGT_ON_EFL,SIGT,990
-**Effective layer supercell composite parameter**,SCCP_ON_EFL,SCCP,991
-**Mixed Layer (100 mb) virtual LFC**,MLFC_ON_EFL,MLFC,992
-**Significant hail parameter**,SIGH_ON_EFL,SIGH,993
-**Average ozone concentration on model surface**,AVE_OZCON_ON_HYBRID_LVL,OZCON,994
-**Average PM25 on model surface**,AVE_PM25TOT_ON_HYBRID_LVL,PMTF,995
-**Land fraction**,LAND_FRAC,LANDFRC,996
-**Instantaneous precipitation advected heat flux**,INST_PREC_ADVEC_HEAT,PAHFLX,997
-**Water storage in aquifer**,WATER_AQUIFER,WATERSA,998
-**Accumulated evaporation of intercepted water**,ACM_EIWATER_ON_SURFACE,EIWATER,999
-**Accumulated plant transpiration on surface**,ACM_PLANTTR_ON_SURFACE,PLANTTR,1000
-**Accumulated soil surface evaporation**,ACM_SOILSE_ON_SURFACE,SOILSE,1001
-**Average precipitation advected heat flux**,AVE_PREC_ADVEC_HEAT,PAHFLX,1002
-**Bucket freezing rain on surface**,BUCKET_FRAIN_ON_SURFACE,FRZR,1003
-**Accumulated snowfall on surface**,ACM_SNOWFALL_ON_SURFACE,TSNOWP,1004
-**Bucket snowfall on surface**,BUCKET_SNOWFALL_ON_SURFACE,TSNOWP,1005
-**Snow density solid-liquid ratio on surface**,SDEN_ON_SURFACE,SDEN,1006
-**Icing probability on flight levels**,ICE_PROB_IFI_FLIGHT_LEVEL,ICPRB,1007
-**Supercooled large droplet icing on flight levels**,SLD_IFI_FLIGHT_LEVEL,SIPD,1008
-**Icing severity category on flight levels**,ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICSEV,1009
-**WMO icing severity category on flight levels**,WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICESEV,1010
-**Total column coarse articulate matter (PM)**,COARSEPM_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,1011
-**Coarse particulate matter on model surface**,COARSEPM_ON_HYBRID_LVL,MASSDEN,1012
-**Coarse particulate matter on pressure surface**,COARSEPM_ON_ISOBARIC_SFC,MASSDEN,1013
-**Coarse particulate matter at 8m above ground**,COARSEPM_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,1014
+Effective surface height on effective layer bottom (m),EFSH_ON_EFBL,EFSH,979
+Effective surface height on effective layer top (m),EFSH_ON_EFTL,EFSH,980
+Equilibrium temperature on effective layer (EL) top,ELMELT_ON_EFTL,ELMELT,982
+U-inflow based to 50% EL shear vector,UESH_ON_EFL,UESH,983
+V-inflow based to 50% EL shear vector,VESH_ON_EFL,VESH,984
+Inflow based (ESFC) to (50%) EL shear magnitude,ESHR_ON_EFL,ESHR,985
+U-component Bunkers effective right motion,UEID_ON_EFL,UEID,986
+V-component Bunkers effective right motion,VEID_ON_EFL,VEID,987
+Effective layer helicity,E3KH_ON_EFL,E3KH,988
+Effective layer significant tornado parameter with CIN,STPC_ON_EFL,STPC,989
+Fixed layer tornado parameter,SIGT_ON_EFL,SIGT,990
+Effective layer supercell composite parameter,SCCP_ON_EFL,SCCP,991
+Mixed Layer (100 mb) virtual LFC,MLFC_ON_EFL,MLFC,992
+Significant hail parameter,SIGH_ON_EFL,SIGH,993
+Average ozone concentration on model surface,AVE_OZCON_ON_HYBRID_LVL,OZCON,994
+Average particulate matter 2.5 (PM25) on model surface,AVE_PM25TOT_ON_HYBRID_LVL,PMTF,995
+Land fraction,LAND_FRAC,LANDFRC,996
+Instantaneous precipitation advected heat flux,INST_PREC_ADVEC_HEAT,PAHFLX,997
+Water storage in aquifer,WATER_AQUIFER,WATERSA,998
+Accumulated evaporation of intercepted water,ACM_EIWATER_ON_SURFACE,EIWATER,999
+Accumulated plant transpiration on surface,ACM_PLANTTR_ON_SURFACE,PLANTTR,1000
+Accumulated soil surface evaporation,ACM_SOILSE_ON_SURFACE,SOILSE,1001
+Average precipitation advected heat flux,AVE_PREC_ADVEC_HEAT,PAHFLX,1002
+Bucket freezing rain on surface,BUCKET_FRAIN_ON_SURFACE,FRZR,1003
+Accumulated snowfall on surface,ACM_SNOWFALL_ON_SURFACE,TSNOWP,1004
+Bucket snowfall on surface,BUCKET_SNOWFALL_ON_SURFACE,TSNOWP,1005
+Snow density solid-liquid ratio on surface,SDEN_ON_SURFACE,SDEN,1006
+Icing probability on flight levels,ICE_PROB_IFI_FLIGHT_LEVEL,ICPRB,1007
+Supercooled large droplet icing on flight levels,SLD_IFI_FLIGHT_LEVEL,SIPD,1008
+Icing severity category on flight levels,ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICSEV,1009
+WMO icing severity category on flight levels,WMO_ICE_SEV_CAT_IFI_FLIGHT_LEVEL,ICESEV,1010
+Total column coarse particulate matter (PM),COARSEPM_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,1011
+Coarse particulate matter on model surface,COARSEPM_ON_HYBRID_LVL,MASSDEN,1012
+Coarse particulate matter on pressure surface,COARSEPM_ON_ISOBARIC_SFC,MASSDEN,1013
+Coarse particulate matter at 8m above ground,COARSEPM_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,1014
