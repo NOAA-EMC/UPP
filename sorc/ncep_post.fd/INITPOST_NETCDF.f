@@ -37,6 +37,7 @@
 !> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !> 2023-05-31 | Wen Meng      | Bug fix in qrmax initialization
 !> 2023-06-14 | Wen Meng      ! Bug fix of reading seaswtc and modification of sndepac calculation
+!> 2023-07-06 | Eric James    ! Read in SOILL on 9 levels for RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
