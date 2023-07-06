@@ -392,6 +392,16 @@
        </param>
 
        <param>
+       <shortname>SOILL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>SOILL</pname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
        <pname>CNWAT</pname>
        <table_info>NCEP</table_info>
@@ -541,12 +551,6 @@
 
        <param>
        <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>MSTAV</pname>
-       <table_info>NCEP</table_info>
-       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-       <level>0.</level>
-       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-       <level2>100.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -2307,6 +2311,16 @@
        </param>
 
        <param>
+       <shortname>SOILL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>SOILL</pname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
        <table_info>NCEP</table_info>
@@ -2321,12 +2335,6 @@
 
        <param>
        <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>MSTAV</pname>
-       <table_info>NCEP</table_info>
-       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-       <level>0.</level>
-       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-       <level2>100.</level2>
        <scale>3.0</scale>
        </param>
 

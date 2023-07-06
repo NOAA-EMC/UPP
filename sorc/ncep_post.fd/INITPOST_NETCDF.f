@@ -2245,6 +2245,70 @@
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,4)
 
+      IF (NSOIL==9) THEN
+
+      VarName='soill5'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,sh2o(ista_2l,jsta_2l,5))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) sh2o(i,j,5) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,5)
+
+      VarName='soill6'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,sh2o(ista_2l,jsta_2l,6))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) sh2o(i,j,6) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,6)
+
+      VarName='soill7'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,sh2o(ista_2l,jsta_2l,7))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) sh2o(i,j,7) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,7)
+
+      VarName='soill8'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,sh2o(ista_2l,jsta_2l,8))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) sh2o(i,j,8) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,8)
+
+      VarName='soill9'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,sh2o(ista_2l,jsta_2l,9))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) sh2o(i,j,9) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,9)
+
+      END IF
+
 ! volumetric soil moisture using nemsio
       VarName='soilw1'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
