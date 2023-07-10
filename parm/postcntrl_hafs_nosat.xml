@@ -36,6 +36,13 @@
        </param>
 
        <param>
+       <shortname>DPT_ON_ISOBARIC_SFC</shortname>
+       <pname>DPT</pname>
+       <level>10000. 20000. 30000. 50000. 70000. 85000.</level>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
        <shortname>SPFH_ON_ISOBARIC_SFC</shortname>
        <pname>SPFH</pname>
        <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
@@ -92,7 +99,7 @@
        </param>
 
        <param>
-       <shortname>CLWMR_ON_ISOBARIC_SFC</shortname>
+       <shortname>CLMR_ON_ISOBARIC_SFC</shortname>
        <pname>CLWMR</pname>
        <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
@@ -255,6 +262,21 @@
        <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
        <pname>NCPCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>CACM_ACPCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>CACM_NCPCP_ON_SURFACE</shortname>
        <scale>-4.0</scale>
        </param>
 
@@ -438,6 +460,12 @@
        <shortname>TMP_ON_TROPOPAUSE</shortname>
        <pname>TMP</pname>
        <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>POT_ON_TROPOPAUSE</shortname>
+       <pname>POT</pname>
+       <scale>5.0</scale>
        </param>
 
        <param>
