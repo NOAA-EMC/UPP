@@ -7464,6 +7464,33 @@
     </param>
 
     <param>
+       <post_avblfldidx>909</post_avblfldidx>
+       <shortname>VTMP_ON_HYBRID_LVL</shortname>
+       <longname>Virtual temperature on model surfaces</longname>
+       <pname>VTMP</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>910</post_avblfldidx>
+       <shortname>VTMP_ON_ISOBARIC_SFC</shortname>
+       <longname>Virtual temperature on pressure surfaces</longname>
+       <pname>VTMP</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>911</post_avblfldidx>
+       <shortname>VTMP_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <longname>Virtual temperature on flight levels</longname>
+       <pname>VTMP</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>912</post_avblfldidx>
        <shortname>REFD_ON_ISOTHERMAL</shortname>
        <pname>REFD</pname>

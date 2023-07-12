@@ -12,4 +12,5 @@ Welcome to the UPP User's Guide
    Running
    Regridding
    AddNewVariable
+   Glossary
    Acknowledgments
