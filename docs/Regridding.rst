@@ -2,17 +2,15 @@
 Regridding
 **********
 
-Users that wish to interpolate their unipost output to a different grid may do so with the *wgrib2*
+Users who wish to interpolate their UPP output to a different grid may do so with the *wgrib2*
 utility. The general format for re-gridding to various common projections are outlined in the following
 examples.
 
 *Wgrib2* is a versatile program that has the ability to convert grib2 files from one grid to another
-for various user-defined grids as well as pre-defined NCEP grids. Complete documentation with examples
-of re-gridding for all available grid definitions can be found at:
+for various user-defined grids as well as pre-defined :term:`NCEP` grids. Complete documentation with examples
+of re-gridding for all available grid definitions can be found at: http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
 
-http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
-
-.. _Examples-of-wgrib2
+.. _Examples-of-wgrib2:
 
 ==================
 Examples of wgrib2
@@ -20,7 +18,7 @@ Examples of wgrib2
 
 **Example 1: Latitude-Longitude Grid**
 
-*-new_grid latlon lon0:nlon:dlon lat0:nlat:dlat outfile*
+``-new_grid latlon lon0:nlon:dlon lat0:nlat:dlat outfile``
 
 +----------+------------------------------------------+
 | Variable | Description                              |
@@ -40,12 +38,12 @@ Examples of wgrib2
 
 **Example 2: Lambert Conic Conformal Grid**
 
-*-new_grid lambert:lov:latin1:latin2 lon0:nx:dx lat0:ny:dy outfile*
+``-new_grid lambert:lov:latin1:latin2 lon0:nx:dx lat0:ny:dy outfile``
 
 +----------+-----------------------------------------------------------------+
 | Variable | Description                                                     |
 +==========+=================================================================+
-| lov      | Longitude where y axis is parallel to meridian in degrees       |
+| lov      | Longitude where y-axis is parallel to meridian in degrees       |
 +----------+-----------------------------------------------------------------+
 | latin1   | First latitude from pole which cuts the secant cone in degrees  |
 +----------+-----------------------------------------------------------------+
@@ -66,14 +64,16 @@ Examples of wgrib2
 
 **Example 3: Polar Stereographic Grid**
 
-*-new_grid nps(or SPS):lov:lad lon0:nx:dx lat0:ny:dy outfile*
+``-new_grid nps:lov:lad lon0:nx:dx lat0:ny:dy outfile``
+OR
+``-new_grid sps:lov:lad lon0:nx:dx lat0:ny:dy outfile``
 
 +----------+-----------------------------------------------------------+
 | Variable | Description                                               |
 +==========+===========================================================+
 | nps/sps  | North/south polar stereographic                           |
 +----------+-----------------------------------------------------------+
-| lov      | Longitude where y axis is parallel to meridian in degrees |
+| lov      | Longitude where y-axis is parallel to meridian in degrees |
 +----------+-----------------------------------------------------------+
 | lad      | Latitude where dx and dy are specified                    |
 +----------+-----------------------------------------------------------+
@@ -92,7 +92,7 @@ Examples of wgrib2
 
 **Winds**
 
-*-new_grid_winds grid(or earth)*
+``-new_grid_winds grid`` OR ``-new_grid_winds earth``
 
 +----------+----------------------------------------------+
 | Variable | Description                                  |
@@ -104,9 +104,9 @@ Examples of wgrib2
 
 **Interpolation**
 
-The default interpolation type is bilinear, but it can be set to another type (e.g. neighbor, budget).
+The default interpolation type is bilinear, but it can be set to another type (e.g., neighbor, budget).
  
-*-new_grid_interpolation type*
+``-new_grid_interpolation type``
 
 **Operational Example**
 
@@ -120,8 +120,10 @@ the variable.
     -if ":(CRAIN|CICEP|CFRZR|CSNOW|ICSEV):" -new_grid_interpolation neighbor -fi |
     -set_bitmap 1 -set_grib_max_bits 16 |
     -if ":(APCP|ACPCP|PRATE|CPRAT):" -set_grib_max_bits 25 -fi |
-    -if ":(APCP|ACPCP|PRATE|CPRAT|DZDT):" -new_grid_interpolation budget -if |
+    -if ":(APCP|ACPCP|PRATE|CPRAT|DZDT):" -new_grid_interpolation budget -fi |
     -new_grid "latlon 0:1440:0.25 90:721:-0.25" outfile
 
-**Note:** *wgrib2 is not distributed within the UFS weather application. Users may download and install
-from http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/.*
+.. note::
+   *wgrib2* is not distributed as part of the :term:`UFS`, but it can be installed via 
+   :term:`HPC-Stack` or :term:`spack-stack` along with other UFS prerequisite software. 
+   Users may also download and install it directly from http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/. 
