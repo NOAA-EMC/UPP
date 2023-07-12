@@ -1508,7 +1508,7 @@
 
     <param>
        <post_avblfldidx>171</post_avblfldidx>
-       <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <shortname>RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>MSTAV</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>

@@ -550,7 +550,7 @@
        </param>
 
        <param>
-       <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <shortname>RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <scale>3.0</scale>
        </param>
 
@@ -2334,7 +2334,7 @@
        </param>
 
        <param>
-       <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <shortname>RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <scale>3.0</scale>
        </param>
 
