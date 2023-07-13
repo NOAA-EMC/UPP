@@ -117,7 +117,7 @@ Builds include:
 CMake is used to manage all builds of the UPP. 
 The script `UPP/tests/compile_upp.sh` can be used to automatically
 build UPP on fully supported platforms where HPC-stack is supported.
-Details in this script can be used to build on new platforms.
+Details in this script can be used to build on new platforms
 
 
 ## Disclaimer
