@@ -133,14 +133,17 @@
  
 !     global loop ranges
 !
-!  para_range2 supports a 2D decomposition.  The rest of the post
-!  supports 1D still and the call here is the special case where each
-!  processor gets all of the longitudes in the latitude 1D subdomain
-!  jsta:jend.  The X decomposition will be specified by the third
-!  argument (currently 1) and the Y decoposition will be specified by
-!  the fourth argument (currently all of the ranks)   When X is
-!  subdivided the third and fourth arguments will have to be integral
-!  factors of num_procs 
+!  para_range2 supports a 2D decomposition.  
+!  The X decomposition is  specified by the third
+!  argument  and the Y decoposition is  specified by
+!  the fourth argument.  The product of the third and fourth arguments
+!  must be num_procs and the third and fourth arguments must be integral
+!  factors of num_procs.
+!
+!  for the special case of 1D decomposition, numx is set to 1 and the
+!  fourth argument becomes the number of MPI ranks for the job. numx=1
+!   makes the code fully compatible with the old 1D decomposition. 
+
 
       call para_range2(im,jm,numx,num_procs/numx,me,ista,iend,jsta,jend)
 
@@ -266,8 +269,8 @@
       iup=MPI_PROC_NULL
       idn=MPI_PROC_NULL
 
-      if(mod(me,numx) .eq. 0) print *,' LEFT POINT',me
-      if(mod(me+1,numx) .eq. 0) print *,' RIGHT  POINT',me
+      !if(mod(me,numx) .eq. 0) print *,' LEFT POINT',me
+      !if(mod(me+1,numx) .eq. 0) print *,' RIGHT  POINT',me
       if(mod(me,numx) .eq. 0) ileft=MPI_PROC_NULL
       if(mod(me,numx) .eq. 0) ileftb=me+numx-1
       if(mod(me+1,numx) .eq. 0 .or. me .eq. num_procs-1)  iright=MPI_PROC_NULL
@@ -275,7 +278,7 @@
       if(me .ge. numx) idn=me-numx
       if(me+1  .le. num_procs-numx) iup=me+numx
 
-      print 102,me,ileft,iright,iup,idn,num_procs,'GWVX BOUNDS'
+      !print 102,me,ileft,iright,iup,idn,num_procs,'GWVX BOUNDS'
 
 !     allocate arrays
 
@@ -335,7 +338,7 @@
       end do ! end check code
 
 !  test pole gather
-      print 105,' GWVX GATHER DISP ',icnt2(me),idsp2(me),me
+      !print 105,' GWVX GATHER DISP ',icnt2(me),idsp2(me),me
  105  format(a30,3i12)
 
       call mpi_gatherv(ipole(ista),icnt2(me),MPI_INTEGER,  ipoles,icnt2,idsp2,MPI_INTEGER,0,MPI_COMM_WORLD, ierr ) 
@@ -359,10 +362,10 @@
  107    format(a20,10i10)
  169    format(a25,f20.1,3i10,a10,4i10)
 !
-      print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
-               'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
-               'lp1=',lp1
-      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
+!      print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
+!               'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
+!               'lp1=',lp1
+!      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
 
       end
 

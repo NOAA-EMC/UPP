@@ -26,6 +26,7 @@ set -x
 #           Added netcdfpara; Removed netcdf;
 #           Changed UPP directory name and path             
 #
+# June 2022: Add 2D decomposition capabilities, TH (DTC)
 #--------------------------------------------------------
 #
 # This script runs the stand-alone community version of UPP
@@ -58,6 +59,9 @@ set -x
 # incrementhr   : Increment (in hours) between forecast files
 #                 * Do not set to 0 or the script will loop continuously *
 # RUN_COMMAND   : System run command for serial or parallel runs, examples below.
+#
+# numx          : The number of subdomains in the x-direction for 2D decomposition.
+#                 (default is 1)
 #
 #----------------------------------------------------------------------------------
 #--- BEGIN USER EDIT HERE ---------------------------------------------------------
@@ -96,8 +100,11 @@ export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/upp.x "
 #export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/upp.x "
 #export RUN_COMMAND="mpiexec_mpt ${POSTEXEC}/upp.x "
 
+# The number of subdomains in the x-direction for 2d decomposition
+export numx=2
+
 # Shouldn't need to edit these.
-# tmmark is an variable used as the file extention of the output
+# tmmark is a variable used as the file extension of the output
 # filename .GrbF is used if this variable is not set
 # COMSP is a variable used as the initial string of the output filename
 export tmmark=tm00
@@ -329,6 +336,9 @@ DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='${tag}'
 fileNameFlux='${flxFileName}'
 fileNameFlat='postxconfig-NT.txt'
+/
+&nampgb
+numx=${numx}
 /
 EOF
    fi

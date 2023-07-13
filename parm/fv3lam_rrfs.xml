@@ -2416,28 +2416,28 @@
        </param>
 
        <param>
-       <shortname>INST_CRAIN_ON_SURFACE</shortname>
+       <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
        <table_info>NCEP</table_info>
         <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>CSNOW_ON_SURFACE</shortname>
+       <shortname>GSD_CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
         </param>
 
        <param>
-       <shortname>CICEP_ON_SURFACE</shortname>
+       <shortname>GSD_CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
         </param>
 
        <param>
-       <shortname>CFRZR_ON_SURFACE</shortname>
+       <shortname>GSD_CFRZR_ON_SURFACE</shortname>
        <pname>CFRZR</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>

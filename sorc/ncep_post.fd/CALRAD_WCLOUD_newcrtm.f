@@ -1360,7 +1360,7 @@
                     geometryinfo(1)%sensor_zenith_angle=sat_zenith
 	            geometryinfo(1)%sensor_scan_angle=sat_zenith
 
-                    if(i==ii .and. j==jj) then
+                    if(i==ii .and. j==jj.and.debugprint) then
                        print *,'zenith info: zenith=',sat_zenith,' scan=',sat_zenith, &
                              ' MAX_SENSOR_SCAN_ANGLE=',MAX_SENSOR_SCAN_ANGLE
                     endif
@@ -1370,7 +1370,7 @@
                          .and. geometryinfo(1)%sensor_zenith_angle >= 0.0_r_kind)THEN
                        geometryinfo(1)%source_zenith_angle = acos(czen(i,j))*rtd ! solar zenith angle
                        geometryinfo(1)%sensor_scan_angle   = 0. ! scan angle, assuming nadir
-                       if(i==ii.and.j==jj)print*,'sample geometry ',                   &
+                       if(i==ii.and.j==jj.and.debugprint)print*,'sample geometry ',                   &
                           geometryinfo(1)%sensor_zenith_angle                          &
                           ,geometryinfo(1)%source_zenith_angle                         &
                           ,czen(i,j)*rtd 
@@ -1537,7 +1537,7 @@
                              print*,'bad snow_depth'
                        end if
        
-                       if(i==ii.and.j==jj)print*,'sample surface in CALRAD=',           &
+                       if(i==ii.and.j==jj.and.debugprint)print*,'sample surface in CALRAD=',           &
                              i,j,surface(1)%wind_speed,surface(1)%water_coverage,       &
                              surface(1)%land_coverage,surface(1)%ice_coverage,          &
                              surface(1)%snow_coverage,surface(1)%land_temperature,      &
@@ -1550,7 +1550,7 @@
 
                        !       Load atmosphere profiles into RTM model layers
                        !       CRTM counts from top down just as post does
-                       if(i==ii.and.j==jj)print*,'TOA= ',atmosphere(1)%level_pressure(0)
+                       if(i==ii.and.j==jj.and.debugprint)print*,'TOA= ',atmosphere(1)%level_pressure(0)
                        do k = 1,lm
                           atmosphere(1)%cloud_fraction(k) = min(max(cfr(i,j,k),0.),1.)
                           atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
@@ -1732,7 +1732,7 @@
                           do n=1,channelinfo(sensorindex)%n_channels
                              tb(i,j,n)=rtsolution(n,1)%brightness_temperature
                           end do
-                          if(i==ii.and.j==jj) then
+                          if(i==ii.and.j==jj.and.debugprint) then
                              do n=1,channelinfo(sensorindex)%n_channels
  3303                           format('Sample rtsolution(',I0,',',I0,') in CALRAD = ',F0.3)
 !                               print 3303,n,1,rtsolution(n,1)%brightness_temperature
