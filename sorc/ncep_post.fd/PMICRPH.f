@@ -39,8 +39,8 @@
       REAL BP        !< B Prime (B') constant for computing freezing rate of cloud droplets
       REAL AP        !< A Prime (A') constant for computing freezing rate of cloud droplets
       REAL CNP       !< constant for computing cloud drop shape parameter
-      REAL FRD1      !< _____
-      REAL FRA1      !< _____
+      REAL FRD1      !< Related to freezing of rain droplets (Lin, et al., 45)
+      REAL FRA1      !< Related to freezing of rain droplets (Lin, et al., 45)
       REAL EFIS      !< collection efficiency of cloud ice by snow
       REAL EFIR      !< collection efficiency of cloud ice by rain
       REAL EFSR      !< collection efficiency of snow by rain
@@ -50,8 +50,8 @@
       REAL EFGR      !< collection efficiency of graupel by rain
       REAL EFGS      !< collection efficiency of graupel by snow
       REAL EFCR      !< collection efficiency of cloud water by rain
-      REAL ACRIS     !< _____
-      REAL BACRIS    !< _____
+      REAL ACRIS     !< Related to collection of cloud ice by snow
+      REAL BACRIS    !< Related to collection of cloud ice by snow
       REAL CIR       !< collection of cloud ice by rain
       REAL CIRF      !< rate at which rain is frozen by collision with cloud ice
       REAL cpiacr0   !< constant for PIACR (not used)
@@ -63,15 +63,15 @@
       REAL FGRAUPEL  !< mean fall speed of graupel
       REAL CSR       !< collection of snow by rain
       REAL CRS       !< collection of rain by snow
-      REAL ACRCS     !< _____ 
-      REAL BACRCS    !< _____ 
+      REAL ACRCS     !< Related to collection of cloud water by snow using old particle size distribution
+      REAL BACRCS    !< Related to collection of cloud water by snow using old particle size distribution
       REAL RMC       !< constant - no longer used/supported
-      REAL ACRLS     !< _____ 
-      REAL BACLS     !< _____ 
-      REAL ACRCG     !< _____ 
-      REAL BACRCG    !< _____ 
-      REAL ACRIG     !< _____ 
-      REAL BACRIG    !< _____ 
+      REAL ACRLS     !< Related to loss of snow due to collision with cloud water 
+      REAL BACLS     !< Related to loss of snow due to collision with cloud water 
+      REAL ACRCG     !< Related to collection of cloud water by graupel using old particle size distribution
+      REAL BACRCG    !< Related to collection of cloud water by graupel using old particle size distribution
+      REAL ACRIG     !< Related to collection of cloud ice by graupel
+      REAL BACRIG    !< Related to collection of cloud ice by graupel
       REAL CRG       !< collection of rain by graupel
       REAL CSG       !< collection of snow by graupel
       REAL DEPG1     !< Depositional growth of graupel
@@ -82,20 +82,20 @@
       REAL DEPS2     !< Depositional growth of snow
       REAL DEPS3     !< Depositional growth of snow
       REAL DEPS4     !< Depositional growth of snow
-      REAL ACRCR     !< _____ 
-      REAL BACRCR    !< _____ 
+      REAL ACRCR     !< Related to collection of cloud water by rain
+      REAL BACRCR    !< Related to collection of cloud water by rain
       REAL DEPR1     !< Depositional growth of rain
       REAL DEPR2     !< Depositional growth of rain
       REAL DEPR3     !< Depositional growth of rain
       REAL DEPR4     !< Depositional growth of rain
-      REAL PSM1      !< _____
-      REAL PSM2      !< _____
-      REAL PSM3      !< _____
-      REAL PSM4      !< _____
-      REAL PGM1      !< _____
-      REAL PGM2      !< _____
-      REAL PGM3      !< _____
-      REAL PGM4      !< _____
+      REAL PSM1      !< Related to melting of snow
+      REAL PSM2      !< Related to melting of snow
+      REAL PSM3      !< Related to melting of snow
+      REAL PSM4      !< Related to melting of snow
+      REAL PGM1      !< Related to melting of graupel
+      REAL PGM2      !< Related to melting of graupel
+      REAL PGM3      !< Related to melting of graupel
+      REAL PGM4      !< Related to melting of graupel
       REAL CW        !< constant for enhanced melting of graupel by rain and cloud water
       REAL HGFR      !< constant for homogeneous freezing of cloud droplets
       REAL XM01      !< constant used to calculate the minimum mass of ice
@@ -111,10 +111,10 @@
       REAL XM0S      !< minimum mass of snow
       REAL XR0S      !< smallest size of snow
       REAL XM0G      !< minimum mass of graupel
-      REAL ACRCS_new    !< _____ 
-      REAL BACRCS_new   !< _____ 
-      REAL ACRCG_new    !< _____ 
-      REAL BACRCG_new   !< _____ 
+      REAL ACRCS_new    !< Related to collection of cloud water by snow using new particle size distribution for snow (Roy R, Jul 99)
+      REAL BACRCS_new   !< Related to collection of cloud water by snow using new particle size distribution for snow (Roy R, Jul 99)
+      REAL ACRCG_new    !< Related to collection of cloud water by graupel using new particle size distribution for graupel (Roy R, Jul 99)
+      REAL BACRCG_new   !< Related to collection of cloud water by graupel using new particle size distribution for graupel (Roy R, Jul 99)
       REAL const_ns1 !< constant for variable ‘son’ (slope intercept for snow)
       REAL const_ns2 !< constant for variable ‘son’ (slope intercept for snow)
       REAL const_ng1 !< constant for variable ‘gon’ (slope intercept for graupel)
