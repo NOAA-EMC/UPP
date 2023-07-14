@@ -5837,8 +5837,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !> @brief wrt_aero_diag outputs aerosol field in grib2. 
 !> 
 !> @param igetfld integer UPP field ID number. 
-!> @param nbin integer _____. 
-!> @param data real _____. 
+!> @param nbin integer. 
+!> @param data real. 
 !------------------------------------------------------------------------------------
       subroutine wrt_aero_diag(igetfld,nbin,data)
       use ctlblk_mod, only: jsta, jend, SPVAL, im, jm, grib,     &

@@ -14,7 +14,7 @@
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
 !--------------------------------------------------------------------------------
-!> @brief COLLECT_LOC _____.
+!> @brief COLLECT_LOC
 !>
 !> @param[in] A real array Array being gathered.
 !> @param[out] B real array Gathered array - only valid on task 0.
@@ -84,7 +84,7 @@
       end               
 !
 !-----------------------------------------------------------------------
-!> @brief COLLECT_ALL() _____.
+!> @brief COLLECT_ALL()
 !>
 !> @param[in] A real array Array being gathered.
 !> @param[out] B real array Gathered array - only valid on task 0.

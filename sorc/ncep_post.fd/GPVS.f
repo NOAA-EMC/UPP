@@ -107,10 +107,10 @@
 !> @note This function is no longer used. 
 !>
 !> @param T real Temperature (K).
-!> @param NX integer Number of grid cells in the X direction _____.
-!> @param C1XPVS0 real _____.
-!> @param C2XPVS0 real _____.
-!> @param TBPVS0 array _____.
+!> @param NX integer Number of grid cells in the X direction.
+!> @param C1XPVS0 real
+!> @param C2XPVS0 real
+!> @param TBPVS0 array
 !> @return FPVS0 real Saturation vapor pressure in kilopascals (CB).
 !>
 

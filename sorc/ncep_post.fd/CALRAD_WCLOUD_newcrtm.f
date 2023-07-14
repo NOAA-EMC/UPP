@@ -2841,9 +2841,9 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 end function EFFR
 
 !-------------------------------------------------------------------------------
-!> @brief GAMMLN _____.
+!> @brief GAMMLN
 !>
-!> @param[in] XX _____.
+!> @param[in] XX
 !> @return GAMMLN Returns the value of LN(GAMMA(XX)) FOR XX > 0.
 !-------------------------------------------------------------------------------
 
@@ -2872,10 +2872,10 @@ end function EFFR
       END FUNCTION GAMMLN
 
 !-------------------------------------------------------------------------------
-!> @brief WGAMMA _____. 
+!> @brief WGAMMA
 !>
-!> @param[in] y _____.
-!> @return WGAMMA _____. 
+!> @param[in] y
+!> @return WGAMMA
 !-------------------------------------------------------------------------------
 
       REAL FUNCTION WGAMMA(y)

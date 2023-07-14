@@ -380,10 +380,10 @@
 
 
 !----------------------------------------------------------------------
-!> @brief fullpole() _____. 
+!> @brief fullpole() 
 !> 
-!> @param[inout] a real _____.
-!> @param[inout] rpoles real _____.
+!> @param[inout] a real
+!> @param[inout] rpoles real
 !----------------------------------------------------------------------
 
       subroutine fullpole(a,rpoles)
