@@ -40,6 +40,14 @@
 !> 2023-02-23 | Eric James     | Adding vertically integrated coarse PM from RRFS
 !>     
 !> @author Russ Treadon W/NP2 @date 1992-12-24
+!-----------------------------------------------------------------------
+!> CALPW() Subroutine that computes precipitable water.
+!>
+!> @param[in] PW Array of precipitable water.
+!> @param[in] IDECID integer ID number specifying input/method in CALPW 
+!>             (e.g. IDECID=1 computes total column precipitable water, 
+!>             IDECID=2 computes Total column cloud water, IDECID=3 total column). 
+!-----------------------------------------------------------------------
       SUBROUTINE CALPW(PW,IDECID)
 
 !     

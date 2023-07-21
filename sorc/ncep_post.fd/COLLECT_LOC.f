@@ -13,6 +13,12 @@
 !> 2021-06-01 | George Vandenberghe | 2D Decomposition             
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
+!--------------------------------------------------------------------------------
+!> @brief COLLECT_LOC
+!>
+!> @param[in] A real array Array being gathered.
+!> @param[out] B real array Gathered array - only valid on task 0.
+!--------------------------------------------------------------------------------
       SUBROUTINE COLLECT_LOC ( A, B ) 
 
 
@@ -77,6 +83,11 @@
 
       end               
 !
+!-----------------------------------------------------------------------
+!> @brief COLLECT_ALL()
+!>
+!> @param[in] A real array Array being gathered.
+!> @param[out] B real array Gathered array - only valid on task 0.
 !-----------------------------------------------------------------------
 !
       SUBROUTINE COLLECT_ALL ( A, B )

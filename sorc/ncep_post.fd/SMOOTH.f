@@ -19,7 +19,7 @@
 !> @param[in] HOLD Real array HOLD(IX,2) Holding the value for field.
 !> @param[in] IX Integer X Coordinates of field.
 !> @param[in] IY Integer Y Coordinates of field.
-!> @param[in] SMTH Real.
+!> @param[in] SMTH Real Smoothing operator.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -37,7 +37,7 @@
 !> @param[in] HOLD Real array HOLD(IX,2) Holding the value for field.
 !> @param[in] IX Integer X Coordinates of field.
 !> @param[in] IY Integer Y Coordinates of field.
-!> @param[in] SMTH Real.
+!> @param[in] SMTH Real Smoothing operator.
 !>
       SUBROUTINE SMOOTH (FIELD,HOLD,IX,IY,SMTH)
 
@@ -118,7 +118,7 @@
 !> @param[in] HOLD Real array HOLD(IX,2) Holding the value for field.
 !> @param[in] IX Integer X Coordinates of field.
 !> @param[in] IY Integer Y Coordinates of field.
-!> @param[in] SMTH Real.
+!> @param[in] SMTH Real Smoothing operator.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
