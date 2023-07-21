@@ -52,7 +52,6 @@
 	    integer                              :: scale_fact_2nd_wvlen=0
 	    real                                 :: scale_val_2nd_wvlen=0.0
 	    real, dimension(:), pointer          :: scale => null()  
-
 	    integer                              :: stat_miss_val=0
 	    integer                              :: leng_time_range_prev=0
 	    integer                              :: time_inc_betwn_succ_fld=0
