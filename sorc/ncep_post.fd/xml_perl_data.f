@@ -36,21 +36,13 @@
 	    character(len=80)                    :: stats_proc=''
 	    character(len=80)                    :: fixed_sfc1_type=''
        integer, dimension(:), pointer       :: scale_fact_fixed_sfc1 => null()
-	    
        real, dimension(:), pointer          :: level => null()
-	    
        character(len=80)                    :: fixed_sfc2_type=''
-	    
        integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null() 
-	    
        real, dimension(:), pointer          :: level2 => null()
-	    
        character(len=80)                    :: aerosol_type=''
-
 	    character(len=80)                    :: typ_intvl_size=''
-
  	    integer                              :: scale_fact_1st_size=0
-
 	    real                                 :: scale_val_1st_size=0.0
 	    integer                              :: scale_fact_2nd_size=0
 	    real                                 :: scale_val_2nd_size=0.0
@@ -59,7 +51,6 @@
 	    real                                 :: scale_val_1st_wvlen=0.0
 	    integer                              :: scale_fact_2nd_wvlen=0
 	    real                                 :: scale_val_2nd_wvlen=0.0
-
 	    real, dimension(:), pointer          :: scale => null()  
 
 	    integer                              :: stat_miss_val=0
