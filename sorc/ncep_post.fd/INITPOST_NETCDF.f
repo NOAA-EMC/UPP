@@ -36,8 +36,9 @@
 !> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
 !> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !> 2023-05-31 | Wen Meng      | Bug fix in qrmax initialization
-!> 2023-06-14 | Wen Meng      ! Bug fix of reading seaswtc and modification of sndepac calculation
-!> 2023-07-06 | Eric James    ! Read in SOILL on 9 levels for RRFS
+!> 2023-06-14 | Wen Meng      | Bug fix of reading seaswtc and modification of sndepac calculation
+!> 2023-07-06 | Eric James    | Read in SOILL on 9 levels for RRFS
+!> 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -1627,7 +1628,7 @@
       do l=1,lm
       do j=jsta,jend
       do i=ista,iend
-        q2(i,j,l)=q2(i,j,l)/2.0
+        if(q2(i,j,l)/=spval) q2(i,j,l)=q2(i,j,l)/2.0
       enddo
       enddo
       enddo
