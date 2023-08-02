@@ -1,5 +1,5 @@
 var CALMICT_8f =
 [
-    [ "CALMICT_new", "CALMICT_8f.html#a398a54bdf4fa0cae7f3947a40cb280cb", null ],
-    [ "CALMICT_old", "CALMICT_8f.html#a3805966c39517670a9f47c899c340a6a", null ]
+    [ "calmict_new", "CALMICT_8f.html#ab8667a22624efe5afd9c7ef736b0670f", null ],
+    [ "calmict_old", "CALMICT_8f.html#a4009f8e95aee417907d221791ec388a5", null ]
 ];
