@@ -18,7 +18,7 @@
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
-    <type_ens_fcst>negatively_pert_fcst</type_ens_fcst>
+    <type_ens_fcst>pos_pert_fcst</type_ens_fcst>
 
     <param>
        <shortname>HGT_ON_ISOBARIC_SFC</shortname>
@@ -1012,6 +1012,35 @@
        <level>1. 2. 3. 4.</level>
        <scale>6.0</scale>
     </param>
+
+    <param>
+       <post_avblfldidx>549</post_avblfldidx>
+       <shortname>FDNSSTMP_ON_SURFACE</shortname>
+       <pname>FDNSSTMP</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+    
+    <param>
+       <post_avblfldidx>1004</post_avblfldidx>
+       <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TSNOWP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+       
+    <param>
+       <post_avblfldidx>1005</post_avblfldidx>
+       <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TSNOWP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
 
     <!--  comments wherever I like -->
   </paramset>
