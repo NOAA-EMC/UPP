@@ -1,7 +1,7 @@
 var CALRAD__WCLOUD__newcrtm_8f =
 [
-    [ "CALRAD_WCLOUD", "CALRAD__WCLOUD__newcrtm_8f.html#af70d373f610c8622c38051ba27d2e34b", null ],
-    [ "EFFR", "CALRAD__WCLOUD__newcrtm_8f.html#a716eb506b6cf32b821d566e0339957f1", null ],
-    [ "GAMMLN", "CALRAD__WCLOUD__newcrtm_8f.html#aa14aea3ab9c43d94909ad74ffc6a2363", null ],
-    [ "WGAMMA", "CALRAD__WCLOUD__newcrtm_8f.html#af6505743e0752fd9256b3346681d4565", null ]
+    [ "calrad_wcloud", "CALRAD__WCLOUD__newcrtm_8f.html#aab9fb09e374702f5b1382e914c136663", null ],
+    [ "effr", "CALRAD__WCLOUD__newcrtm_8f.html#a7ea8eadeedf21052be88e299a5a1f0f2", null ],
+    [ "gammln", "CALRAD__WCLOUD__newcrtm_8f.html#afcc929f016be16fb675825b35221c5a9", null ],
+    [ "wgamma", "CALRAD__WCLOUD__newcrtm_8f.html#a4b4a279577886d8fd80e7015ce824d25", null ]
 ];
