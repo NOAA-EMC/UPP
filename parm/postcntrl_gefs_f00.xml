@@ -82,18 +82,6 @@
     </param>
 
     <param>
-       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
-       <level>30000. 40000. 50000. 60000. 70000. 80000.</level>
-       <scale>3.0</scale>       
-    </param>
-
-    <param>
-       <shortname>ICSEV_ON_ISOBARIC_SFC</shortname>
-       <level>30000. 40000. 50000. 60000. 70000. 80000.</level>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <scale>6.0</scale>
     </param>
