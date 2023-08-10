@@ -2,13 +2,13 @@
 !> @brief initpost_nems() initializes post for run.
 !>
 !> @author Hui-Ya Chuang @date 2007-03-26
-
+!>
 !> This routine initializes constants and
 !> variables at the start of an NEMS model or post
 !> processor run.
 !>
 !> @param[in] NREC.
-!> @param[in] NFILE.
+!> @param[inout] NFILE.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -17,6 +17,13 @@
 !> 2021-03-11 | Bo Cui        | Change local arrays to dimension (im,jsta:jend)
 !>
 !> @author Hui-Ya Chuang @date 2007-03-26
+!----------------------------------------------------------------------
+!> @brief INITPOST_NEMS This routine initializes constants and
+!> variables at the start of an NEMS model or post processor run.
+!> 
+!> @param[in] NREC integer Number of records in file.
+!> @param[inout] nfile nemsio_gfile Name of the NEMS-formatted model output file.
+!----------------------------------------------------------------------
       SUBROUTINE INITPOST_NEMS(NREC,nfile)
 
       use vrbls3d, only: t, q, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, cfr, pint,&

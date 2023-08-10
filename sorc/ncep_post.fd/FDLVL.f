@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine that computes T, Q, U, V on the flight levels (FD).
+!> @brief Subroutine that computes T, Q, U, V, P, and ICING on the flight levels (FD).
 !>
 !> This routine computes temperature, spec. hum, u wind component,
 !> and v wind component on the NFD=6 FD levels. The 
@@ -27,6 +27,8 @@
 !> @param[out] QFD Spec hum on FD levels.
 !> @param[out] UFD U wind (m/s) on FD levels.
 !> @param[out] VFD V wind (m/s) on FD levels.
+!> @param[out] PFD Pressure (Pa) on FD levels.
+!> @param[out] ICINGFD Icing on FD levels (see https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-207.shtml).
 !>     
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -42,6 +44,18 @@
 !> 2022-09-22 | Li(Kate) Zhang   | Remove Dust=> AERFD
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!--------------------------------------------------------------------------
+!> fdlvl() Subroutine that computes T, Q, U, V, P, ICING on the flight levels (FD).
+!> 
+!> @param[in] ITYPE Flag that determines whether MSL (1) or AGL (2) Levels are used.
+!> @param[out] TFD Temperature (K) on FD levels.
+!> @param[out] QFD Spec hum on FD levels.
+!> @param[out] UFD U wind (m/s) on FD levels.
+!> @param[out] VFD V wind (m/s) on FD levels.
+!> @param[out] PFD Pressure (Pa) on FD levels.
+!> @param[out] ICINGFD Icing on FD levels.
+!--------------------------------------------------------------------------
+
       SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
 
 !     

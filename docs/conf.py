@@ -56,7 +56,8 @@ master_doc = 'index'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = ["_themes", ]
 
 # html_theme_options = {}
 html_theme_options = {"body_max_width": "none"}
@@ -69,5 +70,7 @@ html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# Add custom style sheet
-html_css_files = ['custom.css']
+# Add custom style sheets
+def setup(app):
+    app.add_css_file('custom.css')  # may also be an URL
+    app.add_css_file('theme_overrides.css')  # may also be an URL

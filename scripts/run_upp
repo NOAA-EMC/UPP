@@ -104,7 +104,7 @@ export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/upp.x "
 export numx=2
 
 # Shouldn't need to edit these.
-# tmmark is an variable used as the file extention of the output
+# tmmark is a variable used as the file extension of the output
 # filename .GrbF is used if this variable is not set
 # COMSP is a variable used as the initial string of the output filename
 export tmmark=tm00
