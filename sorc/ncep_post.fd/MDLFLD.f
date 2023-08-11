@@ -96,7 +96,7 @@
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM, avgpmtf, avgozcon
+              catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
@@ -4199,7 +4199,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
         ! Use the existing 3D local arrays as cycled variables
-        EL=SPVAL
         RICHNO=SPVAL
 
         call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
@@ -4207,12 +4206,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         zmid(ista:iend,:,:),pmid(ista:iend,:,:),t(ista:iend,:,:),&
         q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
         qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
+        q2(ista:iend,:,:),&
         ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
         sfclhx(ista:iend,:),ustar(ista:iend,:),&
         z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
-        catedr(ista:iend,:,:),mwt(ista:iend,:,:),EL(ista:iend,:,:),&
+        catedr(ista:iend,:,:),mwt(ista:iend,:,:),cit(ista:iend,:,:),&
         gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
 
         i=iend

@@ -305,6 +305,7 @@
       allocate(catedr(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(mwt(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(gtg(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(cit(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
@@ -317,6 +318,7 @@
             catedr(i,j,l)=spval
             mwt(i,j,l)=spval
             gtg(i,j,l)=spval
+            cit(i,j,l)=spval
           enddo
         enddo
       enddo

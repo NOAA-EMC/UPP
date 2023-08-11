@@ -147,7 +147,11 @@ env
 #########################################################
 # Execute the Script
 #########################################################
-$SCRgfs/ex${RUN}_atmos_nceppost.sh
+if [ $WAFSF = "YES" ] ; then
+    $SCRgfs/exwafs_atmos_nceppost.sh
+else
+    $SCRgfs/ex${RUN}_atmos_nceppost.sh
+fi
 
 ##############################
 # Remove the Temporary working directory

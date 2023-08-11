@@ -131,7 +131,11 @@ list(APPEND LIB_SRC
 list(APPEND GTG_LIB_SRC
   gtg_algo.F90
   gtg_compute.F90
-  gtg_config.F90
+  gtg_cdf_mod.F90
+  gtg_ReadSetupParams.F90
+  gtg_read_config.F90
+  gtg_mlmodel.F90
+  gtg_prob.F90
   gtg_ctlblk.F90
   gtg_filter.F90
   gtg_indices.F90

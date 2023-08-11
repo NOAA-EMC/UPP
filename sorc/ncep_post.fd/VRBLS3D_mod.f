@@ -80,7 +80,7 @@
 ! Add NCAR GFIP ICING
       ,icing_gfip(:,:,:),icing_gfis(:,:,:) &
 ! Add NCAR GTG turbulence
-      ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:) &
+      ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:),cit(:,:,:) &
 ! AQF
       ,avgozcon(:,:,:),avgpmtf(:,:,:)
 

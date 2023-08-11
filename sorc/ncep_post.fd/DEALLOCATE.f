@@ -475,6 +475,7 @@
       deallocate(catedr)
       deallocate(mwt)
       deallocate(gtg)
+      deallocate(cit)
 
 !
       if (gocart_on .or. gccpp_on .or. nasa_on) then

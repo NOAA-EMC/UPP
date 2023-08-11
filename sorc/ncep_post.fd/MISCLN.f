@@ -172,10 +172,6 @@
               SCINtmp,MUCAPEtmp,MUCINtmp,MLLCLtmp,ESHRtmp,MLCAPEtmp,STP,&
               FSHRtmp,MLCINtmp,SLCLtmp,LAPSE,SHIP
 
-!     Variables introduced to allow FD levels from control file - Y Mao
-      integer :: N,NFDCTL
-      REAL, allocatable :: HTFDCTL(:)
-      integer, allocatable :: ITYPEFDLVLCTL(:)
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
       integer ISTART,ISTOP,JSTART,JSTOP
       real    dummy(ista:iend,jsta:jend)
@@ -200,6 +196,17 @@
       REAL, DIMENSION(:), ALLOCATABLE  :: P_AMB, T_AMB, Q_AMB, ZINT_AMB
       REAL, DIMENSION(:,:,:), ALLOCATABLE  :: TPAR_BASE, TPAR_TOPS
 
+!     Variables introduced to allow FD levels from control file - Y Mao
+      integer :: N,NFDCTL
+      REAL, allocatable :: HTFDCTL(:)
+      integer, allocatable :: ITYPEFDLVLCTL(:)
+      real, allocatable :: QIN(:,:,:,:), QFD(:,:,:,:)
+      character, allocatable :: QTYPE(:)
+
+      integer, parameter :: NFDMAX=10 ! Max number of fields with the same HTFDCTL
+      integer :: IDS(NFDMAX) ! All field IDs with the same HTFDCTL
+      integer :: nFDS ! How many fields with the same HTFDCTL in the control file
+      integer :: iID ! which field with HTFDCTL
 !     
 !****************************************************************************
 !     START MISCLN HERE.
@@ -1192,148 +1199,138 @@
 !     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
 !     
       IF(IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0) THEN
-         if(IGET(467)>0) THEN          ! GTG
-            N=IAVBLFLD(IGET(467))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
-            DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(467))
-            enddo
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-!           print *, "GTG 467 levels=",pset%param(N)%level
-            allocate(GTGFD(ISTA:IEND,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
-!	    print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
+         ! MASS FIELDS INTERPOLATION
+         if(allocated(QIN)) deallocate(QIN)
+         if(allocated(QTYPE)) deallocate(QTYPE)
+         ALLOCATE(QIN(ISTA:IEND,JSTA:JEND,LM,NFDMAX))
+         ALLOCATE(QTYPE(NFDMAX))
 
-            ! Regional GTG has a legend of special defination
-            ! 0 m holds the max value of the whole vertical column
-            DO IFD = 1,NFDCTL
-               if(NINT(HTFDCTL(IFD)) == 0) then
-                  N=IFD
-                  exit
-               endif
-            ENDDO
-            DO IFD = 1,NFDCTL
+!        INITIALIZE INPUTS
+         nFDS = 0
+         IF(IGET(467) > 0) THEN
+            nFDS = nFDS + 1
+            IDS(nFDS) = 467
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=gtg(ISTA:IEND,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
+         end if
+         IF(IGET(468) > 0) THEN
+            nFDS = nFDS + 1
+            IDS(nFDS) = 468
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=catedr(ISTA:IEND,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
+         end if
+         IF(IGET(469) > 0) THEN
+            nFDS = nFDS + 1
+            IDS(nFDS) = 469
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=mwt(ISTA:IEND,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
+         end if
+
+!        FOR Regional GTG, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, except for EDPARM
+!        Use levels of iID=468 for interpolation
+         iID=468
+         N = IAVBLFLD(IGET(iID))
+         NFDCTL=size(pset%param(N)%level)
+         if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
+         allocate(ITYPEFDLVLCTL(NFDCTL))
+         DO IFD = 1,NFDCTL
+            ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(iID))
+         ENDDO
+         if(allocated(HTFDCTL)) deallocate(HTFDCTL)
+         allocate(HTFDCTL(NFDCTL))
+         HTFDCTL=pset%param(N)%level
+
+         if(allocated(QFD)) deallocate(QFD)
+         ALLOCATE(QFD(ISTA:IEND,JSTA:JEND,NFDCTL,nFDS))
+         QFD=SPVAL
+
+         ! pset%param(N)%level will not be used in FDLVL_MASS() because QTYPE='O'
+         call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,pset%param(N)%level,HTFDCTL,nFDS,QIN,QTYPE,QFD)
+
+!        Adjust values before output
+         DO N=1,nFDS
+            iID=IDS(N)
+            if(iID==467 .or. iID==468 .or. iID==469) then
+               DO IFD = 1,NFDCTL
+                  DO J=JSTA,JEND
+                  DO I=ISTA,IEND
+                     if(QFD(I,J,IFD,N) < SPVAL) then
+                        QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
+                        QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
+                     endif
+                  ENDDO
+                  ENDDO
+               ENDDO
+            endif
+         ENDDO
+         
+!        Output
+         DO N=1,nFDS
+            iID=IDS(N)
+            
+!           Regional GTG has a legend of special defination
+!           0 m holds the max value of the whole vertical column
+            if (iID == 467) then
+               EGRID1 = SPVAL
+               DO IFD = 1,NFDCTL
+                  DO J=JSTA,JEND
+                  DO I=ISTA,IEND
+                     work1=QFD(I,J,IFD,N)
+                     if(EGRID1(I,J)>=SPVAL) then
+                        EGRID1(I,J)=work1
+                     elseif(work1<SPVAL) then
+                        if(EGRID1(I,J)<work1) EGRID1(I,J)=work1
+                     endif
+                  ENDDO
+                  ENDDO
+               ENDDO
                DO J=JSTA,JEND
                DO I=ISTA,IEND
-                  work1=GTGFD(I,J,IFD)
-                  if(GTGFD(I,J,N)>=SPVAL) then
-                     GTGFD(I,J,N)=work1
-                  elseif(work1<SPVAL) then
-                     if(GTGFD(I,J,N)<work1) GTGFD(I,J,N)=work1
+                  GRID1(I,J)=EGRID1(I,J)
+               ENDDO
+               ENDDO
+               if(grib=='grib2') then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
+                  fld_info(cfld)%lvl=0.
+!$omp parallel do private(i,j,ii,jj)
+                  do j=1,jend-jsta+1
+                     jj = jsta+j-1
+                     do i=1,iend-ista+1
+                        ii = ista+i-1
+                        datapd(i,j,cfld) = GRID1(ii,jj)
+                     enddo
+                  enddo
+               endif
+            end if
+            
+            DO IFD = 1,NFDCTL
+               IF (LVLS(IFD,IGET(iID)) > 0) THEN
+!$omp parallel do private(i,j)
+                  DO J=JSTA,JEND
+                  DO I=ISTA,IEND
+                     GRID1(I,J)=QFD(I,J,IFD,N)
+                  ENDDO
+                  ENDDO
+                  if(grib=='grib2') then
+                     cfld=cfld+1
+                     fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
+                     fld_info(cfld)%lvl=LVLSXML(IFD,IGET(iID))
+!$omp parallel do private(i,j,ii,jj)
+                     do j=1,jend-jsta+1
+                        jj = jsta+j-1
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
+                           datapd(i,j,cfld) = GRID1(ii,jj)
+                        enddo
+                     enddo
                   endif
-               ENDDO
-               ENDDO
+               ENDIF
             ENDDO
+         ENDDO
 
-            DO IFD = 1,NFDCTL
-              IF (LVLS(IFD,IGET(467))>0) THEN
-!$omp parallel do private(i,j)
-                 DO J=JSTA,JEND
-                 DO I=ISTA,IEND
-                    GRID1(I,J)=GTGFD(I,J,IFD)
-                 ENDDO
-                 ENDDO
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(467))
-!$omp parallel do private(i,j,ii,jj)
-                   do j=1,jend-jsta+1
-                      jj = jsta+j-1
-                      do i=1,iend-ista+1
-                      ii = ista+i-1
-                         datapd(i,j,cfld) = GRID1(ii,jj)
-                      enddo
-                   enddo
-                 endif
-              ENDIF
-            ENDDO
-         endif
-
-         if(IGET(468)>0) THEN          ! CAT
-            N=IAVBLFLD(IGET(468))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
-            DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(468))
-            enddo
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-            allocate(CATFD(ISTA:IEND,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,catedr,CATFD)
-            DO IFD = 1,NFDCTL
-              IF (LVLS(IFD,IGET(468))>0) THEN
-!$omp parallel do private(i,j)
-                 DO J=JSTA,JEND
-                 DO I=ISTA,IEND
-                    GRID1(I,J)=CATFD(I,J,IFD)
-                 ENDDO
-                 ENDDO
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(468))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(468))
-!$omp parallel do private(i,j,ii,jj)
-                   do j=1,jend-jsta+1
-                      jj = jsta+j-1
-                      do i=1,iend-ista+1
-                      ii = ista+i-1
-                         datapd(i,j,cfld) = GRID1(ii,jj)
-                      enddo
-                   enddo
-                 endif
-              ENDIF
-            ENDDO
-         endif
-
-         if(IGET(469)>0) THEN          ! MWT
-            N=IAVBLFLD(IGET(469))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
-            DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(469))
-            enddo
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-            allocate(MWTFD(ISTA:IEND,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,MWT,MWTFD)
-            DO IFD = 1,NFDCTL
-              IF (LVLS(IFD,IGET(469))>0) THEN
-!$omp parallel do private(i,j)
-                 DO J=JSTA,JEND
-                 DO I=ISTA,IEND
-                    GRID1(I,J)=MWTFD(I,J,IFD)
-                 ENDDO
-                 ENDDO
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(469))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(469))
-!$omp parallel do private(i,j,ii,jj)
-                   do j=1,jend-jsta+1
-                      jj = jsta+j-1
-                      do i=1,iend-ista+1
-                      ii = ista+i-1
-                         datapd(i,j,cfld) = GRID1(ii,jj)
-                      enddo
-                   enddo
-                 endif
-              ENDIF
-            ENDDO
-         endif
-
-         if(allocated(GTGFD)) deallocate(GTGFD)
-         if(allocated(CATFD)) deallocate(CATFD)
-         if(allocated(MWTFD)) deallocate(MWTFD)
-
+         DEALLOCATE(QIN,QFD)
+         DEALLOCATE(QTYPE)
          if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
          if(allocated(HTFDCTL)) deallocate(HTFDCTL)
 
