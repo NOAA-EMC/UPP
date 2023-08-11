@@ -2,40 +2,6 @@
 
 case $(hostname -f) in
 
-  llogin1)                 MACHINE_ID=wcoss_cray ;; ### luna
-  llogin2)                 MACHINE_ID=wcoss_cray ;; ### luna
-  llogin3)                 MACHINE_ID=wcoss_cray ;; ### luna
-
-  slogin1)                 MACHINE_ID=wcoss_cray ;; ### surge
-  slogin2)                 MACHINE_ID=wcoss_cray ;; ### surge
-  slogin3)                 MACHINE_ID=wcoss_cray ;; ### surge
-
-  v71a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v71a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v71a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v72a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v72a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v72a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v109a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v109a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v109a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v110a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v110a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-  v110a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### venus
-
-  m71a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m71a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m71a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m72a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m72a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m72a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m109a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m110a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m109a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m110a1.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m110a2.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-  m110a3.ncep.noaa.gov)     MACHINE_ID=wcoss_dell_p3 ;; ### mars
-
   alogin01.acorn.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2_a ;; ### acorn
   alogin02.acorn.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2_a ;; ### acorn
   adecflow01.acorn.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### acorn
@@ -104,6 +70,11 @@ case $(hostname -f) in
   Orion-login-2.HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion2
   Orion-login-3.HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion3
   Orion-login-4.HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion4
+
+  Hercules-login-1.HPC.MsState.Edu) MACHINE_ID=hercules ;; ### hercules1
+  Hercules-login-2.HPC.MsState.Edu) MACHINE_ID=hercules ;; ### hercules2
+  Hercules-login-3.HPC.MsState.Edu) MACHINE_ID=hercules ;; ### hercules3
+  Hercules-login-4.HPC.MsState.Edu) MACHINE_ID=hercules ;; ### hercules4
 
   cheyenne1.cheyenne.ucar.edu) MACHINE_ID=cheyenne ;; ### cheyenne1
   cheyenne2.cheyenne.ucar.edu) MACHINE_ID=cheyenne ;; ### cheyenne2
