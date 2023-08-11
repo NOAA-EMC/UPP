@@ -7,7 +7,8 @@
 Running UPP Stand-Alone
 ***********************
 
-A script for running the UPP package is included in the **/scripts** directory:
+A script for running the UPP package is included in the :bolditalic:`/scripts` directory:
+
  - :bolditalic:`run_upp`
 
 :underline:`Before running the script, perform the following instructions:`
@@ -46,9 +47,11 @@ A script for running the UPP package is included in the **/scripts** directory:
 
 6. Copy the :bolditalic:`/scripts/run_upp` script to the **/postprd** directory.
 
-7. Edit the run script as outlined in the "Run Script Overview" section. Once these directories are set
+7. Edit the run script as outlined in the :ref:`"Run Script Overview" <run-script-overview>` section below. Once these directories are set
    up and the edits outlined below are complete, the script can be run interactively from the
    **/postprd** directory by simply typing the script name on the command line.
+
+.. _run-script-overview:
 
 ===================
 Run Script Overview
@@ -56,44 +59,47 @@ Run Script Overview
 
 .. note::
    It is recommended that the user refer to the :bolditalic:`run_upp` script while reading this
-   overview. All user modified variables are contained at the top of the :bolditalic:`run_upp` script
+   overview. All user-modified variables are contained at the top of the :bolditalic:`run_upp` script
    in the user-edit section, along with a brief description. Descriptions below follow the
    :bolditalic:`run_upp` script.
 
-1. Set up basic path variables
+1. Set up basic path variables:
 
        | **TOP_DIR**: Top level directory for building and running UPP
        | **DOMAINPATH**: Working directory for this run
        | **UPP_HOME**: Location of the **UPP** directory
        | **POSTEXEC**: Location of the **UPP** executable
-       | **modelDataPath**: Location of the model output data files to be processed
+       | **modelDataPath**: Location of the model output data files to be processed by the UPP
        | **txtCntrlFile**: Name and location of the flat text file that lists desired fields for
          output.
 
    .. note::
       For FV3, the scripts are configured such that UPP expects the flat text file to be in **/parm**,
       and the postprocessor working directory to be called **/postprd**, all under **DOMAINPATH**.
-      This setup is for user convenience to have a script ready to run, paths may be modified but be
+      This setup is for user convenience to have a script ready to run; paths may be modified, but be
       sure to check the run script to make sure settings are correct.
 
-2. Specify dynamic core being run
+2. Specify dynamical core being run:
 
-       | **model**: What model is used ("GFS" or "LAM" - Limited Area Model)
+       | **model**: Which model is used? ("GFS" or "LAM" - Limited Area Model)
 
-3. Specify the format for the input model files and output UPP files
+3. Specify the format for the input model files and output UPP files:
 
        | **inFormat**: Format of the model data ("netcdfpara")
        | **outFormat**: Format of output from UPP ("grib2")
 
-4. Specify the forecast cycles to be post-processed
+4. Specify the forecast cycles to be post-processed:
 
        | **startdate**: Forecast start date (YYYYMMDDHH)
        | **fhr**: First forecast hour to be post-processed
        | **lastfhr**: Last forecast hour to be post-processed
        | **incrementhr**: Increment (in hours) between forecast files
-       |                  *Do not set to 0 or the script will loop continuously*
+       
+       .. attention::
+         
+         Do not set :bolditalic:`incrementhr` to 0 or the script will loop continuously! 
 
-5. Set/uncomment the run command for your system. (i.e. mpirun, etc).
+5. Set/uncomment the run command for your system (e.g., mpirun).
 
        | **RUN_COMMAND**: System run commands
 
@@ -107,7 +113,7 @@ Run Script Overview
        |       >> IBM: ``mpirun.lsf upp.x < itag > outpost``
        |       >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
 
-6. Set the value for numx.
+6. Set the value for :bolditalic:`numx`.
 
        | **numx**: The number of subdomains in the x-direction used for decomposition.
 
@@ -115,11 +121,11 @@ Run Script Overview
        |     - For 2D decomposition, set numx>1
 
 7. Set naming convention for prefix and extension of output file name
-    - **comsp** is the initial string of the output file name. By default it is not set and the prefix
-      of the output file will be the string set in the XML file DATSET parameter. If set it will
-      concatenate the setting to the front of the string specified in the XML file DATSET parameter.
-    - **tmmark** is used for the file extension (in :bolditalic:`run_upp`, *tmmark=tm00*; if not set,
-      it is set to .GrbF)
+    - **comsp** is the initial string of the output file name. By default, it is not set, and the prefix
+      of the output file will be the string set in the :bolditalic:`postcntrl.xml` file :bolditalic:`DATSET` parameter. If set, it will
+      concatenate the setting to the front of the string specified in the XML file :bolditalic:`DATSET` parameter.
+    - **tmmark** is used for the file extension (in :bolditalic:`run_upp`, ``tmmark=tm00``; if not set,
+      it is set to ``.GrbF``)
 
 Upon a successful run, UPP will generate output files for each forecast hour in the **/postprd** directory.
 

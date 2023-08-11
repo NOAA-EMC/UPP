@@ -18,12 +18,14 @@
 !> @param[in] DEPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
 !> @param[out] UST Estimated U Component (m/s) Of Storm motion.
 !> @param[out] VST Estimated V Component (m/s) Of Storm motion.
-!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
+!> @param[out] HELI Storm-relative helicity (m**2/s**2).
 !> @param[out] CANGLE Critical angle.
-!> @var USHR1 U Component (m/s) Of 0-1 km shear.
-!> @var VSHR1 V Component (m/s) Of 0-1 km shear.
-!> @var USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
-!> @var VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> 
+!> @note The following variables are used within the function but are not input/output.
+!> @li USHR1 U Component (m/s) Of 0-1 km shear.
+!> @li VSHR1 V Component (m/s) Of 0-1 km shear.
+!> @li USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> @li VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
 !>     
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -42,17 +44,6 @@
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
-!-----------------------------------------------------------------------
-!> @brief Subroutine that computes storm relative helicity.
-!>
-!> @param[in] LLOW Lower bound CAPE>=100 and CINS>=-250.
-!> @param[in] LUPP Upper bound CAPE< 100  or CINS< -250; allows one to distinguish 0-3 km and 0-1 km values.
-!> @param[in] DEPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
-!> @param[out] UST Estimated U Component (m/s) Of Storm motion.
-!> @param[out] VST Estimated V Component (m/s) Of Storm motion.
-!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
-!> @param[out] CANGLE Critical angle.
-!>     
 !-----------------------------------------------------------------------
       SUBROUTINE CALHEL2(LLOW,LUPP,DEPTH,UST,VST,HELI,CANGLE)
 

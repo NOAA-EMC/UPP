@@ -1508,12 +1508,10 @@
 
     <param>
        <post_avblfldidx>171</post_avblfldidx>
-       <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <shortname>RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>MSTAV</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
-       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-       <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
-       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <scale>3.0</scale>
     </param>
 
@@ -6974,7 +6972,7 @@
        <post_avblfldidx>752</post_avblfldidx>
        <shortname>GSD_NCIP_ON_HYBRID_LVL</shortname>
        <longname>Number concentration for ice particles on hybrid level</longname>
-       <pname>NCIP</pname>
+       <pname>NCCICE</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -6991,7 +6989,7 @@
     <param>
        <post_avblfldidx>754</post_avblfldidx>
        <shortname>GSD_NCRAIN_ON_HYBRID_LVL</shortname>
-       <pname>NCRAIN</pname>
+       <pname>SPNCR</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -7463,6 +7461,33 @@
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <level>1.</level>
        <scale>5.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>909</post_avblfldidx>
+       <shortname>VTMP_ON_HYBRID_LVL</shortname>
+       <longname>Virtual temperature on model surfaces</longname>
+       <pname>VTMP</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>910</post_avblfldidx>
+       <shortname>VTMP_ON_ISOBARIC_SFC</shortname>
+       <longname>Virtual temperature on pressure surfaces</longname>
+       <pname>VTMP</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>911</post_avblfldidx>
+       <shortname>VTMP_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <longname>Virtual temperature on flight levels</longname>
+       <pname>VTMP</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
     </param>
 
     <param>

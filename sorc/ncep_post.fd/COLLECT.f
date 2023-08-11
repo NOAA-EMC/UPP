@@ -2,7 +2,7 @@
 !> @brief Subroutine that collect gathers from all MPI tasks.
 !>
 !> @param[in] A Array being gathered.
-!> @param[out] A gathered array - only valid on task 0.
+!> @param[out] B gathered array - only valid on task 0.
 !>
 !> Gather "A" from all MPI tasks onto task 0.
 !>
@@ -12,6 +12,12 @@
 !> 2000-01-06 | Jim Tuccillo | Initial
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
+!-----------------------------------------------------------------------
+!> COLLECT() Subroutine that collect gathers from all MPI tasks.
+!>
+!> @param[in] A Array being gathered.
+!> @param[out] B gathered array - only valid on task 0.
+!-----------------------------------------------------------------------
       SUBROUTINE COLLECT (A, B) 
 
 
