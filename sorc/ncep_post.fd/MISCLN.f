@@ -53,6 +53,7 @@
 !!   22-10-06  W Meng - Generate SPC fields with RRFS input
 !!   23-01-24  Sam Trahan - when IFI is enabled, calculate and store CAPE & CIN. Add allocate_cape_arrays
 !!   23-04-03  E Colon - Added additional array assignments to resolve SPC fields crashes for RRFS input
+!!   23-08-16  Y Mao - Updated interpolation to flight levels for regional GTG fields
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
 !!
