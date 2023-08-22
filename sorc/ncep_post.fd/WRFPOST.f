@@ -36,7 +36,6 @@
 !> 2023-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-05-20 | Rahul Mahajan             | Bug fix for fileNameFlat as namelist configurable
-!> 2023-05-20 | Rahul Mahajan             | Bug fix for fileNameFlat as namelist configurable
 !> 2023-08-16 | Yali Mao                  | Add gtg_on logical option
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
