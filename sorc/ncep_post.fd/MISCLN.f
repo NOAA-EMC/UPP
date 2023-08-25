@@ -54,6 +54,7 @@
 !!   23-01-24  Sam Trahan - when IFI is enabled, calculate and store CAPE & CIN. Add allocate_cape_arrays
 !!   23-04-03  E Colon - Added additional array assignments to resolve SPC fields crashes for RRFS input
 !!   23-08-16  Y Mao - Updated interpolation to flight levels for regional GTG fields
+!!   23-08-24  Y Mao - Add gtg_on option for GTG interpolation
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
 !!
@@ -102,7 +103,7 @@
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, &
                             ista, iend, ista_m, iend_M, ista_2l, iend_2u, &
-                            ifi_flight_levels
+                            ifi_flight_levels, gtg_on
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
@@ -147,7 +148,7 @@
                                             UBND,   VBND,   RHBND,     &
                                             WBND,   T7D,    Q7D,       &
                                             U7D,    V6D,    P7D,       &
-                                            ICINGFD,GTGFD,CATFD,MWTFD,MIDCAL
+                                            ICINGFD,MIDCAL
 
       real, dimension(:,:),allocatable ::   QM8510, RH4710, RH8498,    &
                                             RH4796, RH1847, UST, VST,  &
@@ -1199,7 +1200,7 @@
 !
 !     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
 !     
-      IF(IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0) THEN
+      IF(gtg_on .and. (IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0)) THEN
          ! MASS FIELDS INTERPOLATION
          if(allocated(QIN)) deallocate(QIN)
          if(allocated(QTYPE)) deallocate(QTYPE)

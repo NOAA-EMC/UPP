@@ -24,6 +24,7 @@
 !> 2002-06-19 | Mike Baldwin | WRF Version
 !> 2011-02-04 | Jun Wang     | Add grib2 option
 !> 2023-01-24 | Sam Trahan   | run IFI and compute its runtime
+!> 2023-08-24 | Yali Mao     | Remove running MDL2STD_P
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-21
 !----------------------------------------------------------------------------
@@ -115,11 +116,11 @@
 !     COMPUTE/POST TROPOPAUSE DATA, FD LEVEL FIELDS,
 !     FREEZING LEVEL HEIGHT AND RH, BOUNDARY LAYER FIELDS,
 !     AND LFM-NGM LOOK-ALIKE FIELDS.
-      btim = mpi_wtime()
-      CALL MDL2STD_P
-      if(me==0) write(*,*) "PROCESS MDL2STD_P done"
-      MDL2STD_tim = MDL2STD_tim +(mpi_wtime() - btim)
-!
+!      btim = mpi_wtime()
+!      CALL MDL2STD_P
+!      if(me==0) write(*,*) "PROCESS MDL2STD_P done"
+!      MDL2STD_tim = MDL2STD_tim +(mpi_wtime() - btim)
+
 !     POST FIXED FIELDS.
       btim = mpi_wtime()
       CALL FIXED
