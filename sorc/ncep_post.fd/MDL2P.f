@@ -181,6 +181,7 @@
       enddo
 
 ! For GTG, should run MDL2P interpolation?
+      gtg_interpolation = .false.
       if (gtg_on .and. (IGET(464) > 0 .OR. IGET(465) > 0 .OR.      &
       (IGET(466) > 0))) gtg_interpolation=.true.
 ! For GTG, allocate memories      
