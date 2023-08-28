@@ -10,17 +10,18 @@
 !> the "channels" array are stored in the structure defining
 !> the channel object.
 !>
-!> @param[inout] channelinfo structure defining channel object.
-!> @param[in] nchannels  number of channels for sensor.
+!> @param[inout] channelinfo Structure defining channel object.
+!> @param[in] nchannels Number of channels for sensor.
 !> @param[in] channels.
 !>
 !> @author HWRF @date 2012-09-27
 !----------------------------------------------------------------------
-!> @brief select_channels() verifies channel information.
+!> @brief select_channels() verifies channel information; no longer
+!> used. Replaced by select_channels_L().
 !>
 !> @param[inout] channelinfo Structure defining channel object.
 !> @param[in] nchannels integer Number of channels for sensor.
-!> @param[in] channels integer array Holds infomation on available channels.
+!> @param[in] channels integer array Holds information on available channels.
 !>
       subroutine SELECT_CHANNELS(channelinfo,nchannels,channels)
 
@@ -51,6 +52,19 @@
       channelinfo%Channel_Index(1:nchannels)=temp
 
       end subroutine SELECT_CHANNELS
+
+!-----------------------------------------------------------------------
+!> @brief select_channels_L() verifies channel information.
+!>
+!> @param[inout] channelinfo Structure defining channel object.
+!> @param[in] nchannels integer Number of channels for sensor.
+!> @param[in] channels integer array Holds information on available channels.
+!> @param L integer array with the same size as the number of channels; 
+!>                   if a channel c is requested for output, L[c]==1; 
+!>                   if the channel is not requested for output, then L[c]==0.
+!> @param igot integer If > 0, then at least 1 channel was requested for that variable, 
+!>                     if 0 then no channels were selected for that variable.
+!-----------------------------------------------------------------------
 
       subroutine SELECT_CHANNELS_L(channelinfo,nchannels,channels,L,igot)
 

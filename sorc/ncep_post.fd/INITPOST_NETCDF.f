@@ -2,7 +2,7 @@
 !> @brief initpost_netcdf() initializes post for run.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
-
+!>
 !> This routine initializes constants and
 !> variables at the start of GFS model or post
 !> processor run.
@@ -36,10 +36,19 @@
 !> 2023-04-17 | Eric James    | Read in unified ext550 extinction (and remove aodtot) for RRFS
 !> 2023-04-21 | Eric James    | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS
 !> 2023-05-31 | Wen Meng      | Bug fix in qrmax initialization
-!> 2023-06-14 | Wen Meng      ! Bug fix of reading seaswtc and modification of sndepac calculation
-!> 2023-07-06 | Eric James    ! Read in SOILL on 9 levels for RRFS
+!> 2023-06-14 | Wen Meng      | Bug fix of reading seaswtc and modification of sndepac calculation
+!> 2023-07-06 | Eric James    | Read in SOILL on 9 levels for RRFS
+!> 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization
+!> 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain)
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
+!----------------------------------------------------------------------
+!> @brief INITPOST_NETCDF() This routine initializes constants and
+!> variables at the start of GFS model or post processor run. 
+!> 
+!> @param[in] ncid2d integer netCDF ID of physics model output file.
+!> @param[in] ncid3d integer netCDF ID of dynamics model output file.
+!----------------------------------------------------------------------
       SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
 
 
@@ -47,13 +56,14 @@
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, coarsepm,                &
               no3,nh4, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
-              qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
+              qqr, qqnr, qqs, qqi, qqni, qqw, qqnw, qqg, cwm,                                   &
+              omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,                                       &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp,ocwt,ocsv, &
-              wh, qqg, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d,         &
+              dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp,ocwt,ocsv,  &
+              wh, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d,              &
               effri, effrl, effrs
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
@@ -512,13 +522,14 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=18
+       nrec=21
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','smoke','dust',      &
-                                     'coarsepm','ext550']
+                                     'coarsepm','ext550',               &
+                                     'nicp','water_nc','rain_nc']
       else
        nrec=8
        allocate (recname(nrec))
@@ -883,6 +894,12 @@
        spval,recname(17),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(19),qqni(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(20),qqnw(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(21),qqnr(ista_2l,jsta_2l,1),lm)
        endif
 
 ! Compute max QRAIN in the column to be used later in precip type computation
@@ -1620,7 +1637,7 @@
       do l=1,lm
       do j=jsta,jend
       do i=ista,iend
-        q2(i,j,l)=q2(i,j,l)/2.0
+        if(q2(i,j,l)/=spval) q2(i,j,l)=q2(i,j,l)/2.0
       enddo
       enddo
       enddo
@@ -3823,7 +3840,25 @@
       RETURN
       END
 
-
+!----------------------------------------------------------------------
+!> @brief read_netcdf_3d_para() reads dynamics variables from UFS model output. 
+!> 
+!> @param[in] ncid integer netCDF ID.
+!> @param[in] im integer Full longitude domain.
+!> @param[in] jm integer Full latitude domain.
+!> @param[in] ista integer Start longitude latitude on a task subdomain.
+!> @param[in] ista_2l integer Start longitude -2 of the subdomain.
+!> @param[in] iend integer End longitude on a task subdomain.
+!> @param[in] iend_2u integer End longitude +2 of the subdomain.
+!> @param[in] jsta integer Start latitude on a task subdomain.
+!> @param[in] jsta_2l integer Start latitude -2 of the subdomain.
+!> @param[in] jend integer End latitude on a task subdomain.
+!> @param[in] jend_2u integer End latitude +2 of the subdomain.
+!> @param[in] spval real Missing value defined in UPP.
+!> @param[in] varname character Variable name in netCDF file.
+!> @param[out] buf real Variable values.
+!> @param[in] lm integer Model levels.
+!----------------------------------------------------------------------
       subroutine read_netcdf_3d_para(ncid,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
                  spval,varname,buf,lm)
 
@@ -3875,6 +3910,23 @@
       endif
 
       end subroutine read_netcdf_3d_para
+
+!----------------------------------------------------------------------
+!> @brief read_netcdf_2d_para() reads physics variables from UFS model output. 
+!> 
+!> @param[in] ncid integer netCDF ID.
+!> @param[in] ista integer Start longitude latitude on a task subdomain.
+!> @param[in] ista_2l integer Start longitude -2 of the subdomain.
+!> @param[in] iend integer End longitude on a task subdomain.
+!> @param[in] iend_2u integer End longitude +2 of the subdomain.
+!> @param[in] jsta integer Start latitude on a task subdomain.
+!> @param[in] jsta_2l integer Start latitude -2 of the subdomain.
+!> @param[in] jend integer End latitude on a task subdomain.
+!> @param[in] jend_2u integer End latitude +2 of the subdomain.
+!> @param[in] spval real Missing value defined in UPP.
+!> @param[in] varname character Variable name in netCDF file.
+!> @param[out] buf real Variable values.
+!----------------------------------------------------------------------
 
       subroutine read_netcdf_2d_para(ncid,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
                  spval,VarName,buf)

@@ -9,7 +9,22 @@
 !   July,  2016    J. Carley  Clean up prints 
 !   
 !------------------------------------------------------------------------
+!> @defgroup xml_perl_data_mod Sets parameters that are used to read in 
+!> Perl XML processed flat file and handle parameter marshalling for 
+!> existing POST program.
+!
         implicit none
+!
+!> @ingroup xml_perl_data_mod 
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!> and handle parameter marshalling for existing POST program.
+   integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
+             NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
+!> @}
+
+!> @ingroup xml_perl_data_mod 
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!> and handle parameter marshalling for existing POST program.
 	  type param_t
 	    integer                              :: post_avblfldidx=-9999
 	    character(len=80)                    :: shortname=''
@@ -20,12 +35,12 @@
 	    character(len=10)                    :: table_info=''
 	    character(len=80)                    :: stats_proc=''
 	    character(len=80)                    :: fixed_sfc1_type=''
-            integer, dimension(:), pointer       :: scale_fact_fixed_sfc1 => null()
-	    real, dimension(:), pointer          :: level => null()
-	    character(len=80)                    :: fixed_sfc2_type=''
-	    integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null()
-	    real, dimension(:), pointer          :: level2 => null()
-	    character(len=80)                    :: aerosol_type=''
+       integer, dimension(:), pointer       :: scale_fact_fixed_sfc1 => null()
+       real, dimension(:), pointer          :: level => null()
+       character(len=80)                    :: fixed_sfc2_type=''
+       integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null() 
+       real, dimension(:), pointer          :: level2 => null()
+       character(len=80)                    :: aerosol_type=''
 	    character(len=80)                    :: typ_intvl_size=''
  	    integer                              :: scale_fact_1st_size=0
 	    real                                 :: scale_val_1st_size=0.0
@@ -36,7 +51,7 @@
 	    real                                 :: scale_val_1st_wvlen=0.0
 	    integer                              :: scale_fact_2nd_wvlen=0
 	    real                                 :: scale_val_2nd_wvlen=0.0
-	    real, dimension(:), pointer          :: scale => null()
+	    real, dimension(:), pointer          :: scale => null()  
 	    integer                              :: stat_miss_val=0
 	    integer                              :: leng_time_range_prev=0
 	    integer                              :: time_inc_betwn_succ_fld=0
@@ -62,18 +77,25 @@
 	    character(len=30)                    :: order_of_sptdiff='1st_ord_sptdiff'
 	    character(len=20)                    :: field_datatype=''
 	    character(len=30)                    :: comprs_type=''
+!> @}
+!> @ingroup xml_perl_data_mod 
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!> and handle parameter marshalling for existing POST program.
             character(len=50)                    :: type_ens_fcst=''
             character(len=50)                    :: type_derived_fcst=''
             type(param_t), dimension(:), pointer :: param => null()
           end type paramset_t
- 
+!> @}
+!> @ingroup xml_perl_data_mod 
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!> and handle parameter marshalling for existing POST program. 
           type post_avblfld_t
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
 
           type (paramset_t), dimension(:), pointer :: paramset
           type (post_avblfld_t),save               :: post_avblflds
-
+!> @}
         contains
         subroutine read_postxconfig()
 
@@ -308,4 +330,3 @@
         end subroutine filter_char_inp
 
         end module
-

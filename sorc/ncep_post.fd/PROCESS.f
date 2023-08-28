@@ -26,6 +26,15 @@
 !> 2023-01-24 | Sam Trahan   | run IFI and compute its runtime
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-21
+!----------------------------------------------------------------------------
+!> process() is a driver for major post routines.
+!>
+!> @param[in] kth integer Number of isentropic levels.
+!> @param[in] kpv integer Number of potential vorticity levels.
+!> @param[in] th real Isentropic levels (K).
+!> @param[in] pv real Potential vorticity (PV units).
+!> @param[in] iostatusD3D integer No longer used/supported.
+!> 
       SUBROUTINE PROCESS(kth,kpv,th,pv,iostatusD3D)
 !
 !----------------------------------------------------------------------------
