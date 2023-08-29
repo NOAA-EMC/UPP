@@ -43,7 +43,7 @@
       use mpi, only: mpi_wtime
       use upp_ifi_mod, only: run_ifi
       use CTLBLK_mod, only: cfld, etafld2_tim, eta2p_tim, mdl2sigma_tim, surfce2_tim,&
-                            mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,&
+                            mdl2agl_tim, mdl2thandpv_tim, calrad_wcloud_tim,&
                             cldrad_tim, miscln_tim, fixed_tim, ntlfld, me, run_ifi_tim
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -112,14 +112,6 @@
       CALL MISCLN
       if(me==0) write(*,*) "PROCESS MISCLN done"
       MISCLN_tim = MISCLN_tim +(mpi_wtime() - btim)
-
-!     COMPUTE/POST TROPOPAUSE DATA, FD LEVEL FIELDS,
-!     FREEZING LEVEL HEIGHT AND RH, BOUNDARY LAYER FIELDS,
-!     AND LFM-NGM LOOK-ALIKE FIELDS.
-!      btim = mpi_wtime()
-!      CALL MDL2STD_P
-!      if(me==0) write(*,*) "PROCESS MDL2STD_P done"
-!      MDL2STD_tim = MDL2STD_tim +(mpi_wtime() - btim)
 
 !     POST FIXED FIELDS.
       btim = mpi_wtime()
