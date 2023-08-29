@@ -74,6 +74,7 @@
 !> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
+!> 2023-08-18 | Li(Kate Zhang)    | Remove NITRATE AOD from TOTAL AOD calculation for GEFSv13
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -5149,11 +5150,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ASY_NI(I,J) = MAX (ASY_NI(I,J), 0.0)
 
             AOD(I,J)    = AOD_DU(I,J) + AOD_BC(I,J) + AOD_OC(I,J) +   &
-     &                  AOD_SU(I,J) + AOD_SS(I,J) + AOD_NI(I,J)
+     &                  AOD_SU(I,J) + AOD_SS(I,J) !+ AOD_NI(I,J)
             SCA2D(I,J) = SCA_DU(I,J) + SCA_BC(I,J) + SCA_OC(I,J) +    &
-     &                 SCA_SU(I,J) + SCA_SS(I,J) + SCA_NI(I,J)
+     &                 SCA_SU(I,J) + SCA_SS(I,J) !+ SCA_NI(I,J)
             ASY2D(I,J) = ASY_DU(I,J) + ASY_BC(I,J) + ASY_OC(I,J) +    &
-     &                 ASY_SU(I,J) + ASY_SS(I,J) + ASY_NI(I,J)
+     &                 ASY_SU(I,J) + ASY_SS(I,J) !+ ASY_NI(I,J)
            endif
            
            if (gocart_on .or. gccpp_on) then
