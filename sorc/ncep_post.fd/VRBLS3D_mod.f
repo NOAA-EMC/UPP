@@ -5,6 +5,7 @@
 !   12-01-06  SARAH LU - MODIFIED TO INCLUDE AIR DENSITY AND LAYER THICKNESS
 !   15-07-02  SARAH LU - MODIFIED TO INCLUDE SCATTERING AEROSOL OPTICAL THICKNESS
 !   23-03-22  WM LEWIS - ADDED EFFECTIVE RADIUS ARRAYS
+!   23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
       module vrbls3d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -80,7 +81,7 @@
 ! Add NCAR GFIP ICING
       ,icing_gfip(:,:,:),icing_gfis(:,:,:) &
 ! Add NCAR GTG turbulence
-      ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:) &
+      ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:),cit(:,:,:) &
 ! AQF
       ,avgozcon(:,:,:),avgpmtf(:,:,:)
 

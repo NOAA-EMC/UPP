@@ -17,6 +17,7 @@
 !>  2023-03-21 | Jesse Meng | Add slrutah_on option to use U Utah SLR
 !>  2023-04-04 | Li(Kate Zhang) | Add namelist optoin for CCPP-Chem (UFS-Chem) and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !>  2023-04-17 | Eric James | Adding 160 and 320 m above ground to HTFD for RRFS output.
+!>  2023-08-16 | Yali Mao   | Add gtg_on logical option
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK_mod Sets default parameters that are used throughout the UPP code
 !-----------------------------------------------------------------------
@@ -71,6 +72,7 @@
   logical :: d2d_chem      !< Turn on option to process the 2D aerosol/chemical tracers.
   logical :: aqf_on        !< Turn on Air Quality Forecasting (CMAQ-based).
   logical :: slrutah_on    !< Calculate snow to liquid ratio (SLR) using method from University of Utah.
+  logical :: gtg_on        !< Turn on GTG (Graphical Turbulence Guidance)
 !
   logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.
