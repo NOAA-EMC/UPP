@@ -286,125 +286,7 @@
     </param>
 
     <param>
-       <shortname>ACM_APCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>ACM_ACPCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>ACM_NCPCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CRAIN_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CSNOW_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CICEP_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CFRZR_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRATE_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CPRAT_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TCDC_ON_LOW_CLOUD_LYR</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TCDC_ON_MID_CLOUD_LYR</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TCDC_ON_HIGH_CLOUD_LYR</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TCDC_ON_ENTIRE_ATMOS</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
        <shortname>VIS_ON_SURFACE</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_DSWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CDUVB_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_DUVB_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_DLWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_USWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_ULWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
@@ -425,43 +307,12 @@
     </param>
 
     <param>
-       <shortname>AVE_SHTFL_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_GFLUX_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_LHTFL_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_UFLX_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_VFLX_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
        <shortname>LAND_ON_SURFACE</shortname>
     </param>
 
     <param>
        <shortname>ICEC_ON_SURFACE</shortname>
        <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_ALBDO_ON_SURFACE</shortname>
-       <scale>4.0</scale>
     </param>
 
     <param>
@@ -690,66 +541,6 @@
     </param>
 
     <param>
-       <shortname>PRES_ON_CONVECTIVE_CLOUD_BOT_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>PRES_ON_CONVECTIVE_CLOUD_TOP_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRES_ON_LOW_CLOUD_BOT_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRES_ON_MID_CLOUD_BOT_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRES_ON_HIGH_CLOUD_BOT_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRES_ON_LOW_CLOUD_TOP_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRES_ON_MID_CLOUD_TOP_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_PRES_ON_HIGH_CLOUD_TOP_LVL</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TMP_ON_LOW_CLOUD_TOP_LVL</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TMP_ON_MID_CLOUD_TOP_LVL</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_TMP_ON_HIGH_CLOUD_TOP_LVL</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>GFS_TCDC_ON_CONVECTIVE_CLOUD_LYR</shortname>
-       <scale>2.0</scale>
-    </param>
-
-    <param>
        <shortname>CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <scale>3.0</scale>
     </param>
@@ -856,34 +647,6 @@
     </param>
 
     <param>
-       <shortname>AVE_TCDC_ON_BOUND_LYR_CLOUD_LYR</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CWORK_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <table_info>NCEP</table_info>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_U-GWD_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>5.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_V-GWD_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>5.0</scale>
-    </param>
-
-    <param>
-       <shortname>ACM_WATR_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <shortname>MAX_TMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <scale>4.0</scale>
     </param>
@@ -985,7 +748,7 @@
        <pname>TMP</pname>
        <level>1. 2. 3. 4.</level>
        <scale>4.0</scale>
-    </param>    
+    </param>
 
     <param>
        <shortname>RH_ON_HYBRID_LVL</shortname>
@@ -1213,7 +976,7 @@
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
-    
+
     <param>
        <post_avblfldidx>1004</post_avblfldidx>
        <shortname>ACM_SNOWFALL_ON_SURFACE</shortname>
@@ -1233,6 +996,7 @@
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
+
 
 
     <!--  comments wherever I like -->
