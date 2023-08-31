@@ -75,7 +75,6 @@ list(APPEND LIB_SRC
     MDL2P.f
     MDL2SIGMA2.f
     MDL2SIGMA.f
-    MDL2STD_P.f
     MDL2THANDPV.f
     MDLFLD.f
     MICROINIT.F
@@ -131,7 +130,11 @@ list(APPEND LIB_SRC
 list(APPEND GTG_LIB_SRC
   gtg_algo.F90
   gtg_compute.F90
-  gtg_config.F90
+  gtg_cdf_mod.F90
+  gtg_ReadSetupParams.F90
+  gtg_read_config.F90
+  gtg_mlmodel.F90
+  gtg_prob.F90
   gtg_ctlblk.F90
   gtg_filter.F90
   gtg_indices.F90

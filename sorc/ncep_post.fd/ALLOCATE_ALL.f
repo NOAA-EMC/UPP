@@ -25,6 +25,8 @@
 !! -  23-03-22  WM Lewis - Adding effective radius arrays
 !! -2023-04-04  Li(Kate Zhang) Add namelist optoin for CCPP-Chem(UFS-Chem) 
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!! -  23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
+!! -  23-08-16  Yali Mao - Make it optional to allocate GTG related fields only when gtg_on
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
 !!
@@ -300,11 +302,6 @@
 ! add GFIP ICING
       allocate(icing_gfip(ista_2l:iend_2u,jsta_2l:jend_2u,lm))        
       allocate(icing_gfis(ista_2l:iend_2u,jsta_2l:jend_2u,lm))        
-!
-! add GTG turbulence
-      allocate(catedr(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-      allocate(mwt(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-      allocate(gtg(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
@@ -314,12 +311,29 @@
             vtm(i,j,l)=spval
             icing_gfip(i,j,l)=spval
             icing_gfis(i,j,l)=spval
-            catedr(i,j,l)=spval
-            mwt(i,j,l)=spval
-            gtg(i,j,l)=spval
           enddo
         enddo
       enddo
+!
+! add GTG turbulence
+      if (gtg_on) then
+         allocate(catedr(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(mwt(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(gtg(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(cit(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+!Initialization
+!$omp parallel do private(i,j,l)
+         do l=1,lm
+            do j=jsta_2l,jend_2u
+               do i=ista_2l,iend_2u
+                  catedr(i,j,l)=spval
+                  mwt(i,j,l)=spval
+                  gtg(i,j,l)=spval
+                  cit(i,j,l)=spval
+               enddo
+            enddo
+         enddo
+      endif
 !
 !     FROM SOIL
 !
