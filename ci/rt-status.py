@@ -28,7 +28,6 @@ def check_for_diff(tests):
     for case_dir in os.listdir('./rundir'):
         for file in os.listdir('./rundir/{}'.format(case_dir)):
             if file.endswith('.diff'):
-                changed = True
                 diff_case = ''
                 for test in tests:
                     if test in case_dir:
@@ -43,8 +42,9 @@ def check_for_diff(tests):
                     print('There are changes in results for case {}_pe_test in {}'.format(diff_case, file.replace(".diff", "")))
                 else:
                     print('There are changes in results for case {} in {}'.format(diff_case, file.replace(".diff", "")))
+                changed = True
     if changed:
-        print('Refer to .diff files in rundir for details on differences for each case.')
+        print('Refer to .diff files in rundir: {}/rundir for details on differences in results for each case.'.format(os.getcwd()))
     else:
         print('No changes in test results detected.')
                 
