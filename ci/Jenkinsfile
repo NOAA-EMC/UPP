@@ -57,10 +57,11 @@ pipeline {
         cleanWs()
         checkout scm
         sh '''
+        cd ${NODE_PATH}
         echo $(pwd)
         cd ci/
         cp /scratch1/NCEPDEV/nems/Fernando.Andrade-maldonado/scripts/rt.sh .
-        ./rt.sh -a ${ACCNR} -h ../test_suite -r `pwd`/rundir -t ../
+        ./rt.sh -a ${ACCNR} -h /scratch2/NAGAPE/epic/UPP/test_suite/ -r `pwd`/rundir -t `pwd`/../
         python ./rt-status.py
         '''
       }
@@ -78,10 +79,11 @@ pipeline {
         cleanWs()
         checkout scm
         sh '''
+        cd ${NODE_PATH}
         echo $(pwd)
         cd ci/
         cp /work/noaa/epic-ps/nandoam/scripts/rt.sh .
-        ./rt.sh -a ${ACCNR} -h ../../ -r `pwd`/rundir -t ../
+        ./rt.sh -a ${ACCNR} -h /work/noaa/epic/UPP/ -r `pwd`/rundir -t `pwd`/../
         python ./rt-status.py
         '''
       }
@@ -99,11 +101,7 @@ pipeline {
         cleanWs()
         checkout scm
         sh '''
-        echo $(pwd)
-        cd ci/
-        cp /work/noaa/epic-ps/nandoam/scripts/rt.sh .
-        ./rt.sh -a ${ACCNR} -h ../../ -r `pwd`/rundir -t ../
-        python ./rt-status.py
+        
         ''' 
         }
     } 
