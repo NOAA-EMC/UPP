@@ -57,7 +57,6 @@ pipeline {
         cleanWs()
         checkout scm
         sh '''
-        cd ${NODE_PATH}
         echo $(pwd)
         cd ci/
         cp /scratch1/NCEPDEV/nems/Fernando.Andrade-maldonado/scripts/rt.sh .
@@ -79,7 +78,6 @@ pipeline {
         cleanWs()
         checkout scm
         sh '''
-        cd ${NODE_PATH}
         echo $(pwd)
         cd ci/
         cp /work/noaa/epic-ps/nandoam/scripts/rt.sh .
