@@ -37,6 +37,7 @@
 !> 2022-12-21 | J Meng          ! Adding snow density SDEN      
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
+!> 2023-09-06 | J Kenyon        | Prevent spurious supercooled rain water
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -532,9 +533,12 @@
                    QG1(I,J) = QQG(I,J,LL) + (QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
                    QG1(I,J) = MAX(QG1(I,J),zero)      ! GRAUPEL (precip ice) 
 
-                 ! Prevent spurious supercooled rain water on pressure
-                 ! levels that are situated near melting levels 
-                 ! (added Sep 2023, J. Kenyon / GSL)...
+                 ! ...Prevent spurious supercooled rain water on pressure
+                 ! levels that are situated near melting levels...
+                 ! 
+                 ! Added Sep 2023 by J. Kenyon (NOAA/GSL), in response to 
+                 ! a problem identified by G. Thompson (NCAR), described 
+                 ! below.
                  !
                  ! Consider a situation in which:
                  !  (1) rain water is present on the target pressure
@@ -567,8 +571,8 @@
                  ! level.
               
                  IF ( (QR1(I,J) > 0.) .AND. (TSL(I,J) <= 273.) ) THEN ! Supercooled rain water is present on this pressure level
-                   IF ( (T(I,J,LL-1) <= 273.) .AND.  ! temp on overlying model level is <= 0C, and
-                        (T(I,J,LL) > 273.) ) THEN    ! temp on underlying model level is > 0C
+                   IF ( (T(I,J,LL-1) <= 273.) .AND. &  ! temp on overlying model level is <= 0C, and
+                        (T(I,J,LL) > 273.) ) THEN      ! temp on underlying model level is > 0C
                         ! Replace the interpolated mixing ratios of rain, snow, and graupel 
                         ! on this pressure level with the full values present at the overlying model level:
                         QR1(I,J) = QQR(I,J,LL-1)       
