@@ -532,6 +532,52 @@
                    QG1(I,J) = QQG(I,J,LL) + (QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
                    QG1(I,J) = MAX(QG1(I,J),zero)      ! GRAUPEL (precip ice) 
 
+                 ! Prevent spurious supercooled rain water on pressure
+                 ! levels that are situated near melting levels 
+                 ! (added Sep 2023, J. Kenyon / GSL)...
+                 !
+                 ! Consider a situation in which:
+                 !  (1) rain water is present on the target pressure
+                 !      level (via interpolation)
+                 !
+                 !  (2) the target pressure level is contained between 
+                 !      two adjacent model levels that also contain a 
+                 !      melting level; i.e., the target pressure level
+                 !      is "near" a melting level, and
+                 !
+                 !  (2) the temperature on the target pressure level 
+                 !      (via interpolation) is subfreezing.
+
+                 ! In this situation, supercooled rain water arising
+                 ! from interpolation will be present on the target 
+                 ! pressure level. However, the adjacent model levels
+                 ! across the melting level will (typically) not contain  
+                 ! supercooled rain water. Thus, the presence of 
+                 ! supercooled rain water (an aviation hazard) on 
+                 ! pressure surfaces may simply be an artifact of 
+                 ! interpolation.
+                 !  
+                 ! In the code below, we search for the condition in
+                 ! which this artifact occurs. The previously interpolated
+                 ! value of Qrain is simply replaced by the value present 
+                 ! on the overlying (subfreezing) model surface, where
+                 ! Qrain is often zero. The same approach is extended 
+                 ! to snow and graupel, thus conserving the total
+                 ! precipitation mixing ratio on the target pressure
+                 ! level.
+              
+                 IF ( (QR1(I,J) > 0.) .AND. (TSL(I,J) <= 273.) ) THEN ! Supercooled rain water is present on this pressure level
+                   IF ( (T(I,J,LL-1) <= 273.) .AND.  ! temp on overlying model level is <= 0C, and
+                        (T(I,J,LL) > 273.) ) THEN    ! temp on underlying model level is > 0C
+                        ! Replace the interpolated mixing ratios of rain, snow, and graupel 
+                        ! on this pressure level with the full values present at the overlying model level:
+                        QR1(I,J) = QQR(I,J,LL-1)       
+                        QS1(I,J) = QQS(I,J,LL-1)                        
+                        QG1(I,J) = QQG(I,J,LL-1)                        
+                   ENDIF
+                 ENDIF
+                 ! End of code to prevent spurious supercooled rain water.
+
                  IF(DBZ(I,J,LL) < SPVAL .AND. DBZ(I,J,LL-1) < SPVAL)         &
                    DBZ1(I,J) = DBZ(I,J,LL) + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
                    DBZ1(I,J) = MAX(DBZ1(I,J),DBZmin)
