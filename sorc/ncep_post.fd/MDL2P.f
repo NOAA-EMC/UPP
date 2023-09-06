@@ -549,7 +549,7 @@
                  !      melting level; i.e., the target pressure level
                  !      is "near" a melting level, and
                  !
-                 !  (2) the temperature on the target pressure level 
+                 !  (3) the temperature on the target pressure level 
                  !      (via interpolation) is subfreezing.
 
                  ! In this situation, supercooled rain water arising
