@@ -44,7 +44,7 @@ def check_for_diff(tests):
                     print('There are changes in results for case {} in {}'.format(diff_case, file.replace(".diff", "")))
                 changed = True
     if changed:
-        print('Refer to .diff files in rundir: {}/rundir for details on differences in results for each case.'.format(os.getcwd()))
+        print('Refer to .diff files in rundir: {}/rundir for details on differences in results for each case.'.format(os.environ['rundir']))
     else:
         print('No changes in test results detected.')
                 
