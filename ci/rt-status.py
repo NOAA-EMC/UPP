@@ -25,8 +25,8 @@ tests = [
 # loop through every test case sub directory and files, then match with the test name
 def check_for_diff(tests):
     changed = False
-    for case_dir in os.listdir('./rundir'):
-        for file in os.listdir('./rundir/{}'.format(case_dir)):
+    for case_dir in os.listdir(os.environ['rundir']):
+        for file in os.listdir(os.environ['rundir']+'/{}'.format(case_dir)):
             if file.endswith('.diff'):
                 diff_case = ''
                 for test in tests:
