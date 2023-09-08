@@ -583,15 +583,15 @@
                  !     code below, the value of Qrain on the target pressure level 
                  !     will simply be replaced by the value from the overlying 
                  !     model level. 
-                 ! ii) Classic freezing rain situations, characterized by a
+                 ! ii) Classic freezing-rain situations, characterized by a
                  !     deep (model-resolved) surface-based refreezing layer. In
                  !     the code below, the temperature check contained in the third 
                  !     "IF" statement will evaluate to false.
 
                  IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
-                   IF ( (QR1(I,J) > 0.) .AND. (TSL(I,J) <= 273.15) ) THEN ! Supercooled rain water is present on this pressure level
-                     IF ( (T(I,J,LL-1) <= 273.15) .AND. &  ! Temp on overlying model level is subfreezing, and
-                          (T(I,J,LL) > 273.15) ) THEN      ! temp on underlying model level is above freezing (i.e., near melting level)
+                   IF ( (QR1(I,J) > zero) .AND. (TSL(I,J) <= 273.15) ) THEN ! Supercooled rain water exists on this pressure level
+                     IF ( (T(I,J,LL-1) <= 273.15) .AND. &  ! This pressure level is "near" a melting layer: temp on overlying model level is subfreezing, and
+                          (T(I,J,LL) > 273.15) ) THEN      ! temp on underlying model level is above freezing
                           ! Replace the interpolated mixing ratios of rain, snow, and graupel 
                           ! on this pressure level with the values from the overlying (subfreezing) model level:
                           print*,'Supercooled rain found at (I,J,P)=',I,J,SPL(LP)/100.
@@ -599,9 +599,9 @@
                           print*,'                       below (T,P)=',T(I,J,LL),PMID(I,J,LL)/100.
                           print*,'.......using Qrain from above=',QQR(I,J,LL-1)
                           print*,' '
-                          QR1(I,J) = QQR(I,J,LL-1)       
-                          QS1(I,J) = QQS(I,J,LL-1)                        
-                          QG1(I,J) = QQG(I,J,LL-1)                        
+                          QR1(I,J) = MAX(QQR(I,J,LL-1),zero)
+                          QS1(I,J) = MAX(QQS(I,J,LL-1),zero)
+                          QG1(I,J) = MAX(QQG(I,J,LL-1),zero)
                      ENDIF
                    ENDIF
                  ENDIF
