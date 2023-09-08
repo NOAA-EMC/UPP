@@ -65,7 +65,7 @@
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
                             RGAMOG, RD, D608, GI, ERAD, PI, SMALL, H100,       &
-                            H99999, GAMMA
+                            H99999, GAMMA, TFRZ
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
@@ -589,16 +589,16 @@
                  !     "IF" statement will evaluate to false.
 
                  IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
-                   IF ( (QR1(I,J) > zero) .AND. (TSL(I,J) <= 273.15) ) THEN ! Supercooled rain water exists on this pressure level
-                     IF ( (T(I,J,LL-1) <= 273.15) .AND. &  ! This pressure level is "near" a melting layer: temp on overlying model level is subfreezing, and
-                          (T(I,J,LL) > 273.15) ) THEN      ! temp on underlying model level is above freezing
+                   IF ( (QR1(I,J) > zero) .AND. (TSL(I,J) <= TFRZ) ) THEN ! Supercooled rain water exists on this pressure level
+                     IF ( (T(I,J,LL-1) <= TFRZ) .AND. &  ! This pressure level is "near" a melting layer: temp on overlying model level is subfreezing, and
+                          (T(I,J,LL) > TFRZ) ) THEN      ! temp on underlying model level is above freezing
                           ! Replace the interpolated mixing ratios of rain, snow, and graupel 
                           ! on this pressure level with the values from the overlying (subfreezing) model level:
-                          print*,'Supercooled rain found at (I,J,P)=',I,J,SPL(LP)/100.
-                          print*,'...near melting level: above (T,P)=',T(I,J,LL-1),PMID(I,J,LL-1)/100.
-                          print*,'                       below (T,P)=',T(I,J,LL),PMID(I,J,LL)/100.
-                          print*,'.......using Qrain from above=',QQR(I,J,LL-1)
-                          print*,' '
+                          !print*,'Supercooled rain found at (I,J,P)=',I,J,SPL(LP)/100.
+                          !print*,'...near melting level: above (T,P)=',T(I,J,LL-1),PMID(I,J,LL-1)/100.
+                          !print*,'                       below (T,P)=',T(I,J,LL),PMID(I,J,LL)/100.
+                          !print*,'.......using Qrain from above=',QQR(I,J,LL-1)
+                          !print*,' '
                           QR1(I,J) = MAX(QQR(I,J,LL-1),zero)
                           QS1(I,J) = MAX(QQS(I,J,LL-1),zero)
                           QG1(I,J) = MAX(QQG(I,J,LL-1),zero)
