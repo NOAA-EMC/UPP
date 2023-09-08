@@ -48,14 +48,14 @@ accnr=${accnr:-"nems"}
 build_exe=yes
 
 #Choose run specific model
-run_nmmb=no
-run_gfs=no
-run_gefs=no
-run_fv3r=no
-run_rap=no
+run_nmmb=yes
+run_gfs=yes
+run_gefs=yes
+run_fv3r=yes
+run_rap=yes
 run_hrrr=yes
-run_hafs=no
-run_rtma=no
+run_hafs=yes
+run_rtma=yes
 
 #find machine
 mac=$(hostname | cut -c1-1)
