@@ -54,6 +54,8 @@
 !!   23-03-03  S Trahan - Avoid out-of-bounds access in U2H & V2H by using USTORE & VSTORE with halo bounds
 !!   23-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
 !!   23-06-26 | W Meng | Output composite radar reflectivity when GFS uses Thompson MP
+!!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
+!!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -96,7 +98,7 @@
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM, avgpmtf, avgozcon
+              catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
@@ -109,7 +111,7 @@
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
-      ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, gccpp_on, nasa_on
+      ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, gccpp_on, nasa_on, gtg_on
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
       use upp_physics, only: CALRH, CALCAPE, CALVOR
@@ -4193,13 +4195,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0 .or. IGET(476)>0)THEN
+      IF(gtg_on) then
         i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
         ! Use the existing 3D local arrays as cycled variables
-        EL=SPVAL
         RICHNO=SPVAL
 
         call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
@@ -4207,12 +4208,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         zmid(ista:iend,:,:),pmid(ista:iend,:,:),t(ista:iend,:,:),&
         q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
         qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
+        q2(ista:iend,:,:),&
         ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
         sfclhx(ista:iend,:),ustar(ista:iend,:),&
         z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
-        catedr(ista:iend,:,:),mwt(ista:iend,:,:),EL(ista:iend,:,:),&
+        catedr(ista:iend,:,:),mwt(ista:iend,:,:),cit(ista:iend,:,:),&
         gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
 
         i=iend
