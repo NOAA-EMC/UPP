@@ -37,7 +37,7 @@
 !> 2022-12-21 | J Meng          ! Adding snow density SDEN      
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
-!> 2023-09-06 | J Kenyon        | Prevent spurious supercooled rain water
+!> 2023-09-11 | J Kenyon        | Prevent spurious supercooled rain water
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -594,11 +594,6 @@
                           (T(I,J,LL) > TFRZ) ) THEN      ! temp on underlying model level is above freezing
                           ! Replace the interpolated mixing ratios of rain, snow, and graupel 
                           ! on this pressure level with the values from the overlying (subfreezing) model level:
-                          !print*,'Supercooled rain found at (I,J,P)=',I,J,SPL(LP)/100.
-                          !print*,'...near melting level: above (T,P)=',T(I,J,LL-1),PMID(I,J,LL-1)/100.
-                          !print*,'                       below (T,P)=',T(I,J,LL),PMID(I,J,LL)/100.
-                          !print*,'.......using Qrain from above=',QQR(I,J,LL-1)
-                          !print*,' '
                           QR1(I,J) = MAX(QQR(I,J,LL-1),zero)
                           QS1(I,J) = MAX(QQS(I,J,LL-1),zero)
                           QG1(I,J) = MAX(QQG(I,J,LL-1),zero)
