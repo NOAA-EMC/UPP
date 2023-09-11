@@ -7,6 +7,7 @@ Aug/29/2023 - Fernando Andrade-Maldonado: Script creation
 '''
 
 import os
+import sys
 
 # files used in result comparison
 tests = [
@@ -25,8 +26,9 @@ tests = [
 # loop through every test case sub directory and files, then match with the test name
 def check_for_diff(tests):
     changed = False
-    for case_dir in os.listdir(os.environ['rundir']):
-        for file in os.listdir(os.environ['rundir']+'/{}'.format(case_dir)):
+    rundir = os.environ['rundir']
+    for case_dir in os.listdir(rundir):
+        for file in os.listdir(rundir+'/{}'.format(case_dir)):
             if file.endswith('.diff'):
                 diff_case = ''
                 for test in tests:
@@ -44,7 +46,8 @@ def check_for_diff(tests):
                     print('There are changes in results for case {} in {}'.format(diff_case, file.replace(".diff", "")))
                 changed = True
     if changed:
-        print('Refer to .diff files in rundir: {}/rundir for details on differences in results for each case.'.format(os.environ['rundir']))
+        print('Refer to .diff files in rundir: {}/rundir for details on differences in results for each case.'.format(rundir))
+        sys.exit(1)
     else:
         print('No changes in test results detected.')
                 
