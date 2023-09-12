@@ -243,3 +243,4 @@ for job_id in $jobid_list; do
   fi
 done
 
+python ${test_v}/ci/rt-status.py

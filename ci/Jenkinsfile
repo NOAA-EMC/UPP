@@ -60,7 +60,6 @@ pipeline {
         echo $(pwd)
         cd ci/
         ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        python ./rt-status.py
         echo "rundir: ${rundir}" > rt.log.${machine}.temp
         cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
         cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
@@ -86,7 +85,6 @@ pipeline {
         cd ci/
         ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
         python ./rt-status.py
-        echo "rundir: ${rundir}" > rt.log.${machine}.temp
         cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
         cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
         cat rt.log.${machine}.temp > rt.log.${machine}
