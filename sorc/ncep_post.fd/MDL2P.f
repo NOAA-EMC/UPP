@@ -590,7 +590,7 @@
                  !     the code below, the temperature check contained in the 
                  !     second "IF" statement will evaluate to false.
                  IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
-                   IF ( TSL(I,J) <= TFRZ .AND.    & ! This pressure level is subfreezing and located just above a freezing level;
+                   IF ( TSL(I,J) <= TFRZ .AND.    & ! This pressure level is subfreezing and located just above a melting level;
                         T(I,J,LL-1) <= TFRZ .AND. & ! i.e., the overlying model level is subfreezing,
                         T(I,J,LL) > TFRZ ) THEN     ! but the underlying model level is above freezing.
                           C1D(I,J) = MAX(CWM(I,J,LL-1),zero) ! total condensate    !  Replace the interpolated hydrometeors
