@@ -60,11 +60,10 @@ pipeline {
         echo $(pwd)
         cd ci/
         ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        echo "rundir: ${rundir}" > rt.log.${machine}.temp
-        cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
-        cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
-        cat rt.log.${machine}.temp > rt.log.${machine}
-        rm rt.log.${machine}.temp
+        cat rt.log.HERA | grep "test:" >> rt.log.HERA.temp
+        cat rt.log.HERA | grep "baseline" >> rt.log.HERA.temp
+        cat rt.log.HERA.temp > rt.log.HERA
+        rm rt.log.HERA.temp
         '''
       }
     }        
@@ -84,11 +83,10 @@ pipeline {
         echo $(pwd)
         cd ci/
         ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        python ./rt-status.py
-        cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
-        cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
-        cat rt.log.${machine}.temp > rt.log.${machine}
-        rm rt.log.${machine}.temp
+        cat rt.log.ORION | grep "test:" >> rt.log.ORION.temp
+        cat rt.log.ORION | grep "baseline" >> rt.log.ORION.temp
+        cat rt.log.ORION.temp > rt.log.ORION
+        rm rt.log.ORION.temp
         '''
       }
     }    
