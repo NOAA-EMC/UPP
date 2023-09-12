@@ -533,8 +533,9 @@
                    QG1(I,J) = QQG(I,J,LL) + (QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
                    QG1(I,J) = MAX(QG1(I,J),zero)      ! GRAUPEL (precip ice) 
 
-                 ! ...Prevent spurious supercooled rain water from appearing 
-                 ! on pressure levels that are located near melting levels...
+                 ! ...Prevent spurious supercooled water (rain and
+                 ! cloud water) from appearing on pressure levels 
+                 ! that are located just above melting levels...
                  ! 
                  ! Added Sep 2023 by J. Kenyon (NOAA/GSL), in response to 
                  ! a problem identified by G. Thompson (NCAR), described 
@@ -561,17 +562,18 @@
                  ! interpolation onto the target pressure level will 
                  ! yield supercooled rain. In this sense, the supercooled
                  ! rain is an artifact of interpolation. Because
-                 ! supercooled rain poses a hazard to aviation, we seek 
-                 ! to prevent supercooled rain water on pressure levels 
+                 ! supercooled water poses a hazard to aviation, we seek 
+                 ! to prevent supercooled water on pressure levels 
                  ! when none actually exists on the adjacent model levels.
                  ! 
                  ! In the code below, we search for the condition in
                  ! which this artifact occurs. Then, the previously 
                  ! interpolated value of Qrain is simply replaced by the 
-                 ! value from the overlying (subfreezing) model level, 
-                 ! where Qrain is typically zero. The same approach is 
-                 ! extended to snow and graupel, thus preserving the total
-                 ! precipitation mixing ratio locally.
+                 ! value from the overlying (subfreezing) model level.
+                 ! The same approach is extended to cloud water (Qcloud)
+                 ! and all other hydrometeors, essentially replicating
+                 ! the hydrometeor state of the overlying model level
+                 ! at the pressure level.
                  ! 
                  ! Note that the code below does not eliminate all supercooled
                  ! rain on pressure levels, nor should it. Situations in which
@@ -585,22 +587,21 @@
                  !     model level. 
                  ! ii) Classic freezing-rain situations, characterized by a
                  !     deep (model-resolved) surface-based refreezing layer. In
-                 !     the code below, the temperature check contained in the third 
-                 !     "IF" statement will evaluate to false.
-
+                 !     the code below, the temperature check contained in the 
+                 !     second "IF" statement will evaluate to false.
                  IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
-                   IF ( (QR1(I,J) > zero) .AND. (TSL(I,J) <= TFRZ) ) THEN ! Supercooled rain water exists on this pressure level
-                     IF ( (T(I,J,LL-1) <= TFRZ) .AND. &  ! This pressure level is "near" a melting layer: temp on overlying model level is subfreezing, and
-                          (T(I,J,LL) > TFRZ) ) THEN      ! temp on underlying model level is above freezing
-                          ! Replace the interpolated mixing ratios of rain, snow, and graupel 
-                          ! on this pressure level with the values from the overlying (subfreezing) model level:
-                          QR1(I,J) = MAX(QQR(I,J,LL-1),zero)
-                          QS1(I,J) = MAX(QQS(I,J,LL-1),zero)
-                          QG1(I,J) = MAX(QQG(I,J,LL-1),zero)
-                     ENDIF
+                   IF ( TSL(I,J) <= TFRZ .AND.    & ! This pressure level is subfreezing and located just above a freezing level;
+                        T(I,J,LL-1) <= TFRZ .AND. & ! i.e., the overlying model level is subfreezing,
+                        T(I,J,LL) > TFRZ ) THEN     ! but the underlying model level is above freezing.
+                          C1D(I,J) = MAX(CWM(I,J,LL-1),zero) ! total condensate    !  Replace the interpolated hydrometeors
+                          QW1(I,J) = MAX(QQW(I,J,LL-1),zero) ! cloud water         !  on this pressure level with the values
+                          QI1(I,J) = MAX(QQI(I,J,LL-1),zero) ! cloud ice           !  from the overlying (subfreezing)
+                          QR1(I,J) = MAX(QQR(I,J,LL-1),zero) ! rain                !  model level.
+                          QS1(I,J) = MAX(QQS(I,J,LL-1),zero) ! snow
+                          QG1(I,J) = MAX(QQG(I,J,LL-1),zero) ! graupel
                    ENDIF
                  ENDIF
-                 ! End of code to prevent spurious supercooled rain water.
+                 ! End of code to prevent spurious supercooled water
 
                  IF(DBZ(I,J,LL) < SPVAL .AND. DBZ(I,J,LL-1) < SPVAL)         &
                    DBZ1(I,J) = DBZ(I,J,LL) + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
