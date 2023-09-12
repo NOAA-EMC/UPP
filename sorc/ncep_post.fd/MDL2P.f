@@ -37,7 +37,7 @@
 !> 2022-12-21 | J Meng          ! Adding snow density SDEN      
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
-!> 2023-09-11 | J Kenyon        | Prevent spurious supercooled rain water
+!> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
