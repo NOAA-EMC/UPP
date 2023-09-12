@@ -244,3 +244,4 @@ for job_id in $jobid_list; do
 done
 
 python ${test_v}/ci/rt-status.py
+echo "rundir: ${rundir}" > rt.log.${machine}.temp
