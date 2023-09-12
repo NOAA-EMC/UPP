@@ -27,7 +27,6 @@ tests = [
 def check_for_diff(tests):
     changed = False
     rundir = os.getenv('rundir')
-    print('rundir = '+rundir)
     for case_dir in os.listdir(rundir):
         for file in os.listdir(rundir+'/{}'.format(case_dir)):
             if file.endswith('.diff'):
