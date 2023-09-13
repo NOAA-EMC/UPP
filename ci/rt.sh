@@ -207,7 +207,6 @@ fi
 #execute rtma test
 if [ "$run_rtma" = "yes" ]; then
 cd $workdir
-echo "copying 3drtma to ${workdir}..."
 cp $homedir/jobs-dev/run_post_3drtma_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
@@ -244,4 +243,11 @@ for job_id in $jobid_list; do
 done
 
 python ${test_v}/ci/rt-status.py
+
+# Cleanup rt log
+cd ${test_v}/ci
 echo "rundir: ${rundir}" > rt.log.${machine}.temp
+cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
+cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
+cat rt.log.${machine}.temp > rt.log.${machine}
+rm rt.log.${machine}.temp
