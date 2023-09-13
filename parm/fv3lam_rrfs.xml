@@ -216,7 +216,7 @@
        <param>
        <shortname>ABSV_ON_ISOBARIC_SFC</shortname>
        <pname>ABSV</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
@@ -1661,13 +1661,6 @@
        </param>
 
        <param>
-       <shortname>AVE_LRGHR_ON_ENTIRE_ATMOS</shortname>
-       <pname>LRGHR</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
        <shortname>TMP_ON_SIGMA_LVL_HPC</shortname>
        <pname>TMP</pname>
        <scale_fact_fixed_sfc1>4</scale_fact_fixed_sfc1>
@@ -1833,20 +1826,6 @@
        </param>
 
        <param>
-       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
-       <pname>MXUPHL</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
-       <pname>MNUPHL</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
        <pname>MNUPHL</pname>
        <table_info>NCEP</table_info>
@@ -1986,12 +1965,6 @@
        </param>
 
        <param>
-           <shortname>CRITICAL_ANGLE</shortname>
-           <pname>CANGLE</pname>
-           <scale>5.0</scale>
-       </param>
-
-       <param>
            <shortname>DENDRITIC_LAYER_DEPTH</shortname>
            <pname>LAYTH</pname>
            <table_info>NCEP</table_info>
@@ -1999,17 +1972,6 @@
            <level>261.</level>
            <fixed_sfc2_type>isothermal</fixed_sfc2_type>
            <level2>256.</level2>
-           <scale>4.0</scale>
-       </param>
-
-       <param>
-           <shortname>ENHANCED_STRETCHING_POTENTIAL</shortname>
-           <pname>ESP</pname>
-           <table_info>NCEP</table_info>
-           <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-           <level>0.</level>
-           <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
-           <level2>3000.</level2>
            <scale>4.0</scale>
        </param>
 
