@@ -216,7 +216,8 @@
        <param>
        <shortname>ABSV_ON_ISOBARIC_SFC</shortname>
        <pname>ABSV</pname>
-       <level>20000. 25000. 30000. 40000. 50000. 70000. 75000. 85000. 92500. 100000.</level>
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
 
@@ -265,6 +266,27 @@
        <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>MCONV_ON_ISOBARIC_SFC</shortname>
+       <pname>MCONV</pname>
+       <level>85000. 95000.</level>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>MCONV_ON_SPEC_PRES_ABOVE_GRND</shortname>
+       <pname>MCONV</pname>
+       <level>3000.</level>
+       <level2>0.</level2>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>MCONV_ON_ENTIRE_ATMOS</shortname>
+       <pname>MCONV</pname>
+       <scale>5.0</scale>
        </param>
 
        <param>
@@ -616,6 +638,13 @@
         <level2>0.</level2>
        <scale>4.0</scale>
          </param>
+
+       <param>
+       <shortname>CAPE_ON_0_3KM_ABOVE_GRND</shortname>
+       <level>0.</level>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+       </param>
 
        <param>
        <shortname>CIN_ON_SURFACE</shortname>
@@ -1131,6 +1160,18 @@
        <shortname>VWSH_ON_TROPOPAUSE</shortname>
        <pname>VWSH</pname>
        <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km</shortname>
+       <pname>VUCSH</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>VVCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km</shortname>
+       <pname>VVCSH</pname>
        <scale>3.0</scale>
        </param>
 
@@ -1921,6 +1962,37 @@
            <shortname>HWP_ON_SURFACE</shortname>
            <pname>FWINX</pname>
            <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>DENDRITIC_LAYER_DEPTH</shortname>
+           <pname>LAYTH</pname>
+           <table_info>NCEP</table_info>
+           <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+           <level>261.</level>
+           <fixed_sfc2_type>isothermal</fixed_sfc2_type>
+           <level2>256.</level2>
+           <scale>4.0</scale>
+       </param>
+
+       <param>
+           <shortname>GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+           <scale>-4.0</scale>
+       </param>
+
+       <param>
+           <shortname>GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+           <scale>-4.0</scale>
+       </param>
+
+       <param>
+           <shortname>GSD_PRES_ON_0C_ISOTHERM</shortname>
+           <scale>3.0</scale>
+       </param>
+
+       <param>
+           <shortname>GSD_PRES_ON_HGHST_TROP_FRZ_LVL</shortname>
+           <scale>3.0</scale>
        </param>
 
     </paramset>
@@ -2967,6 +3039,13 @@
         <level2>0.</level2>
        <scale>4.0</scale>
          </param>
+
+       <param>
+           <shortname>CAPE_ON_0_3KM_ABOVE_GRND</shortname>
+           <level>0.</level>
+           <level2>3000.</level2>
+           <scale>4.0</scale>
+       </param>
 
        <param>
        <shortname>CIN_ON_SURFACE</shortname>
