@@ -570,35 +570,27 @@
                  ! which this artifact occurs. Then, the previously 
                  ! interpolated value of Qrain is simply replaced by the 
                  ! value from the overlying (subfreezing) model level.
-                 ! The same approach is extended to cloud water (Qcloud)
-                 ! and all other hydrometeors, essentially replicating
-                 ! the hydrometeor state of the overlying model level
-                 ! at the pressure level.
-                 ! 
-                 ! Note that the code below does not eliminate all supercooled
-                 ! rain on pressure levels, nor should it. Situations in which
-                 ! supercooled rain is permitted include:
-                 !  i) The situation described by (1)-(3) above, but with
-                 !     rain water also present on the overlying (subfreezing) model 
-                 !     level. This may correspond to freezing drizzle that falls
-                 !     through a melting level (becoming ordinary drizzle). In the
-                 !     code below, the value of Qrain on the target pressure level 
-                 !     will simply be replaced by the value from the overlying 
-                 !     model level. 
-                 ! ii) Classic freezing-rain situations, characterized by a
-                 !     deep (model-resolved) surface-based refreezing layer. In
-                 !     the code below, the temperature check contained in the 
-                 !     second "IF" statement will evaluate to false.
+                 ! The same approach is used for cloud water and cloud
+                 ! ice. However, for snow and graupel, either the value from
+                 ! the overlying model level or the interpolated value
+                 ! is used, whichever is greater. Since model-level weighting
+                 ! depends on the hydrometeor species, it is possible
+                 ! that the total condensate on the pressure level may be
+                 ! greater or less than that on both adjacent model levels
+                 ! (i.e., a slight artificial gain/loss of total condensate 
+                 ! is possible). If this behavior must be avoided, simply 
+                 ! use the values from the overlying model level for 
+                 ! all species.
                  IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
                    IF ( TSL(I,J) <= TFRZ .AND.    & ! This pressure level is subfreezing and located just above a melting level;
-                        T(I,J,LL-1) <= TFRZ .AND. & ! i.e., the overlying model level is subfreezing,
-                        T(I,J,LL) > TFRZ ) THEN     ! but the underlying model level is above freezing.
-                          C1D(I,J) = MAX(CWM(I,J,LL-1),zero) ! total condensate    !  Replace the interpolated hydrometeors
-                          QW1(I,J) = MAX(QQW(I,J,LL-1),zero) ! cloud water         !  on this pressure level with the values
-                          QI1(I,J) = MAX(QQI(I,J,LL-1),zero) ! cloud ice           !  from the overlying (subfreezing)
-                          QR1(I,J) = MAX(QQR(I,J,LL-1),zero) ! rain                !  model level.
-                          QS1(I,J) = MAX(QQS(I,J,LL-1),zero) ! snow
-                          QG1(I,J) = MAX(QQG(I,J,LL-1),zero) ! graupel
+                        T(I,J,LL-1) <= TFRZ .AND. & !   i.e., the overlying model level is subfreezing,
+                        T(I,J,LL) > TFRZ ) THEN     !   but the underlying model level is above freezing.
+                          QW1(I,J) = MAX(QQW(I,J,LL-1),zero)    ! For cloud water, cloud ice, and rain,
+                          QI1(I,J) = MAX(QQI(I,J,LL-1),zero)    !   use the value from the overlying (subfreezing) model level. 
+                          QR1(I,J) = MAX(QQR(I,J,LL-1),zero)    ! 
+                          QS1(I,J) = MAX(QQS(I,J,LL-1),QS1(I,J))! For snow and graupel, use the value from the overlying
+                          QG1(I,J) = MAX(QQG(I,J,LL-1),QG1(I,J))!   level or the interpolated value, whichever is greater.
+                          C1D(I,J) = QG1(I,J)+QS1(I,J)+QR1(I,J)+QI1(I,J)+QW1(I,J) ! Recalculate total condensate
                    ENDIF
                  ENDIF
                  ! End of code to prevent spurious supercooled water
