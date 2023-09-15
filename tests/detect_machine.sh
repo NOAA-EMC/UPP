@@ -42,6 +42,8 @@ case $(hostname -f) in
   gaea15.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea15
   gaea16.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea16
 
+  gaea5[0-9]*)             MACHINE_ID=gaea_c5 ;; ### GAEA C5 login node
+
   hfe01)                   MACHINE_ID=hera ;; ### hera01
   hfe02)                   MACHINE_ID=hera ;; ### hera02
   hfe03)                   MACHINE_ID=hera ;; ### hera03
