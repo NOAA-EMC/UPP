@@ -1650,6 +1650,7 @@
     !
     !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
     !    or in the presence of snow when RH>=95% or at/above the PBL top.
+    !    However, for RRFS (FV3R), simply use a threshold cloud fraction. 
     !
         if(MODELNAME == 'RAPR') then
             IBOTGr(I,J)=0
@@ -1664,6 +1665,21 @@
             DO L=1,NINT(LMH(I,J))
               QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
               IF (QCLD >= QCLDmin) THEN
+                ITOPGr(I,J)=L
+                EXIT
+              ENDIF
+            ENDDO    !--- End L loop
+        else if (MODELNAME == 'FV3R') then ! Use the cloud fraction for cloud base and cloud top
+            IBOTGr(I,J)=0
+            DO L=NINT(LMH(I,J)),1,-1
+              IF (CFR(I,J,L) >= 0.02) THEN
+                IBOTGr(I,J)=L
+                EXIT
+              ENDIF
+            ENDDO    !--- End L loop
+            ITOPGr(I,J)=100
+            DO L=1,NINT(LMH(I,J))
+              IF (CFR(I,J,L) >= 0.02) THEN
                 ITOPGr(I,J)=L
                 EXIT
               ENDIF
@@ -1704,7 +1720,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         endif
     !
     !--- Combined (convective & grid-scale) cloud base & cloud top levels 
-            IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+            IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R')THEN
               IBOTT(I,J) = IBOTGr(I,J)
               ITOPT(I,J) = ITOPGr(I,J)
 	    ELSE
@@ -1756,6 +1772,20 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                            (LOG(PINT(I,J,IBOT+1))-LOG(CLDP(I,J)))&
                            +ZINT(I,J,IBOT+1)
                  ENDIF     !--- End IF (IBOT == LM) ...
+               ENDIF       !--- End IF (IBOT <= 0) ...
+            ELSE IF(MODELNAME == 'FV3R') then !jsk
+               IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
+                 print *, '--Found cloud base--'
+                 print *, 'IBOT:', IBOT
+                 print *, '--ZINT(IBOT)  :', ZINT(I,J,IBOT)
+                 print *, '  ZMID(IBOT)  :', ZMID(I,J,IBOT)
+                 print *, '--ZINT(IBOT+1):', ZINT(I,J,IBOT+1)
+                 print *, '  ZMID(IBOT+1):', ZMID(I,J,IBOT+1)
+                 CLDP(I,J) = PMID(I,J,IBOT)
+                 CLDZ(I,J) = ZMID(I,J,IBOT)
+               ELSE
+                 CLDP(I,J) = -50000.
+                 CLDZ(I,J) = -5000.
                ENDIF       !--- End IF (IBOT <= 0) ...
             ELSE
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
