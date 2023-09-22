@@ -590,7 +590,7 @@
                          IF (QR1(I,J)<SPVAL) QR1(I,J) = MAX(QQR(I,J,LL-1),zero)    !   level.
                          IF (QS1(I,J)<SPVAL) QS1(I,J) = MAX(QQS(I,J,LL-1),QS1(I,J))! For snow and graupel, use the value from the overlying
                          IF (QG1(I,J)<SPVAL) QG1(I,J) = MAX(QQG(I,J,LL-1),QG1(I,J))!   level or the interpolated value, whichever is greater.
-                         IF (C1D(I,J)<SPVAL) C1D(J,J) = QG1(I,J)+QS1(I,J)+QR1(I,J)+QI1(I,J)+QW1(I,J) ! Recalculate total condensate
+                         IF (C1D(I,J)<SPVAL) C1D(I,J) = QG1(I,J)+QS1(I,J)+QR1(I,J)+QI1(I,J)+QW1(I,J) ! Recalculate total condensate
                    ENDIF
                  ENDIF
                  ! End of code to prevent spurious supercooled water
