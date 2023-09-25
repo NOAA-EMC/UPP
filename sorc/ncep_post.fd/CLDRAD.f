@@ -1773,20 +1773,14 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                            +ZINT(I,J,IBOT+1)
                  ENDIF     !--- End IF (IBOT == LM) ...
                ENDIF       !--- End IF (IBOT <= 0) ...
-            ELSE IF(MODELNAME == 'FV3R') then !jsk
+            ELSE IF(MODELNAME == 'FV3R') then
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
-                 print *, '--Found cloud base--'
-                 print *, 'IBOT:', IBOT
-                 print *, '--ZINT(IBOT)  :', ZINT(I,J,IBOT)
-                 print *, '  ZMID(IBOT)  :', ZMID(I,J,IBOT)
-                 print *, '--ZINT(IBOT+1):', ZINT(I,J,IBOT+1)
-                 print *, '  ZMID(IBOT+1):', ZMID(I,J,IBOT+1)
-                 CLDP(I,J) = PMID(I,J,IBOT)
-                 CLDZ(I,J) = ZMID(I,J,IBOT)
+                 CLDP(I,J) = PINT(I,J,IBOT+1) ! Since IBOT corresponds to a mid-layer location, consider
+                 CLDZ(I,J) = ZINT(I,J,IBOT+1) ! the underlying interfacial level as the cloud base
                ELSE
                  CLDP(I,J) = -50000.
                  CLDZ(I,J) = -5000.
-               ENDIF       !--- End IF (IBOT <= 0) ...
+               ENDIF
             ELSE
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
                  CLDP(I,J) = PMID(I,J,IBOT)
