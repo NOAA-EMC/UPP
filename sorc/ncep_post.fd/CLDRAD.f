@@ -74,6 +74,7 @@
 !> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
+!> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -1669,7 +1670,7 @@
                 EXIT
               ENDIF
             ENDDO    !--- End L loop
-        else if (MODELNAME == 'FV3R') then ! Use the cloud fraction for cloud base and cloud top
+        else if (MODELNAME == 'FV3R') then ! RRFS: use cloud fraction to assign cloud base and cloud top
             IBOTGr(I,J)=0
             DO L=NINT(LMH(I,J)),1,-1
               IF (CFR(I,J,L) >= 0.02) THEN
