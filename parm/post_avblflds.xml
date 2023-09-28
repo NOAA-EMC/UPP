@@ -7761,7 +7761,7 @@
     <param>
        <post_avblfldidx>957</post_avblfldidx>
        <shortname>CRITICAL_ANGLE</shortname>
-       <pname>DCAPE</pname>
+       <pname>CANGLE</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>0.</level>
