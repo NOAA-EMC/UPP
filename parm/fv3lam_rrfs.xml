@@ -880,6 +880,12 @@
        </param>
 
        <param>
+       <shortname>TCDC_ON_BOUND_LYR</shortname>
+       <pname>TCDC</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
        <pname>TCDC</pname>
        <scale>3.0</scale>
@@ -2700,6 +2706,12 @@
        <param>
        <shortname>HCDC_ON_HIGH_CLOUD_LYR</shortname>
        <pname>HCDC</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>TCDC_ON_BOUND_LYR</shortname>
+       <pname>TCDC</pname>
        <scale>3.0</scale>
        </param>
 
