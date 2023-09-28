@@ -697,6 +697,21 @@
        </param>
 
        <param>
+       <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EFHL</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>CANGLE</pname>
+       <level>0.</level>
+       <level2>500.</level2>
+       <scale>2.0</scale>
+       </param>
+
+       <param>
        <shortname>USTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>USTM</pname>
        <table_info>NCEP</table_info>
@@ -3135,6 +3150,21 @@
        <pname>HLCY</pname>
        <level>3000. 1000.</level>
        <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EFHL</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>CANGLE</pname>
+       <level>0.</level>
+       <level2>500.</level2>
+       <scale>2.0</scale>
        </param>
 
        <param>
