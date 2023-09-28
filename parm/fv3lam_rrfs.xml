@@ -290,6 +290,13 @@
        </param>
 
        <param>
+       <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
+       <pname>RHPW</pname>
+       <table_info>NCEP</table_info>
+       <scale>-0.1</scale>
+       </param>
+
+       <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <pname>MSLET</pname>
        <table_info>NCEP</table_info>
@@ -1269,6 +1276,24 @@
        </param>
 
        <param>
+       <shortname>RH_ON_HGHST_TROP_FRZ_LVL</shortname>
+       <pname>RH</pname>
+        <scale>-0.1</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_HGHST_TROP_-20C_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_EQUIL_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>HGT_ON_LWST_LVL_OF_WET_BULB_ZERO</shortname>
        <pname>HGT</pname>
         <scale>-5.0</scale>
@@ -2150,6 +2175,13 @@
 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 
 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64. 65.</level>
        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
+       <pname>RHPW</pname>
+       <table_info>NCEP</table_info>
+       <scale>-0.1</scale>
        </param>
 
        <param>
@@ -3264,6 +3296,24 @@
        <shortname>HGT_ON_HGHST_TROP_FRZ_LVL</shortname>
        <pname>HGT</pname>
         <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>RH_ON_HGHST_TROP_FRZ_LVL</shortname>
+       <pname>RH</pname>
+        <scale>-0.1</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_HGHST_TROP_-20C_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_EQUIL_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
        </param>
 
        <param>

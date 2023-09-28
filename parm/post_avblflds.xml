@@ -6870,7 +6870,8 @@
        <post_avblfldidx>749</post_avblfldidx>
        <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
        <longname>RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER</longname>
-       <pname>RH_PWAT</pname>
+       <pname>RHPW</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
