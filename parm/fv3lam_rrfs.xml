@@ -708,7 +708,7 @@
        <pname>CANGLE</pname>
        <level>0.</level>
        <level2>500.</level2>
-       <scale>2.0</scale>
+       <scale>3.0</scale>
        </param>
 
        <param>
@@ -3164,7 +3164,7 @@
        <pname>CANGLE</pname>
        <level>0.</level>
        <level2>500.</level2>
-       <scale>2.0</scale>
+       <scale>3.0</scale>
        </param>
 
        <param>
