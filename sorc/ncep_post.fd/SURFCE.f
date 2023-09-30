@@ -5140,7 +5140,11 @@
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
 !-- RAP/HRRR and RRFS use 1-h bucket. GFS uses 3-h bucket
 !-- so this section will need to be revised for GFS
-               totprcp = (AVGPREC(I,J)*3600.*1000./DTQ2)
+               if(AVGPREC(I,J)/=spval)then
+                 totprcp = (AVGPREC(I,J)*3600.*1000./DTQ2)
+               else
+                 totprcp = 0.0
+               endif
                snowratio = 0.0
                if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j
@@ -5169,7 +5173,13 @@
 !--   SNOW is time step non-convective snow [m]
 !     -- based on either instantaneous snowfall or 1h snowfall and
 !     snowratio
-               if( (SNOWNC(i,j)/DT > 0.2e-9 .and. snowratio>=0.25) &
+               IF (I .eq. 2 .and. J .eq. 2) THEN
+                  print *,'EJAMES GSL PTYPE: SNOWNC:', SNOWNC(2,2)
+                  print *,'EJAMES GSL PTYPE: snowratio:', snowratio
+                  print *,'EJAMES GSL PTYPE: t2:', t2
+                  print *,'EJAMES GSL PTYPE: totprcp:', totprcp
+               ENDIF
+               if( (SNOWNC(i,j)/DT > 0.2e-9 .and.snowratio>=0.25.and.SNOWNC(i,j)/=spval) &
                        .or.                                         &
                    (totprcp>0.00001.and.snowratio>=0.25)) then
                    DOMS(i,j) = 1.
@@ -5187,6 +5197,13 @@
                rainl = (1. - SR(i,j))*prec(i,j)/DT
 !-- in RUC RAIN is in cm/h and the limit is 1.e-3,
 !-- converted to m/s will be 2.8e-9
+               IF (I .eq. 2 .and. J .eq. 2) THEN
+                  print *,'EJAMES GSL PTYPE: rainl:', rainl
+                  print *,'EJAMES GSL PTYPE: snowratio:', snowratio
+                  print *,'EJAMES GSL PTYPE: t2:', t2
+                  print *,'EJAMES GSL PTYPE: GRAUPELNC:', GRAUPELNC(2,2)
+                  print *,'EJAMES GSL PTYPE: qrmax:', qrmax(2,2)
+               ENDIF
                if((rainl > 2.8e-9 .and. snowratio<0.60) .or.      &
                  (totprcp>0.00001 .and. snowratio<0.60)) then
 
@@ -5205,7 +5222,7 @@
 !-- graupel/ice pellets vs. snow or rain
 !  ---------------------------------------------------------------
 !-- GRAUPEL is time step non-convective graupel in [m]
-               if(GRAUPELNC(i,j)/DT > 1.e-9) then
+               if(GRAUPELNC(i,j)/DT > 1.e-9.and.GRAUPELNC(i,j)/=spval) then
                  if (t2<=276.15) then
 !                 This T2m test excludes convectively based hail
 !                   from cold-season ice pellets.
