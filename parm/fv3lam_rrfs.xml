@@ -290,6 +290,13 @@
        </param>
 
        <param>
+       <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
+       <pname>RHPW</pname>
+       <table_info>NCEP</table_info>
+       <scale>-0.1</scale>
+       </param>
+
+       <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <pname>MSLET</pname>
        <table_info>NCEP</table_info>
@@ -690,6 +697,21 @@
        </param>
 
        <param>
+       <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EFHL</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>CANGLE</pname>
+       <level>0.</level>
+       <level2>500.</level2>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>USTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>USTM</pname>
        <table_info>NCEP</table_info>
@@ -869,6 +891,12 @@
        <param>
        <shortname>HCDC_ON_HIGH_CLOUD_LYR</shortname>
        <pname>HCDC</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>TCDC_ON_BOUND_LYR</shortname>
+       <pname>TCDC</pname>
        <scale>3.0</scale>
        </param>
 
@@ -1266,6 +1294,24 @@
        <shortname>HGT_ON_HGHST_TROP_FRZ_LVL</shortname>
        <pname>HGT</pname>
         <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>RH_ON_HGHST_TROP_FRZ_LVL</shortname>
+       <pname>RH</pname>
+        <scale>-0.1</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_HGHST_TROP_-20C_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_EQUIL_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
        </param>
 
        <param>
@@ -2153,6 +2199,13 @@
        </param>
 
        <param>
+       <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
+       <pname>RHPW</pname>
+       <table_info>NCEP</table_info>
+       <scale>-0.1</scale>
+       </param>
+
+       <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <pname>MSLET</pname>
        <table_info>NCEP</table_info>
@@ -2672,6 +2725,12 @@
        </param>
 
        <param>
+       <shortname>TCDC_ON_BOUND_LYR</shortname>
+       <pname>TCDC</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
        <pname>TCDC</pname>
        <scale>3.0</scale>
@@ -3094,6 +3153,21 @@
        </param>
 
        <param>
+       <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EFHL</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>CANGLE</pname>
+       <level>0.</level>
+       <level2>500.</level2>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>USTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>USTM</pname>
        <table_info>NCEP</table_info>
@@ -3264,6 +3338,24 @@
        <shortname>HGT_ON_HGHST_TROP_FRZ_LVL</shortname>
        <pname>HGT</pname>
         <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>RH_ON_HGHST_TROP_FRZ_LVL</shortname>
+       <pname>RH</pname>
+        <scale>-0.1</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_HGHST_TROP_-20C_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_EQUIL_LVL</shortname>
+       <pname>HGT</pname>
+        <scale>3.0</scale>
        </param>
 
        <param>
