@@ -5173,7 +5173,7 @@
 !--   SNOW is time step non-convective snow [m]
 !     -- based on either instantaneous snowfall or 1h snowfall and
 !     snowratio
-               if( (SNOWNC(i,j)/DT > 0.2e-9 .and.snowratio>=0.25.and.SNOWNC(i,j)/=spval) &
+               if( (SNOWNC(i,j)/DT > 0.2e-9 .and. snowratio>=0.25 .and. SNOWNC(i,j)/=spval) &
                        .or.                                         &
                    (totprcp>0.00001.and.snowratio>=0.25)) then
                    DOMS(i,j) = 1.
@@ -5209,7 +5209,7 @@
 !-- graupel/ice pellets vs. snow or rain
 !  ---------------------------------------------------------------
 !-- GRAUPEL is time step non-convective graupel in [m]
-               if(GRAUPELNC(i,j)/DT > 1.e-9.and.GRAUPELNC(i,j)/=spval) then
+               if(GRAUPELNC(i,j)/DT > 1.e-9 .and. GRAUPELNC(i,j)/=spval) then
                  if (t2<=276.15) then
 !                 This T2m test excludes convectively based hail
 !                   from cold-season ice pellets.
