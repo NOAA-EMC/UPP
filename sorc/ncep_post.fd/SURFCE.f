@@ -44,6 +44,7 @@
 !> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
+!> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
