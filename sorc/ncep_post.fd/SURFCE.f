@@ -43,6 +43,7 @@
 !> 2023-04-21 | E James    | Enabling GSL precip type for RRFS
 !> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
+!> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -4372,7 +4373,7 @@
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(518))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(526))
              if(fld_info(cfld)%ntrange==0) then
                if (ifhr==0 .and. ifmin==0) then
                  fld_info(cfld)%tinvstat=0
@@ -4406,7 +4407,7 @@
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(519))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(527))
              if(fld_info(cfld)%ntrange==0) then
                if (ifhr==0 .and. ifmin==0) then
                  fld_info(cfld)%tinvstat=0
@@ -4440,7 +4441,7 @@
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(520))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(528))
              if(fld_info(cfld)%ntrange==0) then
                if (ifhr==0 .and. ifmin==0) then
                  fld_info(cfld)%tinvstat=0
@@ -4475,7 +4476,7 @@
 !           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(529))
              if(fld_info(cfld)%ntrange==0) then
                if (ifhr==0 .and. ifmin==0) then
                  fld_info(cfld)%tinvstat=0
@@ -4510,7 +4511,7 @@
 !            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then
               cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(522))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(530))
               if(fld_info(cfld)%ntrange==0) then
                 if (ifhr==0 .and. ifmin==0) then
                   fld_info(cfld)%tinvstat=0

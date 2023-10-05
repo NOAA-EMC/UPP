@@ -56,6 +56,7 @@
 !!   23-06-26 | W Meng | Output composite radar reflectivity when GFS uses Thompson MP
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
+!!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -583,8 +584,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        END DO  
 
-      ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R') &
-        .and. imp_physics==8)THEN !NMMB or FV3R +THOMPSON
+      ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R' &
+        .OR. MODELNAME == 'GFS') &
+        .and. imp_physics==8)THEN !NMMB or FV3R or GFS +THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=ista,iend
