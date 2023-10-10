@@ -40,6 +40,8 @@
 !> 2023-07-06 | Eric James    | Read in SOILL on 9 levels for RRFS
 !> 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization
 !> 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain)
+!> 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output
+!> 2023-09-22 | Wen Meng      | Bug fix in cwm intialization
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -913,8 +915,10 @@
        do l=1,lm
        do j=jsta,jend
          do i=ista,iend
-            qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
-            cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
+            if(qqr(i,j,l) /= spval) then
+              qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
+              cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
+            endif
          enddo
        enddo
        if(debugprint)print*,'sample l,t,q,u,v,w= ',isa,jsa,l &
@@ -1373,6 +1377,7 @@
 !$omp parallel do private(i,j)
           do j=jsta,jend
           do i=ista,iend
+          if ((dt1(i,j,l) /= spval ) .and. (dt2(i,j,l) /= spval) .and. (dt3(i,j,l) /= spval)) then
           no3(i,j,l,1)=dt1(i,j,l)
           no3(i,j,l,2)=dt2(i,j,l)
           no3(i,j,l,3)=dt3(i,j,l)
@@ -1380,6 +1385,12 @@
             no3cb(i,j)=no3cb(i,j)+ &
         (no3(i,j,l,1)+no3(i,j,l,2)+no3(i,j,l,3))* &
            dpres(i,j,l)/grav
+          else
+          no3(i,j,l,1)=0.0
+          no3(i,j,l,2)=0.0
+          no3(i,j,l,3)=0.0
+          endif
+          
            enddo
            enddo
         end do ! do loop for l

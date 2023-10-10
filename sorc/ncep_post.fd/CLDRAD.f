@@ -74,6 +74,7 @@
 !> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
+!> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -1650,6 +1651,7 @@
     !
     !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
     !    or in the presence of snow when RH>=95% or at/above the PBL top.
+    !    However, for RRFS (FV3R), simply use a threshold cloud fraction. 
     !
         if(MODELNAME == 'RAPR') then
             IBOTGr(I,J)=0
@@ -1664,6 +1666,21 @@
             DO L=1,NINT(LMH(I,J))
               QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
               IF (QCLD >= QCLDmin) THEN
+                ITOPGr(I,J)=L
+                EXIT
+              ENDIF
+            ENDDO    !--- End L loop
+        else if (MODELNAME == 'FV3R') then ! RRFS: use cloud fraction to assign cloud base and cloud top
+            IBOTGr(I,J)=0
+            DO L=NINT(LMH(I,J)),1,-1
+              IF (CFR(I,J,L) >= 0.02) THEN
+                IBOTGr(I,J)=L
+                EXIT
+              ENDIF
+            ENDDO    !--- End L loop
+            ITOPGr(I,J)=100
+            DO L=1,NINT(LMH(I,J))
+              IF (CFR(I,J,L) >= 0.02) THEN
                 ITOPGr(I,J)=L
                 EXIT
               ENDIF
@@ -1704,7 +1721,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         endif
     !
     !--- Combined (convective & grid-scale) cloud base & cloud top levels 
-            IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+            IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R')THEN
               IBOTT(I,J) = IBOTGr(I,J)
               ITOPT(I,J) = ITOPGr(I,J)
 	    ELSE
@@ -1757,6 +1774,14 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                            +ZINT(I,J,IBOT+1)
                  ENDIF     !--- End IF (IBOT == LM) ...
                ENDIF       !--- End IF (IBOT <= 0) ...
+            ELSE IF(MODELNAME == 'FV3R') then
+               IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
+                 CLDP(I,J) = PINT(I,J,IBOT+1) ! Since IBOT corresponds to a mid-layer location, consider
+                 CLDZ(I,J) = ZINT(I,J,IBOT+1) ! the underlying interfacial level as the cloud base
+               ELSE
+                 CLDP(I,J) = -50000.
+                 CLDZ(I,J) = -5000.
+               ENDIF
             ELSE
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
                  CLDP(I,J) = PMID(I,J,IBOT)

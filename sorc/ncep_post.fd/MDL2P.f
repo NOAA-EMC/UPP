@@ -37,6 +37,7 @@
 !> 2022-12-21 | J Meng          ! Adding snow density SDEN      
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
+!> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -64,7 +65,7 @@
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
                             RGAMOG, RD, D608, GI, ERAD, PI, SMALL, H100,       &
-                            H99999, GAMMA
+                            H99999, GAMMA, TFRZ
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
@@ -531,6 +532,68 @@
                  IF(QQG(I,J,LL) < SPVAL .AND. QQG(I,J,LL-1) < SPVAL)         &
                    QG1(I,J) = QQG(I,J,LL) + (QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
                    QG1(I,J) = MAX(QG1(I,J),zero)      ! GRAUPEL (precip ice) 
+
+                 ! ...Prevent spurious supercooled water (rain and
+                 ! cloud water) from appearing on pressure levels 
+                 ! that are located just above melting levels...
+                 ! 
+                 ! Added Sep 2023 by J. Kenyon (NOAA/GSL), in response to 
+                 ! a problem identified by G. Thompson (NCAR), described 
+                 ! below.
+                 !
+                 ! Consider a situation in which:
+                 !  (1) the target pressure level is contained between 
+                 !      two adjacent model levels that also contain a 
+                 !      melting level; i.e., the overlying model level
+                 !      is subfreezing, and the underlying model level
+                 !      is above freezing.
+                 !  (2) the temperature on the target pressure level 
+                 !      (via interpolation) is subfreezing; i.e., the
+                 !      target pressure level is located "just above" 
+                 !      the aforementioned melting level.
+                 !  (3) rain water exists on the underlying model level
+                 !
+                 ! This situation is often found in a classic melting- 
+                 ! snow thermal profile. The model level above the 
+                 ! melting level will typically contain snow, but no 
+                 ! rain. Meanwhile, the model level below the melting
+                 ! level will contain rain. Importantly, model levels in
+                 ! this situation do not contain supercooled rain, but 
+                 ! interpolation onto the target pressure level will 
+                 ! yield supercooled rain. In this sense, the supercooled
+                 ! rain is an artifact of interpolation. Because
+                 ! supercooled water poses a hazard to aviation, we seek 
+                 ! to prevent supercooled water on pressure levels 
+                 ! when none actually exists on the adjacent model levels.
+                 ! 
+                 ! In the code below, we search for the condition in
+                 ! which this artifact occurs. Then, the previously 
+                 ! interpolated value of Qrain is simply replaced by the 
+                 ! value from the overlying (subfreezing) model level.
+                 ! The same approach is used for cloud water and cloud
+                 ! ice. However, for snow and graupel, either the value from
+                 ! the overlying model level or the interpolated value
+                 ! is used, whichever is greater. Since model-level weighting
+                 ! depends on the hydrometeor species, it is possible
+                 ! that the total condensate on the pressure level may be
+                 ! greater or less than that on both adjacent model levels
+                 ! (i.e., a slight artificial gain/loss of total condensate 
+                 ! is possible). If this behavior must be avoided, simply 
+                 ! use the values from the overlying model level for 
+                 ! all species.
+                 IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
+                   IF ( TSL(I,J) <= TFRZ .AND.    & ! This pressure level is subfreezing and located just above a melting level;
+                        T(I,J,LL-1) <= TFRZ .AND. & !   i.e., the overlying model level is subfreezing,
+                        T(I,J,LL) > TFRZ ) THEN     !   but the underlying model level is above freezing.
+                         IF (QW1(I,J)<SPVAL) QW1(I,J) = MAX(QQW(I,J,LL-1),zero)    ! For cloud water, cloud ice, and rain,
+                         IF (QI1(I,J)<SPVAL) QI1(I,J) = MAX(QQI(I,J,LL-1),zero)    !   use the value from the overlying (subfreezing) model
+                         IF (QR1(I,J)<SPVAL) QR1(I,J) = MAX(QQR(I,J,LL-1),zero)    !   level.
+                         IF (QS1(I,J)<SPVAL) QS1(I,J) = MAX(QQS(I,J,LL-1),QS1(I,J))! For snow and graupel, use the value from the overlying
+                         IF (QG1(I,J)<SPVAL) QG1(I,J) = MAX(QQG(I,J,LL-1),QG1(I,J))!   level or the interpolated value, whichever is greater.
+                         IF (C1D(I,J)<SPVAL) C1D(I,J) = QG1(I,J)+QS1(I,J)+QR1(I,J)+QI1(I,J)+QW1(I,J) ! Recalculate total condensate
+                   ENDIF
+                 ENDIF
+                 ! End of code to prevent spurious supercooled water
 
                  IF(DBZ(I,J,LL) < SPVAL .AND. DBZ(I,J,LL-1) < SPVAL)         &
                    DBZ1(I,J) = DBZ(I,J,LL) + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT

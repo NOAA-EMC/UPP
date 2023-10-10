@@ -358,9 +358,9 @@
 
           pw_sat(i,j) = pw_sat(i,j) + max(sh,Qs)*DELTP/G
 
-        if (i==120 .and. j==120 )                        &
-          write (6,*)'pw-sat', temp, sh, qs, pmid(i,j,kb)    &
-          ,pmid(i,j,ka),pw(i,j),pw_sat(i,j)
+!        if (i==120 .and. j==120 )                        &
+!          write (6,*)'pw-sat', temp, sh, qs, pmid(i,j,kb)    &
+!          ,pmid(i,j,ka),pw(i,j),pw_sat(i,j)
 
 !sgb - This IS RH w.r.t. PW-sat.
            RHPW (i,j) = min(1.,PW(i,j) / pw_sat(i,j)) * 100.
