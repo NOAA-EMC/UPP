@@ -44,6 +44,7 @@
 !> 2023-05-19 | E James    | Cleaning up GRIB2 encoding for 1-h max precip rate
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
+!> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -5141,7 +5142,15 @@
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
 !-- RAP/HRRR and RRFS use 1-h bucket. GFS uses 3-h bucket
 !-- so this section will need to be revised for GFS
-               totprcp = (AVGPREC(I,J)*3600.*1000./DTQ2)
+               IF (MODELNAME .eq. 'FV3R') THEN
+                 if(AVGPREC(I,J)/=spval)then
+                   totprcp = (AVGPREC(I,J)*3600./DTQ2)
+                 else
+                   totprcp = 0.0
+                 endif
+               ELSE
+                 totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
+               ENDIF
                snowratio = 0.0
                if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
                  print *,'WARNING - Graupel is higher that total precip at point',i,j
@@ -5170,7 +5179,7 @@
 !--   SNOW is time step non-convective snow [m]
 !     -- based on either instantaneous snowfall or 1h snowfall and
 !     snowratio
-               if( (SNOWNC(i,j)/DT > 0.2e-9 .and. snowratio>=0.25) &
+               if( (SNOWNC(i,j)/DT > 0.2e-9 .and. snowratio>=0.25 .and. SNOWNC(i,j)/=spval) &
                        .or.                                         &
                    (totprcp>0.00001.and.snowratio>=0.25)) then
                    DOMS(i,j) = 1.
@@ -5206,7 +5215,7 @@
 !-- graupel/ice pellets vs. snow or rain
 !  ---------------------------------------------------------------
 !-- GRAUPEL is time step non-convective graupel in [m]
-               if(GRAUPELNC(i,j)/DT > 1.e-9) then
+               if(GRAUPELNC(i,j)/DT > 1.e-9 .and. GRAUPELNC(i,j)/=spval) then
                  if (t2<=276.15) then
 !                 This T2m test excludes convectively based hail
 !                   from cold-season ice pellets.
