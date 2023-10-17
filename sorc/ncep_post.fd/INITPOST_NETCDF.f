@@ -41,7 +41,9 @@
 !> 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization
 !> 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain)
 !> 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output
-!> 2023-09-22 | Wen Meng      | Bug fix in cwm intialization
+!> 2023-09-22 | Wen Meng      | Bug fix in cwm initialization
+!> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
+!>                              and cwm when present (NSSL microphysics)
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -920,6 +922,9 @@
             if(qqr(i,j,l) /= spval) then
               qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
               cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
+              if(qqh(i,j,l) /= spval) then
+                cwm(i,j,l)=cwm(i,j,l)+qqh(i,j,l)
+              endif
             endif
          enddo
        enddo
