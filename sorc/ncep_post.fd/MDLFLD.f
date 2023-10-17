@@ -57,6 +57,7 @@
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
+!!   23-10-17 | E James | Include hail hydrometeors in VIL computation when available
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
