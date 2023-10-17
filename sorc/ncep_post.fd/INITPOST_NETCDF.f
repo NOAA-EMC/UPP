@@ -58,7 +58,7 @@
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, coarsepm,                &
               no3,nh4, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
-              qqr, qqnr, qqs, qqi, qqni, qqw, qqnw, qqg, cwm,                                   &
+              qqr, qqnr, qqs, qqi, qqni, qqw, qqnw, qqg, qqh, cwm,                              &
               omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,                                       &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
@@ -524,13 +524,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=21
+       nrec=22
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle','smoke','dust',      &
-                                     'coarsepm','ext550',               &
+                                     'snmr','grle','hail','smoke',      &
+                                     'dust','coarsepm','ext550',        &
                                      'nicp','water_nc','rain_nc']
       else
        nrec=8
@@ -886,22 +886,24 @@
        spval,recname(13),qqs(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(14),qqg(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(15),qqh(ista_2l,jsta_2l,1),lm)
 ! read for regional FV3
        if (modelname == 'FV3R') then
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
+       spval,recname(16),smoke(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
+       spval,recname(17),fv3dust(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(17),coarsepm(ista_2l,jsta_2l,1,1),lm)
+       spval,recname(18),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
+       spval,recname(19),ext550(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(19),qqni(ista_2l,jsta_2l,1),lm)
+       spval,recname(20),qqni(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(20),qqnw(ista_2l,jsta_2l,1),lm)
+       spval,recname(21),qqnw(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(21),qqnr(ista_2l,jsta_2l,1),lm)
+       spval,recname(22),qqnr(ista_2l,jsta_2l,1),lm)
        endif
 
 ! Compute max QRAIN in the column to be used later in precip type computation
