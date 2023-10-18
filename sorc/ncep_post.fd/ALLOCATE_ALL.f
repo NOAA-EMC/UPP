@@ -151,6 +151,7 @@
       allocate(QQR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQS(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQG(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(QQH(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNW(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNI(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
@@ -186,6 +187,7 @@
             QQR(i,j,l)=spval
             QQS(i,j,l)=spval
             QQG(i,j,l)=spval
+            QQH(i,j,l)=spval
             QQNW(i,j,l)=spval
             QQNI(i,j,l)=spval
             QQNR(i,j,l)=spval

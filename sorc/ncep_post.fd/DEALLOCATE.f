@@ -77,6 +77,7 @@
       deallocate(QQR)
       deallocate(QQS)
       deallocate(QQG)
+      deallocate(QQH)
       deallocate(QQNW)
       deallocate(QQNI)
       deallocate(QQNR)

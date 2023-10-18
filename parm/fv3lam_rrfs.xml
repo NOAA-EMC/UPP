@@ -1851,6 +1851,12 @@
        </param>
 
        <param>
+       <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
+       <pname>VIL</pname>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
        <shortname>UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <pname>UPHL</pname>
        <table_info>NCEP</table_info>
