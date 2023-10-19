@@ -57,6 +57,7 @@
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
+!!   23-10-17 | E James | Include hail hydrometeors in VIL computation when available
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -96,8 +97,8 @@
       use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust,&
               coarsepm
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
-              qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
-              qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
+              qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, qqh, zint,&
+              qqni, qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
@@ -3374,10 +3375,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                IF(QQR(I,J,L)<spval.and.QQS(I,J,L)<spval.and.QQG(I,J,L)<spval.and.&
                   ZINT(I,J,L)<spval.and.ZINT(I,J,L+1)<spval.and.&
                   PMID(I,J,L)<spval.and.T(I,J,L)<spval.and.Q(I,J,L)<spval)THEN
-                  GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) +      &
-                               QQS(I,J,L) + QQG(I,J,L))*     &
-                             (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &
-                             (RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))
+                  IF(QQH(I,J,L)<spval)THEN
+                     GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) + QQH(I,J,L) + &
+                                  QQS(I,J,L) + QQG(I,J,L))*     &
+                                (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &
+                                (RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))
+                  ELSE
+                     GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) +      &
+                                  QQS(I,J,L) + QQG(I,J,L))*     &
+                                (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &
+                                (RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))
+                  ENDIF
                ELSE
                   GRID1(I,J)=spval
                ENDIF
