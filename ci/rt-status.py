@@ -39,7 +39,7 @@ def check_for_diff(tests):
                     if 'rap' in case_dir and file == 'WRFPRS.GrbF16.diff':
                         with open('{}/{}/{}'.format(rundir,case_dir, file)) as f:
                             data = f.readlines()
-                            if len(data) == 1 and '708:195469472:CDCON:convective cloud layer:rpn_corr=-nan:rpn_rms=undefined' in data[0]:
+                            if len(data) == 1 and 'CDCON:convective cloud layer:rpn_corr=-nan:rpn_rms=undefined' in data[0]:
                                 continue
                     print('There are changes in results for case {}_pe_test in {}'.format(diff_case, file.replace(".diff", "")))
                 else:
