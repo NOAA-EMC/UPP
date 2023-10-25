@@ -1058,7 +1058,7 @@
       spval,VarName,rel_vort_maxhy1(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
 ! HAILCAST maximum hail diameter (mm) since last output
-      VarName='HAILCAST_DHAIL'
+      VarName='hailcast_dhail'
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hail_maxhailcast(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hail_maxhailcast(isa,jsa)
