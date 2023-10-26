@@ -1907,6 +1907,11 @@
        </param>
 
        <param>
+       <shortname>GSD_HAILCAST_HAIL_DIAMETER</shortname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
        <pname>MAXREF</pname>
        <table_info>NCEP</table_info>
@@ -2355,6 +2360,11 @@
        <param>
        <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
        <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_HAILCAST_HAIL_DIAMETER</shortname>
+       <scale>3.0</scale>
        </param>
 
        <param>

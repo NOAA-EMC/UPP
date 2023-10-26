@@ -18,6 +18,7 @@
 !!   21-07-26  W Meng - Restrict computation from undefined grids
 !!   21-10-14  J MENG - 2D DECOMPOSITION
 !! 2023-03-02  S TRAHAN - copy lightning threat index 3 element-by-element
+!! 2023-10-23  J Kenyon - HAILCAST output enabled in RRFS
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -669,9 +670,7 @@
              endif
           END IF
 
-!---  Max hail diameter at surface from WRF HAILCAST algorithm (HRRR
-!applications)
-!     (J. Kenyon/GSD, added 1 May 2019)
+!---  Max hail diameter at surface from HAILCAST algorithm (HRRR and RRFS applications)
           IF((IGET(728)>0) )THEN
              DO J=JSTA,JEND
              DO I=ISTA,IEND
