@@ -61,7 +61,7 @@ run_rtma=yes
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
-if [ $mac2 = hf ]; then #for HERA
+if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
  export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
@@ -88,6 +88,11 @@ elif [ $mac3 = herc ] ; then
  module load stack-intel-oneapi-mpi/2021.9.0
  module load jasper/2.0.32
  module load prod-util/1.2.2
+elif [ $mac = d -o $mac = c ]; then # WCOSS2
+ export machine=WCOSS2
+ export homedir=/u/wen.meng/noscrub/ncep_post/post_regression_test_new
+ export rundir=/lfs/h2/emc/ptmp/$USER
+ module load prod_util
 fi
 
 #set working directory
