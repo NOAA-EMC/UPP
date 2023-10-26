@@ -88,11 +88,6 @@ elif [ $mac3 = herc ] ; then
  module load stack-intel-oneapi-mpi/2021.9.0
  module load jasper/2.0.32
  module load prod-util/1.2.2
-elif [ $mac = d -o $mac = c ]; then # WCOSS2
- export machine=WCOSS2
- export homedir=/u/wen.meng/noscrub/ncep_post/post_regression_test_new
- export rundir=/lfs/h2/emc/ptmp/$USER
- module load prod_util
 fi
 
 #set working directory
