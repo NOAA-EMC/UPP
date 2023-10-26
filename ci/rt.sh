@@ -61,11 +61,7 @@ run_rtma=yes
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
-if [ $mac = v -o $mac = m  ] ; then   # WCOSS_D (venus and mars)
- export machine=WCOSS_DELL_P3
- export homedir=${homedir:-"/u/Wen.Meng/noscrubd/ncep_post/post_regression_test_new"}
- export rundir=${rundir:-"/gpfs/dell2/ptmp/$USER"}
-elif [ $mac2 = hf ]; then #for HERA
+if [ $mac2 = hf ]; then #for HERA
  export machine=HERA
  export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
@@ -100,7 +96,7 @@ rm -rf $workdir
 mkdir -p $workdir
 
 #differentiates for orion and hercules
-export rundir="${rundir}-upp-${machine}"
+export rundir="${rundir}/upp-${machine}"
 
 #set log file
 export logfile=`pwd`/rt.log.$machine
