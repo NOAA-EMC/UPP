@@ -19,6 +19,7 @@
 !> 2022-05-26 | WM Lewis       | added support for GOES-18 ABI IR Channels 7-16
 !> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
 !> 2023-03-22 | WM Lewis       | Added support for using effective radius arrays from RRFS
+!> 2023-10-25 | Eric James     | Bug fix for invalid land category in CRTM
 !>
 !> @author Chuang @date 2007-01-17
 !---------------------------------------------------------------------------
@@ -252,8 +253,8 @@
       model_to_crtm=(/PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST,       &
            BROADLEAF_FOREST,BROADLEAF_PINE_FOREST, SCRUB, SCRUB_SOIL, &
            BROADLEAF_BRUSH,BROADLEAF_BRUSH, SCRUB, BROADLEAF_BRUSH,   &
-           TILLED_SOIL, URBAN_CONCRETE,TILLED_SOIL, INVALID_LAND,     &
-           COMPACTED_SOIL, INVALID_LAND, TUNDRA,TUNDRA, TUNDRA/)
+           TILLED_SOIL, URBAN_CONCRETE,TILLED_SOIL, URBAN_CONCRETE,     &
+           COMPACTED_SOIL, BROADLEAF_BRUSH, TUNDRA,TUNDRA, TUNDRA/)
    else if(ivegsrc==0)then ! USGS veg type
       allocate(model_to_crtm(novegtype) )
       model_to_crtm=(/URBAN_CONCRETE,       &
