@@ -561,7 +561,7 @@
 
        <param>
        <shortname>GSD_ACM_SNOD_ON_SURFACE</shortname>
-       <scale>5.0</scale>
+       <scale>9.0</scale>
        </param>
 
        <param>
@@ -838,7 +838,7 @@
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
        <pname>PRATE</pname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1835,7 +1835,7 @@
        <param>
        <shortname>MAX_PRATE_ON_SURFACE</shortname>
        <pname>PRATE</pname>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1846,6 +1846,12 @@
 
        <param>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
+       <pname>VIL</pname>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
        <pname>VIL</pname>
        <scale>7.0</scale>
        </param>
@@ -1898,6 +1904,11 @@
        <param>
        <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
        <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_HAILCAST_HAIL_DIAMETER</shortname>
+       <scale>3.0</scale>
        </param>
 
        <param>
@@ -2352,6 +2363,11 @@
        </param>
 
        <param>
+       <shortname>GSD_HAILCAST_HAIL_DIAMETER</shortname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>MAX_MAXUW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
        <pname>MAXUW</pname>
        <table_info>NCEP</table_info>
@@ -2579,7 +2595,7 @@
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
        <pname>PRATE</pname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>

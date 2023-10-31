@@ -41,7 +41,10 @@
 !> 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization
 !> 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain)
 !> 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output
-!> 2023-09-22 | Wen Meng      | Bug fix in cwm intialization
+!> 2023-09-22 | Wen Meng      | Bug fix in cwm initialization
+!> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
+!>                              and cwm when present (NSSL microphysics)
+!> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -58,7 +61,7 @@
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, coarsepm,                &
               no3,nh4, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
-              qqr, qqnr, qqs, qqi, qqni, qqw, qqnw, qqg, cwm,                                   &
+              qqr, qqnr, qqs, qqi, qqni, qqw, qqnw, qqg, qqh, cwm,                              &
               omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,                                       &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
@@ -90,7 +93,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max
+              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -524,13 +527,13 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=21
+       nrec=22
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle','smoke','dust',      &
-                                     'coarsepm','ext550',               &
+                                     'snmr','grle','hail','smoke',      &
+                                     'dust','coarsepm','ext550',        &
                                      'nicp','water_nc','rain_nc']
       else
        nrec=8
@@ -886,22 +889,24 @@
        spval,recname(13),qqs(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(14),qqg(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(15),qqh(ista_2l,jsta_2l,1),lm)
 ! read for regional FV3
        if (modelname == 'FV3R') then
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(15),smoke(ista_2l,jsta_2l,1,1),lm)
+       spval,recname(16),smoke(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(16),fv3dust(ista_2l,jsta_2l,1,1),lm)
+       spval,recname(17),fv3dust(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(17),coarsepm(ista_2l,jsta_2l,1,1),lm)
+       spval,recname(18),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(18),ext550(ista_2l,jsta_2l,1),lm)
+       spval,recname(19),ext550(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(19),qqni(ista_2l,jsta_2l,1),lm)
+       spval,recname(20),qqni(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(20),qqnw(ista_2l,jsta_2l,1),lm)
+       spval,recname(21),qqnw(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(21),qqnr(ista_2l,jsta_2l,1),lm)
+       spval,recname(22),qqnr(ista_2l,jsta_2l,1),lm)
        endif
 
 ! Compute max QRAIN in the column to be used later in precip type computation
@@ -918,6 +923,9 @@
             if(qqr(i,j,l) /= spval) then
               qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
               cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
+              if(qqh(i,j,l) /= spval) then
+                cwm(i,j,l)=cwm(i,j,l)+qqh(i,j,l)
+              endif
             endif
          enddo
        enddo
@@ -1049,6 +1057,11 @@
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rel_vort_maxhy1(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
+! HAILCAST maximum hail diameter (mm) since last output
+      VarName='hailcast_dhail'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,hail_maxhailcast(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',hail_maxhailcast(isa,jsa)
 ! biomass burning emissions
       VarName='ebb_smoke_hr'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
