@@ -3,7 +3,7 @@
 
 The Unified Post Processor (UPP) software package is a software
 package designed to generate useful products from raw model
-output.
+output
 
 The UPP is currently used in operations with the Global Forecast
 System (GFS), GFS Ensemble Forecast System (GEFS), North American
