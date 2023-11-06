@@ -68,7 +68,7 @@ if [ $mac2 = hf ]; then # for HERA
  module use /scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env-noavx512/install/modulefiles/Core
  module load stack-intel/2021.5.0
  module load stack-intel-oneapi-mpi/2021.5.1
- module load prod-util/1.2.2
+ module load prod_util/1.2.2
 elif [ $mac = O ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
