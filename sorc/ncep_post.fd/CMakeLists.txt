@@ -172,6 +172,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
       "-g -traceback -fp-model source -free -convert big_endian")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check bounds -check pointers -check shape -check stack -check uninit")
+  set_source_files_properties(INITPOST_GFS_NEMS_MPIIO.f INITPOST_NETCDF.f INITPOST_NEMS.f PROPERTIES COMPILE_FLAGS -qoverride-limits)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
       "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
