@@ -11,8 +11,11 @@ load(pathJoin("intel", intel_ver))
 load(pathJoin("craype", craype_ver))
 load(pathJoin("cray-mpich", cray_mpich_ver))
 
-hdf5_ver=os.getenv("hdf5_ver") or "1.10.6"
-netcdf_ver=os.getenv("netcdf_ver") or "4.7.4"
+prepend_path("MODULEPATH", "/apps/test/hpc-stack/i-19.1.3.304__m-8.1.12__h-1.14.0__n-4.9.2__p-2.5.10__e-8.4.2/modulefiles/compiler/intel/19.1.3.304")
+prepend_path("MODULEPATH", "/apps/test/hpc-stack/i-19.1.3.304__m-8.1.12__h-1.14.0__n-4.9.2__p-2.5.10__e-8.4.2/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.12")
+
+hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
+netcdf_ver=os.getenv("netcdf_ver") or "4.9.2"
 load(pathJoin("hdf5", hdf5_ver))
 load(pathJoin("netcdf", netcdf_ver))
 
