@@ -1,3 +1,35 @@
+def commentMessage
+
+void setBuildStatus(String message, String state) {
+    step([
+        $class: "GitHubCommitStatusSetter",
+        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/ufs-community/ufs-weather-model"],
+        contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "Jenkins-ci ORTs"],
+        errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+        statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+    ]);
+}
+
+def postGitHubComment(commentMessage) {
+    script {
+        withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+            def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/comments"
+
+            def curlCommand = "curl -s -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" +
+                 "-X POST -d '{\"body\": \"" + commentMessage + "\"}' \\\n" +
+                 "\"" + apiUrl + "\""
+                    
+            def response = sh(script: curlCommand, returnStatus: true)
+            
+            if (response == 0) {
+                echo "Comment added successfully to PR #${env.CHANGE_ID}"
+            } else {
+                error "Failed to add comment to PR #${env.CHANGE_ID}"
+            }
+        }
+    }
+}
+
 pipeline {
   agent none
   stages {
@@ -116,5 +148,26 @@ pipeline {
         '''
       }
     }
-  }  
+  } 
+  post {
+        success {
+            node('built-in') { 
+                setBuildStatus("Build succeeded", "SUCCESS");
+            }
+        }
+        failure {
+            node('built-in') {
+                setBuildStatus("Build failed", "FAILURE");
+            }
+        }
+        always {
+            node('built-in') {
+                script {
+                    def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
+                    commentMessage = "Jenkins-ci ORTs ${buildResult}"
+                    postGitHubComment(commentMessage)
+                }
+            }
+        }
+    } 
 }
