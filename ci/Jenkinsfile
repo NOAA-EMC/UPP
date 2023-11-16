@@ -170,6 +170,9 @@ pipeline {
                     sh "ls -l"
                     def changedResultsFile = new File("changed_results.txt")
                     if (changedResultsFile.exists()) {
+                        echo 'file exists'
+                        sh 'cat ${changedResultsFile}'
+                        
                         commentMessage += "\n\nFailures detected in the build:"
                         commentMessage += "\n```\n${changedResultsFile.text}\n```"
 
@@ -177,6 +180,7 @@ pipeline {
 
                         sh "rm -rf changed_results.txt"
                     } else {
+                        echo 'file does not exist/ is not found'
                         postGitHubComment(commentMessage)
                     }
                 }
