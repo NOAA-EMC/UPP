@@ -236,12 +236,20 @@ for job_id in $jobid_list; do
 done
 
 python ${test_v}/ci/rt-status.py
+test_results=$?
 
 # Cleanup rt log
 cd ${test_v}/ci
 echo "rundir: ${rundir}" > rt.log.${machine}.temp
 cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
 cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
+python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
 cat rt.log.${machine}.temp > rt.log.${machine}
 rm rt.log.${machine}.temp
 mv rt.log.${machine} ${test_v}/tests/logs
+
+# should indicate failure to Jenkins
+if [ $test_results -ne 0 ]; then
+   python ${test_v}/ci/rt-status.py > changed_results.txt
+   exit 1
+fi
