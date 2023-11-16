@@ -12,7 +12,7 @@ void setBuildStatus(String message, String state) {
 
 def postGitHubComment(commentMessage) {
     script {
-        withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+        withCredentials([string(credentialsId: 'annagithubtoken', variable: 'ACCESS_TOKEN')]) {
             def apiUrl = "https://api.github.com/repos/ankimball/UPP/issues/${env.CHANGE_ID}/comments"
 
             def curlCommand = "curl -s -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" +
