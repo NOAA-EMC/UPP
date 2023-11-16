@@ -165,7 +165,20 @@ pipeline {
                 script {
                     def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
                     commentMessage = "Jenkins-ci ORTs ${buildResult}"
-                    postGitHubComment(commentMessage)
+                    // postGitHubComment(commentMessage)
+                    sh "pwd"
+                    sh "ls -l"
+                    def changedResultsFile = new File("changed_results.txt")
+                    if (changedResultsFile.exists()) {
+                        commentMessage += "\n\nFailures detected in the build:"
+                        commentMessage += "\n```\n${changedResultsFile.text}\n```"
+
+                        postGitHubComment(commentMessage)
+
+                        sh "rm -rf changed_results.txt"
+                    } else {
+                        postGitHubComment(commentMessage)
+                    }
                 }
             }
         }
