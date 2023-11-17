@@ -168,7 +168,8 @@ pipeline {
                     // postGitHubComment(commentMessage)
                     sh "pwd"
                     sh "ls -l"
-                    def changedResultsFile = new File("changed_results.txt")
+                    sh "ls -l ci"
+                    def changedResultsFile = new File("ci/changed_results.txt")
                     if (changedResultsFile.exists()) {
                         echo 'file exists'
                         sh 'cat ${changedResultsFile}'
