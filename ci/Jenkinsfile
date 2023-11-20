@@ -114,11 +114,12 @@ pipeline {
                     // sh "cat ${changedResultsFile}"
                     if (fileExists('ci/changed_results.txt')) {
                         echo 'file exists'
-                        def changedResultsFile = new File("ci/changed_results.txt")
-                        sh "cat ${changedResultsFile}"
+                        // def changedResultsFile = new File("ci/changed_results.txt")
+                        def changedResults = readFile(file: 'ci/changed_results.txt')
+                        // sh "cat ${changedResultsFile}"
                         
                         commentMessage += "\n\nFailures detected in the build:"
-                        commentMessage += "\n```\n${changedResultsFile.text}\n```"
+                        commentMessage += "\n```\n${changedResults}\n```"
 
                         postGitHubComment(commentMessage)
 
