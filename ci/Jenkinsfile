@@ -110,10 +110,11 @@ pipeline {
                     sh "ls -l"
                     sh "ls -l ci"
                     sh "cat ci/changed_results.txt"
-                    def changedResultsFile = new File("ci/changed_results.txt")
-                    sh "cat ${changedResultsFile}"
-                    if (changedResultsFile.exists()) {
+                    // def changedResultsFile = new File("ci/changed_results.txt")
+                    // sh "cat ${changedResultsFile}"
+                    if (fileExists('ci/changed_results.txt')) {
                         echo 'file exists'
+                        def changedResultsFile = new File("ci/changed_results.txt")
                         sh 'cat ${changedResultsFile}'
                         
                         commentMessage += "\n\nFailures detected in the build:"
@@ -121,7 +122,7 @@ pipeline {
 
                         postGitHubComment(commentMessage)
 
-                        sh "rm -rf changed_results.txt"
+                        sh "rm -rf ci/changed_results.txt"
                     } else {
                         echo 'file does not exist / is not found'
                         postGitHubComment(commentMessage)
