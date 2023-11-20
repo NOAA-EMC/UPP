@@ -94,6 +94,39 @@ pipeline {
         ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
         '''
       }
+      post {
+        success {
+                setBuildStatus("Build succeeded", "SUCCESS");
+        }
+        failure {
+                setBuildStatus("Build failed", "FAILURE");
+        }
+        always {
+                script {
+                    def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
+                    commentMessage = "Hera Jenkins-ci ORTs ${buildResult}"
+                    // postGitHubComment(commentMessage)
+                    sh "pwd"
+                    sh "ls -l"
+                    sh "ls -l ci"
+                    def changedResultsFile = new File("ci/changed_results.txt")
+                    if (changedResultsFile.exists()) {
+                        echo 'file exists'
+                        sh 'cat ${changedResultsFile}'
+                        
+                        commentMessage += "\n\nFailures detected in the build:"
+                        commentMessage += "\n```\n${changedResultsFile.text}\n```"
+
+                        postGitHubComment(commentMessage)
+
+                        sh "rm -rf changed_results.txt"
+                    } else {
+                        echo 'file does not exist / is not found'
+                        postGitHubComment(commentMessage)
+                    }
+                }
+            }
+    } 
     }        
     stage('Run UPP RTs on Orion') {
         agent {
@@ -149,43 +182,43 @@ pipeline {
       }
     }
   } 
-  post {
-        success {
-            node('built-in') { 
-                setBuildStatus("Build succeeded", "SUCCESS");
-            }
-        }
-        failure {
-            node('built-in') {
-                setBuildStatus("Build failed", "FAILURE");
-            }
-        }
-        always {
-            node('built-in') {
-                script {
-                    def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
-                    commentMessage = "Jenkins-ci ORTs ${buildResult}"
-                    // postGitHubComment(commentMessage)
-                    sh "pwd"
-                    sh "ls -l"
-                    sh "ls -l ci"
-                    def changedResultsFile = new File("ci/changed_results.txt")
-                    if (changedResultsFile.exists()) {
-                        echo 'file exists'
-                        sh 'cat ${changedResultsFile}'
+  // post {
+  //       success {
+  //           node('built-in') { 
+  //               setBuildStatus("Build succeeded", "SUCCESS");
+  //           }
+  //       }
+  //       failure {
+  //           node('built-in') {
+  //               setBuildStatus("Build failed", "FAILURE");
+  //           }
+  //       }
+  //       always {
+  //           node('built-in') {
+  //               script {
+  //                   def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
+  //                   commentMessage = "Jenkins-ci ORTs ${buildResult}"
+  //                   // postGitHubComment(commentMessage)
+  //                   sh "pwd"
+  //                   sh "ls -l"
+  //                   sh "ls -l ci"
+  //                   def changedResultsFile = new File("ci/changed_results.txt")
+  //                   if (changedResultsFile.exists()) {
+  //                       echo 'file exists'
+  //                       sh 'cat ${changedResultsFile}'
                         
-                        commentMessage += "\n\nFailures detected in the build:"
-                        commentMessage += "\n```\n${changedResultsFile.text}\n```"
+  //                       commentMessage += "\n\nFailures detected in the build:"
+  //                       commentMessage += "\n```\n${changedResultsFile.text}\n```"
 
-                        postGitHubComment(commentMessage)
+  //                       postGitHubComment(commentMessage)
 
-                        sh "rm -rf changed_results.txt"
-                    } else {
-                        echo 'file does not exist/ is not found'
-                        postGitHubComment(commentMessage)
-                    }
-                }
-            }
-        }
-    } 
+  //                       sh "rm -rf changed_results.txt"
+  //                   } else {
+  //                       echo 'file does not exist/ is not found'
+  //                       postGitHubComment(commentMessage)
+  //                   }
+  //               }
+  //           }
+  //       }
+  //   } 
 }
