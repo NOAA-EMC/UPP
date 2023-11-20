@@ -115,11 +115,11 @@ pipeline {
                     if (fileExists('ci/changed_results.txt')) {
                         echo 'file exists'
                         def changedResults = readFile(file: 'ci/changed_results.txt')
-                        sh "echo ${changedResults}"
+                        // sh "echo ${changedResults}"
                         
-                        commentMessage += "${changedResults}"
+                        failMessage = commentMessage + "\n" + changedResults
 
-                        postGitHubComment(commentMessage)
+                        postGitHubComment(failMessage)
 
                         sh "rm -rf ci/changed_results.txt"
                     } else {
