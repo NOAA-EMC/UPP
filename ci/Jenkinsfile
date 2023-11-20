@@ -109,7 +109,9 @@ pipeline {
                     sh "pwd"
                     sh "ls -l"
                     sh "ls -l ci"
+                    sh "cat ci/changed_results.txt"
                     def changedResultsFile = new File("ci/changed_results.txt")
+                    sh "cat ${changedResultsFile}"
                     if (changedResultsFile.exists()) {
                         echo 'file exists'
                         sh 'cat ${changedResultsFile}'
