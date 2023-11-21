@@ -119,10 +119,12 @@ pipeline {
                         
                         echo "${changedResults}"
                         echo "creating comment message"
-                        failMessage = commentMessage + changedResults
+                        def failMessage = commentMessage + changedResults
                         echo "${failMessage}"
+
+                        def testMessage = commentMessage + "\n" + "test"
                         echo "posting comment"
-                        postGitHubComment(failMessage)
+                        postGitHubComment(testMessage)
 
                         sh "rm -rf ci/changed_results.txt"
                     } else {
