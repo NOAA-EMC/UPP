@@ -124,7 +124,7 @@ pipeline {
 
                         def testMessage = commentMessage + "\n" + "test"
                         echo "posting comment"
-                        postGitHubComment(testMessage)
+                        postGitHubComment(commentMessage)
 
                         sh "rm -rf ci/changed_results.txt"
                     } else {
