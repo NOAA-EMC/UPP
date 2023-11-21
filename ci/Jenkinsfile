@@ -117,7 +117,7 @@ pipeline {
                         def changedResults = readFile(file: 'ci/changed_results.txt')
                         // sh "echo ${changedResults}"
                         
-                        failMessage = commentMessage + "\n" + changedResults
+                        failMessage = commentMessage + "\\\n" + changedResults
 
                         postGitHubComment(failMessage)
 
