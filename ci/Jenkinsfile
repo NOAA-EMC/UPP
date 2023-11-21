@@ -118,10 +118,10 @@ pipeline {
                         
                         sh "echo ${changedResults}"
                         
-                        // failMessage = commentMessage + changedResults
-                        // echo '${failmessage}'
+                        failMessage = commentMessage + changedResults
+                        echo "${failMessage}"
 
-                        postGitHubComment(changedResults)
+                        postGitHubComment(failMessage)
 
                         sh "rm -rf ci/changed_results.txt"
                     } else {
