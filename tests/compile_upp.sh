@@ -24,7 +24,7 @@ usage() {
 }
 
 prefix="../install"
-ifi_opt=" -DBUILD_WITH_IFI=ON"
+ifi_opt=" -DBUILD_WITH_IFI=OFF"
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
 compiler="intel"
