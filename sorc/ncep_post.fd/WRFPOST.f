@@ -127,7 +127,7 @@
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,nasa_on,gccpp_on,         &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqf_on,numx,  &
-              run_ifi_tim, slrutah_on, d2d_chem, gtg_on
+              run_ifi_tim, slrutah_on, d2d_chem, gtg_on, method_blsn
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use upp_ifi_mod, only: write_ifi_debug_files
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -153,7 +153,7 @@
 !
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
-      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,gtg_on,popascal &
+      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,gtg_on,method_blsn,popascal &
                      ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
@@ -261,6 +261,7 @@
         aqf_on      = .false.
         slrutah_on  = .false.
         gtg_on   = .false.
+        method_blsn = .true.
         popascal    = .false.
         fileNameAER = ''
         rdaod       = .false.

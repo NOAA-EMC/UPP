@@ -99,13 +99,13 @@
       use vrbls2d, only: sno, si, ustar
       use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
       use params_mod, only: h1, d608, rd, g
-      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval,&
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval, method_blsn,&
                                     ista_2l, iend_2u
 
       implicit none
 
       integer :: j, i, k, ll
-      integer :: method, method_blsn
+      integer :: method
       real :: tx, pol, esx, es, e
       REAL VIS(ista_2l:iend_2u,jsta_2l:jend_2u)
       REAL RHB(ista_2l:iend_2u,jsta_2l:jend_2u,LM)
@@ -142,7 +142,6 @@
 !                Aerosol method (2), 
 !                Smoke added to RH method for clear air  (3)
 !                   3 - option to add reducted visibility from smoke-based aerosols.
-      method_blsn = 1 ! 1 for 'on', 0 for 'off'
      
       CELKEL     = 273.15
       TICE       = CELKEL-10.
@@ -355,7 +354,7 @@
 ! Addition of attenuation from aerosols if option selected
         if(method == 2 .or. method == 3)then ! aerosol method
             BETAV = BETAV + aextc55(i,j,lm)*1000.
-            if(method_blsn .eq. 1) then ! BLSN method, updated 8 August 2022 by Tim Corrie
+            if(method_blsn) then ! BLSN method, updated 8 August 2022 by Tim Corrie
                 BETAV = BETAV + BETABLSN
             endif
         endif
