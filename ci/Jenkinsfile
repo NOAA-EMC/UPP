@@ -118,7 +118,7 @@ pipeline {
                         def changedResults = readFile(file: 'ci/changed_results.txt')
                         
                         def failMessage = commentMessage + changedResults
-                        def formattedMessage = failMessage.replaceAll('\n', '\\n') // Escape newlines in the message
+                        def formattedMessage = failMessage.replaceAll('\n', ' ') 
                         echo "formatted message: ${formattedMessage}"
         
                         echo "posting comment"
