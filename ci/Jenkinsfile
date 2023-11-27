@@ -104,7 +104,7 @@ pipeline {
         always {
                 script {
                     def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
-                    commentMessage = "Hera Jenkins-ci ORTs ${buildResult}"
+                    commentMessage = "Jenkins-ci HERA ORTs ${buildResult}: "
                     // postGitHubComment(commentMessage)
                     sh "pwd"
                     sh "ls -l"
