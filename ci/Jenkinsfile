@@ -117,16 +117,24 @@ pipeline {
                         sh "cat ci/changed_results.txt"
                         def changedResults = readFile(file: 'ci/changed_results.txt')
                         
-                        echo "${changedResults}"
-                        echo "creating comment message"
                         def failMessage = commentMessage + changedResults
-                        echo "${failMessage}"
-
-                        def testMessage = commentMessage + "\n"
+                        def formattedMessage = failMessage.replaceAll('\n', '\\n') // Escape newlines in the message
+                        echo "formatted message: ${formattedMessage}"
+        
                         echo "posting comment"
-                        postGitHubComment(testMessage)
+        
+                        postGitHubComment(formattedMessage)
+                        // echo "${changedResults}"
+                        // echo "creating comment message"
+                        // def failMessage = commentMessage + changedResults
+                        // echo "${failMessage}"
+
+                        // def testMessage = commentMessage + "\n"
+                        // echo "posting comment"
+                        // postGitHubComment(testMessage)
 
                         sh "rm -rf ci/changed_results.txt"
+                        sh 'ls -l ci/'
                     } else {
                         echo 'file does not exist / is not found'
                         postGitHubComment(commentMessage)
