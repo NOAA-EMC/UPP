@@ -104,7 +104,7 @@ pipeline {
         always {
                 script {
                     def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
-                    commentMessage = "Jenkins-ci HERA ORTs ${buildResult}: "
+                    commentMessage = "Jenkins-ci HERA ORTs ${buildResult}:\n"
                     // postGitHubComment(commentMessage)
                     sh "pwd"
                     sh "ls -l"
@@ -117,7 +117,7 @@ pipeline {
                         sh "cat ci/changed_results.txt"
                         def changedResults = readFile(file: 'ci/changed_results.txt')
                         
-                        def failMessage = commentMessage + "\\\n" + changedResults
+                        def failMessage = commentMessage + changedResults
                         def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
                         echo "formatted message: ${formattedMessage}"
         
