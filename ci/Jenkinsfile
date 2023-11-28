@@ -117,7 +117,7 @@ pipeline {
                         sh "cat ci/changed_results.txt"
                         def changedResults = readFile(file: 'ci/changed_results.txt')
                         
-                        def failMessage = commentMessage + "\\\\n" + changedResults
+                        def failMessage = commentMessage + "\\\n" + changedResults
                         def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
                         echo "formatted message: ${formattedMessage}"
         
