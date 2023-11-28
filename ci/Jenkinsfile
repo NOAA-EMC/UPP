@@ -1,15 +1,32 @@
 def commentMessage
 
-void setBuildStatus(String message, String state) {
-    step([
-        $class: "GitHubCommitStatusSetter",
-        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/ankimball/UPP"],
-        contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "Jenkins-ci ORTs"],
-        errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
-        statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
-    ]);
+// void setBuildStatus(String message, String state) {
+//     step([
+//         $class: "GitHubCommitStatusSetter",
+//         reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/ankimball/UPP"],
+//         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "Jenkins-ci ORTs"],
+//         errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+//         statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+//     ]);
+// }
+def formatComment(machine) {
+    script {
+        def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
+        commentMessage = "${machine} UPP Regression Tests ${buildResult}:\n"      
+        if (fileExists('ci/changed_results.txt')) {
+            echo 'changed_results.txt file found'
+            sh "cat ci/changed_results.txt"
+            def changedResults = readFile(file: 'ci/changed_results.txt')
+            def failMessage = commentMessage + changedResults
+            def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
+            postGitHubComment(formattedMessage)
+            sh "rm -rf ci/changed_results.txt"
+        } else {
+            echo 'changed_results.txt file not found'
+            postGitHubComment(commentMessage)
+        }
+    }
 }
-
 def postGitHubComment(commentMessage) {
     script {
         withCredentials([string(credentialsId: 'annagithubtoken', variable: 'ACCESS_TOKEN')]) {
@@ -95,30 +112,33 @@ pipeline {
         '''
       }
       post {
-        success {
-                setBuildStatus("Build succeeded", "SUCCESS");
-        }
-        failure {
-                setBuildStatus("Build failed", "FAILURE");
-        }
+        // success {
+        //         setBuildStatus("Build succeeded", "SUCCESS");
+        // }
+        // failure {
+        //         setBuildStatus("Build failed", "FAILURE");
+        // }
         always {
                 script {
-                    def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
-                    commentMessage = "Hera UPP Regression Tests ${buildResult}:\n"
+                    def machine = "Hera"
+                    formatComment(machine, buildResult)
+                    
+                    // def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
+                    // commentMessage = "Hera UPP Regression Tests ${buildResult}:\n"
                   
-                    if (fileExists('ci/changed_results.txt')) {
-                        echo 'changed_results.txt file found'
-                        sh "cat ci/changed_results.txt"
-                        def changedResults = readFile(file: 'ci/changed_results.txt')
-                        def failMessage = commentMessage + changedResults
-                        def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
-                        postGitHubComment(formattedMessage)
-                        sh "rm -rf ci/changed_results.txt"
+                    // if (fileExists('ci/changed_results.txt')) {
+                    //     echo 'changed_results.txt file found'
+                    //     sh "cat ci/changed_results.txt"
+                    //     def changedResults = readFile(file: 'ci/changed_results.txt')
+                    //     def failMessage = commentMessage + changedResults
+                    //     def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
+                    //     postGitHubComment(formattedMessage)
+                    //     sh "rm -rf ci/changed_results.txt"
 
-                    } else {
-                        echo 'changed_results.txt file not found'
-                        postGitHubComment(commentMessage)
-                    }
+                    // } else {
+                    //     echo 'changed_results.txt file not found'
+                    //     postGitHubComment(commentMessage)
+                    // }
                 }
             }
         } 
