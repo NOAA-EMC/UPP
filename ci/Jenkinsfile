@@ -102,11 +102,11 @@ pipeline {
       }
       post {
         always {
-                script {
-                    formatComment("Hera")
-                }
+            script {
+                formatComment("Hera")
             }
-        } 
+        }
+      } 
     }        
     stage('Run UPP RTs on Orion') {
         agent {
@@ -126,6 +126,13 @@ pipeline {
         ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
         '''
       }
+      post {
+        always {
+            script {
+                formatComment("Orion")
+            }
+        }
+      }
     }    
     stage('Run UPP RTs on Hercules') {
         agent {
@@ -143,6 +150,13 @@ pipeline {
         
         ''' 
         }
+      post {
+        always {
+            script {
+                formatComment("Hercules")
+            }
+        }
+      }
     } 
         stage('Run UPP RTs on Jet') {
         agent {
@@ -159,6 +173,13 @@ pipeline {
         sh '''
         
         '''
+      }
+      post {
+        always {
+            script {
+                formatComment("Jet")
+            }
+        }
       }
     }
   } 
