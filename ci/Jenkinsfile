@@ -10,7 +10,6 @@
 // }
 def formatComment(machine) {
     script {
-        def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
         def commentMessage = "${machine} UPP Regression Tests ${buildResult}:\n"      
         if (fileExists('ci/changed_results.txt')) {
             echo 'changed_results.txt file found'
@@ -120,7 +119,7 @@ pipeline {
         always {
                 script {
                     def machine = "Hera"
-                    formatComment(machine, buildResult)
+                    formatComment(machine)
                     
                     // def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
                     // commentMessage = "Hera UPP Regression Tests ${buildResult}:\n"
