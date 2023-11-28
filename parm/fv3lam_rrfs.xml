@@ -128,7 +128,6 @@
        <param>
        <shortname>REFD_ON_HYBRID_LVL</shortname>
        <pname>REFD</pname>
-       <table_info>NCEP</table_info>
        <level>1. 2.</level>
        <scale>4.0</scale>
        </param>
@@ -593,7 +592,6 @@
        <param>
        <shortname>LFTX_ON_ISOBARIC_SFC_500-1000hpa</shortname>
        <pname>LFTX</pname>
-       <table_info>NCEP</table_info>
        <level>50000.</level>
        <level2>100000.</level2>
        <scale>3.0</scale>
@@ -714,7 +712,6 @@
        <param>
        <shortname>USTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>USTM</pname>
-       <table_info>NCEP</table_info>
        <level>6000.</level>
        <scale>4.0</scale>
        </param>
@@ -722,7 +719,6 @@
        <param>
        <shortname>VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>VSTM</pname>
-       <table_info>NCEP</table_info>
        <level>6000.</level>
        <scale>4.0</scale>
        </param>
@@ -1458,7 +1454,6 @@
        <param>
        <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
        <pname>REFC</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -1479,7 +1474,6 @@
        <param>
        <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>REFD</pname>
-       <table_info>NCEP</table_info>
        <level>4000. 1000.</level>
        <scale>4.0</scale>
        </param>
@@ -1503,8 +1497,7 @@
        <param>
        <shortname>HPBL_ON_SURFACE</shortname>
        <pname>HPBL</pname>
-       <table_info>NCEP</table_info>
-        <scale>6.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1742,8 +1735,7 @@
        <param>
        <shortname>RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pname>RETOP</pname>
-       <table_info>NCEP</table_info>
-        <scale>6.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -3069,7 +3061,6 @@
        <param>
        <shortname>LFTX_ON_ISOBARIC_SFC_500-1000hpa</shortname>
        <pname>LFTX</pname>
-       <table_info>NCEP</table_info>
        <level>50000.</level>
        <level2>100000.</level2>
        <scale>3.0</scale>
@@ -3176,7 +3167,6 @@
        <param>
        <shortname>USTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>USTM</pname>
-       <table_info>NCEP</table_info>
        <level>6000.</level>
        <scale>4.0</scale>
        </param>
@@ -3184,7 +3174,6 @@
        <param>
        <shortname>VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>VSTM</pname>
-       <table_info>NCEP</table_info>
        <level>6000.</level>
        <scale>4.0</scale>
        </param>
@@ -3415,7 +3404,6 @@
        <param>
        <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
        <pname>REFC</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -3495,8 +3483,7 @@
        <param>
        <shortname>HPBL_ON_SURFACE</shortname>
        <pname>HPBL</pname>
-       <table_info>NCEP</table_info>
-        <scale>6.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>

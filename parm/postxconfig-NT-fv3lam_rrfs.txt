@@ -579,7 +579,7 @@ REFD_ON_HYBRID_LVL
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 hybrid_lvl
 0
@@ -2984,7 +2984,7 @@ LFTX_ON_ISOBARIC_SFC_500-1000hpa
 1
 tmpl4_0
 LFTX
-NCEP
+?
 ?
 isobaric_sfc
 0
@@ -3576,7 +3576,7 @@ USTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 USTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -3613,7 +3613,7 @@ VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 VSTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -7831,7 +7831,7 @@ REFC_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFC
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -7942,7 +7942,7 @@ REFD_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -8053,7 +8053,7 @@ HPBL_ON_SURFACE
 1
 tmpl4_0
 HPBL
-NCEP
+?
 ?
 surface
 0
@@ -9533,7 +9533,7 @@ RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR
 1
 tmpl4_0
 RETOP
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -16653,7 +16653,7 @@ LFTX_ON_ISOBARIC_SFC_500-1000hpa
 1
 tmpl4_0
 LFTX
-NCEP
+?
 ?
 isobaric_sfc
 0
@@ -17171,7 +17171,7 @@ USTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 USTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -17208,7 +17208,7 @@ VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 VSTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -18577,7 +18577,7 @@ REFC_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFC
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -19021,7 +19021,7 @@ HPBL_ON_SURFACE
 1
 tmpl4_0
 HPBL
-NCEP
+?
 ?
 surface
 0
