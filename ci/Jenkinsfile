@@ -1,5 +1,4 @@
-def commentMessage
-def machine
+
 // void setBuildStatus(String message, String state) {
 //     step([
 //         $class: "GitHubCommitStatusSetter",
@@ -12,7 +11,7 @@ def machine
 def formatComment(machine) {
     script {
         def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
-        commentMessage = "${machine} UPP Regression Tests ${buildResult}:\n"      
+        def commentMessage = "${machine} UPP Regression Tests ${buildResult}:\n"      
         if (fileExists('ci/changed_results.txt')) {
             echo 'changed_results.txt file found'
             sh "cat ci/changed_results.txt"
