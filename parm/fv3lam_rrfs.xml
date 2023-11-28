@@ -810,30 +810,26 @@
        <param>
        <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>GSD_CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>GSD_CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>GSD_CFRZR_ON_SURFACE</shortname>
-       <pname>CFRZR</pname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
@@ -2566,30 +2562,26 @@
        <param>
        <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
-       <table_info>NCEP</table_info>
-        <scale>1.0</scale>
+       <scale>1.0</scale>
        </param>
 
        <param>
        <shortname>GSD_CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>GSD_CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>GSD_CFRZR_ON_SURFACE</shortname>
        <pname>CFRZR</pname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-        </param>
+       </param>
 
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
