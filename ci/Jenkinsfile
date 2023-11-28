@@ -1,5 +1,5 @@
 def commentMessage
-
+def machine
 // void setBuildStatus(String message, String state) {
 //     step([
 //         $class: "GitHubCommitStatusSetter",
