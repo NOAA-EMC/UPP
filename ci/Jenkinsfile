@@ -103,45 +103,25 @@ pipeline {
         }
         always {
                 script {
-                    def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
-                    commentMessage = "Jenkins-ci HERA ORTs ${buildResult}:\n"
-                    // postGitHubComment(commentMessage)
-                    sh "pwd"
-                    sh "ls -l"
-                    sh "ls -l ci"
-                    sh "cat ci/changed_results.txt"
-                    // def changedResultsFile = new File("ci/changed_results.txt")
-                    // sh "cat ${changedResultsFile}"
+                    def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
+                    commentMessage = "Hera UPP Regression Tests ${buildResult}:\n"
+                  
                     if (fileExists('ci/changed_results.txt')) {
-                        echo 'file exists'
+                        echo 'changed_results.txt file found'
                         sh "cat ci/changed_results.txt"
                         def changedResults = readFile(file: 'ci/changed_results.txt')
-                        
                         def failMessage = commentMessage + changedResults
                         def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
-                        echo "formatted message: ${formattedMessage}"
-        
-                        echo "posting comment"
-        
                         postGitHubComment(formattedMessage)
-                        // echo "${changedResults}"
-                        // echo "creating comment message"
-                        // def failMessage = commentMessage + changedResults
-                        // echo "${failMessage}"
-
-                        // def testMessage = commentMessage + "\n"
-                        // echo "posting comment"
-                        // postGitHubComment(testMessage)
-
                         sh "rm -rf ci/changed_results.txt"
-                        sh 'ls -l ci/'
+
                     } else {
-                        echo 'file does not exist / is not found'
+                        echo 'changed_results.txt file not found'
                         postGitHubComment(commentMessage)
                     }
                 }
             }
-    } 
+        } 
     }        
     stage('Run UPP RTs on Orion') {
         agent {
@@ -197,43 +177,4 @@ pipeline {
       }
     }
   } 
-  // post {
-  //       success {
-  //           node('built-in') { 
-  //               setBuildStatus("Build succeeded", "SUCCESS");
-  //           }
-  //       }
-  //       failure {
-  //           node('built-in') {
-  //               setBuildStatus("Build failed", "FAILURE");
-  //           }
-  //       }
-  //       always {
-  //           node('built-in') {
-  //               script {
-  //                   def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "passed" : "failed"
-  //                   commentMessage = "Jenkins-ci ORTs ${buildResult}"
-  //                   // postGitHubComment(commentMessage)
-  //                   sh "pwd"
-  //                   sh "ls -l"
-  //                   sh "ls -l ci"
-  //                   def changedResultsFile = new File("ci/changed_results.txt")
-  //                   if (changedResultsFile.exists()) {
-  //                       echo 'file exists'
-  //                       sh 'cat ${changedResultsFile}'
-                        
-  //                       commentMessage += "\n\nFailures detected in the build:"
-  //                       commentMessage += "\n```\n${changedResultsFile.text}\n```"
-
-  //                       postGitHubComment(commentMessage)
-
-  //                       sh "rm -rf changed_results.txt"
-  //                   } else {
-  //                       echo 'file does not exist/ is not found'
-  //                       postGitHubComment(commentMessage)
-  //                   }
-  //               }
-  //           }
-  //       }
-  //   } 
 }
