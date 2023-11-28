@@ -844,7 +844,6 @@
        <param>
        <shortname>CPOFP_ON_SURFACE</shortname>
        <pname>CPOFP</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2601,7 +2600,6 @@
        <param>
        <shortname>CPOFP_ON_SURFACE</shortname>
        <pname>CPOFP</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
