@@ -136,54 +136,54 @@ pipeline {
 						}
 					}
 				}    
-				// stage('Run UPP RTs on Hercules') {
-				// 	agent {
-				// 		label "hercules"
-				// 	}
-				// 	environment {
-				// 		ACCNR = 'epic'
-				// 		NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-				// 	}
-				// 	steps {
+				stage('Run UPP RTs on Hercules') {
+					agent {
+						label "hercules"
+					}
+					environment {
+						ACCNR = 'epic'
+						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+					}
+					steps {
 
-				// 		cleanWs()
-				// 		checkout scm
-				// 		sh '''
+						cleanWs()
+						checkout scm
+						sh '''
 
-				// 		''' 
-				// 	}
-				// 	post {
-				// 		always {
-				// 			script {
-				// 				formatComment("Hercules")
-				// 			}
-				// 		}
-				// 	}
-				// } 
-				// stage('Run UPP RTs on Jet') {
-				// 	agent {
-				// 		label "jet"
-				// 	}
-				// 	environment {
-				// 		ACCNR = 'hfv3gfs'
-				// 		NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
-				// 	}
-				// 	steps {
+						''' 
+					}
+					post {
+						always {
+							script {
+								formatComment("Hercules")
+							}
+						}
+					}
+				} 
+				stage('Run UPP RTs on Jet') {
+					agent {
+						label "jet"
+					}
+					environment {
+						ACCNR = 'hfv3gfs'
+						NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
+					}
+					steps {
 
-				// 		cleanWs()
-				// 		checkout scm
-				// 		sh '''
+						cleanWs()
+						checkout scm
+						sh '''
 
-				// 		'''
-				// 	}
-				// 	post {
-				// 		always {
-				// 			script {
-				// 				formatComment("Jet")
-				// 			}
-				// 		}
-				// 	}
-				// }
+						'''
+					}
+					post {
+						always {
+							script {
+								formatComment("Jet")
+							}
+						}
+					}
+				}
 			}
 		}
 	} 
