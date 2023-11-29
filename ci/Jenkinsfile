@@ -82,105 +82,109 @@ pipeline {
        }    
     }
   } 
-  stage('Run UPP RTs on Hera') {
-        agent {
-          label "hera"
-        }
-        environment {
-        ACCNR = 'epic'
-        NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        echo $(pwd)
-        cd ci/
-        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        '''
-      }
-      post {
-        always {
-            script {
-                formatComment("Hera")
+  stage ('Run RTs') {
+      parallel {
+          stage('Run UPP RTs on Hera') {
+                agent {
+                  label "hera"
+                }
+                environment {
+                ACCNR = 'epic'
+                NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
+              }
+              steps {
+                  
+                cleanWs()
+                checkout scm
+                sh '''
+                echo $(pwd)
+                cd ci/
+                ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                '''
+              }
+              post {
+                always {
+                    script {
+                        formatComment("Hera")
+                    }
+                }
+              } 
+            }        
+            stage('Run UPP RTs on Orion') {
+                agent {
+                  label "orion"
+                }
+                environment {
+                ACCNR = 'epic'
+                NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
+              }
+              steps {
+                  
+                cleanWs()
+                checkout scm
+                sh '''
+                echo $(pwd)
+                cd ci/
+                ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                '''
+              }
+              post {
+                always {
+                    script {
+                        formatComment("Orion")
+                    }
+                }
+              }
+            }    
+            stage('Run UPP RTs on Hercules') {
+                agent {
+                  label "hercules"
+                }
+                environment {
+                ACCNR = 'epic'
+                NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+              }
+              steps {
+                  
+                cleanWs()
+                checkout scm
+                sh '''
+                
+                ''' 
+                }
+              post {
+                always {
+                    script {
+                        formatComment("Hercules")
+                    }
+                }
+              }
+            } 
+            stage('Run UPP RTs on Jet') {
+                agent {
+                  label "jet"
+                }
+                environment {
+                ACCNR = 'hfv3gfs'
+                NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
+              }
+              steps {
+                  
+                cleanWs()
+                checkout scm
+                sh '''
+                
+                '''
+              }
+              post {
+                always {
+                    script {
+                        formatComment("Jet")
+                    }
+                }
+              }
             }
-        }
-      } 
-    }        
-    stage('Run UPP RTs on Orion') {
-        agent {
-          label "orion"
-        }
-        environment {
-        ACCNR = 'epic'
-        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
       }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        echo $(pwd)
-        cd ci/
-        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        '''
-      }
-      post {
-        always {
-            script {
-                formatComment("Orion")
-            }
-        }
-      }
-    }    
-    stage('Run UPP RTs on Hercules') {
-        agent {
-          label "hercules"
-        }
-        environment {
-        ACCNR = 'epic'
-        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        
-        ''' 
-        }
-      post {
-        always {
-            script {
-                formatComment("Hercules")
-            }
-        }
-      }
-    } 
-        stage('Run UPP RTs on Jet') {
-        agent {
-          label "jet"
-        }
-        environment {
-        ACCNR = 'hfv3gfs'
-        NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        
-        '''
-      }
-      post {
-        always {
-            script {
-                formatComment("Jet")
-            }
-        }
-      }
-    }
+  }
   } 
 }
