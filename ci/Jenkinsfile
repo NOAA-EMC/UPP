@@ -1,7 +1,7 @@
 def formatComment(machine) {
     script {
         def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
-        def commentMessage = "${machine} UPP Regression Tests ${buildResult}:\n"      
+        def commentMessage = "${machine} UPP Regression Tests ${buildResult}:\\\\n"      
         if (fileExists('ci/changed_results.txt')) {
             echo 'changed_results.txt file found'
             sh "cat ci/changed_results.txt"
@@ -12,6 +12,7 @@ def formatComment(machine) {
             sh "rm -rf ci/changed_results.txt"
         } else {
             echo 'changed_results.txt file not found'
+            // def formattedMessage = commentMessage.replaceAll("\n", "\\\\n") 
             postGitHubComment(commentMessage)
         }
     }
