@@ -84,32 +84,6 @@ pipeline {
 		} 
 		stage ('Run RTs') {
 			parallel {
-				stage('Run UPP RTs on Hera') {
-					agent {
-						label "hera"
-					}
-					environment {
-						ACCNR = 'epic'
-						NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
-					}
-					steps {
-
-						cleanWs()
-						checkout scm
-						sh '''
-						echo $(pwd)
-						cd ci/
-						./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-						'''
-					}
-					post {
-						always {
-							script {
-								formatComment("Hera")
-							}
-						}
-					} 
-				}        
 				stage('Run UPP RTs on Orion') {
 					agent {
 						label "orion"
@@ -136,6 +110,32 @@ pipeline {
 						}
 					}
 				}    
+				stage('Run UPP RTs on Hera') {
+					agent {
+						label "hera"
+					}
+					environment {
+						ACCNR = 'epic'
+						NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
+					}
+					steps {
+
+						cleanWs()
+						checkout scm
+						sh '''
+						echo $(pwd)
+						cd ci/
+						./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+						'''
+					}
+					post {
+						always {
+							script {
+								formatComment("Hera")
+							}
+						}
+					} 
+				}        
 				stage('Run UPP RTs on Hercules') {
 					agent {
 						label "hercules"
