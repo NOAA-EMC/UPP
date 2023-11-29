@@ -110,56 +110,56 @@ pipeline {
 				// 		}
 				// 	} 
 				// }        
-				stage('Run UPP RTs on Orion') {
-					agent {
-						label "orion"
-					}
-					environment {
-						ACCNR = 'epic'
-						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
-					}
-					steps {
-
-						cleanWs()
-						checkout scm
-						sh '''
-						echo $(pwd)
-						cd ci/
-						./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-						'''
-					}
-					post {
-						always {
-							script {
-								formatComment("Orion")
-							}
-						}
-					}
-				}    
-				// stage('Run UPP RTs on Hercules') {
+				// stage('Run UPP RTs on Orion') {
 				// 	agent {
-				// 		label "hercules"
+				// 		label "orion"
 				// 	}
 				// 	environment {
 				// 		ACCNR = 'epic'
-				// 		NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+				// 		NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
 				// 	}
 				// 	steps {
 
 				// 		cleanWs()
 				// 		checkout scm
 				// 		sh '''
-
-				// 		''' 
+				// 		echo $(pwd)
+				// 		cd ci/
+				// 		./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+				// 		'''
 				// 	}
 				// 	post {
 				// 		always {
 				// 			script {
-				// 				formatComment("Hercules")
+				// 				formatComment("Orion")
 				// 			}
 				// 		}
 				// 	}
-				// } 
+				// }    
+				stage('Run UPP RTs on Hercules') {
+					agent {
+						label "hercules"
+					}
+					environment {
+						ACCNR = 'epic'
+						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+					}
+					steps {
+
+						cleanWs()
+						checkout scm
+						sh '''
+
+						''' 
+					}
+					post {
+						always {
+							script {
+								formatComment("Hercules")
+							}
+						}
+					}
+				} 
 				// stage('Run UPP RTs on Jet') {
 				// 	agent {
 				// 		label "jet"
