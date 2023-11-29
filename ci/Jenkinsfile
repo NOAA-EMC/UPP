@@ -136,30 +136,30 @@ pipeline {
 				// 		}
 				// 	} 
 				// }        
-				// stage('Run UPP RTs on Hercules') {
-				// 	agent {
-				// 		label "hercules"
-				// 	}
-				// 	environment {
-				// 		ACCNR = 'epic'
-				// 		NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-				// 	}
-				// 	steps {
+				stage('Run UPP RTs on Hercules') {
+					agent {
+						label "hercules"
+					}
+					environment {
+						ACCNR = 'epic'
+						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+					}
+					steps {
 
-				// 		cleanWs()
-				// 		checkout scm
-				// 		sh '''
+						cleanWs()
+						checkout scm
+						sh '''
 
-				// 		''' 
-				// 	}
-				// 	post {
-				// 		always {
-				// 			script {
-				// 				formatComment("Hercules")
-				// 			}
-				// 		}
-				// 	}
-				// } 
+						''' 
+					}
+					post {
+						always {
+							script {
+								formatComment("Hercules")
+							}
+						}
+					}
+				} 
 				// stage('Run UPP RTs on Jet') {
 				// 	agent {
 				// 		label "jet"
