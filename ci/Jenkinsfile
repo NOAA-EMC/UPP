@@ -95,6 +95,7 @@ pipeline {
 					steps {
 
 						cleanWs()
+						sleep(5)
 						checkout scm
 						sh '''
 						echo $(pwd)
@@ -147,6 +148,7 @@ pipeline {
 					steps {
 
 						cleanWs()
+						sleep(10)
 						checkout scm
 						sh '''
 
