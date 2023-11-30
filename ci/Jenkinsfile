@@ -93,15 +93,16 @@ pipeline {
 						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
 					}
 					steps {
-
-						sleep 30
-						cleanWs()
-						checkout scm
-						sh '''
-						echo $(pwd)
-						cd ci/
-						./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-						'''
+						retry(3) {
+							
+							cleanWs()
+							checkout scm
+							sh '''
+							echo $(pwd)
+							cd ci/
+							./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+							'''
+						}
 					}
 					post {
 						always {
@@ -120,14 +121,15 @@ pipeline {
 						NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
 					}
 					steps {
-
-						cleanWs()
-						checkout scm
-						sh '''
-						echo $(pwd)
-						cd ci/
-						./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-						'''
+						retry(3) {
+							cleanWs()
+							checkout scm
+							sh '''
+							echo $(pwd)
+							cd ci/
+							./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+							'''
+						}
 					}
 					post {
 						always {
@@ -146,13 +148,14 @@ pipeline {
 						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
 					}
 					steps {
-
-						sleep 60
-						cleanWs()
-						checkout scm
-						sh '''
-
-						''' 
+						retry(3) {
+							
+							cleanWs()
+							checkout scm
+							sh '''
+	
+							''' 
+						}
 					}
 					post {
 						always {
@@ -171,12 +174,13 @@ pipeline {
 						NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
 					}
 					steps {
-
-						cleanWs()
-						checkout scm
-						sh '''
-
-						'''
+						retry(3) {
+							cleanWs()
+							checkout scm
+							sh '''
+	
+							'''
+						}
 					}
 					post {
 						always {
