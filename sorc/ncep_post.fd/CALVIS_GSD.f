@@ -91,13 +91,15 @@
 !   2021-05        Wen Meng  - Add checking for undefined points invloved in computation
 !   2021-08        Wen Meng  - Restrict divided by 0.
 !   2021-10        Jesse Meng - 2D DECOMPOSITION
+!   2023-11        Tim Corrie, Eric James - addition of attenuation for blowing snow
 !                           
 !------------------------------------------------------------------
 !
 
+      use vrbls2d, only: sno, si, ustar
       use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
-      use params_mod, only: h1, d608, rd
-      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval,&
+      use params_mod, only: h1, d608, rd, g
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval, method_blsn,&
                                     ista_2l, iend_2u
 
       implicit none
@@ -108,6 +110,10 @@
       REAL VIS(ista_2l:iend_2u,jsta_2l:jend_2u)
       REAL RHB(ista_2l:iend_2u,jsta_2l:jend_2u,LM)
       REAL CZEN(ista_2l:iend_2u,jsta_2l:jend_2u)
+
+      real :: z, ustar_t, u_p, lamda, r_bar, alpha
+      real :: rho_sno
+      real :: z_r, Q_s, C_r, c_z, c_alpha, vis_blsn, BETABLSN
 
       real celkel,tice,coeflc,coeflp,coeffc,coeffp,coeffg
       real exponlc,exponlp,exponfc,exponfp,exponfg,const1
@@ -300,6 +306,45 @@
           if (t(i,j,lm)< 270. .and. temp_fac==1.)          &
              write (6,*) 'Problem w/ temp_fac - calvis'
 
+! Key calculation of attenuation from blowing snow -- updated 5 August 2022 by Tim Corrie
+! Framework is from Letcher et al (2021)
+
+        ustar_t = 0.2
+        u_p = 2.8*ustar_t
+        lamda = 0.45
+        z = 2.0
+        alpha = 15.0
+        r_bar = 0.0002
+
+!        print *, i,j
+
+
+        if (si(i,j)<spval .and. si(i,j) .ge. 1.0) then
+            z_r = 1.6*(ustar(i,j)**2./(2.*g))
+            Q_s = max((0.68/ustar(i,j))*(RHOAIR/g)*(ustar(i,j)**2.-ustar_t**2.),0.0)
+            C_r = (Q_s/u_p)*(lamda*g/ustar(i,j)**2.)*exp(-lamda*z_r*g/ustar(i,j)**2.)
+            c_z = max(C_r * exp(-1.55*((0.05628*ustar(i,j))**-0.544 - z**-0.544)),1e-15)
+            c_alpha = alpha/(alpha+2) !simplified version of (6) in Letcher et al (2021)    
+            rho_sno = sno(i,j)/(si(i,j)/1.0e3)
+            rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-0.15)
+            vis_blsn = (5.217*rho_sno*r_bar**1.011)/(1.82*c_z*c_alpha)
+            BETABLSN = 3.912/(vis_blsn/1000.0)
+            ! print to ensure quality
+            !print *, "z_r", z_r
+            !print *, "Q_s", Q_s
+            !print *, "C_r", C_r
+            !print *, "c_z", c_z
+            !print *, "c_alpha", c_alpha
+            !print *, "sno/SWE", sno(i,j)
+            !print *, "si/SNOD", si(i,j)/1.0e3
+            !print *, "rho_sno", rho_sno
+            !print *, "vis_blsn", vis_blsn
+            !print *, "BETABLSN", BETABLSN
+        else
+            BETABLSN = 0
+            !print *, "BETABLSN", BETABLSN
+        end if
+
 ! Key calculation of attenuation from each hydrometeor type (cloud, snow, graupel, rain, ice)
         BETAV=COEFFC*CONCFC**EXPONFC                            &
              + coef_SNOW*CONCFP**EXPONFP                        &
@@ -309,6 +354,9 @@
 ! Addition of attenuation from aerosols if option selected
         if(method == 2 .or. method == 3)then ! aerosol method
             BETAV = BETAV + aextc55(i,j,lm)*1000.
+            if(method_blsn) then ! BLSN method, updated 8 August 2022 by Tim Corrie
+                BETAV = BETAV + BETABLSN
+            endif
         endif
 
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
