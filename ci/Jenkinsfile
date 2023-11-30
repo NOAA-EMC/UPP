@@ -93,10 +93,18 @@ pipeline {
 						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
 					}
 					steps {
-						retry(3) {
+						
 							
 							cleanWs()
-							checkout scm
+							try {
+								checkout scm
+							} catch(error) {
+								echo "git checkout failed, retrying"
+								retry(3) {
+									echo "retry attempting now"
+									checkout scm
+								}
+							}
 							sh '''
 							echo $(pwd)
 							cd ci/
