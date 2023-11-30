@@ -95,17 +95,7 @@ pipeline {
 					steps {
 	
 						cleanWs()
-						script {
-							try {
-							checkout scm
-							} catch(error) {
-								echo "git checkout failed, retrying"
-								retry(3) {
-									echo "retry attempting now"
-									checkout scm
-								}
-							}
-						}
+						checkout scm
 						sh '''
 						echo $(pwd)
 						cd ci/
