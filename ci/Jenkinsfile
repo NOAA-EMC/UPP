@@ -166,32 +166,32 @@ pipeline {
 					}
 				}
 			}
-			stage('Run UPP RTs on Orion') {
-				agent {
-					label "orion"
-				}
-				environment {
-					ACCNR = 'epic'
-					NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
-				}
-				steps {
+		}
+		stage('Run UPP RTs on Orion') {
+			agent {
+				label "orion"
+			}
+			environment {
+				ACCNR = 'epic'
+				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
+			}
+			steps {
 
-					cleanWs()
-					checkout scm
-					sh '''
-					echo $(pwd)
-					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-					'''
-				}
-				post {
-					always {
-						script {
-							formatComment("Orion")
-						}
+				cleanWs()
+				checkout scm
+				sh '''
+				echo $(pwd)
+				cd ci/
+				./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+				'''
+			}
+			post {
+				always {
+					script {
+						formatComment("Orion")
 					}
 				}
-			}    
-		}
+			}
+		}    
 	} 
 }
