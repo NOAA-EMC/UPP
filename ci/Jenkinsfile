@@ -36,24 +36,6 @@ def postGitHubComment(commentMessage) {
 	}
 }
 
-def maxRetries = 3
-def currentRetry = 0
-
-def retryWithBackoff(maxRetries) {
-    def backoffTime = 1
-    while (currentRetry < maxRetries) {
-        try {
-            checkout scm 
-            break 
-        } catch (Exception e) {
-            echo "Failed attempt ${currentRetry + 1}. Retrying after ${backoffTime} seconds."
-            sleep(backoffTime) 
-            backoffTime *= 2 
-            currentRetry++
-        }
-    }
-}
-
 
 pipeline {
 	agent none
@@ -155,34 +137,34 @@ pipeline {
 				// 		}
 				// 	} 
 				// }        
-				// stage('Run UPP RTs on Hercules') {
-				// 	agent {
-				// 		label "hercules"
-				// 	}
-				// 	environment {
-				// 		ACCNR = 'epic'
-				// 		NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-				// 	}
-				// 	steps {
-				// 		retry(3) {
+				stage('Run UPP RTs on Hercules') {
+					agent {
+						label "hercules"
+					}
+					environment {
+						ACCNR = 'epic'
+						NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+					}
+					steps {
+						retry(3) {
 							
-				// 			cleanWs()
-				// 			checkout scm
-				// 			sh '''
-	   //                                              echo $(pwd)
-				// 		        cd ci/
-				// 		        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-				// 			'''
-				// 		}
-				// 	}
-				// 	post {
-				// 		always {
-				// 			script {
-				// 				formatComment("Hercules")
-				// 			}
-				// 		}
-				// 	}
-				// } 
+							cleanWs()
+							checkout scm
+							sh '''
+	                                                echo $(pwd)
+						        cd ci/
+						        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+							'''
+						}
+					}
+					post {
+						always {
+							script {
+								formatComment("Hercules")
+							}
+						}
+					}
+				} 
 				stage('Run UPP RTs on Jet') {
 					agent {
 						label "jet"
