@@ -36,6 +36,24 @@ def postGitHubComment(commentMessage) {
 	}
 }
 
+def maxRetries = 3
+def currentRetry = 0
+
+def retryWithBackoff(maxRetries) {
+    def backoffTime = 1
+    while (currentRetry < maxRetries) {
+        try {
+            checkout scm 
+            break 
+        } catch (Exception e) {
+            echo "Failed attempt ${currentRetry + 1}. Retrying after ${backoffTime} seconds."
+            sleep(backoffTime) 
+            backoffTime *= 2 
+            currentRetry++
+        }
+    }
+}
+
 
 pipeline {
 	agent none
@@ -95,7 +113,8 @@ pipeline {
 					steps {
 	
 						cleanWs()
-						checkout scm
+						retryWithBackoff(maxRetries)
+						// checkout scm
 						sh '''
 						echo $(pwd)
 						cd ci/
