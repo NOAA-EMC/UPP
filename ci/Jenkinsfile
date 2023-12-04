@@ -113,8 +113,7 @@ pipeline {
 					steps {
 	
 						cleanWs()
-						retryWithBackoff(maxRetries)
-						// checkout scm
+						checkout scm
 						sh '''
 						echo $(pwd)
 						cd ci/
