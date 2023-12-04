@@ -151,8 +151,10 @@ pipeline {
 							cleanWs()
 							checkout scm
 							sh '''
-	
-							''' 
+	                                                echo $(pwd)
+						        cd ci/
+						        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+							'''
 						}
 					}
 					post {
