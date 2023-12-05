@@ -823,7 +823,6 @@
 
        <param>
        <shortname>GSD_CFRZR_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
        </param>
 
