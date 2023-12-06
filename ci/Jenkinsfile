@@ -109,33 +109,33 @@ pipeline {
 				}
 			}
 		} 
-		// stage('Run UPP RTs on Hera') {
-		// 	agent {
-		// 		label "hera"
-		// 	}
-		// 	environment {
-		// 		ACCNR = 'epic'
-		// 		NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
-		// 	}
-		// 	steps {
-		// 		catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-		// 			cleanWs()
-		// 			checkout scm
-		// 			sh '''
-		// 			echo $(pwd)
-		// 			cd ci/
-		// 			./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-		// 			'''
-		// 		}
-		// 	}
-		// 	post {
-		// 		always {
-		// 			script {
-		// 				formatComment("Hera")
-		// 			}
-		// 		}
-		// 	} 
-		// }        
+		stage('Run UPP RTs on Hera') {
+			agent {
+				label "hera"
+			}
+			environment {
+				ACCNR = 'epic'
+				NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
+			}
+			steps {
+				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+					cleanWs()
+					checkout scm
+					sh '''
+					echo $(pwd)
+					cd ci/
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					'''
+				}
+			}
+			post {
+				always {
+					script {
+						formatComment("Hera")
+					}
+				}
+			} 
+		}        
 		stage('Run UPP RTs on Hercules') {
 			agent {
 				label "hercules"
@@ -163,116 +163,31 @@ pipeline {
 				}
 			}
 		} 
-		stage('Run UPP RTs on Jet') {
-			agent {
-				label "jet"
-			}
-			environment {
-				ACCNR = 'hfv3gfs'
-				NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
-			}
-			steps {
-				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-					cleanWs()
-					checkout scm
-					sh '''
+		// TO BE ADDED...
+		// stage('Run UPP RTs on Jet') {
+		// 	agent {
+		// 		label "jet"
+		// 	}
+		// 	environment {
+		// 		ACCNR = 'hfv3gfs'
+		// 		NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
+		// 	}
+		// 	steps {
+		// 		catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+		// 			cleanWs()
+		// 			checkout scm
+		// 			sh '''
 
-					'''
-				}
-			}
-			post {
-				always {
-					script {
-						formatComment("Jet")
-					}
-				}
-			}
-		}
-		// stage ('Run Parallel RTs') {
-		// 	parallel {
-				
-		// 		stage('Run UPP RTs on Hera') {
-		// 			agent {
-		// 				label "hera"
-		// 			}
-		// 			environment {
-		// 				ACCNR = 'epic'
-		// 				NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
-		// 			}
-		// 			steps {
-		// 				retry(3) {
-		// 					cleanWs()
-		// 					checkout scm
-		// 					sh '''
-		// 					echo $(pwd)
-		// 					cd ci/
-		// 					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-		// 					'''
-		// 				}
-		// 			}
-		// 			post {
-		// 				always {
-		// 					script {
-		// 						formatComment("Hera")
-		// 					}
-		// 				}
-		// 			} 
-		// 		}        
-		// 		stage('Run UPP RTs on Hercules') {
-		// 			agent {
-		// 				label "hercules"
-		// 			}
-		// 			environment {
-		// 				ACCNR = 'epic'
-		// 				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-		// 			}
-		// 			steps {
-		// 				retry(3) {
-							
-		// 					cleanWs()
-		// 					checkout scm
-		// 					sh '''
-	 //                                                echo $(pwd)
-		// 				        cd ci/
-		// 				        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-		// 					'''
-		// 				}
-		// 			}
-		// 			post {
-		// 				always {
-		// 					script {
-		// 						formatComment("Hercules")
-		// 					}
-		// 				}
-		// 			}
-		// 		} 
-		// 		stage('Run UPP RTs on Jet') {
-		// 			agent {
-		// 				label "jet"
-		// 			}
-		// 			environment {
-		// 				ACCNR = 'hfv3gfs'
-		// 				NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
-		// 			}
-		// 			steps {
-		// 				retry(3) {
-		// 					cleanWs()
-		// 					checkout scm
-		// 					sh '''
-	
-		// 					'''
-		// 				}
-		// 			}
-		// 			post {
-		// 				always {
-		// 					script {
-		// 						formatComment("Jet")
-		// 					}
-		// 				}
+		// 			'''
+		// 		}
+		// 	}
+		// 	post {
+		// 		always {
+		// 			script {
+		// 				formatComment("Jet")
 		// 			}
 		// 		}
 		// 	}
-		// }
-		  
+		// }		  
 	} 
 }
