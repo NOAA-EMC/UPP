@@ -600,7 +600,6 @@
        <param>
        <shortname>4LFTX_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <pname>4LFTX</pname>
-       <table_info>NCEP</table_info>
        <level>18000.</level>
        <level2>0.</level2>
        <scale>3.0</scale>
@@ -2479,7 +2478,6 @@
        <param>
        <shortname>4LFTX_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <pname>4LFTX</pname>
-       <table_info>NCEP</table_info>
        <level>18000.</level>
        <level2>0.</level2>
        <scale>3.0</scale>
