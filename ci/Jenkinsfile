@@ -1,120 +1,193 @@
-pipeline {
-  agent none
-  stages {
-    stage('UPP Regression Tests') {
-       agent {
-        label 'built-in'   
-       }
-      steps {
-        script {
-          for (label in pullRequest.labels) {
-            if ((label.matches("orion"))) {
-                 env.CHOICE_NODE='orion'
-            }  
-            else if ((label.matches("hera"))) {
-                env.CHOICE_NODE='hera'
-            }  
-            else if ((label.matches("hercules"))) {
-                env.CHOICE_NODE='hercules'
-            }  
-            else if ((label.matches("jet"))) {
-                env.CHOICE_NODE='jet'
-            } 
-            else { 
-                env.CHOICE_NODE='none'
-            }
-         }
-// Why do I need another if..block, because it just works this way.
+def formatComment(machine) {
+	script {
+		def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
+		def commentMessage = "${machine} UPP Regression Tests ${buildResult}"      
+		if (fileExists('ci/changed_results.txt')) {
+			echo 'changed_results.txt file found'
+			sh "cat ci/changed_results.txt"
+			def changedResults = readFile(file: 'ci/changed_results.txt')
+			def failMessage = commentMessage + "\n\n" + changedResults
+			def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
+			postGitHubComment(formattedMessage)
+			sh "rm -rf ci/changed_results.txt"
+		} else {
+			echo 'changed_results.txt file not found'
+			postGitHubComment(commentMessage)
+		}
+	}
+}
 
-            if (CHOICE_NODE == 'orion') {
-                echo "Starting up orion ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-            } 
-             else if (CHOICE_NODE == 'jet') {
-                echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-            }
-             else if (CHOICE_NODE == 'hercules') {
-                 echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-            }
-             else if (CHOICE_NODE == 'hera') {
-                 echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-            }
-             else {
-                echo "${CHOICE_NODE} is NOT a platform, moving on..."
-            }
-       }    
-    }
-  } 
-  stage('Run UPP RTs on Hera') {
-        agent {
-          label "hera"
-        }
-        environment {
-        ACCNR = 'epic'
-        NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        echo $(pwd)
-        cd ci/
-        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        '''
-      }
-    }        
-    stage('Run UPP RTs on Orion') {
-        agent {
-          label "orion"
-        }
-        environment {
-        ACCNR = 'epic'
-        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        echo $(pwd)
-        cd ci/
-        ./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
-        '''
-      }
-    }    
-    stage('Run UPP RTs on Hercules') {
-        agent {
-          label "hercules"
-        }
-        environment {
-        ACCNR = 'epic'
-        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        
-        ''' 
-        }
-    } 
-        stage('Run UPP RTs on Jet') {
-        agent {
-          label "jet"
-        }
-        environment {
-        ACCNR = 'hfv3gfs'
-        NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
-      }
-      steps {
-          
-        cleanWs()
-        checkout scm
-        sh '''
-        
-        '''
-      }
-    }
-  }  
+
+def postGitHubComment(commentMessage) {
+	script {
+		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/comments"
+			def curlCommand = "curl -s -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" +
+				"-X POST -d '{\"body\": \"" + commentMessage + "\"}' \\\n" +
+				"\"" + apiUrl + "\""
+
+			def response = sh(script: curlCommand, returnStatus: true)
+			if (response == 0) {
+				echo "Comment added successfully to PR #${env.CHANGE_ID}"
+			} else {
+				error "Failed to add comment to PR #${env.CHANGE_ID}"
+			}
+		}
+	}
+}
+
+
+pipeline {
+	agent none
+	stages {
+		stage('UPP Regression Tests') {
+			agent {
+				label 'built-in'   
+			}
+			steps {
+				script {
+					for (label in pullRequest.labels) {
+						if ((label.matches("orion"))) {
+							env.CHOICE_NODE='orion'
+						}  
+						else if ((label.matches("hera"))) {
+							env.CHOICE_NODE='hera'
+						}  
+						else if ((label.matches("hercules"))) {
+							env.CHOICE_NODE='hercules'
+						}  
+						else if ((label.matches("jet"))) {
+							env.CHOICE_NODE='jet'
+						} 
+						else { 
+							env.CHOICE_NODE='none'
+						}
+					}
+					// Why do I need another if..block, because it just works this way.
+					if (CHOICE_NODE == 'orion') {
+						echo "Starting up orion ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+					} 
+					else if (CHOICE_NODE == 'jet') {
+						echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+					}
+					else if (CHOICE_NODE == 'hercules') {
+						echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+					}
+					else if (CHOICE_NODE == 'hera') {
+						echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+					}
+					else {
+						echo "${CHOICE_NODE} is NOT a platform, moving on..."
+					}
+				}    
+			}
+		} 
+		stage('Run UPP RTs on Orion') {
+			agent {
+				label "orion"
+			}
+			environment {
+				ACCNR = 'epic'
+				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
+			}
+			steps {
+				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+					cleanWs()
+					checkout scm
+					sh '''
+					echo $(pwd)
+					cd ci/
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					'''
+				}
+			}
+			post {
+				always {
+					script {
+						formatComment("Orion")
+					}
+				}
+			}
+		} 
+		stage('Run UPP RTs on Hera') {
+			agent {
+				label "hera"
+			}
+			environment {
+				ACCNR = 'epic'
+				NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
+			}
+			steps {
+				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+					cleanWs()
+					checkout scm
+					sh '''
+					echo $(pwd)
+					cd ci/
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					'''
+				}
+			}
+			post {
+				always {
+					script {
+						formatComment("Hera")
+					}
+				}
+			} 
+		}        
+		stage('Run UPP RTs on Hercules') {
+			agent {
+				label "hercules"
+			}
+			environment {
+				ACCNR = 'epic'
+				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+			}
+			steps {
+				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {	
+					cleanWs()
+					checkout scm
+					sh '''
+					echo $(pwd)
+					cd ci/
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					'''
+				}
+			}
+			post {
+				always {
+					script {
+						formatComment("Hercules")
+					}
+				}
+			}
+		} 
+		// TO BE ADDED...
+		// stage('Run UPP RTs on Jet') {
+		// 	agent {
+		// 		label "jet"
+		// 	}
+		// 	environment {
+		// 		ACCNR = 'hfv3gfs'
+		// 		NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
+		// 	}
+		// 	steps {
+		// 		catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+		// 			cleanWs()
+		// 			checkout scm
+		// 			sh '''
+
+		// 			'''
+		// 		}
+		// 	}
+		// 	post {
+		// 		always {
+		// 			script {
+		// 				formatComment("Jet")
+		// 			}
+		// 		}
+		// 	}
+		// }		  
+	} 
 }
