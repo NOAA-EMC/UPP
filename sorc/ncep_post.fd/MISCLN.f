@@ -93,7 +93,7 @@
 !
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
-      use vrbls3d,    only: catedr,mwt,gtg
+      use vrbls3d,    only: catedr,mwt,gtg, cit
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700,&
                             teql,ieql, cape,cin
       use masks,      only: lmh
@@ -1200,7 +1200,7 @@
 !
 !     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
 !     
-      IF(gtg_on .and. (IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0)) THEN
+      IF(gtg_on .and. (IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0.or.IGET(477)>0)) THEN
          ! MASS FIELDS INTERPOLATION
          if(allocated(QIN)) deallocate(QIN)
          if(allocated(QTYPE)) deallocate(QTYPE)
@@ -1228,6 +1228,14 @@
             QTYPE(nFDS)="O"
          end if
 
+         IF(IGET(477) > 0) THEN
+            nFDS = nFDS + 1
+            IDS(nFDS) = 477
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=cit(ISTA:IEND,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
+         end if
+
+
 !        FOR Regional GTG, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, except for EDPARM
 !        Use levels of iID=468 for interpolation
          iID=468
@@ -1252,7 +1260,7 @@
 !        Adjust values before output
          DO N=1,nFDS
             iID=IDS(N)
-            if(iID==467 .or. iID==468 .or. iID==469) then
+            if(iID==467 .or. iID==468 .or. iID==469 .or. iID==477) then
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
                   DO I=ISTA,IEND
