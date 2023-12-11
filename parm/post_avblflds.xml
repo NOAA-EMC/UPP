@@ -4146,6 +4146,15 @@
        <scale>6.0</scale>
     </param>
 
+<!-- 477 EDR on FD_HEIGHT_LVL (for regional model)-->
+    <param>
+       <post_avblfldidx>477</post_avblfldidx>
+       <shortname>CIT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <pname>CITEDR</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
     <param>
        <post_avblfldidx>480</post_avblfldidx>
        <shortname>ICESEV_ON_ISOBARIC_SFC</shortname>
