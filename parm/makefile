@@ -40,7 +40,8 @@ ALL_TXT= \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-GEFS-aerosol.txt \
   postxconfig-NT-GEFS-F00-aerosol.txt \
-  postxconfig-NT-AQM.txt
+  postxconfig-NT-AQM.txt \
+  postxconfig-NT-SFS.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
