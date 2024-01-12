@@ -61,6 +61,14 @@ while getopts ":p:gwc:vhiId" opt; do
       ;;
   esac
 done
+
+if [[ ! -z $debug_opt && $ifi_opt =~ INTERNAL.*=ON ]] ; then
+    echo ENABLING IFI DEBUG
+    # When building debug mode with internal IFI, also enable debugging in IFI.
+    # This includes bounds checking in much of the libIFI C++ library.
+    debug_opt="$debug_opt -DIFI_DEBUG=ON"
+fi
+
 cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}
 
 if [[ $(uname -s) == Darwin ]]; then
@@ -112,6 +120,7 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    module list
 fi
 
+set -x
 BUILD_DIR=${BUILD_DIR:-"build"}
 rm -rf ${BUILD_DIR} install
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
