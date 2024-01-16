@@ -451,7 +451,7 @@
 
        <param>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
+       <pname>SOILMOI</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0.</level>
        <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
@@ -2282,7 +2282,7 @@
 
        <param>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
+       <pname>SOILMOI</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0.</level>
        <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
@@ -3793,7 +3793,7 @@
 
        <param>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
+       <pname>SOILMOI</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0.</level>
        <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
