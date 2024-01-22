@@ -5168,9 +5168,9 @@
 !  ---------------------------------------------------------------
 !      Snow-to-total ratio to be used below
 !  ---------------------------------------------------------------
-               snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
+!               snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
 
-!              snowratio = SR(i,j)
+              snowratio = SR(i,j)
 !-- 2-m temperature
                t2 = TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 !  ---------------------------------------------------------------
@@ -5194,7 +5194,7 @@
 !-- rain/freezing rain
 !  ---------------------------------------------------------------
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
-               rainl = (1. - snowratio)*prec(i,j)/DT
+               rainl = (1. - SR(i,j))*prec(i,j)/DT
 !-- in RUC RAIN is in cm/h and the limit is 1.e-3,
 !-- converted to m/s will be 2.8e-9
                if((rainl > 2.8e-9 .and. snowratio<0.60) .or.      &
