@@ -299,7 +299,7 @@
     <param>
        <post_avblfldidx>36</post_avblfldidx>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
+       <pname>SOILMOI</pname>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
