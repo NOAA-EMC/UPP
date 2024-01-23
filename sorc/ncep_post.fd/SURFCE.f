@@ -45,6 +45,7 @@
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
 !> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
+!> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
