@@ -58,7 +58,8 @@
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
 !!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
-!!   24-01-07 | H LIN  | Add extra requirement when COMPUTE NCAR GTG turbulence
+!!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
+!!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -4206,7 +4207,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(gtg_on .and. (IGET(464) > 0 .or. IGET(467) > 0 .or. IGET(477) > 0)) then
+      IF(gtg_on .and. (IGET(464) > 0 .or. IGET(467) > 0 .or. IGET(470) > 0)) then
         i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
