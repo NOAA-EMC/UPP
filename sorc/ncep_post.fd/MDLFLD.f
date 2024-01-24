@@ -4227,7 +4227,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
         catedr(ista:iend,:,:),mwt(ista:iend,:,:),cit(ista:iend,:,:),&
-        gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
+        RICHNO(ista:iend,:,:),gtg(ista:iend,:,:),item)
 
         i=iend
         j=jend ! 321,541
