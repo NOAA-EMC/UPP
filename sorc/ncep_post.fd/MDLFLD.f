@@ -59,6 +59,7 @@
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
 !!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
 !!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
+!!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
