@@ -587,7 +587,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
       ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R' &
         .OR. MODELNAME == 'GFS') &
-        .and. imp_physics==8)THEN !NMMB or FV3R or GFS +THOMPSON
+        .and. (imp_physics==8 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB or FV3R or GFS +THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=ista,iend
