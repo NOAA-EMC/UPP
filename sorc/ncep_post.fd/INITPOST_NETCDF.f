@@ -45,6 +45,7 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
+!> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -1636,7 +1637,7 @@
       end if
 
         tprec   = float(fhzero)
-        if(ifhr>240)tprec=12.
+!        if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
         trdsw   = tprec
