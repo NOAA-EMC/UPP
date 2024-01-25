@@ -207,6 +207,11 @@
     </param>
 
     <param>
+       <shortname>CAPE_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>CIN_ON_SURFACE</shortname>
        <level>0.</level>
        <scale>4.0</scale>
