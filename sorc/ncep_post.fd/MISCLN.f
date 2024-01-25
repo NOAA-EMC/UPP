@@ -55,6 +55,8 @@
 !!   23-04-03  E Colon - Added additional array assignments to resolve SPC fields crashes for RRFS input
 !!   23-08-16  Y Mao - Updated interpolation to flight levels for regional GTG fields
 !!   23-08-24  Y Mao - Add gtg_on option for GTG interpolation
+!!   24-01-07  H LIN - Add CIT output in NCAR GTG turbulence calculation
+!!   24-01-09  Y Mao - Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
 !!
@@ -93,7 +95,7 @@
 !
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
-      use vrbls3d,    only: catedr,mwt,gtg
+      use vrbls3d,    only: catedr,mwt,gtg, cit
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700,&
                             teql,ieql, cape,cin
       use masks,      only: lmh
@@ -1200,7 +1202,7 @@
 !
 !     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
 !     
-      IF(gtg_on .and. (IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0)) THEN
+      IF(gtg_on .and. (IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0.or.IGET(477)>0)) THEN
          ! MASS FIELDS INTERPOLATION
          if(allocated(QIN)) deallocate(QIN)
          if(allocated(QTYPE)) deallocate(QTYPE)
@@ -1228,6 +1230,14 @@
             QTYPE(nFDS)="O"
          end if
 
+         IF(IGET(477) > 0) THEN
+            nFDS = nFDS + 1
+            IDS(nFDS) = 477
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=cit(ISTA:IEND,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
+         end if
+
+
 !        FOR Regional GTG, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, except for EDPARM
 !        Use levels of iID=468 for interpolation
          iID=468
@@ -1252,7 +1262,7 @@
 !        Adjust values before output
          DO N=1,nFDS
             iID=IDS(N)
-            if(iID==467 .or. iID==468 .or. iID==469) then
+            if(iID==467 .or. iID==468 .or. iID==469 .or. iID==477) then
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
                   DO I=ISTA,IEND
@@ -1272,6 +1282,7 @@
             
 !           Regional GTG has a legend of special defination
 !           0 m holds the max value of the whole vertical column
+!           0 m is the last height in the control file            
             if (iID == 467) then
                EGRID1 = SPVAL
                DO IFD = 1,NFDCTL
@@ -1294,7 +1305,7 @@
                if(grib=='grib2') then
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
-                  fld_info(cfld)%lvl=0.
+                  fld_info(cfld)%lvl=NFDCTL+1
 !$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                      jj = jsta+j-1

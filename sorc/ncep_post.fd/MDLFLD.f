@@ -57,7 +57,10 @@
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
-!!   23-10-17 | E James | Include hail hydrometeors in VIL computation when available
+!!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
+!!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
+!!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
+!!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -4205,7 +4208,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(gtg_on) then
+      IF(gtg_on .and. (IGET(464) > 0 .or. IGET(467) > 0 .or. IGET(470) > 0)) then
         i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
@@ -4225,7 +4228,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
         catedr(ista:iend,:,:),mwt(ista:iend,:,:),cit(ista:iend,:,:),&
-        gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
+        RICHNO(ista:iend,:,:),gtg(ista:iend,:,:),item)
 
         i=iend
         j=jend ! 321,541
