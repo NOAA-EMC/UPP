@@ -76,7 +76,7 @@ elif [ $mac = O ] ; then
  module use /work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core
  module load stack-intel/2022.0.2
  module load stack-intel-oneapi-mpi/2021.5.1
- module load prod-util/2.1.1
+ module load prod_util/2.1.1
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
@@ -84,7 +84,7 @@ elif [ $mac3 = herc ] ; then
  module use /work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core
  module load stack-intel/2021.9.0
  module load stack-intel-oneapi-mpi/2021.9.0
- module load prod-util/2.1.1
+ module load prod_util/2.1.1
 fi
 
 #set working directory
