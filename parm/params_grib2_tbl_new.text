@@ -751,6 +751,8 @@
    0  19    36   0 PSNOWS
 !  Added more parameters in 12/03/2019
    0  19    37   0 ICESEV
+!  Added more parameters in 11/01/2023
+   0  19    50   0 CITEDR
 !  NCEP Local use
    0  19   192   1 MXSALB
    0  19   193   1 SNFALB

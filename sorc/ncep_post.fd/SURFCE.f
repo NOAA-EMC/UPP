@@ -45,6 +45,7 @@
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
 !> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
+!> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -5162,15 +5163,18 @@
 !  Minimum 1h precipitation to even consider p-type specification
 !      (0.0001 mm in 1h, very light precipitation)
 !  ---------------------------------------------------------------
-               if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001)       &
+               if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001) then
 !          snowratio = snow_bucket(i,j)*1.e-3/totprcp            ! orig
 !14aug15 - change from Stan and Trevor
 !  ---------------------------------------------------------------
 !      Snow-to-total ratio to be used below
 !  ---------------------------------------------------------------
-               snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
-
-!              snowratio = SR(i,j)
+                  IF(MODELNAME == 'FV3R') THEN
+                     snowratio = SR(i,j)
+                  ELSE
+                     snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
+                  ENDIF
+               endif
 !-- 2-m temperature
                t2 = TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 !  ---------------------------------------------------------------
