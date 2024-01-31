@@ -936,7 +936,6 @@
        <param>
        <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -964,7 +963,6 @@
        <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -978,14 +976,12 @@
        <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>INST_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2723,7 +2719,6 @@
        <param>
        <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2751,7 +2746,6 @@
        <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2765,7 +2759,6 @@
        <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
