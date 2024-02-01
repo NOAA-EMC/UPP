@@ -19,11 +19,11 @@ have the required libraries available via `spack-stack <https://github.com/JCSDA
 location. The :term:`spack-stack` is a :term:`Spack`-based method for installing UFS prerequisite software libraries.
 
 Users working on unsupported platforms will need to install spack-stack on their system and can do so following
-the instructions in the :ref:`spack-stack User's Guide <spack-stack:index>`.
+the instructions in the :doc:`spack-stack User's Guide <spack-stack:index>`.
 
 .. note::
 
-   Users can install :term:`HPC-Stack` instead of spack-spack by following the instructions in the :ref:`HPC-Stack User's Guide <hpc-stack:index>`. However, support for HPC-Stack is being deprecated, and limited assistance is available for use of HPC-Stack with the UPP. 
+   Users can install :term:`HPC-Stack` instead of spack-spack by following the instructions in the :doc:`HPC-Stack User's Guide <hpc-stack:index>`. However, support for HPC-Stack is being deprecated, and limited assistance is available for use of HPC-Stack with the UPP. 
 
 ----------------
 Common Modules
