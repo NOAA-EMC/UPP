@@ -4946,7 +4946,7 @@ INST_ULWRF_ON_SURFACE
 1
 tmpl4_0
 ULWRF
-NCEP
+?
 ?
 surface
 0
@@ -5094,7 +5094,7 @@ AVE_ULWRF_ON_SURFACE
 1
 tmpl4_8
 ULWRF
-NCEP
+?
 AVE
 surface
 0
@@ -5168,7 +5168,7 @@ AVE_ULWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_8
 ULWRF
-NCEP
+?
 AVE
 top_of_atmos
 0
@@ -5205,7 +5205,7 @@ INST_ULWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_0
 ULWRF
-NCEP
+?
 ?
 top_of_atmos
 0
@@ -15026,7 +15026,7 @@ INST_ULWRF_ON_SURFACE
 1
 tmpl4_0
 ULWRF
-NCEP
+?
 ?
 surface
 0
@@ -15174,7 +15174,7 @@ AVE_ULWRF_ON_SURFACE
 1
 tmpl4_8
 ULWRF
-NCEP
+?
 AVE
 surface
 0
@@ -15248,7 +15248,7 @@ AVE_ULWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_8
 ULWRF
-NCEP
+?
 AVE
 top_of_atmos
 0
