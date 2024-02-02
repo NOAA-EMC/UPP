@@ -45,6 +45,8 @@
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
 !> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
+!> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
+!> 2024-01-30 | A Jensen   | Comment out graupel precipitation warning. 
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -5152,25 +5154,34 @@
                  totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
                ENDIF
                snowratio = 0.0
-               if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
-                 print *,'WARNING - Graupel is higher that total precip at point',i,j
-                 print *,'totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket',&
-                          totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket(i,j)
-               endif
+!-- This following warning message prints too often and is being commented out by
+!-- Anders Jensen on 30 Jan 2024. I think that this warning message prints only when 
+!-- graupel alone is reaching the surface. Total precipitation is interpolated 
+!-- and precipitation from individual hydrometeor categories is not. Thus, when 
+!-- total precipitation equals graupel precipitation and total precipitation is 
+!-- interpolated and graupel precipitation is not, the two values may not be equal.
+!               if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
+!                 print *,'WARNING - Graupel is higher than total precip at point',i,j
+!                 print *,'totprcp,graup_bucket(i,j)*1.e-3,snow_bucket(i,j),rainnc_bucket',&
+!                          totprcp,graup_bucket(i,j)*1.e-3,snow_bucket(i,j),rainnc_bucket(i,j)
+!               endif
 
 !  ---------------------------------------------------------------
 !  Minimum 1h precipitation to even consider p-type specification
 !      (0.0001 mm in 1h, very light precipitation)
 !  ---------------------------------------------------------------
-               if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001)       &
+               if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001) then
 !          snowratio = snow_bucket(i,j)*1.e-3/totprcp            ! orig
 !14aug15 - change from Stan and Trevor
 !  ---------------------------------------------------------------
 !      Snow-to-total ratio to be used below
 !  ---------------------------------------------------------------
-               snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
-
-!              snowratio = SR(i,j)
+                  IF(MODELNAME == 'FV3R') THEN
+                     snowratio = SR(i,j)
+                  ELSE
+                     snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
+                  ENDIF
+               endif
 !-- 2-m temperature
                t2 = TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 !  ---------------------------------------------------------------

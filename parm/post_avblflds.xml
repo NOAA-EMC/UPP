@@ -297,7 +297,7 @@
     <param>
        <post_avblfldidx>36</post_avblfldidx>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
+       <pname>SOILMOI</pname>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
        <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
        <scale>3.0</scale>
@@ -4144,6 +4144,15 @@
        <pname>ICAHT</pname>
        <fixed_sfc1_type>cb_top</fixed_sfc1_type>
        <scale>6.0</scale>
+    </param>
+
+<!-- 477 EDR on FD_HEIGHT_LVL (for regional model)-->
+    <param>
+       <post_avblfldidx>477</post_avblfldidx>
+       <shortname>CIT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <pname>CITEDR</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
     </param>
 
     <param>

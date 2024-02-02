@@ -147,6 +147,7 @@
    2   3    22   0 CISICE
    2   3    20   0 CISOILM
    2   0    23   0 CISOILW
+   0  19    50   0 CITEDR	
    0  19   207   1 CIVIS
    3   2     9   0 CLDALB
    3   2    10   0 CLDEMISS
@@ -936,7 +937,6 @@
    2   3     5   0 SOILL
    2   3   192   1 SOILL
    2   3    19   0 SOILMOI
-   2   0    22   0 SOILM
    2   3    15   0 SOILP
    2   0   239   1 SOILSE
    2   3    18   0 SOILTMP

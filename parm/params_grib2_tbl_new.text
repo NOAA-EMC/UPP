@@ -97,7 +97,7 @@
    0   1    19   0 PTYPE
    0   1    20   0 ILIQW
    0   1    21   0 TCOND
-!  Changed from CLWMR to CLWR 
+!  Changed from CLWMR to CLWR
 ! (WGRIB2 v2.0.8 updated) in 4/6/2021
    0   1    22   0 CLMR
    0   1    23   0 ICMR
@@ -751,6 +751,8 @@
    0  19    36   0 PSNOWS
 !  Added more parameters in 12/03/2019
    0  19    37   0 ICESEV
+!  Added more parameters in 11/01/2023
+   0  19    50   0 CITEDR
 !  NCEP Local use
    0  19   192   1 MXSALB
    0  19   193   1 SNFALB
@@ -953,6 +955,7 @@
    2   0     0   0 LAND
    2   0     1   0 SFCR
    2   0     2   0 TSOIL
+!  Parameter SOILM deprecated 12/03/2021
 !   2   0     3   0 SOILM
    2   0     4   0 VEG
    2   0     5   0 WATR
@@ -973,7 +976,8 @@
    2   0    19   0 RCT
    2   0    20   0 RCSOL
    2   0    21   0 RCQ
-   2   0    22   0 SOILM
+!  Parameter SOILD deprecated 12/03/2021
+!   2   0    22   0 SOILM
    2   0    23   0 CISOILW
    2   0    24   0 HFLUX
    2   0    25   0 VSOILM
