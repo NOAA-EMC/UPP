@@ -3,9 +3,9 @@
 .. role:: bolditalic
     :class: bolditalic
 
-********************
-Building Stand-Alone
-********************
+*************************
+Building UPP Stand-Alone
+*************************
 
 The UPP uses a CMake-based build system to integrate all the required components for building the UPP.
 Once built, the UPP can be run stand-alone (outside the UFS Applications) to post-process model output.
