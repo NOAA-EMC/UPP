@@ -2,11 +2,7 @@
 4
 3
 250
-<<<<<<< HEAD
 311
-=======
-308
->>>>>>> origin/develop
 PRSLEV
 32769
 ncep_nco
