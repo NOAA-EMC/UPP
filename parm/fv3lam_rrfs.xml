@@ -942,7 +942,6 @@
        <param>
        <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -970,7 +969,6 @@
        <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -984,14 +982,12 @@
        <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>INST_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2301,6 +2297,24 @@
        </param>
 
        <param>
+       <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
+       <pname>VIL</pname>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
+       <pname>VIL</pname>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <pname>RETOP</pname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
        <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
@@ -2749,7 +2763,6 @@
        <param>
        <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2777,7 +2790,6 @@
        <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2791,7 +2803,6 @@
        <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
