@@ -400,6 +400,12 @@
        </param>
 
        <param>
+       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>SOILM</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
@@ -573,7 +579,6 @@
        <param>
        <shortname>WILT_ON_SURFACE</shortname>
        <pname>WILT</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -1005,6 +1010,20 @@
        <param>
        <shortname>INST_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_SWDDNI_ON_SURFACE</shortname>
+       <pname>VBDSF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_SWDDIF_ON_SURFACE</shortname>
+       <pname>VDDSF</pname>
        <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
@@ -2406,6 +2425,12 @@
        </param>
 
        <param>
+       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>SOILM</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
@@ -2779,6 +2804,20 @@
        <param>
        <shortname>INST_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_SWDDNI_ON_SURFACE</shortname>
+       <pname>VBDSF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_SWDDIF_ON_SURFACE</shortname>
+       <pname>VDDSF</pname>
        <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
@@ -3496,7 +3535,6 @@
        <param>
        <shortname>WILT_ON_SURFACE</shortname>
        <pname>WILT</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -3557,7 +3595,6 @@
        <param>
        <shortname>LAI_ON_SURFACE</shortname>
        <pname>LAI</pname>
-       <table_info>NCEP</table_info>
         <scale>-3.0</scale>
        </param>
 
