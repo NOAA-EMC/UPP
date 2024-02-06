@@ -12,6 +12,7 @@ Ice mixing ratio,icmr,qqi,3d,dyn,
 Rain mixing ratio,rwmr,qqr,3d,dyn,
 Snow mixing ratio,snmr,qqs,3d,dyn,
 Graupel mixing ratio,grle,qqg,3d,dyn,
+Hail,qqh,qqh,3d,dyn,
 Instantaneous 3d cloud fraction,cld_amt,cfr,3d,dyn,imp_physics = 11
 Instantaneous 3d cloud fraction,cldfra,cfr,3d,phy,imp_physics ≠ 11
 Instantaneous 3d cloud fraction from boundary layer scheme,cldfra_bl,cfr,3d,phy,imp_physics ≠ 11
@@ -27,6 +28,7 @@ Min hourly 0-3km updraft helicity,uhmin03,up_heli_min03,2d,dyn,regional FV3
 Max 0-1km relative vorticity max,maxvort01,rel_vort_max01,2d,dyn,regional FV3
 Max 0-2km relative vorticity max,maxvort02,rel_vort_max,2d,dyn,regional FV3
 Max hybrid level 1 relative vorticity max,maxvorthy1,rel_vort_maxhy1,2d,dyn,regional FV3
+HAILCAST maximum hail diameter (mm) since last output,hailcast_dhail,hail_maxhailcast,2d,dyn,regional FV3
 Biomass burning emissions,ebb_smoke_hr,ebb,2d,phy,regional FV3
 Hourly wildfire potential,hwp,hwp,2d,phy,regional FV3
 Lightning threat index 1,ltg1_max,ltg1_max,2d,phy,regional FV3
@@ -38,9 +40,12 @@ Smoke,smoke,smoke,3d,dyn,regional FV3
 FV3 dust,fv3dust,fv3dust,3d,dyn,regional FV3
 Coarse particulate matter,coarsepm,coarsepm,3d,dyn,regional FV3
 Unified extinction ext550/Aerosol optical depth,ext550,ext550,3d,phy,regional FV3
+Cloud ice number concentration,qqni,qqni,3d,dyn,regional FV3
+Cloud water number concentration,qqnw,qqnw,3d,dyn,regional FV3
+Rain number concentration,qqnr,qqnr,3d,dyn,regional FV3
 Reflectivity,refl_10cm,REF_10CM,3d,phy,
 Turbulence kinetic energy,qke,q2,3d,phy,
-Ice-friendly aerosol number concentration,nifa,qqnwfa,3d,phy,
+Ice-friendly aerosol number concentration,nifa,qqnifa,3d,phy,
 Water-friendly aerosol number concentration,nwfa,qqnwfa,3d,phy,
 Land mask,land,sm,2d,phy,
 Sea ice mask,icec,sice,2d,phy,
@@ -89,7 +94,7 @@ Plant canopy sfc water in m,cnwat,cmc,2d,phy,
 Frozen precip fraction,cpofp,sr,2d,phy,
 Sea ice skin temperature,tisfc,ti,2d,phy,
 Vegetation fraction,veg,vegfrc,2d,phy,
-Liquid volumetric soil moisture,soill1/.../soill4,sh2o,2d,phy,all soil levels read into 3d array
+Liquid volumetric soil moisture,soill1/.../soill9,sh2o,2d,phy,all soil levels read into 3d array
 Volumetric soil moisture,soilw1/.../soilw9,smc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
 Soil temperature,soilt1/.../soilt9,stc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
 Time averaged incoming surface longwave,dlwrf_ave,alwin,2d,phy,
