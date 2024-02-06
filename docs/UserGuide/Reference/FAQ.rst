@@ -36,7 +36,7 @@ We are not able to support all platform and compiler combinations out there but 
 How can I output satellite fields with the Unified Post Processor (UPP)?
 ==========================================================================
 
-Currently, the stand-alone release of the UPP can be utilized to output satellite fields if desired. The UPP documentation :ref:`lists the grib2 fields <grib2-fields-by-id>`, including satellite fields, produced by the UPP. After selecting which fields to output, the user must adjust the control file according to the instructions in the UPP documentation to output the desired fields. When outputting satellite products, users should note that not all physics options are supported for outputting satellite products. Additionally, for regional runs, users must ensure that the satellite field of view overlaps some part of their domain. 
+Currently, the standalone release of the UPP can be utilized to output satellite fields if desired. The UPP documentation :ref:`lists the grib2 fields <grib2-fields-by-id>`, including satellite fields, produced by the UPP. After selecting which fields to output, the user must :ref:`adjust the control file <control-file>` according to the instructions in the UPP documentation to output the desired fields. When outputting satellite products, users should note that not all physics options are supported for outputting satellite products. Additionally, for regional runs, users must ensure that the satellite field of view overlaps some part of their domain. 
 
 Most UFS application releases do not currently support this capability, although it is available in the Short-Range Weather (SRW) Application. `This SRW App pull request (PR) <https://github.com/ufs-community/regional_workflow/pull/682>`__ added the option for users to output satellite fields using the SRW App. The capability is documented in the :ref:`SRW App User’s Guide <srw:SatelliteProducts>`.
 
@@ -45,9 +45,9 @@ Most UFS application releases do not currently support this capability, although
 How do I add a new variable to UPP output?
 ============================================
 
-If the desired variable is already available in the UPP code, then the user can simply add that variable to the postcntrl.xml file and remake the postxconfig-NT.txt file that the UPP reads. Please note that some variables may be dependent on the model and/or physics used.
+If the desired variable is already available in the UPP code, then the user can simply add that variable to the ``postcntrl.xml`` file and :ref:`remake the postxconfig-NT.txt file <create_txt_file>` that the UPP reads. Please note that some variables may be dependent on the model and/or physics used.
 
-If the desired variable is not already available in the UPP code, it can be added following the instructions for adding a new variable in the UPP User’s Guide.
+If the desired variable is not already available in the UPP code, it can be added following the instructions for :ref:`adding a new variable <add-new-var>` in the UPP User’s Guide.
 
 .. _var-not-present:
 
@@ -72,7 +72,7 @@ If the user suspects that the UPP failed (e.g., no UPP output was produced or co
 How do I regrid UPP output to another domain or projection?
 =============================================================
 
-UPP output is in standard grib2 format and can be interpolated to another grid using the third-party utility wgrib2. Some basic examples can also be found in :numref:`Section %s <regridding>`.
+UPP output is in standard grib2 format and can be interpolated to another grid using the third-party utility `wgrib2 <https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html>`__. Some basic examples can also be found in :numref:`Section %s <regridding>`.
 
 .. _upp-parallel:
 
@@ -97,9 +97,9 @@ This warning appears for some platforms/compilers because a call in the *nemsio*
 
 .. _wgrib2-error:
 
-Why do I see ``** FATAL ERROR: Statistical processing bad n=0 ***`` when using the wgrib2 utility on my UPP output?
+Why do I see ``** FATAL ERROR: Statistical processing bad n=0 **`` when using the wgrib2 utility on my UPP output?
 =====================================================================================================================
 
-This error message is displayed when using more recent versions of the wgrib2 utility on files for forecast hour zero that contain accumulated or time-averaged fields. This is due to the newer versions of wgrib2 no longer allowing for the n parameter to be zero or empty. 
+This error message is displayed when using more recent versions of the wgrib2 utility on files for forecast hour zero that contain accumulated or time-averaged fields. This is due to the newer versions of wgrib2 no longer allowing the ``n`` parameter to be zero or empty. 
 
-Users should consider using a separate control file (e.g., ``postcntrl_gfs_f00.xml``) for forecast hour zero that does not include accumulated or time-averaged fields, since they are zero anyway. Users can also continue to use an older version of wgrib2; v2.0.4 is the latest known version that does not result in this error.
+Users should consider using a separate control file (e.g., ``postcntrl_gfs_f00.xml``) for forecast hour zero that does not include accumulated or time-averaged fields, since they are zero anyway. Users can also continue to use an older version of *wgrib2*; v2.0.4 is the latest known version that does not result in this error.

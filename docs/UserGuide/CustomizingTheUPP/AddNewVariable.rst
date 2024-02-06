@@ -1,3 +1,5 @@
+.. _add-new-var:
+
 *********************
 Adding a New Variable
 *********************
@@ -225,9 +227,10 @@ This example adds TG3 to the UPP. TG3 is the averaged climatology of surface tem
 
 2. Allocate and initialize the new variable in ``ALLOCATE_ALL.f`` using an example from the file.
    Note that the variables are defined based on the parallel processing capability of the UPP. 
+    
 
    User Procedure
-    - Allocate in the *VRBLS2D* GFS section of ``ALLOCATE_ALL.f`` as:
+    - TG3 is a 2-dimensional field, so allocate it in the :bolditalic:`VRBLS2D` GFS section of ``ALLOCATE_ALL.f`` as:
 
     ::
 
@@ -239,11 +242,11 @@ This example adds TG3 to the UPP. TG3 is the averaged climatology of surface tem
 
       tg3(i,j)=spval
 
-3. De-allocate the variable to give the resources back in ``DEALLOCATE.f``.
+3. Deallocate the variable to give the resources back in ``DEALLOCATE.f``.
    Updating this routine returns your resources to the system.
 
    User procedure
-    - Add in *VRBLS2D* GFS section of ``DEALLOCATE.f`` as:
+    - Add in :bolditalic:`VRBLS2D` GFS section of ``DEALLOCATE.f`` as:
       
     ::
 
@@ -270,8 +273,7 @@ This example adds TG3 to the UPP. TG3 is the averaged climatology of surface tem
 
      tg3
 
-    - Read in the new variable in the section for reading the 2D netCDF file using another 2D variable
-      as an example, such as ``hpbl``. Add as:
+    - Read in the new variable in the section for reading the 2D netCDF file. Look at other 2D variables, such as ``hpbl``, for an example. Add as:
       
     ::
 
@@ -326,7 +328,7 @@ This example adds TG3 to the UPP. TG3 is the averaged climatology of surface tem
 
 7. Build or rebuild the code for changes to take effect before running your UPP run script.
    
-   User procedure for building on pre-configured machines: 
+   User procedure for building on preconfigured machines: 
 
     ::
 
