@@ -1,14 +1,14 @@
+.. _regridding:
+
 **********
 Regridding
 **********
 
-Users who wish to interpolate their UPP output to a different grid may do so with the *wgrib2*
-utility. The general format for re-gridding to various common projections are outlined in the following
-examples.
+Users who wish to interpolate their UPP output to a different grid may do so with the *wgrib2* utility. The general format for regridding to various common projections are outlined in the following examples.
 
 *Wgrib2* is a versatile program that has the ability to convert grib2 files from one grid to another
-for various user-defined grids as well as pre-defined :term:`NCEP` grids. Complete documentation with examples
-of re-gridding for all available grid definitions can be found at: http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
+for various user-defined grids as well as predefined :term:`NCEP` grids. Complete documentation with examples
+of regridding for all available grid definitions can be found at: http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
 
 .. _Examples-of-wgrib2:
 
@@ -53,13 +53,13 @@ Examples of wgrib2
 +----------+-----------------------------------------------------------------+
 | nx       | Total number of grid points along x                             |
 +----------+-----------------------------------------------------------------+
-| dx       | Grid cell size in meters in x direction                         |
+| dx       | Grid cell size in meters in x-direction                         |
 +----------+-----------------------------------------------------------------+
 | lat0     | Latitude of the first grid point in degrees                     |
 +----------+-----------------------------------------------------------------+
 | ny       | Total number of grid points along y                             | 
 +----------+-----------------------------------------------------------------+
-| dy       | Grid cell size in meters in y direction                         |
+| dy       | Grid cell size in meters in y-direction                         |
 +----------+-----------------------------------------------------------------+
 
 **Example 3: Polar Stereographic Grid**
@@ -81,13 +81,13 @@ OR
 +----------+-----------------------------------------------------------+
 | nx       | Total number of grid points along x                       |
 +----------+-----------------------------------------------------------+
-| dx       | Grid cell distance in meters in x direction at lad        |
+| dx       | Grid cell distance in meters in x-direction at *lad*      |
 +----------+-----------------------------------------------------------+
 | lat0     | Latitude of the first grid point in degrees               |
 +----------+-----------------------------------------------------------+
 | ny       | Total number of grid points along y                       |
 +----------+-----------------------------------------------------------+
-| dy       | Grid cell distance in meters in y direction at lad        |
+| dy       | Grid cell distance in meters in y-direction at *lad*      |
 +----------+-----------------------------------------------------------+
 
 **Winds**
@@ -97,7 +97,7 @@ OR
 +----------+----------------------------------------------+
 | Variable | Description                                  |
 +==========+==============================================+
-| grid     | U-wind goes from grid (i,J) to (i+1,j)       |
+| grid     | U-wind goes from grid (i,j) to (i+1,j)       |
 +----------+----------------------------------------------+
 | earth    | U-wind goes eastward, V-wind goes northward  |
 +----------+----------------------------------------------+
@@ -124,6 +124,5 @@ the variable.
     -new_grid "latlon 0:1440:0.25 90:721:-0.25" outfile
 
 .. note::
-   *wgrib2* is not distributed as part of the :term:`UFS`, but it can be installed via 
-   :term:`HPC-Stack` or :term:`spack-stack` along with other UFS prerequisite software. 
+   *wgrib2* is not distributed as part of the :term:`UFS`, but it can be installed via :term:`spack-stack` or :term:`HPC-Stack` along with other UFS prerequisite software. 
    Users may also download and install it directly from http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/. 
