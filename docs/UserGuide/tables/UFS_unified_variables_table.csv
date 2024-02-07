@@ -12,7 +12,7 @@ Ice mixing ratio,icmr,qqi,3d,dyn,
 Rain mixing ratio,rwmr,qqr,3d,dyn,
 Snow mixing ratio,snmr,qqs,3d,dyn,
 Graupel mixing ratio,grle,qqg,3d,dyn,
-Hail,qqh,qqh,3d,dyn,
+Hail mixing ratio,qqh,qqh,3d,dyn,
 Instantaneous 3d cloud fraction,cld_amt,cfr,3d,dyn,imp_physics = 11
 Instantaneous 3d cloud fraction,cldfra,cfr,3d,phy,imp_physics ≠ 11
 Instantaneous 3d cloud fraction from boundary layer scheme,cldfra_bl,cfr,3d,phy,imp_physics ≠ 11
