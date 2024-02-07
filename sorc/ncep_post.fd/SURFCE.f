@@ -47,6 +47,7 @@
 !> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
 !> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
 !> 2024-01-30 | A Jensen   | Comment out graupel precipitation warning. 
+!> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
 !>     
 !> @note
 !> USAGE:    CALL SURFCE

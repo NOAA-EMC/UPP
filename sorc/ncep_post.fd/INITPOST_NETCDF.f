@@ -45,6 +45,7 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
+!> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
