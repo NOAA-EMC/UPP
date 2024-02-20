@@ -45,6 +45,7 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
+!> 2024-02-   | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -93,7 +94,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast
+              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -179,11 +180,11 @@
       REAL DUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
-              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
+              I,J,L,ll,k,k1,kf,irtn,igdout,n,Index,nframe,                &
               nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
       integer ncid3d,ncid2d,varid,nhcas,varid_bl,iret_bl
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
-              tvll,pmll,tv, tx1, tx2
+              tvll,pmll,tv, tx1, tx2, zpbltop
 
       character*20,allocatable :: recname(:)
       integer,     allocatable :: reclev(:), kmsk(:,:)
@@ -213,6 +214,7 @@
 
       integer, parameter    :: npass2=5, npass3=30
       real, parameter       :: third=1.0/3.0
+      real, parameter       :: delta_theta4gust=0.5
       INTEGER, DIMENSION(2) :: ij4min, ij4max
       REAL                  :: omgmin, omgmax
       real, allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
@@ -220,10 +222,11 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
-      real, allocatable :: ext550(:,:,:)
+      real, allocatable :: ext550(:,:,:),thv(:,:,:)
 
       if (modelname == 'FV3R') then
          allocate(ext550(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(thv(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       endif
 
 !***********************************************************************
@@ -2585,30 +2588,79 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
-!
-! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
-! extinction; it needs to be after ZINT is defined.
-!
+
       if (modelname == 'FV3R') then
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = ista_2l, iend_2u
+          !
+          ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
+          ! extinction; it needs to be after ZINT is defined.
+          !
           if(ext550(i,j,l)<spval)then
             taod5503d ( i, j, l) = ext550 ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
           endif
-         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
+          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
            i,j,l,taod5503d ( i, j, l )
-         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
+          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
            dz
-         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
            i,j,l,aextc55 ( i, j, l )
+
+          ! J. Kenyon - 14 Feb 2024: Obtain the virtual potential
+          ! temperature (thv) from potential temperature and specific humidity.
+          thv (i,j,l) = t(i,j,l)*(q(i,j,l)*0.608+1.)
+
          end do
         end do
        end do
+
+       do j = jsta_2l, jend_2u
+        do i = ista_2l, iend_2u
+         ! J. Kenyon - 14 Feb 2024: From the vertical profile of theta-v,
+         ! determine an effective PBL height. This ad-hoc PBL height will 
+         ! be used solely for the 10-m wind-gust diagnostic. The approach 
+         ! that follows is essentially reproduced from INITPOST.F.
+
+         !--Check for a surface-based mixed layer, but give a
+         !  0.5 K "boost" to the surface theta-v.
+          if (thv(i,j,lm-1) < (thv(i,j,lm) + delta_theta4gust)) then 
+          
+            !--A mixed layer exists, so proceed. Let the PBL top
+            !--be defined as the lowest level where theta-v is 
+            !--greater than (theta-v_sfc + 0.5 K).
+            do k = 3, lm
+              k1 = k
+              if (thv(i,j,lm-k+1) > (thv(i,j,lm) + delta_theta4gust)) &
+                !--PBL top found, so exit from the do-loop.  The most recent 
+                !--k1 value is the first level  above the PBL top.
+                exit
+            end do
+
+            !--Find the height of k1 by linear interpolation, then
+            !--assign as zpbltop
+            zpbltop = zmid(i,j,lm-k1+1) + &
+                    ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1)) &
+                    * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))           &
+                    / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
+            !--Subtract surface elevation to yield PBLHGUST in AGL
+            PBLHGUST ( i, j ) = max(zpbltop - zint(i,j,lp1), 0.)
+
+          else 
+          !--Mixed layer does not exist
+            PBLHGUST ( i, j ) = 0. 
+
+          endif
+
+        end do
+       end do
+
        deallocate(ext550)
-      end if
+       deallocate(thv)
+
+      end if ! (modelname == 'FV3R')
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
