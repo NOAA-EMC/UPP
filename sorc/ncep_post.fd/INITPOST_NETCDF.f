@@ -45,7 +45,7 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
-!> 2024-02-   | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
+!> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
