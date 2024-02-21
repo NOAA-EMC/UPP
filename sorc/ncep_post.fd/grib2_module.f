@@ -499,9 +499,9 @@
                            vtimeunits,modelname
     use gridspec_mod, only: maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
-                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,         &
-                           g2sec4_temp48,g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,         &
-                           g2sec5_temp40,get_g2_sec5packingmethod       
+                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,         &
+                           g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,g2sec5_temp40,         &
+                           get_g2_sec5packingmethod       
     !use gdtsec3, only: getgdtnum
     implicit none
 !

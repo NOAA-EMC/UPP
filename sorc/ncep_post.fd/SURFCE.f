@@ -6367,7 +6367,6 @@
          ENDIF
 
          IF (IGET(236)>0 )THEN
-          if (me==0)print*,'starting wilt'
           DO J=JSTA,JEND
            DO I=ISTA,IEND
              GRID1(I,J) = SMCWLT(I,J)
