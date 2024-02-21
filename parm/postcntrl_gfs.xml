@@ -456,6 +456,12 @@
     </param>
 
     <param>
+       <shortname>INST_DSWRF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
        <shortname>AVE_CDUVB_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>6.0</scale>
@@ -474,13 +480,31 @@
     </param>
 
     <param>
+       <shortname>INST_DLWRF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>AVE_USWRF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>6.0</scale>
     </param>
 
     <param>
+       <shortname>INST_USWRF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>4.0</scale>
     </param>
@@ -519,13 +543,29 @@
     </param>
 
     <param>
+       <shortname>INST_SHTFL_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>AVE_GFLUX_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>4.0</scale>
     </param>
 
     <param>
+       <shortname>INST_GFLUX_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>AVE_LHTFL_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_LHTFL_ON_SURFACE</shortname>
        <scale>4.0</scale>
     </param>
 
