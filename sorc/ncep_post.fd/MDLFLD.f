@@ -4050,7 +4050,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !	    
 ! Calculate 10-m wind gust based on PBL height (as diagnosed from either Ri or theta-v) 
       IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
-        IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
+        IF (MODELNAME=='RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
              if(grib=='grib2') then
