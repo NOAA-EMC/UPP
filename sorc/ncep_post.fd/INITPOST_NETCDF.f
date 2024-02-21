@@ -2611,7 +2611,7 @@
 
           ! J. Kenyon - 14 Feb 2024: Obtain the virtual potential
           ! temperature (thv) from temperature and specific humidity.
-          thv(i,j,l) = ( t(i,j,l) * (p1000/pint(i,j,l))**CAPA ) & ! line 1: convert to temp to theta
+          thv(i,j,l) = ( t(i,j,l) * (p1000/pint(i,j,l))**CAPA ) & ! line 1: convert temp to theta
                       * ( 1. + 0.61*q(i,j,l)/(1.-q(i,j,l)) )      ! line 2: convert theta to theta-v;
                                                                   !  note that the factor q/(1-q) converts
                                                                   !  specific humidity (q) to mixing ratio 
