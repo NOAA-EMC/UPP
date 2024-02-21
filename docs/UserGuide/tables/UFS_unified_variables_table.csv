@@ -1,0 +1,226 @@
+﻿Field Description,Model Variable NetCDF Name,UPP Internal Name,Dimensions,dyn (atm) or phy (sfc),Notes
+U-component of wind,ugrd,uh,3d,dyn,
+V-component of wind,vgrd,vh,3d,dyn,
+Specific humidity,spfh,q,3d,dyn,
+Temperature,tmp,t,3d,dyn,
+Ozone mixing ratio,o3mr,o3,3d,dyn,
+Geometric vertical velocity,dzdt,wh,3d,dyn,
+Cloud water mixing ratio,clwmr,qqw,3d,dyn,
+Layer thickness in pressure on hybrid levels,dpres,dpres,3d,dyn,
+Layer thickness in height,delz,na,3d,dyn,
+Ice mixing ratio,icmr,qqi,3d,dyn,
+Rain mixing ratio,rwmr,qqr,3d,dyn,
+Snow mixing ratio,snmr,qqs,3d,dyn,
+Graupel mixing ratio,grle,qqg,3d,dyn,
+Hail mixing ratio,qqh,qqh,3d,dyn,
+Instantaneous 3d cloud fraction,cld_amt,cfr,3d,dyn,imp_physics = 11
+Instantaneous 3d cloud fraction,cldfra,cfr,3d,phy,imp_physics ≠ 11
+Instantaneous 3d cloud fraction from boundary layer scheme,cldfra_bl,cfr,3d,phy,imp_physics ≠ 11
+Thompson scheme cloud ice effective radius,cieffr,effri,3d,phy
+Thompson scheme cloud water effective radius,cleffr,effrl,3d,phy
+Thompson scheme snow effective radius,cseffr,effrs,3d,phy
+Max hourly updraft velocity,upvvelmax,w_up_max,2d,dyn,regional FV3
+Max hourly downdraft velocity,dnvvelmax,w_dn_max,2d,dyn,regional FV3
+Max hourly updraft helicity,uhmax25,up_heli_max,2d,dyn,regional FV3
+Min hourly updraft helicity,uhmin25,up_heli_min,2d,dyn,regional FV3
+Max hourly 0-3km updraft helicity,uhmax03,up_heli_max03,2d,dyn,regional FV3
+Min hourly 0-3km updraft helicity,uhmin03,up_heli_min03,2d,dyn,regional FV3
+Max 0-1km relative vorticity max,maxvort01,rel_vort_max01,2d,dyn,regional FV3
+Max 0-2km relative vorticity max,maxvort02,rel_vort_max,2d,dyn,regional FV3
+Max hybrid level 1 relative vorticity max,maxvorthy1,rel_vort_maxhy1,2d,dyn,regional FV3
+HAILCAST maximum hail diameter (mm) since last output,hailcast_dhail,hail_maxhailcast,2d,dyn,regional FV3
+Biomass burning emissions,ebb_smoke_hr,ebb,2d,phy,regional FV3
+Hourly wildfire potential,hwp,hwp,2d,phy,regional FV3
+Lightning threat index 1,ltg1_max,ltg1_max,2d,phy,regional FV3
+Lightning threat index 2,ltg2_max,ltg2_max,2d,phy,regional FV3
+Lightning threat index 3,ltg3_max,ltg3_max,2d,phy,regional FV3
+Surface pressure,pressfc,"pint(:,:,LM+1)",2d,dyn,regional FV3
+Surface height,hgtsfc,"zint(:,:,LM+1)",2d,dyn,regional FV3
+Smoke,smoke,smoke,3d,dyn,regional FV3
+FV3 dust,fv3dust,fv3dust,3d,dyn,regional FV3
+Coarse particulate matter,coarsepm,coarsepm,3d,dyn,regional FV3
+Unified extinction ext550/Aerosol optical depth,ext550,ext550,3d,phy,regional FV3
+Cloud ice number concentration,qqni,qqni,3d,dyn,regional FV3
+Cloud water number concentration,qqnw,qqnw,3d,dyn,regional FV3
+Rain number concentration,qqnr,qqnr,3d,dyn,regional FV3
+Reflectivity,refl_10cm,REF_10CM,3d,phy,
+Turbulence kinetic energy,qke,q2,3d,phy,
+Ice-friendly aerosol number concentration,nifa,qqnifa,3d,phy,
+Water-friendly aerosol number concentration,nwfa,qqnwfa,3d,phy,
+Land mask,land,sm,2d,phy,
+Sea ice mask,icec,sice,2d,phy,
+PBL height,hpbl,pblh,2d,phy,
+Frictional velocity,fricv,ustar,2d,phy,
+Roughness length,sfcr,z0,2d,phy,
+Surface exchange coefficient,sfexc,SFCEXC,2d,phy,
+Accumulated snowfall,tsnowp,SNOW_ACM,2d,phy
+Snowfall bucket,tsnowpb,SNOW_BKT,2d,phy
+Accumulated graupel/sleet,frozr,acgraup,2d,phy,
+Graupel/sleet bucket,frozrb,graup_bucket,2d,phy,
+Accumulated freezing rain,frzr,acfrain,2d,phy,
+Freezing rain bucket,frzrb,frzrn_bucket,2d,phy,
+Time step snow (in m),snow,snownc,2d,phy,
+Time step graupel (in m),graupel,graupelnc,2d,phy,
+Aerodynamic conductance,acond,acond,2d,phy,
+Mid day avg albedo,albdo_ave,avgalbedo,2d,phy,
+Surface potential temperature,tmpsfc,ths,2d,phy,
+Foundation temperature,tref,fdnsst,2d,phy,
+Convective precip in m per physics time step,cpratb_ave,avgcprate,2d,phy,
+Convective precip - coninuous bucket,cprat_ave,avgcprate_cont,2d,phy,
+Average precip rate in m per physics time step,prateb_ave,avgprec,2d,phy,
+Average precip rate - continuous bucket,prate_ave,avgprec_cont,2d,phy,
+Precip rate,tprcp,prec,2d,phy,
+Convective precip rate,cnvprcp,cprate,2d,phy,
+Max hourly surface precip rate,pratemax,prate_max,2d,phy,
+Max hourly 1 km agl reflectivity,refdmax,refd_max,2d,phy,
+Max hourly -10C reflectivity,refdmax263k,refdm10c_max,2d,phy,
+Max hourly u comp of 10m agl wind,u10max,u10max,2d,phy,
+Max hourly v comp of 10m agl wind,v10max,v10max,2d,phy,
+Max hourly 10m agl wind speed,spd10max,wspd10max,2d,phy,
+Instantaneous snow water equivalent,weasd,sno,2d,phy,
+Average snow cover,snowc_ave,snoavg,2d,phy,
+Snow depth in mm,snod,si,2d,phy,
+2m temperature,tmp2m,tshltr,2d,phy,
+2m specific humidity,spfh2m,qshltr,2d,phy,
+Time-averaged column cloud fraction,tcdc_aveclm,avgtcdc,2d,phy,
+Maximum snow albedo,snoalb,mxsnal,2d,phy,
+Land fraction,lfrac,landfrac,2d,phy,
+Average high cloud fraction,tcdc_avehcl,avgcfrach,2d,phy,
+Average low cloud fraction,tcdc_avelcl,avgcfracl,2d,phy,
+Average mid cloud fraction,tcdc_avemcl,avgcfracm,2d,phy,
+Instantaneous convective cloud fraction,tcdccnvcl,cnvcfr,2d,phy,
+Slope type,sltyp,islope,2d,phy,
+Plant canopy sfc water in m,cnwat,cmc,2d,phy,
+Frozen precip fraction,cpofp,sr,2d,phy,
+Sea ice skin temperature,tisfc,ti,2d,phy,
+Vegetation fraction,veg,vegfrc,2d,phy,
+Liquid volumetric soil moisture,soill1/.../soill9,sh2o,2d,phy,all soil levels read into 3d array
+Volumetric soil moisture,soilw1/.../soilw9,smc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
+Soil temperature,soilt1/.../soilt9,stc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
+Time averaged incoming surface longwave,dlwrf_ave,alwin,2d,phy,
+Instantaneous incoming surface longwave,dlwrf,rlwin,2d,phy,
+Time averaged outgoing surface longwave,ulwrf_ave,alwout,2d,phy,
+Instataneous outgoing surface longwave,ulwrf,radot,2d,phy,
+Time average outgoing model top longwave,ulwrf_avetoa,alwtoa,2d,phy,
+Instantaneous outgoing model top longwave,ulwrf_toa,rlwtoa,2d,phy,
+Time averaged incoming surface shortwave,dswrf_ave,aswin,2d,phy,
+Instantaneous incoming surface shortwave,dswrf,rswin,2d,phy,
+Time averaged incoming sfc uv-b,duvb_ave,auvbin,2d,phy,
+Time averaged incoming sfc clear sky uv-b,cduvb_ave,auvbinc,2d,phy,
+Time averaged outgoing sfc shortwave,uswrf_ave,aswout,2d,phy,
+Inst outgoing sfc shortwave,uswrf,rswout,2d,phy,
+Time averaged model top incoming shortwave,dswrf_avetoa,aswintoa,2d,phy,
+Time averaged model top outgoing shortwave,uswrf_avetoa,aswtoa,2d,phy,
+Time averaged surface sensible heat flux,shtfl_ave,sfcshx,2d,phy,
+Inst surface sensible heat flux,shtfl,twbs,2d,phy,
+Time averaged surface latent heat flux,lhtfl_ave,sfclhx,2d,phy,
+Inst surface latent heat flux,lhtfl,qwbs,2d,phy,
+Time averaged ground heat flux,gflux_ave,subshx,2d,phy,
+Instantaneous ground heat flux,gflux,grnflx,2d,phy,
+Time averaged zonal momentum flux,uflx_ave,sfcux,2d,phy,
+Time averaged meridional momentum flux,vflx_ave,sfcvx,2d,phy,
+Instantaneous zonal momentum flux,uflx,sfcuxi,2d,phy,
+Instantaneous meridional momentum flux,vflx,sfcvxi,2d,phy,
+Time averaged zonal gravity wave stress,u-gwd_ave,gtaux,2d,phy,
+Time averaged meridional gravity wave stress,v-gwd_ave,gtauy,2d,phy,
+Time averaged accumulated potential evaporation,pevpr_ave,avgpotevp,2d,phy,
+Instantaneous potential evaporation,pevpr,potevp,2d,phy,
+10 m u-wind component,ugrd10m,u10,2d,phy,
+10 m v-wind component,vgrd10m,v10,2d,phy,
+Vegetation type,vtype,ivgtyp,2d,phy,
+Soil type,sotyp,isltyp,2d,phy,
+Soil moisture availability,wetness,smstav,2d,phy,not GFS
+Accumulated snow depth over land,snacc_land,for computing *sndepac*,2d,phy,
+Accumulated snow depth over ice,snacc_ice,for computing *sndepac*,2d,phy,
+Instantaneous convective cloud top pressure,prescnvclt,ptop,2d,phy,
+Instantaneous convective cloud bottom pressure,prescnvclb,pbot,2d,phy,
+Time averaged low cloud top pressure,pres_avelct,ptopl,2d,phy,
+Time averaged low cloud bottom pressure,pres_avelcb,pbotl,2d,phy,
+Time averaged low cloud top temperature,tmp_avelct,Ttopl,2d,phy,
+Time averaged middle cloud top pressure,pres_avemct,ptopm,2d,phy,
+Time averaged middle cloud bottom pressure,pres_avemcb,pbotm,2d,phy,
+Time averaged middle cloud top temperature,tmp_avemct,Ttopm,2d,phy,
+Time averaged high cloud top pressure,pres_avehct,ptoph,2d,phy,
+Time averaged high cloud bottom pressure,pres_avehcb,pboth,2d,phy,
+Time averaged high cloud top temperature,tmp_avehct,Ttoph,2d,phy,
+Boundary layer cloud cover,tcdc_avebndcl,pblcfr,2d,phy,
+Cloud work function,cwork_aveclm,cldwork,2d,phy,
+Accumulated total (base+surface) runoff,watr_acc,runoff,2d,phy,
+Total water storage in aquifer,wa_acc,twa,2d,phy,
+Accumulated evaporation of intercepted water,ecan_acc,tecan,2d,phy,
+Accumulated plant transpiration,etran_acc,tetran,2d,phy,
+Accumulated soil surface evaporation,edir_acc,tedir,2d,phy,
+Shelter max temperature,t02max,maxtshltr,2d,phy,not GFS
+Shelter max temperature,tmax_max2m,maxtshltr,2d,phy,GFS only
+Shelter min temperature,t02min,mintshltr,2d,phy,not GFS
+Shelter min temperature,tmin_min2m,mintshltr,2d,phy,GFS only
+Shelter max rh,rh02max,maxrhshltr,2d,phy,
+Shelter min rh,rh02min,minrhshltr,2d,phy,
+Shelter max specific humidity,spfhmax_max2m,maxqshltr,2d,phy,
+Shelter min specific humidity,spfhmin_min2m,minqshltr,2d,phy,
+Ice thickness,icetk,dzice,2d,phy,
+Wilting point,wilt,smcwlt,2d,phy,
+Sunshine duration,sunsd_acc,suntime,2d,phy,
+Field capacity,fldcp,fieldcapa,2d,phy,
+Time averaged surface visible beam downward solar flux,vbdsf_ave,avisbeamswin,2d,phy,
+Time averaged surface visible diffuse downward solar flux,vddsf_ave,avisdiffswin,2d,phy,
+Time averaged surface near ir beam downward solar flux,nbdsf_ave,airbeamswin,2d,phy,
+Time averaged surface near ir diffuse downward solar flux,nddsf_ave,airdiffswin,2d,phy,
+Time averaged surface clear sky outgoing lw,csulf,alwoutc,2d,phy,
+Time averaged toa clear sky outgoing lw,csulftoa,alwtoac,2d,phy,
+Time averaged surface clear sky outgoing sw,csusf,aswoutc,2d,phy,
+Time averaged toa clear sky outgoing sw,csusftoa,aswtoac,2d,phy,
+Time averaged surface clear sky incoming lw,csdlf,alwinc,2d,phy,
+Time averaged surface clear sky incoming sw,csdsf,aswinc,2d,phy,
+Storm runoff,ssrun_acc,SSROFF,2d,phy,
+Direct soil evaporation,evbs_ave,avgedir,2d,phy,
+Canopy water evaporation,evcw_ave,avgecan,2d,phy,
+Averaged precipitation advected heat flux,pah_ave,paha,2d,phy,
+Instantaneous precipitation advected heat flux,pahi,pahi,2d,phy,
+Plant transpiration,trans_ave,avgetrans,2d,phy,
+Snow sublimation,sbsno_ave,avgesnow,2d,phy,
+Total soil moisture,soilm,smstot,2d,phy,not GFS
+Snow phase change heat flux,snohf,snopcx,2d,phy,
+Precipitable water,pwat,pwat,2d,phy,
+Average ozone concentration,o3_ave,avgozcon,3d,dyn,aqf_on=True
+Average particulate matter (fine),pm25_ave,avgpmtf,3d,dyn,aqf_on=True
+Aerosol optical depth,aod,aqm_aod550,2d,phy,aqf_on=True
+Instantaneous aod550 optical depth,aod550,aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (dust),du_aod550,du_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (seasalt),ss_aod550,ss_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (sulfates),su_aod550,su_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (organic carbon),oc_aod550,oc_aod550,2d,phy,rdaod = True
+Instantaneous aod550 optical depth (black carbon),bc_aod550,bc_aod550,2d,phy,rdaod = True
+Dust (1-5),dust1/.../dust5,dust,3d,dyn,GOCART - all requested read into 4d array
+Sea salt (1-5),seas1/.../seas5,salt,3d,dyn,GOCART - all requested read into 4d array
+Black carbon,bc1/bc2,soot,3d,dyn,GOCART - all requested read into 4d array
+Organic carbon,oc1/oc2,waso,3d,dyn,GOCART - all requested read into 4d array
+Sulfate,sulf,suso,3d,dyn,gocart_on=True or gccpp_on=True
+Sulfate,so4,suso,3d,dyn,nasa_on=True
+Nitrate,no3an1/no3an2/no3an3,no3,3d,dyn,GOCART - all requested read into 4d array
+NH4,nh4a,nh4,3d,dyn,GOCART
+Particulate matter (PP25),pp25,pp25,3d,dyn,gocart_on=True
+Particulate matter (PM25),pm25,pp25,3d,dyn,nasa_on=True
+Particulate matter (PP10),pp10,pp10,3d,dyn,gocart_on=True
+Particulate matter (PM10),pm10,pp10,3d,dyn,nasa_on=True
+Dust emission fluxes (1-5),duem001/.../duem005,duem,2d,phy, all requested read into 3d array
+Dust sedimentation fluxes (1-5),dust1sd/.../dust5sd,dusd,2d, phy, all requested read into 3d array
+Dust dry deposition fluxes (1-5),dust1dp/.../dust5dp,dupd,2d,phy, all requested read into 3d array
+Dust wet deposition fluxes (1-5),dust1wtl/.../dust5wtl,duwt,2d,phy, all requested read into 3d array
+Dust scavenging fluxes (1-5),dust1wtc/.../dust5wtc,dusv,2d,phy, all requested read into 3d array
+Seasalt emission fluxes (1-5),ssem001/.../ssem005,ssem,2d,phy, all requested read into 3d array
+Seasalt **emission/sedimentation** fluxes (1-5),seas1sd/.../seas5sd,sssd,2d,phy, all requested read into 3d array
+Seasalt dry deposition fluxes (1-5),seas1dp/.../seas5dp,ssdp,2d,phy,all requested read into 3d array
+Seasalt wet deposition fluxes (1-5),seas1wtl/.../seas5wtl,sswt,2d,phy,all requested read into 3d array
+Seasalt scavenging fluxes (1-5),seas1wtc/.../seas5wtc,sssv,2d,phy,all requested read into 3d array
+Black carbon emission fluxes,bceman/bcembb,bcem,2d,phy,all requested read into 3d array
+Black carbon sedimentation fluxes,bc1sd/bc2sd,bcsd,2d,phy,all requested read into 3d array
+Black carbon dry deposition fluxes,bc1dp/bc2dp,bcdp,2d,phy,all requested read into 3d array
+Black carbon large wet deposition fluxes,bc1wtl/bc2wtl,bcwt,2d,phy,all requested read into 3d array
+Black carbon convective wet deposition fluxes,bc1wtc/bc2wtc,bcsv,2d,phy,all requested read into 3d array
+Organic carbon emission fluxes,oceman/ocembb,ocem,2d,phy,all requested read into 3d array
+Organic carbon sedimentation fluxes,oc1sd/oc2sd,ocsd,2d,phy,all requested read into 3d array
+Organic carbon dry deposition fluxes,oc1dp/oc2dp,ocdp,2d,phy,all requested read into 3d array
+Organic carbon large wet deposition fluxes,oc1wtl/oc2wtl,ocwt,2d,phy,all requested read into 3d array
+Organic carbon convective wet deposition fluxes,oc1wtc/oc2wtc,ocsv,2d,phy,all requested read into 3d array
+Mie-based aerosol optical depth,maod,maod,2d,phy,
