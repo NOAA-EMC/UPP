@@ -499,9 +499,9 @@
                            vtimeunits,modelname
     use gridspec_mod, only: maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
-                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
-                           g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,g2sec5_temp40,         &
-                           get_g2_sec5packingmethod       
+                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,         &
+                           g2sec4_temp48,g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,         &
+                           g2sec5_temp40,get_g2_sec5packingmethod       
     !use gdtsec3, only: getgdtnum
     implicit none
 !
@@ -544,6 +544,8 @@
     integer idrsnum,numcoord,ipdsnum
     integer scaled_val_fixed_sfc2,scale_fct_fixed_sfc1
     integer scaled_val_fixed_sfc1,scale_fct_fixed_sfc2
+    integer scale_fct_prob1,scaled_val_prob1
+    integer scale_fct_prob2,scaled_val_prob2 
     character(80) fixed_sfc2_type
     integer idec_scl,ibin_scl,ibmap,inumbits
     real    fldscl

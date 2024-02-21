@@ -931,6 +931,8 @@
    1   1   193   1 CPOFP
    1   1   194   1 PPFFG
    1   1   195   1 CWR
+   1   1   196   1 QPFARI
+   1   1   197   1 QPFFFG
 !
 ! GRIB2 - TABLE 4.2-1-2 PARAMETERS FOR DISCIPLINE 1 CATEGORY 2
 !
@@ -1112,6 +1114,7 @@
    2   4     9   0 INFSINX
    2   4    10   0 FBUPINX
    2   4    11   0 FDSRTE
+   2   4    26   0 WFIREPOT
 !
 !  Added new Discipline 2 category 5 in 8/26/2015
 !
