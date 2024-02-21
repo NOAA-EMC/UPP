@@ -2610,8 +2610,11 @@
            i,j,l,aextc55 ( i, j, l )
 
           ! J. Kenyon - 14 Feb 2024: Obtain the virtual potential
-          ! temperature (thv) from potential temperature and specific humidity.
-          thv (i,j,l) = t(i,j,l)*(q(i,j,l)*0.608+1.)
+          ! temperature (thv) from temperature and specific humidity.
+          thv(i,j,l) = ( t(i,j,l) * (p1000/pint(i,j,l))**CAPA ) & ! line 1: convert to temp to theta
+                      * ( 1. + 0.61*q(i,j,l)/(1.-q(i,j,l)) )      ! line 2: convert theta to theta-v;
+                                                                  !  note that the factor q/(1-q) converts
+                                                                  !  specific humidity (q) to mixing ratio 
 
          end do
         end do
@@ -2635,7 +2638,7 @@
               k1 = k
               if (thv(i,j,lm-k+1) > (thv(i,j,lm) + delta_theta4gust)) &
                 !--PBL top found, so exit from the do-loop.  The most recent 
-                !--k1 value is the first level  above the PBL top.
+                !--k1 value is the first level above the PBL top.
                 exit
             end do
 
