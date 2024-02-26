@@ -135,7 +135,6 @@
        <param>
        <shortname>BMIXL_ON_HYBRID_LVL</shortname>
        <pname>BMIXL</pname>
-       <table_info>NCEP</table_info>
        <level>1.</level>
        <scale>3.0</scale>
        </param>
@@ -432,7 +431,6 @@
        <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
        <pname>CNWAT</pname>
-       <table_info>NCEP</table_info>
         <scale>1.0</scale>
        </param>
 
@@ -1454,14 +1452,12 @@
        <param>
        <shortname>REFZR_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZR</pname>
-       <table_info>NCEP</table_info>
         <scale>-4.0</scale>
        </param>
 
        <param>
        <shortname>REFZI_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZI</pname>
-       <table_info>NCEP</table_info>
         <scale>-4.0</scale>
        </param>
 
@@ -1475,7 +1471,6 @@
        <param>
        <shortname>REFZR_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>REFZR</pname>
-       <table_info>NCEP</table_info>
        <level>4000. 1000.</level>
         <scale>-4.0</scale>
        </param>
@@ -1483,7 +1478,6 @@
        <param>
        <shortname>REFZI_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>REFZI</pname>
-       <table_info>NCEP</table_info>
        <level>4000. 1000.</level>
         <scale>-4.0</scale>
        </param>
@@ -2477,7 +2471,6 @@
        <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
        <pname>CNWAT</pname>
-       <table_info>NCEP</table_info>
         <scale>1.0</scale>
        </param>
 

@@ -617,7 +617,7 @@ BMIXL_ON_HYBRID_LVL
 1
 tmpl4_0
 BMIXL
-NCEP
+?
 ?
 hybrid_lvl
 0
@@ -2097,7 +2097,7 @@ CNWAT_ON_SURFACE
 1
 tmpl4_0
 CNWAT
-NCEP
+?
 ?
 surface
 0
@@ -7869,7 +7869,7 @@ REFZR_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFZR
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -7906,7 +7906,7 @@ REFZI_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFZI
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -7980,7 +7980,7 @@ REFZR_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 REFZR
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -8017,7 +8017,7 @@ REFZI_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 REFZI
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
