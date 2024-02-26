@@ -13,7 +13,7 @@ Analysis and Forecast System (HAFS), and the Medium-Range Weather (:term:`MRW`) 
 Applications.
 
 This software package can be run inline---built as a library to be used by the model---and offline---built 
-stand-alone and run separately from the model. This documentation largely details the offline
+standalone and run separately from the model. This documentation primarily details the offline
 procedures.
 
 =====================
