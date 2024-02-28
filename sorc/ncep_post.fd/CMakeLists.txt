@@ -135,6 +135,7 @@ list(APPEND GTG_LIB_SRC
   gtg_read_config.F90
   gtg_mlmodel.F90
   gtg_prob.F90
+  gtg_interp.F90
   gtg_ctlblk.F90
   gtg_filter.F90
   gtg_indices.F90

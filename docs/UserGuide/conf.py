@@ -32,7 +32,8 @@ release = ' '
 # ones.
 extensions = [
     'sphinx_rtd_theme',
-    'sphinx.ext.autosectionlabel'
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.intersphinx',
 ]
 autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 4
@@ -76,3 +77,15 @@ html_context = {}
 def setup(app):
     app.add_css_file('custom.css')  # may also be an URL
     app.add_css_file('theme_overrides.css')  # may also be an URL
+
+# -- Extension configuration -------------------------------------------------
+
+# -- Options for intersphinx extension ---------------------------------------
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {
+   'hpc-stack': ('https://hpc-stack-epic.readthedocs.io/en/develop/', None),
+   'spack-stack': ('https://spack-stack.readthedocs.io/en/develop/', None),
+   'ufs-wm': ('https://ufs-weather-model.readthedocs.io/en/develop/', None),
+   'srw': ('https://ufs-srweather-app.readthedocs.io/en/develop', None),
+}

@@ -45,7 +45,7 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
-!> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
+!> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -84,7 +84,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
               mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
-              snow_acm, snow_bkt, snownc, graupelnc, qrmax,                                     &
+              snow_acm, snow_bkt, snownc, graupelnc, qrmax, swddif, swddni, xlaixy,             &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -1637,7 +1637,7 @@
       end if
 
         tprec   = float(fhzero)
-!        if(ifhr>240)tprec=12.
+        if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
         trdsw   = tprec
@@ -2679,6 +2679,21 @@
       VarName='dswrf'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
+
+! inst incoming direct beam sfc shortwave
+      VarName='visbmdi'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,swddni)
+
+! inst incoming diffuse sfc shortwave
+      VarName='visdfdi'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,swddif)
+
+! leaf area index
+      VarName='xlaixy'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,xlaixy)
 
 ! inst incoming clear sky sfc shortwave
 ! FV3 do not output instant incoming clear sky sfc shortwave

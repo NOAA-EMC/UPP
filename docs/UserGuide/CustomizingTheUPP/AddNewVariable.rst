@@ -1,3 +1,5 @@
+.. _add-new-var:
+
 *********************
 Adding a New Variable
 *********************
@@ -7,18 +9,14 @@ Please keep in mind that it may not be an exhaustive step-by-step process depend
 While we can provide general assistance for adding a new variable, users should be aware that this
 requires good knowledge of Fortran and a thorough understanding of the code.
 
-NOAA UPP developers who wish to add new variables to the UPP should follow the following procedures:
+NOAA UPP developers who wish to add new variables to the UPP will need to:
 
-1.  Read and follow procedures on the `UPP wiki page <https://github.com/NOAA-EMC/UPP/wiki/UPP-Code-Development>`_
-    on how to contribute your code changes to the UPP main development branch. Doing so will ensure your changes are merged
+1.  Read and follow procedures on the `UPP wiki page <https://github.com/NOAA-EMC/UPP/wiki/UPP-Code-Development>`__ on how to contribute your code changes to the UPP main development branch. Doing so will ensure your changes are merged
     to the UPP development branch quickly.
 
-2.  Submit your pull request with small incremental changes. Advantages of doing this include avoiding
-    conflicts with other UPP developers in terms of using the UPP internal index and variables.
+2.  Submit your pull request with small incremental changes. Advantages of doing this include avoiding conflicts with other UPP developers in terms of using the UPP internal index and variables.
 
-3.  Please do not modify existing algorithms without coordinating with UPP code managers (Wen Meng and
-    Hui-Ya Chuang). UPP supports many NOAA operational models, and we can not change operational products
-    without coordination and advanced notice.
+3.  Please do not modify existing algorithms without coordinating with UPP code managers (Wen Meng and Hui-Ya Chuang). UPP supports many NOAA operational models, and we cannot change operational products without coordination and advanced notice.
 
 We encourage non-NOAA UPP developers to contact EPIC via
 `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_ to make them aware of modifications you
@@ -36,8 +34,8 @@ The following steps outline the process for adding a new variable. This descript
 example in :numref:`Section %s <add-var-example>` below.
 
 #. Check whether your new variable has been defined in the file ``parm/post_avblflds.xml`` in your UPP working
-   directory. This file defines all available GRIB2 fields in the UPP. Users may also check the table showing 
-   :doc:`UPP_GRIB2_Table_byID`.
+   directory. This file defines all available :term:`GRIB2` fields in the UPP. Users may also check the table showing 
+   :doc:`../tables/UPP_GRIB2_Table_byID`.
 
    A. If NO (not available in ``post_avblflds.xml``), check whether your new variable has been defined in the
       `NCEP Grib2 Table <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`__
@@ -59,16 +57,14 @@ example in :numref:`Section %s <add-var-example>` below.
             working directory.
 
          d. Non-NOAA users should coordinate through EPIC for the above three steps. Users may post a
-            `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions/categories/ideas>`__ 
+            `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions/categories/enhancements>`__ 
             topic and tag @FernandoAndrade-NOAA and @gspetro-NOAA for directions in steps a-c. 
 
-         e. Add a new entry in ``post_avblflds.xml`` with your new variable; then follow step B), then step 2)
-            and beyond. You should assign a new UPP ID for your new variable.
+         e. Add a new entry in ``post_avblflds.xml`` with your new variable; then follow step B below, then step 2 and beyond. You should assign a new UPP ID for your new variable.
 
       \ii. If YES (variable is available in the NCEP Grib2 Table):
 
-          a. Add a new entry in ``post_avblflds.xml`` with your new variable, then follow step B), then step 2)
-             and beyond. You should assign a new UPP ID for your new variable.
+          a. Add a new entry in ``post_avblflds.xml`` with your new variable, then follow step B below, then step 2 and beyond. You should assign a new UPP ID for your new variable.
 
    B. If YES (variable is in ``post_avblflds.xml``), then your new variable is already available in the UPP. 
       Follow steps i) and ii), make a test UPP run, and then look for your new variable in your output.
@@ -82,8 +78,7 @@ example in :numref:`Section %s <add-var-example>` below.
 
             /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
-         This flat file (instead of the xml file) is read in by the UPP because it is much faster to read a text file
-         than an xml file.
+         This flat file (instead of the xml file) is read in by the UPP because it is much faster to read a text file than an XML file.
 
 #. Allocate and initialize the field in ``sorc/ncep_post.fd/ALLOCATE_ALL.f``.
 
@@ -118,9 +113,7 @@ example in :numref:`Section %s <add-var-example>` below.
 Example Procedure: Steps for adding a new variable ‘TG3’
 ===========================================================
 
-This example adds TG3 to the UPP. TG3 is the averaged climatology of surface temperature, 
-which the land surface models (LSMs) use to specify bottom soil temperature, where the 
-depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
+This example adds TG3 to the UPP. TG3 is the averaged climatology of surface temperature, which the land surface models (LSMs) use to specify bottom soil temperature, where the depth of the bottom is LSM-dependent. For this example, a depth of 500cm is used.
 
 - This example illustrates adding a new variable from GFS output that will be read into UPP
   and directly output into the Grib2 output files (i.e., no additional computations/calculations
@@ -234,9 +227,10 @@ depth of the bottom is LSM dependent. For this example, a depth of 500cm is used
 
 2. Allocate and initialize the new variable in ``ALLOCATE_ALL.f`` using an example from the file.
    Note that the variables are defined based on the parallel processing capability of the UPP. 
+    
 
    User Procedure
-    - Allocate in the *VRBLS2D* GFS section of ``ALLOCATE_ALL.f`` as:
+    - TG3 is a 2-dimensional field, so allocate it in the :bolditalic:`VRBLS2D` GFS section of ``ALLOCATE_ALL.f`` as:
 
     ::
 
@@ -248,11 +242,11 @@ depth of the bottom is LSM dependent. For this example, a depth of 500cm is used
 
       tg3(i,j)=spval
 
-3. De-allocate the variable to give the resources back in ``DEALLOCATE.f``.
+3. Deallocate the variable to give the resources back in ``DEALLOCATE.f``.
    Updating this routine returns your resources to the system.
 
    User procedure
-    - Add in *VRBLS2D* GFS section of ``DEALLOCATE.f`` as:
+    - Add in :bolditalic:`VRBLS2D` GFS section of ``DEALLOCATE.f`` as:
       
     ::
 
@@ -279,8 +273,7 @@ depth of the bottom is LSM dependent. For this example, a depth of 500cm is used
 
      tg3
 
-    - Read in the new variable in the section for reading the 2D netCDF file using another 2D variable
-      as an example, such as ``hpbl``. Add as:
+    - Read in the new variable in the section for reading the 2D netCDF file. Look at other 2D variables, such as ``hpbl``, for an example. Add as:
       
     ::
 
@@ -335,7 +328,7 @@ depth of the bottom is LSM dependent. For this example, a depth of 500cm is used
 
 7. Build or rebuild the code for changes to take effect before running your UPP run script.
    
-   User procedure for building on pre-configured machines: 
+   User procedure for building on preconfigured machines: 
 
     ::
 
