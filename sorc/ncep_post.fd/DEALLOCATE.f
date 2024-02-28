@@ -166,6 +166,7 @@
       deallocate(shdmin)
       deallocate(shdmax)
       deallocate(lai)
+      deallocate(xlaixy)
       deallocate(acsnow)
       deallocate(acgraup)
       deallocate(acfrain)
