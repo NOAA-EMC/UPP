@@ -449,14 +449,12 @@
        <param>
        <shortname>SNOWC_ON_SURFACE</shortname>
        <pname>SNOWC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -789,14 +787,12 @@
        <param>
        <shortname>ACM_SSRUN_ON_SURFACE</shortname>
        <pname>SSRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>ACM_BGRUN_ON_SURFACE</shortname>
        <pname>BGRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>6.0</scale>
        </param>
 
@@ -1039,14 +1035,12 @@
        <param>
        <shortname>FRICV_ON_SURFACE</shortname>
        <pname>FRICV</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>CD_ON_SURFACE</shortname>
        <pname>CD</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -1078,7 +1072,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -1097,7 +1090,6 @@
        <param>
        <shortname>ACM_PEVAP_ON_SURFACE</shortname>
        <pname>PEVAP</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -1530,7 +1522,6 @@
        <param>
        <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLI</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
@@ -2471,7 +2462,6 @@
        <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2558,14 +2548,12 @@
        <param>
        <shortname>ACM_SSRUN_ON_SURFACE</shortname>
        <pname>SSRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>ACM_BGRUN_ON_SURFACE</shortname>
        <pname>BGRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2850,14 +2838,12 @@
        <param>
        <shortname>FRICV_ON_SURFACE</shortname>
        <pname>FRICV</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>CD_ON_SURFACE</shortname>
        <pname>CD</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2889,7 +2875,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2908,7 +2893,6 @@
        <param>
        <shortname>ACM_PEVAP_ON_SURFACE</shortname>
        <pname>PEVAP</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -3254,7 +3238,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -3446,7 +3429,6 @@
        <param>
        <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLI</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
@@ -3642,7 +3624,6 @@
        <param>
        <shortname>AVE_SNOWC_ON_SURFACE</shortname>
        <pname>SNOWC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 

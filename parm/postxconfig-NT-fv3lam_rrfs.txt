@@ -2208,7 +2208,7 @@ SNOWC_ON_SURFACE
 1
 tmpl4_0
 SNOWC
-NCEP
+?
 ?
 surface
 0
@@ -2245,7 +2245,7 @@ SFEXC_ON_SURFACE
 1
 tmpl4_0
 SFEXC
-NCEP
+?
 ?
 surface
 0
@@ -4095,7 +4095,7 @@ ACM_SSRUN_ON_SURFACE
 1
 tmpl4_8
 SSRUN
-NCEP
+?
 ACM
 surface
 0
@@ -4132,7 +4132,7 @@ ACM_BGRUN_ON_SURFACE
 1
 tmpl4_8
 BGRUN
-NCEP
+?
 ACM
 surface
 0
@@ -5538,7 +5538,7 @@ FRICV_ON_SURFACE
 1
 tmpl4_0
 FRICV
-NCEP
+?
 ?
 surface
 0
@@ -5575,7 +5575,7 @@ CD_ON_SURFACE
 1
 tmpl4_0
 CD
-NCEP
+?
 ?
 surface
 0
@@ -5760,7 +5760,7 @@ AVE_SNOHF_ON_SURFACE
 1
 tmpl4_8
 SNOHF
-NCEP
+?
 AVE
 surface
 0
@@ -5871,7 +5871,7 @@ ACM_PEVAP_ON_SURFACE
 1
 tmpl4_8
 PEVAP
-NCEP
+?
 ACM
 surface
 0
@@ -8313,7 +8313,7 @@ TCOLI_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 TCOLI
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -13657,7 +13657,7 @@ SFEXC_ON_SURFACE
 1
 tmpl4_0
 SFEXC
-NCEP
+?
 ?
 surface
 0
@@ -14175,7 +14175,7 @@ ACM_SSRUN_ON_SURFACE
 1
 tmpl4_8
 SSRUN
-NCEP
+?
 ACM
 surface
 0
@@ -14212,7 +14212,7 @@ ACM_BGRUN_ON_SURFACE
 1
 tmpl4_8
 BGRUN
-NCEP
+?
 ACM
 surface
 0
@@ -15692,7 +15692,7 @@ FRICV_ON_SURFACE
 1
 tmpl4_0
 FRICV
-NCEP
+?
 ?
 surface
 0
@@ -15729,7 +15729,7 @@ CD_ON_SURFACE
 1
 tmpl4_0
 CD
-NCEP
+?
 ?
 surface
 0
@@ -15914,7 +15914,7 @@ AVE_SNOHF_ON_SURFACE
 1
 tmpl4_8
 SNOHF
-NCEP
+?
 AVE
 surface
 0
@@ -16025,7 +16025,7 @@ ACM_PEVAP_ON_SURFACE
 1
 tmpl4_8
 PEVAP
-NCEP
+?
 ACM
 surface
 0
@@ -17838,7 +17838,7 @@ AVE_SNOHF_ON_SURFACE
 1
 tmpl4_8
 SNOHF
-NCEP
+?
 AVE
 surface
 0
@@ -18985,7 +18985,7 @@ TCOLI_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 TCOLI
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -20058,7 +20058,7 @@ AVE_SNOWC_ON_SURFACE
 1
 tmpl4_8
 SNOWC
-NCEP
+?
 AVE
 surface
 0
