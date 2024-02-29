@@ -47,6 +47,7 @@
 !> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
 !> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
 !> 2024-01-30 | A Jensen   | Comment out graupel precipitation warning. 
+!> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -99,7 +100,7 @@
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          frzrn_bucket, snow_acm, snow_bkt,                    &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa,IFI_APCP
+                         tecan,tetran,tedir,twa,IFI_APCP,xlaixy
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -6193,12 +6194,15 @@
 !     LEAF AREA INDEX
       IF (MODELNAME == 'NCAR'.OR.MODELNAME=='NMM' .OR. &
           MODELNAME == 'FV3R' .OR. MODELNAME=='RAPR')THEN
-      IF (iSF_SURFACE_PHYSICS == 2 .OR. MODELNAME=='RAPR') THEN
+      IF (iSF_SURFACE_PHYSICS == 2 .OR. MODELNAME=='FV3R' .OR. MODELNAME=='RAPR') THEN
         IF (IGET(254)>0) THEN
+              if (me==0)print*,'starting LAI'
               DO J=JSTA,JEND
               DO I=ISTA,IEND
                 IF (MODELNAME=='RAPR')THEN
                   GRID1(I,J)=LAI(I,J)
+                ELSE IF (MODELNAME=='FV3R')THEN
+                  GRID1(I,J)=XLAIXY(I,J)
                 ELSE
                   GRID1(I,J) = XLAI
               ENDIF
@@ -6277,7 +6281,7 @@
      & .OR. IGET(237)>0 .OR. IGET(238)>0             &
      & .OR. IGET(239)>0 .OR. IGET(240)>0             &
      & .OR. IGET(241)>0 ) THEN
-        IF (iSF_SURFACE_PHYSICS == 2) THEN    !NSOIL == 4
+        IF (iSF_SURFACE_PHYSICS == 2 .OR. iSF_SURFACE_PHYSICS == 3) THEN    !NSOIL == 4
 !          if(me==0)print*,'starting computing canopy conductance'
          allocate(rsmin(ista:iend,jsta:jend), smcref(ista:iend,jsta:jend), gc(ista:iend,jsta:jend), &
                   rcq(ista:iend,jsta:jend), rct(ista:iend,jsta:jend), rcsoil(ista:iend,jsta:jend), rcs(ista:iend,jsta:jend))
