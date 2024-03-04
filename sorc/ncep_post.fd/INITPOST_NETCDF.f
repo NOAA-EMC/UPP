@@ -45,6 +45,7 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
+!> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
 !> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !>
@@ -1640,7 +1641,7 @@
       end if
 
         tprec   = float(fhzero)
-        if(ifhr>240)tprec=12.
+        ! if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
         trdsw   = tprec
