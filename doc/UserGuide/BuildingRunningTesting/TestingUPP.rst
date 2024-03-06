@@ -33,7 +33,7 @@ To run the full regression test (RT) suite in preparation for opening a pull req
         
         The time it takes for tests to run is queue-dependent. RTs can take as little as half an hour to run, but on machines with long queue times, it can take several hours to complete the full set of tests. 
 
-   #. Check ``rt.log.<machine>/nohup.out`` for a short summary of any changes in results. The tests are finished when there are 16 timestamps and a final results summary. 
+   #. Check ``rt.log.<machine>/nohup.out`` for a short summary of any changes in results. The tests are finished when there are 16 timestamps and a final results summary (e.g., "No changes in test results detected."). 
 
       * The ``/work`` directory generated in ``UPP/ci`` contains ``out.post.<test_name>`` files, which list output from each test, including any unexpected errors during runtime. 
       * The ``/rundir`` directory generated within ``UPP/ci`` will include test case results, and ``.diff`` files located within each test's directory will outline changes in fields with the current baselines.
