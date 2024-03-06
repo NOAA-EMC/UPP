@@ -60,6 +60,7 @@
 !!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
 !!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
 !!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
+!!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -4047,9 +4048,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
             ENDIF
 !	    
-! CALCULATE Gust based on Ri PBL
+! Calculate 10-m wind gust based on PBL height (as diagnosed from either Ri or theta-v) 
       IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
-        IF(MODELNAME=='RAPR') THEN
+        IF (MODELNAME=='RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
              if(grib=='grib2') then
@@ -4087,7 +4088,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          loopL:DO L=NINT(LMH(I,J)),1,-1
-          IF(MODELNAME=='RAPR') THEN
+          IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
            HGT=ZMID(I,J,L)
            PBLHOLD=PBLHGUST(I,J)
           ELSE
@@ -4107,7 +4108,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
         ENDDO
        ENDDO
-       IF(MODELNAME=='RAPR') THEN
+       IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
         CALL CALGUST(LPBL,PBLHGUST,GUST)
        ELSE
         CALL CALGUST(LPBL,PBLRI,GUST)
