@@ -2393,7 +2393,7 @@ SNFALB_ON_SURFACE
 1
 tmpl4_0
 SNFALB
-NCEP
+?
 ?
 surface
 0
@@ -4798,7 +4798,7 @@ AVE_CDLYR_ON_ENTIRE_ATMOS
 1
 tmpl4_8
 CDLYR
-NCEP
+?
 AVE
 entire_atmos_single_lyr
 0
@@ -4946,7 +4946,7 @@ INST_USWRF_ON_SURFACE
 1
 tmpl4_0
 USWRF
-NCEP
+?
 ?
 surface
 0
@@ -5020,7 +5020,7 @@ AVE_DSWRF_ON_SURFACE
 1
 tmpl4_8
 DSWRF
-NCEP
+?
 AVE
 surface
 0
@@ -5057,7 +5057,7 @@ AVE_DLWRF_ON_SURFACE
 1
 tmpl4_8
 DLWRF
-NCEP
+?
 AVE
 surface
 0
@@ -5094,7 +5094,7 @@ AVE_USWRF_ON_SURFACE
 1
 tmpl4_8
 USWRF
-NCEP
+?
 AVE
 surface
 0
@@ -5168,7 +5168,7 @@ AVE_USWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_8
 USWRF
-NCEP
+?
 AVE
 top_of_atmos
 0
@@ -5316,7 +5316,7 @@ INST_DSWRF_ON_SURFACE
 1
 tmpl4_0
 DSWRF
-NCEP
+?
 ?
 surface
 0
@@ -5353,7 +5353,7 @@ INST_DLWRF_ON_SURFACE
 1
 tmpl4_0
 DLWRF
-NCEP
+?
 ?
 surface
 0
@@ -6426,7 +6426,7 @@ VWSH_ON_TROPOPAUSE
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 tropopause
 0
@@ -8868,7 +8868,7 @@ TCOLR_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 TCOLR
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -8905,7 +8905,7 @@ TCOLS_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 TCOLS
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -10237,7 +10237,7 @@ Updraft Helicity on Specified Height Level Above Ground
 1
 tmpl4_0
 UPHL
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -15137,7 +15137,7 @@ AVE_CDLYR_ON_ENTIRE_ATMOS
 1
 tmpl4_8
 CDLYR
-NCEP
+?
 AVE
 entire_atmos_single_lyr
 0
@@ -15174,7 +15174,7 @@ INST_USWRF_ON_SURFACE
 1
 tmpl4_0
 USWRF
-NCEP
+?
 ?
 surface
 0
@@ -15248,7 +15248,7 @@ AVE_DSWRF_ON_SURFACE
 1
 tmpl4_8
 DSWRF
-NCEP
+?
 AVE
 surface
 0
@@ -15285,7 +15285,7 @@ AVE_DLWRF_ON_SURFACE
 1
 tmpl4_8
 DLWRF
-NCEP
+?
 AVE
 surface
 0
@@ -15322,7 +15322,7 @@ AVE_USWRF_ON_SURFACE
 1
 tmpl4_8
 USWRF
-NCEP
+?
 AVE
 surface
 0
@@ -15396,7 +15396,7 @@ AVE_USWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_8
 USWRF
-NCEP
+?
 AVE
 top_of_atmos
 0
@@ -15470,7 +15470,7 @@ INST_DSWRF_ON_SURFACE
 1
 tmpl4_0
 DSWRF
-NCEP
+?
 ?
 surface
 0
@@ -15507,7 +15507,7 @@ INST_DLWRF_ON_SURFACE
 1
 tmpl4_0
 DLWRF
-NCEP
+?
 ?
 surface
 0
@@ -17653,7 +17653,7 @@ AVE_CDLYR_ON_ENTIRE_ATMOS
 1
 tmpl4_8
 CDLYR
-NCEP
+?
 AVE
 entire_atmos_single_lyr
 0
@@ -18171,7 +18171,7 @@ VWSH_ON_TROPOPAUSE
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 tropopause
 0
@@ -19022,7 +19022,7 @@ TCOLR_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 TCOLR
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -19059,7 +19059,7 @@ TCOLS_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 TCOLS
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
