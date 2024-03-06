@@ -2948,7 +2948,7 @@ RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC
 1
 tmpl4_0
 MSTAV
-NCEP
+?
 ?
 depth_bel_land_sfc
 0
@@ -13731,7 +13731,7 @@ RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC
 1
 tmpl4_0
 MSTAV
-NCEP
+?
 ?
 depth_bel_land_sfc
 0
