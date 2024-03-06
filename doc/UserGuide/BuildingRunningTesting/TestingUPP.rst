@@ -50,4 +50,4 @@ For repeated regression test runs, users can edit the ``rt.sh`` file and disable
 * ``w`` -- specify the work directory for test case job output
 * ``r`` -- specify the run directory containing baselines and ``.diff`` files for comparison of changes in results
 
-The following are legacy options for when ``rt.sh`` was not included within the UPP repository and may be ignored by developers: ``-b``, ``-u``, ``-c``
+The following are legacy options for when ``rt.sh`` was not included within the UPP repository and may be ignored by developers: ``-b``, ``-u``, ``-c``, ``-t``.
