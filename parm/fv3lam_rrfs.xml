@@ -3025,13 +3025,6 @@
        </param>
 
        <param>
-       <shortname>CNWAT_ON_SURFACE</shortname>
-       <pname>CNWAT</pname>
-       <table_info>NCEP</table_info>
-        <scale>1.0</scale>
-       </param>
-
-       <param>
        <shortname>INST_GFLUX_ON_SURFACE</shortname>
        <pname>GFLUX</pname>
        <table_info>NCEP</table_info>
