@@ -3,6 +3,8 @@
 .. role:: bolditalic
     :class: bolditalic
 
+.. _building-upp:
+
 *************************
 Building UPP Stand-Alone
 *************************
