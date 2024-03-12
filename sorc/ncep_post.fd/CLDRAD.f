@@ -1764,7 +1764,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  CLDP(I,J) = SPVAL
                  CLDZ(I,J) = SPVAL
                ELSE IF (IBOT <= NINT(LMH(I,J))) THEN
-                 CLDP(I,J) = PMID(I,J,IBOT)
+                    CLDP(I,J) = PMID(I,J,IBOT)
                  IF (IBOT == LM) THEN
                    CLDZ(I,J) = ZINT(I,J,LM)
                  ELSE

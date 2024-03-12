@@ -76,8 +76,8 @@
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
-              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
-              cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
+              tshltr, albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,&
+              sigt4,cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,    &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
               rswout, aswin, auvbin, auvbinc, aswout, aswtoa, sfcshx, sfclhx, subshx,           &
@@ -1794,6 +1794,11 @@
         enddo
       enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
+! sfc albedo
+      VarName='sfalb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,albedo)
+      if(debugprint)print*,'sample ',VarName,' = ',albedo(isa,jsa)
 
 ! surface potential T  using getgb
       VarName='tmpsfc'
