@@ -3,6 +3,8 @@
 .. role:: bolditalic
     :class: bolditalic
 
+.. _running-upp:
+
 ***********************
 Running UPP Stand-Alone
 ***********************

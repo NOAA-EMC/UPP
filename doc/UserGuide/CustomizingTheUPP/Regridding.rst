@@ -8,7 +8,7 @@ Users who wish to interpolate their UPP output to a different grid may do so wit
 
 *Wgrib2* is a versatile program that has the ability to convert grib2 files from one grid to another
 for various user-defined grids as well as predefined :term:`NCEP` grids. Complete documentation with examples
-of regridding for all available grid definitions can be found at: http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
+of regridding for all available grid definitions can be found at: https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
 
 .. _Examples-of-wgrib2:
 
@@ -125,4 +125,4 @@ the variable.
 
 .. note::
    *wgrib2* is not distributed as part of the :term:`UFS`, but it can be installed via :term:`spack-stack` or :term:`HPC-Stack` along with other UFS prerequisite software. 
-   Users may also download and install it directly from http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/. 
+   Users may also download and install it directly from https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/. 
