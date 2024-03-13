@@ -135,7 +135,6 @@
        <param>
        <shortname>BMIXL_ON_HYBRID_LVL</shortname>
        <pname>BMIXL</pname>
-       <table_info>NCEP</table_info>
        <level>1.</level>
        <scale>3.0</scale>
        </param>
@@ -438,7 +437,6 @@
        <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
        <pname>CNWAT</pname>
-       <table_info>NCEP</table_info>
         <scale>1.0</scale>
        </param>
 
@@ -451,14 +449,12 @@
        <param>
        <shortname>SNOWC_ON_SURFACE</shortname>
        <pname>SNOWC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -484,7 +480,6 @@
        <param>
        <shortname>SNFALB_ON_SURFACE</shortname>
        <pname>SNFALB</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -791,14 +786,12 @@
        <param>
        <shortname>ACM_SSRUN_ON_SURFACE</shortname>
        <pname>SSRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>ACM_BGRUN_ON_SURFACE</shortname>
        <pname>BGRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>6.0</scale>
        </param>
 
@@ -910,7 +903,6 @@
        <param>
        <shortname>AVE_CDLYR_ON_ENTIRE_ATMOS</shortname>
        <pname>CDLYR</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -935,7 +927,6 @@
        <param>
        <shortname>INST_USWRF_ON_SURFACE</shortname>
        <pname>USWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -948,21 +939,18 @@
        <param>
        <shortname>AVE_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>AVE_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>AVE_USWRF_ON_SURFACE</shortname>
        <pname>USWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -975,7 +963,6 @@
        <param>
        <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -1000,14 +987,12 @@
        <param>
        <shortname>INST_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>INST_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -1041,14 +1026,12 @@
        <param>
        <shortname>FRICV_ON_SURFACE</shortname>
        <pname>FRICV</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>CD_ON_SURFACE</shortname>
        <pname>CD</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -1080,7 +1063,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -1099,7 +1081,6 @@
        <param>
        <shortname>ACM_PEVAP_ON_SURFACE</shortname>
        <pname>PEVAP</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -1192,7 +1173,6 @@
        <param>
        <shortname>VWSH_ON_TROPOPAUSE</shortname>
        <pname>VWSH</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -1474,14 +1454,12 @@
        <param>
        <shortname>REFZR_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZR</pname>
-       <table_info>NCEP</table_info>
         <scale>-4.0</scale>
        </param>
 
        <param>
        <shortname>REFZI_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZI</pname>
-       <table_info>NCEP</table_info>
         <scale>-4.0</scale>
        </param>
 
@@ -1495,7 +1473,6 @@
        <param>
        <shortname>REFZR_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>REFZR</pname>
-       <table_info>NCEP</table_info>
        <level>4000. 1000.</level>
         <scale>-4.0</scale>
        </param>
@@ -1503,7 +1480,6 @@
        <param>
        <shortname>REFZI_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>REFZI</pname>
-       <table_info>NCEP</table_info>
        <level>4000. 1000.</level>
         <scale>-4.0</scale>
        </param>
@@ -1536,7 +1512,6 @@
        <param>
        <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLI</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
@@ -1613,14 +1588,12 @@
        <param>
        <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLR</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>TCOLS_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLS</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
@@ -1860,7 +1833,6 @@
        <param>
        <shortname>UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <pname>UPHL</pname>
-       <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
 
@@ -2477,7 +2449,6 @@
        <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2502,7 +2473,6 @@
        <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
        <pname>CNWAT</pname>
-       <table_info>NCEP</table_info>
         <scale>1.0</scale>
        </param>
 
@@ -2565,14 +2535,12 @@
        <param>
        <shortname>ACM_SSRUN_ON_SURFACE</shortname>
        <pname>SSRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>ACM_BGRUN_ON_SURFACE</shortname>
        <pname>BGRUN</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2756,14 +2724,12 @@
        <param>
        <shortname>AVE_CDLYR_ON_ENTIRE_ATMOS</shortname>
        <pname>CDLYR</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>INST_USWRF_ON_SURFACE</shortname>
        <pname>USWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2776,21 +2742,18 @@
        <param>
        <shortname>AVE_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>AVE_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>AVE_USWRF_ON_SURFACE</shortname>
        <pname>USWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2803,7 +2766,6 @@
        <param>
        <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2816,14 +2778,12 @@
        <param>
        <shortname>INST_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>INST_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2857,14 +2817,12 @@
        <param>
        <shortname>FRICV_ON_SURFACE</shortname>
        <pname>FRICV</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>CD_ON_SURFACE</shortname>
        <pname>CD</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2896,7 +2854,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -2915,7 +2872,6 @@
        <param>
        <shortname>ACM_PEVAP_ON_SURFACE</shortname>
        <pname>PEVAP</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -3066,13 +3022,6 @@
        <shortname>PRES_ON_TOP_OF_ATMOS</shortname>
        <pname>PRES</pname>
        <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>CNWAT_ON_SURFACE</shortname>
-       <pname>CNWAT</pname>
-       <table_info>NCEP</table_info>
-        <scale>1.0</scale>
        </param>
 
        <param>
@@ -3229,7 +3178,6 @@
        <param>
        <shortname>AVE_CDLYR_ON_ENTIRE_ATMOS</shortname>
        <pname>CDLYR</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -3261,7 +3209,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        </param>
 
@@ -3316,7 +3263,6 @@
        <param>
        <shortname>VWSH_ON_TROPOPAUSE</shortname>
        <pname>VWSH</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -3453,21 +3399,18 @@
        <param>
        <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLI</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLR</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>TCOLS_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLS</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
        </param>
 
@@ -3649,7 +3592,6 @@
        <param>
        <shortname>AVE_SNOWC_ON_SURFACE</shortname>
        <pname>SNOWC</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
