@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
@@ -53,6 +53,19 @@ exclude_patterns = []
 # The master toctree document.
 master_doc = 'index'
 
+# -- Linkcheck options -------------------------------------------------
+
+# Avoid a 403 Forbidden error when accessing certain links (e.g., noaa.gov)
+# Can be found using navigator.userAgent inside a browser console.
+user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+
+# Ignore working links that cause a linkcheck 403 error.
+linkcheck_ignore = []
+
+linkcheck_allowed_redirects = {r"https://github.com/JCSDA/crtm/wiki/.*/.*": 
+                                 r"https://raw.githubusercontent.com/wiki/JCSDA/crtm/.*/.*",
+                              }
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -60,9 +73,13 @@ master_doc = 'index'
 #
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = ["_themes", ]
+html_logo = 'https://github.com/ufs-community/ufs/wiki/images/ufs.png'
 
 # html_theme_options = {}
-html_theme_options = {"body_max_width": "none"}
+html_theme_options = {
+    "body_max_width": "none",
+    "navigation_depth": 6,
+    }
 
 # html_sidebar_options = {}
 html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
