@@ -44,14 +44,14 @@ case $(hostname -f) in
 
   gaea5[0-9]*)             MACHINE_ID=gaea-c5 ;; ### GAEA C5 login node
 
-  hfe01)                   MACHINE_ID=hera ;; ### hera01
-  hfe02)                   MACHINE_ID=hera ;; ### hera02
-  hfe03)                   MACHINE_ID=hera ;; ### hera03
-  hfe04)                   MACHINE_ID=hera ;; ### hera04
-  hfe05)                   MACHINE_ID=hera ;; ### hera05
-  hfe06)                   MACHINE_ID=hera ;; ### hera06
-  hfe07)                   MACHINE_ID=hera ;; ### hera07
-  hfe08)                   MACHINE_ID=hera ;; ### hera08
+  hfe01)                   MACHINE_ID=hera_c ;; ### hera01
+  hfe02)                   MACHINE_ID=hera_c ;; ### hera02
+  hfe03)                   MACHINE_ID=hera_c ;; ### hera03
+  hfe04)                   MACHINE_ID=hera_c ;; ### hera04
+  hfe05)                   MACHINE_ID=hera_c ;; ### hera05
+  hfe06)                   MACHINE_ID=hera_c ;; ### hera06
+  hfe07)                   MACHINE_ID=hera_c ;; ### hera07
+  hfe08)                   MACHINE_ID=hera_c ;; ### hera08
   hfe09)                   MACHINE_ID=hera ;; ### hera09
   hfe10)                   MACHINE_ID=hera ;; ### hera10
   hfe11)                   MACHINE_ID=hera ;; ### hera11
