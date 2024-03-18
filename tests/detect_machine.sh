@@ -7,15 +7,15 @@ case $(hostname -f) in
   dlogin0[1-9].dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dodwood
   clogin0[1-9].cactus.wcoss2.ncep.noaa.gov)  MACHINE_ID=wcoss2 ;; ### cactus
 
-  gaea5[1-8])                    MACHINE_ID=gaea ;; ### gaea9
-  gaea5[1-8].ncrc.gov)           MACHINE_ID=gaea ;; ### gaea9
+  gaea5[1-8])                    MACHINE_ID=gaea ;; ### gaea51-58
+  gaea5[1-8].ncrc.gov)           MACHINE_ID=gaea ;; ### gaea51-58
 
-  hfe0[1-8])                   MACHINE_ID=hera_c ;; ### hera01
+  hfe0[1-8])                   MACHINE_ID=hera_c ;; ### hera01-08
   hfe09)                       MACHINE_ID=hera ;; ### hera09
-  hfe1[0-2])                   MACHINE_ID=hera ;; ### hera10
+  hfe1[0-2])                   MACHINE_ID=hera ;; ### hera10-12
 
-  fe[1-4])                     MACHINE_ID=jet_c ;; ### jet01-4
-  fe[5-8])                     MACHINE_ID=jet ;; ### jet05-8
+  fe[1-4])                     MACHINE_ID=jet_c ;; ### jet1-4
+  fe[5-8])                     MACHINE_ID=jet ;; ### jet5-8
   tfe[12])                     MACHINE_ID=jet ;; ### tjet1-2
 
   Orion-login-[1-4].HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion1-4
