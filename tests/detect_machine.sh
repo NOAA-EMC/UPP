@@ -25,24 +25,8 @@ case $(hostname -f) in
   clogin08.cactus.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### cactus
   clogin09.cactus.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### cactus
 
-  gaea9)                   MACHINE_ID=gaea ;; ### gaea9
-  gaea10)                  MACHINE_ID=gaea ;; ### gaea10
-  gaea11)                  MACHINE_ID=gaea ;; ### gaea11
-  gaea12)                  MACHINE_ID=gaea ;; ### gaea12
-  gaea13)                  MACHINE_ID=gaea ;; ### gaea13
-  gaea14)                  MACHINE_ID=gaea ;; ### gaea14
-  gaea15)                  MACHINE_ID=gaea ;; ### gaea15
-  gaea16)                  MACHINE_ID=gaea ;; ### gaea16
-  gaea9.ncrc.gov)          MACHINE_ID=gaea ;; ### gaea9
-  gaea10.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea10
-  gaea11.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea11
-  gaea12.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea12
-  gaea13.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea13
-  gaea14.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea14
-  gaea15.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea15
-  gaea16.ncrc.gov)         MACHINE_ID=gaea ;; ### gaea16
-
-  gaea5[0-9]*)             MACHINE_ID=gaea-c5 ;; ### GAEA C5 login node
+  gaea5[1-8])                   MACHINE_ID=gaea ;; ### gaea9
+  gaea5[1-8].ncrc.gov)          MACHINE_ID=gaea ;; ### gaea9
 
   hfe01)                   MACHINE_ID=hera_c ;; ### hera01
   hfe02)                   MACHINE_ID=hera_c ;; ### hera02
