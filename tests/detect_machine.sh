@@ -44,23 +44,23 @@ case $(hostname -f) in
 
   gaea5[0-9]*)             MACHINE_ID=gaea-c5 ;; ### GAEA C5 login node
 
-  hfe01)                   MACHINE_ID=hera ;; ### hera01
-  hfe02)                   MACHINE_ID=hera ;; ### hera02
-  hfe03)                   MACHINE_ID=hera ;; ### hera03
-  hfe04)                   MACHINE_ID=hera ;; ### hera04
-  hfe05)                   MACHINE_ID=hera ;; ### hera05
-  hfe06)                   MACHINE_ID=hera ;; ### hera06
-  hfe07)                   MACHINE_ID=hera ;; ### hera07
-  hfe08)                   MACHINE_ID=hera ;; ### hera08
+  hfe01)                   MACHINE_ID=hera_c ;; ### hera01
+  hfe02)                   MACHINE_ID=hera_c ;; ### hera02
+  hfe03)                   MACHINE_ID=hera_c ;; ### hera03
+  hfe04)                   MACHINE_ID=hera_c ;; ### hera04
+  hfe05)                   MACHINE_ID=hera_c ;; ### hera05
+  hfe06)                   MACHINE_ID=hera_c ;; ### hera06
+  hfe07)                   MACHINE_ID=hera_c ;; ### hera07
+  hfe08)                   MACHINE_ID=hera_c ;; ### hera08
   hfe09)                   MACHINE_ID=hera ;; ### hera09
   hfe10)                   MACHINE_ID=hera ;; ### hera10
   hfe11)                   MACHINE_ID=hera ;; ### hera11
   hfe12)                   MACHINE_ID=hera ;; ### hera12
 
-  fe1)                     MACHINE_ID=jet ;; ### jet01
-  fe2)                     MACHINE_ID=jet ;; ### jet02
-  fe3)                     MACHINE_ID=jet ;; ### jet03
-  fe4)                     MACHINE_ID=jet ;; ### jet04
+  fe1)                     MACHINE_ID=jet_c ;; ### jet01
+  fe2)                     MACHINE_ID=jet_c ;; ### jet02
+  fe3)                     MACHINE_ID=jet_c ;; ### jet03
+  fe4)                     MACHINE_ID=jet_c ;; ### jet04
   fe5)                     MACHINE_ID=jet ;; ### jet05
   fe6)                     MACHINE_ID=jet ;; ### jet06
   fe7)                     MACHINE_ID=jet ;; ### jet07
