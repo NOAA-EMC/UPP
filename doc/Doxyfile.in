@@ -846,8 +846,8 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @abs_top_srcdir@/docs/user_guide.md \
-                       = @abs_top_srcdir@/docs/2D-decomp.md \
+INPUT                  = @abs_top_srcdir@/doc/user_guide.md \
+                         @abs_top_srcdir@/doc/2D-decomp.md \
                          @abs_top_srcdir@/sorc/ncep_post.fd \
                          @config_srcdir@
 
@@ -1007,7 +1007,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = @abs_top_srcdir@/docs/sp_user_guide.md
+USE_MDFILE_AS_MAINPAGE = @abs_top_srcdir@/doc/sp_user_guide.md
 
 # By default, all characters from position 72 are to be considered as comment.
 # This prevents Doxygen from recognizing certain variables as undocumented
