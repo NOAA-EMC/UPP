@@ -6,11 +6,6 @@
        implicit none
 !
       real, allocatable ::                                                   &
-!> U10 array 10-m u-component wind
-!> AKMS array Time-averaged wind exchange coefficient
-!> AKHS array Time-averaged mass exchange coefficient
-!> THS array Surface potential temperature
-!> QS array Specific humidity (2m/shelter level)
       U10   (:,:),AKMS  (:,:),AKHS  (:,:),THS   (:,:),QS(:,:)                &
       ,UZ0(:,:),VZ0(:,:),THZ0(:,:),QZ0(:,:)                                  &
       ,SNO   (:,:),TSHLTR   (:,:),QSHLTR(:,:), MRSHLTR(:,:)                  &

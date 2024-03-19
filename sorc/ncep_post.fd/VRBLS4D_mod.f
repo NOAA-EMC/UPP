@@ -1,3 +1,6 @@
+!> @file
+!> @brief module: VRBLS4D declares 4D variables that are used throughout
+!the UPP code
 !   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-04-17  BALDWIN  - MODIFIED TO INCLUDE ALL 3D ARRAYS
 !   11-10-18  SARAH LU - MODIFIED TO INCLUDE GOCART AEROSOLS
