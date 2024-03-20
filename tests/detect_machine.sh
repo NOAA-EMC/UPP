@@ -10,8 +10,8 @@ case $(hostname -f) in
   gaea5[1-8])                    MACHINE_ID=gaea ;; ### gaea51-58
   gaea5[1-8].ncrc.gov)           MACHINE_ID=gaea ;; ### gaea51-58
 
-  hfe0[1-8])                   MACHINE_ID=hera_c ;; ### hera01-08
-  hfe09)                       MACHINE_ID=hera ;; ### hera09
+  hfe0[1-4])                   MACHINE_ID=hera_c ;; ### hera01-04
+  hfe0[5-9])                   MACHINE_ID=hera ;; ### hera05-09
   hfe1[0-2])                   MACHINE_ID=hera ;; ### hera10-12
 
   fe[1-4])                     MACHINE_ID=jet_c ;; ### jet1-4
