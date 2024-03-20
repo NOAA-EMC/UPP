@@ -633,6 +633,22 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+       <shortname>HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <level>3000.</level>
+       <level2>0.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_SSRUN_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_SWDDNI_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
 
     <!--  comments wherever I like -->
   </paramset>
