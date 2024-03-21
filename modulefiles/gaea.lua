@@ -1,56 +1,34 @@
 help([[
   This module loads libraries required for building and running UPP
-  on the NOAA RDHPC machine Gaea using Intel-2022.0.2
+  on the NOAA RDHPC machine Gaea C5 using Intel-2023.1.0.
 ]])
 
 whatis([===[Loads libraries needed for building the UPP on Gaea ]===])
 
-load_any(pathJoin("cmake", os.getenv("cmake_ver") or "3.20.1"),"cmake")
+load("PrgEnv-intel/8.3.3")
+load("intel-classic/2023.1.0")
+load("cray-mpich/8.1.25")
+load("python/3.9.12")
 
-prepend_path("MODULEPATH","/lustre/f2/dev/role.epic/contrib/hpc-stack/intel-classic-2022.0.2/modulefiles/stack")
-load(pathJoin("hpc", os.getenv("hpc_ver") or "1.2.0"))
+prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/modulefiles")
 
-load(pathJoin("intel-classic", os.getenv("intel_classic_ver") or "2022.0.2"))
-load(pathJoin("cray-mpich", os.getenv("cray_mpich_ver") or "7.7.20"))
-load(pathJoin("hpc-intel-classic", os.getenv("hpc_intel_classic_ver") or "2022.0.2"))
-load(pathJoin("hpc-cray-mpich", os.getenv("hpc_cray_mpich_ver") or "7.7.20"))
-load(pathJoin("libpng", os.getenv("libpng_ver") or "1.6.37"))
+stack_intel_ver=os.getenv("stack_intel_ver") or "2023.1.0"
+load(pathJoin("stack-intel", stack_intel_ver))
 
--- Needed at runtime:
-load("alps")
+stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.25"
+load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
-local ufs_modules = {
-  {["jasper"]      = "2.0.25"},
-  {["zlib"]        = "1.2.11"},
-  {["libpng"]      = "1.6.37"},
-  {["hdf5"]        = "1.10.6"},
-  {["netcdf"]      = "4.7.4"},
-  {["pio"]         = "2.5.7"},
-  {["esmf"]        = "8.3.0b09"},
-  {["fms"]         = "2022.04"},
-  {["bacio"]       = "2.4.1"},
-  {["crtm"]        = "2.4.0"},
-  {["g2"]          = "3.4.5"},
-  {["g2tmpl"]      = "1.10.2"},
-  {["ip"]          = "3.3.3"},
-  {["sp"]          = "2.3.3"},
-  {["w3emc"]       = "2.9.2"},
-  {["gftl-shared"] = "v1.5.0"},
-  {["mapl"]        = "2.22.0-esmf-8.3.0b09"},
-  {["nemsio"]      = "2.5.4"},
-  {["sigio"]       = "2.3.2"},
-  {["sfcio"]       = "1.4.1"},
-  {["wrf_io"]      = "1.2.0"},
-}
+stack_python_ver=os.getenv("stack_python_ver") or "3.10.13"
+load(pathJoin("stack-python", stack_python_ver))
 
-for i = 1, #ufs_modules do
-  for name, default_version in pairs(ufs_modules[i]) do
-    local env_version_name = string.gsub(name, "-", "_") .. "_ver"
-    load(pathJoin(name, os.getenv(env_version_name) or default_version))
-  end
-end
+load("upp_common")
+
+unload("darshan-runtime")
+unload("cray-libsci")
 
 setenv("CC","cc")
-setenv("FC","ftn")
 setenv("CXX","CC")
+setenv("FC","ftn")
+
 setenv("CMAKE_Platform","gaea.intel")
