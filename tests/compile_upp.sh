@@ -79,11 +79,6 @@ fi
 PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 source ${PATHTR}/tests/detect_machine.sh
 
-if [[ $MACHINE_ID == "hera_c" ]]; then
-  echo "CentOS will soon be decommissioned on Hera, please utilize Rocky 8 Nodes (hfe05-9 + hfe10-12)."
-  exit 1
-fi
-
 #Load required modulefiles
 if [[ $MACHINE_ID != "unknown" ]]; then
    if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then

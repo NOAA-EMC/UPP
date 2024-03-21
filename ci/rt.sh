@@ -85,6 +85,7 @@ elif [ $mac3 = herc ] ; then
  module load stack-intel/2021.9.0
  module load stack-intel-oneapi-mpi/2021.9.0
  module load prod_util/2.1.1
+ module load stack-python/3.10.13
 fi
 
 #set working directory
