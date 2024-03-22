@@ -83,24 +83,12 @@ source ${PATHTR}/tests/detect_machine.sh
 if [[ $MACHINE_ID != "unknown" ]]; then
    if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
       module reset
-   elif [[ "$MACHINE_ID" =~ gaea.* ]] ; then
-      if [[ $( hostname ) =~ gaea5[0-9] ]] ; then
-         module purge
-         # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
-         gdb -ex 'call (int) unbind_variable("PELOCAL_PRGENV")' \
-             -ex 'call (int) unbind_variable("RCLOCAL_PRGENV")' \
-             --pid=$$ --batch
-         # Reload system default modules:
-         set +eu
-         source /etc/bash.bashrc.local
-         source /lustre/f2/dev/role.epic/contrib/Lmod_init.sh
-         set -eu
-      else
-         # There is no safe "module purge" on GAEA compute nodes.
-         set +eu
-         source /lustre/f2/dev/role.epic/contrib/Lmod_init.sh
-         set -eu
-      fi
+   elif [[ "$MACHINE_ID" =~ gaea* ]] ; then
+       module reset
+       # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
+       gdb -ex 'call (int) unbind_variable("PELOCAL_PRGENV")' \
+           -ex 'call (int) unbind_variable("RCLOCAL_PRGENV")' \
+           --pid=$$ --batch
    else
       module purge
    fi
