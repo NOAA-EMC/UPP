@@ -390,30 +390,6 @@
     </param>
 
     <param>
-       <shortname>AVE_CRAIN_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CSNOW_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CICEP_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CFRZR_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
        <shortname>AVE_PRATE_ON_SURFACE</shortname>
        <scale>6.0</scale>
     </param>
@@ -1074,12 +1050,6 @@
     </param>
 
     <param>
-       <shortname>ICEG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
-       <level>10.</level>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
        <shortname>SOTYP_ON_SURFACE</shortname>
        <scale>4.0</scale>
     </param>
@@ -1087,11 +1057,6 @@
     <param>
        <shortname>VEG_ON_SURFACE</shortname>
        <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>ICETMP_ON_SURFACE</shortname>
-       <scale>5.0</scale>
     </param>
 
     <param>
