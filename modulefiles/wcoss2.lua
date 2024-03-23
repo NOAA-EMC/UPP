@@ -13,8 +13,8 @@ load(pathJoin("cray-mpich", cray_mpich_ver))
 
 hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
 netcdf_ver=os.getenv("netcdf_ver") or "4.9.2"
-load(pathJoin("hdf5-B", hdf5_ver))
-load(pathJoin("netcdf-B", netcdf_ver))
+load(pathJoin("hdf5-A", hdf5_ver))
+load(pathJoin("netcdf-A", netcdf_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.25"
 libpng_ver=os.getenv("libpng_ver") or "1.6.37"
