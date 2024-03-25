@@ -3095,13 +3095,31 @@
           endif
         enddo
       enddo
+      VarName='snom_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='snom_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          if(buf(i,j)<spval) then
+            acsnom(i,j) = buf(i,j)
+          elseif(buf2(i,j)<spval) then
+            acsnom(i,j) = buf2(i,j)
+          else
+            acsnom(i,j) = spval
+          endif
+        enddo
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
 !          smstav(i,j) = spval    ! GFS does not have soil moisture availability
-!          smstot(i,j) = spval    ! GFS does not have total soil moisture
+          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          acsnom(i,j) = spval    ! GFS does not have snow melt
+!          acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
@@ -3534,9 +3552,9 @@
       spval,VarName,smstot)
 !     mask water areas
 !$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=ista,iend
-          if (sm(i,j) /= 0.0) smstot(i,j) = spval
+       do j=jsta,jend
+         do i=ista,iend
+           if (sm(i,j) /= 0.0) smstot(i,j) = spval
         enddo
       enddo
 

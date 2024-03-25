@@ -720,6 +720,32 @@
          endif
       ENDIF
 !
+!     TOTAL SOIL MOISTURE
+      IF (IGET(713)>0) THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+!             IF(SMSTOT(I,J)/=SPVAL) THEN
+               GRID1(I,J) = SMSTOT(I,J)
+!             ELSE
+!               GRID1(I,J) = SPVAL
+!             ENDIF
+           ENDDO
+         ENDDO
+         if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(713))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+            ii = ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+         endif
+      ENDIF
+!
 !     PLANT CANOPY SURFACE WATER.
       IF ( IGET(118)>0 ) THEN
         IF(MODELNAME == 'RAPR') THEN
