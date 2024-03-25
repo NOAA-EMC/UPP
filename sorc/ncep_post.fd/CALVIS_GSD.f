@@ -360,7 +360,7 @@
         endif
 
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
-        VIS(I,J)=MIN(90.,CONST1/(BETAV+extcof55(i,j,lm)))      ! max of 90km
+        VIS(I,J)=MIN(90.,CONST1/BETAV)      ! max of 90km
 
         if (vis(i,j)<vis_min) vis_min = vis(i,j)
         if (visrh<visrh_min) visrh_min = visrh

@@ -3118,9 +3118,9 @@
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
 !          smstav(i,j) = spval    ! GFS does not have soil moisture availability
-!          smstot(i,j) = spval    ! GFS does not have total soil moisture
+          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          acsnom(i,j) = spval    ! GFS does not have snow melt
+!          acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
