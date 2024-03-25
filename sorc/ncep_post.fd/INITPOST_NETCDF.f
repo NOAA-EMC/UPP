@@ -48,6 +48,7 @@
 !> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
 !> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
+!> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -3117,9 +3118,9 @@
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
 !          smstav(i,j) = spval    ! GFS does not have soil moisture availability
-          smstot(i,j) = spval    ! GFS does not have total soil moisture
+!          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-!          acsnom(i,j) = spval    ! GFS does not have snow melt
+          acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length

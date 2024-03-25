@@ -48,6 +48,7 @@
 !> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
 !> 2024-01-30 | A Jensen   | Comment out graupel precipitation warning. 
 !> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
+!> 2024-03-25 | E James    | Enabling output of column integrated soil moisture.
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
