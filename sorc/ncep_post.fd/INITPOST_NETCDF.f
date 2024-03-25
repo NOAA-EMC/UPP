@@ -3552,9 +3552,9 @@
       spval,VarName,smstot)
 !     mask water areas
 !$omp parallel do private(i,j)
-       do j=jsta,jend
-         do i=ista,iend
-           if (sm(i,j) /= 0.0) smstot(i,j) = spval
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) smstot(i,j) = spval
         enddo
       enddo
 
