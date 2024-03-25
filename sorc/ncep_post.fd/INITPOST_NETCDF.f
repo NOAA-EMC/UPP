@@ -48,6 +48,7 @@
 !> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
 !> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
+!> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
 !> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
@@ -2248,6 +2249,9 @@
          SLLEVEL(8) = 1.6
          SLLEVEL(9) = 3.0
        END IF
+     
+      Status=nf90_inq_varid(ncid2d,'zsoil',varid)
+      if(Status/=0)then !read soil avriables in 2D
  
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill1'
@@ -2596,6 +2600,18 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
+   
+     else !read soil variables in 3D
+       VarName='soilt'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,stc(ista_2l,jsta_2l,1),nsoil)
+       VarName='soilw'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,smc(ista_2l,jsta_2l,1),nsoil)
+       VarName='soill'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,sh2o(ista_2l,jsta_2l,1),nsoil)
+     endif
 
       if (modelname == 'FV3R') then
        do l = 1, lm
