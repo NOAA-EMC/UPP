@@ -6600,6 +6600,15 @@
     </param>
 
     <param>
+       <post_avblfldidx>713</post_avblfldidx>
+       <shortname>CISOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>CISOILM</pname>
+       <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>719</post_avblfldidx>
        <shortname>INST_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>

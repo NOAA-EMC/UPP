@@ -399,8 +399,8 @@
        </param>
 
        <param>
-       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILMOI</pname>
+       <shortname>CISOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>CISOILM</pname>
        <scale>3.0</scale>
        </param>
 
@@ -2411,8 +2411,8 @@
        </param>
 
        <param>
-       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILMOI</pname>
+       <shortname>CISOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>CISOILM</pname>
        <scale>3.0</scale>
        </param>
 
@@ -2541,6 +2541,12 @@
        <param>
        <shortname>ACM_BGRUN_ON_SURFACE</shortname>
        <pname>BGRUN</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>ACM_SNOM_ON_SURFACE</shortname>
+       <pname>SNOM</pname>
        <scale>4.0</scale>
        </param>
 
