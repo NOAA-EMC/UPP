@@ -38,7 +38,7 @@ PROJECT_NAME           = UPP
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = @PROJECT_VERSION@
+PROJECT_NUMBER         = v11.0.0
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -846,10 +846,10 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @abs_top_srcdir@/doc/user_guide.md \
-                         @abs_top_srcdir@/doc/2D-decomp.md \
-                         @abs_top_srcdir@/sorc/ncep_post.fd \
-                         @config_srcdir@
+INPUT                  = /work/noaa/epic/gpetro/UPP/doc/user_guide.md \
+                         /work/noaa/epic/gpetro/UPP/doc/2D-decomp.md \
+                         /work/noaa/epic/gpetro/UPP/sorc/ncep_post.fd \
+                         /work/noaa/epic/gpetro/UPP
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1007,7 +1007,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = @abs_top_srcdir@/doc/sp_user_guide.md
+USE_MDFILE_AS_MAINPAGE = /work/noaa/epic/gpetro/UPP/doc/sp_user_guide.md
 
 # By default, all characters from position 72 are to be considered as comment.
 # This prevents Doxygen from recognizing certain variables as undocumented
