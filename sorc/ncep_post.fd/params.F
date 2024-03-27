@@ -1,10 +1,11 @@
+!> @file
+!> @brief module: params_mod defines physical constants and smoothing
+!coefficients
 module params_mod
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
-! file: params.f
-! defines physical constants and smoothing coefficients
 ! last update: 09/06/2006
 !
 !     SMOOTHING PARAMETERS.

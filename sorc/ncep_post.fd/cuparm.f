@@ -1,3 +1,5 @@
+!> @file
+!> @brief module: cuparm_mod defines _____?
   module cuparm_mod
 !
     implicit none

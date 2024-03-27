@@ -1,3 +1,6 @@
+!> @file
+!> @brief module: upp_ifi_mod declares variables used in the in-flight icing
+!(IFI) routines 
 module upp_ifi_mod
 
 #ifdef USE_IFI

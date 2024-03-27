@@ -1,3 +1,6 @@
+!> @file
+!> @brief module: physcons_post declares physical constants used throughout UPP
+!code
 module physcons_post
   use machine_post,only:kind_phys
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

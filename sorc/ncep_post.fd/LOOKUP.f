@@ -1,3 +1,5 @@
+!> @file
+!> @brief module: lookup_mod defines _____???
   module  lookup_mod
 !
   implicit none

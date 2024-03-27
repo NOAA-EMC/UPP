@@ -1,3 +1,5 @@
+!> @file
+!> @brief module: wrf_io_flags declares variables related to WRF input/output
     module wrf_io_flags_mod
       implicit none
       integer, parameter  :: WRF_FILE_NOT_OPENED                  = 100

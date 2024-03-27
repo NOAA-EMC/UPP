@@ -1,3 +1,6 @@
+!> @file
+!> @brief module: svptbl declares variables related to saturation vapor pressure
+!tables
    module svptbl_mod
 !---------------------------------------------------------------------
 

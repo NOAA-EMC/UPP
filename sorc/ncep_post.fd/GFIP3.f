@@ -1367,6 +1367,7 @@ contains
 
   ! -0.5 1.0, 0.0 0.0
 !> vv_map() @memberof SeverityMaps
+!> @return mapping of vertical velocity
   real function vv_map(v)
     implicit none
     real, intent(in) :: v

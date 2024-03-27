@@ -1,3 +1,5 @@
+!> @file
+!> @brief module: soil declares soil-related variables
       module soil
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
