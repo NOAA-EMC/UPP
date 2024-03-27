@@ -1705,7 +1705,7 @@
 !>
 !> @param[in] T real Temperature
 !> @param[in] Q real Specific humidity
-!> 
+!> @return virtual temperature
 !
       IMPLICIT NONE
       REAL TVIRTUAL
@@ -3065,7 +3065,7 @@
       END SUBROUTINE CALSLR_ROEBBER
 !
 !-------------------------------------------------------------------------------------
-!
+!> @brief breadboard1_main() _____ ???
       SUBROUTINE breadboard1_main(nswFileName,mf,f1,f2,f3,f4,f5,f6,p1,p2,p3)
 
       implicit none

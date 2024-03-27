@@ -1,7 +1,7 @@
         module xml_perl_data
 !------------------------------------------------------------------------
-!
-! This module read in Perl XML processed flat file and 
+!> @file 
+!> @brief module:  This module read in Perl XML processed flat file and 
 !   handle parameter marshalling for existing POST program
 !
 ! program log:
@@ -97,6 +97,7 @@
           type (post_avblfld_t),save               :: post_avblflds
 !> @}
         contains
+!> @brief read_postxconfig(): reads in and processes the postxconfig file
         subroutine read_postxconfig()
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml
@@ -320,7 +321,8 @@
 
         end subroutine read_postxconfig
 
-
+!> @brief filter_char_inp() checks parameter set to see whether "?" is found and, 
+!  if so, replaces it with an empty string because it means no input.  _____? 
         subroutine filter_char_inp (inpchar)
           implicit none
           character, intent(inout)    :: inpchar
