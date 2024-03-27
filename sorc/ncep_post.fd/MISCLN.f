@@ -1,4 +1,5 @@
 !> @file
+!> @brief MISCLN posts miscellaneous fields
 !
 !> SUBPROGRAM:    MISCLN      POSTS MISCELLANEOUS FIELDS
 !!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-20
@@ -4602,7 +4603,7 @@
 !     
       RETURN
    CONTAINS
-
+!> @brief allocate_cape_arrays - store CAPE in arrays
      subroutine allocate_cape_arrays
        if(.not.allocated(OMGBND))  allocate(OMGBND(ista:iend,jsta:jend,NBND))
        if(.not.allocated(PWTBND))  allocate(PWTBND(ista:iend,jsta:jend,NBND))

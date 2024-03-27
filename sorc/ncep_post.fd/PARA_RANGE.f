@@ -1,8 +1,6 @@
 !> @file
 !> @brief para_range() sets up decomposition values.
 !>
-!> This subroutine sets up decomposition values.
-!>
 !> @param[in] N1 First interate value.
 !> @param[in] N2 Last interate value.
 !> @param[in] NPROCS Number of MPI tasks.
@@ -41,6 +39,8 @@
       return
       end
 !!
+!> @brief para_range2() _____?
+!> @return _____?
 !! USAGE:    CALL PARA_RANGE2(N1,N2,NX,NY,NRANK,ISTA,IEND,JSTA,JEND)(A)
 !!   INPUT ARGUMENT LIST:
 !!     N1 - LAAT INTERATE VALUE I dimension
