@@ -1178,6 +1178,7 @@ contains
 ! scenario dependant
 !-----------------------------------------------------------------------+
 !> twp_map() @memberof SeverityMaps
+!> @return twp_map Total water path map
   real function twp_map(v, scenario)
     implicit none
     real, intent(in) :: v
@@ -1209,6 +1210,7 @@ contains
 
   ! Only precip below warmnose has a different temperature map
   !> t_map() @memberof SeverityMaps
+  !> @return t_map Temperature map
   real function t_map(v, scenario)
     implicit none
     real, intent(in) :: v
@@ -1255,6 +1257,7 @@ contains
 
   ! Condensates near the surface take place of radar reflectivity in CIP
   !> prcpcondensate_map() @memberof SeverityMaps
+  !> @return prcpcondensate_map Mapping of condensates near the surface
   real function prcpCondensate_map(v, scenario)
     implicit none
     real, intent(in) :: v
@@ -1296,6 +1299,7 @@ contains
   end function prcpCondensate_map
 
   !> deltaz_map() @memberof SeverityMaps
+  !> @return deltaz_map _____?
   real function deltaZ_map(v, scenario)
     implicit none
     real, intent(in) :: v
@@ -1347,6 +1351,7 @@ contains
   ! 223.15 0.8, 233.15 0.7446, 243.15 0.5784, 253.15 0.3014
   ! 261.15 0.0, 280.15 0.0, 280.151 1.0
 !> ctt_map() @memberof SeverityMaps
+!> @return ctt_map _____?
   real function ctt_map(v)
     implicit none
     real, intent(in) :: v
@@ -1384,6 +1389,7 @@ contains
   ! cloud top distance
   ! 609.6 1.0, 3048.0 0.0
 !> cldTopDist_map() @memberof SeverityMaps
+!> @return cldTopDist_map Cloud top distance map
   real function cldTopDist_map(v)
     implicit none
     real, intent(in) :: v
@@ -1400,6 +1406,7 @@ contains
   ! cloud base distance
   ! 304.8 1.0, 1524.0 0.0
 !> cldBaseDist_map() @memberof SeverityMaps
+!> @return cldBaseDist_map Cloud base distance map
   real function cldBaseDist_map(v)
     implicit none
     real, intent(in) :: v
@@ -1414,6 +1421,7 @@ contains
 
 ! 0.0 0.0, 1.0 1.0
 !> deltaQ_map() @memberof SeverityMaps
+!> @return deltaQ_map Map of change in specific humidity
   real function deltaQ_map(v)
     implicit none
     real, intent(in) :: v
@@ -1427,6 +1435,7 @@ contains
   end function deltaQ_map
 
 !> moisture_map_cond() @memberof SeverityMaps
+!> @return moisture_map_cond Condensate moisture map
   real function moisture_map_cond(rh, liqCond, iceCond, pres, t)
     IMPLICIT NONE
     real, intent(in) :: rh, liqCond, iceCond, pres, t
@@ -1443,6 +1452,7 @@ contains
 
 ! If not identify liquid/ice condensate
 !> moisture_map_cwat() @memberof SeverityMaps
+!> @return moisture_map_cwat Cloud water moisture map
   real function moisture_map_cwat(rh, cwat, pres, t)
     IMPLICIT NONE
     real, intent(in) :: rh, cwat, pres, t
@@ -1458,6 +1468,7 @@ contains
 ! only called by moisture_map
 ! 70.0 0.0, 100.0 1.0
 !> rh_map() @memberof SeverityMaps
+!> @return rh_map Relative humidity moisture map
   real function rh_map(v)
     implicit none
     real, intent(in) :: v
@@ -1473,6 +1484,7 @@ contains
 ! only called by moisture_map
 ! 0.00399 0.0, 0.004 0.0, 0.2 1.0
 !> condensate_map() @memberof SeverityMaps
+!> @return condensate_map() Condensate map
   real function condensate_map(v)
     implicit none
     real, intent(in) :: v
@@ -1493,6 +1505,7 @@ contains
   ! 243.150 0.0, 265.15 1.0, 269.15 1.0, 270.15 0.87
   ! 271.15 0.71, 272.15 0.50, 273.15 0.0
   !> convect_t_map() @memberof SeverityMaps
+  !> @return convect_t_map _____?
   real function convect_t_map(v)
     implicit none
     real, intent(in) :: v
@@ -1518,6 +1531,7 @@ contains
 
    ! 1.0 0.0, 3.0 1.0
    !> convect_qpf_map() @memberof SeverityMaps
+   !> @return convect_qpf_map _____?
    real function convect_qpf_map(v)
      implicit none
      real, intent(in) :: v
@@ -1532,6 +1546,7 @@ contains
 
    ! 1000.0 0.0, 2500.0 1.0
    !> convect_cape_map() @memberof SeverityMaps
+   !> @return convect_cape_map _____?
    real function convect_cape_map(v)
      implicit none
      real, intent(in) :: v
@@ -1548,6 +1563,7 @@ contains
 
    ! -10.0 1.0, 0.0 0.0
    !> convect_liftedIdx_map() @memberof SeverityMaps
+   !> @return convect_liftedIdx_map _____?
    real function convect_liftedIdx_map(v)
      implicit none
      real, intent(in) :: v
@@ -1563,6 +1579,7 @@ contains
 
    ! 20.0 0.0, 40.0 1.0
    !> convectkIdx_map() @memberof SeverityMaps
+   !> @return convectkIdx_map _____?
    real function convect_kIdx_map(v)
      implicit none
      real, intent(in) :: v
@@ -1577,6 +1594,7 @@ contains
 
    ! 20.0 0.0, 55.0 1.0
    !> convect_totals_map() @memberof SeverityMaps
+   !> @return convect_totals_map _____?
    real function convect_totals_map(v)
      implicit none
      real, intent(in) :: v
