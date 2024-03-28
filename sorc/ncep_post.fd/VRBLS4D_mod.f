@@ -9,17 +9,17 @@
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
-      real, allocatable :: DUST(:,:,:,:)        ! dust
-      real, allocatable :: SALT(:,:,:,:)        ! sea salt
-      real, allocatable :: SOOT(:,:,:,:)        ! black carbon
-      real, allocatable :: WASO(:,:,:,:)        ! organic carbon
-      real, allocatable :: SUSO(:,:,:,:)        ! sulfate
-      real, allocatable :: NO3(:,:,:,:)         ! no3
-      real, allocatable :: NH4(:,:,:,:)         ! nh4
-      real, allocatable :: SMOKE(:,:,:,:)
-      real, allocatable :: FV3DUST(:,:,:,:)
-      real, allocatable :: COARSEPM(:,:,:,:)
-      real, allocatable :: PP25(:,:,:,:)        ! PP25
-      real, allocatable :: PP10(:,:,:,:)        ! PP10
+      real, allocatable :: DUST(:,:,:,:)        !< dust
+      real, allocatable :: SALT(:,:,:,:)        !< sea salt
+      real, allocatable :: SOOT(:,:,:,:)        !< black carbon
+      real, allocatable :: WASO(:,:,:,:)        !< organic carbon
+      real, allocatable :: SUSO(:,:,:,:)        !< sulfate
+      real, allocatable :: NO3(:,:,:,:)         !< no3
+      real, allocatable :: NH4(:,:,:,:)         !< nh4
+      real, allocatable :: SMOKE(:,:,:,:)       !< smoke 
+      real, allocatable :: FV3DUST(:,:,:,:)     !< FV3 dust 
+      real, allocatable :: COARSEPM(:,:,:,:)    !< coarse particulate matter (PM)
+      real, allocatable :: PP25(:,:,:,:)        !< PP25 - fine particulate matter
+      real, allocatable :: PP10(:,:,:,:)        !< PP10 - particulate matter < 10 microns in diameter
 !
       end module vrbls4d
