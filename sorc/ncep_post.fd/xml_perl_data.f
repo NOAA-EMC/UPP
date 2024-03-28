@@ -1,7 +1,7 @@
         module xml_perl_data
 !------------------------------------------------------------------------
 !> @file 
-!> @brief module:  This module read in Perl XML processed flat file and 
+!> @brief module:  This module reads in Perl XML processed flat file and 
 !   handle parameter marshalling for existing POST program
 !
 ! program log:
@@ -59,7 +59,11 @@
 	    character(len=20)                    :: stat_unit_time_key_succ=''
 	    character(len=20)                    :: bit_map_flag=''
           end type param_t
+!> @}
 
+!> @ingroup xml_perl_data_mod
+!> @{ Parameters that are used to read in Perl XML processed flat file
+!> and handle parameter marshalling for existing POST program.
           type paramset_t
 	    character(len=6)                     :: datset=''
 	    integer                              :: grid_num=255
