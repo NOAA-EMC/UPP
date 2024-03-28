@@ -149,14 +149,10 @@ endif()
 list(APPEND LIB_SRC ${GTG_LIB_SRC})
 
 list(APPEND EXE_SRC
-    ASSIGNNEMSIOVAR.f
-    GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS_NEMS_MPIIO.f
-    INITPOST_NEMS.f
     INITPOST_NETCDF.f
-    WRFPOST.f
+    WRFPOST.F
     getIVariableN.f
     getVariable.f
     getlvls.f
@@ -169,6 +165,14 @@ list(APPEND EXE_SRC
 if(NOT wrf_io_FOUND)
   list(APPEND EXE_SRC
     io_int_stubs.f)
+endif()
+
+if(BUILD_WITH_NEMSIO)
+  list(APPEND EXE_SRC
+    ASSIGNNEMSIOVAR.f
+    GETNEMSNDSCATTER.f
+    INITPOST_GFS_NEMS_MPIIO.f
+    INITPOST_NEMS.f)
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
@@ -234,7 +238,6 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    nemsio::nemsio
     w3emc::w3emc_4
     sp::sp_4
     sfcio::sfcio
@@ -243,6 +246,11 @@ if(BUILD_POSTEXEC)
   if(IFI_FOUND)
     target_link_libraries(${EXENAME} PRIVATE IFI)
     target_link_libraries(${EXENAME} PRIVATE tdrp)
+  endif()
+  if(BUILD_WITH_NEMSIO)
+    target_link_libraries(${EXENAME} PRIVATE
+      nemsio::nemsio)
+    target_compile_definitions(${EXENAME} PRIVATE BUILD_WITH_NEMSIO)
   endif()
   if(wrf_io_FOUND)
     target_link_libraries(${EXENAME} PRIVATE
