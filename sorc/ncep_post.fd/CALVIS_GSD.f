@@ -92,12 +92,14 @@
 !   2021-08        Wen Meng  - Restrict divided by 0.
 !   2021-10        Jesse Meng - 2D DECOMPOSITION
 !   2023-11        Tim Corrie, Eric James - addition of attenuation for blowing snow
+!   2024-03        Eric James - removal of extcof55 factor in visibility
+!                               calculation (extcof55 is all zeroes)
 !                           
 !------------------------------------------------------------------
 !
 
       use vrbls2d, only: sno, si, ustar
-      use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
+      use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, aextc55
       use params_mod, only: h1, d608, rd, g
       use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval, method_blsn,&
                                     ista_2l, iend_2u
