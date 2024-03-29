@@ -96,7 +96,7 @@
 !------------------------------------------------------------------
 !
 
-      use vrbls2d, only: sno, si, ustar
+      use vrbls2d, only: sno, si, ustar, z0
       use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
       use params_mod, only: h1, d608, rd, g
       use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname, spval, method_blsn,&
@@ -319,16 +319,18 @@
 !        print *, i,j
 
 
-        if (si(i,j)<spval .and. si(i,j) .ge. 1.0) then
+        if (si(i,j)<spval .and. si(i,j) .ge. 1.0 .and. ustar(i,j) > ustar_t .and. z0(i,j) .le. 0.7) then
             z_r = 1.6*(ustar(i,j)**2./(2.*g))
-            Q_s = max((0.68/ustar(i,j))*(RHOAIR/g)*(ustar(i,j)**2.-ustar_t**2.),0.0)
+            Q_s = max((0.68/ustar(i,j))*(RHOAIR/g)*ustar_t*(ustar(i,j)**2.-ustar_t**2.),0.0)
             C_r = (Q_s/u_p)*(lamda*g/ustar(i,j)**2.)*exp(-lamda*z_r*g/ustar(i,j)**2.)
             c_z = max(C_r * exp(-1.55*((0.05628*ustar(i,j))**-0.544 - z**-0.544)),1e-15)
             c_alpha = alpha/(alpha+2) !simplified version of (6) in Letcher et al (2021)    
             rho_sno = sno(i,j)/(si(i,j)/1.0e3)
-            rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-0.15)
+            rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-150.)
             vis_blsn = (5.217*rho_sno*r_bar**1.011)/(1.82*c_z*c_alpha)
             BETABLSN = 3.912/(vis_blsn/1000.0)
+            !if (i==2764 .and. j==1076) then
+            !if (i==3580 .and. j==1356) then
             ! print to ensure quality
             !print *, "z_r", z_r
             !print *, "Q_s", Q_s
@@ -340,6 +342,8 @@
             !print *, "rho_sno", rho_sno
             !print *, "vis_blsn", vis_blsn
             !print *, "BETABLSN", BETABLSN
+            !print *, "ustar", ustar(i,j)
+            !endif
         else
             BETABLSN = 0
             !print *, "BETABLSN", BETABLSN
