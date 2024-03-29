@@ -647,12 +647,22 @@
 
     <param>
        <shortname>AVE_VBDSF_ON_SURFACE</shortname>
-       <scale>4.0</scale>
+       <longname>averaged surface visible beam downward solar flux</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>VBDSF</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>AVE_NBDSF_ON_SURFACE</shortname>
-       <scale>4.0</scale>
+       <longname>averaged surface near IR beam downward solar flux</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>NBDSF</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
     </param>
 
     <!--  comments wherever I like -->
