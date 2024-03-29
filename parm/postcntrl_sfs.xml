@@ -646,7 +646,12 @@
     </param>
 
     <param>
-       <shortname>INST_SWDDNI_ON_SURFACE</shortname>
+       <shortname>AVE_VBDSF_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_NBDSF_ON_SURFACE</shortname>
        <scale>4.0</scale>
     </param>
 
