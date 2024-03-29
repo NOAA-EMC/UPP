@@ -4018,7 +4018,7 @@ averaged surface visible beam downward solar flux
 1
 tmpl4_8
 VBDSF
-?
+NCEP
 AVE
 surface
 0
@@ -4042,7 +4042,7 @@ surface
 0
 0.0
 1
-3.0
+6.0
 0
 0
 0
@@ -4055,7 +4055,7 @@ averaged surface near IR beam downward solar flux
 1
 tmpl4_8
 NBDSF
-?
+NCEP
 AVE
 surface
 0
@@ -4079,7 +4079,7 @@ surface
 0
 0.0
 1
-3.0
+6.0
 0
 0
 0
