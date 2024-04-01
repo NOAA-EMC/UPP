@@ -20951,7 +20951,7 @@ fcst
 fcst
 hour
 nws_ncep
-hrrr
+rrfs
 complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
