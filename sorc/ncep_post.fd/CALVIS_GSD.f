@@ -326,7 +326,7 @@
             c_z = max(C_r * exp(-1.55*((0.05628*ustar(i,j))**-0.544 - z**-0.544)),1e-15)
             c_alpha = alpha/(alpha+2) !simplified version of (6) in Letcher et al (2021)    
             rho_sno = sno(i,j)/(si(i,j)/1.0e3)
-            rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-150.)
+            rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-150.0)
             vis_blsn = (5.217*rho_sno*r_bar**1.011)/(1.82*c_z*c_alpha)
             BETABLSN = 3.912/(vis_blsn/1000.0)
             !if (i==2764 .and. j==1076) then
