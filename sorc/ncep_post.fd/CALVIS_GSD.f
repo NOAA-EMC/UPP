@@ -333,8 +333,6 @@
             rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-150.0)
             vis_blsn = (5.217*rho_sno*r_bar**1.011)/(1.82*c_z*c_alpha)
             BETABLSN = 3.912/(vis_blsn/1000.0)
-            !if (i==2764 .and. j==1076) then
-            !if (i==3580 .and. j==1356) then
             ! print to ensure quality
             !print *, "z_r", z_r
             !print *, "Q_s", Q_s
@@ -347,7 +345,6 @@
             !print *, "vis_blsn", vis_blsn
             !print *, "BETABLSN", BETABLSN
             !print *, "ustar", ustar(i,j)
-            !endif
         else
             BETABLSN = 0
             !print *, "BETABLSN", BETABLSN
