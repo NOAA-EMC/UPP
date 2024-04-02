@@ -248,6 +248,8 @@ if(BUILD_POSTEXEC)
     target_link_libraries(${EXENAME} PRIVATE tdrp)
   endif()
   if(BUILD_WITH_NEMSIO)
+    set_target_properties(nemsio::nemsio PROPERTIES
+      INTERFACE_LINK_LIBRARIES "w3emc::w3emc_4;bacio::bacio_4")
     target_link_libraries(${EXENAME} PRIVATE
       nemsio::nemsio)
     target_compile_definitions(${EXENAME} PRIVATE BUILD_WITH_NEMSIO)
