@@ -77,9 +77,9 @@
       ,O(:,:,:) &             !< _____
       ,O2(:,:,:) &            !< _____
 ! Add GFS D3D fields
-      ,vdifftt(:,:,:)         & !< Vertical diffusion temperature tendency_____
+      ,vdifftt(:,:,:)         & !< Vertical diffusion temperature tendency _____
       ,tcucns(:,:,:)          & !< _____
-      ,vdiffmois(:,:,:)       & !< Vertical diffusion moisture_____
+      ,vdiffmois(:,:,:)       & !< Vertical diffusion moisture _____
       ,dconvmois(:,:,:)       & !< _____
       ,sconvmois(:,:,:)       & !< _____
       ,nradtt(:,:,:)          & !< _____  
@@ -100,10 +100,10 @@
       ,cnvctdetmflx(:,:,:)    & !< _____
       ,cnvctzgdrag(:,:,:)     & !< _____
       ,cnvctmgdrag(:,:,:)     & !< _____   
-      ,QQNWFA(:,:,:)          & !< _____
-      ,QQNIFA(:,:,:)          & !< _____
-      ,TAOD5503D(:,:,:)       & !< _____
-      ,AEXTC55(:,:,:)         & !< _____
+      ,QQNWFA(:,:,:)          & !< Water-friendly aerosol number concentration
+      ,QQNIFA(:,:,:)          & !< Ice-friendly aerosol number concentration
+      ,TAOD5503D(:,:,:)       & !< 3D aerosol optical depth at 550 nm
+      ,AEXTC55(:,:,:)         & !< Aerosol extinction coefficient
 !
 ! Add aerosol optical properties for GOCART (NGAC)
       ,ext(:,:,:)           & !< aerosol extinction coefficient _____?
@@ -117,10 +117,10 @@
       ,duwt(:,:,:)         & !< Dust wet deposition fluxes
       ,dusv(:,:,:)         & !< Dust scavenging fluxes
       ,sssv(:,:,:)         & !< Seasalt scavenging fluxes
-      ,suem(:,:,:)         & !< _____
-      ,susd(:,:,:)         & !< _____
-      ,sudp(:,:,:)         & !< _____
-      ,suwt(:,:,:)         & !< _____
+      ,suem(:,:,:)         & !< Sulfate emission mass flux
+      ,susd(:,:,:)         & !< Sulfate sedimentation mass flux
+      ,sudp(:,:,:)         & !< Sulfate dry deposition mass flux
+      ,suwt(:,:,:)         & !< Sulfate wet deposition mass flux
       ,ssem(:,:,:)         & !< Seasalt emission fluxes
       ,sssd(:,:,:)         & !< Seasalt emission/sedimentation
       ,ssdp(:,:,:)         & !< Seasalt dry deposition fluxes
