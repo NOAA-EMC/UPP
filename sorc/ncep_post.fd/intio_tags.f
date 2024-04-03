@@ -1,3 +1,6 @@
+!> @file
+!> @brief module: intio_tags_mod defines variables related to integer
+!input/output
 module intio_tags_mod
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

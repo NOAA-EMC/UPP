@@ -27,13 +27,12 @@
 !> @param[out] v real (ijo,k1:k2) y-component wind (m/s).
 !> @param[out] d real (ijo,k1:k2) wind divergence (1/s).
 !> @param[out] trc real (ijo,k1:k2,ntrac) tracers.
-!><pre>
+!> <pre>
 !>                                   1 = specific humidity (kg/kg)
 !>                                   2 = Ozone mixing ratio (kg/kg)
 !>                                   3 = cloud condensate mixing ratio (kg/kg)
 !>                                       atomic oxyge, oxygen etc
-!>
-!></pre>
+!> </pre>
 !> @param[out] iret Integer return code.
 !>
 !> ### Program History Log
@@ -71,13 +70,12 @@
 !> @param[out] v real (ijo,k1:k2) y-component wind (m/s).
 !> @param[out] d real (ijo,k1:k2) wind divergence (1/s).
 !> @param[out] trc real (ijo,k1:k2,ntrac) tracers.
-!><pre>
+!> <pre>
 !>                                   1 = specific humidity (kg/kg)
 !>                                   2 = Ozone mixing ratio (kg/kg)
 !>                                   3 = cloud condensate mixing ratio (kg/kg)
 !>                                       atomic oxyge, oxygen etc
-!>
-!></pre>
+!> </pre>
 !> @param[out] iret Integer return code.
 !>
 !> ### Program History Log

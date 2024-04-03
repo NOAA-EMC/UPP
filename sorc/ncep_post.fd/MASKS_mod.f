@@ -1,3 +1,5 @@
+!> @file
+!> @brief module: masks declares values used in masks
       module masks
 !
       implicit none

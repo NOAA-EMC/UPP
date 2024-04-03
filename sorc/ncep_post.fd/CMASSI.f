@@ -1,3 +1,5 @@
+!> @file
+!> @brief module: CMASSI_mod defines variables related to mass and precipitation
   module CMASSI_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none

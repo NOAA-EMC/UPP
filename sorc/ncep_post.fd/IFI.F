@@ -1,3 +1,6 @@
+!> @file
+!> @brief module: upp_ifi_mod declares variables used in the in-flight icing
+!(IFI) routines 
 module upp_ifi_mod
 
 #ifdef USE_IFI
@@ -14,13 +17,14 @@ module upp_ifi_mod
   public run_ifi, set_ifi_dims, ifi_real_t, write_ifi_debug_files, &
        first_supported_ifi_hour, last_supported_ifi_hour
 
-  logical :: write_ifi_debug_files = .false.
-  real, parameter :: first_supported_ifi_hour = 1
-  real, parameter :: last_supported_ifi_hour = 21
+  logical :: write_ifi_debug_files = .false.      !< Whether to output IFI debug files (true) or not (false)
+  real, parameter :: first_supported_ifi_hour = 1 !< first supported in-flight icing hour
+  real, parameter :: last_supported_ifi_hour = 21 !< last supported in-flight icing hour
 
 #ifndef USE_IFI
   ! Stubs need their own version of the ifi_real_t since it is defined in ifi_type_mod
-  integer, parameter :: ifi_real_t = c_float
+  integer, parameter :: ifi_real_t = c_float !< ifi_real_t stub value used to
+!make public UPP code run
 
 #else
   ! Actual IFI code needs a few more module-scope variables.
@@ -121,7 +125,7 @@ contains !==============================================================
 
 #ifndef USE_IFI
 ! IFI stubs
-
+!> @brief set_ifi_dims() contains stub values for flight levels, which are used in public UPP
   subroutine set_ifi_dims()
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
     implicit none
@@ -139,9 +143,8 @@ contains !==============================================================
   end subroutine set_ifi_dims
 
   ! --------------------------------------------------------------------
-
+!> @brief run_ifi() fills in any requested IFI fields with stub values for missing data
   subroutine run_ifi()
-    ! Fill any requested IFI fields with missing data.
     call send_missing_data(1007)  ! ICE_PROB = missing
     call send_missing_data(1008)  ! SLD = missing
     call send_missing_data(1009)  ! ICE_SEV_CAT = missing
@@ -695,7 +698,7 @@ contains !==============================================================
   end subroutine scatter_ifi
 
   ! --------------------------------------------------------------------
-
+!> @brief run_ifi() _____ ???
   subroutine run_ifi()
     use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, &
          jm, jsta,jend, me, num_procs, mpi_comm_comp, ista, iend, ista_2l, iend_2u, dtq2
