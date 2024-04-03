@@ -82,7 +82,7 @@
    type(paramset_t),save :: pset !< parameter set
 !
 !--- grib2 info related to a specific data file
-  integer nrecout !< Number of records output _____?
+  integer nrecout !< Number of records to output
   integer num_pset !< Number of parameter sets _____? 
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
