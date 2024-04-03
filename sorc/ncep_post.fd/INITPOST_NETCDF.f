@@ -49,6 +49,7 @@
 !> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
+!> 2024-04-03 | Eric James    | Add reading of hourly averaged smoke and dust
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -97,7 +98,8 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust
+              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust,  &
+              smoke_ave, dust_ave, coarsepm_ave
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1078,6 +1080,21 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
+! hourly averaged smoke
+      VarName='smoke_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,smoke_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',smoke_ave(isa,jsa)
+! hourly averaged dust
+      VarName='dust_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,dust_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',dust_ave(isa,jsa)
+! hourly averaged coarsepm
+      VarName='coarsepm_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,coarsepm_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',coarsepm_ave(isa,jsa)
       endif
 
 ! lightning threat index 1
