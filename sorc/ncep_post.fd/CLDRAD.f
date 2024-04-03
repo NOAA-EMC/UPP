@@ -116,7 +116,7 @@
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
                             JM, LM, gocart_on, gccpp_on, nasa_on, me, rdaod,  &
-                            ISTA, IEND,aqf_on,TSRFC
+                            ISTA, IEND,aqf_on
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -157,7 +157,7 @@
       real   CU_ir(LM), q_conv   !bsf
 !jw
       integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,        &
-              LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK,ITSRFC
+              LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK
       real    DPBND,RRNUM,QCLD,RSUM,TLMH,FACTRS,FACTRL,DP,        &
               OPDEPTH, TMP,QSAT,RHUM,TCEXT,DELZ,DELY,DY_m
 !
