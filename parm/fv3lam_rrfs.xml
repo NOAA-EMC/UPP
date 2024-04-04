@@ -418,12 +418,6 @@
        </param>
 
        <param>
-       <shortname>SNOWC_ON_SURFACE</shortname>
-       <pname>SNOWC</pname>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
        <scale>3.0</scale>
@@ -2758,13 +2752,6 @@
        <level>3000. 6000. 9000. 12000. 15000. 18000.</level>
        <level2>0. 3000. 6000. 9000. 12000. 15000.</level2>
        <scale>4.0</scale>
-       </param>
-
-       <param>
-       <shortname>ACM_LSPA_ON_SURFACE</shortname>
-       <pname>LSPA</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
        </param>
 
        <param>
