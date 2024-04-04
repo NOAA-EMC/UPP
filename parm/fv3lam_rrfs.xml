@@ -1823,6 +1823,12 @@
            <scale>3.0</scale>
        </param>
 
+       <param>
+       <shortname>GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS</shortname>
+       <pname>LTNG</pname>
+       <scale>4.0</scale>
+       </param>   
+
     </paramset>
 
     <paramset>
