@@ -1,20 +1,49 @@
 !> @file
-!> @brief module: cuparm_mod defines _____?
+!> @brief module: cuparm_mod defines variables used for cumulus parameterization
   module cuparm_mod
 !
     implicit none
 !
-    real,parameter :: H1=1.E0,H1D5=1.5E0,H2D5=2.5E0,H3000=3000.E0,       &
-      H10E5=100000.E0,D00=0.E0,D125=.125E0,D50=.5E0,D608=.608E0,         &
-      G=9.8E0,CP=1004.6E0,CAPA=0.28589641E0,ROG=287.04/9.8,              &
-      ELWV=2.50E6,ELIVW=2.72E6,ROW=1.E3,EPSQ=2.E-12,                     &
-      A2=17.2693882E0,A3=273.16E0,A4=35.86E0,                            &
-      T0=273.16E0,T1=274.16E0,PQ0=379.90516E0,STRESH=1.10E0,             &
-      STABS=1.0E0,STABD=.90E0,STABFC=1.00E0,DTTOP=0.0E0,                 &
+    real,parameter :: H1=1.E0, &    !< _____
+      H1D5=1.5E0,       &     !< _____
+      H2D5=2.5E0,       &     !< _____
+      H3000=3000.E0,    &     !< _____
+      H10E5=100000.E0,  &     !< _____
+      D00=0.E0,         &     !< _____
+      D125=.125E0,      &     !< _____
+      D50=.5E0,         &     !< _____
+      D608=.608E0,      &     !< _____
+      G=9.8E0,          &     !< _____
+      CP=1004.6E0,      &     !< _____
+      CAPA=0.28589641E0, &    !< _____
+      ROG=287.04/9.8,   &     !< _____
+      ELWV=2.50E6,      &     !< _____
+      ELIVW=2.72E6,     &     !< _____
+      ROW=1.E3,         &     !< _____
+      EPSQ=2.E-12,      &     !< _____
+      A2=17.2693882E0,  &     !< _____
+      A3=273.16E0,      &     !< _____
+      A4=35.86E0,       &     !< _____
+      T0=273.16E0,      &     !< _____
+      T1=274.16E0,      &     !< _____
+      PQ0=379.90516E0,  &     !< _____
+      STRESH=1.10E0,    &     !< _____
+      STABS=1.0E0,      &     !< _____
+      STABD=.90E0,      &     !< _____
+      STABFC=1.00E0,    &     !< _____
+      DTTOP=0.0E0,      &     !< _____
 !---VVVVV
-      RHF=0.10,EPSUP=1.00,EPSDN=1.05,EPSTH=0.0,                          &
-      PBM=13000.,PQM=20000.,PNO=1000.,PONE=2500.,ZSH=2000.,              &
-      PFRZ=15000.,PSHU=45000.,                                           &
+      RHF=0.10,      &        !< _____
+      EPSUP=1.00,    &        !< _____
+      EPSDN=1.05,    &        !< _____
+      EPSTH=0.0,     &        !< _____
+      PBM=13000.,    &        !< _____
+      PQM=20000.,    &        !< _____
+      PNO=1000.,     &        !< _____
+      PONE=2500.,    &        !< _____
+      ZSH=2000.,     &        !< _____
+      PFRZ=15000.,   &        !< _____
+      PSHU=45000.,   &        !< _____
 
 !    &, RHF=0.20,EPSUP=0.93,EPSDN=1.00,EPSTH=0.3
 !    &, RHF=0.20,EPSUP=1.00,EPSDN=1.00,EPSTH=0.3
@@ -75,22 +104,30 @@
 !    &, DSPBF=-3875.E0,DSP0F=-5875.E0,DSPTF=-1875.E0
 !    &, DSPBS=-3875.E0,DSP0S=-5875.E0,DSPTS=-1875.E0
 !***********************************************************************
-     TREL=3000.,EPSNTP=.0010E0,EFIFC=5.0E0,                             &
-     AVGEFI=(EFIMN+1.E0)*.5E0,DSPC=-3000.E0,EPSP=1.E-7,                 &
-     STEFI=1.E0,                                                        &
+     TREL=3000.,                 &     !< _____
+     EPSNTP=.0010E0,             &     !< _____
+     EFIFC=5.0E0,                &     !< _____
+     AVGEFI=(EFIMN+1.E0)*.5E0,   &     !< _____
+     DSPC=-3000.E0,              &     !< _____
+     EPSP=1.E-7,                 &     !< _____
+     STEFI=1.E0,                 &     !< _____
 !*** ACTIVATE THE FOLLOWING LINE AND COMMENT OUT THE PRECEDING LINE IF
 !*** OCT90=.TRUE.
-!    &, STEFI=AVGEFI
-     SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),                                 &
-     SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),                                 &
-     SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),                                 &
-     SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),                                 &
-     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),                                 &
-     SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),                                 &
-     SLOPE=(H1   -EFMNT)/(H1-EFIMN)
-   real, parameter ::                                                   &
-     A23M4L=A2*(A3-A4)*ELWV,                                            &
-     ELOCP=ELIVW/CP,CPRLG=CP/(ROW*G*ELWV),RCP=H1/CP
-   logical,parameter ::                                                 &
-     UNIS=.FALSE.,UNIL=.FALSE.,OCT90=.FALSE.                           
+!    &, STEFI=AVGEFI                      &   !< _____
+     SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< _____
+     SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< _____
+     SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< _____
+     SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< _____
+     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< _____
+     SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< _____
+     SLOPE=(H1   -EFMNT)/(H1-EFIMN)       &   !< _____
+   real, parameter ::         &
+     A23M4L=A2*(A3-A4)*ELWV,  &  !< _____
+     ELOCP=ELIVW/CP,          &  !< _____
+     CPRLG=CP/(ROW*G*ELWV),   &  !< _____
+     RCP=H1/CP                &  !< _____
+   logical,parameter :: &
+     UNIS=.FALSE.,      &    !< _____
+     UNIL=.FALSE.,      &    !< _____
+     OCT90=.FALSE.      &    !< _____
   end module cuparm_mod

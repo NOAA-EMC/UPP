@@ -30,18 +30,20 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=1200
-      INTEGER, PARAMETER :: MXLVL=500
+      INTEGER, PARAMETER :: MXFLD=1200    !< Available model field IDs
+      INTEGER, PARAMETER :: MXLVL=500     !< Available model levels
       
-      CHARACTER*6 DATSET      
+      CHARACTER*6 DATSET                  !< String set in the postcntrl.xml file DATSET parameter
 !
-      LOGICAL RITEHD
+      LOGICAL RITEHD                      !< Flag to open new output file
 !
-      integer :: NFLD,IGET(MXFLD),                                &
-                 LVLS(MXLVL,MXFLD),                               &
-                 IDENT(MXFLD),IAVBLFLD(MXFLD),                    &
-                 ID(25)
-      integer :: num_post_afld
-      integer,allocatable :: LVLSXML(:,:)
+      integer :: NFLD &                   !< Number of requested output fields
+                 ,IGET(MXFLD) &           !< Index of model field array
+                 ,LVLS(MXLVL,MXFLD) &     !< Number of levels
+                 ,IDENT(MXFLD) &          !< Identify model field _____
+                 ,IAVBLFLD(MXFLD) &       !< _____
+                 ,ID(25)                  !< _____
+      integer :: num_post_afld            !< Number of fields in post_avblflds.xml _____
+      integer,allocatable :: LVLSXML(:,:) !< _____
 
    end module RQSTFLD_mod
