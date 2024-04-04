@@ -30,8 +30,7 @@ case $(hostname -f) in
 
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
 
-  fe[1-4]) MACHINE_ID=jet_c ;; ### jet1-4
-  fe[5-8]) MACHINE_ID=jet ;; ### jet1-8
+  fe[1-8]) MACHINE_ID=jet ;; ### jet1-8
   tfe[12]) MACHINE_ID=jet ;; ### tjet1-2
 
   Orion-login-[1-4].HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion1-4
