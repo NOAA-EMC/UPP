@@ -17,8 +17,8 @@
       real, allocatable :: UH(:,:,:) &    !< u-component wind
       ,VH(:,:,:) &         !< v-component wind
       ,WH(:,:,:) &         !< geometric vertical velocity
-      ,U(:,:,:) &          !< _____
-      ,V(:,:,:) &          !< _____
+      ,U(:,:,:) &          !< U-component wind___?
+      ,V(:,:,:) &          !< V-component wind___?
       ,T(:,:,:) &          !< temperature
       ,Q(:,:,:) &          !< specific humidity
       ,CWM(:,:,:) &        !< total condensate mixing ratio 
@@ -27,10 +27,10 @@
       ,PMIDV(:,:,:) &      !< _____ 
       ,PINT(:,:,:) &       !< pressure on interfaces 
       ,ALPINT(:,:,:) &     !< _____ 
-      ,ZMID(:,:,:) &       !< _____ 
+      ,ZMID(:,:,:) &       !< Mid-level height
       ,ZINT(:,:,:) &       !< ETA INTERFACES HEIGHT FIELD _____?
       ,OMGA(:,:,:) &       !< Omega - vertical velocity
-      ,T_ADJ(:,:,:) &      !< _____ 
+      ,T_ADJ(:,:,:) &      !< Adjusted temperature___?
       ,F_ice(:,:,:) &      !< fraction of ice
       ,F_rain(:,:,:) &     !< fraction of rain
       ,F_RimeF(:,:,:) &    !< mass ratio of rimed ice
@@ -67,39 +67,39 @@
       ,EFFRI(:,:,:) &         !< Thompson scheme cloud ice effective radius
       ,EFFRL(:,:,:) &         !< Thompson scheme cloud water effective radius
       ,EFFRS(:,:,:) &         !< Thompson scheme snow effective radius
-      ,radius_cloud(:,:,:) &  !< _____
-      ,radius_ice(:,:,:) &    !< _____
-      ,radius_snow(:,:,:) &   !< _____
+      ,radius_cloud(:,:,:) &  !< Radius of cloud particles___?
+      ,radius_ice(:,:,:) &    !< Radius of ice particles___?
+      ,radius_snow(:,:,:) &   !< Radius of snow particles__?
 ! KRS Add HWRF fields     
       ,REFL_10CM(:,:,:) &     !< Reflectivity
 ! Add GFS fields     
       ,O3(:,:,:) &            !< Ozone mixing ratio
-      ,O(:,:,:) &             !< _____
-      ,O2(:,:,:) &            !< _____
+      ,O(:,:,:) &             !< Atomic oxygen mixing ratio___?
+      ,O2(:,:,:) &            !< Molecular oxygen mixing ratio___?
 ! Add GFS D3D fields
       ,vdifftt(:,:,:)         & !< Vertical diffusion temperature tendency _____
-      ,tcucns(:,:,:)          & !< _____
+      ,tcucns(:,:,:)          & !< Total condensate mixing ratio upper convective layer___?
       ,vdiffmois(:,:,:)       & !< Vertical diffusion moisture _____
-      ,dconvmois(:,:,:)       & !< _____
-      ,sconvmois(:,:,:)       & !< _____
-      ,nradtt(:,:,:)          & !< _____  
-      ,o3vdiff(:,:,:)         & !< _____
-      ,o3prod(:,:,:)          & !< _____
-      ,o3tndy(:,:,:)          & !< _____
-      ,mwpv(:,:,:)            & !< _____
+      ,dconvmois(:,:,:)       & !< Convective moisture tendency___?
+      ,sconvmois(:,:,:)       & !< Convective moisture source/sink___?
+      ,nradtt(:,:,:)          & !< Net radiation temperature tendency ___? 
+      ,o3vdiff(:,:,:)         & !< Ozone vertical diffusion___?
+      ,o3prod(:,:,:)          & !< Ozone production___?
+      ,o3tndy(:,:,:)          & !< Ozone tendency___?
+      ,mwpv(:,:,:)            & !< Moisture-weighted potential vorticity___?
       ,unknown(:,:,:)         & !< _____
-      ,vdiffzacce(:,:,:)      & !< _____
-      ,zgdrag(:,:,:)          & !< _____
-      ,cnvctummixing(:,:,:)   & !< _____
-      ,vdiffmacce(:,:,:)      & !< _____
-      ,mgdrag(:,:,:)          & !< _____
-      ,cnvctvmmixing(:,:,:)   & !< _____
-      ,ncnvctcfrac(:,:,:)     & !< _____
-      ,cnvctumflx(:,:,:)      & !< _____
-      ,cnvctdmflx(:,:,:)      & !< _____  
-      ,cnvctdetmflx(:,:,:)    & !< _____
-      ,cnvctzgdrag(:,:,:)     & !< _____
-      ,cnvctmgdrag(:,:,:)     & !< _____   
+      ,vdiffzacce(:,:,:)      & !< Vertical diffusion zonal acceleration___?
+      ,zgdrag(:,:,:)          & !< Geopotential drag___?
+      ,cnvctummixing(:,:,:)   & !< Convective turbulent mixing in the zonal direction___?
+      ,vdiffmacce(:,:,:)      & !< Vertical diffusion meridional acceleration___?
+      ,mgdrag(:,:,:)          & !< Moisture drag___?
+      ,cnvctvmmixing(:,:,:)   & !< Convective turbulent mixing in the meridional direction___?
+      ,ncnvctcfrac(:,:,:)     & !< Non-convective cloud fraction___?
+      ,cnvctumflx(:,:,:)      & !< Convective upward moisture flux___?
+      ,cnvctdmflx(:,:,:)      & !< Convective downward moisture flux ___?
+      ,cnvctdetmflx(:,:,:)    & !< Convective detrainment moisture flux___?
+      ,cnvctzgdrag(:,:,:)     & !< Convective geopotential drag___?
+      ,cnvctmgdrag(:,:,:)     & !< Convective moisture drag   ___?
       ,QQNWFA(:,:,:)          & !< Water-friendly aerosol number concentration
       ,QQNIFA(:,:,:)          & !< Ice-friendly aerosol number concentration
       ,TAOD5503D(:,:,:)       & !< 3D aerosol optical depth at 550 nm

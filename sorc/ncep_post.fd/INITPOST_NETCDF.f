@@ -48,6 +48,8 @@
 !> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
 !> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
+!> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
+!> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -76,8 +78,8 @@
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
-              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
-              cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
+              tshltr, albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,&
+              sigt4,cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,    &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
               rswout, aswin, auvbin, auvbinc, aswout, aswtoa, sfcshx, sfclhx, subshx,           &
@@ -1794,6 +1796,11 @@
         enddo
       enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
+! sfc albedo
+      VarName='sfalb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,albedo)
+      if(debugprint)print*,'sample ',VarName,' = ',albedo(isa,jsa)
 
 ! surface potential T  using getgb
       VarName='tmpsfc'
@@ -2242,6 +2249,9 @@
          SLLEVEL(8) = 1.6
          SLLEVEL(9) = 3.0
        END IF
+     
+      Status=nf90_inq_varid(ncid2d,'zsoil',varid)
+      if(Status/=0)then !read soil avriables in 2D
  
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill1'
@@ -2590,6 +2600,18 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
+   
+     else !read soil variables in 3D
+       VarName='soilt'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,stc(ista_2l,jsta_2l,1),nsoil)
+       VarName='soilw'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,smc(ista_2l,jsta_2l,1),nsoil)
+       VarName='soill'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,sh2o(ista_2l,jsta_2l,1),nsoil)
+     endif
 
       if (modelname == 'FV3R') then
        do l = 1, lm
@@ -3090,13 +3112,31 @@
           endif
         enddo
       enddo
+      VarName='snom_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='snom_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          if(buf(i,j)<spval) then
+            acsnom(i,j) = buf(i,j)
+          elseif(buf2(i,j)<spval) then
+            acsnom(i,j) = buf2(i,j)
+          else
+            acsnom(i,j) = spval
+          endif
+        enddo
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
 !          smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          acsnom(i,j) = spval    ! GFS does not have snow melt
+!          acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
