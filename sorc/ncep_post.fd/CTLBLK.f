@@ -46,7 +46,7 @@
   character(len=256) :: fileName                   !< Name of input dynamics file; name of full 3-D model output file.
   character(len=256) :: fileNameFlux               !< Name of input physics file; name of 2-D model output file with physics and surface fields.
   character(len=256) :: fileNameD3D                !< _____.
-  character(len=256) :: fileNameAER                !< _____.
+  character(len=256) :: fileNameAER                !< Name of aersol file___?
   character(len=256) :: fileNameFlat               !< Input configuration text file defining the requested fields.
   character(len=19)  :: DateStr                    !< Time stamp being processed (e.g., 2022-08-02_19:00:00).
   character(len=4)   :: MODELNAME                  !< Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF).
@@ -91,11 +91,11 @@
   integer :: imp_physics         !< Microphysics option used in the model run.
   integer :: icu_physics         !< Cumulus physics option in the model run.
   integer :: iSF_SURFACE_PHYSICS !< Surface physics scheme option in model run.
-  integer :: DataHandle          !< _____. 
-  integer :: NPREC               !< _____. 
-  integer :: NPHS                !< _____. 
+  integer :: DataHandle          !< Handle or identifier for the data being processed.____?
+  integer :: NPREC               !< Number of precipitation data points. ____?
+  integer :: NPHS                !< Number of physics schemes used in the model run.____?
   integer :: ISEC                !< Seconds of file being processed (not parsed from DateStr, hard-coded set to 0).
-  integer :: icount_calmict      !< _____. 
+  integer :: icount_calmict      !< Counter for calm and moist convection.____? 
   integer :: ivegsrc             !< Flag for vegetation classification source (0=USGS, 1=IGBP, 2=UMD)
 
 !
@@ -113,12 +113,12 @@
   real :: DTQ2          !< Model physics time step in seconds.
   real :: PT            !< Model top requested by CMAQ.
   real :: PDTOP         !< Pressure thickness requested by CMAQ.
-  real :: SPL(komax)    !< _____.
-  real :: ALSL(komax)   !< _____.
-  real :: PREC_ACC_DT   !< _____.
-  real :: PT_TBL        !< _____.
-  real :: PREC_ACC_DT1  !< _____.
-  real :: spval         !< _____.
+  real :: SPL(komax)    !< Array of pressure levels.____?
+  real :: ALSL(komax)   !< Array of altitude levels.____?
+  real :: PREC_ACC_DT   !< Accumulated precipitation over a specific time step.____?
+  real :: PT_TBL        !< Table containing model top values.____?
+  real :: PREC_ACC_DT1  !< Another variable for accumulated precipitation over a specific time step.____?
+  real :: spval         !< Special value used for missing or invalid data.____?
 ! real :: SPVAL=9.9e10                                     ! Moorthi
 !
   integer :: NUM_PROCS        !< The number of MPI ranks available to the post processor.
@@ -200,7 +200,7 @@
   real :: TCLOD      !< Number of hours in cloud fraction average.
   real :: THEAT      !< Number of hours in latent heating bucket.
   real :: TPREC      !< Number of hours in precipitation bucket.
-  real :: TMAXMIN    !< _____.
+  real :: TMAXMIN    !< Number of hours in maximum and minimum temperature bucket____?
   real :: TD3D       !< _____.
 !
   real PTHRESH !< Threshold for precipitation (used to check if there is precipitation, mainly in ptype routines).
