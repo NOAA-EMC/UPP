@@ -116,8 +116,10 @@
 !===========================================================================================
 !
       use netcdf
+#if defined(BUILD_WITH_NEMSIO)
       use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
                                nemsio_getfilehead,nemsio_close
+#endif
       use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
               spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,   &
@@ -134,7 +136,9 @@
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
+#if defined(BUILD_WITH_NEMSIO)
       type(nemsio_gfile) :: nfile,ffile,rfile
+#endif
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -472,6 +476,7 @@
           print*,'WRF Binary format is no longer supported'
           STOP 9996
 ! NEMSIO format
+#if defined(BUILD_WITH_NEMSIO)
         ELSE IF(TRIM(IOFORM) == 'binarynemsio' .or.                        &
           TRIM(IOFORM) == 'binarynemsiompiio' )THEN
       
@@ -528,7 +533,7 @@
 !           print*,'iostatusD3D in WRFPOST= ',iostatusD3D
 
           END IF 
-
+#endif
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
@@ -585,6 +590,7 @@
             PRINT*,'POST does not have mpiio option for this model, STOPPING'
             STOP 9998
           END IF
+#if defined(BUILD_WITH_NEMSIO)
         ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
           IF(MODELNAME == 'NMM') THEN
             CALL INITPOST_NEMS(NREC,nfile)
@@ -607,7 +613,7 @@
             STOP 9999
 
           END IF 
-
+#endif
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
