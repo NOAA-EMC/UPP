@@ -18,60 +18,60 @@ RM=rm -f
 # Make sure all of the .txt files are in the ALL_TXT variable.
 
 ALL_TXT= \
-  postxconfig-NT-GFS.txt \
-  postxconfig-NT-GFS-GOES.txt \
-  postxconfig-NT-GFS-ANL.txt \
-  postxconfig-NT-GFS-F00.txt \
-  postxconfig-NT-GFS-FLUX.txt \
-  postxconfig-NT-GFS-FLUX-F00.txt \
+  ./gfs/postxconfig-NT-gfs.txt \
+  ./gfs/postxconfig-NT-gfs-goes.txt \
+  ./gfs/postxconfig-NT-gfs-anl.txt \
+  ./gfs/postxconfig-NT-gfs-f00.txt \
+  ./gfs/postxconfig-NT-gfs-flux.txt \
+  ./gfs/postxconfig-NT-gfs-flux-f00.txt \
+  ./gfs/postxconfig-NT-gfs-two.txt \
+  ./gfs/postxconfig-NT-gfs-f00-two.txt \
+  ./gefs/postxconfig-NT-gefs.txt \
+  ./gefs/postxconfig-NT-gefs-f00.txt \
+  ./gefs/postxconfig-NT-gefs-aerosol.txt \
+  ./gefs/postxconfig-NT-gefs-f00-aerosol.txt \
+  ./sfs/postxconfig-NT-sfs.txt
   postxconfig-NT-NMM.txt \
   postxconfig-NT-NGAC.txt \
-  postxconfig-NT-GEFS.txt \
-  postxconfig-NT-GEFS-F00.txt \
   postxconfig-NT-hafs_sat.txt \
   postxconfig-NT-hafs_nosat.txt \
   postxconfig-NT-hafs.txt \
-  postxconfig-NT-GFS-TWO.txt \
-  postxconfig-NT-GFS-F00-TWO.txt \
   postxconfig-NT-hrrr.txt \
   postxconfig-NT-rap.txt \
   postxconfig-NT-fv3lam_rrfs.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
-  postxconfig-NT-GEFS-aerosol.txt \
-  postxconfig-NT-GEFS-F00-aerosol.txt \
   postxconfig-NT-AQM.txt \
-  postxconfig-NT-SFS.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
 clean:
 	$(RM) $(ALL_TXT)
 
-postxconfig-NT-GFS.txt:              postcntrl_gfs.xml              post_avblflds.xml
-postxconfig-NT-GFS-GOES.txt:         postcntrl_gfs_goes.xml         post_avblflds.xml
-postxconfig-NT-GFS-ANL.txt:          postcntrl_gfs_anl.xml          post_avblflds.xml
-postxconfig-NT-GFS-F00.txt:          postcntrl_gfs_f00.xml          post_avblflds.xml
-postxconfig-NT-GFS-FLUX.txt:         postcntrl_gfs_flux.xml         post_avblflds.xml
-postxconfig-NT-GFS-FLUX-F00.txt:     postcntrl_gfs_flux_f00.xml     post_avblflds.xml
+./gfs/postxconfig-NT-gfs.txt:               ./gfs/postcntrl_gfs.xml               post_avblflds.xml
+./gfs/postxconfig-NT-gfs-goes.txt:          ./gfs/postcntrl_gfs_goes.xml          post_avblflds.xml
+./gfs/postxconfig-NT-gfs-anl.txt:           ./gfs/postcntrl_gfs_anl.xml           post_avblflds.xml
+./gfs/postxconfig-NT-gfs-f00.txt:           ./gfs/postcntrl_gfs_f00.xml           post_avblflds.xml
+./gfs/postxconfig-NT-gfs-flux.txt:          ./gfs/postcntrl_gfs_flux.xml          post_avblflds.xml
+./gfs/postxconfig-NT-gfs-flux-f00.txt:      ./gfs/postcntrl_gfs_flux_f00.xml      post_avblflds.xml
+./gfs/postxconfig-NT-gfs-two.txt:           ./gfs/postcntrl_gfs_two.xml           post_avblflds.xml
+./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
+./gefs/postxconfig-NT-gefs.txt:             ./gefs/postcntrl_gefs.xml             post_avblflds.xml
+./gefs/postxconfig-NT-gefs-f00.txt:         ./gefs/postcntrl_gefs_f00.xml         post_avblflds.xml
+./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
+./gefs/postxconfig-NT-gefs-f00-aerosol.txt: ./gefs/postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
+./sfs/postxconfig-NT-sfs.txt:		            ./sfs/postcntrl_sfs.xml	              post_avblflds.xml
 postxconfig-NT-NMM.txt:              nam_cntrl_cmaq.xml             nam_post_avblflds.xml
 postxconfig-NT-NGAC.txt:             ngac_postcntrl.xml             ngac_post_avblflds.xml
-postxconfig-NT-GEFS.txt:             postcntrl_gefs.xml             post_avblflds.xml
-postxconfig-NT-GEFS-F00.txt:         postcntrl_gefs_f00.xml         post_avblflds.xml
 postxconfig-NT-hafs_sat.txt:         postcntrl_hafs_sat.xml         post_avblflds.xml
 postxconfig-NT-hafs_nosat.txt:       postcntrl_hafs_nosat.xml       post_avblflds.xml
 postxconfig-NT-hafs.txt:             postcntrl_hafs.xml             post_avblflds.xml
-postxconfig-NT-GFS-TWO.txt:          postcntrl_gfs_two.xml          post_avblflds.xml
-postxconfig-NT-GFS-F00-TWO.txt:      postcntrl_gfs_f00_two.xml      post_avblflds.xml
 postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
 postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
 postxconfig-NT-fv3lam_rrfs.txt:      fv3lam_rrfs.xml                post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
-postxconfig-NT-GEFS-aerosol.txt:     postcntrl_gefs_aerosol.xml     post_avblflds.xml
-postxconfig-NT-GEFS-F00-aerosol.txt: postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
 postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
-postxconfig-NT-SFS.txt:		     postcntrl_sfs.xml		    post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
