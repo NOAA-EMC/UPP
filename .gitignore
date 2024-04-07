@@ -9,6 +9,8 @@
 # USE CAUTION WHEN ADDING WILDCARDS, as some builds use different filename   #
 # conventions than others                                                    #
 ##############################################################################
+build
+install
 build/*/
 install*/
 
@@ -19,3 +21,6 @@ install*/
 
 *.swp
 configure.upp*
+
+# prevent committing logfiles when generation flat files
+POST_XML_Flat_File_processor_POST_FlatFile.log*
