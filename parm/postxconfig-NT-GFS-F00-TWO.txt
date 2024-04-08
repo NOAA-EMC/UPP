@@ -7401,7 +7401,7 @@ SOILM_ON_DEPTH_BEL_LAND_SFC
 ?
 1
 tmpl4_0
-SOILMOI
+CISOILM
 ?
 ?
 depth_bel_land_sfc
