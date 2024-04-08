@@ -21,6 +21,3 @@ install*/
 
 *.swp
 configure.upp*
-
-# prevent committing logfiles when generation flat files
-POST_XML_Flat_File_processor_POST_FlatFile.log*

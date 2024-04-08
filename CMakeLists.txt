@@ -115,11 +115,6 @@ endif()
 
 add_subdirectory(sorc)
 
-find_package(Perl)  # perl is used in parsing XML files into txt files
-if(PERL_FOUND)
-  add_subdirectory(parm)
-endif()
-
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)
   find_package(Doxygen REQUIRED)
