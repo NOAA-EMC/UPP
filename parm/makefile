@@ -30,7 +30,7 @@ ALL_TXT= \
   ./gefs/postxconfig-NT-gefs-f00.txt \
   ./gefs/postxconfig-NT-gefs-aerosol.txt \
   ./gefs/postxconfig-NT-gefs-f00-aerosol.txt \
-  ./sfs/postxconfig-NT-sfs.txt
+  ./sfs/postxconfig-NT-sfs.txt \
   postxconfig-NT-NMM.txt \
   postxconfig-NT-NGAC.txt \
   postxconfig-NT-hafs_sat.txt \
@@ -61,17 +61,17 @@ clean:
 ./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00-aerosol.txt: ./gefs/postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
 ./sfs/postxconfig-NT-sfs.txt:		            ./sfs/postcntrl_sfs.xml	              post_avblflds.xml
-postxconfig-NT-NMM.txt:              nam_cntrl_cmaq.xml             nam_post_avblflds.xml
-postxconfig-NT-NGAC.txt:             ngac_postcntrl.xml             ngac_post_avblflds.xml
-postxconfig-NT-hafs_sat.txt:         postcntrl_hafs_sat.xml         post_avblflds.xml
-postxconfig-NT-hafs_nosat.txt:       postcntrl_hafs_nosat.xml       post_avblflds.xml
-postxconfig-NT-hafs.txt:             postcntrl_hafs.xml             post_avblflds.xml
-postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
-postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
-postxconfig-NT-fv3lam_rrfs.txt:      fv3lam_rrfs.xml                post_avblflds.xml
-postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
-postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
-postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
+postxconfig-NT-NMM.txt:                     nam_cntrl_cmaq.xml                    nam_post_avblflds.xml
+postxconfig-NT-NGAC.txt:                    ngac_postcntrl.xml                    ngac_post_avblflds.xml
+postxconfig-NT-hafs_sat.txt:                postcntrl_hafs_sat.xml                post_avblflds.xml
+postxconfig-NT-hafs_nosat.txt:              postcntrl_hafs_nosat.xml              post_avblflds.xml
+postxconfig-NT-hafs.txt:                    postcntrl_hafs.xml                    post_avblflds.xml
+postxconfig-NT-hrrr.txt:                    hrrr_postcntrl.xml                    post_avblflds_raphrrr.xml
+postxconfig-NT-rap.txt:                     rap_postcntrl.xml                     post_avblflds_raphrrr.xml
+postxconfig-NT-fv3lam_rrfs.txt:             fv3lam_rrfs.xml                       post_avblflds.xml
+postxconfig-NT-UFS-aerosol.txt:             postcntrl_ufs_aerosol.xml             post_avblflds.xml
+postxconfig-NT-UFS-aerosol-F00.txt:         postcntrl_ufs_aerosol_f00.xml         post_avblflds.xml
+postxconfig-NT-AQM.txt:                     aqm.xml                               post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
