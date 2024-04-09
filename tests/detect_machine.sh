@@ -25,13 +25,12 @@ case $(hostname -f) in
   gaea5[1-8].ncrc.gov) MACHINE_ID=gaea ;; ### gaea51-58
 
   hfe0[1-9]) MACHINE_ID=hera ;;   ### hera01-09
-  hfe1[0-2]) MACHINE_ID=hera ;;   ### hera10-12
+  hfe1[01]) MACHINE_ID=hera ;;   ### hera10-11
   hecflow01) MACHINE_ID=hera ;;   ### heraecflow01
 
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
 
-  fe[1-4]) MACHINE_ID=jet_c ;; ### jet1-4
-  fe[5-8]) MACHINE_ID=jet ;; ### jet1-8
+  fe[1-8]) MACHINE_ID=jet ;; ### jet1-8
   tfe[12]) MACHINE_ID=jet ;; ### tjet1-2
 
   Orion-login-[1-4].HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion1-4
