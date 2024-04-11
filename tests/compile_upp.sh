@@ -14,6 +14,7 @@ usage() {
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
   echo "  -I  build with libIFI(users with ifi repos. access only)  DEFAULT: OFF"
   echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
+  echo "  -n  build without nemsio            DEFAULT: ON"
   echo "  -w  build without WRF-IO            DEFAULT: ON"
   echo "  -v  build with cmake verbose        DEFAULT: NO"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
@@ -26,17 +27,21 @@ usage() {
 prefix="../install"
 ifi_opt=" -DBUILD_WITH_IFI=OFF"
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
+nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
 compiler="intel"
 verbose_opt=""
 debug_opt=""
-while getopts ":p:gwc:vhiId" opt; do
+while getopts ":p:gnwc:vhiId" opt; do
   case $opt in
     p)
       prefix=$OPTARG
       ;;
     g)
       gtg_opt=" -DBUILD_WITH_GTG=ON"
+      ;;
+    n)
+      nemsio_opt=" -DBUILD_WITH_NEMSIO=OFF"
       ;;
     w)
       wrfio_opt=" -DBUILD_WITH_WRFIO=OFF"
@@ -69,7 +74,7 @@ if [[ ! -z $debug_opt && $ifi_opt =~ INTERNAL.*=ON ]] ; then
     debug_opt="$debug_opt -DIFI_DEBUG=ON"
 fi
 
-cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}
+cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}
 
 if [[ $(uname -s) == Darwin ]]; then
   readonly MYDIR=$(cd "$(dirname "$(greadlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
