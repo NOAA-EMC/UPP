@@ -106,6 +106,7 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    fi
    module load $modulefile
    module list
+   module show g2tmpl
 fi
 
 set -x
