@@ -57,6 +57,7 @@
 !!   23-08-24  Y Mao - Add gtg_on option for GTG interpolation
 !!   24-01-07  H LIN - Add CIT output in NCAR GTG turbulence calculation
 !!   24-01-09  Y Mao - Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
+!!   24-04-09 Y Mao - Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
 !!
@@ -1238,9 +1239,8 @@
          end if
 
 
-!        FOR Regional GTG, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, except for EDPARM
-!        Use levels of iID=468 for interpolation
-         iID=468
+!        FOR Regional GTG, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME
+         iID=467
          N = IAVBLFLD(IGET(iID))
          NFDCTL=size(pset%param(N)%level)
          if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
@@ -1280,10 +1280,9 @@
          DO N=1,nFDS
             iID=IDS(N)
             
-!           Regional GTG has a legend of special defination
-!           0 m holds the max value of the whole vertical column
-!           0 m is the last height in the control file            
-            if (iID == 467) then
+!     For regional GTG, output the max value of EDPARM(ID=467) in the whole vertical column
+!     to MXEDPRM(ID=476)
+            if (iID == 467 .and. iget(476) > 0) then
                EGRID1 = SPVAL
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
@@ -1304,8 +1303,7 @@
                ENDDO
                if(grib=='grib2') then
                   cfld=cfld+1
-                  fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
-                  fld_info(cfld)%lvl=NFDCTL+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(476)) ! MXEDPRM ID
 !$omp parallel do private(i,j,ii,jj)
                   do j=1,jend-jsta+1
                      jj = jsta+j-1
