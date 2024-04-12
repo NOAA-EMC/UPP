@@ -41,6 +41,7 @@
        integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null() 
        real, dimension(:), pointer          :: level2 => null()
        character(len=80)                    :: aerosol_type=''
+       character(len=80)                    :: prob_type=''
 	    character(len=80)                    :: typ_intvl_size=''
  	    integer                              :: scale_fact_1st_size=0
 	    real                                 :: scale_val_1st_size=0.0
@@ -51,6 +52,10 @@
 	    real                                 :: scale_val_1st_wvlen=0.0
 	    integer                              :: scale_fact_2nd_wvlen=0
 	    real                                 :: scale_val_2nd_wvlen=0.0
+            integer                              :: scale_fact_lower_limit=0
+            real                                 :: scale_val_lower_limit=0.0
+            integer                              :: scale_fact_upper_limit=0
+            real                                 :: scale_val_upper_limit=0.0
 	    real, dimension(:), pointer          :: scale => null()  
 	    integer                              :: stat_miss_val=0
 	    integer                              :: leng_time_range_prev=0
@@ -274,6 +279,8 @@
 
             read(22,*)paramset(i)%param(j)%aerosol_type
               call filter_char_inp(paramset(i)%param(j)%aerosol_type)
+            read(22,*)paramset(i)%param(j)%prob_type
+              call filter_char_inp(paramset(i)%param(j)%prob_type)
             read(22,*)paramset(i)%param(j)%typ_intvl_size
               call filter_char_inp(paramset(i)%param(j)%typ_intvl_size)
 
@@ -288,6 +295,10 @@
             read(22,*)paramset(i)%param(j)%scale_val_1st_wvlen
             read(22,*)paramset(i)%param(j)%scale_fact_2nd_wvlen
             read(22,*)paramset(i)%param(j)%scale_val_2nd_wvlen
+            read(22,*)paramset(i)%param(j)%scale_fact_lower_limit
+            read(22,*)paramset(i)%param(j)%scale_val_lower_limit
+            read(22,*)paramset(i)%param(j)%scale_fact_upper_limit
+            read(22,*)paramset(i)%param(j)%scale_val_upper_limit
             read(22,*)scale_array_count
             allocate(paramset(i)%param(j)%scale(1))
             if (scale_array_count > 0) then

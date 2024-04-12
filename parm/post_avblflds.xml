@@ -7450,108 +7450,140 @@
     <param>
        <post_avblfldidx>913</post_avblfldidx>
        <shortname>1H_FFG_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFFFG</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>1.0</scale_val_lower_limit>
+       <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>914</post_avblfldidx>
        <shortname>ACM_FFG_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFFFG</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>1.0</scale_val_lower_limit>
+       <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>915</post_avblfldidx>
        <shortname>1H_2YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>2.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>916</post_avblfldidx>
        <shortname>ACM_2YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>2.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>917</post_avblfldidx>
        <shortname>1H_5YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>5.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>918</post_avblfldidx>
        <shortname>ACM_5YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>5.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>919</post_avblfldidx>
        <shortname>1H_10YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>10.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>920</post_avblfldidx>
        <shortname>ACM_10YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>10.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>921</post_avblfldidx>
        <shortname>1H_100YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>100.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>922</post_avblfldidx>
        <shortname>ACM_100YARI_EXCEEDANCE</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
+       <pdstmpl>tmpl4_9</pdstmpl>
        <pname>QPFARI</pname>
        <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
+       <prob_type>prob_above_lower_limit</prob_type>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale_fact_lower_limit>0</scale_fact_lower_limit>
+       <scale_val_lower_limit>100.0</scale_val_lower_limit>
        <scale>4.0</scale>
     </param>
 
