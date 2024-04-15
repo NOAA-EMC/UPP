@@ -239,9 +239,7 @@ if(BUILD_POSTEXEC)
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
     w3emc::w3emc_4
-    sp::sp_4
-    sfcio::sfcio
-    sigio::sigio)
+    sp::sp_4)
   set_target_properties(${EXENAME} PROPERTIES LINKER_LANGUAGE Fortran)
   if(IFI_FOUND)
     target_link_libraries(${EXENAME} PRIVATE IFI)
@@ -251,7 +249,7 @@ if(BUILD_POSTEXEC)
     set_target_properties(nemsio::nemsio PROPERTIES
       INTERFACE_LINK_LIBRARIES "w3emc::w3emc_4;bacio::bacio_4")
     target_link_libraries(${EXENAME} PRIVATE
-      nemsio::nemsio)
+      nemsio::nemsio sigio::sigio)
     target_compile_definitions(${EXENAME} PRIVATE BUILD_WITH_NEMSIO)
   endif()
   if(wrf_io_FOUND)
