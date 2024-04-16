@@ -624,7 +624,7 @@ module CloudLayers
   public clouds_t
 
   integer, parameter :: MaxLayers = 30 
-  type :: clouds_t
+  type :: clouds_t(:,:) !< Clouds temperature__?
      ! 2-D
      !> nLayers integer Number of layers
      integer :: nLayers
