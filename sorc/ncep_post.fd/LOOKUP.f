@@ -11,18 +11,18 @@
   ,JTBQ (:,:) &    !< 440
   
   real :: &        
-  PL (:,:) &       !< Pressure Level___?
-  ,THL (:,:) &     !< Temperature___?
-  ,RDQ (:,:) &     !< Relative Humidity___?
-  ,RDTH (:,:) &    !< Mixing Ratio___?
-  ,RDP (:,:) &     !< Density___?
+  PL (:,:) &       !< Pressure Level
+  ,THL (:,:) &     !< Temperature
+  ,RDQ (:,:) &     !< Relative Humidity
+  ,RDTH (:,:) &    !< Mixing Ratio
+  ,RDP (:,:) &     !< Density
   ,RDTHE (:,:) &   !< Potential Temperature___?
-  ,PLQ (:,:) &     !< Pressure Level for Q___?
-  ,RDPQ (:,:) &    !< Density for Q___?
-  ,RDTHEQ (:,:) &  !< Potential Temperature for Q___?
+  ,PLQ (:,:) &     !< Pressure Level for Q
+  ,RDPQ (:,:) &    !< Density for Q
+  ,RDTHEQ (:,:) &  !< Potential Temperature for Q
 
-  real,dimension(JTB)  :: QS0,SQS (:,:) &         !< Specific humidity and its storage array___?
-  real,dimension(ITB)  :: THE0,STHE (:,:) &       !< Potential temperature and its storage array___?
+  real,dimension(JTB)  :: QS0,SQS (:,:) &         !< Specific humidity and its storage array
+  real,dimension(ITB)  :: THE0,STHE (:,:) &       !< Potential temperature and its storage array
   real,dimension(ITBQ) :: THE0Q,STHEQ (:,:) &     !< Pressure-temperature table___?
   real,dimension(ITB,JTB) :: PTBL (:,:) &         !< Pressure-temperature table___?
   real,dimension(JTB,ITB) :: TTBL (:,:) &         !< Temperature-pressure table___?

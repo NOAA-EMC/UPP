@@ -80,7 +80,7 @@
       ,PREC(:,:) &         !< Precipitation
       ,SUBSHX(:,:) &       !< Sublimation ___?
       ,SNOPCX(:,:) &       !< Snow phase change
-      ,SFCUVX(:,:) &       !< Surface wind speed
+      ,SFCUVX(:,:) &       !< surface ultraviolet radiation exposure indices
       ,SFCEVP(:,:) &       !< Surface evaporation
       ,POTEVP(:,:) &       !< Potential evaporation
       ,Z0(:,:) &           !< Roughness length
@@ -90,7 +90,7 @@
       ,SFCEXC(:,:) &       !< Surface exchange coefficient 
       ,GRNFLX(:,:) &       !< Ground heat flux 
       ,SOILTB(:,:) &       !< Soil temperature
-      ,F(:,:) &            !> ____?
+      ,F(:,:) &            !< ___?
       ,ALBEDO(:,:) &       !< Surface albedo
       ,CLDFRA(:,:) &       !< Cloud fraction
       ,CPRATE(:,:) &       !< Convective precipitation rate
@@ -308,7 +308,7 @@
       integer, allocatable :: IVGTYP(:,:) &     !< Vegetation type
       ,ISLTYP(:,:) &          !< Soil type
       ,ISLOPE(:,:) &          !< Slope type
-      ,IEQL(:,:) &            !< ___?
+      ,IEQL(:,:)              !< ___?
       
 ! Add 2d aerosol diagnosis fields for GOCART (NGAC)
       real, allocatable ::                                                   &

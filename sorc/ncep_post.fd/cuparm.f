@@ -4,46 +4,46 @@
 !
     implicit none
 !
-    real,parameter :: H1=1.E0, &    !< _____
-      H1D5=1.5E0,       &     !< _____
-      H2D5=2.5E0,       &     !< _____
-      H3000=3000.E0,    &     !< _____
-      H10E5=100000.E0,  &     !< _____
-      D00=0.E0,         &     !< _____
-      D125=.125E0,      &     !< _____
-      D50=.5E0,         &     !< _____
-      D608=.608E0,      &     !< _____
-      G=9.8E0,          &     !< _____
-      CP=1004.6E0,      &     !< _____
-      CAPA=0.28589641E0, &    !< _____
-      ROG=287.04/9.8,   &     !< _____
-      ELWV=2.50E6,      &     !< _____
-      ELIVW=2.72E6,     &     !< _____
-      ROW=1.E3,         &     !< _____
-      EPSQ=2.E-12,      &     !< _____
-      A2=17.2693882E0,  &     !< _____
-      A3=273.16E0,      &     !< _____
-      A4=35.86E0,       &     !< _____
-      T0=273.16E0,      &     !< _____
-      T1=274.16E0,      &     !< _____
-      PQ0=379.90516E0,  &     !< _____
-      STRESH=1.10E0,    &     !< _____
-      STABS=1.0E0,      &     !< _____
-      STABD=.90E0,      &     !< _____
-      STABFC=1.00E0,    &     !< _____
-      DTTOP=0.0E0,      &     !< _____
+    real,parameter :: H1=1.E0, &    !< Height 1.0
+      H1D5=1.5E0,       &     !< Height 1.5
+      H2D5=2.5E0,       &     !< Height 2.5
+      H3000=3000.E0,    &     !< Height 3000
+      H10E5=100000.E0,  &     !< Height 100,000
+      D00=0.E0,         &     !< Decimal 0
+      D125=.125E0,      &     !< Decimal 0.125
+      D50=.5E0,         &     !< Decimal 0.5
+      D608=.608E0,      &     !< Decimal 0.608
+      G=9.8E0,          &     !< Gravity
+      CP=1004.6E0,      &     !< Specific heat capacity at constant pressure
+      CAPA=0.28589641E0, &    !< Specific gas constant for dry air
+      ROG=287.04/9.8,   &     !< Ratio of gas constant to gravity
+      ELWV=2.50E6,      &     !< Latent heat of water vaporization
+      ELIVW=2.72E6,     &     !< Latent heat of water vaporization at 0°C
+      ROW=1.E3,         &     !< Density of water
+      EPSQ=2.E-12,      &     !< Small positive value for stability calculations
+      A2=17.2693882E0,  &     !< Coefficient A2
+      A3=273.16E0,      &     !< Coefficient A3
+      A4=35.86E0,       &     !< Coefficient A4
+      T0=273.16E0,      &     !< Reference temperature in Kelvin
+      T1=274.16E0,      &     !< Reference temperature in Kelvin
+      PQ0=379.90516E0,  &     !< Reference pressure in Pascal
+      STRESH=1.10E0,    &     !< Stability threshold
+      STABS=1.0E0,      &     !< Stability parameter for stability calculations___?
+      STABD=.90E0,      &     !< Stability parameter for stability calculations___?
+      STABFC=1.00E0,    &     !< Stability parameter for stability calculations___?
+      DTTOP=0.0E0,      &     !< Temperature difference at the top of the atmosphere
 !---VVVVV
-      RHF=0.10,      &        !< _____
-      EPSUP=1.00,    &        !< _____
-      EPSDN=1.05,    &        !< _____
-      EPSTH=0.0,     &        !< _____
-      PBM=13000.,    &        !< _____
-      PQM=20000.,    &        !< _____
-      PNO=1000.,     &        !< _____
-      PONE=2500.,    &        !< _____
-      ZSH=2000.,     &        !< _____
-      PFRZ=15000.,   &        !< _____
-      PSHU=45000.,   &        !< _____
+      RHF=0.10,      &        !< Relative humidity factor
+      EPSUP=1.00,    &        !< Emissivity factor for upward radiation
+      EPSDN=1.05,    &        !< Emissivity factor for downward radiation
+      EPSTH=0.0,     &        !< Emissivity threshold
+      PBM=13000.,    &        !< Pressure at the bottom of the model domain
+      PQM=20000.,    &        !< Pressure at the top of the model domain
+      PNO=1000.,     &        !< Standard pressure
+      PONE=2500.,    &        !< Reference pressure for the model
+      ZSH=2000.,     &        !< Height for snowfall
+      PFRZ=15000.,   &        !< Pressure at the freezing level
+      PSHU=45000.,   &        !< Pressure at the tropopause
 
 !    &, RHF=0.20,EPSUP=0.93,EPSDN=1.00,EPSTH=0.3
 !    &, RHF=0.20,EPSUP=1.00,EPSDN=1.00,EPSTH=0.3
@@ -104,30 +104,30 @@
 !    &, DSPBF=-3875.E0,DSP0F=-5875.E0,DSPTF=-1875.E0
 !    &, DSPBS=-3875.E0,DSP0S=-5875.E0,DSPTS=-1875.E0
 !***********************************************************************
-     TREL=3000.,                 &     !< _____
-     EPSNTP=.0010E0,             &     !< _____
-     EFIFC=5.0E0,                &     !< _____
-     AVGEFI=(EFIMN+1.E0)*.5E0,   &     !< _____
-     DSPC=-3000.E0,              &     !< _____
-     EPSP=1.E-7,                 &     !< _____
-     STEFI=1.E0,                 &     !< _____
+     TREL=3000.,                 &     !< Reference temperature for relative humidity calculation
+     EPSNTP=.0010E0,             &     !< Small positive value for stability calculations
+     EFIFC=5.0E0,                &     !< Empirical factor for stability calculations
+     AVGEFI=(EFIMN+1.E0)*.5E0,   &     !< Average of EFIMN and 1
+     DSPC=-3000.E0,              &     !< Reference temperature for stability calculations
+     EPSP=1.E-7,                 &     !< Small positive value for stability calculations
+     STEFI=1.E0,                 &     !< Empirical factor for stability calculations
 !*** ACTIVATE THE FOLLOWING LINE AND COMMENT OUT THE PRECEDING LINE IF
 !*** OCT90=.TRUE.
-!    &, STEFI=AVGEFI                      &   !< _____
-     SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< _____
-     SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< _____
-     SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< _____
-     SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< _____
-     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< _____
-     SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< _____
-     SLOPE=(H1   -EFMNT)/(H1-EFIMN)       &   !< _____
+!    &, STEFI=AVGEFI                      &   !< 
+     SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< Slope for boundary layer stability
+     SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< Slope for layer 0 stability
+     SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< Slope for top layer stability
+     SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< Slope for boundary layer stability (snow)
+     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope for layer 0 stability (snow)
+     SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope for top layer stability (snow)
+     SLOPE=(H1   -EFMNT)/(H1-EFIMN)       &   !< Slope for equilibrium temperature
    real, parameter ::         &
-     A23M4L=A2*(A3-A4)*ELWV,  &  !< _____
-     ELOCP=ELIVW/CP,          &  !< _____
-     CPRLG=CP/(ROW*G*ELWV),   &  !< _____
-     RCP=H1/CP                &  !< _____
+     A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient A23M4L
+     ELOCP=ELIVW/CP,          &  !< Ratio of latent heat of vaporization to specific heat
+     CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of specific heat to product of density, gravity, and latent heat
+     RCP=H1/CP                &  !< Ratio of H1 to specific heat
    logical,parameter :: &
-     UNIS=.FALSE.,      &    !< _____
-     UNIL=.FALSE.,      &    !< _____
-     OCT90=.FALSE.      &    !< _____
+     UNIS=.FALSE.,      &    !< Uniform sea surface temperature
+     UNIL=.FALSE.,      &    !< Uniform sea surface temperature (lower)
+     OCT90=.FALSE.      &    !< Activation flag for October 1990
   end module cuparm_mod
