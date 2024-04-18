@@ -39,6 +39,10 @@ jobs:
         with:
             path: UPP
 
+    - name: install-dependencies
+      run: |
+        sudo apt-get install doxygen
+
       # Cache spack, compiler and dependencies
       - name: cache-env
         id: cache-env
@@ -91,6 +95,6 @@ jobs:
           export FC=mpif90
           cd UPP
           mkdir -p build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=../install ..
+          cmake -DENABLE_DOCS=ON -DCMAKE_INSTALL_PREFIX=../install ..
           make -j2 VERBOSE=1
           make install
