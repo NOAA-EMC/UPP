@@ -45,6 +45,10 @@
 !> 2023-06-15 | E James    | Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)
 !> 2023-10-04 | W Meng     | Fix mismatched IDs from 526-530
 !> 2023-10-05 | E James    | Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)
+!> 2024-01-23 | E James    | Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.
+!> 2024-01-30 | A Jensen   | Comment out graupel precipitation warning. 
+!> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
+!> 2024-03-25 | E James    | Enabling output of column integrated soil moisture.
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -97,7 +101,7 @@
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          frzrn_bucket, snow_acm, snow_bkt,                    &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa,IFI_APCP
+                         tecan,tetran,tedir,twa,IFI_APCP,xlaixy
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -706,6 +710,32 @@
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(036))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+            ii = ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+         endif
+      ENDIF
+!
+!     TOTAL SOIL MOISTURE
+      IF (IGET(713)>0) THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+!             IF(SMSTOT(I,J)/=SPVAL) THEN
+               GRID1(I,J) = SMSTOT(I,J)
+!             ELSE
+!               GRID1(I,J) = SPVAL
+!             ENDIF
+           ENDDO
+         ENDDO
+         if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(713))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -5152,25 +5182,34 @@
                  totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
                ENDIF
                snowratio = 0.0
-               if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
-                 print *,'WARNING - Graupel is higher that total precip at point',i,j
-                 print *,'totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket',&
-                          totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket(i,j)
-               endif
+!-- This following warning message prints too often and is being commented out by
+!-- Anders Jensen on 30 Jan 2024. I think that this warning message prints only when 
+!-- graupel alone is reaching the surface. Total precipitation is interpolated 
+!-- and precipitation from individual hydrometeor categories is not. Thus, when 
+!-- total precipitation equals graupel precipitation and total precipitation is 
+!-- interpolated and graupel precipitation is not, the two values may not be equal.
+!               if(graup_bucket(i,j)*1.e-3 > totprcp.and.graup_bucket(i,j)/=spval)then
+!                 print *,'WARNING - Graupel is higher than total precip at point',i,j
+!                 print *,'totprcp,graup_bucket(i,j)*1.e-3,snow_bucket(i,j),rainnc_bucket',&
+!                          totprcp,graup_bucket(i,j)*1.e-3,snow_bucket(i,j),rainnc_bucket(i,j)
+!               endif
 
 !  ---------------------------------------------------------------
 !  Minimum 1h precipitation to even consider p-type specification
 !      (0.0001 mm in 1h, very light precipitation)
 !  ---------------------------------------------------------------
-               if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001)       &
+               if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001) then
 !          snowratio = snow_bucket(i,j)*1.e-3/totprcp            ! orig
 !14aug15 - change from Stan and Trevor
 !  ---------------------------------------------------------------
 !      Snow-to-total ratio to be used below
 !  ---------------------------------------------------------------
-               snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
-
-!              snowratio = SR(i,j)
+                  IF(MODELNAME == 'FV3R') THEN
+                     snowratio = SR(i,j)
+                  ELSE
+                     snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
+                  ENDIF
+               endif
 !-- 2-m temperature
                t2 = TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 !  ---------------------------------------------------------------
@@ -6182,12 +6221,15 @@
 !     LEAF AREA INDEX
       IF (MODELNAME == 'NCAR'.OR.MODELNAME=='NMM' .OR. &
           MODELNAME == 'FV3R' .OR. MODELNAME=='RAPR')THEN
-      IF (iSF_SURFACE_PHYSICS == 2 .OR. MODELNAME=='RAPR') THEN
+      IF (iSF_SURFACE_PHYSICS == 2 .OR. MODELNAME=='FV3R' .OR. MODELNAME=='RAPR') THEN
         IF (IGET(254)>0) THEN
+              if (me==0)print*,'starting LAI'
               DO J=JSTA,JEND
               DO I=ISTA,IEND
                 IF (MODELNAME=='RAPR')THEN
                   GRID1(I,J)=LAI(I,J)
+                ELSE IF (MODELNAME=='FV3R')THEN
+                  GRID1(I,J)=XLAIXY(I,J)
                 ELSE
                   GRID1(I,J) = XLAI
               ENDIF
@@ -6266,7 +6308,7 @@
      & .OR. IGET(237)>0 .OR. IGET(238)>0             &
      & .OR. IGET(239)>0 .OR. IGET(240)>0             &
      & .OR. IGET(241)>0 ) THEN
-        IF (iSF_SURFACE_PHYSICS == 2) THEN    !NSOIL == 4
+        IF (iSF_SURFACE_PHYSICS == 2 .OR. iSF_SURFACE_PHYSICS == 3) THEN    !NSOIL == 4
 !          if(me==0)print*,'starting computing canopy conductance'
          allocate(rsmin(ista:iend,jsta:jend), smcref(ista:iend,jsta:jend), gc(ista:iend,jsta:jend), &
                   rcq(ista:iend,jsta:jend), rct(ista:iend,jsta:jend), rcsoil(ista:iend,jsta:jend), rcs(ista:iend,jsta:jend))

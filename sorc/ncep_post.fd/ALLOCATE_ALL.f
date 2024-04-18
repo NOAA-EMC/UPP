@@ -493,6 +493,7 @@
       allocate(shdmin(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(shdmax(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(lai(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(xlaixy(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(acsnow(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(acgraup(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(acfrain(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -524,6 +525,7 @@
           shdmin(i,j)=spval
           shdmax(i,j)=spval
           lai(i,j)=spval
+          xlaixy(i,j)=spval
           acsnow(i,j)=spval
           acgraup(i,j)=spval
           acfrain(i,j)=spval

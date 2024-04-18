@@ -283,7 +283,7 @@
     </param>
 
     <param>
-       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <shortname>GFS_CISOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0.</level>
        <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
