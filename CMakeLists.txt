@@ -119,7 +119,7 @@ add_subdirectory(parm)
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)
   find_package(Doxygen REQUIRED)
-  add_subdirectory(docs)
+  add_subdirectory(doc)
 endif()
 
 ### Package config
