@@ -39,10 +39,6 @@ jobs:
         with:
             path: UPP
 
-      - name: install-dependencies-with-apt-get
-        run: |
-          sudo apt-get install doxygen
-
       # Cache spack, compiler and dependencies
       - name: cache-env
         id: cache-env
@@ -71,6 +67,10 @@ jobs:
   build:
     needs: setup
     runs-on: ubuntu-latest
+
+    - name: install-dependencies-with-apt-get
+      run: |
+        sudo apt-get install doxygen
 
     steps:
       - name: checkout-upp
