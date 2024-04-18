@@ -39,9 +39,9 @@ jobs:
         with:
             path: UPP
 
-    - name: install-dependencies
-      run: |
-        sudo apt-get install doxygen
+      - name: install-dependencies-with-apt-get
+        run: |
+          sudo apt-get install doxygen
 
       # Cache spack, compiler and dependencies
       - name: cache-env
