@@ -38,14 +38,15 @@ module physcons_post
 !  Secondary constants
 !> @ingroup secondary_constants
 !> @{ Calculate secondary constants from the primary constants above
-  real(kind=kind_phys),parameter:: con_rocp    =con_rd/con_cp
-  real(kind=kind_phys),parameter:: con_cpor    =con_cp/con_rd
-  real(kind=kind_phys),parameter:: con_rog     =con_rd/con_g
-  real(kind=kind_phys),parameter:: con_fvirt   =con_rv/con_rd-1.
-  real(kind=kind_phys),parameter:: con_eps     =con_rd/con_rv
-  real(kind=kind_phys),parameter:: con_epsm1   =con_rd/con_rv-1.
-  real(kind=kind_phys),parameter:: con_dldt    =con_cvap-con_cliq
-  real(kind=kind_phys),parameter:: con_xpona   =-con_dldt/con_rv
-  real(kind=kind_phys),parameter:: con_xponb   =-con_dldt/con_rv+con_hvap/(con_rv*con_ttp)
+  real(kind=kind_phys), parameter :: con_rocp = con_rd / con_cp       !< Ratio of specific gas constant to specific heat at constant pressure
+  real(kind=kind_phys), parameter :: con_cpor = con_cp / con_rd       !< Ratio of specific heat at constant pressure to specific gas constant
+  real(kind=kind_phys), parameter :: con_rog = con_rd / con_g         !< Ratio of specific gas constant to gravitational acceleration
+  real(kind=kind_phys), parameter :: con_fvirt = con_rv / con_rd - 1. !< Virtual temperature correction factor
+  real(kind=kind_phys), parameter :: con_eps = con_rd / con_rv        !< Ratio of specific gas constant of dry air to specific gas constant of water vapor
+  real(kind=kind_phys), parameter :: con_epsm1 = con_rd / con_rv - 1. !< Excess ratio of specific gas constants
+  real(kind=kind_phys), parameter :: con_dldt = con_cvap - con_cliq   !< Difference in specific heat between vapor and liquid
+  real(kind=kind_phys), parameter :: con_xpona = con_dldt / con_rv    !< Rate of change of saturation vapor pressure with temperature
+  real(kind=kind_phys), parameter :: con_xponb = -con_dldt / con_rv + con_hvap / (con_rv * con_ttp) !< Another ratio involving specific heat of vaporization and saturation temperature
+
 !> @}
 end module
