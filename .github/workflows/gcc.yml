@@ -9,7 +9,7 @@ defaults:
     shell: bash -leo pipefail {0}
 
 env:
-  cache_key: gcc2  # The number (#) following the cache_key "gcc" is to flush Action cache.
+  cache_key: gcc3  # The number (#) following the cache_key "gcc" is to flush Action cache.
   CC: gcc-10
   FC: gfortran-10
   CXX: g++-10
@@ -60,6 +60,7 @@ jobs:
           sudo apt install cmake
           spack external find
           spack add mpich@3.4.2
+          spack add doxygen
           spack concretize
           spack install -v --fail-fast --dirty
           spack clean --all
@@ -91,6 +92,6 @@ jobs:
           export FC=mpif90
           cd UPP
           mkdir -p build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=../install ..
+          cmake -DENABLE_DOCS=ON -DCMAKE_INSTALL_PREFIX=../install ..
           make -j2 VERBOSE=1
           make install

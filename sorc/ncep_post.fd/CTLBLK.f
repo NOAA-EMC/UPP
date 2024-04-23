@@ -1,6 +1,6 @@
 !> @file
 !> @brief module: CTLBLK sets default parameters that are used throughout the UPP code
-!<
+!>
 !> ABSTRACT: 
 !> This module is replacing the CTLBLK.comm, all the comm block is removed.
 !> 
@@ -21,7 +21,6 @@
 !>  2023-11-24 | Eric James | Add method_blsn logical option
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK_mod Sets default parameters that are used throughout the UPP code
-!-----------------------------------------------------------------------
   module CTLBLK_mod
 !
   implicit none

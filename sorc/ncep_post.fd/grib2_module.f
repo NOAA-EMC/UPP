@@ -194,11 +194,8 @@
 !   
   end subroutine grib_info_finalize
 !-------------------------------------------------------------------------------------
-!-------------------------------------------------------------------------------------
 !> @brief gribit2 _____?
   subroutine gribit2(post_fname)
-!
-!-------
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none
