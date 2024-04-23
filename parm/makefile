@@ -35,7 +35,7 @@ ALL_TXT= \
   postxconfig-NT-GFS-F00-TWO.txt \
   postxconfig-NT-hrrr.txt \
   postxconfig-NT-rap.txt \
-  postxconfig-NT-fv3lam_rrfs.txt \
+  postxconfig-NT-rrfs.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-GEFS-aerosol.txt \
@@ -65,7 +65,7 @@ postxconfig-NT-GFS-TWO.txt:          postcntrl_gfs_two.xml          post_avblfld
 postxconfig-NT-GFS-F00-TWO.txt:      postcntrl_gfs_f00_two.xml      post_avblflds.xml
 postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
 postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
-postxconfig-NT-fv3lam_rrfs.txt:      fv3lam_rrfs.xml                post_avblflds.xml
+postxconfig-NT-rrfs.txt:             rrfs_postcntrl.xml             post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 postxconfig-NT-GEFS-aerosol.txt:     postcntrl_gefs_aerosol.xml     post_avblflds.xml
