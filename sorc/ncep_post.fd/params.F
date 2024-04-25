@@ -9,20 +9,20 @@ module params_mod
 ! last update: 09/06/2006
 !
 !     SMOOTHING PARAMETERS.
-    integer, parameter :: KSMUD=4      !< _____ No longer used
-    integer, parameter :: KSLPD=1      !< _____ Something about sea level pressure??? Doesn't seem to be used tho it appears in SLP_new.f
-    integer, parameter :: KSSLP=2      !< _____ No longer used
-    integer, parameter :: KSFI=2       !< _____ No longer used
-    integer, parameter :: KST=2        !< _____ No longer used
-    integer, parameter :: KSUV=2       !< _____ No longer used
-    integer, parameter :: KSRH=2       !< _____ No longer used
-    integer, parameter :: KSAV=2       !< _____ No longer used
-    integer, parameter :: KSLI=2       !< _____ No longer used
-    integer, parameter :: KSLP=2       !< _____ No longer used
-    integer, parameter :: NSUMD=1      !< _____ No longer used
+    integer, parameter :: KSMUD=4      !< No longer used/supported
+    integer, parameter :: KSLPD=1      !< No longer used/supported
+    integer, parameter :: KSSLP=2      !< No longer used/supported
+    integer, parameter :: KSFI=2       !< No longer used/supported
+    integer, parameter :: KST=2        !< No longer used/supported
+    integer, parameter :: KSUV=2       !< No longer used/supported
+    integer, parameter :: KSRH=2       !< No longer used/supported
+    integer, parameter :: KSAV=2       !< No longer used/supported
+    integer, parameter :: KSLI=2       !< No longer used/supported
+    integer, parameter :: KSLP=2       !< No longer used/supported
+    integer, parameter :: NSUMD=1      !< No longer used/supported
                                                                                    
-    real, parameter :: SMTHA=-1.8E-4   !< _____ No longer used
-    real, parameter :: SMTHB=16.0      !< _____ No longer used
+    real, parameter :: SMTHA=-1.8E-4   !< No longer used/supported
+    real, parameter :: SMTHB=16.0      !< No longer used/supported
 !
 ! CONSTANTS.
     real, parameter :: CM1=2937.4               !< Constant used in Magnus Formula to calculate saturation water vapor pressure
@@ -33,34 +33,34 @@ module params_mod
     real, parameter :: D01=0.01                 !< Decimal number - one hundreth
     real, parameter :: D001=0.001               !< Decimal number - one thousandth
     real, parameter :: D50=0.50                 !< Decimal number 0.5
-    real, parameter :: H999=999.                !< _____
-    real, parameter :: H1=1.0                   !< _____
-    real, parameter :: H2=2.0                   !< _____
-    real, parameter :: H4=4.0                   !< _____
-    real, parameter :: H99999=99999.            !< _____
-    real, parameter :: H1M12=1.E-12             !< _____
-    real, parameter :: H1000=1000.              !< _____
-    real, parameter :: H1M5=1.E-5               !< _____
+    real, parameter :: H999=999.                !< 999
+    real, parameter :: H1=1.0                   !< 1.0
+    real, parameter :: H2=2.0                   !< 2.0
+    real, parameter :: H4=4.0                   !< 4.0
+    real, parameter :: H99999=99999.            !< 99999
+    real, parameter :: H1M12=1.E-12             !< 1 * 10^(-12)
+    real, parameter :: H1000=1000.              !< 1000
+    real, parameter :: H1M5=1.E-5               !< 1/100000 == 0.00001
     real, parameter :: D125=.125                !< Decimal number 0.125
     real, parameter :: D25=0.25                 !< Decimal number 0.25
-    real, parameter :: H100=100.                !< _____
-    real, parameter :: H10000=10000.            !< _____
-    real, parameter :: H10E5=1.E5               !< _____
-    real, parameter :: CAPA=0.28589641E0        !< _____
+    real, parameter :: H100=100.                !< 100
+    real, parameter :: H10000=10000.            !< 10000
+    real, parameter :: H10E5=1.E5               !< 100000
+    real, parameter :: CAPA=0.28589641E0        !< R/Cp (universal gas constant over specific heat capacity of dry air at constant pressure)
     real, parameter :: D115=0.115               !< Decimal number 0.125
     real, parameter :: D608=0.608               !< Decimal number 0.608
     real, parameter :: D05=0.05                 !< Decimal number 0.05
     real, parameter :: D0065=0.0065             !< Decimal number 0.0065
-    real, parameter :: H1E2=100.                !< 1*10^2 _____ No longer used
-    real, parameter :: H1E4=1.E4                !< 1*10^4 _____ No longer used
-    real, parameter :: H1M2=1.E-2               !< 1*10^(-2) _____ No longer used
+    real, parameter :: H1E2=100.                !< No longer used/supported
+    real, parameter :: H1E4=1.E4                !< No longer used/supported
+    real, parameter :: H1M2=1.E-2               !< No longer used/supported
     real, parameter :: G=9.81                   !< Acceleration due to gravity
     real, parameter :: RD=287.04                !< Gas constant for dry air
     real, parameter :: ROG=RD/G                 !< RD over G
     real, parameter :: GI=1./G                  !< Inverse of acceleration due to gravity
-    real, parameter :: OVERRC=1.10              !< Over relaxation coefficient _____
-    real, parameter :: AD05=OVERRC*D05          !< _____
-    real, parameter :: CFT0=OVERRC-H1           !<  A constant calculated by subtracting H1 from OVERRC
+    real, parameter :: OVERRC=1.10              !< Overrelaxation coefficient
+    real, parameter :: AD05=OVERRC*D05          !< Overrelaxation coefficient * 0.05
+    real, parameter :: CFT0=OVERRC-H1           !< A constant calculated by subtracting H1 from OVERRC
     real, parameter :: PI=3.141592653589793     !< Pi
     real, parameter :: DTR=3.1415926/180.       !< Degrees to radians conversion
     real, parameter :: RTD=1./DTR               !< Radians to degrees conversion
@@ -68,11 +68,11 @@ module params_mod
     real, parameter :: CP=1004.6                !< Specific heat of air
     real, parameter :: RCAPA=1./CAPA            !< Reciprocal of CAPA
     real, parameter :: P1000=1000.E2            !< Pressure value of 100,000 Pascals
-    real, parameter :: DP10M=110                !< DP at 10m _____
+    real, parameter :: DP10M=110                !< No longer used/supported
     real, parameter :: ELWV=2.50E6              !< Latent heat of vaporization of water in Joules per kilogram
     real, parameter :: CPDR=CP/RD               !< CP over RD
     real, parameter :: RG=1./GI                 !< Reciprocal of GI (equal to G)
-    real, parameter :: ELDR=ELWV/RD             !< ELWV over RD _____
+    real, parameter :: ELDR=ELWV/RD             !< No longer used/supported
     real, parameter :: BETA=.00367              !< Thermal expansion coefficient of air
     real, parameter :: BTG=BETA*G               !< Beta times acceleration due to gravity
     real, parameter :: FMW=18.015               !< Mean molecular mass of wet air
@@ -83,7 +83,7 @@ module params_mod
     real, parameter :: RDOCP=RD/CP              !< RD over CP
     real, parameter :: LHEAT=2.5E6              !< Latent heat
     real, parameter :: LHTOCP=LHEAT/CP          !< Latent heat over CP
-    real, parameter :: EPSQ2=0.02               !< _____ Initial turbulence kinetic energy for CAMUW PBL scheme (m2 s^-2)
+    real, parameter :: EPSQ2=0.02               !< _____ Initial turbulent kinetic energy (m2 s^-2)
     real, parameter :: PQ0=379.90516            !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
     real, parameter :: A2=17.2693882            !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
     real, parameter :: A3=273.16                !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
@@ -100,7 +100,7 @@ module params_mod
 !    real, parameter :: NLImax=5.E3
 !    real, parameter :: T_ICE=-30.
 !    real, parameter :: TRAD_ice=0.5*T_ICE+TFRZ
-    real, parameter :: Qconv=0.1E-3             !< Heat transfer coefficient of convection _____
+    real, parameter :: Qconv=0.1E-3       !< Heat transfer coefficient of convection _____
 !
     real, parameter :: STBOL=1./5.67E-8   !< 1 over Stefan-Boltzmann constant (W m^-2 deg^-4)
     real, parameter :: DBZmin=-20.        !< Minimum detectable radar reflectivity

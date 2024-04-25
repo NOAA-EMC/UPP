@@ -34,7 +34,7 @@
       INTEGER MDRmax                               !< Maximum mean rain drop diameter (in microns)
 
 ! 
-! --- Various rain lookup tables
+!--- Various rain lookup tables
 ! 
 
       REAL RQR_DRmin   &                       !< Rain content (kg/m**3) for mean drop diameter of .05 mm
@@ -43,7 +43,7 @@
       ,CN0r_DMRmin     &                       !< Minimum (starting) value for rain lookup tables for mean rain drop diameters
       ,CN0r_DMRmax                             !< Maximum (ending) value for rain lookup tables for mean rain drop diameters
 
-! --- Other important parameters
+!--- Other important parameters
 !     (NLImax, FLARGE2 are used for the older version of the microphysics)
 ! 
       REAL T_ICE       &                       !< Temperature (C) threshold at which all remaining liquid water is glaciated to ice

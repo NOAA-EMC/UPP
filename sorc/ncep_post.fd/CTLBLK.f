@@ -27,14 +27,14 @@
 !
   type :: field_info(:,:)        !< Field information
     integer ifld        !< Field number in post control file
-    integer lvl         !< _____.
-    integer lvl1        !< _____.
-    integer lvl2        !< _____.
-    integer ntrange     !< _____.
-    integer tinvstat    !< _____.
+    integer lvl         !< _____
+    integer lvl1        !< _____
+    integer lvl2        !< _____
+    integer ntrange     !< _____
+    integer tinvstat    !< _____
   end type
 !
-  integer, parameter :: komax=70          !< _____.
+  integer, parameter :: komax=70          !< At-rest earth pressure coefficient maximum.
   integer, parameter :: LSMDEF=46         !< Default number of pressure levels.
   integer,PARAMETER  :: NFD=20            !< Default number of flight level heights in geopotential meters. 
   integer,PARAMETER  :: NBND=6            !< Default number of ETA boundary layers.
@@ -44,8 +44,8 @@
 !
   character(len=256) :: fileName                   !< Name of input dynamics file; name of full 3-D model output file.
   character(len=256) :: fileNameFlux               !< Name of input physics file; name of 2-D model output file with physics and surface fields.
-  character(len=256) :: fileNameD3D                !< _____.
-  character(len=256) :: fileNameAER                !< Name of aersol file___?
+  character(len=256) :: fileNameD3D                !< No longer used/supported. (Name of file containing GFS D3D fields.)
+  character(len=256) :: fileNameAER                !< Name of GFS aersol file
   character(len=256) :: fileNameFlat               !< Input configuration text file defining the requested fields.
   character(len=19)  :: DateStr                    !< Time stamp being processed (e.g., 2022-08-02_19:00:00).
   character(len=4)   :: MODELNAME                  !< Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF).
@@ -66,8 +66,8 @@
   logical :: gocart_on     !< Turn on option to process the aerosol/chemical tracers related output from GEFS-Aerosols model (GOCART).
   logical :: gccpp_on      !< Turn on option to process the aerosol/chemical tracers related output from UFS-Chem (CCPP-Chem) model.
   logical :: nasa_on       !< Turn on option to process the aerosol/chemical tracers related output from UFS-Aerosols model (NASA GOCART).
-  logical :: d3d_on        !< _____.
-  logical :: hyb_sigp      !< _____.
+  logical :: d3d_on        !< Flag to turn on D3D _____?
+  logical :: hyb_sigp      !< Flag to turn on hybrid sigma pressure option _____?
   logical :: rdaod         !< Turn on option to process the AOD from GFS scheme.
   logical :: d2d_chem      !< Turn on option to process the 2D aerosol/chemical tracers.
   logical :: aqf_on        !< Turn on Air Quality Forecasting (CMAQ-based).
@@ -79,7 +79,7 @@
   logical :: RUN        !< No longer used/supported.
   logical :: FIRST      !< No longer used/supported.
   logical :: RESTRT     !< Indicates whether it is a restart run.
-  logical :: global     !< Global model run___?
+  logical :: global     !< Flag indicating global model run (if false then regional)
   logical :: SMFLAG     !< Smoothing flag for isobaric output.
 !
   integer :: IDAT(5)             !< Array storing input month, day, year, hour, min of file being processed (parsed from DateStr)
@@ -90,11 +90,11 @@
   integer :: imp_physics         !< Microphysics option used in the model run.
   integer :: icu_physics         !< Cumulus physics option in the model run.
   integer :: iSF_SURFACE_PHYSICS !< Surface physics scheme option in model run.
-  integer :: DataHandle          !< Handle or identifier for the data being processed.____?
-  integer :: NPREC               !< Number of precipitation data points. ____?
-  integer :: NPHS                !< Number of physics schemes used in the model run.____?
+  integer :: DataHandle          !< Handle (or reference) to the data being processed.
+  integer :: NPREC               !< Number of precipitation buckets. 
+  integer :: NPHS                !< Physics time step
   integer :: ISEC                !< Seconds of file being processed (not parsed from DateStr, hard-coded set to 0).
-  integer :: icount_calmict      !< Counter for calm and moist convection.____? 
+  integer :: icount_calmict      !< _____
   integer :: ivegsrc             !< Flag for vegetation classification source (0=USGS, 1=IGBP, 2=UMD)
 
 !
@@ -127,12 +127,12 @@ end module CTLBLK_mod
   real :: DTQ2          !< Model physics time step in seconds.
   real :: PT            !< Model top requested by CMAQ.
   real :: PDTOP         !< Pressure thickness requested by CMAQ.
-  real :: SPL(komax)    !< Array of pressure levels.____?
-  real :: ALSL(komax)   !< Array of altitude levels.____?
-  real :: PREC_ACC_DT   !< Accumulated precipitation over a specific time step.____?
-  real :: PT_TBL        !< Table containing model top values.____?
-  real :: PREC_ACC_DT1  !< Another variable for accumulated precipitation over a specific time step.____?
-  real :: spval         !< Special value used for missing or invalid data.____?
+  real :: SPL(komax)    !< Specified pressure levels. 
+  real :: ALSL(komax)   !< _____ (altitude levels?)
+  real :: PREC_ACC_DT   !< Time interval for accumulated precipitation
+  real :: PT_TBL        !< _____
+  real :: PREC_ACC_DT1  !< Alternate time interval for accumulated precipitation used primarily w/RAP/HRRR. 
+  real :: spval         !< Special value
 ! real :: SPVAL=9.9e10                                     ! Moorthi
 !
   integer :: NUM_PROCS        !< The number of MPI ranks available to the post processor.
@@ -180,7 +180,7 @@ end module CTLBLK_mod
   integer :: ibsize           !< Defines the size of the buffer used in mpi_scatter and mpi_gather. It is necessary because the post-processed variables are not contiguous in the 2D ista_2l:iend_2u,jsta_2l:jsta_2u arrays, so they have to be stored in a contigous buffer and that buffer is what is scattered or gathered.
   integer :: ibsum            !< No longer supported.
   !comm mpi
-  integer :: lsm              !< _____.
+  integer :: lsm              !< Land surface model ?
   integer :: lsmp1            !< LSM+1.
 !
 !> @ingroup CTLBLK_mod
@@ -214,8 +214,8 @@ end module CTLBLK_mod
   real :: TCLOD      !< Number of hours in cloud fraction average.
   real :: THEAT      !< Number of hours in latent heating bucket.
   real :: TPREC      !< Number of hours in precipitation bucket.
-  real :: TMAXMIN    !< Number of hours in maximum and minimum temperature bucket____?
-  real :: TD3D       !< _____.
+  real :: TMAXMIN    !< _____
+  real :: TD3D       !< _____
 !
   real PTHRESH !< Threshold for precipitation (used to check if there is precipitation, mainly in ptype routines).
 !
