@@ -1,5 +1,5 @@
 help([[
-Load environment to build UPP on hera
+Load environment to build UPP on NOAA Cloud
 ]])
 
 
