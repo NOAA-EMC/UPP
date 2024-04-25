@@ -7,6 +7,8 @@
 #
 ######################################################################
 
+SECONDS=0
+
 git_branch="develop"
 git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
@@ -236,17 +238,40 @@ for job_id in $jobid_list; do
   fi
 done
 
+elapsed_time=$( printf '%02dh:%02dm:%02ds\n' $((SECONDS%86400/3600)) $((SECONDS%3600/60)) $((SECONDS%60)) )
+
 python ${test_v}/ci/rt-status.py
 test_results=$?
 
 # Cleanup rt log
 cd ${test_v}/ci
-echo "rundir: ${rundir}" > rt.log.${machine}.temp
+
+UPP_HASH=$(git rev-parse HEAD)
+SUBMODULE_HASHES=$(git submodule status --recursive)
+DATE="$(date '+%Y%m%d %T')"
+
+cat << EOF > rt.log.${machine}.temp
+===== Start of UPP Regression Testing Log =====
+UPP Hash Tested:
+${UPP_HASH}
+
+Submodule hashes:
+${SUBMODULE_HASHES}
+
+Run directory: ${rundir}
+Baseline directory: ${homedir}
+
+Total runtime: ${elapsed_time}
+Test Date: ${DATE}
+Summary Results:
+
+EOF
+
 cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
 cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
 python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
-cat rt.log.${machine}.temp > rt.log.${machine}
-rm rt.log.${machine}.temp
+echo 
+mv rt.log.${machine}.temp rt.log.${machine}
 mv rt.log.${machine} ${test_v}/tests/logs
 
 # should indicate failure to Jenkins
