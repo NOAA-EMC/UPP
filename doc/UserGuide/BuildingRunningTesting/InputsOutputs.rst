@@ -44,32 +44,144 @@ UFS Unified Model Variables
 ITAG
 ----
 
-The file called ``itag`` is a text file that contains the fortran namelist ``&model_inputs`` as
-well as the 2D decomposition specification in ``&nampgb``. It is read in by the ``upp.x`` executable
-from standard input (stdin -- unit 5) and is generated automatically within the UFS application workflow or standalone run 
-script based on user-defined options. It should not be necessary to edit this file. For description purposes,
-the namelists ``&model_inputs`` and ``&nampgb`` (in the ``itag`` file) contain the following lines for FV3:
+The file called ``itag`` is a Fortran namelist file that contains two sections: ``&model_inputs`` describing the as well as the 2D decomposition specification in ``&nampgb``. It is read in by the ``upp.x`` executable from standard input (stdin -- unit 5) and is generated automatically within the UFS application workflow or standalone run script based on user-defined options. It should not be necessary to edit this file. For description purposes, the namelists ``&model_inputs`` and ``&nampgb`` (in the ``itag`` file) contain the following lines for FV3:
 
 :bolditalic:`&model_inputs`
 
-#. ``fileName``: Name of the FV3 (pressure level) output file to be post-processed.
+model_inputs
+^^^^^^^^^^^^
 
-#. ``IOFORM``: Format of FV3 model output (netcdfpara).
+The ``&model_inputs`` section parametrizes choices about the set of model output files that will be used for the UPP 
 
-#. ``grib``: Format of UPP output (grib2)
+.. list-table:: *Description of the &model_inputs namelist section.*
+   :widths: 25 40 15 10
+   :header-rows: 1
 
-#. ``DateStr``: Forecast valid time (not model start time) in YYYY-MM-DD_HH:00:00 format (the forecast time
-   desired to be post-processed).
+   * - Variable Name
+     - Description
+     - Data Type
+     - Default Value
+   * - ``datestring``
+     - Time stamp being processed (e.g., 2022-08-02_19:00:00).
+     - character(len=19)
+     - ---
+   * - ``fileName``
+     - Name of input dynamics file; name of full 3-D model output file.
+     - character(len=256)
+     - ---
+   * - ``filenameflat``
+     - Input configuration text file defining the requested fields.
+     - character(len=256)
+     - postxconfig-NT.txt
+   * - ``filenameflux``
+     - Name of input physics file; name of 2-D model output file with physics and surface fields.
+     - character(len=256)
+     - ---
+   * -``grib``
+     - Grib type (Note that UPP only supports Grib2 currently)
+     - character(5)
+     - grib2
+   * - ``ioform``
+     - Input file format. Choices: binary, binarympiio, binarynemsio, netcdf, netcdfpara
+     - character(len=20)
+     - ---
+   * - ``modelname``
+     - Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF)
+     - character(len=4)
+     - ---
 
-#. ``MODELNAME``: Model used (GFS, FV3R --- regional FV3, also known as the :term:`LAM`).
+.. list-table:: *Description of the ``&nampgb`` namelist section.*
+   :widths: 25 40 15 10
+   :header-rows: 1
 
-#. ``fileNameFlux``: Name of the FV3 (surface) output file to be post-processed.
-
-#. ``fileNameFlat``: Name of configuration file (``postxconfig-NT.txt``)
-
-:bolditalic:`&nampgb`
-
-#. ``numx``: Number of subdomains in the x-direction used for 2D decomposition. 
+   * - ``aqf_on bool``
+     - Turn on Air Quality Forecasting (CMAQ-based)
+     - logical
+     - .false.
+   * - ``d2d_chem``
+     - Turn on option to process the 2D aerosol/chemical tracers
+     - logical
+     - .false.
+   * - ``d3d_on``
+     - Turn on option to use dynamic 3D fields from GFS
+     - logical
+     - .false.
+   * - ``fileNameAERi`` string 
+     - aerosols file name
+     - character(len=256)
+     - ''''
+   * - ``gccpp_on``
+     - Turn on option to process the aerosol/chemical tracers related output from UFS-Chem (CCPP-Chem) model
+     - logical
+     - .false.
+   * - ``gocart_on``
+     - Turn on option to process the aerosol/chemical tracers related output from GEFS-Aerosols model (GOCART)
+     - logical
+     - .false.
+   * - ``gtg_on``
+     - Turn on GTG (Graphical Turbulence Guidance)
+     - logical
+     - .false.
+   * - ``hyb_sigp``
+     - Not used
+     - logical
+     - .true.
+   * - ``kpo``
+     - The number of pressure levels, if different than standard one specified by ``SPLDEF`` described below.
+     - integer
+     - 0
+   * - ``kpv``
+     - The number of output potential vorticity levels
+     - integer
+     - 8
+   * - ``kth``
+     - The number of output isentropic levels
+     - integer
+     - 6
+   * - ``method_blsn``
+     - Turn on blowing snow effect on visibility diagnostic (default=true)
+     - logical
+     - .true.
+   * - ``nasa_on``
+     - Turn on option to process the aerosol/chemical tracers related output from UFS-Aerosols model (NASA GOCART)
+     - logical
+     - .false.
+   * - ``numx``
+     - The number of i regions in a 2D decomposition; Each i row is distibuted to numx ranks; numx=1 is the special case of a 1D decomposition in Y only.
+     - integer
+     - 1
+   * - ``po``
+     - List indicating pressure levels in output
+     - real,dimension(70)
+     - 0
+   * - ``popascal``
+     - Switch to indicate if pressure levels are in pascals (multply by 100 if false)
+     - logical
+     - .false.
+   * - ``pv``
+     - List indicating the potential vorticity level output
+     - real,dimension(70)
+     - (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,70)/)
+   * - ``rdaod``
+     - Turn on the option to process the AOD from the GFS scheme
+     - logical
+     - .false.
+   * - ``slrutah_on``
+     - Calculate snow to liquid ratio (SLR) using method from University of Utah.(default=false)
+     - logical
+     - .false.
+   * - ``th``
+     - List indicating isentropic level output
+     - real,dimension(70)
+     - (/310.,320.,350.,450.,550.,650.,(0.,k=kth+1,70)/)
+   * - ``vtimeunits string 
+     - valid time units, default="", Choices: FMIN
+     - character(len=4)
+     - ''''
+   * - ``write_ifi_debug_files``
+     - Write debug files for In-Flight Icing (IFI), a restricted option in UPP
+     - logical
+     - .false.
 
 .. _control-file:
 
