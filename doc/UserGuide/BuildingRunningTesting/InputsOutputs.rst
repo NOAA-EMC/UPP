@@ -42,17 +42,14 @@ UFS Unified Model Variables
 ITAG
 ----
 
-The file called ``itag`` is a Fortran namelist file that contains two sections: ``&model_inputs`` describing the as well as the 2D decomposition specification in ``&nampgb``. It is read in by the ``upp.x`` executable from standard input (stdin -- unit 5) and is generated automatically within the UFS application workflow or standalone run script based on user-defined options. It should not be necessary to edit this file. For description purposes, the namelists ``&model_inputs`` and ``&nampgb`` (in the ``itag`` file) contain the following lines for FV3:
+The file called ``itag`` is a Fortran namelist file that contains two sections: ``&model_inputs`` and ``&nampgb``. It is read in by the ``upp.x`` executable from standard input (stdin -- unit 5). Most UFS applications generate it automatically based on user-defined application-level options. All UPP namelist choices are described here.
 
 :bolditalic:`&model_inputs`
-
-model_inputs
-^^^^^^^^^^^^
 
 The ``&model_inputs`` section parameterizes choices about the set of model output files that will be used for the UPP 
 
 .. list-table:: *Description of the &model_inputs namelist section.*
-   :widths: 25 40 15 10
+   :widths: 15 40 20 20
    :header-rows: 1
 
    * - Variable Name
@@ -62,11 +59,11 @@ The ``&model_inputs`` section parameterizes choices about the set of model outpu
    * - ``datestring``
      - Time stamp being processed (e.g., 2022-08-02_19:00:00).
      - character(len=19)
-     - ---
+     - n/a
    * - ``fileName``
      - Name of input dynamics file; name of full 3-D model output file.
      - character(len=256)
-     - ---
+     - n/a
    * - ``filenameflat``
      - Input configuration text file defining the requested fields.
      - character(len=256)
@@ -74,24 +71,32 @@ The ``&model_inputs`` section parameterizes choices about the set of model outpu
    * - ``filenameflux``
      - Name of input physics file; name of 2-D model output file with physics and surface fields.
      - character(len=256)
-     - ---
-   * -``grib``
+     - n/a
+   * - ``grib``
      - Grib type (Note that UPP only supports Grib2 currently)
      - character(5)
      - grib2
    * - ``ioform``
      - Input file format. Choices: binary, binarympiio, binarynemsio, netcdf, netcdfpara
      - character(len=20)
-     - ---
+     - n/a
    * - ``modelname``
      - Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF)
      - character(len=4)
-     - ---
+     - n/a
 
-.. list-table:: *Description of the ``&nampgb`` namelist section.*
-   :widths: 25 40 15 10
+:bolditalic:`&nampgb`
+
+The ``&nampgb`` section parameterizes choices concerning the processing done in UPP.
+
+.. list-table:: *Description of the &nampgb namelist section.*
+   :widths: 25 40 20 15
    :header-rows: 1
 
+   * - Variable Name
+     - Description
+     - Data Type
+     - Default Value
    * - ``aqf_on bool``
      - Turn on Air Quality Forecasting (CMAQ-based)
      - logical
@@ -104,10 +109,10 @@ The ``&model_inputs`` section parameterizes choices about the set of model outpu
      - Turn on option to use dynamic 3D fields from GFS
      - logical
      - .false.
-   * - ``fileNameAERi`` string 
+   * - ``fileNameAER``
      - aerosols file name
      - character(len=256)
-     - ''''
+     - ""
    * - ``gccpp_on``
      - Turn on option to process the aerosol/chemical tracers related output from UFS-Chem (CCPP-Chem) model
      - logical
@@ -172,10 +177,10 @@ The ``&model_inputs`` section parameterizes choices about the set of model outpu
      - List indicating isentropic level output
      - real,dimension(70)
      - (/310.,320.,350.,450.,550.,650.,(0.,k=kth+1,70)/)
-   * - ``vtimeunits string 
+   * - ``vtimeunits``
      - valid time units, default="", Choices: FMIN
      - character(len=4)
-     - ''''
+     - ""
    * - ``write_ifi_debug_files``
      - Write debug files for In-Flight Icing (IFI), a restricted option in UPP
      - logical
@@ -197,7 +202,7 @@ A default control file, ``postxconfig-NT.txt``, is provided and read by the UPP.
 .. _control-output:
 
 Selecting Which Variables the UPP Outputs
--------------------------------------------
+-----------------------------------------
 
 To output a field, the body of the control file needs to contain an entry for the appropriate variable. If an entry for a particular field is not yet available in the control file, it may be added to the control file with the appropriate entries for that field. For variables found on vertical levels (e.g., isobaric or height levels), the desired levels to be output must be listed (see next section: :ref:`control_levels`). A list of available GRIB2 fields that can be output by UPP can be found in the table :doc:`../tables/UPP_GRIB2_Table_byID`. Please note that some fields are dependent on model, physics, and other fields.
 
