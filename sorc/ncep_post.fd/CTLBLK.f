@@ -101,23 +101,8 @@
 !> @ingroup CTLBLK_mod 
 !> @{
 !> No longer used/supported.
-module CTLBLK_mod
-    implicit none
-    ! 
-    integer :: NFCST   !< Number of forecasts.
-    integer :: NBC     !< Number of boundary conditions.
-    integer :: LIST    !< List identifier.
-    integer :: IOUT    !< Output identifier.
-    integer :: NTSTM   !< Number of timesteps.
-    integer :: NRADS   !< Number of shortwave radiation fields.
-    integer :: NRADL   !< Number of longwave radiation fields.
-    integer :: NDDAMP  !< Number of data damping fields.
-    integer :: IDTAD   !< Identifier for tidal mixing fields.
-    integer :: NBOCO   !< Number of boundary conditions.
-    integer :: NSHDE   !< Number of shading fields.
-    integer :: NCP     !< Number of cloud physics fields.
-    integer :: IMDLTY  !< Model dynamics type.
-end module CTLBLK_mod
+integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
+             NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 !
   real :: DT            !< Model time step in seconds.
