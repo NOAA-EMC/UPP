@@ -40,11 +40,9 @@ load(pathJoin("w3emc", w3emc_ver))
 
 nemsio_ver=os.getenv("nemsio_ver") or "2.5.2"
 sigio_ver=os.getenv("sigio_ver") or "2.3.2"
-sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
 wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("nemsio", nemsio_ver))
 load(pathJoin("sigio", sigio_ver))
-load(pathJoin("sfcio", sfcio_ver))
 load(pathJoin("wrf_io", wrf_io_ver))
 
 setenv("CC","cc")
