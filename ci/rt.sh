@@ -4,7 +4,7 @@
 # Wen Meng, 12/2020, First version.
 # Fernando Andrade-Maldonado 5/2023 rework for CLI Options
 # Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
-#
+# Fernando Andrade-Maldonado 4/2024 Additional Log info
 ######################################################################
 
 SECONDS=0
@@ -269,7 +269,8 @@ EOF
 
 cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
 cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
-python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp 
+python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
+echo "===== End of UPP Regression Testing Log =====" >> rt.log.${machine}.temp
 mv rt.log.${machine}.temp rt.log.${machine}
 mv rt.log.${machine} ${test_v}/tests/logs
 
