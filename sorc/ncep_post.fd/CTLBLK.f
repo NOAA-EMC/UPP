@@ -101,7 +101,7 @@
 !> @ingroup CTLBLK_mod 
 !> @{
 !> No longer used/supported.
-integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
+   integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
              NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 !

@@ -65,7 +65,7 @@ module params_mod
     real, parameter :: DTR=3.1415926/180.       !< Degrees to radians conversion
     real, parameter :: RTD=1./DTR               !< Radians to degrees conversion
     real, parameter :: ERAD=6.371E6             !< Earth's radius in meters
-    real, parameter :: CP=1004.6                !< Specific heat of air
+    real, parameter :: CP=1004.6                !< Specific heat of dry air at constant pressure (kJ/kg-K)
     real, parameter :: RCAPA=1./CAPA            !< Reciprocal of CAPA
     real, parameter :: P1000=1000.E2            !< Pressure value of 100,000 Pascals
     real, parameter :: DP10M=110                !< No longer used/supported
@@ -83,7 +83,7 @@ module params_mod
     real, parameter :: RDOCP=RD/CP              !< RD over CP
     real, parameter :: LHEAT=2.5E6              !< Latent heat
     real, parameter :: LHTOCP=LHEAT/CP          !< Latent heat over CP
-    real, parameter :: EPSQ2=0.02               !< _____ Initial turbulent kinetic energy (m2 s^-2)
+    real, parameter :: EPSQ2=0.02               !< _____ Minimum value of turbulent kinetic energy (m2 s^-2)
     real, parameter :: PQ0=379.90516            !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
     real, parameter :: A2=17.2693882            !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
     real, parameter :: A3=273.16                !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
