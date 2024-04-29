@@ -6857,7 +6857,10 @@
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>AEMFLX</pname>
        <aerosol_type>particulate_org_matter_dry</aerosol_type>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>5.0</scale>
     </param>
 
@@ -6945,8 +6948,10 @@
     <param>
        <post_avblfldidx>755</post_avblfldidx>
        <shortname>HWP_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
        <longname>Hourly Wildfire Potential on surface</longname>
        <pname>WFIREPOT</pname>
+       <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
@@ -8332,6 +8337,46 @@
        <scale_val_1st_size>25</scale_val_1st_size>
        <scale_fact_2nd_size>7</scale_fact_2nd_size>
        <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1015</post_avblfldidx>
+       <shortname>EBB_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AEMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1016</post_avblfldidx>
+       <shortname>EBB_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AEMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1017</post_avblfldidx>
+       <shortname>EBB_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>AEMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>8.</level>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
        <scale>6.0</scale>
     </param>
 

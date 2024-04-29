@@ -75,6 +75,7 @@
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
 !> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
+!> 2024-04-23 | Eric James        | Adding smoke emissions (ebb) from RRFS
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -102,7 +103,7 @@
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
-                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, EBB, HWP,   &
+                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, HWP,        &
                          LWP, IWP, AVGCPRATE,                                 &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
@@ -116,7 +117,7 @@
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
                             JM, LM, gocart_on, gccpp_on, nasa_on, me, rdaod,  &
-                            ISTA, IEND,aqf_on
+                            ISTA, IEND,aqf_on,TSRFC
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -156,7 +157,7 @@
       REAL, dimension(ista:iend,jsta:jend) :: TCLD, CEILING
       real   CU_ir(LM), q_conv   !bsf
 !jw
-      integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,        &
+      integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,ITSRFC, &
               LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK
       real    DPBND,RRNUM,QCLD,RSUM,TLMH,FACTRS,FACTRL,DP,        &
               OPDEPTH, TMP,QSAT,RHUM,TCEXT,DELZ,DELY,DY_m
@@ -517,6 +518,25 @@
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(1011))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+!     TOTAL COLUMN EBB (BIOMASS BURNING EMISSIONS)
+!
+      IF (IGET(745) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),24)
+         CALL BOUND(GRID1,D00,H99999)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(745))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -3943,24 +3963,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         endif
       ENDIF
 
-! Biomass burning emissions (EBB)
-      IF (IGET(745)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            IF (EBB(I,J)<spval) THEN
-              GRID1(I,J) = EBB(I,J)/(1E9)
-            ELSE
-              GRID1(I,J) = spval
-            ENDIF
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(745))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
-      ENDIF
-
 ! Hourly wildfire potential (HWP)
       IF (IGET(755)>0) THEN
         DO J=JSTA,JEND
@@ -3972,11 +3974,35 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ENDIF
           ENDDO
         ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(755))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+        ID(1:25) = 0
+        ITSRFC     = NINT(TSRFC)
+        IF(ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+        ELSE
+         IFINCR     = 0
         endif
+        ID(19)     = IFHR
+        IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+        ID(20)     = 3
+        IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+        ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+        ENDIF
+        IF (ID(18)<0) ID(18) = 0
+       if(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(755))
+        if(ITSRFC>0) then
+           fld_info(cfld)%ntrange=1
+        else
+           fld_info(cfld)%ntrange=0
+        endif
+        fld_info(cfld)%tinvstat=IFHR-ID(18)
+        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+       endif
       ENDIF
 
 !     CURRENT (instantaneous) INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
