@@ -112,7 +112,7 @@
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
               nbin_oc, nbin_su, nbin_no3, nbin_nh4, gocart_on,gccpp_on, nasa_on,pt_tbl,hyb_sigp,&
-              filenameFlux, fileNameAER,                                               &
+              filenameFlux, fileNameAER, prec_acc_dt1,                                          &
               iSF_SURFACE_PHYSICS,rdaod, d2d_chem, modelname, aqf_on,                         &
               ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
@@ -1652,6 +1652,7 @@
         td3d    = tprec
         !print*,'tprec = ',tprec
 
+        prec_acc_dt1=15.0
 
       VarName='refl_10cm'
       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &

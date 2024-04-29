@@ -697,6 +697,11 @@
        </param>
 
        <param>
+       <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
        <shortname>ACM_SNOM_ON_SURFACE</shortname>
        <pname>SNOM</pname>
        <scale>4.0</scale>
@@ -2304,6 +2309,11 @@
        <param>
        <shortname>CACM_APCP_ON_SURFACE</shortname>
        <pname>APCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
        <scale>-4.0</scale>
        </param>
 

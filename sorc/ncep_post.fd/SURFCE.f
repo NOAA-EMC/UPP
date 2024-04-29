@@ -4391,6 +4391,20 @@
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET1 TOTAL PRECIP '
          IF (IGET(526)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF (IFHR == 0 .AND. IFMIN == 0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE
+                 IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                   GRID2(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+                 ENDIF
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -4401,6 +4415,7 @@
                ENDIF
              ENDDO
            ENDDO
+           ENDIF
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
