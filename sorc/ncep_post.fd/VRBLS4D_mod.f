@@ -16,6 +16,7 @@
       real, allocatable :: SMOKE(:,:,:,:)
       real, allocatable :: FV3DUST(:,:,:,:)
       real, allocatable :: COARSEPM(:,:,:,:)
+      real, allocatable :: EBB(:,:,:,:)
       real, allocatable :: PP25(:,:,:,:)        ! PP25
       real, allocatable :: PP10(:,:,:,:)        ! PP10
 !
