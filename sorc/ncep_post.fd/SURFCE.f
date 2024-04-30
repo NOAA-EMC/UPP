@@ -175,8 +175,6 @@
 
       logical, parameter :: debugprint = .false.
 
-      print *,'E JAMES IFHR=',ifhr
-      print *,'E JAMES IFMIN=',ifmin
 !****************************************************************************
 !
 !     START SURFCE.
@@ -4434,8 +4432,14 @@
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(526))
-             fld_info(cfld)%ntrange=1
-             fld_info(cfld)%tinvstat=ITPREC
+             if(fld_info(cfld)%ntrange==0) then
+               if (ifhr==0 .and. ifmin==0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
 !$omp parallel do private(i,j,ii,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
