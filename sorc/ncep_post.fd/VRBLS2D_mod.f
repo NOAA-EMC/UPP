@@ -218,7 +218,6 @@
       ,AERASY2D(:,:) &        !< Aerosol asymmetry parameter
       ,AERSSA2D(:,:) &        !< Aerosol single-scattering albedo
       ,MEAN_FRP(:,:) &        !< Mean fire radiative power ___?
-      ,EBB(:,:) &             !< Biomass burning emissions
       ,HWP(:,:) &             !< Hourly wildfire potential
       ,LWP(:,:) &             !< Liquid water path ___?
       ,IWP(:,:) &             !< Ice water path___?

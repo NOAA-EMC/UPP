@@ -38,6 +38,7 @@
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
+!> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@
 
 !
 !
-      use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM
+      use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
                          RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
@@ -99,7 +100,7 @@
      &,                                      OSL_OLD, OSL995                   &
      &,                                      ICINGFSL, ICINGVSL
       REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:),  FV3DUSTSL(:,:,:)      &
-     &,                                      COARSEPMSL(:,:,:)
+     &,                                      COARSEPMSL(:,:,:),  EBBSL(:,:,:)
       REAL, allocatable :: GTGSL(:,:),CATSL(:,:),MWTSL(:,:)
 !
       integer,intent(in) :: iostatusD3D
@@ -177,6 +178,15 @@
         do j=1,jm
           do i=1,im
              COARSEPMSL(i,j,l)  = SPVAL
+          enddo
+        enddo
+      enddo
+      if (.not. allocated(ebbsl)) allocate(ebbsl(im,jm,nbin_sm))
+!$omp parallel do private(i,j,l)
+      do l=1,nbin_sm
+        do j=1,jm
+          do i=1,im
+             EBBSL(i,j,l)  = SPVAL
           enddo
         enddo
       enddo
@@ -395,6 +405,7 @@
                    IF(SMOKE(I,J,1,K) < SPVAL) SMOKESL(I,J,K)=SMOKE(I,J,1,K)
                    IF(FV3DUST(I,J,1,K) < SPVAL) FV3DUSTSL(I,J,K)=FV3DUST(I,J,1,K)
                    IF(COARSEPM(I,J,1,K) < SPVAL) COARSEPMSL(I,J,K)=COARSEPM(I,J,1,K)
+                   IF(EBB(I,J,1,K) < SPVAL) EBBSL(I,J,K)=EBB(I,J,1,K)
                  ENDDO
 
 ! only interpolate GFS d3d fields when  reqested
@@ -662,6 +673,8 @@
                    FV3DUSTSL(I,J,K)=FV3DUST(I,J,LL,K)+(FV3DUST(I,J,LL,K)-FV3DUST(I,J,LL-1,K))*FACT
                    IF(COARSEPM(I,J,LL,K) < SPVAL .AND. COARSEPM(I,J,LL-1,K) < SPVAL)  &
                    COARSEPMSL(I,J,K)=COARSEPM(I,J,LL,K)+(COARSEPM(I,J,LL,K)-COARSEPM(I,J,LL-1,K))*FACT
+                   IF(EBB(I,J,LL,K) < SPVAL .AND. EBB(I,J,LL-1,K) < SPVAL)  &
+                   EBBSL(I,J,K)=EBB(I,J,LL,K)+(EBB(I,J,LL,K)-EBB(I,J,LL-1,K))*FACT
                  ENDDO
 
 ! only interpolate GFS d3d fields when  == ested
@@ -2391,6 +2404,30 @@
                cfld = cfld + 1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(1013))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(1013))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+! E. James - 23 Apr 2024: EBB from RRFS
+        IF (IGET(1016) > 0) THEN
+          IF (LVLS(LP,IGET(1016)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = EBBSL(I,J,1)/(1E9)
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1016))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1016))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -4200,6 +4237,7 @@ if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
 if(allocated(coarsepmsl)) deallocate(coarsepmsl)
+if(allocated(ebbsl)) deallocate(ebbsl)
 ! GTG
 if(allocated(GTGSL)) deallocate(GTGSL)
 if(allocated(CATSL)) deallocate(CATSL)
