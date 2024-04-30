@@ -6,24 +6,24 @@
        implicit none
 !
       real, allocatable :: &
-      U10   (:,:) &        !< Max hourly u-component of 10m agl wind
-      ,AKMS  (:,:) &       !< Time-averaged wind exchange coefficient
-      ,AKHS  (:,:) &       !< Time-averaged mass exchange coefficient
+      U10   (:,:) &        !< 10m u-wind component
+      ,AKMS  (:,:) &       !< Surface exchange coefficient of momentum
+      ,AKHS  (:,:) &       !< Surface exchange coefficient of heat/moisture
       ,THS   (:,:) &       !< Surface potential temperature
-      ,QS(:,:) &           !< Specific humidity 
-      ,UZ0(:,:) &          !< Wind speed at the surface ???
-      ,VZ0(:,:) &          !< Wind direction at the surface ???
-      ,THZ0(:,:) &         !< Surface potential temperature ???
-      ,QZ0(:,:) &          !< Specific humidity at the surface ???
-      ,SNO   (:,:) &       !< Snow depth
+      ,QS(:,:) &           !< Specific humidity
+      ,UZ0(:,:) &          !< U-wind component at roughness length (m/s)
+      ,VZ0(:,:) &          !< V-wind component at roughness length (m/s)
+      ,THZ0(:,:) &         !< Potential temperature at roughness length (K)
+      ,QZ0(:,:) &          !< _____ ??? Specific humidity at the surface
+      ,SNO   (:,:) &       !< Instantaneous snow water equivalent _____
       ,TSHLTR   (:,:) &    !< 2m temperature
       ,QSHLTR(:,:) &       !< 2m specific humidity
-      ,MRSHLTR(:,:) &      !< ___? something to do with moisture?
+      ,MRSHLTR(:,:) &      !< Shelter mixing ratio
       ,V10(:,:) &          !< 10 m v-wind component
-      ,ACPREC(:,:) &       !< Accumulated precipitation over a certain period
-      ,CUPREC(:,:) &       !< Cumulative precipitation over a certain period
-      ,ANCPRC(:,:) &       !< A form of accumulated or cumulative precipitation ___?
-      ,CUPPT(:,:) &        !< Cumulative precipitation ___?
+      ,ACPREC(:,:) &       !< Accumulated total precipitation
+      ,CUPREC(:,:) &       !< Accumulated cumulus precipitation
+      ,ANCPRC(:,:) &       !< _____ ??? A form of accumulated or cumulative precipitation ___?
+      ,CUPPT(:,:) &        !< Accumulated convective precipitation??? Cumulative precipitation ___?
       ,SMSTAV(:,:) &       !< Average soil moisture content       
       ,SSROFF(:,:) &       !< Surface water runoff ___?
       ,BGROFF(:,:) &       !< Groundwater runoff___?
