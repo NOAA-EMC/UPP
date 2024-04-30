@@ -4407,7 +4407,6 @@
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET1 TOTAL PRECIP '
          IF (IGET(526)>0.) THEN
-           ITPREC     = NINT(PREC_ACC_DT1)
            IF (MODELNAME .EQ. 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -4429,6 +4428,7 @@
              ENDDO
            ENDDO
            ENDIF
+           IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(526))
@@ -4450,8 +4450,18 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 CONV PRECIP  '
+!     'BUCKET1 FRZR PRECIP  '
          IF (IGET(527)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -4462,6 +4472,7 @@
                ENDIF
              ENDDO
            ENDDO
+           ENDIF
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
@@ -4484,8 +4495,18 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 GRDSCALE PRCP'
+!     'BUCKET1 VAR DENSITY SNOW'
          IF (IGET(528)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -4496,6 +4517,7 @@
                ENDIF
              ENDDO
            ENDDO
+           ENDIF
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
@@ -4520,6 +4542,16 @@
          ENDIF
 !     'BUCKET1 SNOW  PRECIP '
          IF (IGET(529)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -4530,6 +4562,7 @@
                ENDIF
              ENDDO
            ENDDO
+           ENDIF
            IFINCR = NINT(PREC_ACC_DT1)
 !           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then

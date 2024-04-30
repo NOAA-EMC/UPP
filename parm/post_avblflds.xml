@@ -4521,10 +4521,10 @@
 
     <param>
        <post_avblfldidx>527</post_avblfldidx>
-       <shortname>BUCKET1_ACPCP_ON_SURFACE</shortname>
-       <longname>bucket Convective precipitation on surface</longname>
+       <shortname>BUCKET1_FRZR_ON_SURFACE</shortname>
+       <longname>bucket Freezing rain on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>ACPCP</pname>
+       <pname>FRZR</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
@@ -4532,10 +4532,10 @@
 
     <param>
        <post_avblfldidx>528</post_avblfldidx>
-       <shortname>BUCKET1_NCPCP_ON_SURFACE</shortname>
-       <longname>bucket Large scale precipitation on surface</longname>
+       <shortname>BUCKET1_ASNOW_ON_SURFACE</shortname>
+       <longname>bucket Var density snow on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>NCPCP</pname>
+       <pname>ASNOW</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
@@ -4543,10 +4543,10 @@
 
     <param>
        <post_avblfldidx>529</post_avblfldidx>
-       <shortname>BUCKET1_WEASD_ON_SURFACE</shortname>
+       <shortname>BUCKET1_TSNOWP_ON_SURFACE</shortname>
        <longname>bucket snow precipitation on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>WEASD</pname>
+       <pname>TSNOWP</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
