@@ -50,6 +50,7 @@
 !> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
 !> 2024-03-25 | E James    | Enabling output of column integrated soil moisture.
 !> 2024-04-03 | E James    | Enabling output of hourly average smoke PM2.5 and dust PM10
+!> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -76,7 +77,7 @@
 !     
 !     INCLUDE GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !
-      use vrbls4d, only: smoke, fv3dust, coarsepm
+      use vrbls4d, only: smoke, fv3dust, coarsepm, ebb
       use vrbls3d, only: zint, pint, t, pmid, q, f_rimef
       use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,       &
                          cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,    &
@@ -2305,6 +2306,22 @@
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(1014))
+             datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
+           endif
+         ENDIF
+!
+! E. James - 23 Apr 2024: EBB from RRFS on lowest model level
+!
+         IF (IGET(1017)>0) THEN
+           GRID1=SPVAL
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               GRID1(I,J) = EBB(I,J,LM,1)/(1E9)
+             ENDDO
+           ENDDO
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(1017))
              datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
            endif
          ENDIF

@@ -631,7 +631,6 @@
       allocate(snfden(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(sndepac(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(mean_frp(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(hwp(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(smoke_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(dust_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -661,7 +660,6 @@
           snfden(i,j)=spval
           sndepac(i,j)=spval
           mean_frp(i,j)=spval
-          ebb(i,j)=spval
           hwp(i,j)=spval
           smoke_ave(i,j)=spval
           dust_ave(i,j)=spval
@@ -671,6 +669,7 @@
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
       allocate(fv3dust(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
       allocate(coarsepm(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
+      allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
 !$omp parallel do private(i,j,l,k)
       do k=1,nbin_sm
         do l=1,lm
@@ -679,6 +678,7 @@
               smoke(i,j,l,k)=spval
               fv3dust(i,j,l,k)=spval
               coarsepm(i,j,l,k)=spval
+              ebb(i,j,l,k)=spval
             enddo
           enddo
         enddo
