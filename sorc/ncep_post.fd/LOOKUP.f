@@ -1,30 +1,33 @@
 !> @file
-!> @brief module: lookup_mod defines _____???
+!> @brief module: lookup_mod defines variables used to create lookup tables for pressure, temperature, and specific humidity.
   module  lookup_mod
 !
   implicit none
 !
-  integer,parameter :: ITB=076   &  <! _____
-  ,JTB=134   &    <! _____
+  integer,parameter :: ITB=076   &  <! Table horizontal size (i index)
+  ,JTB=134   &    <! Table vertical size (j index)
   ,ITBQ=152  &    <! _____
   ,JTBQ=440       <! _____
   
   
-  real :: PL   &  !< Pressure Level
-  ,THL  &      !< Temperature
-  ,RDQ &       !< Relative Humidity
-  ,RDTH  &     !< Mixing Ratio
-  ,RDP &       !< Density
-  ,RDTHE &     !< Potential Temperature___?
-  ,PLQ   &     !< Pressure Level for Q
-  ,RDPQ &      !< Density for Q
-  ,RDTHEQ      !< Potential Temperature for Q
+  real :: PL   &  !< Lower bound of pressure range
+  ,THL  &      !< Lower bound of potential temperature range
+  ,RDQ &       !< Scaling factor for specific humidity
+  ,RDTH  &     !< Scaling factor for potential temperature
+  ,RDP &       !< Scaling factor for pressure
+  ,RDTHE &     !< Scaling factor for equivalent potential temperature
+  ,PLQ   &     !< _____ Lower bound of pressure range for Q
+  ,RDPQ &      !< _____ Scaling factor for pressure and Q
+  ,RDTHEQ      !< _____ Scaling factor for equivalent potential temperature and Q
 
-  real,dimension(JTB)  :: QS0,SQS &         !< Specific humidity and its storage array
-  real,dimension(ITB)  :: THE0,STHE &       !< Potential temperature and its storage array
-  real,dimension(ITBQ) :: THE0Q,STHEQ &     !< Pressure-temperature table___?
-  real,dimension(ITB,JTB) :: PTBL &         !< Pressure-temperature table___?
-  real,dimension(JTB,ITB) :: TTBL &         !< Temperature-pressure table___?
-  real,dimension(JTBQ,ITBQ) :: TTBLQ &      !< Temperature-pressure table for Q___?
+  real,dimension(JTB)  :: QS0, &    !< Base for specific humidity
+  SQS                               !< Scaling factor for specific humidity
+  real,dimension(ITB)  :: THE0, &   !< Base for equivalent potential temperature
+  STHE                              !< Range for equivalent potential temperature
+  real,dimension(ITBQ) :: THE0Q, &  !< _____
+  STHEQ                             !< _____
+  real,dimension(ITB,JTB) :: PTBL          !< Saturation pressure table
+  real,dimension(JTB,ITB) :: TTBL          !< Temperature table
+  real,dimension(JTBQ,ITBQ) :: TTBLQ       !< _____
 !
   end module lookup_mod
