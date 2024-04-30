@@ -4,16 +4,16 @@
 !
       implicit none
 !
-      REAL, ALLOCATABLE :: HBM2(:,:) &         !<
-      ,SM(:,:) &         !< Soil moisture
-      ,SICE(:,:) &       !< Sea ice mask
+      REAL, ALLOCATABLE :: HBM2(:,:) &         !< _____
+      ,SM(:,:) &         !< Sea mask
+      ,SICE(:,:) &       !< _____ Sea ice mask
       ,GDLAT(:,:) &      !< Grid latitude
       ,GDLON(:,:) &      !< Grid longitude
-      ,LMH(:,:) &        !< Land model height
-      ,LMV(:,:) &        !< Land model vertical___?  
-      ,HTM (:,:,:) &     !< Horizontal temperature momentum___?
-      ,VTM (:,:,:) &     !< Virtual temperature___?
-      ,DX(:,:) &         !< Grid spacing in the x-direction
-      ,DY(:,:) &         !< Grid spacing in the y-direction
+      ,LMH(:,:) &        !< Topography indexes array
+      ,LMV(:,:) &        !< _____ Topography indexes array - vertical ?  
+      ,HTM (:,:,:) &     !< Height topography mask array
+      ,VTM (:,:,:) &     !< _____
+      ,DX(:,:) &         !< _____ Grid spacing in the x-direction
+      ,DY(:,:) &         !< _____ Grid spacing in the y-direction
 !
       end module masks

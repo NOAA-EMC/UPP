@@ -16,9 +16,9 @@
   ,RDTH  &     !< Scaling factor for potential temperature
   ,RDP &       !< Scaling factor for pressure
   ,RDTHE &     !< Scaling factor for equivalent potential temperature
-  ,PLQ   &     !< _____ Lower bound of pressure range for Q
-  ,RDPQ &      !< _____ Scaling factor for pressure and Q
-  ,RDTHEQ      !< _____ Scaling factor for equivalent potential temperature and Q
+  ,PLQ   &     !< _____ Lower bound of pressure range for specific humidity ?
+  ,RDPQ &      !< _____ Scaling factor for pressure and specific humidity ?
+  ,RDTHEQ      !< _____ Scaling factor for equivalent potential temperature and specific humidity ?
 
   real,dimension(JTB)  :: QS0, &    !< Base for specific humidity
   SQS                               !< Scaling factor for specific humidity
