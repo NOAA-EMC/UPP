@@ -175,7 +175,8 @@
 
       logical, parameter :: debugprint = .false.
 
-
+      print *,'E JAMES IFHR=',ifhr
+      print *,'E JAMES IFMIN=',ifmin
 !****************************************************************************
 !
 !     START SURFCE.
@@ -4408,16 +4409,13 @@
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET1 TOTAL PRECIP '
          IF (IGET(526)>0.) THEN
+           ITPREC     = NINT(PREC_ACC_DT1)
            IF (MODELNAME .EQ. 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
-               IF (IFHR == 0 .AND. IFMIN == 0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE
-                 IF(AVGPREC_CONT(I,J) < SPVAL)THEN
-                   GRID2(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
-                 ENDIF
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
                ENDIF
              ENDDO
            ENDDO
@@ -4433,18 +4431,11 @@
              ENDDO
            ENDDO
            ENDIF
-           IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(526))
-             if(fld_info(cfld)%ntrange==0) then
-               if (ifhr==0 .and. ifmin==0) then
-                 fld_info(cfld)%tinvstat=0
-               else
-                 fld_info(cfld)%tinvstat=IFINCR
-               endif
-               fld_info(cfld)%ntrange=1
-             end if
+             fld_info(cfld)%ntrange=1
+             fld_info(cfld)%tinvstat=ITPREC
 !$omp parallel do private(i,j,ii,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
