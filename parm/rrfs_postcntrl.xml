@@ -1352,19 +1352,6 @@
        </param>
 
        <param>
-       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLW</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLI</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
            <shortname>EFSH_ON_EFBL</shortname>
            <scale>-1.0</scale>
        </param>
@@ -1432,45 +1419,6 @@
        <param>
            <shortname>MLFC_ON_EFL</shortname>
            <scale>-1.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLR</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLS_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLS</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLC_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLC</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLG_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLG</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCLSW_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCLSW</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLM_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLM</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
        </param>
 
        <param>
@@ -3131,44 +3079,6 @@
        <shortname>PRES_ON_GRID_SCALE_CLOUD_TOP_LVL</shortname>
        <pname>PRES</pname>
         <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLW</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLI</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLR</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLS_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLS</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLC_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLC</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLG_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLG</pname>
-        <scale>5.0</scale>
        </param>
 
        <param>
