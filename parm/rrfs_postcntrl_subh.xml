@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
+<!--  Lin Gan:  20150427 validated -->
+    <paramset>
+    <datset>PRSLEV</datset>
+    <grid_num>32769</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>rrfs</gen_proc>
+    <packing_method>complex_packing_spatial_diff</packing_method>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+
+       <param>
+       <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>TMP</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>SPFH</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>DPT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>DPT</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>UGRD</pname>
+       <level>10.</level>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>VGRD</pname>
+       <level>10.</level>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>GUST_ON_SURFACE</shortname>
+       <pname>GUST</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>PRES_ON_SURFACE</shortname>
+       <pname>PRES</pname>
+        <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_SURFACE</shortname>
+       <pname>HGT</pname>
+        <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET1_ASNOW_ON_SURFACE</shortname>
+       <scale>9.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET1_TSNOWP_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET1_FRZR_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>BUCKET1_GRAUPEL_ON_SURFACE</shortname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
+       <pname>CRAIN</pname>
+       <scale>1.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_CSNOW_ON_SURFACE</shortname>
+       <pname>CSNOW</pname>
+       <scale>1.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_CICEP_ON_SURFACE</shortname>
+       <pname>CICEP</pname>
+       <scale>1.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_CFRZR_ON_SURFACE</shortname>
+       <scale>1.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_PRATE_ON_SURFACE</shortname>
+       <pname>PRATE</pname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>CPOFP_ON_SURFACE</shortname>
+       <pname>CPOFP</pname>
+       <scale>4.0</scale>
+       </param>
+
+
+       <param>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
+       <pname>VIS</pname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_USWRF_ON_SURFACE</shortname>
+       <pname>USWRF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_ULWRF_ON_SURFACE</shortname>
+       <pname>ULWRF</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_ULWRF_ON_TOP_OF_ATMOS</shortname>
+       <pname>ULWRF</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_USWRF_ON_TOP_OF_ATMOS</shortname>
+       <pname>USWRF</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_DSWRF_ON_SURFACE</shortname>
+       <pname>DSWRF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_DLWRF_ON_SURFACE</shortname>
+       <pname>DLWRF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_SWDDNI_ON_SURFACE</shortname>
+       <pname>VBDSF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>INST_SWDDIF_ON_SURFACE</shortname>
+       <pname>VDDSF</pname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
+       <pname>UGRD</pname>
+       <level>80.</level>
+       <scale>4.0</scale>
+        </param>
+
+       <param>
+       <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
+       <pname>VGRD</pname>
+       <level>80.</level>
+       <scale>4.0</scale>
+        </param>
+
+
+       <param>
+       <shortname>HGT_ON_CLOUD_BASE</shortname>
+       <pname>HGT</pname>
+        <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>HGT_ON_CLOUD_TOP</shortname>
+       <pname>HGT</pname>
+        <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
+       <pname>REFC</pname>
+       <scale>4.0</scale>
+       </param>
+
+
+       <param>
+       <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>REFD</pname>
+       <level>4000. 1000.</level>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLW</pname>
+       <table_info>NCEP</table_info>
+        <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLI</pname>
+       <table_info>NCEP</table_info>
+        <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
+       <pname>HGT</pname>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <pname>RETOP</pname>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
+       <pname>VIL</pname>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
+       <pname>VIL</pname>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <pname>UPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+    </paramset>
+
+   </postxml>
