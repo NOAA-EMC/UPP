@@ -691,7 +691,8 @@
        </param>
 
        <param>
-       <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <pname>APCP</pname>
        <scale>-4.0</scale>
        </param>
 
@@ -2249,7 +2250,8 @@
        </param>
 
        <param>
-       <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <pname>APCP</pname>
        <scale>-4.0</scale>
        </param>
 
