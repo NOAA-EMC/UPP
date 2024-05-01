@@ -76,6 +76,7 @@
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
 !> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
 !> 2024-04-23 | Eric James        | Adding smoke emissions (ebb) from RRFS
+!> 2024-05-01 | Jaymes Kenyon     | Updates to the GSL exp-1 ceiling diagnostic
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -2077,7 +2078,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! BEGIN EXPERIMENTAL GSD CEILING DIAGNOSTICS...
 ! J. Kenyon, 4 Feb 2017:  this approach uses model-state cloud fractions
-!    Parameter 487: experimental ceiling diagnostic #1
+!    Parameter 487: experimental ceiling diagnostic #1 (updated 1 May 2024)
       IF (IGET(487)>0) THEN
 !       set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
         rhoice = 970.
@@ -2085,7 +2086,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         exponfp = 1.
         const1 = 3.912
 !       set minimum cloud fraction to represent a ceiling
-        ceiling_thresh_cldfra = 0.5
+        ceiling_thresh_cldfra = 0.41
 
         DO J=JSTA,JEND
           DO I=ISTA,IEND
@@ -2095,28 +2096,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             do k=1,lm
               LL=LM-k+1
               cldfra(k) = cfr(i,j,ll)
-              cldfra_max = max(cldfra_max,cldfra(k))              ! determine the column-maximum cloud fraction
+              cldfra_max = max(cldfra_max,cldfra(k))      ! determine the column-maximum cloud fraction
             end do
 
-            if (cldfra_max >= ceiling_thresh_cldfra) then ! threshold cloud fraction found in column, get ceiling
+            if (cldfra_max >= ceiling_thresh_cldfra) then ! threshold cloud fraction (possible ceiling) found 
+                                                          ! in column, so proceed...
 
-!             threshold cloud fraction (possible ceiling) found somewhere in column, so proceed...
-!             first, search for and eliminate fog layers near surface (retained from legacy diagnostic)
-              do k=2,3  ! Ming, k=3 will never be reached in this logic
-                if (cldfra(k) < ceiling_thresh_cldfra) then   ! these two lines:
-                  if (cldfra(1) > ceiling_thresh_cldfra) then ! ...look for surface-based fog beneath less-cloudy layers 
-                    do k1=1,k-1    ! now perform the clearing for k=1 up to k-1
-                      if (cldfra(k1) >= ceiling_thresh_cldfra) then
-                        cldfra(k1)=0.
-                      end if
-                    end do
+!             first, search for and eliminate shallow-fog layers near surface (adapted from legacy diagnostic)
+              if (cldfra(1) > 0.) then ! cloud at the surface (fog); check if this fog is shallow
+                do k=2,4
+                  if (cldfra(k) < 0.8) then ! confirmed shallow fog
+                    cldfra(1:k) = 0.        ! remove shallow fog
                   end if
-                  ! level k=2,3 has no ceiling, and no fog at surface, so skip out of this loop
-                end if
-                exit 
-              end do  ! k
+                end do
+              end if
 
-!             now search aloft...
+!             now search the column for a ceiling...
               loop471:do k=2,lm
                 k1 = k
                 if (cldfra(k) >= ceiling_thresh_cldfra) then ! go to 472 ! found ceiling
