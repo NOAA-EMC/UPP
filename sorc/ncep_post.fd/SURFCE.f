@@ -50,6 +50,7 @@
 !> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
 !> 2024-03-25 | E James    | Enabling output of column integrated soil moisture.
 !> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
+!> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
