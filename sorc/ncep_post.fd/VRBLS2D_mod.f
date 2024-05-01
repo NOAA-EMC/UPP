@@ -14,35 +14,35 @@
       ,UZ0(:,:) &          !< U-wind component at roughness length (m/s)
       ,VZ0(:,:) &          !< V-wind component at roughness length (m/s)
       ,THZ0(:,:) &         !< Potential temperature at roughness length (K)
-      ,QZ0(:,:) &          !< _____ ??? Specific humidity at the surface
+      ,QZ0(:,:) &          !< Specific humidity at roughness length (kg/kg)
       ,SNO   (:,:) &       !< Instantaneous snow water equivalent _____
       ,TSHLTR   (:,:) &    !< 2m temperature
       ,QSHLTR(:,:) &       !< 2m specific humidity
       ,MRSHLTR(:,:) &      !< Shelter mixing ratio
       ,V10(:,:) &          !< 10 m v-wind component
       ,ACPREC(:,:) &       !< Accumulated total precipitation
-      ,CUPREC(:,:) &       !< Accumulated cumulus precipitation
-      ,ANCPRC(:,:) &       !< _____ ??? A form of accumulated or cumulative precipitation ___?
-      ,CUPPT(:,:) &        !< Accumulated convective precipitation??? Cumulative precipitation ___?
-      ,SMSTAV(:,:) &       !< Average soil moisture content       
-      ,SSROFF(:,:) &       !< Surface water runoff ___?
-      ,BGROFF(:,:) &       !< Groundwater runoff___?
-      ,VEGFRC(:,:) &       !< Vegetation fraction___?
-      ,SHDMIN(:,:) &       !< Minimum soil moisture content
-      ,SHDMAX(:,:) &       !< Maximum soil moisture content
+      ,CUPREC(:,:) &       !< Accumulated total convective precipitation
+      ,ANCPRC(:,:) &       !< Accumulated total grid-scale precipitation
+      ,CUPPT(:,:) &        !< Accumulated convective rain since last call to radiation
+      ,SMSTAV(:,:) &       !< Soil moisture availability [%]      
+      ,SSROFF(:,:) &       !< Storm surface runoff
+      ,BGROFF(:,:) &       !< Underground/subsurface runoff
+      ,VEGFRC(:,:) &       !< Vegetation fraction
+      ,SHDMIN(:,:) &       !< Annual MIN vegetation fraction
+      ,SHDMAX(:,:) &       !< Annual MAX vegetation fraction
       ,LAI(:,:) &          !< Leaf area index   
-      ,ACSNOW(:,:) &       !< Accumulated snowfall over a certain period
-      ,ACSNOM(:,:) &       !< Accumulated snowmelt over a certain period
-      ,CMC(:,:) &          !< Convective cloud cover____?
+      ,ACSNOW(:,:) &       !< Accumulated snowfall
+      ,ACSNOM(:,:) &       !< Accumulated snowmelt
+      ,CMC(:,:) &          !< Canopy moisture content (m)
       ,SST(:,:) &          !< Sea surface temperature
       ,RSWIN(:,:) &        !< Incoming shortwave radiation at the surface
       ,RLWIN(:,:) &        !< Incoming longwave radiation at the surface
       ,RLWTOA(:,:) &       !< Outgoing longwave radiation at the top of the atmopshere 
-      ,LWDNBC(:,:) &       !< Downward longwave radiation at the bottom of the atmosphere 
-      ,LWUPBC(:,:) &       !< Upward longwave radiation at the bottom of the atmosphere
+      ,LWDNBC(:,:) &       !< Downward longwave radiation at the surface 
+      ,LWUPBC(:,:) &       !< Upward longwave radiation at the surface
       ,TG(:,:) &           !< Ground temperature
       ,SFCSHX(:,:) &       !< Surface sensible heat flux
-      ,PSLP(:,:) &         !< Sea-level pressure ___?
+      ,PSLP(:,:) &         !< Reduced sea-level pressure array
       ,T700(:,:) &         !< Temperature at 700 hPa
       ,Z500(:,:) &         !< Geopotential height at 500 hPa
       ,Z700(:,:) &         !< Geopotential height at 700 hPa
