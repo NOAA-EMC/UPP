@@ -244,11 +244,13 @@ python ${test_v}/ci/rt-status.py
 test_results=$?
 
 # Cleanup rt log
-cd ${test_v}/ci
+cd ${test_v}
 
 UPP_HASH=$(git rev-parse HEAD)
 SUBMODULE_HASHES=$(git submodule status --recursive)
 DATE="$(date '+%Y%m%d %T')"
+
+cd ${test_v}/ci
 
 cat << EOF > rt.log.${machine}.temp
 ===== Start of UPP Regression Testing Log =====
