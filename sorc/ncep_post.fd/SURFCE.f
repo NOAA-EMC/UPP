@@ -4482,7 +4482,7 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 FRZR PRECIP  '
+!     'BUCKET1 FRZR PRECIP '
          IF (IGET(527)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -4514,7 +4514,7 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 VAR DENSITY SNOW'
+!     'BUCKET1 SNOW PRECIP (WEASD for RAPR) '
          IF (IGET(528)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -4546,7 +4546,7 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 SNOW  PRECIP '
+!     'BUCKET1 SNOW PRECIP (TSNOWP for FV3R) '
          IF (IGET(529)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
