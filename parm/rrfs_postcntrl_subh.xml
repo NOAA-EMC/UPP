@@ -11,7 +11,7 @@
     <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
-    <time_range_unit>hour</time_range_unit>
+    <time_range_unit>minute</time_range_unit>
     <orig_center>nws_ncep</orig_center>
     <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>

@@ -9,7 +9,7 @@ fcst
 oper
 fcst
 fcst
-hour
+minute
 nws_ncep
 rrfs
 complex_packing_spatial_diff
