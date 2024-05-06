@@ -46,7 +46,7 @@ The file called ``itag`` is a Fortran namelist file that contains two sections: 
 
 :bolditalic:`&model_inputs`
 
-The ``&model_inputs`` section parameterizes choices about the set of model output files that will be used for the UPP 
+The ``&model_inputs`` section parameterizes choices about the set of model output files that will be used for the UPP.
 
 .. list-table:: *Description of the &model_inputs namelist section.*
    :widths: 15 40 20 20
@@ -56,11 +56,11 @@ The ``&model_inputs`` section parameterizes choices about the set of model outpu
      - Description
      - Data Type
      - Default Value
-   * - ``datestring``
+   * - ``datestr``
      - Time stamp being processed (e.g., 2022-08-02_19:00:00).
      - character(len=19)
      - n/a
-   * - ``fileName``
+   * - ``filename``
      - Name of input dynamics file; name of full 3-D model output file.
      - character(len=256)
      - n/a
@@ -77,11 +77,11 @@ The ``&model_inputs`` section parameterizes choices about the set of model outpu
      - character(5)
      - grib2
    * - ``ioform``
-     - Input file format. Choices: binary, binarympiio, binarynemsio, netcdf, netcdfpara
+     - Input file format. Choices: binarynemsio or netcdf
      - character(len=20)
      - n/a
    * - ``modelname``
-     - Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF)
+     - Model name used by UPP internally (e.g., FV3R for RRFS, 3DRTMA, HAFS; GFS for GFS and GEFS; RAPR for RAP and HRRR; NMM for NAM)
      - character(len=4)
      - n/a
 
@@ -97,7 +97,7 @@ The ``&nampgb`` section parameterizes choices concerning the processing done in 
      - Description
      - Data Type
      - Default Value
-   * - ``aqf_on bool``
+   * - ``aqf_on``
      - Turn on Air Quality Forecasting (CMAQ-based)
      - logical
      - .false.
@@ -109,7 +109,7 @@ The ``&nampgb`` section parameterizes choices concerning the processing done in 
      - Turn on option to use dynamic 3D fields from GFS
      - logical
      - .false.
-   * - ``fileNameAER``
+   * - ``filenameaer``
      - aerosols file name
      - character(len=256)
      - ""
