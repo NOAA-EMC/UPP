@@ -75,6 +75,8 @@
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
 !> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
+!> 2024-04-23 | Eric James        | Adding smoke emissions (ebb) from RRFS
+!> 2024-05-01 | Jaymes Kenyon     | Updates to the GSL exp-1 ceiling diagnostic
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -102,7 +104,7 @@
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
-                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, EBB, HWP,   &
+                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, HWP,        &
                          LWP, IWP, AVGCPRATE,                                 &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
@@ -116,7 +118,7 @@
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
                             JM, LM, gocart_on, gccpp_on, nasa_on, me, rdaod,  &
-                            ISTA, IEND,aqf_on
+                            ISTA, IEND,aqf_on,TSRFC
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -156,7 +158,7 @@
       REAL, dimension(ista:iend,jsta:jend) :: TCLD, CEILING
       real   CU_ir(LM), q_conv   !bsf
 !jw
-      integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,        &
+      integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,ITSRFC, &
               LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK
       real    DPBND,RRNUM,QCLD,RSUM,TLMH,FACTRS,FACTRL,DP,        &
               OPDEPTH, TMP,QSAT,RHUM,TCEXT,DELZ,DELY,DY_m
@@ -517,6 +519,25 @@
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(1011))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+!     TOTAL COLUMN EBB (BIOMASS BURNING EMISSIONS)
+!
+      IF (IGET(745) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),24)
+         CALL BOUND(GRID1,D00,H99999)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(745))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -2057,7 +2078,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! BEGIN EXPERIMENTAL GSD CEILING DIAGNOSTICS...
 ! J. Kenyon, 4 Feb 2017:  this approach uses model-state cloud fractions
-!    Parameter 487: experimental ceiling diagnostic #1
+!    Parameter 487: experimental ceiling diagnostic #1 (updated 1 May 2024)
       IF (IGET(487)>0) THEN
 !       set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
         rhoice = 970.
@@ -2065,7 +2086,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         exponfp = 1.
         const1 = 3.912
 !       set minimum cloud fraction to represent a ceiling
-        ceiling_thresh_cldfra = 0.5
+        ceiling_thresh_cldfra = 0.41
 
         DO J=JSTA,JEND
           DO I=ISTA,IEND
@@ -2075,28 +2096,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             do k=1,lm
               LL=LM-k+1
               cldfra(k) = cfr(i,j,ll)
-              cldfra_max = max(cldfra_max,cldfra(k))              ! determine the column-maximum cloud fraction
+              cldfra_max = max(cldfra_max,cldfra(k))      ! determine the column-maximum cloud fraction
             end do
 
-            if (cldfra_max >= ceiling_thresh_cldfra) then ! threshold cloud fraction found in column, get ceiling
+            if (cldfra_max >= ceiling_thresh_cldfra) then ! threshold cloud fraction (possible ceiling) found 
+                                                          ! in column, so proceed...
 
-!             threshold cloud fraction (possible ceiling) found somewhere in column, so proceed...
-!             first, search for and eliminate fog layers near surface (retained from legacy diagnostic)
-              do k=2,3  ! Ming, k=3 will never be reached in this logic
-                if (cldfra(k) < ceiling_thresh_cldfra) then   ! these two lines:
-                  if (cldfra(1) > ceiling_thresh_cldfra) then ! ...look for surface-based fog beneath less-cloudy layers 
-                    do k1=1,k-1    ! now perform the clearing for k=1 up to k-1
-                      if (cldfra(k1) >= ceiling_thresh_cldfra) then
-                        cldfra(k1)=0.
-                      end if
-                    end do
+!             first, search for and eliminate shallow-fog layers near surface (adapted from legacy diagnostic)
+              if (cldfra(1) > 0.) then ! cloud at the surface (fog); check if this fog is shallow
+                do k=2,4
+                  if (cldfra(k) < 0.8) then ! confirmed shallow fog
+                    cldfra(1:k) = 0.        ! remove shallow fog
                   end if
-                  ! level k=2,3 has no ceiling, and no fog at surface, so skip out of this loop
-                end if
-                exit 
-              end do  ! k
+                end do
+              end if
 
-!             now search aloft...
+!             now search the column for a ceiling...
               loop471:do k=2,lm
                 k1 = k
                 if (cldfra(k) >= ceiling_thresh_cldfra) then ! go to 472 ! found ceiling
@@ -3943,24 +3958,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         endif
       ENDIF
 
-! Biomass burning emissions (EBB)
-      IF (IGET(745)>0) THEN
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-            IF (EBB(I,J)<spval) THEN
-              GRID1(I,J) = EBB(I,J)/(1E9)
-            ELSE
-              GRID1(I,J) = spval
-            ENDIF
-          ENDDO
-        ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(745))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-        endif
-      ENDIF
-
 ! Hourly wildfire potential (HWP)
       IF (IGET(755)>0) THEN
         DO J=JSTA,JEND
@@ -3972,11 +3969,35 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ENDIF
           ENDDO
         ENDDO
-        if(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(755))
-          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+        ID(1:25) = 0
+        ITSRFC     = NINT(TSRFC)
+        IF(ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+        ELSE
+         IFINCR     = 0
         endif
+        ID(19)     = IFHR
+        IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+        ID(20)     = 3
+        IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+        ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+        ENDIF
+        IF (ID(18)<0) ID(18) = 0
+       if(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(755))
+        if(ITSRFC>0) then
+           fld_info(cfld)%ntrange=1
+        else
+           fld_info(cfld)%ntrange=0
+        endif
+        fld_info(cfld)%tinvstat=IFHR-ID(18)
+        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+       endif
       ENDIF
 
 !     CURRENT (instantaneous) INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
