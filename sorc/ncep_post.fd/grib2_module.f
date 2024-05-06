@@ -756,7 +756,7 @@
        endif
 
        ihr_start = ifhr-tinvstat 
-       if(modelname=='RAPR'.and.vtimeunits=='FMIN') then
+       if((modelname=='RAPR'.and.vtimeunits=='FMIN').or.(modelname=='FV3R'.and.pset%time_range_unit=="minute")) then
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
          ihr_start = max(0,ifhr-tinvstat)
@@ -919,7 +919,7 @@
 
       endif
 
-      if(modelname=='RAPR'.and.vtimeunits=='FMIN') then 
+      if((modelname=='RAPR'.or.modelname=='FV3R').and.vtimeunits=='FMIN') then 
        ifhr = ifhrorig
       end if 
       if(ifmin>0.)then
