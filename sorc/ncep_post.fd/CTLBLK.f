@@ -44,7 +44,7 @@
 !
   character(len=256) :: fileName                   !< Name of input dynamics file; name of full 3-D model output file.
   character(len=256) :: fileNameFlux               !< Name of input physics file; name of 2-D model output file with physics and surface fields.
-  character(len=256) :: fileNameD3D                !< No longer used/supported. (Name of file containing GFS D3D fields.)
+  character(len=256) :: fileNameD3D                !< No longer used/supported. (Name of file containing dynamic 3D fields from GFS.)
   character(len=256) :: fileNameAER                !< Name of GFS aersol file
   character(len=256) :: fileNameFlat               !< Input configuration text file defining the requested fields.
   character(len=19)  :: DateStr                    !< Time stamp being processed (e.g., 2022-08-02_19:00:00).
@@ -66,8 +66,8 @@
   logical :: gocart_on     !< Turn on option to process the aerosol/chemical tracers related output from GEFS-Aerosols model (GOCART).
   logical :: gccpp_on      !< Turn on option to process the aerosol/chemical tracers related output from UFS-Chem (CCPP-Chem) model.
   logical :: nasa_on       !< Turn on option to process the aerosol/chemical tracers related output from UFS-Aerosols model (NASA GOCART).
-  logical :: d3d_on        !< Flag to turn on D3D _____?
-  logical :: hyb_sigp      !< Flag to turn on hybrid sigma pressure option _____?
+  logical :: d3d_on        !< Turn on option to use dynamic 3D fields from GFS.
+  logical :: hyb_sigp      !< Turn on option to use hybrid sigma pressure levels.
   logical :: rdaod         !< Turn on option to process the AOD from GFS scheme.
   logical :: d2d_chem      !< Turn on option to process the 2D aerosol/chemical tracers.
   logical :: aqf_on        !< Turn on Air Quality Forecasting (CMAQ-based).
