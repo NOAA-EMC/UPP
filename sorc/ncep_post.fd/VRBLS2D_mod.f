@@ -47,28 +47,28 @@
       ,Z500(:,:) &         !< Geopotential height at 500 hPa
       ,Z700(:,:) &         !< Geopotential height at 700 hPa
       ,SFCLHX(:,:) &       !< Time averaged surface latent heat flux
-      ,FIS(:,:) &          !< ___?
+      ,FIS(:,:) &          !< Geopotential height of the surface
       ,T500(:,:) &         !< Temperature at 500 hPa
       ,Z1000(:,:) &        !< Geopotential height at 1000 hPa
       ,SLP(:,:) &          !< Sea level pressure
-      ,CFRACL(:,:) &       !< Low cloud fractions ___?
-      ,CFRACM(:,:) &       !< Medium cloud fractions___?
-      ,CFRACH(:,:) &       !< High cloud fractions___?
-      ,ACFRST(:,:) &       !< Convective Stratiform cloud fraction ___?
-      ,ACFRCV(:,:) &       !< Convective cloud fraction ___?
-      ,NCFRST(:,:) &       !< None-convective stratiform cloud fraction___?
-      ,NCFRCV(:,:) &       !< ___?
-      ,HBOT(:,:) &         !< ___?
-      ,HTOP(:,:) &         !< ___?
-      ,ASWIN(:,:) &        !< Time averaged incoming surface shortwave
-      ,ALWIN(:,:) &        !< Time averaged incoming surface longwave
-      ,ASWOUT(:,:) &       !< Time averaged outgoing sfc shortwave
-      ,ALWOUT(:,:) &       !< Time averaged outgoing surface longwave
-      ,ASWTOA(:,:) &       !< Time averaged model top outgoing shortwave
-      ,ALWTOA(:,:) &       !< Time average outgoing model top longwave
-      ,CZEN(:,:) &         !< Zenithal cloud cover
-      ,CZMEAN(:,:) &       !< Mean cloud cover at the zenith
-      ,SIGT4(:,:) &        !< significant tornado paramter___?
+      ,CFRACL(:,:) &       !< Radiation state variable - low cloud fraction
+      ,CFRACM(:,:) &       !< Radiation state variable - middle cloud fraction
+      ,CFRACH(:,:) &       !< Radiation state variable - high cloud fraction
+      ,ACFRST(:,:) &       !< Radiation state variable - accumulated stratiform cloud fraction
+      ,ACFRCV(:,:) &       !< Radiation state variable - accumulated convective cloud fraction
+      ,NCFRST(:,:) &       !< Radiation state variable - times stratiform cloud >0 between rad calls
+      ,NCFRCV(:,:) &       !< Radiation state variable - times convec cloud >0 between rad calls
+      ,HBOT(:,:) &         !< Bottom of convection level
+      ,HTOP(:,:) &         !< Top of convection level
+      ,ASWIN(:,:) &        !< Time-averaged incoming shortwave radiation at the surface
+      ,ALWIN(:,:) &        !< Time-averaged incoming longwave radiation at the surface
+      ,ASWOUT(:,:) &       !< Time-averaged outgoing shortwave radiation at the surface
+      ,ALWOUT(:,:) &       !< Time-averaged outgoing longwave radiation at the surface
+      ,ASWTOA(:,:) &       !< Time-averaged outgoing shortwave radiation at the model top
+      ,ALWTOA(:,:) &       !< Time-average outgoing longwave radiation at the model top
+      ,CZEN(:,:) &         !< Cosine of solar zenith angle
+      ,CZMEAN(:,:) &       !< Mean cosine of solar zenith angle
+      ,SIGT4(:,:) &        !< Sigma of temperature (Stefan-Boltzmann * T**4)
       ,RSWOUT(:,:) &       !< Inst outgoing sfc shortwave
       ,RADOT(:,:) &        !< Instataneous outgoing surface longwave
       ,SMSTOT(:,:) &       !< Total soil moisture
