@@ -51,6 +51,7 @@
 !> 2024-03-25 | E James    | Enabling output of column integrated soil moisture.
 !> 2024-04-03 | E James    | Enabling output of hourly average smoke PM2.5 and dust PM10
 !> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
+!> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -176,7 +177,6 @@
       logical file_exists, need_ifi
 
       logical, parameter :: debugprint = .false.
-
 
 !****************************************************************************
 !
@@ -4490,8 +4490,50 @@
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
 !     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET1 VAR DENS SNOW '
+         IF (IGET(525)>0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(SNDEPAC(I,J) < SPVAL)THEN
+                 GRID1(I,J) = SNDEPAC(I,J)/(1E3)
+               ENDIF
+             ENDDO
+           ENDDO
+           IFINCR = NINT(PREC_ACC_DT1)
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(525))
+             if(fld_info(cfld)%ntrange==0) then
+               if (ifhr==0 .and. ifmin==0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,ii,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,iend-ista+1
+               ii = ista+i-1
+                 datapd(i,j,cfld) = GRID1(ii,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
 !     'BUCKET1 TOTAL PRECIP '
          IF (IGET(526)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -4502,6 +4544,7 @@
                ENDIF
              ENDDO
            ENDDO
+           ENDIF
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
@@ -4524,15 +4567,13 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 CONV PRECIP  '
+!     'BUCKET1 FRZR PRECIP '
          IF (IGET(527)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
-               IF (IFHR == 0 .AND. IFMIN == 0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE
-                 GRID1(I,J) = RAINC_BUCKET1(I,J)
+               IF(ACFRAIN(I,J) < SPVAL)THEN
+                 GRID1(I,J) = ACFRAIN(I,J)
                ENDIF
              ENDDO
            ENDDO
@@ -4558,15 +4599,13 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 GRDSCALE PRCP'
+!     'BUCKET1 SNOW PRECIP (WEASD for RAPR) '
          IF (IGET(528)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
-               IF (IFHR == 0 .AND. IFMIN == 0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE
-                 GRID1(I,J) = RAINNC_BUCKET1(I,J)
+               IF(SNOW_ACM(I,J) < SPVAL)THEN
+                 GRID1(I,J) = SNOW_ACM(I,J)
                ENDIF
              ENDDO
            ENDDO
@@ -4592,7 +4631,7 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 SNOW  PRECIP '
+!     'BUCKET1 SNOW PRECIP (TSNOWP for FV3R) '
          IF (IGET(529)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -4629,6 +4668,16 @@
          ENDIF
 !     'BUCKET1 GRAUPEL PRECIP '
          IF (IGET(530)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(ACGRAUP(I,J) < SPVAL)THEN
+                 GRID1(I,J) = ACGRAUP(I,J)
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=ISTA,IEND
@@ -4639,6 +4688,7 @@
                 ENDIF
               ENDDO
             ENDDO
+            ENDIF
             IFINCR = NINT(PREC_ACC_DT1)
 !            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then
