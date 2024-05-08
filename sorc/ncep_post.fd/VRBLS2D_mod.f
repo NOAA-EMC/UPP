@@ -69,83 +69,83 @@
       ,CZEN(:,:) &         !< Cosine of solar zenith angle
       ,CZMEAN(:,:) &       !< Mean cosine of solar zenith angle
       ,SIGT4(:,:) &        !< Sigma of temperature (Stefan-Boltzmann * T**4)
-      ,RSWOUT(:,:) &       !< Inst outgoing sfc shortwave
-      ,RADOT(:,:) &        !< Instataneous outgoing surface longwave
+      ,RSWOUT(:,:) &       !< Instantaneous outgoing shortwave radiation from the surface
+      ,RADOT(:,:) &        !< Instantaneous outgoing longwave radiation from the surface _____ Radiative emission from surface
       ,SMSTOT(:,:) &       !< Total soil moisture
-      ,PCTSNO(:,:) &       !< Snow percentage cover
-      ,PSHLTR(:,:) &       !< Surface potential temperature
-      ,TH10(:,:) &         !< Temperature at 10 meters above the surface 
-      ,Q10(:,:) &          !< Specific humidity at 10 meters above the surface
-      ,SR(:,:) &           !< Surface runoff
+      ,PCTSNO(:,:) &       !< Snow cover percentage
+      ,PSHLTR(:,:) &       !< Shelter-level pressure
+      ,TH10(:,:) &         !< Potential temperature at 10 meters above the surface (anemometer level)
+      ,Q10(:,:) &          !< Specific humidity at 10 meters above the surface (anemometer level)
+      ,SR(:,:) &           !< Snow ratio
       ,PREC(:,:) &         !< Precipitation
-      ,SUBSHX(:,:) &       !< Sublimation ___?
-      ,SNOPCX(:,:) &       !< Snow phase change
-      ,SFCUVX(:,:) &       !< surface ultraviolet radiation exposure indices
-      ,SFCEVP(:,:) &       !< Surface evaporation
+      ,SUBSHX(:,:) &       !< Accumulated deep soil heat flux
+      ,SNOPCX(:,:) &       !< Snow phase change heat flux
+      ,SFCUVX(:,:) &       !< Total momentum flux _____ ??? Surface ultraviolet radiation 
+      ,SFCEVP(:,:) &       !< Accumulated surface evaporation
       ,POTEVP(:,:) &       !< Potential evaporation
       ,Z0(:,:) &           !< Roughness length
-      ,USTAR(:,:) &        !< Friction velocity
-      ,TWBS(:,:) &         !< Wet bulb temperature
-      ,QWBS(:,:) &         !< Wet bulb specific humidity
+      ,USTAR(:,:) &        !< Frictional velocity
+      ,TWBS(:,:) &         !< Instantaneous surface sensible heat flux
+      ,QWBS(:,:) &         !< Instantaneous surface latent heat flux
       ,SFCEXC(:,:) &       !< Surface exchange coefficient 
-      ,GRNFLX(:,:) &       !< Ground heat flux 
-      ,SOILTB(:,:) &       !< Soil temperature
-      ,F(:,:) &            !< ___?
+      ,GRNFLX(:,:) &       !< Instantaneous ground heat flux 
+      ,SOILTB(:,:) &       !< Deep ground soil temperature
+      ,F(:,:) &            !< ??? Coriolis-related - possibly (Coriolis * DT/2) or Coriolis sine latitude term
       ,ALBEDO(:,:) &       !< Surface albedo
-      ,CLDFRA(:,:) &       !< Cloud fraction
+      ,CLDFRA(:,:) &       !< Instantaneous 3D cloud fraction
       ,CPRATE(:,:) &       !< Convective precipitation rate
       ,CNVCFR(:,:) &       !< Convective cloud fraction
-      ,PBLH(:,:) &         !< Planetary boundary layer height
-      ,PBLHGUST(:,:) &     !< Planetary boundary layer height gust
-      ,HBOTD(:,:) &        !< Depth of the bottom layer___?
-      ,HTOPD(:,:) &        !< Depth of the top layer
-      ,HBOTS(:,:) &        !< Surface-based layer height___?
-      ,HTOPS(:,:) &        !< Surface-based layer height___?
-      ,CLDEFI(:,:) &       !< Cloud ice fraction
-      ,ALBASE(:,:) &       !< Base altitude of the aerosol layer
-      ,SI(:,:) &           !< Snow ice fraction
-      ,LSPA(:,:) &         !< Land surface pressure anomaly
-      ,RSWINC(:,:) &       !< Incoming shortwave radiation at the surface____?
+      ,PBLH(:,:) &         !< Planetary boundary layer (PBL) height
+      ,PBLHGUST(:,:) &     !< Effective PBL height diagnosed from the theta-v profile, rather than the Ri profile
+      ,HBOTD(:,:) &        !< Bottom of the deep convection layer
+      ,HTOPD(:,:) &        !< Top of the deep convection layer
+      ,HBOTS(:,:) &        !< Bottom of the shallow convection layer
+      ,HTOPS(:,:) &        !< Top of the shallow convection layer
+      ,CLDEFI(:,:) &       !< Convective cloud efficiency
+      ,ALBASE(:,:) &       !< Base (snow-free) albedo
+      ,SI(:,:) &           !< Snow depth in mm
+      ,LSPA(:,:) &         !< Land surface precipitation accumulation
+      ,RSWINC(:,:) &       !< Incoming clear-sky shortwave radiation at the surface (clear-sky equivalent of RSWIN)
       ,VIS(:,:) &          !< Visibility
-      ,PD(:,:) &           !< Pressure at the surface
+      ,PD(:,:) &           !< Surface pressure minus PTOP
       ,MXSNAL(:,:) &       !< Maximum snow albedo
-      ,MIXHT(:,:) &        !< Mixed layer height 
-      ,SNONC(:,:) &        !< Snow number concentration 
-      ,EPSR(:,:) &         !< Error in shortwave radiation___?
-      ,RSWTOA(:,:) &       !< Outgoing shortwave radiation at the top of the atmosphere___?
-      ,TEQL(:,:) &         !< Equivalent temperature___?
+      ,MIXHT(:,:) &        !< Mixing height on surface
+      ,SNONC(:,:) &        !< Accumulated total grid-scale snow/ice ? 
+      ,EPSR(:,:) &         !< Radiative emissivity
+      ,RSWTOA(:,:) &       !< Outgoing shortwave radiation flux at top of atmosphere
+      ,TEQL(:,:) &         !< Equivalent temperature _____?
 ! Variables saved for input to IFI
-      ,IFI_APCP(:,:) &     !< Instantaneous forecast interval accumulated precipitation
+      ,IFI_APCP(:,:) &     !< In-flight icing (IFI) total accumulated precipitation at surface
       ,CAPE(:,:) &         !< Convective available potential energy
       ,CIN(:,:) &          !< Convective inhibition
 ! HWRF additions
-      ,MDLTAUX(:,:) &      !< Zonal component of the wind stress
-      ,MDLTAUY(:,:) &      !< Meridional component of the wind stress
-      ,CD10(:,:) &         !< Drag coefficient at 10 meters height
-      ,CH10(:,:)  &        !< Heat transfer coefficient at 10 meters height
-      ,ACSWUPT(:,:) &      !< Accumulated shortwave upward radiation flux at the top of the atmosphere___?
-      ,SWDNT(:,:) &        !< Shortwave downward radiation flux at the surface___?
-      ,ACSWDNT(:,:) &      !< Accumulated shortwave downward radiation flux at the surface___?
+      ,MDLTAUX(:,:) &      !< Zonal (u-) component of the wind stress
+      ,MDLTAUY(:,:) &      !< Meridional (v-) component of the wind stress
+      ,CD10(:,:) &         !< Drag coefficient at 10 meters above the ground
+      ,CH10(:,:)  &        !< Heat transfer coefficient at 10 meters above the ground
+      ,ACSWUPT(:,:) &      !< Accumulated shortwave upwelling radiation flux at top
+      ,SWDNT(:,:) &        !< Instantaneous shortwave downward radiation flux at top
+      ,ACSWDNT(:,:) &      !< Accumulated shortwave downward radiation flux at top
 ! NAMB additions
-      ,SNOAVG(:,:) &       !< Average snow depth
-      ,PSFCAVG(:,:) &      !< Average surface pressure
-      ,T10AVG(:,:) &       !< Average temperature at 10 meters height
-      ,AKHSAVG(:,:) &      !< Time-averaged mass exchange coefficient__??
-      ,AKMSAVG(:,:) &      !< Time-averaged wind exchange coefficient__??
-      ,T10M(:,:) &         !< Temperature at 10 meters height
-      ,U10MAX(:,:) &       !< Maximum hourly zonal wind speed at 10 meters height
-      ,V10MAX(:,:) &       !< Maximum hourly meridional wind speed at 10 meters height
-      ,u10h(:,:) &         !< Hourly zonal wind speed at 10 meters height
-      ,v10h(:,:) &         !< Hourly meridional wind speed at 10 meters height
-      ,PRATE_MAX(:,:) &    !< Maximum precipitation rate 
-      ,FPRATE_MAX(:,:) &   !< Fractional coverage of maximum precipitation rate
+      ,SNOAVG(:,:) &       !< Average snow cover
+      ,PSFCAVG(:,:) &      !< Average surface pressure ?
+      ,T10AVG(:,:) &       !< Time-averaged temperature at 10 meters above ground
+      ,AKHSAVG(:,:) &      !< Time-averaged mass exchange coefficient or surface exchange coefficient for heat?
+      ,AKMSAVG(:,:) &      !< Time-averaged wind exchange coefficient or surface exchange coefficient for momentum?
+      ,T10M(:,:) &         !< Temperature at 10 meters above ground
+      ,U10MAX(:,:) &       !< Maximum hourly zonal (u-) wind speed at 10 meters above ground level
+      ,V10MAX(:,:) &       !< Maximum hourly meridional (v-) wind speed at 10 meters above ground level
+      ,u10h(:,:) &         !< Hourly zonal (u-) wind speed at 10 meters above ground level
+      ,v10h(:,:) &         !< Hourly meridional (v-) wind speed at 10 meters above ground level
+      ,PRATE_MAX(:,:) &    !< Maximum precipitation rate in mm/h
+      ,FPRATE_MAX(:,:) &   !< Maximum frozen precipitation rate in mm/h
 ! GSD addition
-      ,WSPD10MAX(:,:) &       !< Maximum hourly wind speed at 10 meters heigh
-      ,W_UP_MAX(:,:) &        !< Maximum upward vertical velocity
-      ,W_DN_MAX(:,:) &        !< Maximum downward vertical velocity
-      ,REFD_MAX(:,:) &        !< Maximum reflectivity factor
-      ,UP_HELI_MAX(:,:) &     !< Maximum updraft helicity
-      ,UP_HELI_MAX16(:,:) &   !< Maximum updraft helicity over 16 grid points
+      ,WSPD10MAX(:,:) &       !< Maximum hourly wind speed at 10 meters above ground level
+      ,W_UP_MAX(:,:) &        !< Maximum hourly updraft velocity
+      ,W_DN_MAX(:,:) &        !< Maximum hourly downdraft velocity
+      ,REFD_MAX(:,:) &        !< Maximum hourly 1 km above ground level reflectivity
+      ,UP_HELI_MAX(:,:) &     !< Maximum hourly updraft helicity
+      ,UP_HELI_MAX16(:,:) &   !< Maximum 1-6km hourly updraft helicity
       ,GRPL_MAX(:,:) &        !< Maximum graupel mixing ratio
       ,QRMAX(:,:) &           !< Maximum rain mixing ratio
       ,UP_HELI(:,:) &         !< Updraft helicity
@@ -189,7 +189,7 @@
       ,SNOW_BUCKET1(:,:) &    !< Snow from bucket model 1
       ,GRAUP_BUCKET1(:,:) &   !< Graupel from bucket model 1
       ,PCP_BUCKET1(:,:) &     !< Precipitation from bucket model 1
-      ,SNOWNC(:,:) &          !< Snow number concentration
+      ,SNOWNC(:,:) &          !< Accumulated total grid-scale snow/ice (per time step?)
       ,GRAUPELNC(:,:) &       !< Graupel number concentration
       ,TMAX(:,:) &            !< Maximum temperature
       ,W_MEAN(:,:) &          !< Mean vertical velocity
