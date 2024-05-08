@@ -146,57 +146,57 @@
       ,REFD_MAX(:,:) &        !< Maximum hourly 1 km above ground level reflectivity
       ,UP_HELI_MAX(:,:) &     !< Maximum hourly updraft helicity
       ,UP_HELI_MAX16(:,:) &   !< Maximum 1-6km hourly updraft helicity
-      ,GRPL_MAX(:,:) &        !< Maximum graupel mixing ratio
-      ,QRMAX(:,:) &           !< Maximum rain mixing ratio
+      ,GRPL_MAX(:,:) &        !< Maximum column-integrated graupel
+      ,QRMAX(:,:) &           !< Maximum rain water mixing ratio
       ,UP_HELI(:,:) &         !< Updraft helicity
-      ,UP_HELI16(:,:) &       !< Updraft helicity over 16 grid points
-      ,LTG1_MAX(:,:) &        !< Maximum lightning flash rate in category 1___?
-      ,LTG2_MAX(:,:) &        !< Maximum lightning flash rate in category 2___?
-      ,LTG3_MAX(:,:) &        !< Maximum lightning flash rate in category 3___?
+      ,UP_HELI16(:,:) &       !< Updraft helicity in 1-6km layer
+      ,LTG1_MAX(:,:) &        !< Maximum lightning threat index 1
+      ,LTG2_MAX(:,:) &        !< Maximum lightning threat index 2
+      ,LTG3_MAX(:,:) &        !< Maximum lightning threat index 3
       ,UP_HELI_MIN(:,:) &     !< Minimum updraft helicity
-      ,UP_HELI_MIN16(:,:) &   !< Minimum updraft helicity over 16 grid points
+      ,UP_HELI_MIN16(:,:) &   !< Minimum updraft helicity over 1-6 km layer
       ,UP_HELI_MAX02(:,:) &   !< Maximum updraft helicity over 0-2 km layer
       ,UP_HELI_MIN02(:,:) &   !< Minimum updraft helicity over 0-2 km layer
       ,UP_HELI_MAX03(:,:) &   !< Maximum updraft helicity over 0-3 km layer
       ,UP_HELI_MIN03(:,:) &   !< Minimum updraft helicity over 0-3 km layer
-      ,REL_VORT_MAX(:,:) &    !< Maximum relative vorticity
-      ,REL_VORT_MAX01(:,:) &  !< Maximum relative vorticity at 0-1 km layer
-      ,REL_VORT_MAXHY1(:,:) & !< Maximum relative vorticity at hybrid 1 layer
-      ,WSPD10UMAX(:,:) &      !< Maximum hourly u-component of wind at 10 meters height
-      ,WSPD10VMAX(:,:) &      !< Maximum hourly v-component of wind at 10 meters height
-      ,REFDM10C_MAX(:,:) &    !< Maximum reflectivity factor at model level 10 ___?
-      ,HAIL_MAX2D(:,:) &      !< Maximum hail size in 2D
-      ,HAIL_MAXK1(:,:) &      !< Maximum hail size at hybrid level 1
-      ,HAIL_MAXHAILCAST(:,:) & !< Maximum hail size forecasted by HAILCAST
-      ,NCI_LTG(:,:) &         !< Number of intra-cloud lightning flashes
-      ,NCA_LTG(:,:) &         !< Number of cloud-to-air lightning flashes
-      ,NCI_WQ(:,:) &          !< Number of intra-cloud water quantity
-      ,NCA_WQ(:,:) &          !< Number of cloud-to-air water quantity
-      ,NCI_REFD(:,:) &        !< Number of intra-cloud reflectivity factor
-      ,NCA_REFD(:,:) &        !< Number of cloud-to-air reflectivity factor
-      ,RAINC_BUCKET1(:,:) &   !< Rainc from bucket model 1___?
-      ,RAINNC_BUCKET1(:,:) &  !< Rainnc from bucket model 1 ___?
-      ,RAINC_BUCKET(:,:) &    !< Rainc from bucket mode___?
-      ,RAINNC_BUCKET(:,:) &   !< Rainnc from bucket model___?
-      ,SNOW_BUCKET(:,:) &     !< Snow from bucket model
-      ,GRAUP_BUCKET(:,:) &    !< Graupel from bucket model
-      ,PCP_BUCKET(:,:) &      !< Precipitation from bucket model
-      ,ACGRAUP(:,:) &         !< Accumulated graupel
+      ,REL_VORT_MAX(:,:) &    !< Maximum relative vertical vorticity
+      ,REL_VORT_MAX01(:,:) &  !< Maximum relative vertical vorticity at 0-1 km
+      ,REL_VORT_MAXHY1(:,:) & !< Maximum relative vertical vorticity at hybrid level 1
+      ,WSPD10UMAX(:,:) &      !< Maximum u-component of wind at 10 meters above ground level
+      ,WSPD10VMAX(:,:) &      !< Maximum hourly v-component of wind at 10 meters above ground level
+      ,REFDM10C_MAX(:,:) &    !< Maximum hourly -10C reflectivity
+      ,HAIL_MAX2D(:,:) &      !< Maximum hail diameter in column
+      ,HAIL_MAXK1(:,:) &      !< Maximum hail diameter at k=1
+      ,HAIL_MAXHAILCAST(:,:) & !< Maximum hail diameter at surface from HAILCAST algorithm (HRRR and RRFS applications)
+      ,NCI_LTG(:,:) &         !< Convective initiation lightning
+      ,NCA_LTG(:,:) &         !< Convective activity lightning
+      ,NCI_WQ(:,:) &          !< Convective Initiation Vertical Hydrometeor Flux
+      ,NCA_WQ(:,:) &          !< Convective Activity Vertical Hydrometeor Flux
+      ,NCI_REFD(:,:) &        !< Convective Initiation Reflectivity
+      ,NCA_REFD(:,:) &        !< Convective Activity Reflectivity
+      ,RAINC_BUCKET1(:,:) &   !< Accumulated cumulus precipitation over BUCKET_DT1 periods of time
+      ,RAINNC_BUCKET1(:,:) &  !< Accumulated grid-scale precipitation over BUCKET_DT1 periods of time
+      ,RAINC_BUCKET(:,:) &    !< Accumulated cumulus precipitation over BUCKET_DT periods of time
+      ,RAINNC_BUCKET(:,:) &   !< Accumulated grid-scale precipitation over BUCKET_DT periods of time
+      ,SNOW_BUCKET(:,:) &     !< Accumulated grid-scale snow over BUCKET_DT periods of time
+      ,GRAUP_BUCKET(:,:) &    !< Accumulated grid-scale graupel over BUCKET_DT periods of time
+      ,PCP_BUCKET(:,:) &      !< Bucket total precipitation over BUCKET_DT periods of time
+      ,ACGRAUP(:,:) &         !< Accumulated graupel/sleet
       ,ACFRAIN(:,:) &         !< Accumulated freezing rain
-      ,FRZRN_BUCKET(:,:) &    !< Freezing rain from bucket model
-      ,SNOW_ACM(:,:) &        !< Snow accumulation
-      ,SNOW_BKT(:,:) &        !< Snow from bucke model
-      ,SNOW_BUCKET1(:,:) &    !< Snow from bucket model 1
-      ,GRAUP_BUCKET1(:,:) &   !< Graupel from bucket model 1
-      ,PCP_BUCKET1(:,:) &     !< Precipitation from bucket model 1
-      ,SNOWNC(:,:) &          !< Accumulated total grid-scale snow/ice (per time step?)
-      ,GRAUPELNC(:,:) &       !< Graupel number concentration
-      ,TMAX(:,:) &            !< Maximum temperature
+      ,FRZRN_BUCKET(:,:) &    !< Freezing rain bucket
+      ,SNOW_ACM(:,:) &        !< Accumulated snowfall
+      ,SNOW_BKT(:,:) &        !< Snowfall bucket
+      ,SNOW_BUCKET1(:,:) &    !< Accumulated grid-scale snow over BUCKET_DT1 periods of time
+      ,GRAUP_BUCKET1(:,:) &   !< Accumulated grid-scale graupel over BUCKET_DT1 periods of time
+      ,PCP_BUCKET1(:,:) &     !< Bucket total precipitation over BUCKET_DT1 periods of time
+      ,SNOWNC(:,:) &          !< Accumulated total grid-scale snow/ice precipitation (per time step?)
+      ,GRAUPELNC(:,:) &       !< Time step non-convective graupel in [m]
+      ,TMAX(:,:) &            !< Maximum 2m temperature
       ,W_MEAN(:,:) &          !< Mean vertical velocity
-      ,TSNOW(:,:) &           !< Temperature at the time of snowfall
-      ,QVG(:,:) &             !< Vapor growth rate
-      ,QV2m(:,:) &            !< Specific humidity at 2 meters above ground level
-      ,QVl1(:,:) &            !< Specific humidity at the first level
+      ,TSNOW(:,:) &           !< Snow temperature
+      ,QVG(:,:) &             !< Water vapor mixing ratio at the surface
+      ,QV2m(:,:) &            !< Water vapor mixing ratio at 2 meters above ground level
+      ,QVl1(:,:) &            !< _____ Water vapor mixing ratio at level 1
       ,REFC_10CM(:,:) &       !< Reflectivity at 10 cm
       ,REF1KM_10CM(:,:) &     !< Reflectivity at 1 km for 10 cm___?
       ,REF4KM_10CM(:,:) &     !< Reflectivity at 4 km for 10 cm___?
