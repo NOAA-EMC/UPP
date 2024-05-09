@@ -196,87 +196,87 @@
       ,TSNOW(:,:) &           !< Snow temperature
       ,QVG(:,:) &             !< Water vapor mixing ratio at the surface
       ,QV2m(:,:) &            !< Water vapor mixing ratio at 2 meters above ground level
-      ,QVl1(:,:) &            !< _____ Water vapor mixing ratio at level 1
-      ,REFC_10CM(:,:) &       !< Reflectivity at 10 cm
-      ,REF1KM_10CM(:,:) &     !< Reflectivity at 1 km for 10 cm___?
-      ,REF4KM_10CM(:,:) &     !< Reflectivity at 4 km for 10 cm___?
-      ,SWRADmean(:,:) &       !< Mean shortwave radiation
-      ,U10mean(:,:) &         !< Mean u-component of wind at 10 meters above ground level
-      ,V10mean(:,:) &         !< Mean v-component of wind at 10 meters above ground level
-      ,SPDUV10mean(:,:) &     !< Mean horizontal wind speed at 10 meters above ground level
-      ,SWNORMmean(:,:) &      !< Mean normal shortwave radiation
+      ,QVl1(:,:) &            !< Water vapor mixing ratio at level 1
+      ,REFC_10CM(:,:) &       !< Composite (10cm) radar reflectivity
+      ,REF1KM_10CM(:,:) &     !< (10cm) radar reflectivity at 1 km
+      ,REF4KM_10CM(:,:) &     !< (10cm) radar reflectivity at 4 km
+      ,SWRADmean(:,:) &       !< Time-averaged incoming shortwave radiation
+      ,U10mean(:,:) &         !< Time-averaged u-component wind speed at 10 meters above ground level
+      ,V10mean(:,:) &         !< Time-averaged v-component wind speed at 10 meters above ground level
+      ,SPDUV10mean(:,:) &     !< Time-averaged wind speed at 10 meters above ground level
+      ,SWNORMmean(:,:) &      !< Time-averaged SWNORM (terrain-normal downwelling shortwave radiation)
       ,SNFDEN(:,:) &          !< Snowfall density
-      ,SNDEPAC(:,:) &         !< Snow depth accumulation
-      ,SWDDNI(:,:) &          !< Diffuse downwelling shortwave radiatio___?
-      ,SWDDIF(:,:) &          !< Direct downwelling shortwave radiation___? 
-      ,SWDNBC(:,:) &          !< Normal beam downward shortwave radiation flux at the surface__?
-      ,SWDDNIC(:,:) &         !< Diffuse downward shortwave radiation flux at the surface___?
-      ,SWDDIFC(:,:) &         !< Direct downward shortwave radiation flux at the surface___?
-      ,SWUPBC(:,:) &          !< Normal beam upward shortwave radiation flux at the surface__?
-      ,SWUPT(:,:) &           !< Diffuse upward shortwave radiation flux at the surface___?
-      ,TAOD5502D(:,:) &       !< Aerosol optical depth at 550 nm
+      ,SNDEPAC(:,:) &         !< Accumulated depth of snowfall
+      ,SWDDNI(:,:) &          !< Instantaneous shortwave surface downward direct normal irradiance
+      ,SWDDIF(:,:) &          !< Instantaneous shortwave surface downward diffuse irradiance
+      ,SWDNBC(:,:) &          !< Shortwave surface downward clear-sky shortwave irradiance
+      ,SWDDNIC(:,:) &         !< Clear-sky shortwave surface downward direct normal irradiance
+      ,SWDDIFC(:,:) &         !< Clear-sky shortwave surface downward diffuse horizontal irradiance
+      ,SWUPBC(:,:) &          !< Clear-sky surface upwelling shortwave flux
+      ,SWUPT(:,:) &           !< Upward shortwave flux at top of atmosphere
+      ,TAOD5502D(:,:) &       !< Total aerosol optical depth at 550 nm
       ,AERASY2D(:,:) &        !< Aerosol asymmetry parameter
       ,AERSSA2D(:,:) &        !< Aerosol single-scattering albedo
-      ,MEAN_FRP(:,:) &        !< Mean fire radiative power ___?
+      ,MEAN_FRP(:,:) &        !< Instantaneous mean fire radiative power
       ,HWP(:,:) &             !< Hourly wildfire potential
-      ,LWP(:,:) &             !< Liquid water path ___?
-      ,IWP(:,:) &             !< Ice water path___?
-      ,XLAIXY(:,:) &          !< ___?
+      ,LWP(:,:) &             !< Liquid water path
+      ,IWP(:,:) &             !< Ice water path
+      ,XLAIXY(:,:) &          !< Leaf area index ?
 ! add new fields for GFS
-      ,SFCUX(:,:) &           !< Time averaged zonal momentum flux
-      ,SFCVX(:,:) &           !< Time averaged meridional momentum flux
+      ,SFCUX(:,:) &           !< Time-averaged zonal momentum flux
+      ,SFCVX(:,:) &           !< Time-averaged meridional momentum flux
       ,SFCUXI(:,:) &          !< Instantaneous zonal momentum flux
       ,SFCVXI(:,:) &          !< Instantaneous meridional momentum flux
-      ,AVGALBEDO(:,:) &       !< Mid day avg albedo
-      ,AVGCPRATE(:,:) &       !< Convective precip - coninuous bucket
-      ,AVGPREC(:,:) &         !< Average precip rate in m per physics time step
+      ,AVGALBEDO(:,:) &       !< Mid-day average albedo
+      ,AVGCPRATE(:,:) &       !< Convective precipitation in m per physics time step
+      ,AVGPREC(:,:) &         !< Average precipitation rate in m per physics time step
       ,PTOP(:,:) &            !< Instantaneous convective cloud top pressure
       ,PBOT(:,:) &            !< Instantaneous convective cloud bottom pressure
       ,AVGCFRACH(:,:) &       !< Average high cloud fraction
       ,AVGCFRACM(:,:) &       !< Average mid cloud fraction
       ,AVGCFRACL(:,:) &       !< Average low cloud fraction
       ,AVGTCDC(:,:) &         !< Time-averaged column cloud fraction
-      ,AUVBIN(:,:) &          !< Time averaged incoming sfc uv-b
-      ,AUVBINC(:,:) &         !< Time averaged incoming sfc clear sky uv-b
-      ,ptopl(:,:) &           !< Time averaged low cloud top pressure
-      ,pbotl(:,:) &           !< Time averaged low cloud bottom pressure
-      ,Ttopl(:,:) &           !< Time averaged low cloud top temperature 
-      ,ptopm(:,:) &           !< Time averaged middle cloud top pressure
-      ,pbotm(:,:) &           !< Time averaged middle cloud bottom pressure 
-      ,Ttopm(:,:) &           !< Time averaged middle cloud top temperature
-      ,ptoph(:,:) &           !< Time averaged high cloud top pressure
-      ,pboth(:,:) &           !< Time averaged high cloud top pressure 
-      ,Ttoph(:,:) &           !< Time averaged high cloud top temperature
-      ,sfcugs(:,:) &          !< ___?
-      ,sfcvgs(:,:) &          !< ___?
+      ,AUVBIN(:,:) &          !< Time-averaged incoming surface UV-B
+      ,AUVBINC(:,:) &         !< Time-averaged incoming surface clear-sky UV-B
+      ,ptopl(:,:) &           !< Time-averaged low cloud top pressure
+      ,pbotl(:,:) &           !< Time-averaged low cloud bottom pressure
+      ,Ttopl(:,:) &           !< Time-averaged low cloud top temperature 
+      ,ptopm(:,:) &           !< Time-averaged middle cloud top pressure
+      ,pbotm(:,:) &           !< Time-averaged middle cloud bottom pressure 
+      ,Ttopm(:,:) &           !< Time-averaged middle cloud top temperature
+      ,ptoph(:,:) &           !< Time-averaged high cloud top pressure
+      ,pboth(:,:) &           !< Time-averaged high cloud bottom pressure 
+      ,Ttoph(:,:) &           !< Time-averaged high cloud top temperature
+      ,sfcugs(:,:) &          !< _____?
+      ,sfcvgs(:,:) &          !< _____?
       ,PBLCFR(:,:) &          !< Boundary layer cloud cover
       ,cldwork(:,:) &         !< Cloud work function
-      ,gtaux(:,:) &           !< Time averaged zonal gravity wave stress
-      ,gtauy(:,:) &           !< Time averaged meridional gravity wave stress
+      ,gtaux(:,:) &           !< Time-averaged zonal gravity wave stress
+      ,gtauy(:,:) &           !< Time-averaged meridional gravity wave stress
       ,runoff(:,:) &          !< Accumulated total (base+surface) runoff
       ,maxtshltr(:,:) &       !< Shelter max temperature
       ,mintshltr(:,:) &       !< Shelter min temperature
-      ,maxrhshltr(:,:) &      !< Shelter max rh
-      ,minrhshltr(:,:) &      !< Shelter min rh
+      ,maxrhshltr(:,:) &      !< Shelter max relative humidity
+      ,minrhshltr(:,:) &      !< Shelter min relative humidity
       ,dzice(:,:) &           !< Ice thickness
       ,maxqshltr(:,:) &       !< Shelter max specific humidity
       ,minqshltr(:,:) &       !< Shelter min specific humidity
-      ,alwinc(:,:) &          !< Time averaged surface clear sky incoming lw
-      ,alwoutc(:,:) &         !< Time averaged surface clear sky outgoing lw
-      ,alwtoac(:,:) &         !< Time averaged toa clear sky outgoing lw
-      ,aswinc(:,:) &          !< Time averaged surface clear sky incoming sw
-      ,aswoutc(:,:) &         !< Time averaged surface clear sky outgoing sw
-      ,aswtoac(:,:) &         !< Time averaged toa clear sky outgoing sw
-      ,aswintoa(:,:) &        !< Time averaged model top incoming shortwave
+      ,alwinc(:,:) &          !< Time-averaged surface clear-sky incoming longwave
+      ,alwoutc(:,:) &         !< Time-averaged surface clear-sky outgoing longwave
+      ,alwtoac(:,:) &         !< Time-averaged clear-sky outgoing longwave at top of atmosphere 
+      ,aswinc(:,:) &          !< Time-averaged surface clear-sky incoming shortwave
+      ,aswoutc(:,:) &         !< Time-averaged surface clear-sky outgoing shortwave
+      ,aswtoac(:,:) &         !< Time-averaged clear-sky outgoing shortwave at top of atmosphere 
+      ,aswintoa(:,:) &        !< Time-averaged model top incoming shortwave
       ,smcwlt(:,:) &          !< Wilting point
       ,suntime(:,:) &         !< Sunshine duration
       ,fieldcapa(:,:) &       !< Field capacity 
-      ,avisbeamswin(:,:) &    !< Time averaged surface visible beam downward solar flux
-      ,avisdiffswin(:,:) &    !< Time averaged surface visible diffuse downward solar flux
-      ,airbeamswin(:,:) &     !< Time averaged surface near ir beam downward solar flux
-      ,airdiffswin(:,:) &     !< Time averaged surface near ir diffuse downward solar flux
-      ,snowfall(:,:) &        !< Total accumulated snowfall___?
-      ,acond(:,:) &           !< Aerodynamic conductance
+      ,avisbeamswin(:,:) &    !< Time-averaged surface visible beam downward solar flux
+      ,avisdiffswin(:,:) &    !< Time-averaged surface visible diffuse downward solar flux
+      ,airbeamswin(:,:) &     !< Time-averaged surface near ir beam downward solar flux
+      ,airdiffswin(:,:) &     !< Time-averaged surface near ir diffuse downward solar flux
+      ,snowfall(:,:) &        !< Total accumulated snowfall ?
+      ,acond(:,:) &           !< Aerodynamic conductance on surface
       ,edir(:,:) &            !< Soil evaporation___?
       ,ecan(:,:) &            !< Accumulated evaporation of intercepted water__?
       ,etrans(:,:) &          !< Plant transpiration__?
