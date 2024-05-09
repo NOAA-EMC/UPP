@@ -52,6 +52,7 @@
 !> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
 !> 2024-04-23 | Eric James    | Updating smoke emissions to be 3D variable (ebu_smoke)
 !> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
+!> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
