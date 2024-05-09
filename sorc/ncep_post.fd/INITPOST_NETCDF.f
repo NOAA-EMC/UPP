@@ -2758,6 +2758,11 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
 
+! inst incoming clear sky sfc shortwave 
+      VarName='dswrf_clr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rswinc)
+
 ! inst incoming direct beam sfc shortwave
       VarName='visbmdi'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2772,15 +2777,6 @@
       VarName='xlaixy'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,xlaixy)
-
-! inst incoming clear sky sfc shortwave
-! FV3 do not output instant incoming clear sky sfc shortwave
-      !$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
-          rswinc(i,j) = spval 
-        enddo
-      enddo
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
