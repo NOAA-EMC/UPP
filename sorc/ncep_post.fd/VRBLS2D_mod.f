@@ -62,7 +62,8 @@
       ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:),SWDDNI(:,:),SWDDIF(:,:)      &
       ,SWDNBC(:,:),SWDDNIC(:,:),SWDDIFC(:,:), SWUPBC(:,:), SWUPT(:,:)        &
       ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:)              &
-      ,HWP(:,:),LWP(:,:),IWP(:,:),XLAIXY(:,:)                                &
+      ,HWP(:,:),LWP(:,:),IWP(:,:),XLAIXY(:,:),SMOKE_AVE(:,:),DUST_AVE(:,:)   &
+      ,COARSEPM_AVE(:,:)                                                     &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &
