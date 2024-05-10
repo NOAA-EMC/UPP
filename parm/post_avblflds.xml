@@ -6995,6 +6995,21 @@
     </param>
 
     <param>
+       <post_avblfldidx>759</post_avblfldidx>
+       <shortname>AVE_SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <pdstmpl>tmpl4_46</pdstmpl>
+       <pname>MASSDEN</pname>
+       <stats_proc>AVE</stats_proc>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <level>8.</level>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>760</post_avblfldidx>
        <shortname>GSD_MIXR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>MIXR</pname>
@@ -7084,6 +7099,21 @@
        <pname>RADARVIL</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>771</post_avblfldidx>
+       <shortname>AVE_DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <pdstmpl>tmpl4_46</pdstmpl>
+       <pname>MASSDEN</pname>
+       <stats_proc>AVE</stats_proc>
+       <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>8.</level>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>100</scale_val_1st_size>
+       <scale>6.0</scale>
     </param>
 
     <param>
