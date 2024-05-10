@@ -53,6 +53,7 @@
 !> 2024-04-03 | Eric James    | Add reading of hourly averaged smoke and dust
 !> 2024-04-23 | Eric James    | Updating smoke emissions to be 3D variable (ebu_smoke)
 !> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
+!> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -2775,6 +2776,11 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
 
+! inst incoming clear sky sfc shortwave 
+      VarName='dswrf_clr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rswinc)
+
 ! inst incoming direct beam sfc shortwave
       VarName='visbmdi'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2789,15 +2795,6 @@
       VarName='xlaixy'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,xlaixy)
-
-! inst incoming clear sky sfc shortwave
-! FV3 do not output instant incoming clear sky sfc shortwave
-      !$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
-          rswinc(i,j) = spval 
-        enddo
-      enddo
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
