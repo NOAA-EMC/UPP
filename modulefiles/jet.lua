@@ -14,7 +14,6 @@ cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
-load("g2tmpl")
 
 setenv("CC","mpiicc")
 setenv("CXX","mpiicpc")
