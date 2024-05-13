@@ -277,24 +277,24 @@
       ,airdiffswin(:,:) &     !< Time-averaged surface near ir diffuse downward solar flux
       ,snowfall(:,:) &        !< Total accumulated snowfall ?
       ,acond(:,:) &           !< Aerodynamic conductance on surface
-      ,edir(:,:) &            !< Soil evaporation___?
-      ,ecan(:,:) &            !< Accumulated evaporation of intercepted water__?
-      ,etrans(:,:) &          !< Plant transpiration__?
-      ,esnow(:,:) &           !< Snow sublimation___?
-      ,avgedir(:,:) &         !< Direct soil evaporation__?
-      ,avgecan(:,:) &         !< Canopy water evaporation
-      ,avgetrans(:,:)&        !< Plant transpiration___?
-      ,avgesnow(:,:) &        !< Snow sublimation
-      ,avgpotevp(:,:) &       !< Time averaged accumulated potential evaporation
-      ,avgprec_cont(:,:) &    !< Average precip rate - continuous bucket
-      ,avgcprate_cont(:,:) &  !< Convective precip - coninuous bucket
+      ,edir(:,:) &            !< Direct soil evaporation (W/m2)
+      ,ecan(:,:) &            !< Canopy water evaporation (W/m2)
+      ,etrans(:,:) &          !< Plant transpiration (W/m2)
+      ,esnow(:,:) &           !< Snow sublimation (W/m2)
+      ,avgedir(:,:) &         !< Direct soil evaporation (6-hr average?)
+      ,avgecan(:,:) &         !< Accumulated evaporation of intercepted water (6-hr average?)
+      ,avgetrans(:,:)&        !< Plant transpiration (6-hr average?)
+      ,avgesnow(:,:) &        !< Snow sublimation (6-hr average?)
+      ,avgpotevp(:,:) &       !< Time-averaged accumulated potential evaporation
+      ,avgprec_cont(:,:) &    !< Average precipitation rate - continuous bucket
+      ,avgcprate_cont(:,:) &  !< Convective precipitation - coninuous bucket
       ,ti(:,:) &              !< Sea ice skin temperature
-      ,aod550(:,:) &          !< Instantaneous aod550 optical depth
-      ,du_aod550(:,:) &       !< Instantaneous aod550 optical depth (dust)
-      ,ss_aod550(:,:) &       !< Instantaneous aod550 optical depth (seasalt)
-      ,su_aod550(:,:) &       !< Instantaneous aod550 optical depth (sulfates)
-      ,bc_aod550(:,:) &       !< Instantaneous aod550 optical depth (organic carbon)
-      ,oc_aod550(:,:) &       !< Instantaneous aod550 optical depth (black carbon)
+      ,aod550(:,:) &          !< Instantaneous aerosol optical depth at 550 nm
+      ,du_aod550(:,:) &       !< Instantaneous aerosol optical depth at 550 nm (dust)
+      ,ss_aod550(:,:) &       !< Instantaneous aerosol optical depth at 550 nm (seasalt)
+      ,su_aod550(:,:) &       !< Instantaneous aerosol optical depth at 550 nm (sulfates)
+      ,bc_aod550(:,:) &       !< Instantaneous aerosol optical depth at 550 nm (organic carbon)
+      ,oc_aod550(:,:) &       !< Instantaneous aerosol optical depth at 550 nm (black carbon)
       ,landfrac(:,:) &        !< Land fraction
       ,paha(:,:) &            !< Averaged precipitation advected heat flux
       ,pahi(:,:) &            !< Instantaneous precipitation advected heat flux
@@ -302,53 +302,53 @@
       ,tetran(:,:) &          !< Accumulated plant transpiration
       ,tedir(:,:) &           !< Accumulated soil surface evaporation
       ,twa(:,:) &             !< Total water storage in aquifer
-      ,fdnsst(:,:) &          !< ___?
+      ,fdnsst(:,:) &          !< Foundation temperature
       ,pwat(:,:)              !< Precipitable water
       integer, allocatable :: IVGTYP(:,:) &     !< Vegetation type
       ,ISLTYP(:,:) &          !< Soil type
       ,ISLOPE(:,:) &          !< Slope type
-      ,IEQL(:,:)              !< ___?
+      ,IEQL(:,:)              !< EQ level (highest positively buoyant level ?)
       
-! Add 2d aerosol diagnosis fields for GOCART (NGAC)
+! Add 2d aerosol diagnosis fields for GOCART (NEMS-GFS Aerosol Component [NGAC])
       real, allocatable ::                                                   &
-       DUSMASS(:,:) &         !< Mass of dust aerosols in the atmosphere___?
-      ,DUCMASS(:,:) &         !< Mass of dust aerosols in the cloud___?
-      ,DUSMASS25(:,:) &       !< Mass of dust aerosols with diameter greater than 2.5 micrometers in the atmosphere___?
-      ,DUCMASS25(:,:) &       !< Mass of dust aerosols with diameter greater than 2.5 micrometers in the cloud
-      ,SUSMASS(:,:) &         !< Mass of sulfate aerosols in the atmosphere
-      ,SUCMASS(:,:) &         !< Mass of sulfate aerosols in the cloud
-      ,SUSMASS25(:,:) &       !< Mass of sulfate aerosols with diameter greater than 2.5 micrometers in the atmosphere
-      ,SUCMASS25(:,:) &       !< Mass of sulfate aerosols with diameter greater than 2.5 micrometers in the cloud
-      ,OCSMASS(:,:) &         !< Mass of organic carbon aerosols in the atmosphere
-      ,OCCMASS(:,:) &         !< Mass of organic carbon aerosols in the cloud
-      ,OCSMASS25(:,:) &       !< Mass of organic carbon aerosols with diameter greater than 2.5 micrometers in the atmosphere
-      ,OCCMASS25(:,:) &       !< Mass of organic carbon aerosols with diameter greater than 2.5 micrometers in the cloud
-      ,BCSMASS(:,:) &         !< Mass of black carbon aerosols in the atmosphere
-      ,BCCMASS(:,:) &         !< Mass of black carbon aerosols in the cloud
-      ,BCSMASS25(:,:) &       !< Mass of black carbon aerosols with diameter greater than 2.5 micrometers in the atmosphere
-      ,BCCMASS25(:,:) &       !< Mass of black carbon aerosols with diameter greater than 2.5 micrometers in the cloud
-      ,SSSMASS(:,:) &         !< Mass of sea salt aerosols in the atmosphere
-      ,SSCMASS(:,:) &         !< Mass of sea salt aerosols in the cloud
-      ,SSSMASS25(:,:) &       !< Mass of sea salt aerosols with diameter greater than 2.5 micrometers in the atmosphere  
-      ,SSCMASS25(:,:) &       !< Mass of sea salt aerosols with diameter greater than 2.5 micrometers in the cloud
-      ,DUSTCB(:,:) &          !< Dust concentration in the atmosphere boundary layer
-      ,SSCB(:,:) &            !< Sea salt concentration in the atmosphere boundary layer
-      ,OCCB(:,:) &            !< Organic carbon concentration in the atmosphere boundary layer
-      ,BCCB(:,:) &            !< Black carbon concentration in the atmosphere boundary layer
-      ,SULFCB(:,:) &          !< Sulfate concentration in the atmosphere boundary layer
-      ,DUSTALLCB(:,:) &       !< Total dust concentration in the atmosphere boundary layer
-      ,SSALLCB(:,:) &         !< Total sea salt concentration in the atmosphere boundary layer
-      ,DUSTPM(:,:) &          !< Dust particulate matter concentration
-      ,SSPM(:,:) &            !< Sea salt particulate matter concentration 
-      ,PP25CB(:,:) &          !< Particulate matter with diameter less than 2.5 micrometers concentration in the atmosphere boundary layer
-      ,DUSTPM10(:,:) &        !< Dust particulate matter with diameter less than 10 micrometers concentration
-      ,PP10CB(:,:) &          !< Particulate matter with diameter less than 10 micrometers concentration in the atmosphere boundary layer
-      ,NO3CB(:,:) &           !< Nitrate concentration in the atmosphere boundary layer
-      ,NH4CB(:,:) &           !< Ammonium concentration in the atmosphere boundary layer
-      ,maod(:,:)              !< _____ !lzhang, add for FV3-Chem ___?
+       DUSMASS(:,:) &         !< Dust (PM10) surface mass concentration
+      ,DUCMASS(:,:) &         !< Dust (PM10) column mass density
+      ,DUSMASS25(:,:) &       !< Dust (PM25) surface mass concentration
+      ,DUCMASS25(:,:) &       !< Dust (PM25) column mass density
+      ,SUSMASS(:,:) &         !< Sulfate surface mass concentration - no longer used
+      ,SUCMASS(:,:) &         !< Sulfate column mass density - no longer used
+      ,SUSMASS25(:,:) &       !< Sulfate (PM25) surface mass concentration - no longer used
+      ,SUCMASS25(:,:) &       !< Sulfate (PM25) column mass density - no longer used
+      ,OCSMASS(:,:) &         !< Organic Carbon Surface Mass Concentration - no longer used
+      ,OCCMASS(:,:) &         !< Organic Carbon Column Mass Density - no longer used
+      ,OCSMASS25(:,:) &       !< Organic Carbon (PM25) Surface Mass Concentration - no longer used
+      ,OCCMASS25(:,:) &       !< Organic Carbon (PM25) Column Mass Density - no longer used
+      ,BCSMASS(:,:) &         !< Black Carbon Surface Mass Concentration - no longer used
+      ,BCCMASS(:,:) &         !< Black Carbon Column Mass Density - no longer used
+      ,BCSMASS25(:,:) &       !< Black Carbon (PM25) Surface Mass Concentration - no longer used
+      ,BCCMASS25(:,:) &       !< Black Carbon (PM25) Column Mass Density - no longer used
+      ,SSSMASS(:,:) &         !< Sea Salt Surface Mass Concentration - no longer used
+      ,SSCMASS(:,:) &         !< Sea Salt Column Mass Density - no longer used
+      ,SSSMASS25(:,:) &       !< Sea Salt (PM25) Surface Mass Concentration - no longer used
+      ,SSCMASS25(:,:) &       !< Sea Salt (PM25) Column Mass Density - no longer used
+      ,DUSTCB(:,:) &          !< GFS output dust in nemsio (GOCART)
+      ,SSCB(:,:) &            !< GFS output sea salt in nemsio (GOCART)
+      ,OCCB(:,:) &            !< GFS output organic carbon in nemsio (GOCART)
+      ,BCCB(:,:) &            !< GFS output black carbon in nemsio (GOCART)
+      ,SULFCB(:,:) &          !< GFS output sulfate in netcdf (GOCART)
+      ,DUSTALLCB(:,:) &       !< GFS output dust in nemsio (GOCART)
+      ,SSALLCB(:,:) &         !< GFS output sea salt in nemsio (GOCART)
+      ,DUSTPM(:,:) &          !< PM25 dust
+      ,SSPM(:,:) &            !< PM25 sea salt
+      ,PP25CB(:,:) &          !< GFS output pp25 in nemsio (GOCART)
+      ,DUSTPM10(:,:) &        !< Dust 10 micrometers mass density concentration on model surface
+      ,PP10CB(:,:) &          !< GFS output pp10 in nemsio (GOCART)
+      ,NO3CB(:,:) &           !< GFS output nitrate in netcdf (GOCART)
+      ,NH4CB(:,:) &           !< GFS output NH4 in netcdf (GOCART)
+      ,maod(:,:)              !< MIE AOD at 550nm !for FV3-Chem ___?
 
 ! Add new field for AQM
-      real, allocatable :: aqm_aod550(:,:)   !< AQM aerosol optical depth
+      real, allocatable :: aqm_aod550(:,:)   !< Air quality model (AQM) aerosol optical depth at 550nm
  
 !
       end module vrbls2d
