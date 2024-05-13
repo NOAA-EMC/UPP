@@ -15,7 +15,7 @@ cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver))
 
 python_ver=os.getenv("python_ver") or "3.10.8"
-load(pathJoin("python", stack_python_ver))
+load(pathJoin("python", python_ver))
 
 load("upp_common")
 
