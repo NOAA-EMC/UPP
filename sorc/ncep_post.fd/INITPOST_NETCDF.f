@@ -54,6 +54,7 @@
 !> 2024-04-23 | Eric James    | Updating smoke emissions to be 3D variable (ebu_smoke)
 !> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
 !> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
+!> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -879,19 +880,20 @@
        spval,recname(9),dpres(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(10),buf3d(ista_2l,jsta_2l,1),lm)
-       do l=1,lm
-       do j=jsta,jend
-         do i=ista,iend
-            cwm(i,j,l)=spval
+! Asmar - read Omega from model output, otherwise calculate
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,'omga',omga(ista_2l,jsta_2l,1),lm)
+       do l=lm,1,-1
+         do j=jsta,jend
+           do i=ista,iend
+             cwm(i,j,l)=spval
 ! dong add missing value
-           if (wh(i,j,l) < spval) then
-            omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/abs(buf3d(i,j,l))
-           else
-            omga(i,j,l) = spval
-           end if
-!           if(t(i,j,l)>1000.)print*,'bad T ',t(i,j,l)
+             if(wh(i,j,l) /= spval) then
+               if (omga(i,j,l) == spval .and. dpres(i,j,l) /= spval .and. buf3d(i,j,l) /=spval)  &
+                  omga(i,j,l) = (-1.) * wh(i,j,l) * dpres(i,j,l)/abs(buf3d(i,j,l))
+             endif
+           enddo
          enddo
-       enddo
        enddo
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(11),qqi(ista_2l,jsta_2l,1),lm)
@@ -1180,21 +1182,6 @@
         enddo
       enddo
 
-      do l=lm,1,-1
-        do j=jsta,jend
-          do i=ista,iend
-            if(zint(i,j,l+1)/=spval .and. buf3d(i,j,l)/=spval)then
-!make sure delz is positive
-             zint(i,j,l)=zint(i,j,l+1)+abs(buf3d(i,j,l))
-!             if(zint(i,j,l)>1.0E6)print*,'bad H ',i,j,l,zint(i,j,l)
-            else
-             zint(i,j,l)=spval
-            end if
-          end do
-        end do
-        if(debugprint)print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
-      end do
-
       do l=lp1,1,-1
         do j=jsta,jend
           do i=ista,iend
@@ -1202,6 +1189,25 @@
           end do
         end do
       end do
+
+! Asmar - fix HGT for hydrostatic runs
+      do l=lm,1,-1
+        do j=jsta,jend
+          do i=ista,iend
+            if(wh(i,j,l) /= spval) then
+! make sure delz is positive
+              zint(i,j,l) = abs(buf3d(i,j,l)) + zint(i,j,l+1)
+            else
+              if(zint(i,j,l+1) /=spval .and. t(i,j,l) /= spval .and.  alpint(i,j,l+1) /= spval  &
+                             .and. alpint(i,j,l) /=spval .and. q(i,j,l) /= spval) then
+                 zint(i,j,l) = zint(i,j,l+1)+(rgas/grav)*t(i,j,l)*(1.+fv*q(i,j,l))*(alpint(i,j,l+1)-alpint(i,j,l))
+               else 
+                 zint(i,j,l) = spval
+              endif
+            endif
+          enddo
+        enddo
+      enddo
 
       do l=lm,1,-1
         do j=jsta,jend
