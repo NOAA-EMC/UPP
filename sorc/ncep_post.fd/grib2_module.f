@@ -85,7 +85,7 @@
   integer num_pset
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
-  integer perturb_num,num_ens_fcst
+  integer perturb_num,num_ens_fcst,prob_num,tot_num_prob
   character*80 type_of_time_inc,stat_unit_time_key_succ
   logical*1,allocatable :: bmap(:)
   integer ibm
@@ -165,7 +165,9 @@
     type_of_time_inc='same_start_time_fcst_fcst_time_inc'
     stat_unit_time_key_succ='missing'
     time_inc_betwn_succ_fld=0
-!
+    prob_num = 0
+    tot_num_prob = 1
+    !
 !-- open fld name tble 
 !
     if(first_grbtbl) then
@@ -548,7 +550,6 @@
     integer scaled_val_fixed_sfc1,scale_fct_fixed_sfc2
     character(80) fixed_sfc2_type
     integer idec_scl,ibin_scl,ibmap,inumbits
-    integer prob_num,tot_num_prob
     character(80) prob_type
     real    fldscl
     integer igdstmpl(igdsmaxlen)
@@ -560,6 +561,7 @@
     integer gefs1,gefs2,gefs3,gefs_status
     character(len=4) cdum
     integer perturb_num,num_ens_fcst,e1_type
+
 !
 !----------------------------------------------------------------------------------------
 ! Find out if the Post is being run for the GEFS model
