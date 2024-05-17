@@ -49,7 +49,9 @@
 !> 2024-01-30 | A Jensen   | Comment out graupel precipitation warning. 
 !> 2024-02-07 | E James    | Enabling output of LAI and wilting point for RRFS.
 !> 2024-03-25 | E James    | Enabling output of column integrated soil moisture.
+!> 2024-04-03 | E James    | Enabling output of hourly average smoke PM2.5 and dust PM10
 !> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
+!> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -102,7 +104,8 @@
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          frzrn_bucket, snow_acm, snow_bkt,                    &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa,IFI_APCP,xlaixy
+                         tecan,tetran,tedir,twa,IFI_APCP,xlaixy,              &
+                         smoke_ave,dust_ave,coarsepm_ave
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -174,7 +177,6 @@
       logical file_exists, need_ifi
 
       logical, parameter :: debugprint = .false.
-
 
 !****************************************************************************
 !
@@ -1558,8 +1560,8 @@
            (IGET(113)>0).OR.(IGET(114)>0).OR.     &
            (IGET(138)>0).OR.(IGET(414)>0).OR.     &
            (IGET(546)>0).OR.(IGET(547)>0).OR.     &
-           (IGET(548)>0).OR.(IGET(739)>0).OR.     &
-           (IGET(744)>0).OR.(IGET(771)>0)) THEN
+           (IGET(548)>0).OR.(IGET(558)>0).OR.     &
+           (IGET(739)>0).OR.(IGET(744)>0)) THEN
 
         if (.not. allocated(psfc))  allocate(psfc(ista:iend,jsta:jend))
 !
@@ -1702,7 +1704,7 @@
 
 !-------------------------------------------------------------------------
 ! DEWPOINT at level 1   ------ p1d and t1d are  undefined !! -- Moorthi
-           IF (IGET(771)>0) THEN
+           IF (IGET(558)>0) THEN
              DO J=JSTA,JEND
                DO I=ISTA,IEND
                  EVP(I,J)=P1D(I,J)*QVl1(I,J)/(EPS+ONEPS*QVl1(I,J))
@@ -1720,7 +1722,7 @@
              ENDDO
              if(grib=='grib2') then
                cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(771))
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(558))
                datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
            ENDIF
@@ -2208,6 +2210,88 @@
              datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
            endif
          ENDIF
+!
+! Hourly averaged surface smoke
+!
+        IF (IGET(759)>0) THEN
+          GRID1=SPVAL
+          DO J=JSTA,JEND
+            DO I=ISTA,IEND
+            if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE_AVE(I,J)/=spval)&
+              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE_AVE(I,J)/(1E9)
+            ENDDO
+          ENDDO
+          ID(1:25) = 0
+          ITSRFC     = NINT(TSRFC)
+          IF(ITSRFC /= 0) then
+            IFINCR     = MOD(IFHR,ITSRFC)
+            IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+          ELSE
+            IFINCR     = 0
+          ENDIF
+          ID(19)     = IFHR
+          IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+          ID(20)     = 3
+          IF (IFINCR==0) THEN
+            ID(18) = IFHR-ITSRFC
+          ELSE
+            ID(18) = IFHR-IFINCR
+            IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+          ENDIF
+          IF (ID(18)<0) ID(18) = 0
+          if(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(759))
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+          endif
+        ENDIF
+!
+! Hourly averaged dust PM10
+!
+        IF (IGET(771)>0) THEN
+          GRID1=SPVAL
+          DO J=JSTA,JEND
+            DO I=ISTA,IEND
+            if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.DUST_AVE(I,J)/=spval)&
+              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(DUST_AVE(I,J)+COARSEPM_AVE(I,J))/(1E9)
+            ENDDO
+          ENDDO
+          ID(1:25) = 0
+          ITSRFC     = NINT(TSRFC)
+          IF(ITSRFC /= 0) then
+            IFINCR     = MOD(IFHR,ITSRFC)
+            IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+          ELSE
+            IFINCR     = 0
+          ENDIF
+          ID(19)     = IFHR
+          IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+          ID(20)     = 3
+          IF (IFINCR==0) THEN
+            ID(18) = IFHR-ITSRFC
+          ELSE
+            ID(18) = IFHR-IFINCR
+            IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+          ENDIF
+          IF (ID(18)<0) ID(18) = 0
+          if(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(771))
+            if(ITSRFC>0) then
+              fld_info(cfld)%ntrange=1
+            else
+              fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+          endif
+        ENDIF
 !
 ! E. James - 23 Feb 2023: COARSEPM from RRFS on lowest model level
 !
@@ -4406,8 +4490,50 @@
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
 !     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET1 VAR DENS SNOW '
+         IF (IGET(525)>0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(SNDEPAC(I,J) < SPVAL)THEN
+                 GRID1(I,J) = SNDEPAC(I,J)/(1E3)
+               ENDIF
+             ENDDO
+           ENDDO
+           IFINCR = NINT(PREC_ACC_DT1)
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(525))
+             if(fld_info(cfld)%ntrange==0) then
+               if (ifhr==0 .and. ifmin==0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,ii,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,iend-ista+1
+               ii = ista+i-1
+                 datapd(i,j,cfld) = GRID1(ii,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
 !     'BUCKET1 TOTAL PRECIP '
          IF (IGET(526)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
@@ -4418,6 +4544,7 @@
                ENDIF
              ENDDO
            ENDDO
+           ENDIF
            IFINCR = NINT(PREC_ACC_DT1)
            if(grib=='grib2') then
              cfld=cfld+1
@@ -4440,15 +4567,13 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 CONV PRECIP  '
+!     'BUCKET1 FRZR PRECIP '
          IF (IGET(527)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
-               IF (IFHR == 0 .AND. IFMIN == 0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE
-                 GRID1(I,J) = RAINC_BUCKET1(I,J)
+               IF(ACFRAIN(I,J) < SPVAL)THEN
+                 GRID1(I,J) = ACFRAIN(I,J)
                ENDIF
              ENDDO
            ENDDO
@@ -4474,15 +4599,13 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 GRDSCALE PRCP'
+!     'BUCKET1 SNOW PRECIP (WEASD for RAPR) '
          IF (IGET(528)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
-               IF (IFHR == 0 .AND. IFMIN == 0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE
-                 GRID1(I,J) = RAINNC_BUCKET1(I,J)
+               IF(SNOW_ACM(I,J) < SPVAL)THEN
+                 GRID1(I,J) = SNOW_ACM(I,J)
                ENDIF
              ENDDO
            ENDDO
@@ -4508,7 +4631,7 @@
              enddo
            endif
          ENDIF
-!     'BUCKET1 SNOW  PRECIP '
+!     'BUCKET1 SNOW PRECIP (TSNOWP for FV3R) '
          IF (IGET(529)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -4545,6 +4668,16 @@
          ENDIF
 !     'BUCKET1 GRAUPEL PRECIP '
          IF (IGET(530)>0.) THEN
+           IF (MODELNAME .EQ. 'FV3R') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               IF(ACGRAUP(I,J) < SPVAL)THEN
+                 GRID1(I,J) = ACGRAUP(I,J)
+               ENDIF
+             ENDDO
+           ENDDO
+           ELSE
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=ISTA,IEND
@@ -4555,6 +4688,7 @@
                 ENDIF
               ENDDO
             ENDDO
+            ENDIF
             IFINCR = NINT(PREC_ACC_DT1)
 !            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then

@@ -50,7 +50,10 @@
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
 !> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
+!> 2024-04-03 | Eric James    | Add reading of hourly averaged smoke and dust
 !> 2024-04-23 | Eric James    | Updating smoke emissions to be 3D variable (ebu_smoke)
+!> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
+!> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -99,7 +102,8 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust
+              pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust,  &
+              smoke_ave, dust_ave, coarsepm_ave
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -113,7 +117,7 @@
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
               nbin_oc, nbin_su, nbin_no3, nbin_nh4, gocart_on,gccpp_on, nasa_on,pt_tbl,hyb_sigp,&
-              filenameFlux, fileNameAER,                                               &
+              filenameFlux, fileNameAER, prec_acc_dt1,                                          &
               iSF_SURFACE_PHYSICS,rdaod, d2d_chem, modelname, aqf_on,                         &
               ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
@@ -1077,6 +1081,21 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
+! hourly averaged smoke
+      VarName='smoke_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,smoke_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',smoke_ave(isa,jsa)
+! hourly averaged dust
+      VarName='dust_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,dust_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',dust_ave(isa,jsa)
+! hourly averaged coarsepm
+      VarName='coarsepm_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,coarsepm_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',coarsepm_ave(isa,jsa)
       endif
 
 ! lightning threat index 1
@@ -1650,6 +1669,7 @@
         td3d    = tprec
         !print*,'tprec = ',tprec
 
+        prec_acc_dt1=15.0
 
       VarName='refl_10cm'
       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2756,6 +2776,11 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
 
+! inst incoming clear sky sfc shortwave 
+      VarName='dswrf_clr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rswinc)
+
 ! inst incoming direct beam sfc shortwave
       VarName='visbmdi'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2770,15 +2795,6 @@
       VarName='xlaixy'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,xlaixy)
-
-! inst incoming clear sky sfc shortwave
-! FV3 do not output instant incoming clear sky sfc shortwave
-      !$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
-          rswinc(i,j) = spval 
-        enddo
-      enddo
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'

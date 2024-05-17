@@ -222,6 +222,9 @@
       ,LWP(:,:) &             !< Liquid water path
       ,IWP(:,:) &             !< Ice water path
       ,XLAIXY(:,:) &          !< Leaf area index ?
+      ,SMOKE_AVE(:,:) &       !< Hourly averaged smoke
+      ,DUST_AVE(:,:)   &      !< Hourly averaged fine dust (PM 2.5)
+      ,COARSEPM_AVE(:,:) &    !< Hourly averaged coarse dust (PM 10)
 ! add new fields for GFS
       ,SFCUX(:,:) &           !< Time-averaged zonal momentum flux
       ,SFCVX(:,:) &           !< Time-averaged meridional momentum flux

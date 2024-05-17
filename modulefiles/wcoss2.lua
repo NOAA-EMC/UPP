@@ -24,7 +24,7 @@ load(pathJoin("libpng", libpng_ver))
 load(pathJoin("zlib", zlib_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.4.5"
-g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
+g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.12.0"
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 ip_ver=os.getenv("ip_ver") or "3.3.3"
 sp_ver=os.getenv("sp_ver") or "2.3.3"
@@ -44,6 +44,9 @@ wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("nemsio", nemsio_ver))
 load(pathJoin("sigio", sigio_ver))
 load(pathJoin("wrf_io", wrf_io_ver))
+
+prepend_path("MODULEPATH"," /u/wen.meng/noscrub/ncep_post/g2tmpl/libs/modulefiles/compiler/intel/19.1.3.304")
+load(pathJoin("g2tmpl", g2tmpl_ver))
 
 setenv("CC","cc")
 setenv("CXX","CC")
