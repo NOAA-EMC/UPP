@@ -829,7 +829,7 @@
       !print *,' ifhr=',ifhr
       ifmin = nint(rinc(3))
 !      if(ifhr /= nint(fhour))print*,'find wrong Grib file';stop
-      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
+!      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
       
 ! Getting tstart
       tstart = 0.

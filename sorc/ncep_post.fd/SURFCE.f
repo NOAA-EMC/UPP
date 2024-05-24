@@ -4533,7 +4533,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IF(AVGPREC_CONT(I,J) < SPVAL)THEN
-                 GRID1(I,J) = AVGPREC_CONT(I,J)*((IFHR*3600.)+(IFMIN*60.))*1000./DTQ2
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
                ENDIF
              ENDDO
            ENDDO
