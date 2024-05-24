@@ -3581,12 +3581,15 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(746))
             fld_info(cfld)%ntrange=1
-            if(ifmin>1)then
-              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')then
+              if(ifmin>1)then
+                fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+              else
+                fld_info(cfld)%tinvstat=IFHR
+              endif
             else
-              fld_info(cfld)%tinvstat=IFHR
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
             endif
-            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3631,12 +3634,15 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(782))
             fld_info(cfld)%ntrange=1
-            if(ifmin>1)then
-              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')then
+              if(ifmin>1)then
+                fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+              else
+                fld_info(cfld)%tinvstat=IFHR
+              endif
             else
-              fld_info(cfld)%tinvstat=IFHR
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
             endif
-            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3681,12 +3687,15 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(1004))
             fld_info(cfld)%ntrange=1
-            if(ifmin>1)then
-              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')then
+              if(ifmin>1)then
+                fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+              else
+                fld_info(cfld)%tinvstat=IFHR
+              endif
             else
-              fld_info(cfld)%tinvstat=IFHR
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
             endif
-            if(MODELNAME=='FV3R' .or. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !            print*,'id(18),tinvstat in acgraup= ',ID(18),fld_info(cfld)%tinvstat
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
