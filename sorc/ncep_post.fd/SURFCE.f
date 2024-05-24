@@ -3128,7 +3128,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IF(AVGPREC_CONT(I,J) < SPVAL)THEN
-                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+                 GRID2(I,J) = AVGPREC_CONT(I,J)*((3600.*FLOAT(IFHR))+(60.*FLOAT(IFMIN)))*1000./DTQ2
                ELSE
                  GRID2(I,J) = SPVAL
                END IF
@@ -3142,7 +3142,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(417))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
 !            print*,'tinvstat in cont bucket= ',fld_info(cfld)%tinvstat
 !$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
@@ -4529,7 +4533,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IF(AVGPREC_CONT(I,J) < SPVAL)THEN
-                 GRID1(I,J) = AVGPREC_CONT(I,J)*900.*1000./DTQ2
+                 GRID1(I,J) = AVGPREC_CONT(I,J)*((IFHR*3600.)+(IFMIN*60.))*1000./DTQ2
                ENDIF
              ENDDO
            ENDDO

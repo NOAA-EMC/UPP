@@ -507,8 +507,8 @@
     !use gdtsec3, only: getgdtnum
     implicit none
 !
-    integer,intent(in) :: idisc,icatg, iparm,nprm,fldlvl1,fldlvl2,ntrange,tinvstat
-    integer,intent(inout) :: nlvl
+    integer,intent(in) :: idisc,icatg, iparm,nprm,fldlvl1,fldlvl2,ntrange
+    integer,intent(inout) :: nlvl,tinvstat
     real,dimension(:),intent(in) :: datafld1
     character(1),intent(inout) :: cgrib(max_bytes)
     integer, intent(inout) :: lengrib
@@ -763,8 +763,13 @@
 
        ihr_start = ifhr-tinvstat 
        if((modelname=='RAPR'.and.vtimeunits=='FMIN').or.(modelname=='FV3R'.and.pset%time_range_unit=="minute")) then
+         print *,'EJ grib2_module.f: time_range_unit is minute'
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
+         if(ifmin<1)then
+           print *,'EJ: ifmin<1'
+           tinvstat = tinvstat*60 + ifmin
+         endif
          ihr_start = max(0,ifhr-tinvstat)
        else
          if(ifmin > 0.)then  ! change time range unit to minute

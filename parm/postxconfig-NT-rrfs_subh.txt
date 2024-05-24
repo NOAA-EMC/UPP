@@ -352,9 +352,9 @@ surface
 ?
 ?
 ?
-525
-BUCKET1_ASNOW_ON_SURFACE
-bucket Var density snowfall on surface
+725
+GSD_ACM_SNOD_ON_SURFACE
+?
 1
 tmpl4_8
 ASNOW
@@ -394,9 +394,9 @@ surface
 ?
 ?
 ?
-526
-BUCKET1_APCP_ON_SURFACE
-bucket Total precipitation on surface
+417
+CACM_APCP_ON_SURFACE
+?
 1
 tmpl4_8
 APCP
@@ -436,9 +436,9 @@ surface
 ?
 ?
 ?
-528
-BUCKET1_TSNOWP_ON_SURFACE
-bucket snow on surface
+1004
+ACM_SNOWFALL_ON_SURFACE
+?
 1
 tmpl4_8
 TSNOWP
@@ -478,9 +478,9 @@ surface
 ?
 ?
 ?
-527
-BUCKET1_FRZR_ON_SURFACE
-bucket Freezing rain on surface
+782
+ACM_FRAIN_ON_SURFACE
+?
 1
 tmpl4_8
 FRZR
@@ -520,9 +520,9 @@ surface
 ?
 ?
 ?
-530
-BUCKET1_GRAUPEL_ON_SURFACE
-bucket graupel precipitation on surface
+746
+ACM_GRAUPEL_ON_SURFACE
+?
 1
 tmpl4_8
 FROZR

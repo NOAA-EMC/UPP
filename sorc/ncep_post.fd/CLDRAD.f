@@ -86,7 +86,7 @@
       SUBROUTINE CLDRAD
 
 !
-      use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO,NO3,NH4
+      use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO,NO3,NH4,EBB
       use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID,PMID,&
                          PINT, DUEM, DUSD, DUDP, DUWT, DUSV, SSEM, SSSD,SSDP,&
                          SSWT, SSSV, BCEM, BCSD, BCDP, BCWT, BCSV, OCEM,OCSD,&
@@ -533,8 +533,18 @@
 !     TOTAL COLUMN EBB (BIOMASS BURNING EMISSIONS)
 !
       IF (IGET(745) > 0) THEN
-         CALL CALPW(GRID1(ista:iend,jsta:iend),24)
-         CALL BOUND(GRID1,D00,H99999)
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              GRID1(ii,jj) = 0.0
+              do k=1,lm
+                LL=LM-k+1
+                GRID1(ii,jj) = GRID1(ii,jj) + EBB(ii,jj,k,1)
+              enddo
+            enddo
+          enddo
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(745))
