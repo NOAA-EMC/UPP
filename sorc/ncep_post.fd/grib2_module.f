@@ -561,7 +561,6 @@
     integer gefs1,gefs2,gefs3,gefs_status
     character(len=4) cdum
     integer perturb_num,num_ens_fcst,e1_type
-
 !
 !----------------------------------------------------------------------------------------
 ! Find out if the Post is being run for the GEFS model
@@ -763,11 +762,9 @@
 
        ihr_start = ifhr-tinvstat 
        if((modelname=='RAPR'.and.vtimeunits=='FMIN').or.(modelname=='FV3R'.and.pset%time_range_unit=="minute")) then
-         print *,'EJ grib2_module.f: time_range_unit is minute'
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
          if(ifmin<1)then
-           print *,'EJ: ifmin<1'
            tinvstat = tinvstat*60 + ifmin
          endif
          ihr_start = max(0,ifhr-tinvstat)
