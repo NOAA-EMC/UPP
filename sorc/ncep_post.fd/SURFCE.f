@@ -52,6 +52,7 @@
 !> 2024-04-03 | E James    | Enabling output of hourly average smoke PM2.5 and dust PM10
 !> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
 !> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
+!> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -482,7 +483,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3576,7 +3581,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(746))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
             if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
@@ -3622,7 +3631,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(782))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
             if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
@@ -3668,7 +3681,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(1004))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
             if(MODELNAME=='FV3R' .or. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
 !            print*,'id(18),tinvstat in acgraup= ',ID(18),fld_info(cfld)%tinvstat
 !$omp parallel do private(i,j,ii,jj)

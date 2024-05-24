@@ -77,6 +77,7 @@
 !> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
 !> 2024-04-23 | Eric James        | Adding smoke emissions (ebb) from RRFS
 !> 2024-05-01 | Jaymes Kenyon     | Updates to the GSL exp-1 ceiling diagnostic
+!> 2024-05-24 | Eric James        | Correcting the vertical summing of biomass burning emissions (EBB)
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -541,7 +542,9 @@
               GRID1(ii,jj) = 0.0
               do k=1,lm
                 LL=LM-k+1
-                GRID1(ii,jj) = GRID1(ii,jj) + EBB(ii,jj,k,1)
+                if(EBB(ii,jj,k,1)/=spval)then
+                  GRID1(ii,jj) = GRID1(ii,jj) + EBB(ii,jj,k,1)/(1E9)
+                endif
               enddo
             enddo
           enddo
