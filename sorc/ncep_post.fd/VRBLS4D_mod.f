@@ -18,7 +18,7 @@
       real, allocatable :: NH4(:,:,:,:)         !< nh4
       real, allocatable :: SMOKE(:,:,:,:)       !< smoke 
       real, allocatable :: FV3DUST(:,:,:,:)     !< FV3 dust 
-      real, allocatable :: COARSEPM(:,:,:,:)    !< coarse particulate matter (PM)
+      real, allocatable :: COARSEPM(:,:,:,:)    !< coarse dust particulate matter (PM) from RRFS
       real, allocatable :: EBB(:,:,:,:)         !< Biomass burning emissions
       real, allocatable :: PP25(:,:,:,:)        !< PP25 - fine particulate matter
       real, allocatable :: PP10(:,:,:,:)        !< PP10 - particulate matter < 10 microns in diameter
