@@ -14,21 +14,21 @@
        implicit none
 !
 
-      real, allocatable :: UH(:,:,:) &    !< u-component wind
-      ,VH(:,:,:) &         !< v-component wind
-      ,WH(:,:,:) &         !< geometric vertical velocity
-      ,U(:,:,:) &          !< U-component wind___?
-      ,V(:,:,:) &          !< V-component wind___?
-      ,T(:,:,:) &          !< temperature
-      ,Q(:,:,:) &          !< specific humidity
-      ,CWM(:,:,:) &        !< total condensate mixing ratio 
-      ,Q2(:,:,:) &         !< turbulence kinetic energy _____???
-      ,PMID(:,:,:) &       !< pressure _____ input pressure? mid layer pressure? PRESSURE IN LAYERS? 
-      ,PMIDV(:,:,:) &      !< _____ 
-      ,PINT(:,:,:) &       !< pressure on interfaces 
+      real, allocatable :: UH(:,:,:) &    !< U-component wind (U at P-points including 2 row halo)
+      ,VH(:,:,:) &         !< V-component wind (V at P-points including 2 row halo)
+      ,WH(:,:,:) &         !< Geometric vertical velocity
+      ,U(:,:,:) &          !< U-component wind
+      ,V(:,:,:) &          !< V-component wind
+      ,T(:,:,:) &          !< Temperature
+      ,Q(:,:,:) &          !< Specific humidity
+      ,CWM(:,:,:) &        !< Total condensate mixing ratio 
+      ,Q2(:,:,:) &         !< Turbulence kinetic energy
+      ,PMID(:,:,:) &       !< Mid-layer pressure 
+      ,PMIDV(:,:,:) &      !< Model midlayer for v-point just below the pressure level to which we are interpolating ? 
+      ,PINT(:,:,:) &       !< Model layer interface pressure
       ,ALPINT(:,:,:) &     !< _____ 
       ,ZMID(:,:,:) &       !< Mid-level height
-      ,ZINT(:,:,:) &       !< ETA INTERFACES HEIGHT FIELD _____?
+      ,ZINT(:,:,:) &       !< Height at interfaces
       ,OMGA(:,:,:) &       !< Omega - vertical velocity
       ,T_ADJ(:,:,:) &      !< Adjusted temperature___?
       ,F_ice(:,:,:) &      !< fraction of ice
