@@ -38,12 +38,12 @@
       LOGICAL RITEHD                      !< Flag to open new output file
 !
       integer :: NFLD &                   !< Number of requested output fields
-                 ,IGET(MXFLD) &           !< Index of model field array
-                 ,LVLS(MXLVL,MXFLD) &     !< Number of levels
-                 ,IDENT(MXFLD) &          !< Identify model field _____
+                 ,IGET(MXFLD) &           !< The "get field" flag array indicating which fields to get
+                 ,LVLS(MXLVL,MXFLD) &     !< Number of levels _____?
+                 ,IDENT(MXFLD) &          !< Array of UPP ID numbers corresponding to the GRIB2 fields produced by UPP
                  ,IAVBLFLD(MXFLD) &       !< _____
-                 ,ID(25)                  !< _____
-      integer :: num_post_afld            !< Number of fields in post_avblflds.xml _____
+                 ,ID(25)                  !< IDs for various GRIB Product Definition Section (PDS) parameters: https://www.nco.ncep.noaa.gov/pmb/docs/on388/section1.html
+      integer :: num_post_afld            !< Number of fields available in post_avblflds.xml _____?
       integer,allocatable :: LVLSXML(:,:) !< _____
 
    end module RQSTFLD_mod

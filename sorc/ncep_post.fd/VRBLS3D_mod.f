@@ -27,13 +27,13 @@
       ,PMIDV(:,:,:) &      !< Model midlayer for v-point just below the pressure level to which we are interpolating ? 
       ,PINT(:,:,:) &       !< Model layer interface pressure
       ,ALPINT(:,:,:) &     !< _____ 
-      ,ZMID(:,:,:) &       !< Mid-level height
-      ,ZINT(:,:,:) &       !< Height at interfaces
+      ,ZMID(:,:,:) &       !< Mid-layer height
+      ,ZINT(:,:,:) &       !< Model layer interface height
       ,OMGA(:,:,:) &       !< Omega - vertical velocity
-      ,T_ADJ(:,:,:) &      !< Adjusted temperature___?
-      ,F_ice(:,:,:) &      !< fraction of ice
-      ,F_rain(:,:,:) &     !< fraction of rain
-      ,F_RimeF(:,:,:) &    !< mass ratio of rimed ice
+      ,T_ADJ(:,:,:) &      !< No longer used/supported; temperature adjustment factor?
+      ,F_ice(:,:,:) &      !< Fraction of condensate in form of ice
+      ,F_rain(:,:,:) &     !< Fraction of condensate in form of rain
+      ,F_RimeF(:,:,:) &    !< Rime Factor - ratio of total ice growth to deposition growth
       ,QQW(:,:,:) &        !< cloud water mixing ratio
       ,QQI(:,:,:) &        !< ice mixing ratio
       ,QQR(:,:,:) &        !< rain mixing ratio
@@ -64,12 +64,12 @@
       ,CFR_RAW(:,:,:) &    !< Raw cloud fraction _____???
 !! Wm Lewis: added
       ,NRAIN(:,:,:) &         !< Number concentration of rain drops
-      ,EFFRI(:,:,:) &         !< Thompson scheme cloud ice effective radius
-      ,EFFRL(:,:,:) &         !< Thompson scheme cloud water effective radius
-      ,EFFRS(:,:,:) &         !< Thompson scheme snow effective radius
-      ,radius_cloud(:,:,:) &  !< Radius of cloud particles___?
-      ,radius_ice(:,:,:) &    !< Radius of ice particles___?
-      ,radius_snow(:,:,:) &   !< Radius of snow particles__?
+      ,EFFRI(:,:,:) &         !< Thompson scheme cloud ice effective radius (for RRFS)
+      ,EFFRL(:,:,:) &         !< Thompson scheme cloud water effective radius (for RRFS)
+      ,EFFRS(:,:,:) &         !< Thompson scheme snow effective radius (for RRFS)
+      ,radius_cloud(:,:,:) &  !< Effective radius, cloud drops
+      ,radius_ice(:,:,:) &    !< Effective radius, cloud ice
+      ,radius_snow(:,:,:) &   !< Effective radius, snow
 ! KRS Add HWRF fields     
       ,REFL_10CM(:,:,:) &     !< Reflectivity
 ! Add GFS fields     
