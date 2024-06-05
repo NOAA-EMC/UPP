@@ -205,7 +205,7 @@ Particulate matter (PP10),pp10,pp10,3d,dyn,gocart_on=True
 Particulate matter (PM10),pm10,pp10,3d,dyn,nasa_on=True
 Dust emission fluxes (1-5),duem001/.../duem005,duem,2d,phy, all requested read into 3d array
 Dust sedimentation fluxes (1-5),dust1sd/.../dust5sd,dusd,2d, phy, all requested read into 3d array
-Dust dry deposition fluxes (1-5),dust1dp/.../dust5dp,dupd,2d,phy, all requested read into 3d array
+Dust dry deposition fluxes (1-5),dust1dp/.../dust5dp,dudp,2d,phy, all requested read into 3d array
 Dust wet deposition fluxes (1-5),dust1wtl/.../dust5wtl,duwt,2d,phy, all requested read into 3d array
 Dust scavenging fluxes (1-5),dust1wtc/.../dust5wtc,dusv,2d,phy, all requested read into 3d array
 Seasalt emission fluxes (1-5),ssem001/.../ssem005,ssem,2d,phy, all requested read into 3d array

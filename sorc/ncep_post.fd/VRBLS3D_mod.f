@@ -98,22 +98,22 @@
       ,cnvctumflx(:,:,:)      & !< Convective updraft mass flux ?
       ,cnvctdmflx(:,:,:)      & !< Convective downdraft mass flux ?
       ,cnvctdetmflx(:,:,:)    & !< Convective detrainment mass flux ?
-      ,cnvctzgdrag(:,:,:)     & !< Convective geopotential drag___?
-      ,cnvctmgdrag(:,:,:)     & !< Convective moisture drag   ___?
+      ,cnvctzgdrag(:,:,:)     & !< Convective gravity wave drag zonal acceleration ?
+      ,cnvctmgdrag(:,:,:)     & !< Convective gravity wave drag meridional acceleration ?
       ,QQNWFA(:,:,:)          & !< Water-friendly aerosol number concentration
       ,QQNIFA(:,:,:)          & !< Ice-friendly aerosol number concentration
       ,TAOD5503D(:,:,:)       & !< 3D aerosol optical depth at 550 nm
       ,AEXTC55(:,:,:)         & !< Aerosol extinction coefficient
 !
 ! Add aerosol optical properties for GOCART (NGAC)
-      ,ext(:,:,:)           & !< aerosol extinction coefficient _____?
-      ,asy(:,:,:)           & !< asymmetry parameter _____?
+      ,ext(:,:,:)           & !< aerosol extinction coefficient
+      ,asy(:,:,:)           & !< asymmetry parameter
       ,ssa(:,:,:)           & !< single-scattering albedo
-      ,sca(:,:,:)           & !< aerosol scattering coefficient _____?
+      ,sca(:,:,:)           & !< aerosol scattering coefficient ?
 ! Add aerosol diagnosis fields for GOCART (NGAC)
       ,duem(:,:,:)         & !< Dust emission fluxes
       ,dusd(:,:,:)         & !< Dust sedimentation fluxes
-      ,dudp(:,:,:)         & !< Dust dry deposition fluxes _____ ??? In Unified model variables table, it's dupd instead of dudp... bug?
+      ,dudp(:,:,:)         & !< Dust dry deposition fluxes
       ,duwt(:,:,:)         & !< Dust wet deposition fluxes
       ,dusv(:,:,:)         & !< Dust scavenging fluxes
       ,sssv(:,:,:)         & !< Seasalt scavenging fluxes
@@ -140,8 +140,8 @@
       ,rhomid(:,:,:) &        !< Air density rhomid
 
 ! Add NCAR GFIP ICING
-      ,icing_gfip(:,:,:) &    !< _____
-      ,icing_gfis(:,:,:) &    !< _____
+      ,icing_gfip(:,:,:) &    !< Global Forecast Icing Potential
+      ,icing_gfis(:,:,:) &    !< Global Forecast Icing Severity
 ! Add NCAR GTG turbulence
       ,catedr(:,:,:) &        !< Clean air turbulence (CAT) eddy dissipation parameter (EDR)
       ,mwt(:,:,:) &           !< Mountain wave turbulence
