@@ -55,7 +55,7 @@
       ,RLWTT(:,:,:) &      !< Temperature tendency due to longwave radiation
       ,REF_10CM(:,:,:) &   !< Reflectivity
       ,EXCH_H(:,:,:) &     !< Exchange coefficient
-      ,TRAIN(:,:,:) &      !< Temperature tendency due to latent heating from grid scale_____
+      ,TRAIN(:,:,:) &      !< Temperature tendency due to latent heating from grid scale
       ,TCUCN(:,:,:) &      !< Temperature tendency due to latent heating from convection
       ,EL_PBL(:,:,:)  &    !< Mixing length _____
       ,MCVG(:,:,:) &       !< Moisture convergence
@@ -71,33 +71,33 @@
       ,radius_ice(:,:,:) &    !< Effective radius, cloud ice
       ,radius_snow(:,:,:) &   !< Effective radius, snow
 ! KRS Add HWRF fields     
-      ,REFL_10CM(:,:,:) &     !< Reflectivity
+      ,REFL_10CM(:,:,:) &     !< Reflectivity (for HWRF)
 ! Add GFS fields     
       ,O3(:,:,:) &            !< Ozone mixing ratio
-      ,O(:,:,:) &             !< Atomic oxygen mixing ratio___?
-      ,O2(:,:,:) &            !< Molecular oxygen mixing ratio___?
+      ,O(:,:,:) &             !< Atomic oxygen mixing ratio ?
+      ,O2(:,:,:) &            !< Molecular oxygen mixing ratio ?
 ! Add GFS D3D fields
-      ,vdifftt(:,:,:)         & !< Vertical diffusion temperature tendency _____
-      ,tcucns(:,:,:)          & !< Total condensate mixing ratio upper convective layer___?
-      ,vdiffmois(:,:,:)       & !< Vertical diffusion moisture _____
-      ,dconvmois(:,:,:)       & !< Convective moisture tendency___?
-      ,sconvmois(:,:,:)       & !< Convective moisture source/sink___?
-      ,nradtt(:,:,:)          & !< Net radiation temperature tendency ___? 
-      ,o3vdiff(:,:,:)         & !< Ozone vertical diffusion___?
-      ,o3prod(:,:,:)          & !< Ozone production___?
-      ,o3tndy(:,:,:)          & !< Ozone tendency___?
-      ,mwpv(:,:,:)            & !< Moisture-weighted potential vorticity___?
+      ,vdifftt(:,:,:)         & !< Vertical diffusion temperature tendency ?
+      ,tcucns(:,:,:)          & !< Temperature tendency due to latent heating from (shallow?) convection ?
+      ,vdiffmois(:,:,:)       & !< Vertical diffusion moistening rate ?
+      ,dconvmois(:,:,:)       & !< Deep convective moistening rate ?
+      ,sconvmois(:,:,:)       & !< Shallow convective moistening rate ?
+      ,nradtt(:,:,:)          & !< _____ Net radiation temperature tendency ? 
+      ,o3vdiff(:,:,:)         & !< Ozone vertical diffusion ?
+      ,o3prod(:,:,:)          & !< Ozone production ?
+      ,o3tndy(:,:,:)          & !< Ozone tendency ?
+      ,mwpv(:,:,:)            & !< Mass-weighted potential vorticity ?
       ,unknown(:,:,:)         & !< _____
-      ,vdiffzacce(:,:,:)      & !< Vertical diffusion zonal acceleration___?
-      ,zgdrag(:,:,:)          & !< Geopotential drag___?
-      ,cnvctummixing(:,:,:)   & !< Convective turbulent mixing in the zonal direction___?
-      ,vdiffmacce(:,:,:)      & !< Vertical diffusion meridional acceleration___?
-      ,mgdrag(:,:,:)          & !< Moisture drag___?
-      ,cnvctvmmixing(:,:,:)   & !< Convective turbulent mixing in the meridional direction___?
-      ,ncnvctcfrac(:,:,:)     & !< Non-convective cloud fraction___?
-      ,cnvctumflx(:,:,:)      & !< Convective upward moisture flux___?
-      ,cnvctdmflx(:,:,:)      & !< Convective downward moisture flux ___?
-      ,cnvctdetmflx(:,:,:)    & !< Convective detrainment moisture flux___?
+      ,vdiffzacce(:,:,:)      & !< Vertical diffusion zonal acceleration ?
+      ,zgdrag(:,:,:)          & !< Gravity wave drag zonal acceleration ?
+      ,cnvctummixing(:,:,:)   & !< Convective zonal momentum mixing acceleration ?
+      ,vdiffmacce(:,:,:)      & !< Vertical diffusion meridional acceleration ?
+      ,mgdrag(:,:,:)          & !< Gravity wave drag meridional acceleration ?
+      ,cnvctvmmixing(:,:,:)   & !< Convective meridional momentum mixing acceleration ?
+      ,ncnvctcfrac(:,:,:)     & !< Non-convective cloud fraction (%) ?
+      ,cnvctumflx(:,:,:)      & !< Convective updraft mass flux ?
+      ,cnvctdmflx(:,:,:)      & !< Convective downdraft mass flux ?
+      ,cnvctdetmflx(:,:,:)    & !< Convective detrainment mass flux ?
       ,cnvctzgdrag(:,:,:)     & !< Convective geopotential drag___?
       ,cnvctmgdrag(:,:,:)     & !< Convective moisture drag   ___?
       ,QQNWFA(:,:,:)          & !< Water-friendly aerosol number concentration
