@@ -59,7 +59,7 @@
   integer :: cfld                               !< _____.
   integer :: ntlfld                             !< _____.
   integer :: npset                              !< _____.
-  real*8 :: gdsdegr                             !< _____.
+  real*8 :: gdsdegr                             !< Convert degrees to gradians ?
   real,allocatable :: datapd(:,:,:)             !< _____.
 !
 !> Logicals to turn on/off different post-processing packages/output depending on model output.
@@ -105,14 +105,14 @@
              NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 !
-  real :: DT            !< Model time step in seconds.
-  real :: SDAT(3)       !< Array of month, day, year of restart run.
-  real :: AVRAIN        !< Counter for summing latent heating from grid microphysics.
-  real :: AVCNVC        !< Counter for summing latent heating from convection.
-  real :: DTQ2          !< Model physics time step in seconds.
-  real :: PT            !< Model top requested by CMAQ.
-  real :: PDTOP         !< Pressure thickness requested by CMAQ.
-  real :: SPL(komax)    !< Specified pressure levels. 
+  real :: DT            !< Model time step in seconds
+  real :: SDAT(3)       !< Array of month, day, year of restart run
+  real :: AVRAIN        !< Counter for summing latent heating from grid microphysics
+  real :: AVCNVC        !< Counter for summing latent heating from convection
+  real :: DTQ2          !< Model physics time step in seconds
+  real :: PT            !< Model top requested by CMAQ
+  real :: PDTOP         !< Pressure thickness requested by CMAQ
+  real :: SPL(komax)    !< Specified pressure levels 
   real :: ALSL(komax)   !< _____ (altitude levels?)
   real :: PREC_ACC_DT   !< Time interval for accumulated precipitation
   real :: PT_TBL        !< _____
@@ -238,8 +238,8 @@
   integer, parameter :: nbin_oc = 2   		!< organic carbon
   integer, parameter :: nbin_bc = 2   		!< black carbon
   integer, parameter :: nbin_su = 1   		!< sulfate
-  integer, parameter :: nbin_no3 = 3   	!< nitrate
-  integer, parameter :: nbin_nh4 = 1   	!< NH4
+  integer, parameter :: nbin_no3 = 3   	  !< nitrate
+  integer, parameter :: nbin_nh4 = 1   	  !< NH4
   integer, parameter :: nbin_sm = 1       !< smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.

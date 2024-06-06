@@ -49,7 +49,7 @@
       REAL T_ICE       &                       !< Temperature (C) threshold at which all remaining liquid water is glaciated to ice
       ,NLImax          &                       !< Maximum number concentrations (m**-3) of large ice (snow/graupel/sleet)
       ,FLARGE2         &                       !< Set in MICROINIT.F (no longer used)
-      ,TRAD_ice                                !< Ice nucleation temperature _____??? Temperature/Thermal radiation of ice (defined in MICROINIT.F as 0.5*T_ICE+TFRZ)
+      ,TRAD_ice                                !< Defined as 0.5*T_ICE+TFRZ, or 253.15K, in other routines. Possibly refers to thermal radiation of ice or ice nucleation temperature ? 
 
 
   end module  CMASSI_mod

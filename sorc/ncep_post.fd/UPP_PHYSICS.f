@@ -2427,7 +2427,7 @@
       END SUBROUTINE CALDIV
 
 !------------------------------------------------------------------------
-!> CALGRADPS computes gardients of a scalar field PS or LNPS.
+!> CALGRADPS computes gradients of a scalar field PS or LNPS.
 !>
 !> For GFS, this routine computes horizontal gradients of PS or LNPS.
 !> Using 2nd-order centered scheme on a lat-lon grid.

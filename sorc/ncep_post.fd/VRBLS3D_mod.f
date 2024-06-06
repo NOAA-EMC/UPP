@@ -43,25 +43,25 @@
       ,QQNW(:,:,:) &       !< cloud water number concentration 
       ,QQNI(:,:,:) &       !< ice number concentration 
       ,QQNR(:,:,:) &       !< rain number concentration 
-      ,QC_BL(:,:,:) &      !< cloud water mixing ratio in PBL schemes _____ 
-      ,QRIMEF(:,:,:) &     !< rime factor * ice mixing ratio _____
+      ,QC_BL(:,:,:) &      !< cloud water mixing ratio in PBL schemes 
+      ,QRIMEF(:,:,:) &     !< rime factor * ice mixing ratio ?
       ,CFR(:,:,:) &        !< Instantaneous 3d cloud fraction
-      ,DBZ(:,:,:) &        !< Equivalent radar reflectivity factor _____
-      ,DBZR(:,:,:) &       !< Equivalent radar reflectivity factor from rain
-      ,DBZI(:,:,:) &       !< Equivalent radar reflectivity factor from ice (all forms)
-      ,DBZC(:,:,:) &       !< Equivalent radar reflectivity factor from parameterized convection
-      ,TTND(:,:,:) &       !< Temperature tendency due to radiative flux convergence _____
+      ,DBZ(:,:,:) &        !< Radar reflectivity factor ?
+      ,DBZR(:,:,:) &       !< Radar reflectivity factor from rain
+      ,DBZI(:,:,:) &       !< Radar reflectivity factor from ice (all forms)
+      ,DBZC(:,:,:) &       !< Radar reflectivity factor from parameterized convection
+      ,TTND(:,:,:) &       !< Temperature tendency due to radiative flux convergence
       ,RSWTT(:,:,:) &      !< Temperature tendency due to shortwave radiation
       ,RLWTT(:,:,:) &      !< Temperature tendency due to longwave radiation
       ,REF_10CM(:,:,:) &   !< Reflectivity
       ,EXCH_H(:,:,:) &     !< Exchange coefficient
       ,TRAIN(:,:,:) &      !< Temperature tendency due to latent heating from grid scale
       ,TCUCN(:,:,:) &      !< Temperature tendency due to latent heating from convection
-      ,EL_PBL(:,:,:)  &    !< Mixing length _____
+      ,EL_PBL(:,:,:)  &    !< Mixing length ?
       ,MCVG(:,:,:) &       !< Moisture convergence
       ,EXTCOF55(:,:,:) &   !< Unified extinction ext550/Aerosol optical depth
       ,NLICE(:,:,:) &      !< Time-averaged number concentration of large ice
-      ,CFR_RAW(:,:,:) &    !< Raw cloud fraction _____???
+      ,CFR_RAW(:,:,:) &    !< Cloud fraction (unprocessed)
 !! Wm Lewis: added
       ,NRAIN(:,:,:) &         !< Number concentration of rain drops
       ,EFFRI(:,:,:) &         !< Thompson scheme cloud ice effective radius (for RRFS)
@@ -82,7 +82,7 @@
       ,vdiffmois(:,:,:)       & !< Vertical diffusion moistening rate ?
       ,dconvmois(:,:,:)       & !< Deep convective moistening rate ?
       ,sconvmois(:,:,:)       & !< Shallow convective moistening rate ?
-      ,nradtt(:,:,:)          & !< _____ Net radiation temperature tendency ? 
+      ,nradtt(:,:,:)          & !< Net radiation temperature tendency _____? 
       ,o3vdiff(:,:,:)         & !< Ozone vertical diffusion ?
       ,o3prod(:,:,:)          & !< Ozone production ?
       ,o3tndy(:,:,:)          & !< Ozone tendency ?

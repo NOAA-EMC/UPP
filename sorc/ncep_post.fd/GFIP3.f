@@ -1299,7 +1299,7 @@ contains
   end function prcpCondensate_map
 
   !> deltaz_map() @memberof SeverityMaps
-  !> @return deltaz_map _____?
+  !> @return deltaz_map Mapping of change in Z (geopotential height?) ?
   real function deltaZ_map(v, scenario)
     implicit none
     real, intent(in) :: v
@@ -1351,7 +1351,7 @@ contains
   ! 223.15 0.8, 233.15 0.7446, 243.15 0.5784, 253.15 0.3014
   ! 261.15 0.0, 280.15 0.0, 280.151 1.0
 !> ctt_map() @memberof SeverityMaps
-!> @return ctt_map _____?
+!> @return ctt_map Mapping of cloud top temperature (CTT)?
   real function ctt_map(v)
     implicit none
     real, intent(in) :: v
@@ -1505,7 +1505,7 @@ contains
   ! 243.150 0.0, 265.15 1.0, 269.15 1.0, 270.15 0.87
   ! 271.15 0.71, 272.15 0.50, 273.15 0.0
   !> convect_t_map() @memberof SeverityMaps
-  !> @return convect_t_map _____?
+  !> @return convect_t_map Convection and temperature mapping ?
   real function convect_t_map(v)
     implicit none
     real, intent(in) :: v
@@ -1531,7 +1531,7 @@ contains
 
    ! 1.0 0.0, 3.0 1.0
    !> convect_qpf_map() @memberof SeverityMaps
-   !> @return convect_qpf_map _____?
+   !> @return convect_qpf_map Convection and quantitative precipitation forecast (QPF) mapping ?
    real function convect_qpf_map(v)
      implicit none
      real, intent(in) :: v
@@ -1546,7 +1546,7 @@ contains
 
    ! 1000.0 0.0, 2500.0 1.0
    !> convect_cape_map() @memberof SeverityMaps
-   !> @return convect_cape_map _____?
+   !> @return convect_cape_map Convection and Convective Available Potential Energy (CAPE) mapping?
    real function convect_cape_map(v)
      implicit none
      real, intent(in) :: v
@@ -1563,7 +1563,7 @@ contains
 
    ! -10.0 1.0, 0.0 0.0
    !> convect_liftedIdx_map() @memberof SeverityMaps
-   !> @return convect_liftedIdx_map _____?
+   !> @return convect_liftedIdx_map Convection and lifted index mapping ?
    real function convect_liftedIdx_map(v)
      implicit none
      real, intent(in) :: v
@@ -1579,7 +1579,7 @@ contains
 
    ! 20.0 0.0, 40.0 1.0
    !> convectkIdx_map() @memberof SeverityMaps
-   !> @return convectkIdx_map _____?
+   !> @return convectkIdx_map Convection and k-index mapping ?
    real function convect_kIdx_map(v)
      implicit none
      real, intent(in) :: v
