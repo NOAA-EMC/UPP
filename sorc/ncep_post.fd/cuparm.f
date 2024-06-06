@@ -135,13 +135,13 @@
      SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< Slope for boundary layer stability (snow)
      SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope for layer 0 stability (snow)
      SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope for top layer stability (snow)
-     SLOPE=(H1   -EFMNT)/(H1-EFIMN)       &   !< Slope for equilibrium temperature
+     SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope for equilibrium temperature
    real, parameter ::         &
      A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient A23M4L
      ELOCP=ELIVW/CP,          &  !< Ratio of latent heat of vaporization to specific heat
      CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of specific heat to product of density, gravity, and latent heat
-     RCP=H1/CP                &  !< Ratio of H1 to specific heat
-   logical,parameter :: &
+     RCP=H1/CP,               &  !< Ratio of H1 to specific heat
+   logical,parameter :: &    !< _____
      UNIS=.FALSE.,      &    !< Uniform sea surface temperature
      UNIL=.FALSE.,      &    !< Uniform sea surface temperature (lower)
      OCT90=.FALSE.           !< Activation flag for October 1990

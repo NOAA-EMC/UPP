@@ -101,7 +101,9 @@
           type post_avblfld_t
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
-
+!> @}
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!> and handle parameter marshalling for existing POST program. 
           type (paramset_t), dimension(:), pointer :: paramset
           type (post_avblfld_t),save               :: post_avblflds
 !> @}
@@ -168,7 +170,8 @@
 ! allocate array size from param for current paramset
 ! filter_char_inp is to check if "?" is found 
 !   then replace to empty string because it means no input. 
-
+!> @brief filter_char_inp() filters the input characters
+!> @param paramset(i)%datset Data on a particular parameter from the parameter set
           read(22,*)paramset(i)%datset
           call filter_char_inp(paramset(i)%datset)
 

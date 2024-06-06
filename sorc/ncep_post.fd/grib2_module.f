@@ -195,6 +195,7 @@
   end subroutine grib_info_finalize
 !-------------------------------------------------------------------------------------
 !> @brief gribit2 _____?
+!> @param[in] post_fname UPP file name used
   subroutine gribit2(post_fname)
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
@@ -1081,6 +1082,14 @@
 ! E. JAMES: 10 JUN 2021 - Adding section to read in GRIB2 files for comparison
 ! within UPP.  Two new subroutines added below.
 !> @brief read_grib2_head() Read in GRIB2 file header information
+!> @param[in] filenameG2 Grib 2 file name
+!> @param[out] nx _____
+!> @param[out] ny _____
+!> @param[out] nz _____
+!> @param[out] rlonmin _____
+!> @param[out] rlatmax _____
+!> @param[out] rdx _____
+!> @param[out] rdy _____
   subroutine read_grib2_head(filenameG2,nx,ny,nz,rlonmin,rlatmax,rdx,rdy)
 !
     use grib_mod
@@ -1229,6 +1238,10 @@
 !
 !---
 !> @brief read_grib2_sngle() Read grib2 files
+!> @param[in] filenameG2 _____
+!> @param[in] ntot _____
+!> @param[out] height _____
+!> @param[out] var _____
   subroutine read_grib2_sngle(filenameG2,ntot,height,var)
 !
     use grib_mod
