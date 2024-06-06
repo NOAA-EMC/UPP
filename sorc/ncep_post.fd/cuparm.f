@@ -76,7 +76,11 @@
 !       * SETTING OCT90=.TRUE.
 !            (WITH THESE SETTINGS FAST LAND PROFILES ONLY ARE USED).
 !                                                                     FM
-     FSS=.85E0,EFIMN=.20E0,EFMNT=.70E0,FCC=.50,FCP=H1-FCC,              &
+     FSS=.85E0, &             !< _____
+     EFIMN=.20E0, &           !< _____
+     EFMNT=.70E0, &           !< _____
+     FCC=.50, &               !< _____
+     FCP=H1-FCC, &            !< _____
 !
 !         IN THIS VERSION 3.5, OVER LAND AND FOR THE FAST PROFILES, DSPB
 !         IS PRESCRIBED TO BE 25 PERCENT DRIER THAN THE FAST SEA VALUE
@@ -86,13 +90,24 @@
 !         AVERAGE OF THE FAST AND THE SLOW LAND PROFILES SOMEWHAT DRIER
 !         THAN THE OCT90 FIXED LAND PROFILES.                         FM
 !
-     DSPBFL=-4843.75E0,DSP0FL=-7050.00E0,DSPTFL=-2250.0E0,FSL=.850E0,   &
+     DSPBFL=-4843.75E0, &     !< _____
+     DSP0FL=-7050.00E0, &     !< _____
+     DSPTFL=-2250.0E0, &      !< _____
+     FSL=.850E0,   &          !< _____
 !***   ACTIVATE THE FOLLOWING LINE IF OCT90=.TRUE. (AND COMMENT OUT THE
 !***   PRECEDING LINE):
-!    DSPBFL=-3875.E0,DSP0FL=-5875.E0,DSPTFL=-1875.E0,FSL=1.0E0,         &
-     DSPBFS=-3875.E0,DSP0FS=-5875.E0,DSPTFS=-1875.E0,                   &
-     DSPBSL=DSPBFL*FSL,DSP0SL=DSP0FL*FSL,DSPTSL=DSPTFL*FSL,             &
-     DSPBSS=DSPBFS*FSS,DSP0SS=DSP0FS*FSS,DSPTSS=DSPTFS*FSS,             &
+!    DSPBFL=-3875.E0, &            !< _____
+     DSP0FL=-5875.E0, &            !< _____
+     DSPTFL=-1875.E0,FSL=1.0E0, &  !< _____
+     DSPBFS=-3875.E0, &            !< _____
+     DSP0FS=-5875.E0, &            !< _____
+     DSPTFS=-1875.E0,           &  !< _____
+     DSPBSL=DSPBFL*FSL, &          !< _____
+     DSP0SL=DSP0FL*FSL, &          !< _____
+     DSPTSL=DSPTFL*FSL,         &  !< _____
+     DSPBSS=DSPBFS*FSS, &          !< _____
+     DSP0SS=DSP0FS*FSS, &          !< _____
+     DSPTSS=DSPTFS*FSS,         &  !< _____
 !*** NEW CONVECTION SCHEME WITH CROSSING DSP PROFILES ******************
 !+-  &, UNIS=.FALSE.,EFIMN=.71E0,EFMNT=.71,FCC=0.5,FCP=H1-FCC
 !+-  &, DSPBL=-3875.E0,DSP0L=-5875.E0,DSPTL=-1875.E0
@@ -113,7 +128,7 @@
      STEFI=1.E0,                 &     !< Empirical factor for stability calculations
 !*** ACTIVATE THE FOLLOWING LINE AND COMMENT OUT THE PRECEDING LINE IF
 !*** OCT90=.TRUE.
-!    &, STEFI=AVGEFI                      &   !< 
+!    STEFI=AVGEFI,                        &   
      SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< Slope for boundary layer stability
      SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< Slope for layer 0 stability
      SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< Slope for top layer stability
@@ -129,5 +144,6 @@
    logical,parameter :: &
      UNIS=.FALSE.,      &    !< Uniform sea surface temperature
      UNIL=.FALSE.,      &    !< Uniform sea surface temperature (lower)
-     OCT90=.FALSE.      &    !< Activation flag for October 1990
+     OCT90=.FALSE.           !< Activation flag for October 1990
   end module cuparm_mod
+
