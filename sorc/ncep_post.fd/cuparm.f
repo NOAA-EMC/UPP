@@ -113,7 +113,7 @@
      STEFI=1.E0,                 &     !< Empirical factor for stability calculations
 !*** ACTIVATE THE FOLLOWING LINE AND COMMENT OUT THE PRECEDING LINE IF
 !*** OCT90=.TRUE.
-!    &, STEFI=AVGEFI                      &   !< 
+!    STEFI=AVGEFI,                        &   
      SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< Slope for boundary layer stability
      SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< Slope for layer 0 stability
      SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< Slope for top layer stability
@@ -129,5 +129,6 @@
    logical,parameter :: &
      UNIS=.FALSE.,      &    !< Uniform sea surface temperature
      UNIL=.FALSE.,      &    !< Uniform sea surface temperature (lower)
-     OCT90=.FALSE.      &    !< Activation flag for October 1990
+     OCT90=.FALSE.           !< Activation flag for October 1990
   end module cuparm_mod
+
