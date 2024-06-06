@@ -933,10 +933,10 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = /work/noaa/epic/gpetro/UPP/doc/user_guide.md \
-                         /work/noaa/epic/gpetro/UPP/doc/2D-decomp.md \
-                         /work/noaa/epic/gpetro/UPP/sorc/ncep_post.fd \
-                         /work/noaa/epic/gpetro/UPP/
+INPUT                  = @abs_top_srcdir@/doc/user_guide.md \
+                         @abs_top_srcdir@/doc/2D-decomp.md \
+                         @abs_top_srcdir@/sorc/ncep_post.fd \
+                         @config_srcdir@
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
