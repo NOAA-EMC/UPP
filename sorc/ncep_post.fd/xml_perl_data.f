@@ -102,13 +102,15 @@
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
 !> @}
+
+!> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
 !> and handle parameter marshalling for existing POST program. 
           type (paramset_t), dimension(:), pointer :: paramset
           type (post_avblfld_t),save               :: post_avblflds
 !> @}
         contains
-!> @brief read_postxconfig(): reads in and processes the postxconfig file
+!> @brief read_postxconfig() reads in and processes the postxconfig file
         subroutine read_postxconfig()
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml

@@ -136,7 +136,7 @@
      SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope for layer 0 stability (snow)
      SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope for top layer stability (snow)
      SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope for equilibrium temperature
-   real, parameter ::         &
+   real, parameter ::         & !< _____
      A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient A23M4L
      ELOCP=ELIVW/CP,          &  !< Ratio of latent heat of vaporization to specific heat
      CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of specific heat to product of density, gravity, and latent heat
