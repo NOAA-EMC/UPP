@@ -4,7 +4,7 @@
 !
   implicit none
 !
-  integer,parameter :: ITB=076,   &  <! Table horizontal size (i index)
+  integer,parameter :: ITB=076,   &  !< Table horizontal size (i index)
   JTB=134,   &    <! Table vertical size (j index)
   ITBQ=152,  &    <! _____
   JTBQ=440       <! _____

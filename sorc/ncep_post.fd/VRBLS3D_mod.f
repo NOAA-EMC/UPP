@@ -82,7 +82,7 @@
       ,vdiffmois(:,:,:)       & !< Vertical diffusion moistening rate ?
       ,dconvmois(:,:,:)       & !< Deep convective moistening rate ?
       ,sconvmois(:,:,:)       & !< Shallow convective moistening rate ?
-      ,nradtt(:,:,:)          & !< Net radiation temperature tendency _____? 
+      ,nradtt(:,:,:)          & !< Net radiation temperature tendency ? 
       ,o3vdiff(:,:,:)         & !< Ozone vertical diffusion ?
       ,o3prod(:,:,:)          & !< Ozone production ?
       ,o3tndy(:,:,:)          & !< Ozone tendency ?

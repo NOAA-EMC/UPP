@@ -15,7 +15,7 @@
       ,VZ0(:,:) &          !< V-wind component at roughness length (m/s)
       ,THZ0(:,:) &         !< Potential temperature at roughness length (K)
       ,QZ0(:,:) &          !< Specific humidity at roughness length (kg/kg)
-      ,SNO   (:,:) &       !< Instantaneous snow water equivalent _____
+      ,SNO   (:,:) &       !< Instantaneous snow water equivalent
       ,TSHLTR   (:,:) &    !< 2m temperature
       ,QSHLTR(:,:) &       !< 2m specific humidity
       ,MRSHLTR(:,:) &      !< Shelter mixing ratio
@@ -70,7 +70,7 @@
       ,CZMEAN(:,:) &       !< Mean cosine of solar zenith angle
       ,SIGT4(:,:) &        !< Sigma of temperature (Stefan-Boltzmann * T**4)
       ,RSWOUT(:,:) &       !< Instantaneous outgoing shortwave radiation from the surface
-      ,RADOT(:,:) &        !< Instantaneous outgoing longwave radiation from the surface _____ Radiative emission from surface
+      ,RADOT(:,:) &        !< Instantaneous outgoing longwave radiation from the surface
       ,SMSTOT(:,:) &       !< Total soil moisture
       ,PCTSNO(:,:) &       !< Snow cover percentage
       ,PSHLTR(:,:) &       !< Shelter-level pressure
@@ -80,7 +80,7 @@
       ,PREC(:,:) &         !< Precipitation
       ,SUBSHX(:,:) &       !< Accumulated deep soil heat flux
       ,SNOPCX(:,:) &       !< Snow phase change heat flux
-      ,SFCUVX(:,:) &       !< Total momentum flux _____ ??? Surface ultraviolet radiation 
+      ,SFCUVX(:,:) &       !< _____ Surface ultraviolet radiation? Derived from total momentum flux ? 
       ,SFCEVP(:,:) &       !< Accumulated surface evaporation
       ,POTEVP(:,:) &       !< Potential evaporation
       ,Z0(:,:) &           !< Roughness length
@@ -113,7 +113,7 @@
       ,SNONC(:,:) &        !< Accumulated total grid-scale snow/ice ? 
       ,EPSR(:,:) &         !< Radiative emissivity
       ,RSWTOA(:,:) &       !< Outgoing shortwave radiation flux at top of atmosphere
-      ,TEQL(:,:) &         !< Equivalent temperature _____?
+      ,TEQL(:,:) &         !< Equivalent temperature ?
 ! Variables saved for input to IFI
       ,IFI_APCP(:,:) &     !< In-flight icing (IFI) total accumulated precipitation at surface
       ,CAPE(:,:) &         !< Convective available potential energy
@@ -250,8 +250,8 @@
       ,ptoph(:,:) &           !< Time-averaged high cloud top pressure
       ,pboth(:,:) &           !< Time-averaged high cloud bottom pressure 
       ,Ttoph(:,:) &           !< Time-averaged high cloud top temperature
-      ,sfcugs(:,:) &          !< _____?
-      ,sfcvgs(:,:) &          !< _____?
+      ,sfcugs(:,:) &          !< No longer used
+      ,sfcvgs(:,:) &          !< No longer used
       ,PBLCFR(:,:) &          !< Boundary layer cloud cover
       ,cldwork(:,:) &         !< Cloud work function
       ,gtaux(:,:) &           !< Time-averaged zonal gravity wave stress
@@ -348,7 +348,7 @@
       ,PP10CB(:,:) &          !< GFS output pp10 in nemsio (GOCART)
       ,NO3CB(:,:) &           !< GFS output nitrate in netcdf (GOCART)
       ,NH4CB(:,:) &           !< GFS output NH4 in netcdf (GOCART)
-      ,maod(:,:)              !< MIE AOD at 550nm !for FV3-Chem ___?
+      ,maod(:,:)              !< MIE AOD at 550nm (for FV3-Chem)
 
 ! Add new field for AQM
       real, allocatable :: aqm_aod550(:,:)   !< Air quality model (AQM) aerosol optical depth at 550nm

@@ -3065,7 +3065,7 @@
       END SUBROUTINE CALSLR_ROEBBER
 !
 !-------------------------------------------------------------------------------------
-!> @brief breadboard1_main() _____ ???
+!> @brief breadboard1_main() Called by calslr_roebber(), the breadboard subroutines are an AI Machine Learning algorithm that uses a neural network method to predict the snow solid-to-liquid ratio (SLR)
       SUBROUTINE breadboard1_main(nswFileName,mf,f1,f2,f3,f4,f5,f6,p1,p2,p3)
 
       implicit none

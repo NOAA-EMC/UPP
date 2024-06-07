@@ -83,7 +83,7 @@
 !
 !--- grib2 info related to a specific data file
   integer nrecout !< Number of records to output
-  integer num_pset !< Number of parameter sets _____? 
+  integer num_pset !< Number of parameter sets ? 
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
   integer perturb_num,num_ens_fcst
@@ -96,7 +96,7 @@
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
   character*255 fl_nametbl,fl_gdss3
-  logical :: first_grbtbl !< _____?
+  logical :: first_grbtbl !< _____ First grib table?
 !
   public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize,read_grib2_head,read_grib2_sngle
   real(8), EXTERNAL :: timef
@@ -1083,13 +1083,13 @@
 ! within UPP.  Two new subroutines added below.
 !> @brief read_grib2_head() Read in GRIB2 file header information
 !> @param[in] filenameG2 Grib 2 file name
-!> @param[out] nx _____
-!> @param[out] ny _____
-!> @param[out] nz _____
-!> @param[out] rlonmin _____
-!> @param[out] rlatmax _____
-!> @param[out] rdx _____
-!> @param[out] rdy _____
+!> @param[out] nx Total number of grid points along x
+!> @param[out] ny Total number of grid points along y
+!> @param[out] nz Total number of grid points along z (vertical) ?
+!> @param[out] rlonmin Westernmost longitude of the subdomain to extract (negative in Western hemisphere; in degrees) _____
+!> @param[out] rlatmax Northernmost latitude of the subdomain to extract (in degrees) _____
+!> @param[out] rdx Inverse x grid length
+!> @param[out] rdy Inverse y grid length
   subroutine read_grib2_head(filenameG2,nx,ny,nz,rlonmin,rlatmax,rdx,rdy)
 !
     use grib_mod

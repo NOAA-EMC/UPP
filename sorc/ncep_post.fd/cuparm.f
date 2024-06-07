@@ -4,34 +4,35 @@
 !
     implicit none
 !
-    real,parameter :: H1=1.E0, &    !< Height 1.0
-      H1D5=1.5E0,       &     !< Height 1.5
-      H2D5=2.5E0,       &     !< Height 2.5
-      H3000=3000.E0,    &     !< Height 3000
-      H10E5=100000.E0,  &     !< Height 100,000
-      D00=0.E0,         &     !< Decimal 0
-      D125=.125E0,      &     !< Decimal 0.125
-      D50=.5E0,         &     !< Decimal 0.5
-      D608=.608E0,      &     !< Decimal 0.608
-      G=9.8E0,          &     !< Gravity
-      CP=1004.6E0,      &     !< Specific heat capacity at constant pressure
-      CAPA=0.28589641E0, &    !< Specific gas constant for dry air
-      ROG=287.04/9.8,   &     !< Ratio of gas constant to gravity
-      ELWV=2.50E6,      &     !< Latent heat of water vaporization
-      ELIVW=2.72E6,     &     !< Latent heat of water vaporization at 0°C
-      ROW=1.E3,         &     !< Density of water
-      EPSQ=2.E-12,      &     !< Small positive value for stability calculations
-      A2=17.2693882E0,  &     !< Coefficient A2
-      A3=273.16E0,      &     !< Coefficient A3
-      A4=35.86E0,       &     !< Coefficient A4
-      T0=273.16E0,      &     !< Reference temperature in Kelvin
-      T1=274.16E0,      &     !< Reference temperature in Kelvin
-      PQ0=379.90516E0,  &     !< Reference pressure in Pascal
-      STRESH=1.10E0,    &     !< Stability threshold
-      STABS=1.0E0,      &     !< Stability parameter for stability calculations___?
-      STABD=.90E0,      &     !< Stability parameter for stability calculations___?
-      STABFC=1.00E0,    &     !< Stability parameter for stability calculations___?
-      DTTOP=0.0E0,      &     !< Temperature difference at the top of the atmosphere
+    real,parameter :: &
+      H1=1.E0,          &     !< 1.0
+      H1D5=1.5E0,       &     !< 1.5
+      H2D5=2.5E0,       &     !< 2.5
+      H3000=3000.E0,    &     !< 3000
+      H10E5=100000.E0,  &     !< 100,000
+      D00=0.E0,         &     !< Decimal number 0
+      D125=.125E0,      &     !< Decimal number 0.125
+      D50=.5E0,         &     !< Decimal number 0.5
+      D608=.608E0,      &     !< Decimal number 0.608
+      G=9.8E0,          &     !< Acceleration due to gravity
+      CP=1004.6E0,      &     !< Specific heat capacity of dry air at constant pressure (kJ/kg-K)
+      CAPA=0.28589641E0, &    !< R/Cp (universal gas constant over specific heat capacity of dry air at constant pressure)
+      ROG=287.04/9.8,   &     !< RD over G - Gas constant for dry air divided by acceleration due to gravity
+      ELWV=2.50E6,      &     !< Latent heat of vaporization of water
+      ELIVW=2.72E6,     &     !< Latent heat of vaporization of water in Joules per kilogram, used in calculations involving energy transfer during evaporation
+      ROW=1.E3,         &     !< Density (rho) of water
+      EPSQ=2.E-12,      &     !< Minimum q (specific humidity) for computing precipitation type ?
+      A2=17.2693882E0,  &     !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
+      A3=273.16E0,      &     !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
+      A4=35.86E0,       &     !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
+      T0=273.16E0,      &     !< Triple point of water (K)
+      T1=274.16E0,      &     !< 1 degree above triple point of water (K)
+      PQ0=379.90516E0,  &     !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
+      STRESH=1.10E0,    &     !< No longer used/supported
+      STABS=1.0E0,      &     !< No longer used/supported
+      STABD=.90E0,      &     !< No longer used/supported
+      STABFC=1.00E0,    &     !< No longer used/supported
+      DTTOP=0.0E0,      &     !< No longer used/supported
 !---VVVVV
       RHF=0.10,      &        !< Relative humidity factor
       EPSUP=1.00,    &        !< Emissivity factor for upward radiation
@@ -76,7 +77,7 @@
 !       * SETTING OCT90=.TRUE.
 !            (WITH THESE SETTINGS FAST LAND PROFILES ONLY ARE USED).
 !                                                                     FM
-     FSS=.85E0, &             !< _____
+     FSS=.85E0, &             !< No longer used/supported.
      EFIMN=.20E0, &           !< _____
      EFMNT=.70E0, &           !< _____
      FCC=.50, &               !< _____
@@ -136,12 +137,12 @@
      SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope for layer 0 stability (snow)
      SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope for top layer stability (snow)
      SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope for equilibrium temperature
-   real, parameter ::         & !< _____
+   real,parameter :: & 
      A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient A23M4L
      ELOCP=ELIVW/CP,          &  !< Ratio of latent heat of vaporization to specific heat
      CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of specific heat to product of density, gravity, and latent heat
      RCP=H1/CP,               &  !< Ratio of H1 to specific heat
-   logical,parameter :: &    !< _____
+   logical,parameter :: &
      UNIS=.FALSE.,      &    !< Uniform sea surface temperature
      UNIL=.FALSE.,      &    !< Uniform sea surface temperature (lower)
      OCT90=.FALSE.           !< Activation flag for October 1990
