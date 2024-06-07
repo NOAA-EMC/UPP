@@ -38,7 +38,7 @@
 !
       integer :: NFLD &                   !< Number of requested output fields
                  ,IGET(MXFLD) &           !< The "get field" flag array indicating which fields to get
-                 ,LVLS(MXLVL,MXFLD) &     !< Number of levels _____?
+                 ,LVLS(MXLVL,MXFLD) &     !< 2D array of model and field levels
                  ,IDENT(MXFLD) &          !< Array of UPP ID numbers corresponding to the GRIB2 fields produced by UPP
                  ,IAVBLFLD(MXFLD) &       !< _____
                  ,ID(25)                  !< IDs for various GRIB Product Definition Section (PDS) parameters: https://www.nco.ncep.noaa.gov/pmb/docs/on388/section1.html
