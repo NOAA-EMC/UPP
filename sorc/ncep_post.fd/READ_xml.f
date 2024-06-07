@@ -2,6 +2,7 @@
 !> @brief read_postxconfig() reads the post available field XML file and post control XML file. 
 ! Each set of output fields going to one output file will be saved and processed later. 
 ! In other words, post control file will be read in whole once. 
+!> 
 !> PROGRAM HISTORY LOG:
 !>   01_27_2012  Jun Wang - INITIAL CODE
 !>   03_10_2015  Lin Gan  - Replace XML file with flat file implementation with parameter marshalling
