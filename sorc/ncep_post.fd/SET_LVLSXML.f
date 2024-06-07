@@ -1,51 +1,25 @@
+!> @file
+!> @brief SET_LVLSXML() sets field levels (LVLS and LVLSXML) from POST xml CONTROL FILE requested fields
+!> @param param input field
+!> @param ifld field number in post control file
+!> @param irec data fields number in output file
+!> @param kpv total number of potential vorticity levels
+!> @param pv potential vorticity levels
+!> @param kth total number of isentropic levels
+!> @param th isentropic levels
+!>
+!> PROGRAM HISTORY LOG:
+!>   01_27_2012  Jun Wang - INITIAL CODE
+!>   04_03_2012  Jun Wang - add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
+!>   08_06_2013  S  Moorthi  - fix index out of bound after iloop5
+!>   10_03_2013  Jun Wang - add isentropic levels
+!>   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
+!>   07_08_2016  J. Carley - Comment out debug prints
+!>   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
+!>   01-24-2023  Sam Trahan - IFI flight levels and related unit conversions
      subroutine SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
-!
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    SET_LVLCXML     SET field levels from POST xml CONTROL FILE
-!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27
-!
-! ABSTRACT:
-!     THIS ROUTINE SET THE LVLS and LVLSXML for contain request field.
-!
-! PROGRAM HISTORY LOG:
-!   01_27_2012  Jun Wang - INITIAL CODE
-!   04_03_2012  Jun Wang - add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
-!   08_06_2013  S  Moorthi  - fix index out of bound after iloop5
-!   10_03_2013  Jun Wang - add isentropic levels
-!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
-!   07_08_2016  J. Carley - Comment out debug prints
-!   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
-!   01-24-2023  Sam Trahan - IFI flight levels and related unit conversions
-!
-! USAGE:    CALL SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
-!   INPUT ARGUMENT LIST:
-!     param: input field
-!     ifld : field number in post control file
-!     irec : data fields number in output file
-!     kpv  : total number of potential vorticity levels
-!     pv   : potential vorticity levels
-!     kth  : total number of isentropic levels
-!     th   : isentropic levels
-!
-!   OUTPUT ARGUMENT LIST:
-!
-!   OUTPUT FILES:
-!     NONE
-!
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       MODULE:  - RQSTFLD_MOD
-!                  CTLBLK_MOD
-!                  xml_data_post_t
-!                  SOIL
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM
-!
+
+
       use xml_perl_data, only: param_t
       use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
                             petabnd, nbnd, ifi_nflight, ifi_flight_levels

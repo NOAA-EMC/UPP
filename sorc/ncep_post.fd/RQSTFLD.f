@@ -1,6 +1,5 @@
 !> @file
-!> @brief module: RQSTFLD_mod declares variables related to the number of
-!available fields
+!> @brief module: RQSTFLD_mod declares variables related to the number of available fields
     module RQSTFLD_mod
 !--------------------------------------------------------------------
 ! revision history
