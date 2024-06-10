@@ -14,6 +14,6 @@
       ,HTM (:,:,:) &     !< Height topography mask array
       ,VTM (:,:,:) &     !< _____
       ,DX(:,:) &         !< Grid spacing in the x-direction ?
-      ,DY(:,:) &         !< Grid spacing in the y-direction ?
+      ,DY(:,:)           !< Grid spacing in the y-direction ?
 !
       end module masks
