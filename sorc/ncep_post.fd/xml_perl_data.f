@@ -341,8 +341,7 @@
 
         end subroutine read_postxconfig
 
-!> @brief filter_char_inp() checks parameter set to see whether "?" is found and, 
-!  if so, replaces it with an empty string because it means no input.  _____? 
+!> @brief filter_char_inp() checks parameter set to see whether "?" is found and, if so, replaces it with an empty string because it means no input.
         subroutine filter_char_inp (inpchar)
           implicit none
           character, intent(inout)    :: inpchar

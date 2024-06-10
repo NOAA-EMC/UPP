@@ -1,9 +1,9 @@
 !> @file
 !> @brief module: cuparm_mod defines variables used for cumulus parameterization
   module cuparm_mod
-!
+
     implicit none
-!
+
     real, parameter :: H1=1.E0,  &   !< 1.0
       H1D5=1.5E0,       &     !< 1.5
       H2D5=2.5E0,       &     !< 2.5
@@ -139,12 +139,12 @@
      SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< Slope - cloud base over sea ?
      SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope - freezing level over sea ?
      SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope - cloud top over sea ?
-     SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope ?
+     SLOPE=(H1   -EFMNT)/(H1-EFIMN)           !< Slope ?
    real,parameter :: & 
      A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient derived from A2, A3, A4, and ELWV
      ELOCP=ELIVW/CP,          &  !< ELIVW over CP
      CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of CP to product of water density, acceleration due to gravity, and latent heat of vaporization of water
-     RCP=H1/CP,               &  !< Reciprocal of CP (1/CP)
+     RCP=H1/CP                   !< Reciprocal of CP (1/CP)
    logical,parameter :: &
      UNIS=.FALSE.,      &    !< _____ ?
      UNIL=.FALSE.,      &    !< _____ ?
