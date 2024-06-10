@@ -67,7 +67,7 @@ module params_mod
     real, parameter :: ERAD=6.371E6             !< Earth's radius in meters
     real, parameter :: CP=1004.6                !< Specific heat capacity of dry air at constant pressure (kJ/kg-K)
     real, parameter :: RCAPA=1./CAPA            !< Reciprocal of CAPA
-    real, parameter :: P1000=1000.E2            !< Pressure value of 100,000 Pascals
+    real, parameter :: P1000=1000.E2            !< 100,000
     real, parameter :: DP10M=110                !< No longer used/supported
     real, parameter :: ELWV=2.50E6              !< Latent heat of vaporization of water in J/kg
     real, parameter :: CPDR=CP/RD               !< CP over RD
@@ -78,7 +78,7 @@ module params_mod
     real, parameter :: FMW=18.015               !< Mean molecular mass of wet air
     real, parameter :: FMD=28.964               !< Mean molecular mass of dry air
     real, parameter :: EPS=FMW/FMD              !< Ratio of dry air to water vapor gas constants
-    real, parameter :: ONEPS=1.-EPS             !< Represents the complement of the ratio of molecular weights of water vapor to dry air
+    real, parameter :: ONEPS=1.-EPS             !< _____ Represents the complement of the ratio of molecular weights of water vapor to dry air ?
     real, parameter :: TFRZ=273.15              !< Freezing temperature of water
     real, parameter :: RDOCP=RD/CP              !< RD over CP
     real, parameter :: LHEAT=2.5E6              !< Latent heat

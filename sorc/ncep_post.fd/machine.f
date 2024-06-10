@@ -5,12 +5,11 @@
       IMPLICIT NONE
       SAVE
       
-      Integers 
-      kind_io4(:,:) &       !< Integer parameter specifying the kind value for 4-byte integers
-      ,kind_io8(:,:) &      !< Integer parameter specifying the kind value for 8-byte integers
-      ,kind_phys(:,:) &     !< Integer parameter specifying the kind value for real numbers used in physics
-      ,kind_rad(:,:) &      !< Integer parameter specifying the kind value for real numbers used in radiation calculations
-      ,kint_mpi(:,:) &      !< Integer parameter specifying the kind value for MPI integer types
+      integer kind_io4(:,:) & !< Array of 4-byte I/O variables ?
+      ,kind_io8(:,:) &      !< Array of 8-byte I/O variables ?
+      ,kind_phys(:,:) &     !< Array of physics variables ?
+      ,kind_rad(:,:) &      !< Array of radiation variables ?
+      ,kint_mpi(:,:) &      !< Array of MPI variables ?
       
       parameter (kind_rad = selected_real_kind(13,60)) ! the '60' maps to 64-bit real
       parameter (kind_phys = selected_real_kind(13,60)) ! the '60' maps to 64-bit real
