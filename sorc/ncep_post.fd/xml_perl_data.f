@@ -2,7 +2,7 @@
 !------------------------------------------------------------------------
 !> @file 
 !> @brief module:  This module reads in Perl XML processed flat file and 
-!   handle parameter marshalling for existing POST program
+!  handles parameter marshalling for existing POST program
 !
 ! program log:
 !   March, 2015    Lin Gan    Initial Code
@@ -11,20 +11,20 @@
 !------------------------------------------------------------------------
 !> @defgroup xml_perl_data_mod Sets parameters that are used to read in 
 !> Perl XML processed flat file and handle parameter marshalling for 
-!> existing POST program.
+!  existing POST program.
 !
         implicit none
 !
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!  and handles parameter marshalling for existing POST program.
    integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
              NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!  and handle parameter marshalling for existing POST program.
 	  type param_t
 	    integer                              :: post_avblfldidx=-9999
 	    character(len=80)                    :: shortname=''
@@ -68,7 +68,7 @@
 
 !> @ingroup xml_perl_data_mod
 !> @{ Parameters that are used to read in Perl XML processed flat file
-!> and handle parameter marshalling for existing POST program.
+!  and handle parameter marshalling for existing POST program.
           type paramset_t
 	    character(len=6)                     :: datset=''
 	    integer                              :: grid_num=255
@@ -89,7 +89,7 @@
 !> @}
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!  and handle parameter marshalling for existing POST program.
             character(len=50)                    :: type_ens_fcst=''
             character(len=50)                    :: type_derived_fcst=''
             type(param_t), dimension(:), pointer :: param => null()
@@ -97,7 +97,7 @@
 !> @}
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program. 
+!  and handle parameter marshalling for existing POST program. 
           type post_avblfld_t
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
@@ -105,7 +105,7 @@
 
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program. 
+!  and handle parameter marshalling for existing POST program. 
           type (paramset_t), dimension(:), pointer :: paramset
           type (post_avblfld_t),save               :: post_avblflds
 !> @}
