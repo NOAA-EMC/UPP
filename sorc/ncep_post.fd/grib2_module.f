@@ -96,7 +96,7 @@
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
   character*255 fl_nametbl,fl_gdss3
-  logical :: first_grbtbl !< _____ First grib table?
+  logical :: first_grbtbl !< _____ ?
 !
   public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize,read_grib2_head,read_grib2_sngle
   real(8), EXTERNAL :: timef
@@ -105,8 +105,7 @@
   contains
 !
 !-------------------------------------------------------------------------------------
-!> @brief grib_info_init() initialize general grib2 information and local
-!variables
+!> @brief grib_info_init() initialize general grib2 information and local variables
   subroutine grib_info_init()
 !
     implicit none
@@ -986,7 +985,7 @@
 !
 !----------
 ! idrstmpl array is the output from g2sec5
-!> @brief get_g2_sec5packingmethod() 
+!> @brief get_g2_sec5packingmethod() _____ ?
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
        if(maxval(datafld1)==minval(datafld1))then
          idrsnum=0
@@ -1085,7 +1084,7 @@
 !> @param[in] filenameG2 Grib 2 file name
 !> @param[out] nx Total number of grid points along x
 !> @param[out] ny Total number of grid points along y
-!> @param[out] nz Total number of grid points along z (vertical) ?
+!> @param[out] nz Total number of grid points along z (vertical)
 !> @param[out] rlonmin Westernmost longitude of the subdomain to extract (negative in Western hemisphere; in degrees) _____
 !> @param[out] rlatmax Northernmost latitude of the subdomain to extract (in degrees) _____
 !> @param[out] rdx Inverse x grid length
@@ -1238,10 +1237,10 @@
 !
 !---
 !> @brief read_grib2_sngle() Read grib2 files
-!> @param[in] filenameG2 _____
-!> @param[in] ntot _____
+!> @param[in] filenameG2 Grib 2 file name
+!> @param[in] ntot Total count of variables ?
 !> @param[out] height _____
-!> @param[out] var _____
+!> @param[out] var Array of variables
   subroutine read_grib2_sngle(filenameG2,ntot,height,var)
 !
     use grib_mod
@@ -1653,11 +1652,9 @@
       END subroutine g2getbits
 !
 !-------------------------------------------------------------------------------------
-!> @brief getgds() Set up gds kpds to call Boi's code _____?
+!> @brief getgds() Set up Grid Description Section (GDS) kpds (Product Definition Section?) to call Boi's code ?
       subroutine getgds(ldfgrd,len3,ifield3len,igds,ifield3)
-!     
-!***** set up gds kpds to call Boi's code
-!
+
       use CTLBLK_mod,  only : im,jm,gdsdegr,modelname
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &

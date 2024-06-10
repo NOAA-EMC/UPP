@@ -18,11 +18,6 @@
 !> (IE, GRID 26), we pack 273.15K as the freezing temperature. All 
 !> other output grids use 273.16K.
 !>
-!> @param[in] isotherm isothermal value of height to be output.
-!> @param[out] ZFRZ Above ground level/ZFL at isotherm height.
-!> @param[out] RHFRZ Relative humidity at isotherm level.
-!> @param[out] PFRZL pressure at isotherm level.
-!> 
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
@@ -44,7 +39,7 @@
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !-------------------------------------------------------------------------------
-!> Subroutine that computes FRZING LVL, Z and RH.
+!> @brief FRZLVL2 computes FRZING LVL, Z and RH.
 !>
 !> @param[in] ISOTHERM real Isothermal value of height to be output.
 !> @param[out] ZFRZ real Above ground level/ZFL at isotherm height.

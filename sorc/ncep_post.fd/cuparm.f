@@ -19,7 +19,7 @@
       CAPA=0.28589641E0, &    !< R/Cp (universal gas constant over specific heat capacity of dry air at constant pressure)
       ROG=287.04/9.8,   &     !< RD over G - Gas constant for dry air divided by acceleration due to gravity
       ELWV=2.50E6,      &     !< Latent heat of vaporization of water
-      ELIVW=2.72E6,     &     !< Latent heat of vaporization of water in Joules per kilogram, used in calculations involving energy transfer during evaporation
+      ELIVW=2.72E6,     &     !< Latent heat of vaporization of water in J/kg, used in calculations involving energy transfer during evaporation
       ROW=1.E3,         &     !< Density (rho) of water
       EPSQ=2.E-12,      &     !< Minimum q (specific humidity) for computing precipitation type ?
       A2=17.2693882E0,  &     !< Constant used to parameterize specific humidity at 2m in WRFPOST: qs=pq0/p*exp(a2*(t-a3)/(t-a4))
@@ -34,20 +34,18 @@
       STABFC=1.00E0,    &     !< No longer used/supported
       DTTOP=0.0E0,      &     !< No longer used/supported
 !---VVVVV
-      RHF=0.10,      &        !< Relative humidity factor
-      EPSUP=1.00,    &        !< Emissivity factor for upward radiation
-      EPSDN=1.05,    &        !< Emissivity factor for downward radiation
-      EPSTH=0.0,     &        !< Emissivity threshold
-      PBM=13000.,    &        !< Pressure at the bottom of the model domain
-      PQM=20000.,    &        !< Pressure at the top of the model domain
-      PNO=1000.,     &        !< Standard pressure
-      PONE=2500.,    &        !< Reference pressure for the model
-      ZSH=2000.,     &        !< Height for snowfall
-      PFRZ=15000.,   &        !< Pressure at the freezing level
-      PSHU=45000.,   &        !< Pressure at the tropopause
+      RHF=0.10,      &        !< No longer used/supported (Relative humidity factor)
+      EPSUP=1.00,    &        !< No longer used/supported
+      EPSDN=1.05,    &        !< No longer used/supported
+      EPSTH=0.0,     &        !< No longer used/supported
+      PBM=13000.,    &        !< _____ ?
+      PQM=20000.,    &        !< No longer used/supported
+      PNO=1000.,     &        !< No longer used/supported
+      PONE=2500.,    &        !< _____ ?
+      ZSH=2000.,     &        !< No longer used/supported
+      PFRZ=15000.,   &        !< _____ ?
+      PSHU=45000.,   &        !< No longer used/supported
 
-!    &, RHF=0.20,EPSUP=0.93,EPSDN=1.00,EPSTH=0.3
-!    &, RHF=0.20,EPSUP=1.00,EPSDN=1.00,EPSTH=0.3
 !AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 !
 !    AUGUST '91: SCHEME HAVING THE OPTION OF USING DIFFERENT FAST AND
@@ -77,11 +75,11 @@
 !       * SETTING OCT90=.TRUE.
 !            (WITH THESE SETTINGS FAST LAND PROFILES ONLY ARE USED).
 !                                                                     FM
-     FSS=.85E0, &             !< No longer used/supported.
-     EFIMN=.20E0, &           !< _____
-     EFMNT=.70E0, &           !< _____
-     FCC=.50, &               !< _____
-     FCP=H1-FCC, &            !< _____
+     FSS=.85E0, &             !< Factor to obtain “slow” profiles over the sea ?
+     EFIMN=.20E0, &           !< Minimum convective cloud efficiency
+     EFMNT=.70E0, &           !< _____ ?
+     FCC=.50, &               !< _____ ?
+     FCP=H1-FCC, &            !< _____ ?
 !
 !         IN THIS VERSION 3.5, OVER LAND AND FOR THE FAST PROFILES, DSPB
 !         IS PRESCRIBED TO BE 25 PERCENT DRIER THAN THE FAST SEA VALUE
@@ -91,24 +89,29 @@
 !         AVERAGE OF THE FAST AND THE SLOW LAND PROFILES SOMEWHAT DRIER
 !         THAN THE OCT90 FIXED LAND PROFILES.                         FM
 !
-     DSPBFL=-4843.75E0, &     !< _____
-     DSP0FL=-7050.00E0, &     !< _____
-     DSPTFL=-2250.0E0, &      !< _____
-     FSL=.850E0,   &          !< _____
+!> Deficit Saturation Pressure (DSP)
+!> DSPB = cloud base
+!> DSP0 = freezing level
+!> DSPT = cloud top
+     DSPBFL=-4843.75E0, &     !< Deficit Saturation Pressure (DSP) at cloud base - fast land ?
+     DSP0FL=-7050.00E0, &     !< Deficit Saturation Pressure (DSP) at freezing level - fast land ?
+     DSPTFL=-2250.0E0, &      !< Deficit Saturation Pressure (DSP) at cloud top - fast land ?
+     FSL=.850E0,   &          !< Factor to obtain "slow" profiles over land ?
 !***   ACTIVATE THE FOLLOWING LINE IF OCT90=.TRUE. (AND COMMENT OUT THE
 !***   PRECEDING LINE):
-!    DSPBFL=-3875.E0, &            !< _____
-     DSP0FL=-5875.E0, &            !< _____
-     DSPTFL=-1875.E0,FSL=1.0E0, &  !< _____
-     DSPBFS=-3875.E0, &            !< _____
-     DSP0FS=-5875.E0, &            !< _____
-     DSPTFS=-1875.E0,           &  !< _____
-     DSPBSL=DSPBFL*FSL, &          !< _____
-     DSP0SL=DSP0FL*FSL, &          !< _____
-     DSPTSL=DSPTFL*FSL,         &  !< _____
-     DSPBSS=DSPBFS*FSS, &          !< _____
-     DSP0SS=DSP0FS*FSS, &          !< _____
-     DSPTSS=DSPTFS*FSS,         &  !< _____
+!    DSPBFL=-3875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud base - fast land ?
+     DSP0FL=-5875.E0, &            !< Deficit Saturation Pressure (DSP) at freezing level - fast land ?
+     DSPTFL=-1875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud top - fast land ?
+     FSL=1.0E0, &                  !< Factor to obtain "slow" profiles over land ?
+     DSPBFS=-3875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud base  - fast sea ?
+     DSP0FS=-5875.E0, &            !< Deficit Saturation Pressure (DSP) at freezing level  - fast sea ?
+     DSPTFS=-1875.E0,           &  !< Deficit Saturation Pressure (DSP) at cloud top  - fast sea ?
+     DSPBSL=DSPBFL*FSL, &          !< Deficit Saturation Pressure (DSP) at cloud base - slow land ?
+     DSP0SL=DSP0FL*FSL, &          !< Deficit Saturation Pressure (DSP) at freezing level - slow land ?
+     DSPTSL=DSPTFL*FSL,         &  !< Deficit Saturation Pressure (DSP) at cloud top - slow land ?
+     DSPBSS=DSPBFS*FSS, &          !< Deficit Saturation Pressure (DSP) at cloud base - slow sea ?
+     DSP0SS=DSP0FS*FSS, &          !< Deficit Saturation Pressure (DSP) at freezing level - slow sea ?
+     DSPTSS=DSPTFS*FSS,         &  !< Deficit Saturation Pressure (DSP) at cloud top - slow sea ?
 !*** NEW CONVECTION SCHEME WITH CROSSING DSP PROFILES ******************
 !+-  &, UNIS=.FALSE.,EFIMN=.71E0,EFMNT=.71,FCC=0.5,FCP=H1-FCC
 !+-  &, DSPBL=-3875.E0,DSP0L=-5875.E0,DSPTL=-1875.E0
@@ -120,31 +123,31 @@
 !    &, DSPBF=-3875.E0,DSP0F=-5875.E0,DSPTF=-1875.E0
 !    &, DSPBS=-3875.E0,DSP0S=-5875.E0,DSPTS=-1875.E0
 !***********************************************************************
-     TREL=3000.,                 &     !< Reference temperature for relative humidity calculation
-     EPSNTP=.0010E0,             &     !< Small positive value for stability calculations
-     EFIFC=5.0E0,                &     !< Empirical factor for stability calculations
-     AVGEFI=(EFIMN+1.E0)*.5E0,   &     !< Average of EFIMN and 1
-     DSPC=-3000.E0,              &     !< Reference temperature for stability calculations
-     EPSP=1.E-7,                 &     !< Small positive value for stability calculations
-     STEFI=1.E0,                 &     !< Empirical factor for stability calculations
+     TREL=3000.,                 &     !< Relaxation time
+     EPSNTP=.0010E0,             &     !< No longer used/supported
+     EFIFC=5.0E0,                &     !< _____ Empirical factor for stability calculations
+     AVGEFI=(EFIMN+1.E0)*.5E0,   &     !< Average cloud efficiency
+     DSPC=-3000.E0,              &     !< _____ Reference temperature for stability calculations
+     EPSP=1.E-7,                 &     !< _____ Small positive value for stability calculations
+     STEFI=1.E0,                 &     !< Starting efficiency (EFI)
 !*** ACTIVATE THE FOLLOWING LINE AND COMMENT OUT THE PRECEDING LINE IF
 !*** OCT90=.TRUE.
 !    STEFI=AVGEFI,                        &   
-     SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< Slope for boundary layer stability
-     SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< Slope for layer 0 stability
-     SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< Slope for top layer stability
-     SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< Slope for boundary layer stability (snow)
-     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope for layer 0 stability (snow)
-     SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope for top layer stability (snow)
-     SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope for equilibrium temperature
+     SLOPBL=(DSPBFL-DSPBSL)/(H1-EFIMN),   &   !< Slope - cloud base over land ?
+     SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< Slope - freezing level over land ?
+     SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< Slope - cloud top over land ?
+     SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< Slope - cloud base over sea ?
+     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope - freezing level over sea?
+     SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope - cloud top over sea ?
+     SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope ?
    real,parameter :: & 
-     A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient A23M4L
-     ELOCP=ELIVW/CP,          &  !< Ratio of latent heat of vaporization to specific heat
-     CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of specific heat to product of density, gravity, and latent heat
-     RCP=H1/CP,               &  !< Ratio of H1 to specific heat
+     A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient derived from A2, A3, A4, and ELWV
+     ELOCP=ELIVW/CP,          &  !< ELIVW over CP
+     CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of CP to product of water density, acceleration due to gravity, and latent heat of vaporization of water
+     RCP=H1/CP,               &  !< Reciprocal of CP (1/CP)
    logical,parameter :: &
-     UNIS=.FALSE.,      &    !< Uniform sea surface temperature
-     UNIL=.FALSE.,      &    !< Uniform sea surface temperature (lower)
-     OCT90=.FALSE.           !< Activation flag for October 1990
+     UNIS=.FALSE.,      &    !< _____ ?
+     UNIL=.FALSE.,      &    !< _____ ?
+     OCT90=.FALSE.           !< Flag to activate old Zavisa Oct. 1990 land scheme with fixed land profiles
   end module cuparm_mod
 
