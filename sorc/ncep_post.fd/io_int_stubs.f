@@ -2,12 +2,6 @@
 !
 !--- get_dom_ti_real
 SUBROUTINE ext_int_get_dom_ti_real ( DataHandle,Element,   Data, Count, Outcount, Status )
-  INTEGER ,       INTENT(IN)  :: DataHandle
-  CHARACTER*(*) :: Element
-  REAL ,          INTENT(OUT) :: Data(*)
-  INTEGER ,       INTENT(IN)  :: Count
-  INTEGER ,       INTENT(OUT) :: Outcount
-  INTEGER ,       INTENT(OUT) :: Status
 
 RETURN
 END SUBROUTINE ext_int_get_dom_ti_real 
