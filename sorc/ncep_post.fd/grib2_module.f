@@ -9,8 +9,7 @@
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
 !   July,  2021    Jesse Meng 2D decomsition
-!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for
-!   latlon grid
+!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
 !   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
 !-------------------------------------------------------------------------
   module grib2_module
@@ -82,8 +81,8 @@
    type(paramset_t),save :: pset !< parameter set
 !
 !--- grib2 info related to a specific data file
-  integer nrecout !< Number of records to output
-  integer num_pset !< Number of parameter sets ? 
+  integer nrecout     !< Number of records to output
+  integer num_pset    !< Number of parameter sets ? 
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
   integer perturb_num,num_ens_fcst
@@ -194,7 +193,7 @@
   end subroutine grib_info_finalize
 !-------------------------------------------------------------------------------------
 !> @brief gribit2 _____?
-!> @param[in] post_fname UPP file name used
+!> @param[in] post_fname UPP file name
   subroutine gribit2(post_fname)
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
@@ -985,7 +984,8 @@
 !
 !----------
 ! idrstmpl array is the output from g2sec5
-!> @brief get_g2_sec5packingmethod() _____ ?
+!> @brief get_g2_sec5packingmethod() Get GRIB2 Section 5 packing method
+!> See GRIB2 data representation information: https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect5.shtml
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
        if(maxval(datafld1)==minval(datafld1))then
          idrsnum=0
@@ -1239,7 +1239,7 @@
 !> @brief read_grib2_sngle() Read grib2 files
 !> @param[in] filenameG2 Grib 2 file name
 !> @param[in] ntot Total count of variables ?
-!> @param[out] height _____
+!> @param[out] height _____ ?
 !> @param[out] var Array of variables
   subroutine read_grib2_sngle(filenameG2,ntot,height,var)
 !

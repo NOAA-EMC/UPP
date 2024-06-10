@@ -4,7 +4,7 @@
 !
     implicit none
 !
-    real,parameter :: &
+    real, parameter :: &
       H1=1.E0,          &     !< 1.0
       H1D5=1.5E0,       &     !< 1.5
       H2D5=2.5E0,       &     !< 2.5
@@ -50,7 +50,7 @@
 !
 !    AUGUST '91: SCHEME HAVING THE OPTION OF USING DIFFERENT FAST AND
 !    SLOW PROFILES FOR SEA AND FOR LAND POINTS; AND ALSO THE "SEA" AND
-!    THE "LAND" SCHEME EVERYWHERE.  OVER LAND PROFILES DEPART FROM THE
+!    THE "LAND" SCHEME EVERYWHERE. OVER LAND PROFILES DEPART FROM THE
 !    FAST (DRY) PROFILES ONLY FOR PRECIPITATION/TIME STEP >
 !    A PRESCRIBED VALUE (CURRENTLY, IN THE VERSION #3 DONE WEDNESDAY
 !    18 SEPTEMBER, 1/4 INCH/24 H).  USE OF VARIOUS SWITCHES AS FOLLOWS.
@@ -93,6 +93,7 @@
 !> DSPB = cloud base
 !> DSP0 = freezing level
 !> DSPT = cloud top
+!
      DSPBFL=-4843.75E0, &     !< Deficit Saturation Pressure (DSP) at cloud base - fast land ?
      DSP0FL=-7050.00E0, &     !< Deficit Saturation Pressure (DSP) at freezing level - fast land ?
      DSPTFL=-2250.0E0, &      !< Deficit Saturation Pressure (DSP) at cloud top - fast land ?
@@ -105,13 +106,13 @@
      FSL=1.0E0, &                  !< Factor to obtain "slow" profiles over land ?
      DSPBFS=-3875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud base  - fast sea ?
      DSP0FS=-5875.E0, &            !< Deficit Saturation Pressure (DSP) at freezing level  - fast sea ?
-     DSPTFS=-1875.E0,           &  !< Deficit Saturation Pressure (DSP) at cloud top  - fast sea ?
+     DSPTFS=-1875.E0,   &          !< Deficit Saturation Pressure (DSP) at cloud top  - fast sea ?
      DSPBSL=DSPBFL*FSL, &          !< Deficit Saturation Pressure (DSP) at cloud base - slow land ?
      DSP0SL=DSP0FL*FSL, &          !< Deficit Saturation Pressure (DSP) at freezing level - slow land ?
-     DSPTSL=DSPTFL*FSL,         &  !< Deficit Saturation Pressure (DSP) at cloud top - slow land ?
+     DSPTSL=DSPTFL*FSL, &          !< Deficit Saturation Pressure (DSP) at cloud top - slow land ?
      DSPBSS=DSPBFS*FSS, &          !< Deficit Saturation Pressure (DSP) at cloud base - slow sea ?
      DSP0SS=DSP0FS*FSS, &          !< Deficit Saturation Pressure (DSP) at freezing level - slow sea ?
-     DSPTSS=DSPTFS*FSS,         &  !< Deficit Saturation Pressure (DSP) at cloud top - slow sea ?
+     DSPTSS=DSPTFS*FSS, &          !< Deficit Saturation Pressure (DSP) at cloud top - slow sea ?
 !*** NEW CONVECTION SCHEME WITH CROSSING DSP PROFILES ******************
 !+-  &, UNIS=.FALSE.,EFIMN=.71E0,EFMNT=.71,FCC=0.5,FCP=H1-FCC
 !+-  &, DSPBL=-3875.E0,DSP0L=-5875.E0,DSPTL=-1875.E0
@@ -125,10 +126,10 @@
 !***********************************************************************
      TREL=3000.,                 &     !< Relaxation time
      EPSNTP=.0010E0,             &     !< No longer used/supported
-     EFIFC=5.0E0,                &     !< _____ Empirical factor for stability calculations
+     EFIFC=5.0E0,                &     !< No longer used/supported
      AVGEFI=(EFIMN+1.E0)*.5E0,   &     !< Average cloud efficiency
-     DSPC=-3000.E0,              &     !< _____ Reference temperature for stability calculations
-     EPSP=1.E-7,                 &     !< _____ Small positive value for stability calculations
+     DSPC=-3000.E0,              &     !< No longer used/supported
+     EPSP=1.E-7,                 &     !< No longer used/supported
      STEFI=1.E0,                 &     !< Starting efficiency (EFI)
 !*** ACTIVATE THE FOLLOWING LINE AND COMMENT OUT THE PRECEDING LINE IF
 !*** OCT90=.TRUE.
@@ -137,7 +138,7 @@
      SLOP0L=(DSP0FL-DSP0SL)/(H1-EFIMN),   &   !< Slope - freezing level over land ?
      SLOPTL=(DSPTFL-DSPTSL)/(H1-EFIMN),   &   !< Slope - cloud top over land ?
      SLOPBS=(DSPBFS-DSPBSS)/(H1-EFIMN),   &   !< Slope - cloud base over sea ?
-     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope - freezing level over sea?
+     SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope - freezing level over sea ?
      SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope - cloud top over sea ?
      SLOPE=(H1   -EFMNT)/(H1-EFIMN),      &   !< Slope ?
    real,parameter :: & 
