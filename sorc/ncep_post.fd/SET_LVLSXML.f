@@ -1,12 +1,5 @@
 !> @file
 !> @brief SET_LVLSXML() sets field levels (LVLS and LVLSXML) from POST xml CONTROL FILE requested fields
-!> @param[inout] param input field
-!> @param[in] ifld field number in post control file
-!> @param[inout] irec data fields number in output file
-!> @param[in] kpv total number of potential vorticity levels
-!> @param[in] pv potential vorticity levels
-!> @param[in] kth total number of isentropic levels
-!> @param[th] th isentropic levels
 !>
 !> PROGRAM HISTORY LOG:
 !>   01_27_2012  Jun Wang - INITIAL CODE
@@ -18,6 +11,14 @@
 !>   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
 !>   01-24-2023  Sam Trahan - IFI flight levels and related unit conversions
 !---------------------------------------------------------------------------------
+!> @brief SET_LVLSXML() sets field levels (LVLS and LVLSXML) from POST xml CONTROL FILE requested fields
+!> @param[inout] param input field
+!> @param[in] ifld field number in post control file
+!> @param[inout] irec data fields number in output file
+!> @param[in] kpv total number of potential vorticity levels
+!> @param[in] pv potential vorticity levels
+!> @param[in] kth total number of isentropic levels
+!> @param[th] th isentropic levels
      subroutine SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 
 
