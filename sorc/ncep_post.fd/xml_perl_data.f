@@ -172,8 +172,6 @@
 ! allocate array size from param for current paramset
 ! filter_char_inp is to check if "?" is found 
 !   then replace to empty string because it means no input. 
-!> @brief filter_char_inp() filters the input characters
-!> @param paramset(i)%datset Data on a particular parameter from the parameter set
           read(22,*)paramset(i)%datset
           call filter_char_inp(paramset(i)%datset)
 
