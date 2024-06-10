@@ -1,25 +1,25 @@
 !> @file
-!> @ brief set_outflds() reads post xml control file.
+!> @brief set_outflds() reads post xml control file.
 !>
 !> @author J. Wang NCEP/EMC @date 2012-01-27
 !>
 !> This routine reads the control file in xml format specifying
 !> field(s) to post, and save all the field information in
 !> a datatype array PSET.
-!>
-!> @param[in] KTH total number of isentropic levels
-!> @param[in] TH isentropic levels
-!> @param[in] KPV total number of potential vorticity levels
-!> @param[in] PV potential vorticity levels
-!>
+!> 
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2012-01-27 | Jun Wang | Initial
 !> 2015-03-10 | Lin Gan  | Replace XML file with flat file implementation
 !> 2019-10-30 | Bo Cui   | Removw "GOTO" Statement
+!---------------------------------------------------------------------------
+!> @brief set_outflds() reads post xml control file.
 !>
-!> @author J. Wang NCEP/EMC @date 2012-01-27
+!> @param[in] KTH total number of isentropic levels
+!> @param[in] TH isentropic levels
+!> @param[in] KPV total number of potential vorticity levels
+!> @param[in] PV potential vorticity levels
       SUBROUTINE SET_OUTFLDS(kth,th,kpv,pv)
 !
 

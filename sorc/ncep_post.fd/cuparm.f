@@ -4,8 +4,7 @@
 !
     implicit none
 !
-    real, parameter :: &
-      H1=1.E0,          &     !< 1.0
+    real, parameter :: H1=1.E0,  &   !< 1.0
       H1D5=1.5E0,       &     !< 1.5
       H2D5=2.5E0,       &     !< 2.5
       H3000=3000.E0,    &     !< 3000
