@@ -2216,14 +2216,14 @@
            endif
          ENDIF
 !
-! Hourly averaged surface smoke
+! Hourly averaged surface PM2.5
 !
         IF (IGET(759)>0) THEN
           GRID1=SPVAL
           DO J=JSTA,JEND
             DO I=ISTA,IEND
             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE_AVE(I,J)/=spval)&
-              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE_AVE(I,J)/(1E9)
+              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(SMOKE_AVE(I,J)+DUST_AVE(I,J))/(1E9)
             ENDDO
           ENDDO
           ID(1:25) = 0
@@ -2264,7 +2264,7 @@
           DO J=JSTA,JEND
             DO I=ISTA,IEND
             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.DUST_AVE(I,J)/=spval)&
-              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(DUST_AVE(I,J)+COARSEPM_AVE(I,J))/(1E9)
+              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(SMOKE_AVE(I,J)+DUST_AVE(I,J)+COARSEPM_AVE(I,J))/(1E9)
             ENDDO
           ENDDO
           ID(1:25) = 0
