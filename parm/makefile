@@ -28,6 +28,8 @@ ALL_TXT= \
   postxconfig-NT-NGAC.txt \
   postxconfig-NT-GEFS.txt \
   postxconfig-NT-GEFS-F00.txt \
+  postxconfig-NT-hafs_ar_nosat.txt \
+  postxconfig-NT-hafs_ar_nosat_l65.txt \
   postxconfig-NT-hafs_sat.txt \
   postxconfig-NT-hafs_nosat.txt \
   postxconfig-NT-hafs.txt \
@@ -60,6 +62,8 @@ postxconfig-NT-GEFS.txt:             postcntrl_gefs.xml             post_avblfld
 postxconfig-NT-GEFS-F00.txt:         postcntrl_gefs_f00.xml         post_avblflds.xml
 postxconfig-NT-hafs_sat.txt:         postcntrl_hafs_sat.xml         post_avblflds.xml
 postxconfig-NT-hafs_nosat.txt:       postcntrl_hafs_nosat.xml       post_avblflds.xml
+postxconfig-NT-hafs_ar_nosat.txt:    postcntrl_hafs_ar_nosat.xml    post_avblflds.xml
+postxconfig-NT-hafs_ar_nosat_l65.txt: postcntrl_hafs_ar_nosat_l65.xml post_avblflds.xml
 postxconfig-NT-hafs.txt:             postcntrl_hafs.xml             post_avblflds.xml
 postxconfig-NT-GFS-TWO.txt:          postcntrl_gfs_two.xml          post_avblflds.xml
 postxconfig-NT-GFS-F00-TWO.txt:      postcntrl_gfs_f00_two.xml      post_avblflds.xml

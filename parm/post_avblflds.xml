@@ -8335,5 +8335,59 @@
        <scale>6.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>1015</post_avblfldidx>
+       <shortname>NCCD_ON_HYBRID_LVL</shortname>
+       <longname>Number concentration for cloud water drops on hybrid level</longname>
+       <pname>NCONCD</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1016</post_avblfldidx>
+       <shortname>NCIP_ON_HYBRID_LVL</shortname>
+       <longname>Number concentration for ice particles on hybrid level</longname>
+       <pname>NCCICE</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1017</post_avblfldidx>
+       <shortname>NCRAIN_ON_HYBRID_LVL</shortname>
+       <longname>Number concentration for rain on hybrid level</longname>
+       <pname>SPNCR</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1018</post_avblfldidx>
+       <shortname>NCCD_ON_ISOBARIC_SFC</shortname>
+       <longname>Number concentration for cloud water drops on isobaric surfaces</longname>
+       <pname>NCONCD</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1019</post_avblfldidx>
+       <shortname>NCIP_ON_ISOBARIC_SFC</shortname>
+       <longname>Number concentration for ice particles on isobaric surfaces</longname>
+       <pname>NCCICE</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1020</post_avblfldidx>
+       <shortname>NCRAIN_ON_ISOBARIC_SFC</shortname>
+       <longname>Number concentration for rain on isobaric surfaces</longname>
+       <pname>SPNCR</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>
