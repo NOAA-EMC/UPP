@@ -53,6 +53,7 @@
 !> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
 !> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
 !> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
+!> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
