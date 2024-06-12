@@ -499,9 +499,9 @@
                            vtimeunits,modelname
     use gridspec_mod, only: maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
-                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
-                           g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,g2sec5_temp40,         &
-                           get_g2_sec5packingmethod       
+                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp9,g2sec4_temp44,         &
+                           g2sec4_temp46,g2sec4_temp48,g2sec5_temp0,g2sec5_temp2,        &
+                           g2sec5_temp3,g2sec5_temp40,get_g2_sec5packingmethod       
     !use gdtsec3, only: getgdtnum
     implicit none
 !
@@ -518,9 +518,11 @@
     integer, parameter :: ipdstmp4_0len=15
     integer, parameter :: ipdstmp4_1len=18
     integer, parameter :: ipdstmp4_8len=29
+    integer, parameter :: ipdstmp4_9len=36
     integer, parameter :: ipdstmp4_11len=32
     integer, parameter :: ipdstmp4_12len=31
     integer, parameter :: ipdstmp4_44len=21
+    integer, parameter :: ipdstmp4_46len=35
     integer, parameter :: ipdstmp4_48len=26
 !
     integer, parameter :: idrstmplenmax=50
@@ -546,6 +548,8 @@
     integer scaled_val_fixed_sfc1,scale_fct_fixed_sfc2
     character(80) fixed_sfc2_type
     integer idec_scl,ibin_scl,ibmap,inumbits
+    integer prob_num,tot_num_prob
+    character(80) prob_type
     real    fldscl
     integer igdstmpl(igdsmaxlen)
     integer lat1,lon1,lat2,lon2,lad,ds1
@@ -756,7 +760,7 @@
        endif
 
        ihr_start = ifhr-tinvstat 
-       if(modelname=='RAPR'.and.vtimeunits=='FMIN') then
+       if((modelname=='RAPR'.and.vtimeunits=='FMIN').or.(modelname=='FV3R'.and.pset%time_range_unit=="minute")) then
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
          ihr_start = max(0,ifhr-tinvstat)
@@ -825,6 +829,33 @@
               ipdstmpl(1:ipdstmpllen))
 !       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
 
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_9') then
+!
+         ipdsnum=9
+         ipdstmpllen=ipdstmp4_9len
+         call g2sec4_temp9(icatg,iparm,pset%gen_proc_type,       &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ihr_start,              &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              pset%param(nprm)%fixed_sfc2_type,                &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              prob_num,tot_num_prob,                           &
+              pset%param(nprm)%prob_type,                      &
+              pset%param(nprm)%scale_fact_lower_limit,         &
+              pset%param(nprm)%scale_val_lower_limit,          &
+              pset%param(nprm)%scale_fact_upper_limit,         &
+              pset%param(nprm)%scale_val_upper_limit,          &
+              idat(3),idat(1),idat(2),idat(4),idat(5),         &
+              sec_intvl,ntrange,stat_miss_val,                 &
+              pset%param(nprm)%stats_proc,type_of_time_inc,    &
+              pset%time_range_unit, tinvstat,                  &
+              stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp9,ipdstmpl9=',ipdstmpl(1:ipdstmp4_9len)
+
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_11') then
          ipdsnum=11
          ipdstmpllen=ipdstmp4_11len
@@ -889,6 +920,34 @@
               ipdstmpl(1:ipdstmpllen))
 !       print *,'aft g2sec4_temp44,ipdstmpl44=',ipdstmpl(1:ipdstmp4_44len),'ipdsnum=',ipdsnum
 
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_46') then
+!
+         ipdsnum=46
+         ipdstmpllen=ipdstmp4_46len
+         call g2sec4_temp46(icatg,iparm,pset%param(nprm)%aerosol_type, &
+              pset%param(nprm)%typ_intvl_size,                 &
+              pset%param(nprm)%scale_fact_1st_size,            &
+              pset%param(nprm)%scale_val_1st_size,             &
+              pset%param(nprm)%scale_fact_2nd_size,            &
+              pset%param(nprm)%scale_val_2nd_size,             &
+              pset%gen_proc_type,                              &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr,                       &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              pset%param(nprm)%fixed_sfc2_type,                &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              idat(3),idat(1),idat(2),idat(4),idat(5),         &
+              sec_intvl,ntrange,stat_miss_val,                 &
+              pset%param(nprm)%stats_proc,type_of_time_inc,    &
+              pset%time_range_unit, tinvstat,                  &
+              stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp46,name=',trim(pset%param(nprm)%shortname),&
+!          'ipdstmpl46=',ipdstmpl(1:ipdstmp4_46len)
+
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_48') then
 !
          ipdsnum=48
@@ -919,7 +978,7 @@
 
       endif
 
-      if(modelname=='RAPR'.and.vtimeunits=='FMIN') then 
+      if((modelname=='RAPR'.or.modelname=='FV3R').and.vtimeunits=='FMIN') then 
        ifhr = ifhrorig
       end if 
       if(ifmin>0.)then

@@ -38,6 +38,7 @@
 !> 2021-09-02 | Bo Cui         | Decompose UPP in X direction          
 !> 2022-11-16 | Eric James     | Adding calculation of vertically integrated dust from RRFS
 !> 2023-02-23 | Eric James     | Adding vertically integrated coarse PM from RRFS
+!> 2024-04-23 | Eric James     | Adding vertically integrated smoke emissions (ebb)
 !>     
 !> @author Russ Treadon W/NP2 @date 1992-12-24
 !-----------------------------------------------------------------------
@@ -54,7 +55,7 @@
       use vrbls3d,    only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt,    &
                             train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt, &
                             taod5503d,sca, asy
-      use vrbls4d,    only: smoke, fv3dust, coarsepm
+      use vrbls4d,    only: smoke, fv3dust, coarsepm, ebb
       use masks,      only: htm
       use params_mod, only: tfrz, gi
       use ctlblk_mod, only: lm, jsta, jend, im, spval, ista, iend
@@ -295,6 +296,15 @@
           DO J=JSTA,JEND
             DO I=ISTA,IEND
               Qdum(I,J) = COARSEPM(I,J,L,1)/(1E9)
+            ENDDO
+          END DO
+
+! EBB (from RRFS)
+        ELSE IF (IDECID == 24) THEN
+!$omp  parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=ISTA,IEND
+              Qdum(I,J) = EBB(I,J,L,1)/(1E9)
             ENDDO
           END DO
         ENDIF
