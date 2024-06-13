@@ -165,8 +165,7 @@
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
 !
       integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD,LLL  &
-             ,iz1km,iz4km, LCOUNT, HCOUNT, ITYPE, item, IGOT, isynonym
-      integer :: synonyms(2)
+             ,iz1km,iz4km, LCOUNT, HCOUNT, ITYPE, item
 
       real RDTPHS,CFRdum,PMOD,CC1,CC2,P1,P2,CUPRATE,FACR,RRNUM          &
           ,RAINRATE,TERM1,TERM2,TERM3,QROLD,SNORATE,DENS,DELZ,FCTR,HGT  &
@@ -944,8 +943,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(470)>0).OR.(IGET(476)>0).OR.      &
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
            (IGET(909)>0).OR.(IGET(737)>0).OR.      &
-           IGET(1018)>0 .OR.IGET(1019)>0 .OR.      &
-           IGET(1020)>0 .OR.(IGET(742)>0).OR.      &
+           (IGET(742)>0).OR.                       &
            (IGET(994)>0).OR.(IGET(995)>0) ) THEN
 
       DO 190 L=1,LM
@@ -1119,11 +1117,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 !---  QNCLOUD ON MDL SURFACE   --cra
 !
-          synonyms = (/ 747, 1018 /)
-          DO isynonym=1,size(synonyms)
-           IGOT = IGET(synonyms(isynonym))
-           IF (IGOT > 0) THEN
-            IF (LVLS(L,IGOT) > 0)THEN
+          IF (IGET(747) > 0) THEN 
+            IF (LVLS(L,IGET(747)) > 0)THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1134,8 +1129,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
                if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGOT)
-                 fld_info(cfld)%lvl=LVLSXML(L,IGOT)
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(747))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(747))
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -1146,16 +1141,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  enddo
                endif
             ENDIF
-           ENDIF
-          ENDDO
+          ENDIF
 !
 !---  QNICE ON MDL SURFACE   --tgs
 !
-          synonyms = (/ 752, 1019 /)
-          DO isynonym=1,size(synonyms)
-           IGOT = IGET(synonyms(isynonym))
-           IF (IGOT > 0) THEN
-            IF (LVLS(L,IGOT) > 0)THEN
+          IF (IGET(752) > 0) THEN
+            IF (LVLS(L,IGET(752)) > 0)THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1166,8 +1157,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
                if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGOT)
-                 fld_info(cfld)%lvl=LVLSXML(L,IGOT)
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(752))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(752))
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -1178,16 +1169,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  enddo
                endif
             ENDIF
-           ENDIF
-          ENDDO
+          ENDIF
 !
 !---  QNRAIN ON MDL SURFACE   --tgs
 !
-          synonyms = (/ 754, 1020 /)
-          DO isynonym=1,size(synonyms)
-           IGOT = IGET(synonyms(isynonym))
-           IF (IGOT > 0) THEN
-            IF (LVLS(L,IGOT) > 0)THEN
+          IF (IGET(754) > 0) THEN
+            IF (LVLS(L,IGET(754)) > 0)THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1198,8 +1185,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
                if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGOT)
-                 fld_info(cfld)%lvl=LVLSXML(L,IGOT)
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(754))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(754))
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -1210,8 +1197,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  enddo
                endif
             ENDIF
-           ENDIF
-          ENDDO
+          ENDIF
 ! QNWFA ON MDL SURFACE   --tgs
 !
           IF (IGET(766) > 0) THEN

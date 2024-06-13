@@ -4300,7 +4300,7 @@ surface
 ?
 ?
 ?
-1018
+747
 NCCD_ON_HYBRID_LVL
 Number concentration for cloud water drops on hybrid level
 1
@@ -4342,7 +4342,7 @@ hybrid_lvl
 ?
 ?
 ?
-1019
+752
 NCIP_ON_HYBRID_LVL
 Number concentration for ice particles on hybrid level
 1
@@ -4384,9 +4384,9 @@ hybrid_lvl
 ?
 ?
 ?
-1020
+754
 NCRAIN_ON_HYBRID_LVL
-Number concentration for rain on hybrid level
+?
 1
 tmpl4_0
 SPNCR
@@ -4426,7 +4426,7 @@ hybrid_lvl
 ?
 ?
 ?
-1021
+1018
 NCCD_ON_ISOBARIC_SFC
 Number concentration for cloud water drops on isobaric surfaces
 1
@@ -4468,7 +4468,7 @@ isobaric_sfc
 ?
 ?
 ?
-1022
+1019
 NCIP_ON_ISOBARIC_SFC
 Number concentration for ice particles on isobaric surfaces
 1
@@ -4510,7 +4510,7 @@ isobaric_sfc
 ?
 ?
 ?
-1023
+1020
 NCRAIN_ON_ISOBARIC_SFC
 Number concentration for rain on isobaric surfaces
 1

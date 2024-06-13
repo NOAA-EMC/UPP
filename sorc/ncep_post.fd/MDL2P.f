@@ -243,8 +243,8 @@
          (IGET(391) > 0) .OR. (IGET(392) > 0) .OR.      &
          (IGET(393) > 0) .OR. (IGET(394) > 0) .OR.      &
          (IGET(395) > 0) .OR. (IGET(379) > 0) .OR.      &
-         IGET(1021) > 0  .OR. IGET(1022) > 0  .OR.      &
-         IGET(1023) > 0  .OR.                           &
+         IGET(1018) > 0  .OR. IGET(1019) > 0  .OR.      &
+         IGET(1020) > 0  .OR.                           &
 ! ADD DUST FIELDS
          (IGET(455) > 0) .OR.      &
 ! Add WAFS hazard fields: Icing and GTG turbulence
@@ -2074,12 +2074,12 @@
          ENDIF
 !
 !---  Number concentration for cloud water drops on isobaric surfaces
-         IF (IGET(1021) > 0) THEN
-          IF (LVLS(LP,IGET(1021)) > 0) THEN 
+         IF (IGET(1018) > 0) THEN
+          IF (LVLS(LP,IGET(1018)) > 0) THEN 
              if(grib == 'grib2')then
                cfld = cfld + 1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(1021))
-               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1021))
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1018))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1018))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -2093,12 +2093,12 @@
          ENDIF
 !
 !---  Number concentration for ice particles on isobaric surfaces
-         IF (IGET(1022) > 0) THEN
-          IF (LVLS(LP,IGET(1022)) > 0) THEN 
+         IF (IGET(1019) > 0) THEN
+          IF (LVLS(LP,IGET(1019)) > 0) THEN 
              if(grib == 'grib2')then
                cfld = cfld + 1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(1022))
-               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1022))
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1019))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1019))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -2112,12 +2112,12 @@
          ENDIF
 !
 !---  Number concentration for rain on isobaric surfaces
-         IF (IGET(1023) > 0) THEN
-          IF (LVLS(LP,IGET(1023)) > 0) THEN 
+         IF (IGET(1020) > 0) THEN
+          IF (LVLS(LP,IGET(1020)) > 0) THEN 
              if(grib == 'grib2')then
                cfld = cfld + 1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(1023))
-               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1023))
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1020))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1020))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
