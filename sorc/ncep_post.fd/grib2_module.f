@@ -751,6 +751,16 @@
          scale_fct_fixed_sfc2=0
        endif
 
+       ! Sending an empty key string to g2tmpl is ALWAYS an error. Yet, the post does this for many fields.
+       ! Fixing that requires refactoring post GRIB2 code and xml reader. This is a workaround for one
+       ! problematic case of the fixed_sfc2_type that generates numerous error messages in g2tmpl 1.12.0
+       if(len_trim(fixed_sfc2_type) == 0) then
+         ! Internally, due to a g2tmpl bug, when fixed_sfc2_type is invalid, it ends up with the same
+         ! value as fixed_sfc1_type. This assignment produces that effect without an error message.
+         fixed_sfc2_type = pset%param(nprm)%fixed_sfc1_type
+         pset%param(nprm)%fixed_sfc2_type = pset%param(nprm)%fixed_sfc1_type
+       endif
+
        if(abs(level_unit_conversion-1)>1e-4) then
 !         print *,'apply level unit conversion ',level_unit_conversion
 !         print *,'scaled_val_fixed_sfc1 was ',scaled_val_fixed_sfc1
