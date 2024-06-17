@@ -45,9 +45,6 @@ load(pathJoin("nemsio", nemsio_ver))
 load(pathJoin("sigio", sigio_ver))
 load(pathJoin("wrf_io", wrf_io_ver))
 
-prepend_path("MODULEPATH"," /u/wen.meng/noscrub/ncep_post/g2tmpl/libs/modulefiles/compiler/intel/19.1.3.304")
-load(pathJoin("g2tmpl", g2tmpl_ver))
-
 setenv("CC","cc")
 setenv("CXX","CC")
 setenv("FC","ftn")
