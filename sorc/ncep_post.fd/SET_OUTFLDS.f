@@ -47,6 +47,11 @@
 !
 !******************************************************************************
 !     START READCNTRL_XML HERE.
+!     
+!      IF(ME==0)THEN
+!        WRITE(6,*)'READCNTRL_XML:  POSTING FCST HR ',IFHR,' FROM ',         &
+!             IHRST,'UTC ',SDAT(1),'-',SDAT(2),'-',SDAT(3),' RUN'
+!      ENDIF
 !
 !     INITIALIZE VARIABLES.
 !        ARRAY IGET IS THE "GET FIELD" FLAG ARRAY.
@@ -140,7 +145,29 @@
         fld_info(i)%ntrange  = 0
         fld_info(i)%tinvstat = 0
       enddo
-
+!
+! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
+!     if(kth == 0 .and. iget(013) <= 0) go to 999
+!     
+!     ECHO OUTPUT FIELDS/LEVELS TO 6.
+!
+!      IF(ME==0)THEN
+!        WRITE(6,*)'BELOW ARE FIELD/LEVEL/SMOOTHING ',       &
+!             'SPECIFICATIONS.,NFLD=',NFLD,'MXLVL=',MXLVL,'nrecout=',nrecout
+!      ENDIF
+!      DO 50 IFLD = 1,NFLD
+!        IF(ME==0)THEN
+!         i=IAVBLFLD(IFLD)
+!         write(*,*)'readxml,ifld=',ifld,'iget(',IDENT(ifld),')=',iget(ident(ifld)),'iavbl=',IAVBLFLD(iget(ident(ifld))),'postvar=',trim(pset%param(i)%pname),  &
+!             trim(pset%param(i)%fixed_sfc1_type),'lvls=',LVLS(:,ifld)
+!         if(size(pset%param(i)%level)>0) then
+!           WRITE(*,*) pset%param(i)%level
+!         endif
+!        ENDIF
+! 50   CONTINUE
+!     
+!     END OF ROUTINE.
+!     
  999  CONTINUE
 
       RETURN
