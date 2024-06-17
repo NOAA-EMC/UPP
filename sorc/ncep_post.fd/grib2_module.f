@@ -757,8 +757,8 @@
        if(len_trim(fixed_sfc2_type) == 0) then
          ! Internally, due to a g2tmpl bug, when fixed_sfc2_type is invalid, it ends up with the same
          ! value as fixed_sfc1_type. This assignment produces that effect without an error message.
-         fixed_sfc2_type = pset%param(nprm)%fixed_sfc1_type
-         pset%param(nprm)%fixed_sfc2_type = pset%param(nprm)%fixed_sfc1_type
+         fixed_sfc2_type = 'missing'
+         pset%param(nprm)%fixed_sfc2_type = 'missing'
        endif
 
        if(abs(level_unit_conversion-1)>1e-4) then
