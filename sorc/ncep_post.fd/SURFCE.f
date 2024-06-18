@@ -52,6 +52,8 @@
 !> 2024-04-03 | E James    | Enabling output of hourly average smoke PM2.5 and dust PM10
 !> 2024-04-23 | E James    | Adding smoke emissions (ebb) from RRFS
 !> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
+!> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
+!> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -482,7 +484,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2211,14 +2217,14 @@
            endif
          ENDIF
 !
-! Hourly averaged surface smoke
+! Hourly averaged surface PM2.5
 !
         IF (IGET(759)>0) THEN
           GRID1=SPVAL
           DO J=JSTA,JEND
             DO I=ISTA,IEND
             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE_AVE(I,J)/=spval)&
-              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE_AVE(I,J)/(1E9)
+              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(SMOKE_AVE(I,J)+DUST_AVE(I,J))/(1E9)
             ENDDO
           ENDDO
           ID(1:25) = 0
@@ -2259,7 +2265,7 @@
           DO J=JSTA,JEND
             DO I=ISTA,IEND
             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.DUST_AVE(I,J)/=spval)&
-              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(DUST_AVE(I,J)+COARSEPM_AVE(I,J))/(1E9)
+              GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*(SMOKE_AVE(I,J)+DUST_AVE(I,J)+COARSEPM_AVE(I,J))/(1E9)
             ENDDO
           ENDDO
           ID(1:25) = 0
@@ -3128,7 +3134,7 @@
            DO J=JSTA,JEND
              DO I=ISTA,IEND
                IF(AVGPREC_CONT(I,J) < SPVAL)THEN
-                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+                 GRID2(I,J) = AVGPREC_CONT(I,J)*((3600.*FLOAT(IFHR))+(60.*FLOAT(IFMIN)))*1000./DTQ2
                ELSE
                  GRID2(I,J) = SPVAL
                END IF
@@ -3142,7 +3148,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(417))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR
+            if(ifmin>1)then
+              fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+            else
+              fld_info(cfld)%tinvstat=IFHR
+            endif
 !            print*,'tinvstat in cont bucket= ',fld_info(cfld)%tinvstat
 !$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
@@ -3572,8 +3582,15 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(746))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
-            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')then
+              if(ifmin>1)then
+                fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+              else
+                fld_info(cfld)%tinvstat=IFHR
+              endif
+            else
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
+            endif
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3618,8 +3635,15 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(782))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
-            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')then
+              if(ifmin>1)then
+                fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+              else
+                fld_info(cfld)%tinvstat=IFHR
+              endif
+            else
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
+            endif
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3664,8 +3688,15 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(1004))
             fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
-            if(MODELNAME=='FV3R' .or. MODELNAME=='GFS')fld_info(cfld)%tinvstat=IFHR
+            if(MODELNAME=='FV3R' .OR. MODELNAME=='GFS')then
+              if(ifmin>1)then
+                fld_info(cfld)%tinvstat=IFHR*60+IFMIN
+              else
+                fld_info(cfld)%tinvstat=IFHR
+              endif
+            else
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
+            endif
 !            print*,'id(18),tinvstat in acgraup= ',ID(18),fld_info(cfld)%tinvstat
 !$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1

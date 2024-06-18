@@ -6996,11 +6996,10 @@
 
     <param>
        <post_avblfldidx>759</post_avblfldidx>
-       <shortname>AVE_SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <shortname>AVE_PM25_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
        <pdstmpl>tmpl4_46</pdstmpl>
        <pname>MASSDEN</pname>
        <stats_proc>AVE</stats_proc>
-       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
@@ -7103,11 +7102,10 @@
 
     <param>
        <post_avblfldidx>771</post_avblfldidx>
-       <shortname>AVE_DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+       <shortname>AVE_PM10_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
        <pdstmpl>tmpl4_46</pdstmpl>
        <pname>MASSDEN</pname>
        <stats_proc>AVE</stats_proc>
-       <aerosol_type>dust_dry</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>8.</level>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
