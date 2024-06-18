@@ -7,7 +7,7 @@ var kinds__mod_8F =
     [ "i_llong", "kinds__mod_8F.html#a9604ae8bf9565166a7cc3505f14ff2dd", null ],
     [ "i_long", "kinds__mod_8F.html#ad051ccea38daba91159654e561d6c4e9", null ],
     [ "i_short", "kinds__mod_8F.html#a7294b1421464f1c39e4ed41245ea44f7", null ],
-    [ "integer_byte_sizes", "kinds__mod_8F.html#a5c3752238ce272ee7c77af925add4817", null ],
+    [ "integer_byte_", "kinds__mod_8F.html#ac52def8d9451c3f62f6da6be0c065b17", null ],
     [ "integer_types", "kinds__mod_8F.html#a1373ba1e79b0a4446bd81cf02c6188a6", null ],
     [ "llong_t", "kinds__mod_8F.html#a24346f824a5c0c63756c0627f59fd5ca", null ],
     [ "num_bytes_for_i_byte", "kinds__mod_8F.html#aedaa2e9d506667b50f0a7bb5a45057f6", null ],
@@ -26,6 +26,6 @@ var kinds__mod_8F =
     [ "r_kind", "kinds__mod_8F.html#a699e36574bc3d76eb8c85e14f6234212", null ],
     [ "r_quad", "kinds__mod_8F.html#af79bf964071029aad278cf3cc9706d1a", null ],
     [ "r_single", "kinds__mod_8F.html#a2941a091aedaf97539960bc627db578c", null ],
-    [ "real_byte_sizes", "kinds__mod_8F.html#aff27139250becc6d26eec4636b61a5d4", null ],
+    [ "real_byte_siz", "kinds__mod_8F.html#a18cd04849f3bccd5116f81eae4343cbc", null ],
     [ "real_kinds", "kinds__mod_8F.html#a66a6894ef51071e66cc87e2aabf5cd3c", null ]
 ];
