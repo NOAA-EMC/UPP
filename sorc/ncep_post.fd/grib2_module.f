@@ -85,7 +85,7 @@
   integer num_pset
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
-  integer perturb_num,num_ens_fcst
+  integer perturb_num,num_ens_fcst,prob_num,tot_num_prob
   character*80 type_of_time_inc,stat_unit_time_key_succ
   logical*1,allocatable :: bmap(:)
   integer ibm
@@ -165,7 +165,9 @@
     type_of_time_inc='same_start_time_fcst_fcst_time_inc'
     stat_unit_time_key_succ='missing'
     time_inc_betwn_succ_fld=0
-!
+    prob_num = 0
+    tot_num_prob = 1
+    !
 !-- open fld name tble 
 !
     if(first_grbtbl) then
@@ -505,8 +507,8 @@
     !use gdtsec3, only: getgdtnum
     implicit none
 !
-    integer,intent(in) :: idisc,icatg, iparm,nprm,fldlvl1,fldlvl2,ntrange,tinvstat
-    integer,intent(inout) :: nlvl
+    integer,intent(in) :: idisc,icatg, iparm,nprm,fldlvl1,fldlvl2,ntrange
+    integer,intent(inout) :: nlvl,tinvstat
     real,dimension(:),intent(in) :: datafld1
     character(1),intent(inout) :: cgrib(max_bytes)
     integer, intent(inout) :: lengrib
@@ -548,7 +550,6 @@
     integer scaled_val_fixed_sfc1,scale_fct_fixed_sfc2
     character(80) fixed_sfc2_type
     integer idec_scl,ibin_scl,ibmap,inumbits
-    integer prob_num,tot_num_prob
     character(80) prob_type
     real    fldscl
     integer igdstmpl(igdsmaxlen)
@@ -773,6 +774,9 @@
        if((modelname=='RAPR'.and.vtimeunits=='FMIN').or.(modelname=='FV3R'.and.pset%time_range_unit=="minute")) then
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
+         if(ifmin<1)then
+           tinvstat = tinvstat*60 + ifmin
+         endif
          ihr_start = max(0,ifhr-tinvstat)
        else
          if(ifmin > 0.)then  ! change time range unit to minute

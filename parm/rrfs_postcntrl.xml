@@ -1755,12 +1755,12 @@
        </param>
 
        <param>
-	   <shortname>AVE_SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+	   <shortname>AVE_PM25_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
 	   <scale>6.0</scale>
        </param>
 
        <param>
-	   <shortname>AVE_DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+	   <shortname>AVE_PM10_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
 	   <scale>6.0</scale>
        </param>
 
