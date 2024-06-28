@@ -37,7 +37,7 @@ module physcons_post
 
 !  Secondary constants
 !> @ingroup secondary_constants
-!> @{ Calculate secondary constants from the primary constants above
+!> @{ Calculate secondary constants from primary constants
   real(kind=kind_phys), parameter :: con_rocp = con_rd / con_cp       
   real(kind=kind_phys), parameter :: con_cpor = con_cp / con_rd       
   real(kind=kind_phys), parameter :: con_rog = con_rd / con_g         

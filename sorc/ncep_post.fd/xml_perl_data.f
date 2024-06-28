@@ -10,8 +10,8 @@
 !   
 !------------------------------------------------------------------------
 !> @defgroup xml_perl_data_mod Sets parameters that are used to read in 
-!> Perl XML processed flat file and handle parameter marshalling for 
-!  existing POST program.
+!! Perl XML processed flat file and handle parameter marshalling for 
+!! existing POST program.
 !
         implicit none
 !

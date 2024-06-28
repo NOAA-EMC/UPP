@@ -20,7 +20,8 @@
 !>  2023-08-16 | Yali Mao   | Add gtg_on logical option
 !>  2023-11-24 | Eric James | Add method_blsn logical option
 !-----------------------------------------------------------------------
-!> @defgroup CTLBLK_mod Sets default parameters that are used throughout the UPP code
+!> @defgroup CTLBLK_mod 
+!> Sets default parameters that are used throughout the UPP code
   module CTLBLK_mod
 !
   implicit none
