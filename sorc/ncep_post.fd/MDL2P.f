@@ -53,8 +53,8 @@
       use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
-                         RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
-                         TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,        &
+                         QQNW, QQNI, QQNR, RLWTT, RSWTT, VDIFFTT, TCUCN,     &
+                         TCUCNS, TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,&
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
@@ -119,9 +119,12 @@
 !  QS1   - snow mixing ratio
 !  QG1   - graupel mixing ratio
 !  DBZ1  - radar reflectivity
+!  QQNW1 - number concentration of cloud drops
+!  QQNI1 - number concentration of ice particles
+!  QQNR1 - number concentration of rain particles
 !
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
-      ,                                      FRIME, RAD, HAINES
+      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1
 
       REAL SDUMMY(IM,2)
 
@@ -240,6 +243,8 @@
          (IGET(391) > 0) .OR. (IGET(392) > 0) .OR.      &
          (IGET(393) > 0) .OR. (IGET(394) > 0) .OR.      &
          (IGET(395) > 0) .OR. (IGET(379) > 0) .OR.      &
+         IGET(1018) > 0  .OR. IGET(1019) > 0  .OR.      &
+         IGET(1020) > 0  .OR.                           &
 ! ADD DUST FIELDS
          (IGET(455) > 0) .OR.      &
 ! Add WAFS hazard fields: Icing and GTG turbulence
@@ -295,6 +300,9 @@
               CFRSL(I,J)    = SPVAL
               ICINGFSL(I,J) = SPVAL
               ICINGVSL(I,J) = SPVAL
+              QQNW1(I,J)    = SPVAL
+              QQNI1(I,J)    = SPVAL
+              QQNR1(I,J)    = SPVAL
 
               if (gtg_interpolation) then
                  GTGSL(I,J)    = SPVAL
@@ -379,7 +387,7 @@
                  IF(QQI(I,J,1)     < SPVAL) QI1(I,J)   = QQI(I,J,1)
                  QI1(I,J) = MAX(QI1(I,J),zero)              ! Cloud ice
                  IF(QQR(I,J,1)     < SPVAL) QR1(I,J)   = QQR(I,J,1)
-                 QR1(I,J) = MAX(QR1(I,J),zero)              ! Rain 
+                 QR1(I,J) = MAX(QR1(I,J),zero)              ! Rain
                  IF(QQS(I,J,1)     < SPVAL) QS1(I,J)   = QQS(I,J,1)
                  QS1(I,J) = MAX(QS1(I,J),zero)              ! Snow (precip ice) 
                  IF(QQG(I,J,1)     < SPVAL) QG1(I,J)   = QQG(I,J,1)
@@ -388,6 +396,12 @@
                  DBZ1(I,J) = MAX(DBZ1(I,J),DBZmin)
                  IF(F_RimeF(I,J,1) < SPVAL) FRIME(I,J) = F_RimeF(I,J,1)
                  FRIME(I,J) = MAX(FRIME(I,J),H1)
+                 IF(QQNW(I,J,1)    < SPVAL) QQNW1(I,J) = QQNW(I,J,1)
+                 QQNW1(I,J) = MAX(QQNW1(I,J),zero)          ! Cloud droplet number concentration
+                 IF(QQNI(I,J,1)    < SPVAL) QQNI1(I,J) = QQNI(I,J,1)
+                 QQNI1(I,J) = MAX(QQNI1(I,J),zero)          ! Ice number concentration
+                 IF(QQNR(I,J,1)    < SPVAL) QQNR1(I,J) = QQNR(I,J,1)
+                 QQNR1(I,J) = MAX(QQNR1(I,J),zero)          ! Rain number concentration
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
@@ -613,6 +627,18 @@
                  IF(F_RimeF(I,J,LL) < SPVAL .AND. F_RimeF(I,J,LL-1) < SPVAL) &
                    FRIME(I,J) = F_RimeF(I,J,LL) + (F_RimeF(I,J,LL) - F_RimeF(I,J,LL-1))*FACT
                    FRIME(I,J)=MAX(FRIME(I,J),H1)
+
+                 IF(QQNI(I,J,LL) < SPVAL .AND. QQNI(I,J,LL-1) < SPVAL)         &
+                   QQNI1(I,J) = QQNI(I,J,LL) + (QQNI(I,J,LL)-QQNI(I,J,LL-1))*FACT
+                   QQNI1(I,J) = MAX(QQNI1(I,J),zero)      ! Ice number concentration
+
+                 IF(QQNW(I,J,LL) < SPVAL .AND. QQNW(I,J,LL-1) < SPVAL)         &
+                   QQNW1(I,J) = QQNW(I,J,LL) + (QQNW(I,J,LL)-QQNW(I,J,LL-1))*FACT
+                   QQNW1(I,J) = MAX(QQNW1(I,J),zero)      ! Cloud drop number concentration
+
+                 IF(QQNR(I,J,LL) < SPVAL .AND. QQNR(I,J,LL-1) < SPVAL)         &
+                   QQNR1(I,J) = QQNR(I,J,LL) + (QQNR(I,J,LL)-QQNR(I,J,LL-1))*FACT
+                   QQNR1(I,J) = MAX(QQNR1(I,J),zero)      ! Rain number concentration
 
                  IF(TTND(I,J,LL) < SPVAL .AND. TTND(I,J,LL-1) < SPVAL)        &
                    RAD(I,J) = TTND(I,J,LL) + (TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
@@ -882,6 +908,9 @@
                  QG1(I,J)   = 0.
                  DBZ1(I,J)  = DBZmin
                  FRIME(I,J) = 1.
+                 QQNW1(I,J) = 0.
+                 QQNI1(I,J) = 0.
+                 QQNR1(I,J) = 0.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
                  IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
@@ -2038,6 +2067,63 @@
                  do i=1,iend-ista+1
                   ii=ista+i-1
                    datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for cloud water drops on isobaric surfaces
+         IF (IGET(1018) > 0) THEN
+          IF (LVLS(LP,IGET(1018)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1018))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1018))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNW1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for ice particles on isobaric surfaces
+         IF (IGET(1019) > 0) THEN
+          IF (LVLS(LP,IGET(1019)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1019))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1019))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNI1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for rain on isobaric surfaces
+         IF (IGET(1020) > 0) THEN
+          IF (LVLS(LP,IGET(1020)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1020))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1020))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNR1(ii,jj)
                  enddo
                enddo
              endif
