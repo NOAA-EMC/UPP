@@ -1,7 +1,7 @@
         module xml_perl_data
 !------------------------------------------------------------------------
 !> @file 
-!> @brief module:  This module reads in Perl XML processed flat file and 
+!> @brief This module reads in Perl XML processed flat file and 
 !  handles parameter marshalling for existing POST program
 !
 ! program log:
@@ -9,7 +9,7 @@
 !   July,  2016    J. Carley  Clean up prints 
 !   
 !------------------------------------------------------------------------
-!> @defgroup xml_perl_data_mod 
+!> @defgroup xml_perl_data_mod xml_perl_data
 !> Sets parameters that are used to read in 
 !! Perl XML processed flat file and handle parameter marshalling for 
 !! existing POST program.

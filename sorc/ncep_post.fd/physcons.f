@@ -1,8 +1,6 @@
 !> @file
 !> @brief physcons_post declares physical constants used throughout UPP code
 !> 
-!> @defgroup physcons 
-!> Defines primary physics constants and calculates secondary constants from the primary constants 
 module physcons_post
   use machine_post,only:kind_phys
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,5 +1,5 @@
 !> @file
-!> @brief module: upp_ifi_mod declares variables used in the in-flight icing (IFI) routines.
+!> @brief upp_ifi_mod declares variables used in the in-flight icing (IFI) routines.
 module upp_ifi_mod
 
 #ifdef USE_IFI
@@ -123,7 +123,7 @@ contains !==============================================================
 
 #ifndef USE_IFI
 ! IFI stubs
-!> @brief set_ifi_dims() contains stub values for flight levels, which are used in public UPP
+!> @brief Contains stub values for flight levels, which are used in public UPP
   subroutine set_ifi_dims()
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
     implicit none
@@ -141,7 +141,7 @@ contains !==============================================================
   end subroutine set_ifi_dims
 
   ! --------------------------------------------------------------------
-!> @brief run_ifi() fills in any requested IFI fields with stub values for missing data.
+!> @brief Fills in any requested IFI fields with stub values for missing data.
   subroutine run_ifi()
     call send_missing_data(1007)  ! ICE_PROB = missing
     call send_missing_data(1008)  ! SLD = missing

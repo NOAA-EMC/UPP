@@ -1,10 +1,10 @@
 !> @file
-!> @brief module: masks declares values used in masks
+!> @brief MASKS declares values used in masks
       module masks
 !
       implicit none
 !
-      REAL, ALLOCATABLE :: HBM2(:,:) &         !< _____
+      REAL, ALLOCATABLE :: HBM2(:,:) &         !< _____?
       ,SM(:,:) &         !< Land-sea mask ?
       ,SICE(:,:) &       !< Sea ice mask
       ,GDLAT(:,:) &      !< Grid latitude
@@ -12,7 +12,7 @@
       ,LMH(:,:) &        !< Mass point at ETA surface mask ?
       ,LMV(:,:) &        !< Velocity point at ETA surface mask ?  
       ,HTM (:,:,:) &     !< Height topography mask array
-      ,VTM (:,:,:) &     !< _____
+      ,VTM (:,:,:) &     !< _____?
       ,DX(:,:) &         !< Grid spacing in the x-direction ?
       ,DY(:,:)           !< Grid spacing in the y-direction ?
 !

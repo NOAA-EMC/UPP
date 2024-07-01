@@ -31,17 +31,17 @@ contains
 
 !-----------------------------------------------------------------------+
 !>
-!> derive_fields() calculates several derived fields.
+!> derive_fields() Calculates several derived fields.
 !>
 !> @param[in] imp_physics integer Microphysics option used in the model run.
 !> @param[in] t real Temperature (K).
 !> @param[in] rh real Relative humidity.
 !> @param[in] pres real Pressure (Pa).
 !> @param[in] hgt real Height.
-!> @param[in] totalWater real 
+!> @param[in] totalWater real _____?
 !> @param[in] totalCond real Precipitation Condensate in g/kg.
 !> @param[in] nz integer Number of vertical levels.
-!> @param[in] topoK integer
+!> @param[in] topoK integer _____?
 !> @param[in] hprcp real Hourly accumulated precipitation.
 !> @param[in] hcprcp real Hourly accumulated convective precipitation.
 !> @param[in] cin real Convective inhibition (CIN).
@@ -178,7 +178,7 @@ contains
   end function get_tLCL
 
 !-----------------------------------------------------------------------+
-!> @brief mixing_ratio() Calculate the mixing ratio in g/kg = water vapor/dry air.
+!> @brief mixing_ratio() Calculates the mixing ratio in g/kg = water vapor/dry air.
 !> 
 !> @param[in] td real dew point temperture (K). 
 !> @param[in] pres real Pressure (Pa).
@@ -260,7 +260,7 @@ contains
 
 !-----------------------------------------------------------------------+
 !>
-!> calc_indice() calculates 2-D indices that are used for convective icing severity.
+!> calc_indice() Calculates 2-D indices that are used for convective icing severity.
 !>
   subroutine calc_indice(t, td, pres, wvm, nz, topoK, &
                          kIndex, liftedIndex, totalTotals)
@@ -624,7 +624,7 @@ module CloudLayers
   public clouds_t
 
   integer, parameter :: MaxLayers = 30 
-  type :: clouds_t(:,:) !< Clouds temperature__?
+  type :: clouds_t(:,:) !< _____?
      ! 2-D
      !> nLayers integer Number of layers
      integer :: nLayers
@@ -1641,7 +1641,7 @@ module IcingSeverity
 contains
 
 !-----------------------------------------------------------------------+
-!> @brief icing_sev() calculates icing severity.
+!> @brief icing_sev() Calculates icing severity.
 !>
 !> @param[in] imp_physics integer Microphysics scheme. 
 !> @param[in] hgt real Geopotential height (m). 
@@ -2446,12 +2446,12 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
 end subroutine icing_algo
 
 !-------------------------------------------------------------------------+
-!> getTopoK() Map the topography height to the model's vertical coordinate
+!> getTopoK() Maps the topography height to the model's vertical coordinate
 !>
 !> @param[in] hgt real Geopotential height (m). 
 !> @param[in] alt real Topography height (m). 
 !> @param[in] nz integer Number of vertical levels. 
-!> @return getTopoK integer 
+!> @return getTopoK Mapping of the topography height to the model's vertical coordinates
 !>
 integer function getTopoK(hgt, alt, nz)
   IMPLICIT NONE

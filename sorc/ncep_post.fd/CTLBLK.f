@@ -1,8 +1,7 @@
 !> @file
 !> @brief CTLBLK sets default parameters that are used throughout the UPP code
 !> 
-!> ABSTRACT: 
-!> This module is replacing the CTLBLK.comm, all the comm block is removed.
+!> This module replaces CTLBLK.comm; all the comm block is removed.
 !> 
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -20,7 +19,7 @@
 !>  2023-08-16 | Yali Mao   | Add gtg_on logical option
 !>  2023-11-24 | Eric James | Add method_blsn logical option
 !-----------------------------------------------------------------------
-!> @defgroup CTLBLK
+!> @defgroup CTLBLK CTLBLK
 !> Sets default parameters that are used throughout the UPP code
   module CTLBLK_mod
 !
@@ -28,11 +27,11 @@
 !
   type :: field_info(:,:)        !< Field information
     integer ifld        !< Field number in post control file
-    integer lvl         !< _____
-    integer lvl1        !< _____
-    integer lvl2        !< _____
-    integer ntrange     !< _____
-    integer tinvstat    !< _____
+    integer lvl         !< _____?
+    integer lvl1        !< _____?
+    integer lvl2        !< _____?
+    integer ntrange     !< _____?
+    integer tinvstat    !< _____?
   end type
 !
   integer, parameter :: komax=70          !< At-rest earth pressure coefficient maximum.
@@ -56,12 +55,12 @@
   character(len=4)   :: VTIMEUNITS                 !< Valid time units.
 ! 
   character(5) :: grib                          !< Grib type (Note that UPP only supports Grib2 currently).
-  type(field_info),allocatable :: fld_info(:)   !< _____.
-  integer :: cfld                               !< _____.
-  integer :: ntlfld                             !< _____.
-  integer :: npset                              !< _____.
+  type(field_info),allocatable :: fld_info(:)   !< _____?
+  integer :: cfld                               !< _____?
+  integer :: ntlfld                             !< _____?
+  integer :: npset                              !< _____?
   real*8 :: gdsdegr                             !< Convert degrees to gradians ?
-  real,allocatable :: datapd(:,:,:)             !< _____.
+  real,allocatable :: datapd(:,:,:)             !< _____?
 !
 !> Logicals to turn on/off different post-processing packages/output depending on model output.
   logical :: gocart_on     !< Turn on option to process the aerosol/chemical tracers related output from GEFS-Aerosols model (GOCART).
@@ -95,11 +94,11 @@
   integer :: NPREC               !< Number of precipitation buckets. 
   integer :: NPHS                !< Physics time step
   integer :: ISEC                !< Seconds of file being processed (not parsed from DateStr, hard-coded set to 0).
-  integer :: icount_calmict      !< _____
+  integer :: icount_calmict      !< _____?
   integer :: ivegsrc             !< Flag for vegetation classification source (0=USGS, 1=IGBP, 2=UMD)
 
 !
-!> @ingroup CTLBLK_mod 
+!> @ingroup CTLBLK
 !> @{
 !> No longer used/supported.
    integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
@@ -114,9 +113,9 @@
   real :: PT            !< Model top requested by CMAQ
   real :: PDTOP         !< Pressure thickness requested by CMAQ
   real :: SPL(komax)    !< Specified pressure levels 
-  real :: ALSL(komax)   !< _____ (altitude levels?)
+  real :: ALSL(komax)   !< Altitude above sea level _____?
   real :: PREC_ACC_DT   !< Time interval for accumulated precipitation
-  real :: PT_TBL        !< _____
+  real :: PT_TBL        !< _____?
   real :: PREC_ACC_DT1  !< Alternate time interval for accumulated precipitation used primarily w/RAP/HRRR. 
   real :: spval         !< Special value
 ! real :: SPVAL=9.9e10                                     ! Moorthi
@@ -151,7 +150,7 @@
   integer :: IVEND_2U         !< Defines the right most boundary for the subdomain used on each MPI rank. Includes information from neighboring ranks (halos).
   integer :: NUM_SERVERS      !< An optional variable to support asynchronous writes of post-processed fields; one if there is more than one total MPI task - otherwise zero; note that the asynchronous write code is not in active development or used.
   integer :: MPI_COMM_INTER   !< An MPI communicator defining a subgroup of the MPI ranks used for asynchronous I/O; asynchronous writes are not in active development.
-  integer :: MPI_COMM_COMP    !< an MPI communicator defining the subgroup of MPI ranks used to compute post-processed product fields; all current post implementations use all of the ranks so this again supports an unexploited development path in the code.
+  integer :: MPI_COMM_COMP    !< An MPI communicator defining the subgroup of MPI ranks used to compute post-processed product fields; all current post implementations use all of the ranks so this again supports an unexploited development path in the code.
   integer :: IM               !< Full longitude domain.
   integer :: JM               !< Full latitude domain.
   integer :: LM               !< Number of vertical levels.
@@ -169,7 +168,7 @@
   integer :: lsm              !< Land surface model ?
   integer :: lsmp1            !< LSM+1.
 !
-!> @ingroup CTLBLK_mod
+!> @ingroup CTLBLK
 !> @{
 !> Arrays that store the coordinates of their elements; used to validate communications; 
 !> when scattered or otherwise dispersed, the receiving ranks check that the values of 
@@ -200,12 +199,12 @@
   real :: TCLOD      !< Number of hours in cloud fraction average.
   real :: THEAT      !< Number of hours in latent heating bucket.
   real :: TPREC      !< Number of hours in precipitation bucket.
-  real :: TMAXMIN    !< _____
-  real :: TD3D       !< _____
+  real :: TMAXMIN    !< _____?
+  real :: TD3D       !< _____?
 !
   real PTHRESH !< Threshold for precipitation (used to check if there is precipitation, mainly in ptype routines).
 !
-!> @ingroup CTLBLK_mod
+!> @ingroup CTLBLK
 !> @{ Time to execute named routine; note that ETAFLD2 and ETA2P refer to MDLFLD and MDL2P routines respectively.
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
@@ -214,7 +213,7 @@
                   CALRAD_WCLOUD_tim=0.,RUN_IFI_TIM=0.     !comm tim_info
 !> @}
 !
-!> @ingroup CTLBLK_mod
+!> @ingroup CTLBLK
 !> @{
 !> Initialized as 0, but never used.
   real(kind=8) :: time_output=0., time_e2out=0.           !comm jjt

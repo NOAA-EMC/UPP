@@ -4,11 +4,11 @@
 !> This routine computes the isothermal level height and relative
 !> humidity at this level for each mass point on the ETA grid.
 !> The computed isothermal level height is the mean sea level
-!> height. At each mass point we move up from the surface to  
+!> height. At each mass point we move up from the surface to 
 !> find the last ETA layer where the temperature is less than
 !> isotherm and the temp in the layer below is above isotherm.
 !> Vertical interpolation in temperature to the isotherm
-!> temperature gives the isothermal level height. Pressure and   
+!> temperature gives the isothermal level height. Pressure and 
 !> specific humidity are interpolated to this level and along with
 !> the temperature provide the isothermal level relative humidity.
 !> If the entire atmosphere is below isotherm, the routine
