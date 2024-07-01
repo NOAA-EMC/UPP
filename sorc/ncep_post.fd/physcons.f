@@ -1,8 +1,8 @@
 !> @file
-!> @brief module: physcons_post declares physical constants used throughout UPP
-!code
-!> @defgroup secondary_constants 
-!> Calculate secondary constants from the primary constants above 
+!> @brief physcons_post declares physical constants used throughout UPP code
+!> 
+!> @defgroup physcons 
+!> Defines primary physics constants and calculates secondary constants from the primary constants 
 module physcons_post
   use machine_post,only:kind_phys
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -37,16 +37,13 @@ module physcons_post
   real(kind=kind_phys),parameter:: con_ttp     =2.7316e+2_kind_phys !< temp at H2O triple point      (K)
 
 !  Secondary constants
-!> @ingroup secondary_constants
-!> @{ Calculate secondary constants from primary constants
-  real(kind=kind_phys), parameter :: con_rocp = con_rd / con_cp       
-  real(kind=kind_phys), parameter :: con_cpor = con_cp / con_rd       
-  real(kind=kind_phys), parameter :: con_rog = con_rd / con_g         
-  real(kind=kind_phys), parameter :: con_fvirt = con_rv / con_rd - 1. 
-  real(kind=kind_phys), parameter :: con_eps = con_rd / con_rv        
-  real(kind=kind_phys), parameter :: con_epsm1 = con_rd / con_rv - 1. 
-  real(kind=kind_phys), parameter :: con_dldt = con_cvap - con_cliq   
-  real(kind=kind_phys), parameter :: con_xpona = con_dldt / con_rv    
-  real(kind=kind_phys), parameter :: con_xponb = -con_dldt / con_rv + con_hvap / (con_rv * con_ttp)
-!> @}
+  real(kind=kind_phys), parameter :: con_rocp = con_rd / con_cp           !< Rd/Cp -- Gas constant for dry air over specific heat of dry air at constant pressure
+  real(kind=kind_phys), parameter :: con_cpor = con_cp / con_rd           !< Cp/Rd -- Specific heat of dry air at constant pressure over gas constant for dry air
+  real(kind=kind_phys), parameter :: con_rog = con_rd / con_g             !< Rd/g -- Gas constant for dry air over acceleration due to gravity
+  real(kind=kind_phys), parameter :: con_fvirt = con_rv / con_rd - 1.     !< Rv/Rd -- Virtual temperature correction factor - Gas constant for H2O over gas constant for dry air minus 1
+  real(kind=kind_phys), parameter :: con_eps = con_rd / con_rv            !< Epsilon -- Rd/Rv - ratio of gas constant of dry air to gas constant of water vapor
+  real(kind=kind_phys), parameter :: con_epsm1 = con_rd / con_rv - 1.     !< Epsilon minus 1 
+  real(kind=kind_phys), parameter :: con_dldt = con_cvap - con_cliq       !< Difference in specific heat between water vapor and liquid H2O
+  real(kind=kind_phys), parameter :: con_xpona = con_dldt / con_rv        !< Dldt/Rv
+  real(kind=kind_phys), parameter :: con_xponb = -con_dldt / con_rv + con_hvap / (con_rv * con_ttp)   !< -dldt/Rv + hvap/(Rv*Ttp)
 end module

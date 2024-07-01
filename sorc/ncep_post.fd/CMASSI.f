@@ -1,6 +1,10 @@
 !> @file
-!> @brief module: CMASSI_mod defines variables related to mass and precipitation
+!> @brief CMASSI_mod defines variables related to mass and precipitation
 !> See CCPP Ferrier-Aligo microphysics modules for more information
+!> @defgroup CMASSI
+!> Defines variables related to mass and precipitation
+  module CTLBLK_mod
+
   module CMASSI_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none

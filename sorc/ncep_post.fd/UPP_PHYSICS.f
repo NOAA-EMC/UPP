@@ -400,14 +400,14 @@
 !> @author N Phillips w/NMC2X2 @date 1982-12-30
       implicit none
       integer,parameter:: nxpvs=7501
-      real,parameter:: con_ttp     =2.7316e+2 ! temp at H2O 3pt
-      real,parameter:: con_psat    =6.1078e+2 ! pres at H2O 3pt
-      real,parameter:: con_cvap    =1.8460e+3 ! spec heat H2O gas   (J/kg/K)
-      real,parameter:: con_cliq    =4.1855e+3 ! spec heat H2O liq
-      real,parameter:: con_hvap    =2.5000e+6 ! lat heat H2O cond
-      real,parameter:: con_rv      =4.6150e+2 ! gas constant H2O
-      real,parameter:: con_csol    =2.1060e+3 ! spec heat H2O ice
-      real,parameter:: con_hfus    =3.3358e+5 ! lat heat H2O fusion
+      real,parameter:: con_ttp     =2.7316e+2 !< temp at H2O 3pt
+      real,parameter:: con_psat    =6.1078e+2 !< pres at H2O 3pt
+      real,parameter:: con_cvap    =1.8460e+3 !< spec heat H2O gas   (J/kg/K)
+      real,parameter:: con_cliq    =4.1855e+3 !< spec heat H2O liq
+      real,parameter:: con_hvap    =2.5000e+6 !< lat heat H2O cond
+      real,parameter:: con_rv      =4.6150e+2 !< gas constant H2O
+      real,parameter:: con_csol    =2.1060e+3 !< spec heat H2O ice
+      real,parameter:: con_hfus    =3.3358e+5 !< lat heat H2O fusion
       real,parameter:: tliq=con_ttp
       real,parameter:: tice=con_ttp-20.0
       real,parameter:: dldtl=con_cvap-con_cliq
