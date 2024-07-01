@@ -7611,7 +7611,7 @@ hybrid_lvl
 ?
 ?
 747
-GSD_NCCD_ON_HYBRID_LVL
+NCCD_ON_HYBRID_LVL
 Number concentration for cloud water drops on hybrid level
 1
 tmpl4_0
@@ -7653,7 +7653,7 @@ hybrid_lvl
 ?
 ?
 752
-GSD_NCIP_ON_HYBRID_LVL
+NCIP_ON_HYBRID_LVL
 Number concentration for ice particles on hybrid level
 1
 tmpl4_0
@@ -7695,7 +7695,7 @@ hybrid_lvl
 ?
 ?
 754
-GSD_NCRAIN_ON_HYBRID_LVL
+NCRAIN_ON_HYBRID_LVL
 ?
 1
 tmpl4_0
