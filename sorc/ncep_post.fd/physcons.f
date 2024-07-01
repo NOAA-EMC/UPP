@@ -1,7 +1,8 @@
 !> @file
 !> @brief module: physcons_post declares physical constants used throughout UPP
 !code
-!> @defgroup secondary_constants Calculate secondary constants from the primary constants above 
+!> @defgroup secondary_constants 
+!> Calculate secondary constants from the primary constants above 
 module physcons_post
   use machine_post,only:kind_phys
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
