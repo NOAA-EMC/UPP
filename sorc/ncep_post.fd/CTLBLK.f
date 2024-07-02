@@ -25,7 +25,7 @@
 !
   implicit none
 !
-  type :: field_info(:,:)        !< Field information
+  type field_info       !< Field information
     integer ifld        !< Field number in post control file
     integer lvl         !< _____?
     integer lvl1        !< _____?
