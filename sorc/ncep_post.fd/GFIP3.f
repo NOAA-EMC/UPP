@@ -624,24 +624,17 @@ module CloudLayers
   public clouds_t
 
   integer, parameter :: MaxLayers = 30 
-  type :: clouds_t(:,:) !< _____?
+  type :: clouds_t    !< _____?
      ! 2-D
-     !> nLayers integer Number of layers
-     integer :: nLayers
-     !> wmnIdx integer Warm nose index @memberof cloudlayers::clouds_t
-     integer :: wmnIdx   ! warm nose index
-     !> avv real Average vertical velocity @memberof cloudlayers::clouds_t
-     real    :: avv      ! average vertical velocity
+     integer :: nLayers             !< Number of layers
+     integer :: wmnIdx              !< Warm nose index @memberof cloudlayers::clouds_t
+     real    :: avv                 !< Average vertical velocity @memberof cloudlayers::clouds_t
      ! 3-D, on model levels of nz
-     !> layerQ real array 3-D, of cloud layers @memberof cloudlayers::clouds_t
-     real, allocatable :: layerQ(:)
+     real, allocatable :: layerQ(:) !< array 3-D, of cloud layers @memberof cloudlayers::clouds_t
      ! 3-D, of cloud layers
-     !> topIdx @memberof cloudlayers::clouds_t
-     integer :: topIdx(MaxLayers)
-     !> baseIdx @memberof cloudlayers::clouds_t
-     integer :: baseIdx(MaxLayers)
-     !> ctt @memberof cloudlayers::clouds_t
-     real :: ctt(MaxLayers)
+     integer :: topIdx(MaxLayers)   !< Layer top @memberof cloudlayers::clouds_t
+     integer :: baseIdx(MaxLayers)  !< Layer base @memberof cloudlayers::clouds_t
+     real :: ctt(MaxLayers)         !< Cloud top temperature @memberof cloudlayers::clouds_t
   end type clouds_t
 
 contains
