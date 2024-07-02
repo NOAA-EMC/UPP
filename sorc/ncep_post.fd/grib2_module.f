@@ -194,7 +194,7 @@
 !   
   end subroutine grib_info_finalize
 !-------------------------------------------------------------------------------------
-!> @brief gribit2 _____?
+!> @brief Outputs fields to grib file
 !> @param[in] post_fname UPP file name
   subroutine gribit2(post_fname)
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &

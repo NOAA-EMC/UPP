@@ -1,24 +1,15 @@
 !> @file
-!> @brief trpaus() computes tropopause data.
-!>
-!> @author Russ Treadon W/NP2 @date 1992-12-22
-
+!> @brief trpaus() computes tropopause level fields.
+!> 
 !> This routine computes tropopause data.  At each mass
 !> point a surface up search is made for the first 
 !> occurrence of a three layer mean lapse rate less than
 !> or equal to a critical lapse rate.  This critcal lapse
-!> rate is 2deg/km.  This is in accord with the WMO
-!> definition of a tropopause.  A maximum tropopause
-!> pressure of 500mb is enforced.  Onc the tropopause
+!> rate is 2 deg/km. This is in accord with the WMO
+!> definition of a tropopause. A maximum tropopause
+!> pressure of 500mb is enforced. Once the tropopause
 !> is located in a column, pressure, temperature, u
 !> and v winds, and vertical wind shear are computed.
-!>
-!> @param[out] PTROP Tropopause pressure.
-!> @param[out] TTROP Tropopause temperature.
-!> @param[out] ZTROP Tropopause height.
-!> @param[out] UTROP Tropopause u wind component.
-!> @param[out] VTROP Tropopause v wind component.
-!> @param[out] SHTROP Vertical wind shear at tropopause.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -32,6 +23,16 @@
 !> 2021-09-13 | JESSE MENG    | 2D DECOMPOSITION
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
+!------------------------------------------------------------------------------
+!> @brief Computes tropopause data.
+!> 
+!> @param[out] PTROP Tropopause pressure.
+!> @param[out] TTROP Tropopause temperature.
+!> @param[out] ZTROP Tropopause height.
+!> @param[out] UTROP Tropopause u wind component.
+!> @param[out] VTROP Tropopause v wind component.
+!> @param[out] SHTROP Vertical wind shear at tropopause.
+!>
       SUBROUTINE TRPAUS(PTROP,TTROP,ZTROP,UTROP,VTROP,SHTROP)
 
 !     

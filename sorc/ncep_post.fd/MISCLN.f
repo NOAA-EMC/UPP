@@ -3,13 +3,13 @@
 !>     
 !> This routine has become the catch-all for miscellaneous output fields posted by the ETA post-processor. 
 !> Currently this routine posts the following fields:
-!>        (1) TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
-!>        (2) MAX WIND LEVEL Z, P, U, AND V,
-!>        (3) FD LEVEL T, Q, U, AND V,
-!>        (4) FREEZING LEVEL Z AND RH,
-!>        (5) CONSTANT MASS (BOUNDARY) FIELDS,
-!>        (6) LFM LOOK-ALIKE FIELDS, AND
-!>        (7) NGM LOOK-ALIKE FIELDS.
+!>        -# TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
+!>        -# MAX WIND LEVEL Z, P, U, AND V,
+!>        -# FD LEVEL T, Q, U, AND V,
+!>        -# FREEZING LEVEL Z AND RH,
+!>        -# CONSTANT MASS (BOUNDARY) FIELDS,
+!>        -# LFM LOOK-ALIKE FIELDS, AND
+!>        -# NGM LOOK-ALIKE FIELDS.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -49,26 +49,7 @@
 !!   2024-01-07 | H LIN | Add CIT output in NCAR GTG turbulence calculation
 !!   2024-01-09 | Y Mao | Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
 !!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
-!>
-!>   SUBPROGRAMS CALLED:
-!>     UTILITIES:
-!>       TRPAUS  - COMPUTE TROPOPAUSE LEVEL FIELDS.
-!>       CALMXW  - COMPUTE MAX WIND LEVEL FIELDS.
-!>       SCLFLD  - SCALE ARRAY ELEMENTS BY CONSTANT.
-!>       GRIBIT  - OUTPUT FIELD TO GRIB FILE.
-!>       CALPOT  - CALCULATE POTENTIAL TEMPERATURE.
-!>       FDLVL   - COMPUTE FD LEVEL DATA (AGL OR MSL).
-!>       FRZLVL  - COMPUTE FREEZING LEVEL DATA.
-!>       BOUND   - BOUND ARRAY ELEMENTS BETWEEN MINIMUM AND MAXIMUM VALUES.
-!>       BNDLYR  - COMPUTE BOUNDARY LAYER FIELDS.
-!>       CALDWP  - CALCULATE DEWPOINT TEMPERATURE.
-!>       OTLFT   - COMPUTE LIFTED INDEX AT 500MB.
-!>       CALLCL  - COMPUTE LCL DATA.
-!>       LFMFLD  - COMPUTE LFM LOOK-ALIKE FIELDS.
-!>       NGMFLD  - COMPUTE NGM LOOK-ALIKE FIELDS.
-!>       CALTHTE - COMPUTE THETA-E.
-!>       CALHEL  - COMPUTE HELICITY AND STORM MOTION.
-!>
+!> 
 !> @author RUSS TREADON 
 !> @date 1992-12-20
 !-----------------------------------------------------------------------------------------------------
