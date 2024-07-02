@@ -1,6 +1,5 @@
 !> @file
-!> @brief module: VRBLS2D declares 2D variables that are used throughout the
-!UPP code
+!> @brief VRBLS2D declares 2D variables that are used throughout the UPP code
       module vrbls2d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none

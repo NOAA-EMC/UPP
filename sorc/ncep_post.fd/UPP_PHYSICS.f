@@ -1,7 +1,5 @@
 !> @file
-!>
-!> @brief upp_physics is a collection of UPP subroutines for physics variables calculation.
-!> @author Jesse Meng @date 2020-05-20
+!> @brief UPP_PHYSICS is a collection of UPP subroutines for physics variables calculation.
 !>
 !> calcape() computes CAPE/CINS and other storm related variables.
 !>
@@ -59,7 +57,7 @@
   contains
 !
 !-------------------------------------------------------------------------------------
-!> CALRH() computes relative humidity
+!> Computes relative humidity
 !>
 !> @param[in] P1 real Pressure (Pa)
 !> @param[in] T1 real Temperature (K)
@@ -88,7 +86,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> calrh_nam() computes relative humidity.
+!> Computes relative humidity.
 !>
 !> This routine computes relative humidity given pressure, 
 !> temperature, specific humidity. an upper and lower bound
@@ -166,7 +164,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> calrh_gfs() computes relative humidity.
+!> Computes relative humidity.
 !>
 !> This routine computes relative humidity given pressure, 
 !> temperature, specific humidity. an upper and lower bound
@@ -256,7 +254,7 @@
       END SUBROUTINE CALRH_GFS
 !
 !-------------------------------------------------------------------------------------
-!> CALRH_GSD() Compute RH with the NOAA GSL (formerly NOAA GSD) algorithm used for RUC and Rapid Refresh
+!> Compute RH with the NOAA GSL (formerly NOAA GSD) algorithm used for RUC and Rapid Refresh
 !>
 !> @param P1 real Pressure (Pa)
 !> @param T1 real Temperature (K)
@@ -304,7 +302,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> CALRH_PW() algorithm used at GSL for RUC and Rapid Refresh.
+!> Algorithm used at GSL for RUC and Rapid Refresh.
 !>
 !> @param RHPW real Relative humidity with respect to precipitable water (entire atmosphere)
 !> 
@@ -375,8 +373,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-      elemental function fpvsnew(t)
-!> fpvsnew() computes saturation vapor pressure.
+!> @brief Computes saturation vapor pressure.
 !>
 !> Compute saturation vapor pressure from the temperature.
 !> A linear interpolation is done between values in a lookup table
@@ -398,6 +395,8 @@
 !> 2001-02-26 | Iredell | Ice phase
 !>
 !> @author N Phillips w/NMC2X2 @date 1982-12-30
+      elemental function fpvsnew(t)
+
       implicit none
       integer,parameter:: nxpvs=7501
       real,parameter:: con_ttp     =2.7316e+2 !< temp at H2O 3pt
@@ -467,7 +466,7 @@
       end function fpvsnew
 !
 !-------------------------------------------------------------------------------------
-!> calcape() computes CAPE and CINS.
+!> Computes CAPE and CINS.
 !>
 !> This routine computes CAPE and CINS given temperature,
 !> pressure, and specific humidty.  In "storm and cloud 
@@ -940,7 +939,7 @@
       END SUBROUTINE CALCAPE
 !
 !-------------------------------------------------------------------------------------
-!> calcape2() computes CAPE and CINS.
+!> Computes CAPE and CINS.
 !>
 !> This routine computes CAPE and CINS given temperature,
 !> pressure, and specific humidty.  In "storm and cloud 
@@ -1701,7 +1700,7 @@
 !
       elemental function TVIRTUAL(T,Q)
 !
-!> TVIRTUAL() Computes virtual temperature
+!> @brief Computes virtual temperature
 !>
 !> @param[in] T real Temperature
 !> @param[in] Q real Specific humidity
@@ -1717,7 +1716,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> CALVOR() computes absolute vorticity. 
+!> Computes absolute vorticity. 
 !>
 !> @param[in] UWND U wind (m/s) mass-points.
 !> @param[in] VWND V wind (m/s) mass-points.
@@ -2144,8 +2143,8 @@
 !     
       RETURN
       END
-
-!> CALDIV computes divergence.
+!-----------------------------------------------------------------------------
+!> Computes divergence.
 !>    
 !> For GFS, this routine copmutes the horizontal divergence
 !> using 2nd-order centered scheme on a lat-lon grid     
@@ -2161,9 +2160,6 @@
 !> 2016-07-22 | S Moorthi | Modified polar divergence calculation
 !>
 !> @author Sajal Kar W/NP2 @date 2016-05-05
-
-!-----------------------------------------------------------------------------
-!> caldiv() computes divergence.
 !
       SUBROUTINE CALDIV(UWND,VWND,DIV)
       use masks,        only: gdlat, gdlon
@@ -2427,7 +2423,7 @@
       END SUBROUTINE CALDIV
 
 !------------------------------------------------------------------------
-!> CALGRADPS computes gradients of a scalar field PS or LNPS.
+!> Computes gradients of a scalar field PS or LNPS.
 !>
 !> For GFS, this routine computes horizontal gradients of PS or LNPS.
 !> Using 2nd-order centered scheme on a lat-lon grid.
@@ -2658,7 +2654,8 @@
 
       END SUBROUTINE CALGRADPS
 
-!> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm.
+!-----------------------------------------------------------------------------------------
+!> Computes snow solid-liquid-ratio (SLR) using the Roebber algorithm.
 !>
 !> Obtained the code and data from WPC. WPC's SLR products include SLR computed from
 !> GFS and NAM, SLR climotology, and averaged SLR. UPP computes SLR for GFS and RRFS. 
@@ -3065,7 +3062,7 @@
       END SUBROUTINE CALSLR_ROEBBER
 !
 !-------------------------------------------------------------------------------------
-!> @brief breadboard1_main() Called by calslr_roebber(), the breadboard subroutines are an AI Machine Learning algorithm that uses a neural network method to predict the snow solid-to-liquid ratio (SLR)
+!> @brief Called by calslr_roebber(), the breadboard subroutines are an AI Machine Learning algorithm that uses a neural network method to predict the snow solid-to-liquid ratio (SLR)
       SUBROUTINE breadboard1_main(nswFileName,mf,f1,f2,f3,f4,f5,f6,p1,p2,p3)
 
       implicit none
@@ -4313,7 +4310,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-!> calslr_uutah() computes snow solid-liquid-ratio slr using the Steenburgh algorithm.
+!> Computes snow solid-liquid-ratio slr using the Steenburgh algorithm.
 !>
 !> Obtained the code and data from U of Utah Jim Steenburgh and Peter Veals.
 !> SLR = m1X1 + m2X2 + m3X3 + m4X4 + m5X5 + m6X6 + b.

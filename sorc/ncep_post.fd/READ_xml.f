@@ -1,12 +1,14 @@
 !> @file
 !> @brief read_postxconfig() reads the post available field XML file and post control XML file. 
-! Each set of output fields going to one output file will be saved and processed later. 
-! In other words, post control file will be read in whole once. 
+!> Each set of output fields going to one output file will be saved and processed later. 
+!> In other words, post control file will be read in whole once. 
 !> 
-!> PROGRAM HISTORY LOG:
-!>   01_27_2012  Jun Wang - INITIAL CODE
-!>   03_10_2015  Lin Gan  - Replace XML file with flat file implementation with parameter marshalling
-!>   07_08_2016 J. Carley - Clean up prints 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!>   2012-01-27 | Jun Wang | INITIAL CODE
+!>   2015-03-10 | Lin Gan  | Replace XML file with flat file implementation with parameter marshalling
+!>   2016-07-08 | J. Carley | Clean up prints 
 
       SUBROUTINE READ_xml()
 
@@ -22,7 +24,7 @@
 !******************************************************************************
 !     START READCNTRL_XML HERE.
 !     
-!>    READ post available field table
+!> @brief Read post available field table
 
       call read_postxconfig()
       num_post_afld=size(paramset(1)%param)

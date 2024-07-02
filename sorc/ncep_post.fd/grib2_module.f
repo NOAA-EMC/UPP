@@ -1,16 +1,15 @@
 !> @file
-!> @brief module: This module generates grib2 messages and writes out the
-! messages in parallel.
-!
-! program log:
-!   March, 2010    Jun Wang   Initial code
-!   Jan,   2012    Jun Wang   post available fields with grib2 description
-!                              are defined in xml file
-!   March, 2015    Lin Gan    Replace XML file with flat file implementation
-!                              with parameter marshalling
-!   July,  2021    Jesse Meng 2D decomsition
-!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
-!   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
+!> @brief This module generates grib2 messages and writes out the messages in parallel.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> March 2010   | Jun Wang   | Initial code
+!> January 2012 | Jun Wang   | post available fields with grib2 description are defined in xml file
+!> March 2015   | Lin Gan    | Replace XML file with flat file implementation with parameter marshalling
+!> July  2021   | Jesse Meng | 2D decomsition
+!> June  2022   | Lin Zhu    | Change the dx/dy to reading in from calculating for latlon grid
+!> January 2023 | Sam Trahan | Foot & meter unit conversions for IFI
 !-------------------------------------------------------------------------
   module grib2_module
 !
@@ -95,7 +94,7 @@
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
   character*255 fl_nametbl,fl_gdss3
-  logical :: first_grbtbl !< _____ ?
+  logical :: first_grbtbl !< _____?
 !
   public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize,read_grib2_head,read_grib2_sngle
   real(8), EXTERNAL :: timef
@@ -104,7 +103,7 @@
   contains
 !
 !-------------------------------------------------------------------------------------
-!> @brief grib_info_init() initialize general grib2 information and local variables
+!> @brief Initializes general grib2 information and local variables
   subroutine grib_info_init()
 !
     implicit none
@@ -183,7 +182,7 @@
   end subroutine grib_info_init
 !-------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------
-!> @brief grib_info_finalize Finalize grib2 information and  close file.
+!> @brief Finalizes GRIB2 information and closes the file.
   subroutine grib_info_finalize
 !
     implicit none
@@ -486,7 +485,7 @@
 !
 !----------------------------------------------------------------------------------------
 !----------------------------------------------------------------------------------------
-!> @brief gengrb2msg() Generates grib2 message
+!> @brief Generates grib2 message
   subroutine gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,tinvstat,  &
      datafld1,cgrib,lengrib,level_unit_conversion)
 !
@@ -998,7 +997,7 @@
 !
 !----------
 ! idrstmpl array is the output from g2sec5
-!> @brief get_g2_sec5packingmethod() Get GRIB2 Section 5 packing method
+!> @brief Gets GRIB2 Section 5 packing method
 !> See GRIB2 data representation information: https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect5.shtml
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
        if(maxval(datafld1)==minval(datafld1))then
@@ -1094,13 +1093,13 @@
 !
 ! E. JAMES: 10 JUN 2021 - Adding section to read in GRIB2 files for comparison
 ! within UPP.  Two new subroutines added below.
-!> @brief read_grib2_head() Read in GRIB2 file header information
+!> @brief Reads in GRIB2 file header information
 !> @param[in] filenameG2 Grib 2 file name
 !> @param[out] nx Total number of grid points along x
 !> @param[out] ny Total number of grid points along y
 !> @param[out] nz Total number of grid points along z (vertical)
-!> @param[out] rlonmin Westernmost longitude of the subdomain to extract (negative in Western hemisphere; in degrees) _____
-!> @param[out] rlatmax Northernmost latitude of the subdomain to extract (in degrees) _____
+!> @param[out] rlonmin Westernmost longitude of the subdomain to extract (negative in Western hemisphere; in degrees) _____?
+!> @param[out] rlatmax Northernmost latitude of the subdomain to extract (in degrees) _____?
 !> @param[out] rdx Inverse x grid length
 !> @param[out] rdy Inverse y grid length
   subroutine read_grib2_head(filenameG2,nx,ny,nz,rlonmin,rlatmax,rdx,rdy)
@@ -1250,10 +1249,10 @@
   end subroutine read_grib2_head
 !
 !---
-!> @brief read_grib2_sngle() Read grib2 files
+!> @brief Reads GRIB2 files
 !> @param[in] filenameG2 Grib 2 file name
 !> @param[in] ntot Total count of variables ?
-!> @param[out] height _____ ?
+!> @param[out] height _____?
 !> @param[out] var Array of variables
   subroutine read_grib2_sngle(filenameG2,ntot,height,var)
 !
@@ -1452,7 +1451,8 @@
   end subroutine read_grib2_sngle
 !
 !----------------------------------------------------------------------------------------
-!> @brief g2sec3tmpl40() _____?
+!> @brief g2sec3tmpl40() Gets grid definition section (Section 3 of the WMO GRIB2 Standards) ?
+!> See https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect3.shtml
   subroutine g2sec3tmpl40(nx,nY,lat1,lon1,lat2,lon2,lad,ds1,len3,igds,ifield3)
    implicit none
 !

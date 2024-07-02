@@ -1,5 +1,5 @@
 !> @file
-!> @brief set_outflds() reads post xml control file.
+!> @brief set_outflds() reads the post XML control file.
 !>
 !> @author J. Wang NCEP/EMC @date 2012-01-27
 !>
@@ -14,7 +14,7 @@
 !> 2015-03-10 | Lin Gan  | Replace XML file with flat file implementation
 !> 2019-10-30 | Bo Cui   | Removw "GOTO" Statement
 !---------------------------------------------------------------------------
-!> @brief set_outflds() reads post xml control file.
+!> @brief Reads post XML control file.
 !>
 !> @param[in] KTH total number of isentropic levels
 !> @param[in] TH isentropic levels

@@ -1,5 +1,5 @@
 !> @file
-!> @brief module: cuparm_mod defines variables used for cumulus parameterization
+!> @brief cuparm_mod defines variables used for cumulus parameterization
   module cuparm_mod
 
     implicit none
@@ -37,12 +37,12 @@
       EPSUP=1.00,    &        !< No longer used/supported
       EPSDN=1.05,    &        !< No longer used/supported
       EPSTH=0.0,     &        !< No longer used/supported
-      PBM=13000.,    &        !< _____ ?
+      PBM=13000.,    &        !< _____?
       PQM=20000.,    &        !< No longer used/supported
       PNO=1000.,     &        !< No longer used/supported
-      PONE=2500.,    &        !< _____ ?
+      PONE=2500.,    &        !< _____?
       ZSH=2000.,     &        !< No longer used/supported
-      PFRZ=15000.,   &        !< _____ ?
+      PFRZ=15000.,   &        !< _____?
       PSHU=45000.,   &        !< No longer used/supported
 
 !AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -76,9 +76,9 @@
 !                                                                     FM
      FSS=.85E0, &             !< Factor to obtain “slow” profiles over the sea ?
      EFIMN=.20E0, &           !< Minimum convective cloud efficiency
-     EFMNT=.70E0, &           !< _____ ?
-     FCC=.50, &               !< _____ ?
-     FCP=H1-FCC, &            !< _____ ?
+     EFMNT=.70E0, &           !< _____?
+     FCC=.50, &               !< _____?
+     FCP=H1-FCC, &            !< _____?
 !
 !         IN THIS VERSION 3.5, OVER LAND AND FOR THE FAST PROFILES, DSPB
 !         IS PRESCRIBED TO BE 25 PERCENT DRIER THAN THE FAST SEA VALUE
@@ -146,8 +146,8 @@
      CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of CP to product of water density, acceleration due to gravity, and latent heat of vaporization of water
      RCP=H1/CP                   !< Reciprocal of CP (1/CP)
    logical,parameter :: &
-     UNIS=.FALSE.,      &    !< _____ ?
-     UNIL=.FALSE.,      &    !< _____ ?
-     OCT90=.FALSE.           !< Flag to activate old Zavisa Oct. 1990 land scheme with fixed land profiles
+     UNIS=.FALSE.,      &    !< _____?
+     UNIL=.FALSE.,      &    !< _____?
+     OCT90=.FALSE.           !< Flag to activate old Zavisa Oct 1990 land scheme with fixed land profiles
   end module cuparm_mod
 

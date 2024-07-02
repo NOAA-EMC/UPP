@@ -1,5 +1,5 @@
 !> @file
-!> @brief module: MACHINE_POST defines machine-dependent constants
+!> @brief MACHINE_POST defines machine-dependent constants
       MODULE MACHINE_POST
 
       IMPLICIT NONE

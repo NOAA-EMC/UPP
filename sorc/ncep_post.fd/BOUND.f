@@ -3,9 +3,8 @@
 !> 
 !> @author Russ Treadon W/NP2 @date 1993-01-18
 !> 
-!> This routine bounds data in the passed array between minimum and maximum values.
-!> FLD (im x jm elements long) and clips data values such 
-!> that on exiting the routine
+!> This routine bounds data in the passed array FLD (im x jm elements long) 
+!> and clips data values such that on exiting the routine
 !> @code
 !>              FMIN <= FLD(I,J) <= FMAX
 !> @endcode

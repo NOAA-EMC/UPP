@@ -1,10 +1,10 @@
 !> @file
 !> @brief trpaus() computes tropopause level fields.
 !> 
-!> This routine computes tropopause data.  At each mass
+!> This routine computes tropopause data. At each mass
 !> point a surface up search is made for the first 
 !> occurrence of a three layer mean lapse rate less than
-!> or equal to a critical lapse rate.  This critcal lapse
+!> or equal to a critical lapse rate. This critcal lapse
 !> rate is 2 deg/km. This is in accord with the WMO
 !> definition of a tropopause. A maximum tropopause
 !> pressure of 500mb is enforced. Once the tropopause

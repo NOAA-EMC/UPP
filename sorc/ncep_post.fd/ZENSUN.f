@@ -50,7 +50,7 @@
 !>
 !> @author Paul Ricchiazzi Earth Space Research Group,UCSB @date 1992-10-23
 !-------------------------------------------------------------------------------------
-!> @brief zensun() makes sun zenith and sun azimuth angle.
+!> @brief Makes sun zenith and sun azimuth angle.
 !> @param[in] day integer Julian day (positive scalar or vector), (spring equinox =  80), (summer solstice= 171), (fall equinox   = 266), (winter solstice= 356).
 !> @param[in] time real Universal Time in hours (scalar or vector).
 !> @param[in] lat real Geographic latitude of point on earth's surface (degrees).

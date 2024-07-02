@@ -1,10 +1,13 @@
 !> @file
-!> @brief module: VRBLS4D declares 4D variables that are used throughout
-!the UPP code
-!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-04-17  BALDWIN  - MODIFIED TO INCLUDE ALL 3D ARRAYS
-!   11-10-18  SARAH LU - MODIFIED TO INCLUDE GOCART AEROSOLS
-!   22-09-18  Li(Kate) Zhang - MODIFIED TO INCLUDE new NASA GOCART AEROSOLS of NO3 and NH4
+!> @brief VRBLS4D declares 4D variables that are used throughout the UPP code
+!> 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2001-10-22 | H CHUANG | MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!> 2002-04-17 | BALDWIN  | MODIFIED TO INCLUDE ALL 3D ARRAYS
+!> 2011-10-18 | SARAH LU | MODIFIED TO INCLUDE GOCART AEROSOLS
+!> 2022-09-18 | Li(Kate) Zhang | MODIFIED TO INCLUDE new NASA GOCART AEROSOLS of NO3 and NH4
       module vrbls4d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none

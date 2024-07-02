@@ -1,5 +1,5 @@
 !> @file
-!> @brief physcons_post declares physical constants used throughout UPP code
+!> @brief physcons_post declares physical constants used throughout UPP code.
 !> 
 module physcons_post
   use machine_post,only:kind_phys
@@ -15,7 +15,7 @@ module physcons_post
   real(kind=kind_phys),parameter:: con_pi     =4.0d0*atan(1.0d0)      !< pi
   real(kind=kind_phys),parameter:: con_sqrt2   =1.414214e+0_kind_phys !< square root of 2
   real(kind=kind_phys),parameter:: con_sqrt3   =1.732051e+0_kind_phys !< square root of 3
-!  Primary constants
+!> Primary constants
   real(kind=kind_phys),parameter:: con_rerth   =6.3712e+6_kind_phys !< radius of earth               (m)
   real(kind=kind_phys),parameter:: con_g       =9.80665e+0_kind_phys!< acceleration due to gravity   (m/s2)
   real(kind=kind_phys),parameter:: con_omega   =7.2921e-5_kind_phys !< angular vel of earth          (1/s)
@@ -34,7 +34,7 @@ module physcons_post
   real(kind=kind_phys),parameter:: con_t0c     =2.7315e+2_kind_phys !< temp at 0C                    (K)
   real(kind=kind_phys),parameter:: con_ttp     =2.7316e+2_kind_phys !< temp at H2O triple point      (K)
 
-!  Secondary constants
+!> Secondary constants
   real(kind=kind_phys), parameter :: con_rocp = con_rd / con_cp           !< Rd/Cp -- Gas constant for dry air over specific heat of dry air at constant pressure
   real(kind=kind_phys), parameter :: con_cpor = con_cp / con_rd           !< Cp/Rd -- Specific heat of dry air at constant pressure over gas constant for dry air
   real(kind=kind_phys), parameter :: con_rog = con_rd / con_g             !< Rd/g -- Gas constant for dry air over acceleration due to gravity

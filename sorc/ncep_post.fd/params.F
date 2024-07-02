@@ -1,6 +1,5 @@
 !> @file
-!> @brief module: params_mod defines physical constants and smoothing
-!coefficients
+!> @brief params_mod defines physical constants and smoothing coefficients
 module params_mod
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -100,7 +99,7 @@ module params_mod
 !    real, parameter :: NLImax=5.E3
 !    real, parameter :: T_ICE=-30.
 !    real, parameter :: TRAD_ice=0.5*T_ICE+TFRZ
-    real, parameter :: Qconv=0.1E-3       !< Heat transfer coefficient of convection _____
+    real, parameter :: Qconv=0.1E-3       !< Heat transfer coefficient of convection _____?
 !
     real, parameter :: STBOL=1./5.67E-8   !< 1 over Stefan-Boltzmann constant (W m^-2 deg^-4)
     real, parameter :: DBZmin=-20.        !< Minimum detectable radar reflectivity
@@ -108,7 +107,7 @@ module params_mod
     real, parameter :: abscoefi=5.0       !< Cloud ice absorption coefficient
     real, parameter :: XLAI=4.0           !< Leaf area index
     real, parameter :: RHmin=1.0E-6       !< minimal RH bound
-    real, parameter :: SMALL=1.E-6        !< _____
+    real, parameter :: SMALL=1.E-6        !< _____?
 !    real, parameter :: PTHRESH=0.000000
     real, parameter :: ELIVW=2.72E6       !< Latent heat of vaporization of water in J/kg, used in calculations involving energy transfer during evaporation
     real, parameter :: ELOCP=ELIVW/CP     !< ELIVW over CP

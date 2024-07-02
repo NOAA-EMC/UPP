@@ -1,8 +1,8 @@
 !> @file
-!> @brief module: Contains stub code for GTG protection that makes public UPP work
+!> @brief Contains stub code for GTG protection that makes public UPP work
 module  gtg_indices
 contains
-!> @brief indices_gtg(): Stub code for GTG protection but to make UPP public to work
+!> @brief Stub code for GTG protection that makes public UPP work
   subroutine indices_gtg()
     implicit none
     print *, "Stub code for GTG protection but to make UPP public to work"

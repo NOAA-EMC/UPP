@@ -1,14 +1,17 @@
 !> @file
-!> @brief module: VRBLS3D declares 3D variables that are used throughout
-!the UPP code
-!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-04-17  BALDWIN  - MODIFIED TO INCLUDE ALL 3D ARRAYS
-!   11-10-18  SARAH LU - MODIFIED TO INCLUDE AEROSOL OPTICAL PROPERTIES
-!   11-12-15  SARAH LU - MODIFIED TO INCLUDE AEROSOL DIAG FIELDS
-!   12-01-06  SARAH LU - MODIFIED TO INCLUDE AIR DENSITY AND LAYER THICKNESS
-!   15-07-02  SARAH LU - MODIFIED TO INCLUDE SCATTERING AEROSOL OPTICAL THICKNESS
-!   23-03-22  WM LEWIS - ADDED EFFECTIVE RADIUS ARRAYS
-!   23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
+!> @brief VRBLS3D declares 3D variables that are used throughout the UPP code
+!> 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2001-10-22 | H CHUANG | MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!> 2002-04-17 | BALDWIN  | MODIFIED TO INCLUDE ALL 3D ARRAYS
+!> 2011-10-18 | SARAH LU | MODIFIED TO INCLUDE AEROSOL OPTICAL PROPERTIES
+!> 2011-12-15 | SARAH LU | MODIFIED TO INCLUDE AEROSOL DIAG FIELDS
+!> 2012-01-06 | SARAH LU | MODIFIED TO INCLUDE AIR DENSITY AND LAYER THICKNESS
+!> 2015-07-02 | SARAH LU | MODIFIED TO INCLUDE SCATTERING AEROSOL OPTICAL THICKNESS
+!> 2023-03-22 | WM LEWIS | ADDED EFFECTIVE RADIUS ARRAYS
+!> 2023-08-16 | Yali Mao | Add CIT (Convectively-Induced Turbulence) for GTG4
       module vrbls3d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -26,7 +29,7 @@
       ,PMID(:,:,:) &       !< Mid-layer pressure 
       ,PMIDV(:,:,:) &      !< Model midlayer for v-point just below the pressure level to which we are interpolating ? 
       ,PINT(:,:,:) &       !< Model layer interface pressure
-      ,ALPINT(:,:,:) &     !< _____ 
+      ,ALPINT(:,:,:) &     !< _____? 
       ,ZMID(:,:,:) &       !< Mid-layer height
       ,ZINT(:,:,:) &       !< Model layer interface height
       ,OMGA(:,:,:) &       !< Omega - vertical velocity
@@ -87,7 +90,7 @@
       ,o3prod(:,:,:)          & !< Ozone production ?
       ,o3tndy(:,:,:)          & !< Ozone tendency ?
       ,mwpv(:,:,:)            & !< Mass-weighted potential vorticity ?
-      ,unknown(:,:,:)         & !< _____
+      ,unknown(:,:,:)         & !< _____?
       ,vdiffzacce(:,:,:)      & !< Vertical diffusion zonal acceleration ?
       ,zgdrag(:,:,:)          & !< Gravity wave drag zonal acceleration ?
       ,cnvctummixing(:,:,:)   & !< Convective zonal momentum mixing acceleration ?

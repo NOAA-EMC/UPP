@@ -1,17 +1,19 @@
 !> @file
 !> @brief SET_LVLSXML() sets field levels (LVLS and LVLSXML) from POST xml CONTROL FILE requested fields
 !>
-!> PROGRAM HISTORY LOG:
-!>   01_27_2012  Jun Wang - INITIAL CODE
-!>   04_03_2012  Jun Wang - add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
-!>   08_06_2013  S  Moorthi  - fix index out of bound after iloop5
-!>   10_03_2013  Jun Wang - add isentropic levels
-!>   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
-!>   07_08_2016  J. Carley - Comment out debug prints
-!>   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
-!>   01-24-2023  Sam Trahan - IFI flight levels and related unit conversions
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2012-01-27 | Jun Wang | INITIAL CODE
+!> 2012-04-03 | Jun Wang | add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
+!> 2013-08-06 | S  Moorthi | fix index out of bound after iloop5
+!> 2013-10-03 | Jun Wang | add isentropic levels
+!> 2015-03-10 | Lin Gan | Replace XML file with flat file implementation
+!> 2016-07-08 | J. Carley | Comment out debug prints
+!> 2017-06-01 | Y Mao | For MISCLN.f and FDLVL.f, allow FD levels input from control file
+!> 2023-01-24 | Sam Trahan | IFI flight levels and related unit conversions
 !---------------------------------------------------------------------------------
-!> @brief SET_LVLSXML() sets field levels (LVLS and LVLSXML) from POST xml CONTROL FILE requested fields
+!> @brief Sets field levels (LVLS and LVLSXML) from POST xml CONTROL FILE requested fields
 !> @param[inout] param input field
 !> @param[in] ifld field number in post control file
 !> @param[inout] irec data fields number in output file

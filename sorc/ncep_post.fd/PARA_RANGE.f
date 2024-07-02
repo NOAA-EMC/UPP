@@ -8,7 +8,7 @@
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
 !-----------------------------------------------------------------
-!> para_range() sets up decomposition values.
+!> @brief Sets up decomposition values.
 !>
 !> @param[in] N1 First interate value.
 !> @param[in] N2 Last interate value.
