@@ -100,9 +100,9 @@
 !***   ACTIVATE THE FOLLOWING LINE IF OCT90=.TRUE. (AND COMMENT OUT THE
 !***   PRECEDING LINE):
 !    DSPBFL=-3875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud base - fast land ?
-     DSP0FL=-5875.E0, &            !< Deficit Saturation Pressure (DSP) at freezing level - fast land ?
-     DSPTFL=-1875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud top - fast land ?
-     FSL=1.0E0, &                  !< Factor to obtain "slow" profiles over land ?
+!    DSP0FL=-5875.E0, &            !< Deficit Saturation Pressure (DSP) at freezing level - fast land ?
+!    DSPTFL=-1875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud top - fast land ?
+!    FSL=1.0E0, &                  !< Factor to obtain "slow" profiles over land ?
      DSPBFS=-3875.E0, &            !< Deficit Saturation Pressure (DSP) at cloud base  - fast sea ?
      DSP0FS=-5875.E0, &            !< Deficit Saturation Pressure (DSP) at freezing level  - fast sea ?
      DSPTFS=-1875.E0,   &          !< Deficit Saturation Pressure (DSP) at cloud top  - fast sea ?
@@ -140,7 +140,7 @@
      SLOP0S=(DSP0FS-DSP0SS)/(H1-EFIMN),   &   !< Slope - freezing level over sea ?
      SLOPTS=(DSPTFS-DSPTSS)/(H1-EFIMN),   &   !< Slope - cloud top over sea ?
      SLOPE=(H1   -EFMNT)/(H1-EFIMN)           !< Slope ?
-   real,parameter :: & 
+   real, parameter :: & 
      A23M4L=A2*(A3-A4)*ELWV,  &  !< Coefficient derived from A2, A3, A4, and ELWV
      ELOCP=ELIVW/CP,          &  !< ELIVW over CP
      CPRLG=CP/(ROW*G*ELWV),   &  !< Ratio of CP to product of water density, acceleration due to gravity, and latent heat of vaporization of water
