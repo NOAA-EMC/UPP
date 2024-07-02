@@ -5,7 +5,6 @@ module intio_tags_mod
 
        implicit none
 !
-  INTEGER, PARAMETER :: 
   INTEGER, PARAMETER ::  int_ioexit                        =10   !< Assigns ID 10 to int_ioexit - exit
   INTEGER, PARAMETER ::  int_open_for_write_begin          =20   !< Assigns ID 20 to int_open_for_write_begin - open for write operation
   INTEGER, PARAMETER ::  int_open_for_write_commit         =30   !< Assigns ID 30 to int_open_for_write_commit - open for write operation & commit
