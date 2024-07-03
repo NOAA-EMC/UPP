@@ -33,7 +33,7 @@ case $(hostname -f) in
   fe[1-8]) MACHINE_ID=jet ;; ### jet1-8
   tfe[12]) MACHINE_ID=jet ;; ### tjet1-2
 
-  Orion-login-[1-4].HPC.MsState.Edu) MACHINE_ID=orion ;; ### orion1-4
+  [Oo]rion-login-[1-4].[Hh][Pp][Cc].[Mm]s[Ss]tate.[Ee]du) MACHINE_ID=orion ;; ### orion1-4
 
   [Hh]ercules-login-[1-4].[Hh][Pp][Cc].[Mm]s[Ss]tate.[Ee]du) MACHINE_ID=hercules ;; ### hercules1-4
 
@@ -76,8 +76,9 @@ elif [[ -d /scratch1 ]]; then
   # We are on NOAA Hera
   MACHINE_ID=hera
 elif [[ -d /work ]]; then
-  # We are on MSU Orion or Hercules
-  if [[ -d /apps/other ]]; then
+  # We are on MSU Orion or Hercules, check the home mount
+  mount=$(findmnt -n -o SOURCE /home)
+  if [[ ${mount} =~ "hercules" ]]; then
     # We are on Hercules
     MACHINE_ID=hercules
   else
