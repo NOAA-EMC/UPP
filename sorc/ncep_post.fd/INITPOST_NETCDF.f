@@ -55,6 +55,7 @@
 !> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
 !> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
+!> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -182,7 +183,8 @@
 !     
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
-      integer fhzero !bucket
+      integer fhzero !bucket in integer
+      real fhzeror !bucket in real
       real dtp !physics time step
       real dz
       REAL RINC(5)
@@ -1647,12 +1649,19 @@
       end if
       if (me == 0) print*,'novegtype= ',novegtype
 
+      !Read fhzero as integer
       Status=nf90_get_att(ncid2d,nf90_global,'fhzero',fhzero)
       if (Status /= 0) then
-       print*,'fhzero not found-Assigned 3 hours as default'
-       fhzero=3
+        !Read fhzero as real
+        Status=nf90_get_att(ncid2d,nf90_global,'fhzero',fhzeror)
+        if (Status /= 0) then
+          print*,'fhzero not found-Assigned 3 hours as default'
+          fhzeror=3.
+        endif
+      else
+        fhzeror=float(fhzero)
       end if
-      if (me == 0) print*,'fhzero= ',fhzero
+!      if(me==0)print*,'fhzeror= ',fhzeror
 !
       Status=nf90_get_att(ncid2d,nf90_global,'dtp',dtp)
       if (Status /= 0) then
@@ -1665,7 +1674,7 @@
         CALL MICROINIT(imp_physics)
       end if
 
-        tprec   = float(fhzero)
+        tprec   = fhzeror
         ! if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
