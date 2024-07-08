@@ -50,6 +50,7 @@
 !     
 !     
 !*****************************************************************************
+!> CALMXW computes max wind level fields.
 !     START CALMXW HERE.
 !     
 !     LOOP OVER THE GRID.

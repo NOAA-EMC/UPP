@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine related to dewpoint temperature.
+!> @brief Subroutine that calculates dewpoint temperature.
 !
 !> Computes dewpoint from P, T, and Q.
 !>     
