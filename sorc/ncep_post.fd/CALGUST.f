@@ -17,6 +17,7 @@
 !> 2015-03-11 | S Moorthi     | Set sfcwind to spval if u10 and v10 are spvals for A grid and set gust to just wind (in GSM with nemsio, it appears u10 & v10 have spval)
 !> 2021-09-02 | Bo Cui        | Decompose UPP in X direction
 !> 2023-02-24 | Weizhong Zheng|  Revised calculation of wind gust for UFS applications
+!> 2024-07-02 | Wen Meng      | Restrict undefined grids in calculations
 !>   
 !> @author Geoff Manikin W/NP2 @date 1997-03-04
 
@@ -152,6 +153,7 @@
                  GUST(I,J) = MAX(GUST(I,J),SFCWIND+DELWIND)
                else
                  GUST(I,J) = spval
+                 WIND = spval
                endif
                enddo
              else
@@ -170,7 +172,7 @@
            END IF
 
            if(MODELNAME /= 'RAPR' .AND. MODELNAME /= 'GFS' .AND. MODELNAME /= 'FV3R')then
-             if (sfcwind < spval) then
+             if (sfcwind < spval .AND. ZPBL(I,J) < spval ) then
                DELWIND   = WIND - SFCWIND
                ZSFC      = FIS(I,J)*GI
                DELWIND   = DELWIND*(1.0-MIN(0.5,ZPBL(I,J)/2000.))

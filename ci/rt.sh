@@ -71,14 +71,15 @@ if [ $mac2 = hf ]; then # for HERA
  module load stack-intel/2021.5.0
  module load stack-intel-oneapi-mpi/2021.5.1
  module load prod_util/2.1.1
-elif [ $mac = O ] ; then
+elif [ $mac3 = orio ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  module use /work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.6.0/envs/upp-addon-env/install/modulefiles/Core
- module load stack-intel/2022.0.2
- module load stack-intel-oneapi-mpi/2021.5.1
+ module load stack-intel/2021.9.0
+ module load stack-intel-oneapi-mpi/2021.9.0
  module load prod_util/2.1.1
+ module load python/3.10.8
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
