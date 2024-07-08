@@ -1,19 +1,18 @@
+!> @file
+!> @brief This module generates grib2 messages and writes out the messages in parallel.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> March 2010   | Jun Wang   | Initial code
+!> January 2012 | Jun Wang   | post available fields with grib2 description are defined in xml file
+!> March 2015   | Lin Gan    | Replace XML file with flat file implementation with parameter marshalling
+!> July  2021   | Jesse Meng | 2D decomsition
+!> June  2022   | Lin Zhu    | Change the dx/dy to reading in from calculating for latlon grid
+!> January 2023 | Sam Trahan | Foot & meter unit conversions for IFI
+!-------------------------------------------------------------------------
   module grib2_module
-!------------------------------------------------------------------------
 !
-! This module generates grib2 messages and writes out the messages in 
-!   parallel.
-!
-! program log:
-!   March, 2010    Jun Wang   Initial code
-!   Jan,   2012    Jun Wang   post available fields with grib2 description
-!                              are defined in xml file
-!   March, 2015    Lin Gan    Replace XML file with flat file implementation
-!                              with parameter marshalling
-!   July,  2021    Jesse Meng 2D decomsition
-!   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
-!   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
-!------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
   implicit none
@@ -78,11 +77,11 @@
 !     character(len=50)                                :: type_derived_fcst=''
 !     type(param_t), dimension(:), pointer            :: param => null()
 !  end type paramset_t
-   type(paramset_t),save :: pset
+   type(paramset_t),save :: pset !< parameter set
 !
 !--- grib2 info related to a specific data file
-  integer nrecout
-  integer num_pset
+  integer nrecout     !< Number of records to output
+  integer num_pset    !< Number of parameter sets ? 
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
   integer perturb_num,num_ens_fcst,prob_num,tot_num_prob
@@ -95,7 +94,7 @@
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
   character*255 fl_nametbl,fl_gdss3
-  logical :: first_grbtbl
+  logical :: first_grbtbl !< _____?
 !
   public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize,read_grib2_head,read_grib2_sngle
   real(8), EXTERNAL :: timef
@@ -104,15 +103,13 @@
   contains
 !
 !-------------------------------------------------------------------------------------
+!> @brief Initializes general grib2 information and local variables
   subroutine grib_info_init()
-!
-!--- initialize general grib2 information and 
 !
     implicit none
 !
 !    logical,intent(in) :: first_grbtbl
 !
-!-- local variables
     integer ierr
     character(len=80) outfile
     character(len=10) envvar
@@ -185,10 +182,8 @@
   end subroutine grib_info_init
 !-------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------
-!
+!> @brief Finalizes GRIB2 information and closes the file.
   subroutine grib_info_finalize
-!
-!--- finalize grib2 information and  close file
 !
     implicit none
 !
@@ -198,10 +193,9 @@
 !   
   end subroutine grib_info_finalize
 !-------------------------------------------------------------------------------------
-!-------------------------------------------------------------------------------------
+!> @brief Outputs fields to grib file
+!> @param[in] post_fname UPP file name
   subroutine gribit2(post_fname)
-!
-!-------
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none
@@ -491,7 +485,7 @@
 !
 !----------------------------------------------------------------------------------------
 !----------------------------------------------------------------------------------------
-!
+!> @brief Generates grib2 message
   subroutine gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,tinvstat,  &
      datafld1,cgrib,lengrib,level_unit_conversion)
 !
@@ -1003,7 +997,8 @@
 !
 !----------
 ! idrstmpl array is the output from g2sec5
-!
+!> @brief Gets GRIB2 Section 5 packing method
+!> See GRIB2 data representation information: https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect5.shtml
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
        if(maxval(datafld1)==minval(datafld1))then
          idrsnum=0
@@ -1098,10 +1093,16 @@
 !
 ! E. JAMES: 10 JUN 2021 - Adding section to read in GRIB2 files for comparison
 ! within UPP.  Two new subroutines added below.
-!
+!> @brief Reads in GRIB2 file header information
+!> @param[in] filenameG2 Grib 2 file name
+!> @param[out] nx Total number of grid points along x
+!> @param[out] ny Total number of grid points along y
+!> @param[out] nz Total number of grid points along z (vertical)
+!> @param[out] rlonmin Westernmost longitude of the subdomain to extract (negative in Western hemisphere; in degrees) _____?
+!> @param[out] rlatmax Northernmost latitude of the subdomain to extract (in degrees) _____?
+!> @param[out] rdx Inverse x grid length
+!> @param[out] rdy Inverse y grid length
   subroutine read_grib2_head(filenameG2,nx,ny,nz,rlonmin,rlatmax,rdx,rdy)
-!
-!--- read grib2 file head information
 !
     use grib_mod
     implicit none
@@ -1184,7 +1185,7 @@
 !             write(*,*) 'listsec0=',listsec0
 !             write(*,*) 'listsec1=',listsec1
 !             write(*,*) 'numfields=',numfields
-! get information form grib2 file
+! get information from grib2 file
              n=1
              call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
              year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
@@ -1248,10 +1249,12 @@
   end subroutine read_grib2_head
 !
 !---
-!
+!> @brief Reads GRIB2 files
+!> @param[in] filenameG2 Grib 2 file name
+!> @param[in] ntot Total count of variables ?
+!> @param[out] height _____?
+!> @param[out] var Array of variables
   subroutine read_grib2_sngle(filenameG2,ntot,height,var)
-!
-!--- read grib2 files
 !
     use grib_mod
     implicit none
@@ -1448,7 +1451,8 @@
   end subroutine read_grib2_sngle
 !
 !----------------------------------------------------------------------------------------
-!
+!> @brief g2sec3tmpl40() Gets grid definition section (Section 3 of the WMO GRIB2 Standards) ?
+!> See https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect3.shtml
   subroutine g2sec3tmpl40(nx,nY,lat1,lon1,lat2,lon2,lad,ds1,len3,igds,ifield3)
    implicit none
 !
@@ -1492,7 +1496,7 @@
        end subroutine g2sec3tmpl40
 !
 !-------------------------------------------------------------------------------------
-!
+!> @brief g2getbits() Compute the total number of bits
        subroutine g2getbits(MXBIT,ibm,scl,len,bmap,g,ibs,ids,nbits)
 !$$$
 !   This subroutine is changed from w3 lib getbit to compute the total number of bits,
@@ -1662,11 +1666,9 @@
       END subroutine g2getbits
 !
 !-------------------------------------------------------------------------------------
-!
+!> @brief getgds() Set up Grid Description Section (GDS) kpds (Product Definition Section?) to call Boi's code ?
       subroutine getgds(ldfgrd,len3,ifield3len,igds,ifield3)
-!     
-!***** set up gds kpds to call Boi's code
-!
+
       use CTLBLK_mod,  only : im,jm,gdsdegr,modelname
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &

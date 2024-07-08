@@ -1,30 +1,33 @@
         module xml_perl_data
 !------------------------------------------------------------------------
-!
-! This module read in Perl XML processed flat file and 
-!   handle parameter marshalling for existing POST program
-!
-! program log:
-!   March, 2015    Lin Gan    Initial Code
-!   July,  2016    J. Carley  Clean up prints 
-!   
+!> @file 
+!> @brief This module reads in Perl XML processed flat file and 
+!> handles parameter marshalling for existing POST program
+!> 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> March, 2015 | Lin Gan   | Initial Code
+!> July,  2016 | J. Carley | Clean up prints 
+!>
 !------------------------------------------------------------------------
-!> @defgroup xml_perl_data_mod Sets parameters that are used to read in 
-!> Perl XML processed flat file and handle parameter marshalling for 
-!> existing POST program.
+!> @defgroup xml_perl_data_mod xml_perl_data
+!> Sets parameters that are used to read in 
+!! Perl XML processed flat file and handle parameter marshalling for 
+!! existing POST program.
 !
         implicit none
 !
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!!  and handle parameter marshalling for existing POST program.
    integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
              NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!! and handle parameter marshalling for existing POST program.
 	  type param_t
 	    integer                              :: post_avblfldidx=-9999
 	    character(len=80)                    :: shortname=''
@@ -64,7 +67,11 @@
 	    character(len=20)                    :: stat_unit_time_key_succ=''
 	    character(len=20)                    :: bit_map_flag=''
           end type param_t
+!> @}
 
+!> @ingroup xml_perl_data_mod
+!> @{ Parameters that are used to read in Perl XML processed flat file
+!! and handle parameter marshalling for existing POST program.
           type paramset_t
 	    character(len=6)                     :: datset=''
 	    integer                              :: grid_num=255
@@ -85,7 +92,7 @@
 !> @}
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!! and handle parameter marshalling for existing POST program.
             character(len=50)                    :: type_ens_fcst=''
             character(len=50)                    :: type_derived_fcst=''
             type(param_t), dimension(:), pointer :: param => null()
@@ -93,15 +100,20 @@
 !> @}
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program. 
+!! and handle parameter marshalling for existing POST program. 
           type post_avblfld_t
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
+!> @}
 
+!> @ingroup xml_perl_data_mod 
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!! and handle parameter marshalling for existing POST program. 
           type (paramset_t), dimension(:), pointer :: paramset
           type (post_avblfld_t),save               :: post_avblflds
 !> @}
         contains
+!> @brief Reads in and processes the postxconfig file
         subroutine read_postxconfig()
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml
@@ -163,7 +175,6 @@
 ! allocate array size from param for current paramset
 ! filter_char_inp is to check if "?" is found 
 !   then replace to empty string because it means no input. 
-
           read(22,*)paramset(i)%datset
           call filter_char_inp(paramset(i)%datset)
 
@@ -331,7 +342,8 @@
 
         end subroutine read_postxconfig
 
-
+!> @brief Checks parameter set to see whether "?" is found and, if so, replaces it with an empty string because it means no input.
+!> @param[inout] inpchar Input character
         subroutine filter_char_inp (inpchar)
           implicit none
           character, intent(inout)    :: inpchar

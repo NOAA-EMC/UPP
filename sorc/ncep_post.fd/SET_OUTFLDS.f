@@ -1,25 +1,25 @@
 !> @file
-!> @ brief set_outflds() reads post xml control file.
+!> @brief set_outflds() reads the post XML control file.
 !>
 !> @author J. Wang NCEP/EMC @date 2012-01-27
-
+!>
 !> This routine reads the control file in xml format specifying
 !> field(s) to post, and save all the field information in
 !> a datatype array PSET.
-!>
-!> @param[in] KTH
-!> @param[in] TH
-!> @param[in] KPV
-!> @param[in] PV
-!>
+!> 
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2012-01-27 | Jun Wang | Initial
 !> 2015-03-10 | Lin Gan  | Replace XML file with flat file implementation
 !> 2019-10-30 | Bo Cui   | Removw "GOTO" Statement
+!---------------------------------------------------------------------------
+!> @brief Reads post XML control file.
 !>
-!> @author J. Wang NCEP/EMC @date 2012-01-27
+!> @param[in] KTH total number of isentropic levels
+!> @param[in] TH isentropic levels
+!> @param[in] KPV total number of potential vorticity levels
+!> @param[in] PV potential vorticity levels
       SUBROUTINE SET_OUTFLDS(kth,th,kpv,pv)
 !
 
@@ -52,7 +52,7 @@
 !        WRITE(6,*)'READCNTRL_XML:  POSTING FCST HR ',IFHR,' FROM ',         &
 !             IHRST,'UTC ',SDAT(1),'-',SDAT(2),'-',SDAT(3),' RUN'
 !      ENDIF
-!     
+!
 !     INITIALIZE VARIABLES.
 !        ARRAY IGET IS THE "GET FIELD" FLAG ARRAY.
 !
@@ -124,12 +124,12 @@
       ENDDO
 
 !     
-!     ALL DONE FOUNDING REQUESTED FIELDS FOR current OUTPUT GRID.
+!     ALL DONE FINDING REQUESTED FIELDS FOR current OUTPUT GRID.
 !     SET NFLD TO TOTAL NUMBER OF REQUESTED OUTPUT FIELDS THAT 
-!     ARE AVAILABLE., SET NRECOUT to total number of OUTPUT records 
-!     NOTE: here NFLD i s total number of fields found in post_avblfld_table,
-!           while nrecoutis the total number of grib messages that go 
-!           into the output file. One fieldmay contain many different levels,
+!     ARE AVAILABLE. SET NRECOUT to total number of OUTPUT records 
+!     NOTE: here NFLD is total number of fields found in post_avblfld_table,
+!           while nrecout is the total number of grib messages that go 
+!           into the output file. One field may contain many different levels,
 !           which each different level will be counted as one record
 !
       NFLD    = IFLD

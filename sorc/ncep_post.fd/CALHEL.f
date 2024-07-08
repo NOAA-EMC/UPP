@@ -1,6 +1,6 @@
 !> @file
-!> @brief Subroutine that computes storm relative helicity.
-!
+!> @brief Subroutine that computes storm relative helicity and storm motion.
+!>
 !> This routine computes estimated storm motion and storm-relative
 !> environmental helicity. (Davies-Jones et al 1990) the algorithm
 !> processd as follows.
@@ -12,16 +12,7 @@
 !> method (Bunkers et al. 1988) which has been found to do better in cases with
 !> 'non-classic' hodographs (such as Northwest-flow events) and do as well or 
 !> better than the old method in more classic situations.
-!>     
-!> @param[in] DEPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
-!> @param[out] UST Estimated U Component (m/s) Of Storm motion.
-!> @param[out] VST Estimated V Component (m/s) Of Storm motion.
-!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
-!> @param[out] USHR1 U Component (m/s) Of 0-1 km shear.
-!> @param[out] VSHR1 V Component (m/s) Of 0-1 km shear.
-!> @param[out] USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
-!> @param[out] VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
-!>     
+!>       
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
@@ -40,6 +31,18 @@
 !> 2022-10-07 | Tracy Hertneky  | Add left mover for storm motion in SH
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
+! -----------------------------------------------------------------------------------
+!> @brief Computes storm relative helicity and storm motion.
+!> 
+!> @param[in] DEPTH Depth in meters over whcih helicity should be computed; allows one to distinguish 0-3 km and 0-1 km values.
+!> @param[out] UST Estimated U Component (m/s) Of Storm motion.
+!> @param[out] VST Estimated V Component (m/s) Of Storm motion.
+!> @param[out] HELI Storm-relative heliciry (m**2/s**2).
+!> @param[out] USHR1 U Component (m/s) Of 0-1 km shear.
+!> @param[out] VSHR1 V Component (m/s) Of 0-1 km shear.
+!> @param[out] USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> @param[out] VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.
+!> 
       SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 
 !
