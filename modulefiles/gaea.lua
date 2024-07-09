@@ -13,9 +13,6 @@ load(pathJoin("stack-intel", stack_intel_ver))
 stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.25"
 load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
-stack_python_ver=os.getenv("stack_python_ver") or "3.10.13"
-load(pathJoin("stack-python", stack_python_ver))
-
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver))
 
