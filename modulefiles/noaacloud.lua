@@ -4,6 +4,7 @@ Load environment to build UPP on NOAA Cloud
 
 
 prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/upp-addon-env/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.3.0"
 load(pathJoin("stack-intel", stack_intel_ver))
