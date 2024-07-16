@@ -34,7 +34,7 @@ Surface CAPE,CAPE_ON_SURFACE,CAPE,32
 Accumulated convective precipitation,ACM_ACPCP_ON_SURFACE,ACPCP,33
 Accumulated grid-scale precipitation,ACM_NCPCP_ON_SURFACE,NCPCP,34
 Accumulated snowfall,ACM_WEASD_ON_SURFACE,WEASD,35
-Total soil moisture,SOILM_ON_DEPTH_BEL_LAND_SFC,SOILM,36
+Total soil moisture,SOILM_ON_DEPTH_BEL_LAND_SFC,SOILMOI,36
 Low level cloud fraction,LCDC_ON_LOW_CLOUD_LYR,LCDC,37
 Mid level cloud fraction,MCDC_ON_MID_CLOUD_LYR,MCDC,38
 High level cloud fraction,HCDC_ON_HIGH_CLOUD_LYR,HCDC,39
@@ -167,7 +167,7 @@ Precipitation rate - instantaneous,INST_PRATE_ON_SURFACE,PRATE,167
 Cloud top temperature,TMP_ON_CLOUD_TOP,TMP,168
 Heat exchange coeff at surface,SFEXC_ON_SURFACE,SFEXC,169
 Vegetation cover,VEG_ON_SURFACE,VEG,170
-Soil moisture availability,MSTAV_ON_DEPTH_BEL_LAND_SFC,MSTAV,171
+Soil moisture availability,RUC_MSTAV_ON_DEPTH_BEL_LAND_SFC,MSTAV,171
 Fraction of frozen precipitation,CPOFP_ON_SURFACE,CPOFP,172
 Maximum wind pressure level,PRES_ON_MAX_WIND,PRES,173
 Maximum wind height,HGT_ON_MAX_WIND,HGT,174
@@ -471,12 +471,8 @@ GTG mountain wave turbulence (MWT) on model surface,MWTURB_ON_HYBRID_LVL,MWTURB,
 Horizontal extent of cumulonimbus (CB) %,CBHE_ON_ENTIRE_ATMOS,CBHE,473
 Standard atmosphere reference height of base of cumulonimbus,ICAHT_ON_CB_BASE,ICAHT,474
 Standard atmosphere reference height of top of cumulonimbus,ICAHT_ON_CB_TOP,ICAHT,475
-GTG eddy dissipation parameter (EDR) on standard atmospheric isobaric levels,EDPARM_GTG_ON_ICAO_STD_SFC,EDPARM,476
-GTG clean air turbulence (CAT) on standard atmospheric isobaric levels,CAT_GTG_ON_ICAO_STD_SFC,CATEDR,477
-GTG mountain wave turbulence (MWT) on standard atmospheric isobaric levels,MWTURB_GTG_ON_ICAO_STD_SFC,MWTURB,478
-Icing severity on standard atmospheric isobaric levels,ICESEV_ON_ICAO_STD_SFC,ICESEV,479
+G2G Convectively-induced turbulence (CIT) eddy dissipation rate (EDR) at specific altitude above mean sea level (for regional model),CIT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,CITEDR,477
 GFIP in-flight icing severity on pressure surface,ICESEV_ON_ISOBARIC_SFC,ICESEV,480
-Total icing potential diagnostic on standard atmospheric isobaric surface,ICIP_ON_ICAO_STD_SFC,ICIP,481
 Pressure at flight levels,PRES_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,PRES,482
 Simulated AMSR-E channel 9 brightness temperature,AMSRE9_ON_TOP_OF_ATMOS,AMSRE9,483
 Simulated AMSR-E channel 10 brightness temperature,AMSRE10_ON_TOP_OF_ATMOS,AMSRE10,484
@@ -512,10 +508,6 @@ Direct evaporation from bare soil on surface,AVE_EVBS_ON_SURFACE,EVBS,514
 Transpiration on surface,AVE_TRANS_ON_SURFACE,TRANS,515
 Sublimation on surface,AVE_SBSNO_ON_SURFACE,SBSNO,516
 Potential evaporation rate on surface,AVE_PEVPR_ON_SURFACE,PEVPR,517
-Height on standard atmospheric isobaric levels,HGT_ON_ICAO_STD_SFC,HGT,518
-Temperature on standard atmospheric isobaric levels,TMP_ON_ICAO_STD_SFC,TMP,519
-U-component wind on standard atmospheric isobaric levels,UGRD_ON_ICAO_STD_SFC,UGRD,520
-V-component wind on standard atmospheric isobaric levels,VGRD_ON_ICAO_STD_SFC,VGRD,521
 Bucket total precipitation on surface,BUCKET1_APCP_ON_SURFACE,APCP,526
 Bucket convective precipitation on surface,BUCKET1_ACPCP_ON_SURFACE,ACPCP,527
 Bucket large scale precipitation on surface,BUCKET1_NCPCP_ON_SURFACE,NCPCP,528
@@ -709,12 +701,12 @@ Biomass burning emissions,BIOMASS_BURNING_EMISSIONS,AEMFLX,745
 Accumulated graupel,ACM_GRAUPEL_ON_SURFACE,FROZR,746
 Number concentration for cloud water drops on hybrid level,GSD_NCCD_ON_HYBRID_LVL,NCONCD,747
 Radar reflectivity at 1km above ground,GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km,REFD,748
-Relative humidity with respect to precipitable water,GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS,RH_PWAT,749
+Relative humidity with respect to precipitable water,GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS,RHPW,749
 Water vapor mixing ratio on model surface,GSD_WV_MIXR_ON_HYBRID_LVL,MIXR,750
 Virtual potential temperature on model surface,GSD_VPTMP_ON_HYBRID_LVL,VPTMP,751
-Number concentration for ice particles on hybrid level,GSD_NCIP_ON_HYBRID_LVL,NCIP,752
+Number concentration for ice particles on hybrid level,GSD_NCIP_ON_HYBRID_LVL,NCCICE,752
 GSD pressure on level of 0 deg (C) isotherm,GSD_PRES_ON_0C_ISOTHERM,PRES,753
-Number concentration of rain drops on model surface,GSD_NCRAIN_ON_HYBRID_LVL,NCRAIN,754
+Number concentration of rain drops on model surface,GSD_NCRAIN_ON_HYBRID_LVL,SPNCR,754
 Hourly Wildfire Potential on surface,HWP_ON_SURFACE,FWINX,755
 GSD pressure on highest tropospheric freezing level,GSD_PRES_ON_HGHST_TROP_FRZ_LVL,PRES,756
 GSD radar reflectivity at 4km above ground,GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km,REFD,757
@@ -802,7 +794,7 @@ Effective storm relative helicity,EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND,EFHL,953
 Downdraft CAPE,DOWNWARD_CAPE,DCAPE,954
 Dendritic layer depth,DENDRITIC_LAYER_DEPTH,LAYTH,955
 Enhanced stretching potential,ENHANCED_STRETCHING_POTENTIAL,ESP,956
-Critical angle,CRITICAL_ANGLE,DCAPE,957
+Critical angle,CRITICAL_ANGLE,CANGLE,957
 Simulated GOES R band 7 brightness temperature,SBTAGR7_ON_TOP_OF_ATMOS,SBTAGR7,958
 Simulated GOES R band 8 brightness temperature,SBTAGR8_ON_TOP_OF_ATMOS,SBTAGR8,959
 Simulated GOES R band 9 brightness temperature,SBTAGR9_ON_TOP_OF_ATMOS,SBTAGR9,960

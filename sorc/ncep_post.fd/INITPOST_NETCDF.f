@@ -45,6 +45,11 @@
 !> 2023-10-17 | Eric James    | Including hail mixing ratio in calculation of hydrometeor VIL
 !>                              and cwm when present (NSSL microphysics)
 !> 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS
+!> 2024-01-12 | Wen Meng      | Remove the hard-wired bucket for beyond F240
+!> 2024-02-07 | Eric James    | Adding reading of direct and diffuse irradiance and LAI
+!> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
+!> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
+!> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -73,8 +78,8 @@
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
-              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
-              cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
+              tshltr, albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,&
+              sigt4,cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,    &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
               rswout, aswin, auvbin, auvbinc, aswout, aswtoa, sfcshx, sfclhx, subshx,           &
@@ -83,7 +88,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
               mintshltr, maxrhshltr, fdnsst, acgraup, graup_bucket, acfrain, frzrn_bucket,      &
-              snow_acm, snow_bkt, snownc, graupelnc, qrmax,                                     &
+              snow_acm, snow_bkt, snownc, graupelnc, qrmax, swddif, swddni, xlaixy,             &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -93,7 +98,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast
+              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -179,11 +184,11 @@
       REAL DUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
-              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
+              I,J,L,ll,k,k1,kf,irtn,igdout,n,Index,nframe,                &
               nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
       integer ncid3d,ncid2d,varid,nhcas,varid_bl,iret_bl
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
-              tvll,pmll,tv, tx1, tx2
+              tvll,pmll,tv, tx1, tx2, zpbltop
 
       character*20,allocatable :: recname(:)
       integer,     allocatable :: reclev(:), kmsk(:,:)
@@ -213,6 +218,7 @@
 
       integer, parameter    :: npass2=5, npass3=30
       real, parameter       :: third=1.0/3.0
+      real, parameter       :: delta_theta4gust=0.5
       INTEGER, DIMENSION(2) :: ij4min, ij4max
       REAL                  :: omgmin, omgmax
       real, allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
@@ -220,10 +226,11 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
-      real, allocatable :: ext550(:,:,:)
+      real, allocatable :: ext550(:,:,:),thv(:,:,:)
 
       if (modelname == 'FV3R') then
          allocate(ext550(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+         allocate(thv(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       endif
 
 !***********************************************************************
@@ -1636,7 +1643,7 @@
       end if
 
         tprec   = float(fhzero)
-        if(ifhr>240)tprec=12.
+        ! if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
         trdsw   = tprec
@@ -1789,6 +1796,11 @@
         enddo
       enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
+! sfc albedo
+      VarName='sfalb'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,albedo)
+      if(debugprint)print*,'sample ',VarName,' = ',albedo(isa,jsa)
 
 ! surface potential T  using getgb
       VarName='tmpsfc'
@@ -2237,6 +2249,9 @@
          SLLEVEL(8) = 1.6
          SLLEVEL(9) = 3.0
        END IF
+     
+      Status=nf90_inq_varid(ncid2d,'zsoil',varid)
+      if(Status/=0)then !read soil avriables in 2D
  
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill1'
@@ -2585,30 +2600,94 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
 
       END IF
-!
-! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
-! extinction; it needs to be after ZINT is defined.
-!
+   
+     else !read soil variables in 3D
+       VarName='soilt'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,stc(ista_2l,jsta_2l,1),nsoil)
+       VarName='soilw'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,smc(ista_2l,jsta_2l,1),nsoil)
+       VarName='soill'
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,VarName,sh2o(ista_2l,jsta_2l,1),nsoil)
+     endif
+
       if (modelname == 'FV3R') then
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = ista_2l, iend_2u
+          !
+          ! E. James - 27 Sep 2022: this is for RRFS, adding smoke and dust
+          ! extinction; it needs to be after ZINT is defined.
+          !
           if(ext550(i,j,l)<spval)then
             taod5503d ( i, j, l) = ext550 ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
           endif
-         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
+          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
            i,j,l,taod5503d ( i, j, l )
-         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
+          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
            dz
-         if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+          if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
            i,j,l,aextc55 ( i, j, l )
+
+          ! J. Kenyon - 14 Feb 2024: Obtain the virtual potential
+          ! temperature (thv) from temperature and specific humidity.
+          thv(i,j,l) = ( t(i,j,l) * (p1000/pint(i,j,l))**CAPA ) & ! line 1: convert temp to theta
+                      * ( 1. + 0.61*q(i,j,l)/(1.-q(i,j,l)) )      ! line 2: convert theta to theta-v;
+                                                                  !  note that the factor q/(1-q) converts
+                                                                  !  specific humidity (q) to mixing ratio 
+
          end do
         end do
        end do
+
+       do j = jsta_2l, jend_2u
+        do i = ista_2l, iend_2u
+         ! J. Kenyon - 14 Feb 2024: From the vertical profile of theta-v,
+         ! determine an effective PBL height. This ad-hoc PBL height will 
+         ! be used solely for the 10-m wind-gust diagnostic. The approach 
+         ! that follows is essentially reproduced from INITPOST.F.
+
+         !--Check for a surface-based mixed layer, but give a
+         !  0.5 K "boost" to the surface theta-v.
+          if (thv(i,j,lm-1) < (thv(i,j,lm) + delta_theta4gust)) then 
+          
+            !--A mixed layer exists, so proceed. Let the PBL top
+            !--be defined as the lowest level where theta-v is 
+            !--greater than (theta-v_sfc + 0.5 K).
+            do k = 3, lm
+              k1 = k
+              if (thv(i,j,lm-k+1) > (thv(i,j,lm) + delta_theta4gust)) &
+                !--PBL top found, so exit from the do-loop.  The most recent 
+                !--k1 value is the first level above the PBL top.
+                exit
+            end do
+
+            !--Find the height of k1 by linear interpolation, then
+            !--assign as zpbltop
+            zpbltop = zmid(i,j,lm-k1+1) + &
+                    ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1)) &
+                    * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))           &
+                    / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
+            !--Subtract surface elevation to yield PBLHGUST in AGL
+            PBLHGUST ( i, j ) = max(zpbltop - zint(i,j,lp1), 0.)
+
+          else 
+          !--Mixed layer does not exist
+            PBLHGUST ( i, j ) = 0. 
+
+          endif
+
+        end do
+       end do
+
        deallocate(ext550)
-      end if
+       deallocate(thv)
+
+      end if ! (modelname == 'FV3R')
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -2678,6 +2757,21 @@
       VarName='dswrf'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
+
+! inst incoming direct beam sfc shortwave
+      VarName='visbmdi'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,swddni)
+
+! inst incoming diffuse sfc shortwave
+      VarName='visdfdi'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,swddif)
+
+! leaf area index
+      VarName='xlaixy'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,xlaixy)
 
 ! inst incoming clear sky sfc shortwave
 ! FV3 do not output instant incoming clear sky sfc shortwave
@@ -3018,13 +3112,31 @@
           endif
         enddo
       enddo
+      VarName='snom_land'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf)
+      VarName='snom_ice'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,buf2)
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=ista,iend
+          if(buf(i,j)<spval) then
+            acsnom(i,j) = buf(i,j)
+          elseif(buf2(i,j)<spval) then
+            acsnom(i,j) = buf2(i,j)
+          else
+            acsnom(i,j) = spval
+          endif
+        enddo
+      enddo
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
 !          smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          acsnom(i,j) = spval    ! GFS does not have snow melt
+!          acsnom(i,j) = spval    ! GFS does not have snow melt
 !          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length

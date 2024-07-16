@@ -176,7 +176,6 @@ ICAHT:max wind
 ICAHT:tropopause
 ICEC:surface
 ICETK:surface
-ICETMP:surface
 ICSEV:100 mb
 ICSEV:150 mb
 ICSEV:200 mb
@@ -757,4 +756,3 @@ WEASD:surface
 WILT:surface
 SNOD:surface
 VIS:surface
-ICEG:10 m above mean sea level
