@@ -9,6 +9,7 @@
 !> -----|------------|---------
 !> March, 2015 | Lin Gan   | Initial Code
 !> July,  2016 | J. Carley | Clean up prints 
+!> July, 2024  | Wen Meng  | Increase datset length
 !>
 !------------------------------------------------------------------------
 !> @defgroup xml_perl_data_mod xml_perl_data
@@ -73,7 +74,7 @@
 !> @{ Parameters that are used to read in Perl XML processed flat file
 !! and handle parameter marshalling for existing POST program.
           type paramset_t
-	    character(len=6)                     :: datset=''
+	    character(len=20)                     :: datset=''
 	    integer                              :: grid_num=255
 	    character(len=20)                    :: sub_center=''
 	    character(len=20)                    :: version_no=''
