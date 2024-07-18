@@ -20,6 +20,7 @@
 !> 2019-09-03 | Jesse Meng | Added cape related variables for hrrr (950-957)
 !> 2021-08-31 | Lin Zhu | Added ssmis-f17 channels 15-18 grib2 output
 !> 2021-11-03 | Tracy Hertneky | Removed all grib1 settings
+!> 2024-07-15 | Wen Meng  | Increase DATSET length
 !--------------------------------------------------------------------
     module RQSTFLD_mod
 
@@ -29,7 +30,7 @@
       INTEGER, PARAMETER :: MXFLD=1200    !< Available model field IDs
       INTEGER, PARAMETER :: MXLVL=500     !< Available model levels
       
-      CHARACTER*6 DATSET                  !< String set in the postcntrl.xml file DATSET parameter
+      CHARACTER*20 DATSET                  !< String set in the postcntrl.xml file DATSET parameter
 !
       LOGICAL RITEHD                      !< Flag to open new output file
 !

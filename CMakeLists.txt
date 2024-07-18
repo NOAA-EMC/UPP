@@ -113,7 +113,6 @@ if(IFI_FOUND OR INTERNAL_IFI)
 endif()
 
 add_subdirectory(sorc)
-add_subdirectory(parm)
 
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)
