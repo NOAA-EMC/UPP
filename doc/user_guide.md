@@ -20,7 +20,7 @@ products. Output from the UPP is in National Weather Service (NWS) and
 World Meteorological Organization (WMO) GRIB2 format and can be used
 directly by visualization, plotting, or verification packages, or for
 further downstream post-processing, e.g. statistical post-processing
-techniques.  Examples of UPP products include:
+techniques. Examples of UPP products include:
 
 - T, Z, humidity, wind, cloud water, cloud ice, rain, and snow on pressure levels
 - SLP, shelter level T, humidity, and wind fields
@@ -33,5 +33,18 @@ techniques.  Examples of UPP products include:
 - Radar reflectivity products
 - Satellite look-alike products
 
-Support for the UFS UPP is provided through the UFS Forum by the
-Developmental Testbed Center (DTC) for FV3-based applications.
+**Prerequisites**
+The UPP requires certain NCEPLIBS packages to be installed via the spack-stack project. For instructions on installing these packages as a bundle via spack-stack, see: https://spack-stack.readthedocs.io/en/latest/. The UPP/modulefiles directory indicates which package versions are used and supported on Level 1 systems.
+
+Community support for the Unified Forecast System (UFS) UPP in FV3-based applications is provided by the
+Earth Prediction Innovation Center (EPIC). Community support for the UPP with WRF is no longer available. 
+
+* Support for the UFS UPP is provided through [GitHub Discussions](https://github.com/NOAA-EMC/UPP/discussions).
+* The UPP User's Guide for the latest standalone public release is [UPP v11.0.0](https://upp.readthedocs.io/en/upp_v11.0.0/).
+* The UPP User's Guide for develop branch is [UPP develop](https://upp.readthedocs.io/en/develop/).
+* The [UPP wiki](https://github.com/NOAA-EMC/UPP/wiki) includes relevant information and links for users and developers. 
+* Instructions on technical code documentation are available in a set of [Doxygen Documentation Slides](https://github.com/NOAA-EMC/UPP/wiki/DoxygenDocumentation.pdf).
+
+Code Managers: Wen Meng (EMC), Huiya Chuang (EMC), Fernando Andrade-Maldonado (EPIC)
+
+

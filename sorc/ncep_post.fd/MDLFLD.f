@@ -61,6 +61,7 @@
 !!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
 !!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
 !!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
+!!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -99,7 +100,7 @@
 
 !    
       use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust,&
-              coarsepm
+              coarsepm, ebb
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, qqh, zint,&
               qqni, qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
@@ -2447,6 +2448,33 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
              END IF
            ENDIF
 !
+! E. James - 23 Apr 2024: EBB from RRFS
+!
+           IF (IGET(1015)>0) THEN
+             IF (LVLS(L,IGET(1015))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=ista,iend
+                 GRID1(I,J) = EBB(I,J,LL,1)/(1E9)
+               ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1015))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1015))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+!
        if ( gocart_on .or. gccpp_on .or. nasa_on ) then
 !          DUST 1
            IF (IGET(629)>0) THEN
@@ -4091,6 +4119,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
            HGT=ZMID(I,J,L)
            PBLHOLD=PBLHGUST(I,J)
+           IF(PBLHOLD == spval) THEN
+             LPBL(I,J) = LM
+             EXIT loopL
+           ENDIF
           ELSE
            HGT=ZINT(I,J,L)
            PBLHOLD=PBLRI(I,J)

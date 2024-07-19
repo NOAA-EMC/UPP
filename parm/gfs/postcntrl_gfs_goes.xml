@@ -2,7 +2,7 @@
 <postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
 <!--  Lin Gan:  20150411 validated -->
   <paramset>
-    <datset>GFSPRS</datset>
+    <datset>GFSGOES</datset>
     <grid_num>0</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>

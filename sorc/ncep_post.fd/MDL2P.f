@@ -38,6 +38,7 @@
 !> 2023-02-23 | E James         | Adding coarse PM from RRFS
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
+!> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -49,11 +50,11 @@
 
 !
 !
-      use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM
+      use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
-                         RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
-                         TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,        &
+                         QQNW, QQNI, QQNR, RLWTT, RSWTT, VDIFFTT, TCUCN,     &
+                         TCUCNS, TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,&
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
@@ -99,7 +100,7 @@
      &,                                      OSL_OLD, OSL995                   &
      &,                                      ICINGFSL, ICINGVSL
       REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:),  FV3DUSTSL(:,:,:)      &
-     &,                                      COARSEPMSL(:,:,:)
+     &,                                      COARSEPMSL(:,:,:),  EBBSL(:,:,:)
       REAL, allocatable :: GTGSL(:,:),CATSL(:,:),MWTSL(:,:)
 !
       integer,intent(in) :: iostatusD3D
@@ -118,9 +119,12 @@
 !  QS1   - snow mixing ratio
 !  QG1   - graupel mixing ratio
 !  DBZ1  - radar reflectivity
+!  QQNW1 - number concentration of cloud drops
+!  QQNI1 - number concentration of ice particles
+!  QQNR1 - number concentration of rain particles
 !
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
-      ,                                      FRIME, RAD, HAINES
+      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1
 
       REAL SDUMMY(IM,2)
 
@@ -180,6 +184,15 @@
           enddo
         enddo
       enddo
+      if (.not. allocated(ebbsl)) allocate(ebbsl(im,jm,nbin_sm))
+!$omp parallel do private(i,j,l)
+      do l=1,nbin_sm
+        do j=1,jm
+          do i=1,im
+             EBBSL(i,j,l)  = SPVAL
+          enddo
+        enddo
+      enddo
 
 ! For GTG, should run MDL2P interpolation?
       gtg_interpolation = .false.
@@ -230,6 +243,8 @@
          (IGET(391) > 0) .OR. (IGET(392) > 0) .OR.      &
          (IGET(393) > 0) .OR. (IGET(394) > 0) .OR.      &
          (IGET(395) > 0) .OR. (IGET(379) > 0) .OR.      &
+         IGET(1018) > 0  .OR. IGET(1019) > 0  .OR.      &
+         IGET(1020) > 0  .OR.                           &
 ! ADD DUST FIELDS
          (IGET(455) > 0) .OR.      &
 ! Add WAFS hazard fields: Icing and GTG turbulence
@@ -285,6 +300,9 @@
               CFRSL(I,J)    = SPVAL
               ICINGFSL(I,J) = SPVAL
               ICINGVSL(I,J) = SPVAL
+              QQNW1(I,J)    = SPVAL
+              QQNI1(I,J)    = SPVAL
+              QQNR1(I,J)    = SPVAL
 
               if (gtg_interpolation) then
                  GTGSL(I,J)    = SPVAL
@@ -369,7 +387,7 @@
                  IF(QQI(I,J,1)     < SPVAL) QI1(I,J)   = QQI(I,J,1)
                  QI1(I,J) = MAX(QI1(I,J),zero)              ! Cloud ice
                  IF(QQR(I,J,1)     < SPVAL) QR1(I,J)   = QQR(I,J,1)
-                 QR1(I,J) = MAX(QR1(I,J),zero)              ! Rain 
+                 QR1(I,J) = MAX(QR1(I,J),zero)              ! Rain
                  IF(QQS(I,J,1)     < SPVAL) QS1(I,J)   = QQS(I,J,1)
                  QS1(I,J) = MAX(QS1(I,J),zero)              ! Snow (precip ice) 
                  IF(QQG(I,J,1)     < SPVAL) QG1(I,J)   = QQG(I,J,1)
@@ -378,6 +396,12 @@
                  DBZ1(I,J) = MAX(DBZ1(I,J),DBZmin)
                  IF(F_RimeF(I,J,1) < SPVAL) FRIME(I,J) = F_RimeF(I,J,1)
                  FRIME(I,J) = MAX(FRIME(I,J),H1)
+                 IF(QQNW(I,J,1)    < SPVAL) QQNW1(I,J) = QQNW(I,J,1)
+                 QQNW1(I,J) = MAX(QQNW1(I,J),zero)          ! Cloud droplet number concentration
+                 IF(QQNI(I,J,1)    < SPVAL) QQNI1(I,J) = QQNI(I,J,1)
+                 QQNI1(I,J) = MAX(QQNI1(I,J),zero)          ! Ice number concentration
+                 IF(QQNR(I,J,1)    < SPVAL) QQNR1(I,J) = QQNR(I,J,1)
+                 QQNR1(I,J) = MAX(QQNR1(I,J),zero)          ! Rain number concentration
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
@@ -395,6 +419,7 @@
                    IF(SMOKE(I,J,1,K) < SPVAL) SMOKESL(I,J,K)=SMOKE(I,J,1,K)
                    IF(FV3DUST(I,J,1,K) < SPVAL) FV3DUSTSL(I,J,K)=FV3DUST(I,J,1,K)
                    IF(COARSEPM(I,J,1,K) < SPVAL) COARSEPMSL(I,J,K)=COARSEPM(I,J,1,K)
+                   IF(EBB(I,J,1,K) < SPVAL) EBBSL(I,J,K)=EBB(I,J,1,K)
                  ENDDO
 
 ! only interpolate GFS d3d fields when  reqested
@@ -603,6 +628,18 @@
                    FRIME(I,J) = F_RimeF(I,J,LL) + (F_RimeF(I,J,LL) - F_RimeF(I,J,LL-1))*FACT
                    FRIME(I,J)=MAX(FRIME(I,J),H1)
 
+                 IF(QQNI(I,J,LL) < SPVAL .AND. QQNI(I,J,LL-1) < SPVAL)         &
+                   QQNI1(I,J) = QQNI(I,J,LL) + (QQNI(I,J,LL)-QQNI(I,J,LL-1))*FACT
+                   QQNI1(I,J) = MAX(QQNI1(I,J),zero)      ! Ice number concentration
+
+                 IF(QQNW(I,J,LL) < SPVAL .AND. QQNW(I,J,LL-1) < SPVAL)         &
+                   QQNW1(I,J) = QQNW(I,J,LL) + (QQNW(I,J,LL)-QQNW(I,J,LL-1))*FACT
+                   QQNW1(I,J) = MAX(QQNW1(I,J),zero)      ! Cloud drop number concentration
+
+                 IF(QQNR(I,J,LL) < SPVAL .AND. QQNR(I,J,LL-1) < SPVAL)         &
+                   QQNR1(I,J) = QQNR(I,J,LL) + (QQNR(I,J,LL)-QQNR(I,J,LL-1))*FACT
+                   QQNR1(I,J) = MAX(QQNR1(I,J),zero)      ! Rain number concentration
+
                  IF(TTND(I,J,LL) < SPVAL .AND. TTND(I,J,LL-1) < SPVAL)        &
                    RAD(I,J) = TTND(I,J,LL) + (TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
 
@@ -662,6 +699,8 @@
                    FV3DUSTSL(I,J,K)=FV3DUST(I,J,LL,K)+(FV3DUST(I,J,LL,K)-FV3DUST(I,J,LL-1,K))*FACT
                    IF(COARSEPM(I,J,LL,K) < SPVAL .AND. COARSEPM(I,J,LL-1,K) < SPVAL)  &
                    COARSEPMSL(I,J,K)=COARSEPM(I,J,LL,K)+(COARSEPM(I,J,LL,K)-COARSEPM(I,J,LL-1,K))*FACT
+                   IF(EBB(I,J,LL,K) < SPVAL .AND. EBB(I,J,LL-1,K) < SPVAL)  &
+                   EBBSL(I,J,K)=EBB(I,J,LL,K)+(EBB(I,J,LL,K)-EBB(I,J,LL-1,K))*FACT
                  ENDDO
 
 ! only interpolate GFS d3d fields when  == ested
@@ -869,6 +908,9 @@
                  QG1(I,J)   = 0.
                  DBZ1(I,J)  = DBZmin
                  FRIME(I,J) = 1.
+                 QQNW1(I,J) = 0.
+                 QQNI1(I,J) = 0.
+                 QQNR1(I,J) = 0.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
                  IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
@@ -2031,6 +2073,63 @@
           ENDIF
          ENDIF
 !
+!---  Number concentration for cloud water drops on isobaric surfaces
+         IF (IGET(1018) > 0) THEN
+          IF (LVLS(LP,IGET(1018)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1018))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1018))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNW1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for ice particles on isobaric surfaces
+         IF (IGET(1019) > 0) THEN
+          IF (LVLS(LP,IGET(1019)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1019))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1019))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNI1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for rain on isobaric surfaces
+         IF (IGET(1020) > 0) THEN
+          IF (LVLS(LP,IGET(1020)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1020))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1020))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNR1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
 !---  Temperature tendency by all radiation:  == ested by AFWA
          IF (IGET(294) > 0) THEN
           IF (LVLS(LP,IGET(294)) > 0) THEN 
@@ -2391,6 +2490,30 @@
                cfld = cfld + 1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(1013))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(1013))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+! E. James - 23 Apr 2024: EBB from RRFS
+        IF (IGET(1016) > 0) THEN
+          IF (LVLS(LP,IGET(1016)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = EBBSL(I,J,1)/(1E9)
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1016))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1016))
 !$omp parallel do private(i,j,ii,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -4200,6 +4323,7 @@ if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
 if(allocated(coarsepmsl)) deallocate(coarsepmsl)
+if(allocated(ebbsl)) deallocate(ebbsl)
 ! GTG
 if(allocated(GTGSL)) deallocate(GTGSL)
 if(allocated(CATSL)) deallocate(CATSL)

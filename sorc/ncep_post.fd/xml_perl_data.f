@@ -1,30 +1,34 @@
         module xml_perl_data
 !------------------------------------------------------------------------
-!
-! This module read in Perl XML processed flat file and 
-!   handle parameter marshalling for existing POST program
-!
-! program log:
-!   March, 2015    Lin Gan    Initial Code
-!   July,  2016    J. Carley  Clean up prints 
-!   
+!> @file 
+!> @brief This module reads in Perl XML processed flat file and 
+!> handles parameter marshalling for existing POST program
+!> 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> March, 2015 | Lin Gan   | Initial Code
+!> July,  2016 | J. Carley | Clean up prints 
+!> July, 2024  | Wen Meng  | Increase datset length
+!>
 !------------------------------------------------------------------------
-!> @defgroup xml_perl_data_mod Sets parameters that are used to read in 
-!> Perl XML processed flat file and handle parameter marshalling for 
-!> existing POST program.
+!> @defgroup xml_perl_data_mod xml_perl_data
+!> Sets parameters that are used to read in 
+!! Perl XML processed flat file and handle parameter marshalling for 
+!! existing POST program.
 !
         implicit none
 !
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!!  and handle parameter marshalling for existing POST program.
    integer :: NFCST,NBC,LIST,IOUT,NTSTM,                 &
              NRADS,NRADL,NDDAMP,IDTAD,NBOCO,NSHDE,NCP,IMDLTY
 !> @}
 
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!! and handle parameter marshalling for existing POST program.
 	  type param_t
 	    integer                              :: post_avblfldidx=-9999
 	    character(len=80)                    :: shortname=''
@@ -41,6 +45,7 @@
        integer, dimension(:), pointer       :: scale_fact_fixed_sfc2 => null() 
        real, dimension(:), pointer          :: level2 => null()
        character(len=80)                    :: aerosol_type=''
+       character(len=80)                    :: prob_type=''
 	    character(len=80)                    :: typ_intvl_size=''
  	    integer                              :: scale_fact_1st_size=0
 	    real                                 :: scale_val_1st_size=0.0
@@ -51,6 +56,10 @@
 	    real                                 :: scale_val_1st_wvlen=0.0
 	    integer                              :: scale_fact_2nd_wvlen=0
 	    real                                 :: scale_val_2nd_wvlen=0.0
+            integer                              :: scale_fact_lower_limit=0
+            real                                 :: scale_val_lower_limit=0.0
+            integer                              :: scale_fact_upper_limit=0
+            real                                 :: scale_val_upper_limit=0.0
 	    real, dimension(:), pointer          :: scale => null()  
 	    integer                              :: stat_miss_val=0
 	    integer                              :: leng_time_range_prev=0
@@ -59,9 +68,13 @@
 	    character(len=20)                    :: stat_unit_time_key_succ=''
 	    character(len=20)                    :: bit_map_flag=''
           end type param_t
+!> @}
 
+!> @ingroup xml_perl_data_mod
+!> @{ Parameters that are used to read in Perl XML processed flat file
+!! and handle parameter marshalling for existing POST program.
           type paramset_t
-	    character(len=6)                     :: datset=''
+	    character(len=20)                     :: datset=''
 	    integer                              :: grid_num=255
 	    character(len=20)                    :: sub_center=''
 	    character(len=20)                    :: version_no=''
@@ -80,7 +93,7 @@
 !> @}
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program.
+!! and handle parameter marshalling for existing POST program.
             character(len=50)                    :: type_ens_fcst=''
             character(len=50)                    :: type_derived_fcst=''
             type(param_t), dimension(:), pointer :: param => null()
@@ -88,15 +101,20 @@
 !> @}
 !> @ingroup xml_perl_data_mod 
 !> @{ Parameters that are used to read in Perl XML processed flat file 
-!> and handle parameter marshalling for existing POST program. 
+!! and handle parameter marshalling for existing POST program. 
           type post_avblfld_t
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
+!> @}
 
+!> @ingroup xml_perl_data_mod 
+!> @{ Parameters that are used to read in Perl XML processed flat file 
+!! and handle parameter marshalling for existing POST program. 
           type (paramset_t), dimension(:), pointer :: paramset
           type (post_avblfld_t),save               :: post_avblflds
 !> @}
         contains
+!> @brief Reads in and processes the postxconfig file
         subroutine read_postxconfig()
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml
@@ -158,7 +176,6 @@
 ! allocate array size from param for current paramset
 ! filter_char_inp is to check if "?" is found 
 !   then replace to empty string because it means no input. 
-
           read(22,*)paramset(i)%datset
           call filter_char_inp(paramset(i)%datset)
 
@@ -274,6 +291,8 @@
 
             read(22,*)paramset(i)%param(j)%aerosol_type
               call filter_char_inp(paramset(i)%param(j)%aerosol_type)
+            read(22,*)paramset(i)%param(j)%prob_type
+              call filter_char_inp(paramset(i)%param(j)%prob_type)
             read(22,*)paramset(i)%param(j)%typ_intvl_size
               call filter_char_inp(paramset(i)%param(j)%typ_intvl_size)
 
@@ -288,6 +307,10 @@
             read(22,*)paramset(i)%param(j)%scale_val_1st_wvlen
             read(22,*)paramset(i)%param(j)%scale_fact_2nd_wvlen
             read(22,*)paramset(i)%param(j)%scale_val_2nd_wvlen
+            read(22,*)paramset(i)%param(j)%scale_fact_lower_limit
+            read(22,*)paramset(i)%param(j)%scale_val_lower_limit
+            read(22,*)paramset(i)%param(j)%scale_fact_upper_limit
+            read(22,*)paramset(i)%param(j)%scale_val_upper_limit
             read(22,*)scale_array_count
             allocate(paramset(i)%param(j)%scale(1))
             if (scale_array_count > 0) then
@@ -320,7 +343,8 @@
 
         end subroutine read_postxconfig
 
-
+!> @brief Checks parameter set to see whether "?" is found and, if so, replaces it with an empty string because it means no input.
+!> @param[inout] inpchar Input character
         subroutine filter_char_inp (inpchar)
           implicit none
           character, intent(inout)    :: inpchar

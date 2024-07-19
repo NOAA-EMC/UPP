@@ -9,6 +9,8 @@
 # USE CAUTION WHEN ADDING WILDCARDS, as some builds use different filename   #
 # conventions than others                                                    #
 ##############################################################################
+build
+install
 build/*/
 install*/
 
