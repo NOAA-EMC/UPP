@@ -26,11 +26,17 @@ var NAVTREE =
 [
   [ "UPP", "index.html", [
     [ "Unified Post-Processing (UPP)", "index.html#autotoc_md0", null ],
-    [ "Modules", "namespaces.html", [
-      [ "Modules List", "namespaces.html", "namespaces_dup" ]
+    [ "2-D Decomposition Overview", "md__2work_2noaa_2epic_2gpetro_2UPP_2doc_22D-decomp.html", [
+      [ "Comparison of 1D vs. 2D Decomposition", "md__2work_2noaa_2epic_2gpetro_2UPP_2doc_22D-decomp.html#autotoc_md2", null ],
+      [ "2D Decomposition Design", "md__2work_2noaa_2epic_2gpetro_2UPP_2doc_22D-decomp.html#autotoc_md3", null ]
     ] ],
-    [ "Data Types List", "annotated.html", [
-      [ "Data Types List", "annotated.html", "annotated_dup" ]
+    [ "Topics", "topics.html", "topics" ],
+    [ "Data Types", "annotated.html", [
+      [ "Data Types List", "annotated.html", "annotated_dup" ],
+      [ "Data Fields", "functions.html", [
+        [ "All", "functions.html", null ],
+        [ "Variables", "functions_vars.html", null ]
+      ] ]
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
@@ -44,11 +50,13 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
-"CTLBLK_8f.html#aa0953e13994cf44f2a3deb45bd7f27b9",
-"LOOKUP_8f.html#a7f74e8e7817faf8ae298d1df7a7796bc",
-"cuparm_8f.html#a1247c099d7633bcdde5010884932f101",
-"native__endianness_8f_source.html"
+"ALLOCATE__ALL_8f.html",
+"CTLBLK_8f.html#ac06704b917ce98294e81270a28a7a36d",
+"PARA__RANGE_8f.html#a41243e3064fa06ae1a949b95e710265a",
+"VRBLS2D__mod_8f.html#a1041972f8c8d54a3623267613d730457",
+"VRBLS2D__mod_8f.html#ad16998dbc35ef747bef2fa9c13eba9fc",
+"cuparm_8f.html#a64ed8869f1bc0f5f0f5004f43f35be36",
+"params_8F.html#a65bdef7941d86218810f0a0141a22a0c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
