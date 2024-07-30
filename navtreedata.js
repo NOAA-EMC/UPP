@@ -26,9 +26,9 @@ var NAVTREE =
 [
   [ "UPP", "index.html", [
     [ "Unified Post-Processing (UPP)", "index.html#autotoc_md0", null ],
-    [ "2-D Decomposition Overview", "md__2work_2noaa_2epic_2gpetro_2UPP_2doc_22D-decomp.html", [
-      [ "Comparison of 1D vs. 2D Decomposition", "md__2work_2noaa_2epic_2gpetro_2UPP_2doc_22D-decomp.html#autotoc_md2", null ],
-      [ "2D Decomposition Design", "md__2work_2noaa_2epic_2gpetro_2UPP_2doc_22D-decomp.html#autotoc_md3", null ]
+    [ "2-D Decomposition Overview", "md_doc_22D-decomp.html", [
+      [ "Comparison of 1D vs. 2D Decomposition", "md_doc_22D-decomp.html#autotoc_md2", null ],
+      [ "2D Decomposition Design", "md_doc_22D-decomp.html#autotoc_md3", null ]
     ] ],
     [ "Topics", "topics.html", "topics" ],
     [ "Data Types", "annotated.html", [
