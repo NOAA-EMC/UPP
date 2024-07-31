@@ -53,17 +53,24 @@
 !     
       integer :: JCAP, I, J, L, IERR
       REAL, dimension(ISTA:IEND,JSTA:JEND,LSM), intent(in) :: UISO, VISO
-
-      real, dimension(IM,JM,LSM) :: IN_UWIND, IN_VWIND, OUT_UWIND, OUT_VWIND, DIV, ZO, CHI_OUT, PSI_OUT, CHI, PSI
-      real, dimension(IM,JM) :: COL_UWIND, COL_VWIND
+      REAL, dimension(IM,JM,LSM), intent(out) ::  CHI, PSI
 
       integer k, m
-      real, allocatable :: CHI1(:), CHISUB(:), PSI1(:), PSISUB(:)
+      real, allocatable :: CHI1(:),CHISUB(:),PSI1(:),PSISUB(:),COL_UWIND(:,:),COL_VWIND(:,:),  		&
+      			   IN_UWIND(:,:,:),IN_VWIND(:,:,:),OUT_UWIND(:,:,:),OUT_VWIND(:,:,:), 		&
+	    		   DIV(:,:,:),ZO(:,:,:),CHI_OUT(:,:,:),PSI_OUT(:,:,:)
+      
 !     
 !***************************************************************************
 !     START CALCHIPSI HERE.
 !    
-!     SAVE ALL P LEVELS OF U/V WINDS AT GLOBAL GRID   
+!     SAVE ALL P LEVELS OF U/V WINDS AT GLOBAL GRID  
+
+      ALLOCATE(COL_UWIND(IM,JM))
+      ALLOCATE(COL_VWIND(IM,JM))
+      ALLOCATE(IN_UWIND(IM,JM,LSM))
+      ALLOCATE(IN_VWIND(IM,JM,LSM))
+
       DO L=1,LSM
         CALL COLLECT_ALL(UISO(ISTA:IEND,JSTA:JEND,L),COL_UWIND)
         CALL COLLECT_ALL(VISO(ISTA:IEND,JSTA:JEND,L),COL_VWIND)
@@ -74,6 +81,9 @@
           ENDDO
         ENDDO
       ENDDO
+
+      DEALLOCATE(COL_UWIND)
+      DEALLOCATE(COL_VWIND)
 
 ! FILL CHI/PSI VALUES
       DO L=1,LSM
@@ -86,6 +96,13 @@
       ENDDO
 
       IF (ME==0) THEN 
+
+	      ALLOCATE(OUT_UWIND(IM,JM,LSM))
+	      ALLOCATE(OUT_VWIND(IM,JM,LSM))
+	      ALLOCATE(DIV(IM,JM,LSM))
+	      ALLOCATE(ZO(IM,JM,LSM))
+	      ALLOCATE(CHI_OUT(IM,JM,LSM))
+	      ALLOCATE(PSI_OUT(IM,JM,LSM))
       
         ! SET MAX WAVELENGTH FOR SPECTRAL TRUNCATION
 	      IF(IDRT == 0)THEN
@@ -103,6 +120,13 @@
 	      	           .FALSE.,OUT_UWIND(1,1,1),OUT_VWIND(1,1,1),			  	     &
 	                   .FALSE.,DIV,ZO,						             &
 	                   .TRUE.,CHI_OUT(1,1,1),PSI_OUT(1,1,1))
+
+	      DEALLOCATE(IN_UWIND)
+       	      DEALLOCATE(IN_VWIND)
+      	      DEALLOCATE(OUT_UWIND)
+	      DEALLOCATE(OUT_VWIND)
+              DEALLOCATE(DIV)
+	      DEALLOCATE(ZO)
 
       ENDIF                             ! END OF ME=0 BLOCK
 
@@ -132,6 +156,8 @@
                            CHISUB,icnt(me),MPI_REAL,0,MPI_COMM_WORLD,IERR)
          CALL MPI_SCATTERV(PSI1,icnt,idsp,MPI_REAL, &
                            PSISUB,icnt(me),MPI_REAL,0,MPI_COMM_WORLD,IERR)
+
+ 
          k=0
          DO J=JSTA,JEND
          DO I=ISTA,IEND
@@ -147,6 +173,8 @@
       DEALLOCATE(CHISUB)
       DEALLOCATE(PSI1)
       DEALLOCATE(PSISUB)
+      IF(ALLOCATED(CHI_OUT)) DEALLOCATE(CHI_OUT)
+      IF(ALLOCATED(PSI_OUT)) DEALLOCATE(PSI_OUT)
 !
 !     
 !     END OF ROUTINE.
