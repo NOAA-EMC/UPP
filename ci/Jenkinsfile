@@ -103,10 +103,10 @@ pipeline {
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Orion testing concluded..."
-                                        git commit -m "Orion Jobs Completed."
                                         git pull sshorigin $FORK_BRANCH
                                         cd ../tests/logs
 					git add rt.log.ORION
+                                        git commit -m "Orion Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
@@ -140,10 +140,10 @@ pipeline {
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hera testing concluded..."
-                                        git commit -m "Hera Jobs Completed."
                                         git pull sshorigin $FORK_BRANCH
                                         cd ../tests/logs
 					git add rt.log.HERA
+                                        git commit -m "Hera Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
@@ -177,10 +177,10 @@ pipeline {
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hercules testing concluded..."
-                                        git commit -m "Hercules Jobs Completed."
                                         git pull sshorigin $FORK_BRANCH
                                         cd ../tests/logs
 					git add rt.log.HERCULES
+                                        git commit -m "Hercules Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
