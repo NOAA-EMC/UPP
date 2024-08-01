@@ -74,6 +74,7 @@
       DO L=1,LSM
         CALL COLLECT_ALL(UISO(ISTA:IEND,JSTA:JEND,L),COL_UWIND)
         CALL COLLECT_ALL(VISO(ISTA:IEND,JSTA:JEND,L),COL_VWIND)
+!$omp  parallel do private(i,j)
         DO J=1,JM
           DO I=1,IM
 	    IN_UWIND(I,J,L)=COL_UWIND(I,J)
@@ -87,7 +88,8 @@
 
 ! FILL CHI/PSI VALUES
       DO L=1,LSM
-        DO J=1,JM
+!$omp  parallel do private(i,j)
+      DO J=1,JM
 	  DO I=1,IM
      	    CHI(I,J,L)= SPVAL
 	    PSI(I,J,L)= SPVAL
@@ -142,6 +144,7 @@
          IF (ME==0) THEN
            k=0
            DO m=0,num_procs-1
+!$omp  parallel do private(i,j)
            DO J=jsxa(m),jexa(m)
            DO I=isxa(m),iexa(m)
               k=k+1
@@ -159,6 +162,7 @@
 
  
          k=0
+!$omp  parallel do private(i,j)
          DO J=JSTA,JEND
          DO I=ISTA,IEND
             k=k+1
