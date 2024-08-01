@@ -98,6 +98,16 @@ pipeline {
 					echo $(pwd)
 					cd ci/
 					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+                                        git config user.email "ecc.platform@noaa.gov"
+                                        git config user.name "epic-cicd-jenkins"
+                                        echo "Orion testing concluded..."
+                                        git commit -m "Orion Jobs Completed."
+                                        git pull sshorigin $FORK_BRANCH
+                                        cd ../tests/logs
+					git add rt.log.ORION
+                                        git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
 			}
@@ -125,6 +135,16 @@ pipeline {
 					echo $(pwd)
 					cd ci/
 					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+                                        git config user.email "ecc.platform@noaa.gov"
+                                        git config user.name "epic-cicd-jenkins"
+                                        echo "Hera testing concluded..."
+                                        git commit -m "Hera Jobs Completed."
+                                        git pull sshorigin $FORK_BRANCH
+                                        cd ../tests/logs
+					git add rt.log.HERA
+                                        git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
 			}
@@ -152,6 +172,16 @@ pipeline {
 					echo $(pwd)
 					cd ci/
 					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+                                        git config user.email "ecc.platform@noaa.gov"
+                                        git config user.name "epic-cicd-jenkins"
+                                        echo "Hercules testing concluded..."
+                                        git commit -m "Hercules Jobs Completed."
+                                        git pull sshorigin $FORK_BRANCH
+                                        cd ../tests/logs
+					git add rt.log.HERCULES
+                                        git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
 			}
