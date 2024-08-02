@@ -97,9 +97,12 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        export machine=${NODE_NAME}
+                                        export PATH=$PATH:~/bin
+                                        echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Orion testing concluded..."
@@ -134,9 +137,12 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        export machine=${NODE_NAME}
+                                        export PATH=$PATH:~/bin
+                                        echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hera testing concluded..."
@@ -171,9 +177,12 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        export machine=${NODE_NAME}
+                                        export PATH=$PATH:~/bin
+                                        echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hercules testing concluded..."
