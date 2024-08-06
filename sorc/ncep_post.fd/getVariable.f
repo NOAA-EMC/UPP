@@ -51,6 +51,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
  ! the portion of VarBuff that is needed for this task.
  !  use mpi
    use wrf_io_flags_mod, only: wrf_real, wrf_real8
+   use ctlblk_mod, only: spval, submodelname
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none
 
@@ -73,7 +74,8 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
    real, allocatable, dimension(:,:,:,:) :: data
    integer :: ierr,size,mype,idsize,ier
    character(len=132) :: Stagger
-   real SPVAL
+   real :: FillValue
+   integer :: OutCount
 
 !    call set_wrf_debug_level ( 1 )
    call mpi_comm_rank(MPI_COMM_WORLD,mype,ier)
@@ -126,15 +128,36 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
    if (ndim>3) then
      write(*,*) 'Error: ndim = ',ndim
    endif 
-   do l=1,lm1
-     ll=lm1-l+1  ! flip the z axis not sure about soil
-     do i=1,im1
-      do j=js,je
-       VarBuff(i,j,l)=data(i,j,ll,1)
-      enddo
+
+   if (SUBMODELNAME=='MPAS') then
+   ! For MPAS: determine the fill value associated with the variable
+     call ext_ncd_get_var_ti_real(dh,"_FillValue",TRIM(VarName),FillValue,1,OutCount,ierr)
+     !if (VarName=='T') print*, 'JSK: T fill is ',Fillvalue
+     !if (VarName=='P_HYD') print*, 'JSK: P_HYD fill is ',Fillvalue
+     do l=1,lm1
+       ll=lm1-l+1  ! flip the z axis not sure about soil
+       do i=1,im1
+        do j=js,je
+          if (data(i,j,ll,1) /= FillValue) then
+            VarBuff(i,j,l)=data(i,j,ll,1)
+          else ! For MPAS: assign SPVAL where FillValue is present
+            VarBuff(i,j,l)=spval
+          endif
+        enddo
+       enddo
      enddo
-!     write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
-   enddo
+   else
+     do l=1,lm1
+       ll=lm1-l+1  ! flip the z axis not sure about soil
+       do i=1,im1
+        do j=js,je
+         VarBuff(i,j,l)=data(i,j,ll,1)
+        enddo
+       enddo
+!       write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
+     enddo
+   endif
+
    deallocate(data)
    return
 

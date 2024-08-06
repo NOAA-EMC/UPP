@@ -51,6 +51,7 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
  ! the portion of VarBuff that is needed for this task.
 
    use wrf_io_flags_mod
+   use ctlblk_mod, only: spval, submodelname
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none
 !
@@ -71,6 +72,8 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
 !   real, allocatable, dimension(:,:,:,:) :: data
    integer :: ierr
    character(len=132) :: Stagger
+   real :: FillValue
+   integer :: OutCount
 
 !    call set_wrf_debug_level ( 1 )
 
@@ -118,15 +121,34 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
    if (ndim>3) then
      write(*,*) 'Error: ndim = ',ndim
    endif 
-   do l=1,lm1
-     ll=lm1-l+1  ! flip the z axis not sure about soil
-     do i=1,im1
-      do j=js,je
-       VarBuff(i,j,l)=data(i,j,ll,1)
-      enddo
+
+   if (SUBMODELNAME=='MPAS') then
+   ! For MPAS: determine the fill value associated with the variable
+     call ext_ncd_get_var_ti_real(dh,"_FillValue",TRIM(VarName),FillValue,1,OutCount,ierr)
+     do l=1,lm1
+       ll=lm1-l+1  ! flip the z axis not sure about soil
+       do i=1,im1
+        do j=js,je
+          if (data(i,j,ll,1) /= FillValue) then
+            VarBuff(i,j,l)=data(i,j,ll,1)
+          else ! For MPAS: assign SPVAL where FillValue is present
+            VarBuff(i,j,l)=spval
+          endif
+        enddo
+       enddo
      enddo
-!     write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
-   enddo
+   else
+     do l=1,lm1
+       ll=lm1-l+1  ! flip the z axis not sure about soil
+       do i=1,im1
+        do j=js,je
+         VarBuff(i,j,l)=data(i,j,ll,1)
+        enddo
+       enddo
+!       write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
+     enddo
+   endif
+
    deallocate(data)
    return
 
