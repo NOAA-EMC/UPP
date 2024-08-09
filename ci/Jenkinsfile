@@ -152,8 +152,8 @@ pipeline {
                                         git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
-					git add rt.log.ORION
-                                        git commit -m "Orion Jobs Completed."
+					git add rt.log.HERA
+                                        git commit -m "Hera Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
@@ -194,8 +194,8 @@ pipeline {
                                         git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
-					git add rt.log.ORION
-                                        git commit -m "Orion Jobs Completed."
+					git add rt.log.HERCULES
+                                        git commit -m "Hercules Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
