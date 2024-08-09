@@ -107,6 +107,8 @@ pipeline {
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Orion testing concluded..."
+					git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
 					git add rt.log.ORION
                                         git commit -m "Orion Jobs Completed."
@@ -147,9 +149,11 @@ pipeline {
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hera testing concluded..."
+                                        git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
 					git add rt.log.ORION
-                                        git commit -m "Hera Jobs Completed."
+                                        git commit -m "Orion Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
@@ -187,9 +191,11 @@ pipeline {
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hercules testing concluded..."
+                                        git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
 					git add rt.log.ORION
-                                        git commit -m "Hercules Jobs Completed."
+                                        git commit -m "Orion Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
