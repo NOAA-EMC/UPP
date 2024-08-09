@@ -97,17 +97,17 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-                                        export machine=${NODE_NAME}
-                                        export PATH=$PATH:~/bin
                                         echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        cd ../tests/logs
+					git remote -v
+                                        git fetch --no-recurse-submodules origin
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Orion testing concluded..."
                                         git pull sshorigin $FORK_BRANCH
-                                        cd ../tests/logs
 					git add rt.log.ORION
                                         git commit -m "Orion Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
@@ -137,18 +137,18 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-                                        export machine=${NODE_NAME}
-                                        export PATH=$PATH:~/bin
                                         echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        cd ../tests/logs
+					git remote -v
+                                        git fetch --no-recurse-submodules origin
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hera testing concluded..."
                                         git pull sshorigin $FORK_BRANCH
-                                        cd ../tests/logs
-					git add rt.log.HERA
+					git add rt.log.ORION
                                         git commit -m "Hera Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
@@ -177,18 +177,18 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-                                        export machine=${NODE_NAME}
-                                        export PATH=$PATH:~/bin
                                         echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        cd ../tests/logs
+					git remote -v
+                                        git fetch --no-recurse-submodules origin
                                         git config user.email "ecc.platform@noaa.gov"
                                         git config user.name "epic-cicd-jenkins"
                                         echo "Hercules testing concluded..."
                                         git pull sshorigin $FORK_BRANCH
-                                        cd ../tests/logs
-					git add rt.log.HERCULES
+					git add rt.log.ORION
                                         git commit -m "Hercules Jobs Completed."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
