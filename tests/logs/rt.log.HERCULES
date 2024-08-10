@@ -1,61 +1,69 @@
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
-18327c9e9e08ad9c372393d8bdfb1573f27e6d7e
+ef3ef3d360a6d1ec4af550d38914ced626e6006a
 
 Submodule hashes:
 -1ba8270870947b583cd51bc72ff8960f4c1fb36e sorc/libIFI.fd
 -567edcc94bc418d0dcd6cdaafed448eeb5aab570 sorc/ncep_post.fd/post_gtg.fd
 
-Run directory: /work/noaa/epic/role-epic/jenkins/workspace/UPP_UPP-Pipeline_PR-1007_2__3/ci/rundir/upp-HERCULES
+Run directory: /work/noaa/epic/role-epic/jenkins/workspace/UPP_UPP-Pipeline_PR-1007_2__2/ci/rundir/upp-HERCULES
 Baseline directory: /work/noaa/epic/UPP
 
-Total runtime: 00h:07m:18s
-Test Date: 20240809 19:29:55
+Total runtime: 00h:05m:22s
+Test Date: 20240809 19:58:33
 Summary Results:
 
-08/10 00:27:07Z -rap pe test: post failed using your new post executable to generate WRFPRS.GrbF16
-08/10 00:27:07Z -rap pe test: post failed using your new post executable to generate WRFNAT.GrbF16
-08/10 00:27:14Z -hrrr pe test: post failed using your new post executable to generate WRFTWO.GrbF04
-08/10 00:27:14Z -hrrr pe test: post failed using your new post executable to generate WRFPRS.GrbF04
-08/10 00:27:14Z -hrrr pe test: post failed using your new post executable to generate WRFNAT.GrbF04
-08/10 00:27:14Z -fv3r pe test: post failed using your new post executable to generate PRSLEV10.tm00
-08/10 00:27:14Z -fv3r pe test: post failed using your new post executable to generate NATLEV10.tm00
-08/10 00:27:47Z -fv3r test: post failed using your new post executable to generate PRSLEV10.tm00
-08/10 00:27:47Z -fv3r test: post failed using your new post executable to generate NATLEV10.tm00
-08/10 00:28:25Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.master.grb2f006
-08/10 00:28:25Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.sfluxgrbf006.grib2
-08/10 00:28:25Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.special.grb2f006
-08/10 00:28:46Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.master.grb2f006
-08/10 00:28:46Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.sfluxgrbf006.grib2
-08/10 00:28:46Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.special.grb2f006
-08/10 00:29:31Z -fv3hafs test: post failed using your new post executable to generate HURPRS09.tm00
-08/10 00:29:37Z -fv3gefs pe test: post failed using your new post executable to generate geaer.t00z.master.grb2f060
-08/10 00:29:37Z -fv3gefs test: post failed using your new post executable to generate geaer.t00z.master.grb2f060
-08/10 00:29:37Z -rtma pe test: post failed using your new post executable to generate NATLEV00.tm00
-08/10 00:29:37Z -rtma pe test: post failed using your new post executable to generate PRSLEV00.tm00
-08/10 00:29:37Z -rtma pe test: post failed using your new post executable to generate IFIFIP00.tm00
-08/10 00:29:37Z -rtma test: post failed using your new post executable to generate NATLEV00.tm00
-08/10 00:29:37Z -rtma test: post failed using your new post executable to generate PRSLEV00.tm00
-08/10 00:29:38Z -rtma test: post failed using your new post executable to generate IFIFIP00.tm00
-08/10 00:29:38Z -fv3hafs pe test: post failed using your new post executable to generate HURPRS09.tm00
-08/10 00:29:39Z -hrrr test: post failed using your new post executable to generate WRFTWO.GrbF04
-08/10 00:29:39Z -rap test: post failed using your new post executable to generate WRFPRS.GrbF16
-08/10 00:29:39Z -hrrr test: post failed using your new post executable to generate WRFPRS.GrbF04
-08/10 00:29:39Z -rap test: post failed using your new post executable to generate WRFNAT.GrbF16
-08/10 00:29:39Z -hrrr test: post failed using your new post executable to generate WRFNAT.GrbF04
-08/10 00:29:39Z -Runtime: fv3gefs_test 00:00:02 -- baseline 01:20:00
-08/10 00:29:39Z -Runtime: fv3gefs_pe_test 00:00:02 -- baseline 01:20:00
-08/10 00:29:54Z -Runtime: rap_test 00:00:04 -- baseline 00:02:00
-08/10 00:29:54Z -Runtime: rap_pe_test 00:00:15 -- baseline 00:02:00
-08/10 00:29:55Z -Runtime: hrrr_test 00:00:04 -- baseline 00:02:00
-08/10 00:29:55Z -Runtime: hrrr_pe_test 00:00:03 -- baseline 00:02:00
-08/10 00:29:55Z -Runtime: fv3gfs_test 00:01:33 -- baseline 00:18:00
-08/10 00:29:55Z -Runtime: fv3gfs_pe_test 00:01:54 -- baseline 00:18:00
-08/10 00:29:55Z -Runtime: fv3r_test 00:00:55 -- baseline 00:03:00
-08/10 00:29:55Z -Runtime: fv3r_pe_test 00:00:03 -- baseline 00:03:00
-08/10 00:29:55Z -Runtime: fv3hafs_test 00:00:05 -- baseline 00:00:40
-08/10 00:29:55Z -Runtime: fv3hafs_pe_test 00:00:04 -- baseline 00:00:40
-08/10 00:29:55Z -Runtime: rtma_test 00:00:03 -- baseline 00:04:00
-08/10 00:29:55Z -Runtime: rtma_pe_test 00:00:02 -- baseline 00:04:00
+08/10 00:55:52Z -nmmb test: post failed using your new post executable to generate BGDAWP03.tm00.Grib2
+08/10 00:55:52Z -nmmb test: post failed using your new post executable to generate BGRD3D03.tm00.Grib2
+08/10 00:55:52Z -nmmb test: post failed using your new post executable to generate BGRDSF03.tm00.Grib2
+08/10 00:55:54Z -nmmb pe test: post failed using your new post executable to generate BGDAWP03.tm00.Grib2
+08/10 00:55:54Z -nmmb pe test: post failed using your new post executable to generate BGRD3D03.tm00.Grib2
+08/10 00:55:54Z -nmmb pe test: post failed using your new post executable to generate BGRDSF03.tm00.Grib2
+08/10 00:57:58Z -fv3r pe test: post failed using your new post executable to generate PRSLEV10.tm00
+08/10 00:57:58Z -fv3r pe test: post failed using your new post executable to generate NATLEV10.tm00
+08/10 00:57:58Z -fv3r test: post failed using your new post executable to generate PRSLEV10.tm00
+08/10 00:57:58Z -rap pe test: post failed using your new post executable to generate WRFPRS.GrbF16
+08/10 00:57:58Z -fv3r test: post failed using your new post executable to generate NATLEV10.tm00
+08/10 00:57:58Z -rap pe test: post failed using your new post executable to generate WRFNAT.GrbF16
+08/10 00:57:59Z -hrrr pe test: post failed using your new post executable to generate WRFTWO.GrbF04
+08/10 00:57:59Z -hrrr pe test: post failed using your new post executable to generate WRFPRS.GrbF04
+08/10 00:57:59Z -hrrr pe test: post failed using your new post executable to generate WRFNAT.GrbF04
+08/10 00:58:00Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.master.grb2f006
+08/10 00:58:00Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.sfluxgrbf006.grib2
+08/10 00:58:00Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.special.grb2f006
+08/10 00:58:02Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.master.grb2f006
+08/10 00:58:02Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.sfluxgrbf006.grib2
+08/10 00:58:02Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.special.grb2f006
+08/10 00:58:30Z -rtma pe test: post failed using your new post executable to generate NATLEV00.tm00
+08/10 00:58:30Z -rtma pe test: post failed using your new post executable to generate PRSLEV00.tm00
+08/10 00:58:30Z -rtma pe test: post failed using your new post executable to generate IFIFIP00.tm00
+08/10 00:58:30Z -rap test: post failed using your new post executable to generate WRFPRS.GrbF16
+08/10 00:58:30Z -rap test: post failed using your new post executable to generate WRFNAT.GrbF16
+08/10 00:58:30Z -fv3gefs test: post failed using your new post executable to generate geaer.t00z.master.grb2f060
+08/10 00:58:30Z -rtma test: post failed using your new post executable to generate NATLEV00.tm00
+08/10 00:58:30Z -hrrr test: post failed using your new post executable to generate WRFTWO.GrbF04
+08/10 00:58:30Z -rtma test: post failed using your new post executable to generate PRSLEV00.tm00
+08/10 00:58:30Z -hrrr test: post failed using your new post executable to generate WRFPRS.GrbF04
+08/10 00:58:30Z -rtma test: post failed using your new post executable to generate IFIFIP00.tm00
+08/10 00:58:30Z -hrrr test: post failed using your new post executable to generate WRFNAT.GrbF04
+08/10 00:58:31Z -fv3gefs pe test: post failed using your new post executable to generate geaer.t00z.master.grb2f060
+08/10 00:58:31Z -fv3hafs test: post failed using your new post executable to generate HURPRS09.tm00
+08/10 00:58:31Z -fv3hafs pe test: post failed using your new post executable to generate HURPRS09.tm00
+08/10 00:56:02Z -Runtime: nmmb_test 00:00:34 -- baseline 00:03:00
+08/10 00:56:02Z -Runtime: nmmb_pe_test 00:00:37 -- baseline 00:03:00
+08/10 00:58:32Z -Runtime: fv3gefs_test 00:00:02 -- baseline 01:20:00
+08/10 00:58:32Z -Runtime: fv3gefs_pe_test 00:00:03 -- baseline 01:20:00
+08/10 00:58:32Z -Runtime: rap_test 00:00:02 -- baseline 00:02:00
+08/10 00:58:32Z -Runtime: rap_pe_test 00:00:03 -- baseline 00:02:00
+08/10 00:58:32Z -Runtime: hrrr_test 00:00:02 -- baseline 00:02:00
+08/10 00:58:32Z -Runtime: hrrr_pe_test 00:00:04 -- baseline 00:02:00
+08/10 00:58:32Z -Runtime: fv3gfs_test 00:00:05 -- baseline 00:18:00
+08/10 00:58:32Z -Runtime: fv3gfs_pe_test 00:00:07 -- baseline 00:18:00
+08/10 00:58:32Z -Runtime: fv3r_test 00:00:03 -- baseline 00:03:00
+08/10 00:58:33Z -Runtime: fv3r_pe_test 00:00:03 -- baseline 00:03:00
+08/10 00:58:33Z -Runtime: fv3hafs_test 00:00:04 -- baseline 00:00:40
+08/10 00:58:33Z -Runtime: fv3hafs_pe_test 00:00:04 -- baseline 00:00:40
+08/10 00:58:33Z -Runtime: rtma_test 00:00:02 -- baseline 00:04:00
+08/10 00:58:33Z -Runtime: rtma_pe_test 00:00:02 -- baseline 00:04:00
 No changes in test results detected.
 ===== End of UPP Regression Testing Log =====
