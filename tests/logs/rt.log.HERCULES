@@ -1,51 +1,23 @@
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
-aedc5214ad36048047ed169e81af6215bc9da558
+0b28b8f8829d4bba127009fffaf1d617ef9d0bbf
 
 Submodule hashes:
 -1ba8270870947b583cd51bc72ff8960f4c1fb36e sorc/libIFI.fd
 -567edcc94bc418d0dcd6cdaafed448eeb5aab570 sorc/ncep_post.fd/post_gtg.fd
 
-Run directory: /work/noaa/epic/role-epic/jenkins/workspace/UPP_UPP-Pipeline_PR-1007_2__2/ci/rundir/upp-HERCULES
+Run directory: /work/noaa/epic/role-epic/jenkins/workspace/UPP_UPP-Pipeline_PR-1007_2/ci/rundir/upp-HERCULES
 Baseline directory: /work/noaa/epic/UPP
 
-Total runtime: 00h:11m:17s
-Test Date: 20240810 23:32:15
+Total runtime: 00h:45m:36s
+Test Date: 20240811 00:17:35
 Summary Results:
 
-08/11 04:29:08Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.master.grb2f006
-08/11 04:29:08Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.sfluxgrbf006.grib2
-08/11 04:29:08Z -fv3gfs test: post failed using your new post executable to generate gfs.t00z.special.grb2f006
-08/11 04:29:08Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.master.grb2f006
-08/11 04:29:08Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.sfluxgrbf006.grib2
-08/11 04:29:08Z -fv3gfs pe test: post failed using your new post executable to generate gfs.t00z.special.grb2f006
-08/11 04:29:31Z -fv3r pe test: post failed using your new post executable to generate PRSLEV10.tm00
-08/11 04:29:31Z -fv3r pe test: post failed using your new post executable to generate NATLEV10.tm00
-08/11 04:29:31Z -hrrr pe test: post failed using your new post executable to generate WRFTWO.GrbF04
-08/11 04:29:31Z -hrrr pe test: post failed using your new post executable to generate WRFPRS.GrbF04
-08/11 04:29:31Z -hrrr pe test: post failed using your new post executable to generate WRFNAT.GrbF04
-08/11 04:29:45Z -rtma test: post failed using your new post executable to generate NATLEV00.tm00
-08/11 04:29:45Z -rtma test: post failed using your new post executable to generate PRSLEV00.tm00
-08/11 04:29:45Z -rtma test: post failed using your new post executable to generate IFIFIP00.tm00
-08/11 04:29:54Z -fv3r test: post failed using your new post executable to generate PRSLEV10.tm00
-08/11 04:29:54Z -fv3r test: post failed using your new post executable to generate NATLEV10.tm00
-08/11 04:30:14Z -rtma pe test: post failed using your new post executable to generate NATLEV00.tm00
-08/11 04:30:14Z -rtma pe test: post failed using your new post executable to generate PRSLEV00.tm00
-08/11 04:30:14Z -rtma pe test: post failed using your new post executable to generate IFIFIP00.tm00
-08/11 04:31:05Z -hrrr test: post failed using your new post executable to generate WRFTWO.GrbF04
-08/11 04:31:05Z -hrrr test: post failed using your new post executable to generate WRFPRS.GrbF04
-08/11 04:31:05Z -hrrr test: post failed using your new post executable to generate WRFNAT.GrbF04
-08/11 04:31:41Z -fv3hafs test: post failed using your new post executable to generate HURPRS09.tm00
-08/11 04:32:13Z -fv3hafs pe test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
-08/11 04:31:14Z -Runtime: hrrr_test 00:03:50 -- baseline 00:02:00
-08/11 04:31:14Z -Runtime: hrrr_pe_test 00:02:16 -- baseline 00:02:00
-08/11 04:31:14Z -Runtime: fv3gfs_test 00:01:53 -- baseline 00:18:00
-08/11 04:31:14Z -Runtime: fv3gfs_pe_test 00:01:53 -- baseline 00:18:00
-08/11 04:31:14Z -Runtime: fv3r_test 00:02:39 -- baseline 00:03:00
-08/11 04:31:14Z -Runtime: fv3r_pe_test 00:02:16 -- baseline 00:03:00
-08/11 04:31:44Z -Runtime: fv3hafs_test 00:00:05 -- baseline 00:00:40
-08/11 04:32:14Z -Runtime: fv3hafs_pe_test 00:00:31 -- baseline 00:00:40
-08/11 04:32:14Z -Runtime: rtma_test 00:02:30 -- baseline 00:04:00
-08/11 04:32:14Z -Runtime: rtma_pe_test 00:02:59 -- baseline 00:04:00
+08/11 05:17:22Z -fv3hafs pe test: post failed using your new post executable to generate HURPRS09.tm00
+08/11 05:17:22Z -fv3hafs test: post failed using your new post executable to generate HURPRS09.tm00
+08/11 05:17:35Z -Runtime: fv3hafs_test 00:00:04 -- baseline 00:00:40
+08/11 05:17:35Z -Runtime: fv3hafs_pe_test 00:00:04 -- baseline 00:00:40
+08/11 05:17:35Z -Runtime: rtma_test 00:02:16 -- baseline 00:04:00
+08/11 05:17:35Z -Runtime: rtma_pe_test 00:02:22 -- baseline 00:04:00
 No changes in test results detected.
 ===== End of UPP Regression Testing Log =====
