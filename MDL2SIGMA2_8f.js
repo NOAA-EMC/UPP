@@ -1,4 +1,4 @@
 var MDL2SIGMA2_8f =
 [
-    [ "MDL2SIGMA2", "MDL2SIGMA2_8f.html#a8085476f04d9013994e9a0d34b866745", null ]
+    [ "mdl2sigma2", "MDL2SIGMA2_8f.html#ad886e8847638f3d8072855e3bcbd4828", null ]
 ];
