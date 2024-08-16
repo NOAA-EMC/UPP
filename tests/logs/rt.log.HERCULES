@@ -65,5 +65,6 @@ Summary Results:
 08/11 17:35:46Z -Runtime: fv3hafs_pe_test 00:00:31 -- baseline 00:00:40
 08/11 17:35:46Z -Runtime: rtma_test 00:02:23 -- baseline 00:04:00
 08/11 17:35:46Z -Runtime: rtma_pe_test 00:02:20 -- baseline 00:04:00
+
 No changes in test results detected.
 ===== End of UPP Regression Testing Log =====

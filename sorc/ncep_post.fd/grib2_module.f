@@ -10,6 +10,7 @@
 !> July  2021   | Jesse Meng | 2D decomsition
 !> June  2022   | Lin Zhu    | Change the dx/dy to reading in from calculating for latlon grid
 !> January 2023 | Sam Trahan | Foot & meter unit conversions for IFI
+!> August 2024  | Li Pan     | Enable template 4-49 to obtain aerosol ensemble information
 !-------------------------------------------------------------------------
   module grib2_module
 !
@@ -497,7 +498,8 @@
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
                            g2sec4_temp0,g2sec4_temp8,g2sec4_temp9,g2sec4_temp44,         &
                            g2sec4_temp46,g2sec4_temp48,g2sec5_temp0,g2sec5_temp2,        &
-                           g2sec5_temp3,g2sec5_temp40,get_g2_sec5packingmethod       
+                           g2sec5_temp3,g2sec5_temp40,get_g2_sec5packingmethod,          &
+			   g2sec4_temp49
     !use gdtsec3, only: getgdtnum
     implicit none
 !
@@ -520,6 +522,7 @@
     integer, parameter :: ipdstmp4_44len=21
     integer, parameter :: ipdstmp4_46len=35
     integer, parameter :: ipdstmp4_48len=26
+    integer, parameter :: ipdstmp4_49len=29
 !
     integer, parameter :: idrstmplenmax=50
     integer, parameter :: idrstmp5_0len=5
@@ -592,6 +595,8 @@
         pset%param(nprm)%pdstmpl='tmpl4_1'
       elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
         pset%param(nprm)%pdstmpl='tmpl4_11'
+      elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_48') then
+        pset%param(nprm)%pdstmpl='tmpl4_49'	
       endif
     endif
 !
@@ -983,6 +988,35 @@
               ipdstmpl(1:ipdstmpllen))
 !       print *,'aft g2sec4_temp48,name=',trim(pset%param(nprm)%shortname),&
 !          'ipdstmpl48=',ipdstmpl(1:ipdstmp4_48len)
+
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_49') then
+!
+         ipdsnum=49
+         ipdstmpllen=ipdstmp4_49len
+         call g2sec4_temp49(icatg,iparm,pset%param(nprm)%aerosol_type, &
+              pset%param(nprm)%typ_intvl_size,                 &
+              pset%param(nprm)%scale_fact_1st_size,            &
+              pset%param(nprm)%scale_val_1st_size,             &
+              pset%param(nprm)%scale_fact_2nd_size,            &
+              pset%param(nprm)%scale_val_2nd_size,             &
+              pset%param(nprm)%typ_intvl_wvlen,                &
+              pset%param(nprm)%scale_fact_1st_wvlen,           &
+              pset%param(nprm)%scale_val_1st_wvlen,            &
+              pset%param(nprm)%scale_fact_2nd_wvlen,           &
+              pset%param(nprm)%scale_val_2nd_wvlen,            &
+              pset%gen_proc_type,                              &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr,                       &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              pset%param(nprm)%fixed_sfc2_type,                &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+	      pset%type_ens_fcst,perturb_num,num_ens_fcst,     &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp49,name=',trim(pset%param(nprm)%shortname),&
+!          'ipdstmpl49=',ipdstmpl(1:ipdstmp4_49len)
 
       endif
 
