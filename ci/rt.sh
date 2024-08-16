@@ -5,7 +5,6 @@
 # Fernando Andrade-Maldonado 5/2023 rework for CLI Options
 # Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
-# sample change
 ######################################################################
 
 SECONDS=0
