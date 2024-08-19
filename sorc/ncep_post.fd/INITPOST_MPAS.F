@@ -126,7 +126,7 @@
 !
       ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
       ALLOCATE ( DUM3D ( IM+1, JM+1, LM+1 ) )
-      WRITE(6,*)'INITPOST:  ENTER INITPOST'
+      WRITE(6,*)'INITPOST_MPAS:  ENTER INITPOST_MPAS'
 !     
       gridtype='A'
       hbotd=0
@@ -223,7 +223,7 @@
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
       ifhr=nint(rinc(2)+rinc(1)*24.)
       ifmin=nint(rinc(3))
-      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
+      print*,' in INITPOST_MPAS ifhr ifmin fileName=',ifhr,ifmin,fileName
 !  OK, since all of the variables are dimensioned/allocated to be
 !  the same size, this means we have to be careful int getVariable
 !  to not try to get too much data.  For example, 
@@ -2935,7 +2935,7 @@ endif  ! 1==2
 !!
 !! 
 !!
-        write(6,*) 'filename in INITPOST=', filename,' is'
+        write(6,*) 'filename in INITPOST_MPAS=', filename,' is'
 
 !	status=nf_open(filename,NF_NOWRITE,ncid)
 !	        write(6,*) 'returned ncid= ', ncid
