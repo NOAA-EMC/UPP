@@ -37,6 +37,7 @@
 !> 2023-05-20 | Rahul Mahajan             | Bug fix for fileNameFlat as namelist configurable
 !> 2023-08-16 | Yali Mao                  | Add gtg_on logical option
 !> 2023-11-29 | Eric James                | Add method_blsn logical option
+!> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -570,7 +571,11 @@
  
         IF(TRIM(IOFORM) == 'netcdf' .OR. TRIM(IOFORM) == 'netcdfpara') THEN
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
-            CALL INITPOST
+            IF (SUBMODELNAME == 'MPAS') THEN
+              CALL INITPOST_MPAS
+            ELSE
+              CALL INITPOST
+            ENDIF
           ELSE IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
 ! use parallel netcdf library to read output directly
             CALL INITPOST_NETCDF(ncid2d,ncid3d)
