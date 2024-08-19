@@ -132,8 +132,6 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
    if (SUBMODELNAME=='MPAS') then
    ! For MPAS: determine the fill value associated with the variable
      call ext_ncd_get_var_ti_real(dh,"_FillValue",TRIM(VarName),FillValue,1,OutCount,ierr)
-     !if (VarName=='T') print*, 'JSK: T fill is ',Fillvalue
-     !if (VarName=='P_HYD') print*, 'JSK: P_HYD fill is ',Fillvalue
      do l=1,lm1
        ll=lm1-l+1  ! flip the z axis not sure about soil
        do i=1,im1
