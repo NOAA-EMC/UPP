@@ -1016,10 +1016,10 @@
                max(1.e-6,(ALPINT(I,J,L+1)-ALPINT(I,J,L)))  
           ZMID(I,J,L)=ZINT(I,J,L)+(ZINT(I,J,L+1)-ZINT(I,J,L))*FACT
           dummy(i,j)=ZMID(I,J,L)
-         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) < 1.e-6) print*,       &
-                 'P(K+1) and P(K) are too close, i,j,L,',             &
-                 'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',             &
-                  i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
+         !if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) < 1.e-6) print*,       &
+         !        'P(K+1) and P(K) are too close, i,j,L,',             &
+         !        'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',             &
+         !         i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
          ENDDO
         ENDDO
        print*,'max/min ZMID= ',l,maxval(dummy),minval(dummy)
