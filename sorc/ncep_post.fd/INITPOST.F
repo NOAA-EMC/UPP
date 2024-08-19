@@ -257,11 +257,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             t ( i, j, l ) = dum3d ( i, j, l ) + 300.
-! JSK (2 Aug 2024): The VarName 'T' is the perturbation potential
-! temperature; the addition of 300 K yields the full potential
-! temperature. Further below, after the read-in of hydrostatic 
-! pressure, the potential temperature array is converted to ordinary 
-! temperature, but remains designated as "T".
+!MEB  this is theta the 300 is my guess at what T0 is 
         end do
        end do
       end do
@@ -1015,10 +1011,10 @@
                max(1.e-6,(ALPINT(I,J,L+1)-ALPINT(I,J,L)))  
           ZMID(I,J,L)=ZINT(I,J,L)+(ZINT(I,J,L+1)-ZINT(I,J,L))*FACT
           dummy(i,j)=ZMID(I,J,L)
-         !if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) < 1.e-6) print*,       &
-         !        'P(K+1) and P(K) are too close, i,j,L,',             &
-         !        'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',             &
-         !         i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
+         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) < 1.e-6) print*,       &
+                 'P(K+1) and P(K) are too close, i,j,L,',             &
+                 'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',             &
+                  i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
          ENDDO
         ENDDO
        print*,'max/min ZMID= ',l,maxval(dummy),minval(dummy)
@@ -3061,8 +3057,7 @@ endif  ! 1==2
 
 !need to get period of time for precipitation buckets
       call ext_ncd_get_dom_ti_real(DataHandle,'PREC_ACC_DT',tmp,1,ioutcount,istatus)
-      !prec_acc_dt=abs(tmp)
-      prec_acc_dt=60.0 ! for MPAS
+      prec_acc_dt=abs(tmp)
       print*,'PREC_ACC_DT= ',prec_acc_dt
 
 !need to get period of time for precipitation bucket 1 (15-min precip)
