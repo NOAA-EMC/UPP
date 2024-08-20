@@ -54,6 +54,7 @@
 !> 2024-04-23 | Eric James    | Updating smoke emissions to be 3D variable (ebu_smoke)
 !> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
 !> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
+!> 2024-08-20 | Eric James    | Enable reading of seasonal max/min green vegetation fraction
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
