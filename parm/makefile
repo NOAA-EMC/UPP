@@ -26,6 +26,9 @@ ALL_TXT= \
   ./gfs/postxconfig-NT-gfs-flux-f00.txt \
   ./gfs/postxconfig-NT-gfs-two.txt \
   ./gfs/postxconfig-NT-gfs-f00-two.txt \
+  ./gfs/postxconfig-NT-gfs-wafs-anl.txt \
+  ./gfs/postxconfig-NT-gfs-wafs-ext.txt \
+  ./gfs/postxconfig-NT-gfs-wafs.txt \
   ./gefs/postxconfig-NT-gefs.txt \
   ./gefs/postxconfig-NT-gefs-f00.txt \
   ./gefs/postxconfig-NT-gefs-aerosol.txt \
@@ -59,6 +62,9 @@ clean:
 ./gfs/postxconfig-NT-gfs-flux-f00.txt:      ./gfs/postcntrl_gfs_flux_f00.xml      post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-two.txt:           ./gfs/postcntrl_gfs_two.xml           post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
+./gfs/postxconfig-NT-gfs-wafs-anl.txt:      ./gfs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
+./gfs/postxconfig-NT-gfs-wafs-ext.txt:      ./gfs/postcntrl_gfs_wafs_ext.xml      post_avblflds.xml
+./gfs/postxconfig-NT-gfs-wafs.txt:          ./gfs/postcntrl_gfs_wafs.xml          post_avblflds.xml
 ./gefs/postxconfig-NT-gefs.txt:             ./gefs/postcntrl_gefs.xml             post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00.txt:         ./gefs/postcntrl_gefs_f00.xml         post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
