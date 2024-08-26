@@ -3199,6 +3199,16 @@
        </param>
 
        <param>
+       <shortname>VEG_MIN_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>VEG_MAX_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>INST_CSDSF_ON_SURFACE</shortname>
        <pname>CSDSF</pname>
        <table_info>NCEP</table_info>
