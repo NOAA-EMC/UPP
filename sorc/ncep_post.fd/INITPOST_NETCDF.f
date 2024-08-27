@@ -56,7 +56,7 @@
 !> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
 !> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
-!> 2024-08-26 | Karina Asmar  | Add 6-hourly u/v, speed max wind components at 10m agl
+!> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -2003,18 +2003,18 @@
       if (modelname=='FV3R') then
         VarName='spd10max'  ! hourly max wind speed at 10m
       else if (modelname=='GFS') then
-        VarName='wind10m_max' ! 6-hourly max wind speed at 10m
+        VarName='wind10m_max' ! temporal max wind speed at 10m
       endif
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10max)
      if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
 
-! max 6-hourly u comp of 10m agl wind
+! max temporal u comp of 10m agl wind
       VarName='u10m_max'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10umax)
      if(debugprint)print*,'sample ',VarName,' = ',u10max(isa,jsa)
-! max 6-hourly v comp of 10m agl wind
+! max temporal v comp of 10m agl wind
       VarName='v10m_max'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10vmax)
