@@ -134,9 +134,6 @@
       ,T10M(:,:) &         !< Temperature at 10 meters above ground
       ,U10MAX(:,:) &       !< Maximum hourly zonal (u-) wind speed at 10 meters above ground level
       ,V10MAX(:,:) &       !< Maximum hourly meridional (v-) wind speed at 10 meters above ground level
-      ,U10MAX6HR(:,:) &    !< Maximum 6-hourly zonal (u-) wind speed at 10 meters above ground level
-      ,V10MAX6HR(:,:) &    !< Maxmimum 6-hourly meridional (v-) wind speed at 10 meters above ground level
-      ,WSPDMAX6HR(:,:) &   !< Maximum 6-hourly wind speed at 10 meters above ground level
       ,u10h(:,:) &         !< Hourly zonal (u-) wind speed at 10 meters above ground level
       ,v10h(:,:) &         !< Hourly meridional (v-) wind speed at 10 meters above ground level
       ,PRATE_MAX(:,:) &    !< Maximum precipitation rate in mm/h

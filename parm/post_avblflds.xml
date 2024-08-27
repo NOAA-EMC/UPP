@@ -8479,43 +8479,5 @@
        <scale>3.0</scale>
     </param>
 
-    <param>
-       <post_avblfldidx>1021</post_avblfldidx>
-       <shortname>MAX_UWIND_ON_SPEC_HGT_ABOVE_GRND_10m_6hr</shortname>
-       <longname>U Component of 6-Hourly Maximum Wind Speed at 10m (m/s)</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>MAXUW</pname>
-       <table_info>NCEP</table_info>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>10.</level>
-       <scale>-4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>1022</post_avblfldidx>
-       <shortname>MAX_VWIND_ON_SPEC_HGT_ABOVE_GRND_10m_6hr</shortname>
-       <longname>V Component of 6-Hourly Maximum Wind Speed at 10m (m/s)</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>MAXVW</pname>
-       <table_info>NCEP</table_info>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>10.</level>
-       <scale>-4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>1023</post_avblfldidx>
-       <shortname>MAX_WNDSPD_ON_SPEC_HGT_ABOVE_GRND_10m_6hr</shortname>
-       <longname>6-Hourly Maximum Wind Speed at 10m (m/s)</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>MAXGUST</pname>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>10.</level>
-       <scale>-4.0</scale>
-    </param> 
-
   </post_avblflds>
 </postxml>

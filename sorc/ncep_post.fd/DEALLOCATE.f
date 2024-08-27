@@ -14,7 +14,6 @@
 !> 2023-04-04 |Li(Kate Zhang)| Add namelist optoin for CCPP-Chem
 !(UFS-Chem) and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-08-16 | Yali Mao     | Add CIT to GTG fields. Add namelist optoin of gtg_on
-!> 2024-08-20 | Karina Asmar | Add 6-hourly max winds at 10m agl
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 
@@ -192,9 +191,6 @@
       deallocate(v10max)
       deallocate(u10h)
       deallocate(v10h)
-      deallocate(u10max6hr)
-      deallocate(v10max6hr)
-      deallocate(wspdmax6hr)
       deallocate(akms)
       deallocate(akhs)
       deallocate(cuprec)

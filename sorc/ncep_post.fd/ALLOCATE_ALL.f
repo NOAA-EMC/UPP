@@ -27,7 +27,6 @@
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !! -  23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
 !! -  23-08-16  Yali Mao - Make it optional to allocate GTG related fields only when gtg_on
-!! - 24-08-20   Karina Asmar - Allocate 6-hourly max winds at 10m
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
 !!
@@ -572,9 +571,6 @@
       allocate(v10max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(u10h(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(v10h(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(u10max6hr(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(v10max6hr(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(wspdmax6hr(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -589,9 +585,6 @@
           v10max(i,j)=spval
           u10h(i,j)=spval
           v10h(i,j)=spval
-	  u10max6hr(i,j)=spval
-          v10max6hr(i,j)=spval
-          wspdmax6hr(i,j)=spval
         enddo
       enddo
 !NAMend
