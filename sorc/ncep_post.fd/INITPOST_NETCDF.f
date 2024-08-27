@@ -1999,8 +1999,12 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,v10max)
      if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
-! max hourly 10m agl wind speed
-      VarName='spd10max'
+! max 10m agl wind speed
+      if (modelname=='FV3R') then
+        VarName='spd10max'  ! hourly max wind speed at 10m
+      else if (modelname=='GFS') then
+        VarName='wind10m_max' ! 6-hourly max wind speed at 10m
+      endif
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10max)
      if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
@@ -2015,11 +2019,6 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10vmax)
      if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
-! max 6-hourly 10m agl wind speed
-      VarName='wind10m_max'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,wspd10max)
-     if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
