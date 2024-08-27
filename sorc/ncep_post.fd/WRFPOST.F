@@ -384,6 +384,12 @@
 ! Read and set global value for surface physics scheme
           call ext_ncd_get_dom_ti_integer(DataHandle                      &
             ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
+
+          ! J. Kenyon / 23 Aug 2024: GSL MPAS output erroneously
+          ! indicates SF_SURFACE_PHYSICS = 0 (should be 3), so overwrite
+          ! here:
+          if (modelname == 'RAPR' .and. submodelname == 'MPAS') itmp = 3 
+
           iSF_SURFACE_PHYSICS = itmp
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme

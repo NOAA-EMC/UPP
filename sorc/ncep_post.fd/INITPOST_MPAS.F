@@ -2,7 +2,7 @@
 !> @brief initpost() initializes post for run.
 !>
 !> @author Russ Treadon W/NP2 @date 1993-11-10
-
+!
 !> This routine initializes constants and
 !> variables at the start of an ETA model or post
 !> processor run.
@@ -1190,7 +1190,8 @@
 
         call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp,                &      
           1,ioutcount,istatus)
-        dxval=nint(tmp)
+        !dxval=nint(tmp)
+        dxval=tmp*gdsdegr
         write(6,*) 'dxval= ', dxval
 #ifdef COMMCODE
       IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')THEN
@@ -1373,9 +1374,14 @@ endif  ! 1==2
 
       ! RUC LSM - use depths of center of soil layer
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
-       call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
-        NSOIL,1,1,1,NSOIL,1,1,1)
-       print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
+      ! call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
+      !  NSOIL,1,1,1,NSOIL,1,1,1)
+      ! print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
+
+      ! J. Kenyon / 23 Aug 2024: Assign depths of soil levels for 
+      ! RUC LSM until the 'ZS' array (from MPASSIT) can be correctly read.
+      ! A similar hard-coding approach is also used in INITPOST_NETCDF.
+        SLLEVEL = (/ 0.0, 0.01, 0.04, 0.1, 0.3, 0.6, 1.0, 1.6, 3.0 /)
       ELSE
        call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
@@ -2664,7 +2670,7 @@ endif  ! 1==2
               SNO ( i, j ) = dummy ( i, j )
            elseif( dummy ( i, j ) > 5000.0) then 
               SNO ( i, j ) = 5000.0
-              write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
+              !write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
            elseif( dummy ( i, j ) < 0.0 ) then 
               SNO ( i, j ) = 0.0
               write(*,*) 'negative SNOW=',i,j,dummy ( i, j )
@@ -2684,7 +2690,7 @@ endif  ! 1==2
               SI ( i, j ) = dummy ( i, j ) * 1000.
            elseif( dummy ( i, j ) > 50.0) then 
               SI ( i, j ) = 50.0 * 1000.
-              write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
+              !write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
            elseif( dummy ( i, j ) < 0.0 ) then 
               SI ( i, j ) = 0.0
               write(*,*) 'negative SNOWH=',i,j,dummy ( i, j )
@@ -2972,7 +2978,8 @@ endif  ! 1==2
 !        write(6,*) 'dxval= ', dxval
         call ext_ncd_get_dom_ti_real(DataHandle,'DY',tmp,                &
           1,ioutcount,istatus)
-        dyval=nint(tmp)
+        !dyval=nint(tmp)
+        dyval=tmp*gdsdegr
         write(6,*) 'dyval= ', dyval
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LAT',tmp,           &
           1,ioutcount,istatus)
@@ -3008,8 +3015,10 @@ endif  ! 1==2
 !MEB not sure how to get these 
        do j = jsta_2l, jend_2u
         do i = 1, im
-            DX ( i, j ) = dxval/MSFT(I,J)  
-            DY ( i, j ) = dyval/MSFT(I,J)  
+            !DX ( i, j ) = dxval/MSFT(I,J)  
+            !DY ( i, j ) = dyval/MSFT(I,J)  
+            DX ( i, j ) = dxval !JSK
+            DY ( i, j ) = dyval  
         end do
        end do
        ii=im/2
@@ -3028,11 +3037,11 @@ endif  ! 1==2
         end if
 
 !tgs Define smoothing flag for isobaric output 
-              IF(MODELNAME == 'RAPR')THEN
-                SMFLAG=.TRUE.
-              ELSE
-                SMFLAG=.FALSE.
-              ENDIF
+!              IF(MODELNAME == 'RAPR')THEN
+!                SMFLAG=.TRUE.
+!              ELSE
+!                SMFLAG=.FALSE.
+!              ENDIF
 
 ! generate look up table for lifted parcel calculations
 
@@ -3061,9 +3070,9 @@ endif  ! 1==2
       print*,'DT= ',DT
 
 !need to get period of time for precipitation buckets
-      call ext_ncd_get_dom_ti_real(DataHandle,'PREC_ACC_DT',tmp,1,ioutcount,istatus)
+      !call ext_ncd_get_dom_ti_real(DataHandle,'PREC_ACC_DT',tmp,1,ioutcount,istatus)
       !prec_acc_dt=abs(tmp)
-      prec_acc_dt=60.0 ! temporary hard-coding for MPAS
+      prec_acc_dt=360.0 ! temporary hard-coding for MPAS
       print*,'PREC_ACC_DT= ',prec_acc_dt
 
 !need to get period of time for precipitation bucket 1 (15-min precip)
@@ -3220,18 +3229,18 @@ endif  ! 1==2
 
 ! following for hurricane wrf post
      
-          open(10,file='copygb_hwrf.txt',form='formatted',status='unknown')
-          idxvald = abs(LONLAST-LONSTART)/(im-2)
-          idyvald = abs(LATLAST-LATSTART)/(jm-2)
-          print*,'dxval,dyval in degree',dxval/107000.,dyval/107000.
-          print*,'idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST= ', &
-                  idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST
-          write(10,1010) IM-1,JM-1,LATSTART,LONSTART,LATLAST,LONLAST,   &
-                         idxvald,idyvald
-
-1010      format('255 0 ',2(I4,x),I8,x,I9,x,'136 ',I8,x,I9,x,            &
-                 2(I8,x),'0')
-          close (10)
+!          open(10,file='copygb_hwrf.txt',form='formatted',status='unknown')
+!          idxvald = abs(LONLAST-LONSTART)/(im-2)
+!          idyvald = abs(LATLAST-LATSTART)/(jm-2)
+!          print*,'dxval,dyval in degree',dxval/107000.,dyval/107000.
+!          print*,'idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST= ', &
+!                  idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST
+!          write(10,1010) IM-1,JM-1,LATSTART,LONSTART,LATLAST,LONLAST,   &
+!                         idxvald,idyvald
+!
+!1010      format('255 0 ',2(I4,x),I8,x,I9,x,'136 ',I8,x,I9,x,            &
+!                 2(I8,x),'0')
+!          close (10)
         end if
 !     
       DEALLOCATE (THV)
@@ -3240,10 +3249,10 @@ endif  ! 1==2
 !
 ! convert  dxval, dyval from mtere to mm
 !
-      if (grib=="grib2" )then
-        dxval=dxval*1000.
-        dyval=dyval*1000.
-      endif
+      !if (grib=="grib2" )then
+      !  dxval=dxval*1000.
+      !  dyval=dyval*1000.
+      !endif
 !
 
       RETURN
