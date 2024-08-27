@@ -110,6 +110,6 @@ jobs:
           export FC=mpiifort
           cd UPP
           mkdir -p build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=../install ..
+          cmake -DENABLE_DOCS=ON -DCMAKE_INSTALL_PREFIX=../install ..
           make -j2 VERBOSE=1
           make install
