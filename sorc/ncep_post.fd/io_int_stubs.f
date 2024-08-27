@@ -134,6 +134,9 @@ subroutine int_gen_ti_header_c ( hdrbuf, hdrbufsize, itypesize, typesize, &
 END SUBROUTINE int_gen_ti_header_c
 
 
+subroutine ext_ncd_get_var_ti_real(DataHandle,Element,Var,Data,Count,OutCount,Status)
+  return
+end subroutine ext_ncd_get_var_ti_real
 
 
 
