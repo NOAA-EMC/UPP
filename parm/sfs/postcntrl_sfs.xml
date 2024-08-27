@@ -109,21 +109,6 @@
     </param>
 
     <param>
-       <shortname>MAX_UWIND_ON_SPEC_HGT_ABOVE_GRND_10m_6hr</shortname>
-       <scale>-4.0</scale>
-    </param>
-
-    <param>
-       <shortname>MAX_VWIND_ON_SPEC_HGT_ABOVE_GRND_10m_6hr</shortname>
-       <scale>-4.0</scale>
-    </param>
-
-    <param>
-       <shortname>MAX_WNDSPD_ON_SPEC_HGT_ABOVE_GRND_10m_6hr</shortname>
-       <scale>-4.0</scale>
-    </param>
-
-    <param>
        <shortname>PRES_ON_SURFACE</shortname>
        <scale>6.0</scale>
     </param>
@@ -670,6 +655,21 @@
        <shortname>AVE_NBDSF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>6.0</scale>
+    </param>
+
+    <param>
+        <shortname>MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+        <scale>-4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MAX_UGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+        <scale>-4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MAX_VGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+        <scale>-4.0</scale>
     </param>
 
     <!--  comments wherever I like -->

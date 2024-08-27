@@ -54,7 +54,7 @@
 !> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
 !> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
 !> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
-!> 2024-08-20 | K Asmar    | Add 6-hourly max wind u/v/speed at 10m agl
+!> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -108,8 +108,7 @@
                          frzrn_bucket, snow_acm, snow_bkt,                    &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
                          tecan,tetran,tedir,twa,IFI_APCP,xlaixy,              &
-                         smoke_ave,dust_ave,coarsepm_ave, u10max6hr,	      &
-			 v10max6hr, wspdmax6hr
+                         smoke_ave,dust_ave,coarsepm_ave
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -459,112 +458,6 @@
            endif
       ENDIF
 
-!
-! 6-HOURLY ANEMOMETER LEVEL (10 M) MAX U/V WINDS AND SPEED
-!
-      IF ((IGET(1021)>0) .OR. (IGET(1022)>0) .OR. (IGET(1023)>0)) THEN
-         ID(1:25) = 0
-         ITSRFC     = NINT(TSRFC)
-	if (ITSRFC /= 0) then
-         IFINCR     = MOD(IFHR,ITSRFC)
-         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
-	else
-	 IFINCR     = 0
-	endif
-         ID(18)     = 0
-         ID(19)     = IFHR
-	 IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
-         ID(20)     = 4
-         IF (IFINCR==0) THEN
-          ID(18) = IFHR-ITSRFC
-         ELSE
-          ID(18) = IFHR-IFINCR
-          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
-         ENDIF
-         IF (ID(18)<0) ID(18) = 0
-	 
-	 IF (IGET(1021)>0) THEN 
-!$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=ISTA,IEND
-               IF(U10MAX6HR(I,J) < SPVAL)THEN
-                 GRID1(I,J) = U10MAX6HR(I,J)
-               ELSE
-                 GRID1(I,J) = SPVAL
-               END IF
-             ENDDO
-           ENDDO
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(1021))
-            fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,ii,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,iend-ista+1
-              ii = ista+i-1
-                datapd(i,j,cfld) = GRID1(ii,jj)
-              enddo
-            enddo
-         endif
-       ENDIF
-
-       	 IF (IGET(1022)>0) THEN 
-!$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=ISTA,IEND
-               IF(V10MAX6HR(I,J) < SPVAL)THEN
-                 GRID1(I,J) = V10MAX6HR(I,J)
-               ELSE
-                 GRID1(I,J) = SPVAL
-               END IF
-             ENDDO
-           ENDDO
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(1022))
-            fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,ii,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,iend-ista+1
-              ii = ista+i-1
-                datapd(i,j,cfld) = GRID1(ii,jj)
-              enddo
-            enddo
-         endif
-       ENDIF
-
-       	 IF (IGET(1023)>0) THEN 
-!$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=ISTA,IEND
-               IF(WSPDMAX6HR(I,J) < SPVAL)THEN
-                 GRID1(I,J) = WSPDMAX6HR(I,J)
-               ELSE
-                 GRID1(I,J) = SPVAL
-               END IF
-             ENDDO
-           ENDDO
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(1023))
-            fld_info(cfld)%ntrange=1
-            fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,ii,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,iend-ista+1
-              ii = ista+i-1
-                datapd(i,j,cfld) = GRID1(ii,jj)
-              enddo
-            enddo
-         endif
-       ENDIF
-      ENDIF
-     
 !     ACCUMULATED DEPTH OF SNOWFALL
       IF (IGET(725)>0) THEN
          ID(1:25) = 0
@@ -2720,6 +2613,29 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED.
 !
       IF (IGET(422)>0) THEN
+         ID(1:25) = 0
+         ITSRFC     = NINT(TSRFC)
+	if (ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+	else
+	 IFINCR     = 0
+	endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+	 IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
+	 print*,'ifhr',ifhr
+  	 print*,'ifmin',ifmin
+  	 print*,'itsrfc',itsrfc
+  	 print*,'id 18',id(18)
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2729,12 +2645,8 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(422))
-           if (ifhr==0) then
-              fld_info(cfld)%tinvstat=0
-           else
-              fld_info(cfld)%tinvstat=1
-           endif
            fld_info(cfld)%ntrange=1
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -2749,6 +2661,25 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED U COMPONENT.
 !
       IF (IGET(783)>0) THEN 
+        ID(1:25) = 0
+         ITSRFC     = NINT(TSRFC)
+	if (ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+	else
+	 IFINCR     = 0
+	endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+	 IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2758,12 +2689,8 @@
          if(grib=='grib2') then 
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(783))
-           if (ifhr==0) then 
-              fld_info(cfld)%tinvstat=0
-           else 
-              fld_info(cfld)%tinvstat=1
-           endif
            fld_info(cfld)%ntrange=1
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -2778,6 +2705,25 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED V COMPONENT.
 !
       IF (IGET(784)>0) THEN
+        ID(1:25) = 0
+         ITSRFC     = NINT(TSRFC)
+	if (ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+	else
+	 IFINCR     = 0
+	endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+	 IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2787,11 +2733,7 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(784))
-           if (ifhr==0) then
-              fld_info(cfld)%tinvstat=0
-           else
-              fld_info(cfld)%tinvstat=1
-           endif
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
            fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
