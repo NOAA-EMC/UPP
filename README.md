@@ -1,5 +1,5 @@
 
-# Unified Post-Processing (UPP)
+# Unified Post Processor (UPP)
 
 The Unified Post Processor (UPP) software package is a software
 package designed to generate useful products from raw model
@@ -7,11 +7,11 @@ output.
 
 The UPP is currently used in operations with the Global Forecast
 System (GFS), GFS Ensemble Forecast System (GEFS), North American
-Mesoscale (NAM), Rapid Refresh (RAP), High Resolution Rapid Refresh
+Mesoscale (NAM), Rapid Refresh (RAP), High-Resolution Rapid Refresh
 (HRRR), Short Range Ensemble Forecast (SREF), and Hurricane WRF (HWRF)
-applications. It is also used in the Unified Forecasting System (UFS),
-including the Rapid Refresh Forecast System (RRFS), Hurricane Application
-Forecasting System (HAFS), and the Medium Range Weather (MRW) and Short 
+applications. It is also used in the Unified Forecast System (UFS),
+including the Rapid Refresh Forecast System (RRFS), Hurricane Analysis and
+Forecast System (HAFS), and the Medium-Range Weather (MRW) and Short-
 Range Weather (SRW) Applications.
 
 The UPP provides the capability to compute a variety of diagnostic
@@ -19,15 +19,14 @@ fields and interpolate to pressure levels or other vertical
 coordinates.
 
 UPP also incorporates the Joint Center for Satellite Data Assimilation
-(JCSDA) Community Radiative Transfer Model (CRTM) to compute model
-derived brightness temperature (TB) for various instruments and
+(JCSDA) Community Radiative Transfer Model (CRTM) to compute model-derived brightness temperature (TB) for various instruments and
 channels. This additional feature enables the generation of a number
 of simulated satellite products including GOES products.
 
 Output from the UPP is in National Weather Service (NWS) and World
 Meteorological Organization (WMO) GRIB2 format and can be used
-directly by visualization, plotting, or verification packages, or for
-further downstream post-processing, e.g. statistical post-processing
+directly by visualization, plotting, or verification packages or for
+further downstream post-processing, e.g., statistical post-processing
 techniques.
 
 Examples of UPP products include:
@@ -48,26 +47,24 @@ Examples of UPP products include:
 Support for the UFS UPP is provided through [GitHub Discussions](https://github.com/NOAA-EMC/UPP/discussions).
 
 ## Documentation 
-User Guide for latest public release: https://upp.readthedocs.io/en/latest/.
+User Guide for latest standalone public release: https://upp.readthedocs.io/en/latest/.
 
 Technical code-level documentation: https://noaa-emc.github.io/UPP/.
 
 ## Developer Information
-Please see review the [wiki](https://github.com/NOAA-EMC/UPP/wiki)
+Please review the [wiki](https://github.com/NOAA-EMC/UPP/wiki)
 
 ## Authors
 
 NCEP/EMC Developers
 
-Code Managers: Wen Meng, Huiya Chuang, Kate Fossell
+Code Managers: Wen Meng, Huiya Chuang, Fernando Andrade-Maldonado
 
 ## Prerequisites
 
 The UPP requires certain NCEPLIBS packages to be installed via the 
-HPC-Stack project. For instructions on installing these packages as a 
-bundle via HPC-Stack, see: https://hpc-stack.readthedocs.io/en/latest/.
-Users may instead install packages via spack-stack. For instructions,
-see: https://spack-stack.readthedocs.io/en/latest/.
+spack-stack project. For instructions on installing these packages as a 
+bundle via spack-stack, see: https://spack-stack.readthedocs.io/en/latest/.
 The `UPP/modulefiles` directory indicates which package versions are 
 used and supported on Level 1 systems. 
 
@@ -87,7 +84,6 @@ BUILD_POSTEXEC):
 - [NCEPLIBS-sigio](https://github.com/NOAA-EMC/NCEPLIBS-sigio)
 - [NCEPLIBS-sfcio](https://github.com/NOAA-EMC/NCEPLIBS-sfcio)
 - [NCEPLIBS-nemsio](https://github.com/NOAA-EMC/NCEPLIBS-nemsio)
-- [NCEPLIBS-gfsio](https://github.com/NOAA-EMC/NCEPLIBS-gfsio)
 
 The [NCEPLIBS-wrf_io](https://github.com/NOAA-EMC/NCEPLIBS-wrf_io)
 library is required to build with NCEPpost with WRF-IO library (cmake
@@ -110,7 +106,7 @@ Builds include:
 - Inline post (UPP library): Currently only supported for the GFS, RRFS,
   HAFS, and the UFS-MRW Application.
 
-- Offline post (UPP executable): Supported for Regional applications
+- Offline post (UPP executable): Supported for regional applications
   including SRW, RRFS, HAFS, and standalone applications of UPP.
 
 

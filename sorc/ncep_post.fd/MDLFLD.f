@@ -57,7 +57,11 @@
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
-!!   23-10-17 | E James | Include hail hydrometeors in VIL computation when available
+!!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
+!!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
+!!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
+!!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
+!!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -587,7 +591,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
       ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R' &
         .OR. MODELNAME == 'GFS') &
-        .and. imp_physics==8)THEN !NMMB or FV3R or GFS +THOMPSON
+        .and. (imp_physics==8 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB or FV3R or GFS +THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=ista,iend
@@ -4044,9 +4048,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
             ENDIF
 !	    
-! CALCULATE Gust based on Ri PBL
+! Calculate 10-m wind gust based on PBL height (as diagnosed from either Ri or theta-v) 
       IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
-        IF(MODELNAME=='RAPR') THEN
+        IF (MODELNAME=='RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
              if(grib=='grib2') then
@@ -4084,7 +4088,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          loopL:DO L=NINT(LMH(I,J)),1,-1
-          IF(MODELNAME=='RAPR') THEN
+          IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
            HGT=ZMID(I,J,L)
            PBLHOLD=PBLHGUST(I,J)
           ELSE
@@ -4104,7 +4108,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
         ENDDO
        ENDDO
-       IF(MODELNAME=='RAPR') THEN
+       IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
         CALL CALGUST(LPBL,PBLHGUST,GUST)
        ELSE
         CALL CALGUST(LPBL,PBLRI,GUST)
@@ -4205,7 +4209,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(gtg_on) then
+      IF(gtg_on .and. (IGET(464) > 0 .or. IGET(467) > 0 .or. IGET(470) > 0)) then
         i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
@@ -4225,7 +4229,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
         catedr(ista:iend,:,:),mwt(ista:iend,:,:),cit(ista:iend,:,:),&
-        gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
+        RICHNO(ista:iend,:,:),gtg(ista:iend,:,:),item)
 
         i=iend
         j=jend ! 321,541

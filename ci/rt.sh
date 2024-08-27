@@ -65,26 +65,27 @@ if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
  export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
- module use /scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env-noavx512/install/modulefiles/Core
+ module use /scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core
  module load stack-intel/2021.5.0
  module load stack-intel-oneapi-mpi/2021.5.1
- module load prod_util/1.2.2
+ module load prod_util/2.1.1
 elif [ $mac = O ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
- module use /work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.5.0/envs/unified-env/install/modulefiles/Core
+ module use /work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core
  module load stack-intel/2022.0.2
  module load stack-intel-oneapi-mpi/2021.5.1
- module load prod-util/1.2.2
+ module load prod_util/2.1.1
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
- module use /work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.5.0/envs/unified-env/install/modulefiles/Core
+ module use /work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core
  module load stack-intel/2021.9.0
  module load stack-intel-oneapi-mpi/2021.9.0
- module load prod-util/1.2.2
+ module load prod_util/2.1.1
+ module load stack-python/3.10.13
 fi
 
 #set working directory
@@ -236,12 +237,20 @@ for job_id in $jobid_list; do
 done
 
 python ${test_v}/ci/rt-status.py
+test_results=$?
 
 # Cleanup rt log
 cd ${test_v}/ci
 echo "rundir: ${rundir}" > rt.log.${machine}.temp
 cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
 cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
+python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
 cat rt.log.${machine}.temp > rt.log.${machine}
 rm rt.log.${machine}.temp
 mv rt.log.${machine} ${test_v}/tests/logs
+
+# should indicate failure to Jenkins
+if [ $test_results -ne 0 ]; then
+   python ${test_v}/ci/rt-status.py > changed_results.txt
+   exit 1
+fi

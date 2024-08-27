@@ -10,7 +10,7 @@ Glossary
       Convective Available Potential Energy. 
 
    CCPP
-      The `Common Community Physics Package <https://dtcenter.org/community-code/common-community-physics-package-ccpp>`_ is a forecast-model agnostic, vetted collection of code containing atmospheric physical parameterizations and suites of parameterizations for use in Numerical Weather Prediction (NWP) along with a framework that connects the physics to the host forecast model.
+      The `Common Community Physics Package <https://dtcenter.org/community-code/common-community-physics-package-ccpp>`_ is a forecast-model agnostic, vetted collection of code containing atmospheric physical parameterizations and suites of parameterizations for use in Numerical Weather Prediction (:term:`NWP`) along with a framework that connects the physics to the host forecast model.
 
    CIN
       Convective Inhibition.
@@ -19,7 +19,7 @@ Glossary
       The `Community Radiative Transfer Model <https://www.jcsda.org/jcsda-project-community-radiative-transfer-model>`__ (CRTM) is a fast and accurate radiative transfer model developed at the `Joint Center for Satellite Data Assimilation <https://www.jcsda.org/>`__ (JCSDA) in the United States. It is a sensor-based radiative transfer model and supports more than 100 sensors, including sensors on most meteorological satellites and some from other remote sensing satellites. 
 
    Component
-      A software element that has a clear function and interface. In Earth system models, components are often single portions of the Earth system (e.g. atmosphere, ocean, or land surface) that are assembled to form a whole.
+      A software element that has a clear function and interface. In Earth system models, components are often single portions of the Earth system (e.g., atmosphere, ocean, or land surface) that are assembled to form a whole.
 
    Component Repository
       A :term:`repository` that contains, at a minimum, source code for a single component.
@@ -58,7 +58,7 @@ Glossary
       Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/>`__ (GFDL), it is a scalable and flexible dycore capable of both hydrostatic and non-hydrostatic atmospheric simulations. It is the dycore used in the UFS Weather Model.
 
    GFS
-      `Global Forecast System <https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>`_. The GFS is a National Centers for Environmental Prediction (:term:`NCEP`) weather forecast model that generates data for dozens of atmospheric and land-soil variables, including temperatures, winds, precipitation, soil moisture, and atmospheric ozone concentration. The system couples four separate models (atmosphere, ocean, land/soil, and sea ice) that work together to accurately depict weather conditions.
+      The `Global Forecast System <https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>`__. The GFS is a National Centers for Environmental Prediction (:term:`NCEP`) weather forecast model that generates data for dozens of atmospheric and land-soil variables, including temperatures, winds, precipitation, soil moisture, and atmospheric ozone concentration. The system couples four separate models (atmosphere, ocean, land/soil, and sea ice) that work together to accurately depict weather conditions.
 
    GRIB2 
       The second version of the World Meterological Organization's (WMO) standard for distributing gridded data.  
@@ -67,10 +67,10 @@ Glossary
       `Gridpoint Statistical Interpolation <https://dtcenter.org/community-code/gridpoint-statistical-interpolation-gsi>`__ (GSI) is a variational data assimilation system, designed to be flexible, state-of-art, and run efficiently on various parallel computing platforms. It supports :term:`RRFS` features. GSI code is publicly available `on GitHub <https://github.com/NOAA-EMC/GSI>`__, and fix file data is publicly available `here <https://ftp.emc.ncep.noaa.gov/jcsda/WDQMS/NCEP/GSI-FIX/>`__. 
 
    HPC-Stack
-      The `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`__ is a repository that provides a unified, shell script-based build system for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufscommunity.org/>`__ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`__ framework. View the HPC-Stack documentation `here <https://hpc-stack-epic.readthedocs.io/en/latest/>`__.
+      `HPC-Stack <https://github.com/JCSDA/spack-stack>`__ is a repository that provides a unified, shell script-based build system for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufscommunity.org/>`__ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`__ framework. It is being phased out in favor of :term:`spack-stack`. `HPC-Stack documentation <https://hpc-stack-epic.readthedocs.io/en/latest/>`__ is available, but the repository and documentation is rarely updated since it is being deprecated.
 
    HRRR
-      `High Resolution Rapid Refresh <https://rapidrefresh.noaa.gov/hrrr/>`__. The HRRR is a NOAA real-time 3-km resolution, hourly updated, cloud-resolving, convection-allowing atmospheric model initialized by 3km grids with 3km radar assimilation. Radar data is assimilated in the HRRR every 15 min over a 1-h period adding further detail to that provided by the hourly data assimilation from the 13km radar-enhanced Rapid Refresh.
+      `High Resolution Rapid Refresh <https://rapidrefresh.noaa.gov/hrrr/>`__. The HRRR is a NOAA real-time 3-km resolution, hourly updated, cloud-resolving, convection-allowing atmospheric model initialized by 3-km grids with 3-km radar assimilation. Radar data is assimilated in the HRRR every 15 min over a 1-hour period adding further detail to that provided by the hourly data assimilation from the 13-km radar-enhanced Rapid Refresh.
 
    JCSDA
    Joint Center for Data Satellite Assimilation
@@ -115,7 +115,7 @@ Glossary
       The `National Weather Service <https://www.weather.gov/>`__ (NWS) is an agency of the United States government that is tasked with providing weather forecasts, warnings of hazardous weather, and other weather-related products to organizations and the public for the purposes of protection, safety, and general information. It is a part of the National Oceanic and Atmospheric Administration (NOAA) branch of the Department of Commerce.
 
    offline UPP
-      Refers to cases where UPP is built stand-alone and run separately from the model.
+      Refers to cases where UPP is built standalone and run separately from the model.
 
    RAP
       `Rapid Refresh <https://rapidrefresh.noaa.gov/>`__. The continental-scale NOAA hourly-updated assimilation/modeling system operational at :term:`NCEP`. RAP covers North America and is comprised primarily of a numerical forecast model and an analysis/assimilation system to initialize that model. RAP is complemented by the higher-resolution 3km High-Resolution Rapid Refresh (:term:`HRRR`) model.
@@ -137,7 +137,7 @@ Glossary
       `Spack <https://spack.readthedocs.io/en/latest/>`__ is a package management tool designed to support multiple versions and configurations of software on a wide variety of platforms and environments. It was designed for large supercomputing centers, where many users and application teams share common installations of software on clusters with exotic architectures. 
 
    spack-stack
-      The `spack-stack <https://github.com/NOAA-EMC/spack-stack>`__ is a collaborative effort between the NOAA Environmental Modeling Center (EMC), the UCAR Joint Center for Satellite Data Assimilation (JCSDA), and the Earth Prediction Innovation Center (EPIC). *spack-stack* is a repository that provides a :term:`Spack`-based method for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufscommunity.org/>`__ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`__ framework. *spack-stack* uses the Spack package manager along with custom Spack configuration files and Python scripts to simplify installation of the libraries required to run various applications. The *spack-stack* can be installed on a range of platforms and comes pre-configured for many systems. Users can install the necessary packages for a particular application and later add the missing packages for another application without having to rebuild the entire stack.
+      The `spack-stack <https://github.com/JCSDA/spack-stack>`__ is a collaborative effort between the NOAA Environmental Modeling Center (:term:`EMC`), the UCAR Joint Center for Satellite Data Assimilation (:term:`JCSDA`), and the Earth Prediction Innovation Center (:term:`EPIC`). *spack-stack* is a repository that provides a :term:`Spack`-based method for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufscommunity.org/>`__ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`__ framework. *spack-stack* uses the Spack package manager along with custom Spack configuration files and Python scripts to simplify installation of the libraries required to run various applications. The *spack-stack* can be installed on a range of platforms and comes pre-configured for many systems. Users can install the necessary packages for a particular application and later add the missing packages for another application without having to rebuild the entire stack.
 
    UFS
       The Unified Forecast System is a community-based, coupled, comprehensive Earth modeling 

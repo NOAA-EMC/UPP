@@ -28,7 +28,7 @@ g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 ip_ver=os.getenv("ip_ver") or "3.3.3"
 sp_ver=os.getenv("sp_ver") or "2.3.3"
-crtm_ver=os.getenv("crtm_ver") or "2.4.0"
+crtm_ver=os.getenv("crtm_ver") or "2.4.0.1"
 w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("g2", g2_ver))
 load(pathJoin("g2tmpl", g2tmpl_ver))
@@ -40,11 +40,9 @@ load(pathJoin("w3emc", w3emc_ver))
 
 nemsio_ver=os.getenv("nemsio_ver") or "2.5.2"
 sigio_ver=os.getenv("sigio_ver") or "2.3.2"
-sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
 wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("nemsio", nemsio_ver))
 load(pathJoin("sigio", sigio_ver))
-load(pathJoin("sfcio", sfcio_ver))
 load(pathJoin("wrf_io", wrf_io_ver))
 
 setenv("CC","cc")
