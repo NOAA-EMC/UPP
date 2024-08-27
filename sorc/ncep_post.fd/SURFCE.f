@@ -2632,10 +2632,6 @@
           IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18)<0) ID(18) = 0
-	 print*,'ifhr',ifhr
-  	 print*,'ifmin',ifmin
-  	 print*,'itsrfc',itsrfc
-  	 print*,'id 18',id(18)
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
