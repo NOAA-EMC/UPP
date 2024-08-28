@@ -2612,7 +2612,7 @@
 !
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED.
 !
-      IF ((IGET(422)>0) .OR. (IGET(783)>0) .OR. (IGET(784)>0)) THEN
+      IF (IGET(422)>0) THEN
         IF (MODELNAME == 'GFS') THEN
 	 ID(1:25) = 0
          ITSRFC     = NINT(TSRFC)
@@ -2634,9 +2634,6 @@
          ENDIF
          IF (ID(18)<0) ID(18) = 0
         ENDIF
-
-!        ANEMOMETER LEVEL (10 M) MAX WIND SPEED.
- 	IF (IGET(422)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2665,29 +2662,41 @@
              enddo
            enddo
          endif
- 	ENDIF
-
+      ENDIF
+!
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED U COMPONENT.
-        IF (IGET(783)>0) THEN
+!
+      IF (IGET(783)>0) THEN 
+        ID(1:25) = 0
+         ITSRFC     = NINT(TSRFC)
+	if (ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+	else
+	 IFINCR     = 0
+	endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+	 IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
              GRID1(I,J) = WSPD10UMAX(I,J)
            ENDDO
          ENDDO
-         if(grib=='grib2') then
+         if(grib=='grib2') then 
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(783))
            fld_info(cfld)%ntrange=1
-           IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN
-             if (ifhr==0) then
-              fld_info(cfld)%tinvstat=0
-             else
-              fld_info(cfld)%tinvstat=1
-             endif
-           ELSE IF (MODELNAME == 'GFS') THEN
-             fld_info(cfld)%tinvstat=IFHR-ID(18)
-           ENDIF
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -2697,10 +2706,30 @@
              enddo
            enddo
          endif
-        ENDIF
-
+      ENDIF
+!
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED V COMPONENT.
-       IF (IGET(784)>0) THEN
+!
+      IF (IGET(784)>0) THEN
+        ID(1:25) = 0
+         ITSRFC     = NINT(TSRFC)
+	if (ITSRFC /= 0) then
+         IFINCR     = MOD(IFHR,ITSRFC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+	else
+	 IFINCR     = 0
+	endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+	 IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+          ID(18) = IFHR-ITSRFC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2710,29 +2739,18 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(784))
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
            fld_info(cfld)%ntrange=1
-           IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN
-             if (ifhr==0) then
-              fld_info(cfld)%tinvstat=0
-             else
-              fld_info(cfld)%tinvstat=1
-             endif
-           ELSE IF (MODELNAME == 'GFS') THEN
-             fld_info(cfld)%tinvstat=IFHR-ID(18)
-           ENDIF
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
              do i=1,iend-ista+1
              ii = ista+i-1
-               datapd(i,j,cfld) = GRID1(ii,jj)
+               datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
          endif
-        ENDIF
-
       ENDIF
-    
 !
 ! SRD
 !
