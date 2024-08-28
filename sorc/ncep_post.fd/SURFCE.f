@@ -2698,7 +2698,7 @@
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(783))
            fld_info(cfld)%ntrange=1
-           IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN 
+           IF (MODELNAME == 'RAPR') THEN 
 	     if (ifhr==0) then
               fld_info(cfld)%tinvstat=0
              else
@@ -2752,7 +2752,7 @@
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(784))
            fld_info(cfld)%ntrange=1
-           IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN 
+           IF (MODELNAME == 'RAPR') THEN 
 	     if (ifhr==0) then
               fld_info(cfld)%tinvstat=0
              else
