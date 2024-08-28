@@ -2667,6 +2667,7 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED U COMPONENT.
 !
       IF (IGET(783)>0) THEN 
+        IF (MODELNAME == 'GFS') THEN
         ID(1:25) = 0
          ITSRFC     = NINT(TSRFC)
 	if (ITSRFC /= 0) then
@@ -2686,6 +2687,7 @@
           IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18)<0) ID(18) = 0
+	ENDIF
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2696,7 +2698,15 @@
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(783))
            fld_info(cfld)%ntrange=1
-           fld_info(cfld)%tinvstat=IFHR-ID(18)
+           IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN 
+	     if (ifhr==0) then
+              fld_info(cfld)%tinvstat=0
+             else
+              fld_info(cfld)%tinvstat=1
+             endif
+	   ELSE IF (MODELNAME == 'GFS') THEN
+      	     fld_info(cfld)%tinvstat=IFHR-ID(18)
+	   ENDIF
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -2711,6 +2721,7 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED V COMPONENT.
 !
       IF (IGET(784)>0) THEN
+        IF (MODELNAME == 'GFS') THEN
         ID(1:25) = 0
          ITSRFC     = NINT(TSRFC)
 	if (ITSRFC /= 0) then
@@ -2730,6 +2741,7 @@
           IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18)<0) ID(18) = 0
+	ENDIF
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
@@ -2739,8 +2751,16 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(784))
-           fld_info(cfld)%tinvstat=IFHR-ID(18)
            fld_info(cfld)%ntrange=1
+           IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN 
+	     if (ifhr==0) then
+              fld_info(cfld)%tinvstat=0
+             else
+              fld_info(cfld)%tinvstat=1
+             endif
+	   ELSE IF (MODELNAME == 'GFS') THEN
+      	     fld_info(cfld)%tinvstat=IFHR-ID(18)
+	   ENDIF
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
