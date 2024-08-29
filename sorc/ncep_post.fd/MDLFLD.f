@@ -779,7 +779,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         DO L=1,LM
           LL=LM-L+1
           IF(T(I,J,LL)<spval)THEN
-            IF(T(I,J,LL) < 1.0E-3)print*,'ZERO T'
+!            IF(T(I,J,LL) < 1.0E-3)print*,'ZERO T'
             IF(T(I,J,LL) > 1.0E-3)                            &
              RHOD=PMID(I,J,LL)/                                  &
                (RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY

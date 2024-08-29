@@ -1595,9 +1595,9 @@
 !              GRID1(I,J)=TSHLTR(I,J)
 !HC CONVERT FROM THETA TO T 
                if(tshltr(i,j)/=spval)GRID1(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
-               IF(GRID1(I,J)<200)PRINT*,'ABNORMAL 2MT ',i,j,  &
-                   TSHLTR(I,J),PSHLTR(I,J)
-!                  TSHLTR(I,J)=GRID1(I,J) 
+!               IF(GRID1(I,J)<200)PRINT*,'ABNORMAL 2MT ',i,j,  &
+!                   TSHLTR(I,J),PSHLTR(I,J)
+!!                  TSHLTR(I,J)=GRID1(I,J) 
              ENDDO
            ENDDO
 !          print *,'2m tmp=',maxval(TSHLTR(ista:iend,jsta:jend)), &

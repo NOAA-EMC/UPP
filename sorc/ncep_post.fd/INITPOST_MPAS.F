@@ -592,8 +592,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqni ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
-          i,j,l,QQNI ( i, j, l )      
+!        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
+!          i,j,l,QQNI ( i, j, l )      
         end do
        end do
       end do
@@ -604,8 +604,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnr ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
-          i,j,l,QQNR ( i, j, l )
+!        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
+!          i,j,l,QQNR ( i, j, l )
         end do
        end do
       end do
@@ -2664,7 +2664,7 @@ endif  ! 1==2
               SNO ( i, j ) = dummy ( i, j )
            elseif( dummy ( i, j ) > 5000.0) then 
               SNO ( i, j ) = 5000.0
-              write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
+!              write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
            elseif( dummy ( i, j ) < 0.0 ) then 
               SNO ( i, j ) = 0.0
               write(*,*) 'negative SNOW=',i,j,dummy ( i, j )
@@ -2684,7 +2684,7 @@ endif  ! 1==2
               SI ( i, j ) = dummy ( i, j ) * 1000.
            elseif( dummy ( i, j ) > 50.0) then 
               SI ( i, j ) = 50.0 * 1000.
-              write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
+!              write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
            elseif( dummy ( i, j ) < 0.0 ) then 
               SI ( i, j ) = 0.0
               write(*,*) 'negative SNOWH=',i,j,dummy ( i, j )
