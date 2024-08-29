@@ -99,7 +99,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
 !   allocate(data (end_index(1), end_index(2), end_index(3), 1))
 !   call ext_ncd_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
 ! CHANGE WrfType to WRF_REAL BECAUSE THIS TELLS WRF IO API TO CONVERT TO REAL
-          print  *,' GWVX XT_NCD GET FIELD',size(data), size(varbuff),mype
+!          print  *,' GWVX XT_NCD GET FIELD',size(data), size(varbuff),mype
      idsize=size(data)
    if(mype == 0) then
    call ext_ncd_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
