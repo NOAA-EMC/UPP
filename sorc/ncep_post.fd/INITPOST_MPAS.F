@@ -257,7 +257,11 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
+         if(dum3d(i,j,l)<spval) then
             t ( i, j, l ) = dum3d ( i, j, l ) + 300.
+         else
+            t ( i, j, l ) = spval
+         endif
 ! JSK (2 Aug 2024): The VarName 'T' is the perturbation potential
 ! temperature; the addition of 300 K yields the full potential
 ! temperature. Further below, after the read-in of hydrostatic 
@@ -281,7 +285,11 @@
 !  fill up UH which is U at P-points including 2 row halo
        do j = jsta_2l, jend_2u
         do i = 1, im
+           if(dum3d(i,j,l)<spval) then
             UH (I,J,L) = (dum3d(I,J,L)+dum3d(I+1,J,L))*0.5
+           else
+            UH (I,J,L) = spval
+           endif
         end do
        end do
       end do
@@ -298,7 +306,11 @@
 !  fill up VH which is V at P-points including 2 row halo
        do j = jsta_2l, jend_2u
         do i = 1, im
+         if(dum3d(i,j,l)<spval) then
           VH(I,J,L) = (dum3d(I,J,L)+dum3d(I,J+1,L))*0.5
+         else
+          VH(I,J,L) = spval
+         endif
         end do
        end do
       end do
@@ -333,7 +345,11 @@
 !HC            q ( i, j, l ) = dum3d ( i, j, l )
 !HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
 !mhu check !!!!            if (dum3d(i,j,l) < 10E-12) dum3d(i,j,l) = 10E-12
+           if(dum3d(i,j,l)<spval) then
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
+           else
+            q ( i, j, l ) = spval
+           endif
         end do
        end do
       end do
@@ -354,6 +370,7 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
+           if(dum3d(i,j,l)<spval) then
 !            PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
             PMID(I,J,L)=DUM3D(I,J,L)
             thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
@@ -369,7 +386,13 @@
 !	       qqs(i,j,l)=qqr(i,j,l)
 !	       qqi(i,j,l)=qqw(i,j,l)
 !	      end if 
-!	     end if 	                      
+!	     end if 	              
+           else
+            PMID(I,J,L) = spval
+            thv(i,j,l) = spval
+            t(i,j,l) = spval
+            omga(i,j,l) = spval
+           endif
         end do
        end do
       end do
@@ -2660,11 +2683,12 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+          if( dummy ( i, j ) < SPVAL) then
            if( dummy ( i, j ) <= 5000.0 .and. dummy ( i, j ) >=0.0) then
               SNO ( i, j ) = dummy ( i, j )
            elseif( dummy ( i, j ) > 5000.0) then 
               SNO ( i, j ) = 5000.0
-!              write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
+              write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
            elseif( dummy ( i, j ) < 0.0 ) then 
               SNO ( i, j ) = 0.0
               write(*,*) 'negative SNOW=',i,j,dummy ( i, j )
@@ -2672,6 +2696,7 @@ endif  ! 1==2
               SNO ( i, j ) = 0.0
               write(*,*) 'strange SNOW=',i,j,dummy ( i, j )
            endif
+          endif
         end do
        end do
 ! Snow depth
@@ -2680,11 +2705,12 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+          if( dummy ( i, j ) < SPVAL) then
            if( dummy ( i, j ) <= 50.0 .and. dummy ( i, j ) >=0.0) then
               SI ( i, j ) = dummy ( i, j ) * 1000.
            elseif( dummy ( i, j ) > 50.0) then 
               SI ( i, j ) = 50.0 * 1000.
-!              write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
+              write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
            elseif( dummy ( i, j ) < 0.0 ) then 
               SI ( i, j ) = 0.0
               write(*,*) 'negative SNOWH=',i,j,dummy ( i, j )
@@ -2692,6 +2718,7 @@ endif  ! 1==2
               SI ( i, j ) = 0.0
               write(*,*) 'strange SNOWH=',i,j,dummy ( i, j )
            endif
+          endif
         end do
        end do
 
@@ -3029,7 +3056,7 @@ endif  ! 1==2
 
 !tgs Define smoothing flag for isobaric output 
               IF(MODELNAME == 'RAPR')THEN
-                SMFLAG=.TRUE.
+                SMFLAG=.FALSE.
               ELSE
                 SMFLAG=.FALSE.
               ENDIF
