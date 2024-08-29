@@ -322,7 +322,7 @@
          ENDDO
         ENDDO
       ENDDO
-      print*,'finish reading W'
+      !print*,'finish reading W'
 
       VarName='QVAPOR'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
@@ -337,7 +337,7 @@
         end do
        end do
       end do
-      print*,'finish reading mixing ratio'
+      !print*,'finish reading mixing ratio'
 !      if(jj>= jsta .and. jj<=jend)print*,'sample Q= ',Q(ii,jj,ll)
 
 ! DCD 4/3/13
@@ -592,8 +592,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqni ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
-          i,j,l,QQNI ( i, j, l )      
+        !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
+        !  i,j,l,QQNI ( i, j, l )      
         end do
        end do
       end do
@@ -604,8 +604,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnr ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
-          i,j,l,QQNR ( i, j, l )
+        !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
+        !  i,j,l,QQNR ( i, j, l )
         end do
        end do
       end do
@@ -620,8 +620,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnw ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNW= ',    &    
-          i,j,l,QQNW ( i, j, l )
+        !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNW= ',    &    
+        !  i,j,l,QQNW ( i, j, l )
         end do
        end do
       end do
@@ -632,8 +632,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnwfa ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNWFA= ', &
-          i,j,l,QQNWFA ( i, j, l )
+        !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNWFA= ', &
+        !  i,j,l,QQNWFA ( i, j, l )
         end do
        end do
       end do
@@ -644,8 +644,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnifa ( i, j, l ) = dum3d ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNIFA= ', &
-          i,j,l,QQNIFA ( i, j, l )
+        !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNIFA= ', &
+        !  i,j,l,QQNIFA ( i, j, l )
         end do
        end do
       end do
@@ -833,7 +833,7 @@
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
 
-      print*,'finish reading geopotential'
+      !print*,'finish reading geopotential'
 ! ph/phb are geopotential z=(ph+phb)/9.801
       DO L=1,LM+1
         DO I=1,IM
@@ -1188,11 +1188,6 @@
        end do
       end do 
 
-        call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp,                &      
-          1,ioutcount,istatus)
-        !dxval=nint(tmp)
-        dxval=tmp*gdsdegr
-        write(6,*) 'dxval= ', dxval
 #ifdef COMMCODE
       IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')THEN
         if(imp_physics/=5 .and. imp_physics/=0)then
@@ -2911,8 +2906,6 @@ endif  ! 1==2
         1,1,1,1,1,1,1,1)
      
 
-!        ncdump -h
-
 ! ncar wrf does not output zenith angle so make czen=czmean so that
 ! RSWIN can be output normally in SURFCE
       IF(MODELNAME /= 'RAPR')THEN
@@ -2938,10 +2931,7 @@ endif  ! 1==2
       ENDIF
 
 
-!!
-!! 
-!!
-        write(6,*) 'filename in INITPOST_MPAS=', filename,' is'
+      write(6,*) 'filename in INITPOST_MPAS=', filename,' is'
 
 !	status=nf_open(filename,NF_NOWRITE,ncid)
 !	        write(6,*) 'returned ncid= ', ncid
@@ -2961,71 +2951,85 @@ endif  ! 1==2
 !        maptype=int(tmp)
 !	status=nf_close(ncid)
 
-!	dxval=30000.
-! 	dyval=30000.
-!
-!        write(6,*) 'dxval= ', dxval
-!        write(6,*) 'dyval= ', dyval
-!        write(6,*) 'cenlat= ', cenlat
-!        write(6,*) 'cenlon= ', cenlon
-!        write(6,*) 'truelat1= ', truelat1
-!        write(6,*) 'truelat2= ', truelat2
-!        write(6,*) 'maptype is ', maptype
-!
-!tgs        call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp,                &      
-!          1,ioutcount,istatus)
-!        dxval=nint(tmp)
-!        write(6,*) 'dxval= ', dxval
+
+        call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
+          1,ioutcount,istatus)
+        maptype=itmp
+        write(6,*) 'maptype is ', maptype
+
+        call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp,                &      
+          1,ioutcount,istatus)
+        if(maptype==0)then
+          dxval=tmp*gdsdegr ! grid length in degrees for lat-lon proj 
+          write(6,*) 'dxval= ',tmp
+        else
+          dxval=nint(tmp)
+          write(6,*) 'dxval= ',dxval
+        endif
+
         call ext_ncd_get_dom_ti_real(DataHandle,'DY',tmp,                &
           1,ioutcount,istatus)
-        !dyval=nint(tmp)
-        dyval=tmp*gdsdegr
-        write(6,*) 'dyval= ', dyval
+        if(maptype==0)then
+          dyval=tmp*gdsdegr ! grid length in degrees for lat-lon proj 
+          write(6,*) 'dyval= ',tmp
+        else
+          dyval=nint(tmp)
+          write(6,*) 'dyval= ',dyval
+        endif
+
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LAT',tmp,           &
           1,ioutcount,istatus)
         cenlat=nint(gdsdegr*tmp)
         write(6,*) 'cenlat= ', cenlat
+
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LON',tmp,           &
           1,ioutcount,istatus)
         if(tmp < 0) tmp=360.0 + tmp
         cenlon=nint(gdsdegr*tmp)
         write(6,*) 'cenlon= ', cenlon
+
         call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
           1,ioutcount,istatus)
         maptype=itmp
         write(6,*) 'maptype is ', maptype
+
         if(maptype/=6)then
-        call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
-          1,ioutcount,istatus)
-        truelat1=nint(gdsdegr*tmp)
-        write(6,*) 'truelat1= ', truelat1
-        if(maptype/=2)then  !PS projection excluded
-          call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
+          call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
             1,ioutcount,istatus)
-          truelat2=nint(gdsdegr*tmp)
-          write(6,*) 'truelat2= ', truelat2
+          truelat1=nint(gdsdegr*tmp)
+          write(6,*) 'truelat1= ', truelat1
+
+          if(maptype/=2)then  !PS projection excluded
+            call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
+              1,ioutcount,istatus)
+            truelat2=nint(gdsdegr*tmp)
+            write(6,*) 'truelat2= ', truelat2
+          endif
         endif
-        endif
+
 	call ext_ncd_get_dom_ti_real(DataHandle,'STAND_LON',tmp,         &
           1,ioutcount,istatus)
         if(tmp < 0) tmp=360.0 + tmp
         STANDLON=nint(gdsdegr*tmp)
         write(6,*) 'STANDLON= ', STANDLON
 
-!MEB not sure how to get these 
+! Calculate DX and DY arrays
        do j = jsta_2l, jend_2u
         do i = 1, im
-            !DX ( i, j ) = dxval/MSFT(I,J)  
-            !DY ( i, j ) = dyval/MSFT(I,J)  
-            DX ( i, j ) = dxval !JSK
-            DY ( i, j ) = dyval  
+          if(maptype==0)then
+            ! obatin DX and DY lengths from lat and lon
+            DX(i,j) = ERAD*COS(GDLAT(i,j)*DTR)*(GDLON(i+1,j)-GDLON(i,j))*DTR
+            DY(i,j) = ERAD*(GDLAT(i,j+1)-GDLAT(i,j))*DTR
+          else 
+            ! obatin DX and DY lengths from scale factor
+            DX(i,j) = dxval/MSFT(i,j)  
+            DY(i,j) = dyval/MSFT(i,j)  
+          end if
         end do
        end do
        ii=im/2
        jj=(jend+jsta)/2
-        print*,'sample dx,dy,msft=',ii,jj,dx(ii,jj),dy(ii,jj)           &
-        ,msft(ii,jj)
-
+       print*,'Sample dx,dy(meters),msft=',dx(ii,jj),dy(ii,jj),msft(ii,jj)
 
 ! Convert DXVAL and DYVAL for ARW rotated latlon from meters to radian
         if(maptype==6)then
@@ -3035,13 +3039,40 @@ endif  ! 1==2
          print*,'dx and dy for arw rotated latlon= ', &
          dxval,dyval
         end if
-
+ 
 !tgs Define smoothing flag for isobaric output 
-!              IF(MODELNAME == 'RAPR')THEN
-!                SMFLAG=.TRUE.
-!              ELSE
-!                SMFLAG=.FALSE.
-!              ENDIF
+              IF(MODELNAME == 'RAPR')THEN
+                SMFLAG=.FALSE. 
+                ! J. Kenyon (28 Aug 2024): smoothing is disabled for RAPR.
+                ! Note that this smoothing flag is present in several 
+                ! subroutines (e.g., MDL2P, MDLFLD, and MAPSSLP). The 
+                ! smoothing operation is formulated using "dxval", which 
+                ! is a domain constant (e.g., 3000 m) that depends on
+                ! the grid length.  The "dxval" value should not be
+                ! confused with the spatially varying "DX(i,j)" array.
+                ! 
+                ! If smoothing is reactivated, "dxval" will likely
+                ! already be correctly specified for some projections
+                ! (e.g., Lambert conformal).  However, "dxval" for 
+                ! other projections (e.g., lat-lon) is expressed as an
+                ! angular width (in degrees).  Accordingly, a suitable
+                ! "dxval" (distance) will need to be specified for 
+                ! these smoothing instances, or these instances 
+                ! will need to be reformulated without a dependence
+                ! on "dxval".  
+                !
+                ! For the lat-lon projection (maptype=0), the following 
+                ! relationships should convert dxval and dyval from 
+                ! angular (deg) to linear (m) widths and may be useful:
+                !
+                !  if(maptype==0)then
+                !   dyval=ERAD*dyval/gdsdegr*dtr
+                !   dxval=ERAD*dxval/gdsdegr*dtr*COS(abs(cenlat/gdsdegr*dtr))
+                !   print*,'For lat-lon: using dxval,dyval (meters)=',dxval,dyval
+                !  endif
+              ELSE
+                SMFLAG=.FALSE.
+              ENDIF
 
 ! generate look up table for lifted parcel calculations
 
@@ -3136,96 +3167,10 @@ endif  ! 1==2
 !       end do
 
 
-      
 !     COMPUTE DERIVED MAP OUTPUT CONSTANTS.
       DO L = 1,LSM
          ALSL(L) = ALOG(SPL(L))
       END DO
-! close up shop
-       call ext_ncd_ioclose ( DataHandle, Status )
-!
-!HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me==0)then
-        print*,'writing out igds'
-        igdout=110
-!        open(igdout,file='griddef.out',form='unformatted'
-!     +  ,status='unknown')
-        if(maptype == 1)THEN  ! Lambert conformal
-          WRITE(igdout)3
-          WRITE(6,*)'igd(1)=',3
-          WRITE(igdout)im
-          WRITE(igdout)jm
-          WRITE(igdout)LATSTART
-          WRITE(igdout)LONSTART
-          WRITE(igdout)8
-!          WRITE(igdout)CENLON
-          WRITE(igdout)STANDLON
-          WRITE(igdout)DXVAL
-          WRITE(igdout)DYVAL
-          WRITE(igdout)0
-          WRITE(igdout)64
-          WRITE(igdout)TRUELAT2
-          WRITE(igdout)TRUELAT1
-          WRITE(igdout)255
-        ELSE IF(MAPTYPE == 2)THEN  !Polar stereographic
-          WRITE(igdout)5
-          WRITE(igdout)im
-          WRITE(igdout)jm
-          WRITE(igdout)LATSTART
-          WRITE(igdout)LONSTART
-          WRITE(igdout)8
-          WRITE(igdout)CENLON
-          WRITE(igdout)DXVAL
-          WRITE(igdout)DYVAL
-          WRITE(igdout)0
-          WRITE(igdout)64
-          WRITE(igdout)TRUELAT2  !Assume projection at +-90
-          WRITE(igdout)TRUELAT1
-          WRITE(igdout)255
-        !  Note: The calculation of the map scale factor at the standard
-        !        lat/lon and the PSMAPF
-        ! Get map factor at 60 degrees (N or S) for PS projection, which will
-        ! be needed to correctly define the DX and DY values in the GRIB GDS
-          if (TRUELAT1 < 0.) THEN
-            LAT = -60.
-          else
-            LAT = 60.
-          end if
-
-          CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
-
-        ELSE IF(MAPTYPE == 3)THEN  !Mercator
-          WRITE(igdout)1
-          WRITE(igdout)im
-          WRITE(igdout)jm
-          WRITE(igdout)LATSTART
-          WRITE(igdout)LONSTART
-          WRITE(igdout)8
-          WRITE(igdout)latlast
-          WRITE(igdout)lonlast
-          WRITE(igdout)TRUELAT1
-          WRITE(igdout)0
-          WRITE(igdout)64
-          WRITE(igdout)DXVAL
-          WRITE(igdout)DYVAL
-          WRITE(igdout)255
-        ELSE IF(MAPTYPE==6 )THEN  ! ARW rotated lat/lon grid
-          WRITE(igdout)205
-          WRITE(igdout)im
-          WRITE(igdout)jm
-          WRITE(igdout)LATSTART
-          WRITE(igdout)LONSTART
-          WRITE(igdout)136
-          WRITE(igdout)CENLAT
-          WRITE(igdout)CENLON
-          WRITE(igdout)DXVAL
-          WRITE(igdout)DYVAL
-          WRITE(igdout)64
-          WRITE(igdout)LATLAST
-          WRITE(igdout)LONLAST
-          WRITE(igdout)0
-
-         END IF
 
 ! following for hurricane wrf post
      
@@ -3241,18 +3186,18 @@ endif  ! 1==2
 !1010      format('255 0 ',2(I4,x),I8,x,I9,x,'136 ',I8,x,I9,x,            &
 !                 2(I8,x),'0')
 !          close (10)
-        end if
 !     
       DEALLOCATE (THV)
       deallocate (msft)
 
 !
-! convert  dxval, dyval from mtere to mm
-!
-      !if (grib=="grib2" )then
-      !  dxval=dxval*1000.
-      !  dyval=dyval*1000.
-      !endif
+! convert dxval, dyval from meters to millimeters 
+!   (except for lat-lon grids; refer to explantion near the SMFLAG
+!    specification)
+      if ((grib=="grib2") .and. (maptype/=0)) then 
+        dxval=dxval*1000.
+        dyval=dyval*1000.
+      endif
 !
 
       RETURN
