@@ -285,11 +285,7 @@
 !  fill up UH which is U at P-points including 2 row halo
        do j = jsta_2l, jend_2u
         do i = 1, im
-           if(dum3d(i,j,l)<spval) then
             UH (I,J,L) = (dum3d(I,J,L)+dum3d(I+1,J,L))*0.5
-           else
-            UH (I,J,L) = spval
-           endif
         end do
        end do
       end do
@@ -306,11 +302,7 @@
 !  fill up VH which is V at P-points including 2 row halo
        do j = jsta_2l, jend_2u
         do i = 1, im
-         if(dum3d(i,j,l)<spval) then
           VH(I,J,L) = (dum3d(I,J,L)+dum3d(I,J+1,L))*0.5
-         else
-          VH(I,J,L) = spval
-         endif
         end do
        end do
       end do
