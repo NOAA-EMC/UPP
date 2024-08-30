@@ -607,8 +607,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqni ( i, j, l ) = dum3d ( i, j, l )
-!        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
-!          i,j,l,QQNI ( i, j, l )      
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
+          i,j,l,QQNI ( i, j, l )      
         end do
        end do
       end do
@@ -619,8 +619,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnr ( i, j, l ) = dum3d ( i, j, l )
-!        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
-!          i,j,l,QQNR ( i, j, l )
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
+          i,j,l,QQNR ( i, j, l )
         end do
        end do
       end do
