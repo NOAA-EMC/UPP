@@ -38,6 +38,7 @@
 !> 2023-08-16 | Yali Mao                  | Add gtg_on logical option
 !> 2023-11-29 | Eric James                | Add method_blsn logical option
 !> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
+!> 2024-08-30 | Jaymes Kenyon             | Hard coding iSF_SURFACE_PHYSICS=3 when modelname=RAPR and submodelname=MPAS
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
