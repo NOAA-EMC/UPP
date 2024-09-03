@@ -137,13 +137,13 @@
            <shortname>GSD_ACM_SNOD_ON_SURFACE</shortname>
            <scale>5.0</scale>
        </param>
-<!--
+
        <param>
            <shortname>VGTYP_ON_SURFACE</shortname>
            <table_info>NCEP</table_info>
            <scale>3.0</scale>
        </param>
--->
+
        <param>
            <shortname>4LFTX_ON_SPEC_PRES_ABOVE_GRND</shortname>
            <level>18000.</level>
@@ -967,7 +967,7 @@
  77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000. 101320.</level>
           <scale>3.0</scale>
        </param>
-<!--
+
        <param>
           <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
@@ -986,7 +986,7 @@
           <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2> 
           <scale>3.0</scale>
        </param>
--->
+
     </paramset>
 
     <paramset>
@@ -1166,7 +1166,7 @@
                  40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59.</level>
           <scale>6.0</scale>
        </param>
-<!--
+
        <param>
           <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
@@ -1175,7 +1175,7 @@
           <level2>0. 1.</level2>
           <scale>3.0</scale>
        </param>
--->
+
    </paramset>
 
 </postxml>
