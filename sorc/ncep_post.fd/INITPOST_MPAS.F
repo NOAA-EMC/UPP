@@ -125,7 +125,7 @@
 !
       ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
       ALLOCATE ( DUM3D ( IM+1, JM+1, LM+1 ) )
-      WRITE(6,*)'INITPOST_MPAS:  ENTER INITPOST_MPAS'
+      if (me==0) WRITE(6,*)'INITPOST_MPAS:  ENTER INITPOST_MPAS'
 !     
       gridtype='A'
       hbotd=0
@@ -2132,7 +2132,7 @@ endif  ! 1==2
 !C RAINC is "ACCUMULATED TOTAL CUMULUS PRECIPITATION" 
 !C RAINNC is "ACCUMULATED TOTAL GRID SCALE PRECIPITATION"
 
-	write(6,*) 'getting RAINC'
+      if (me==0) write(6,*) 'getting RAINC'
       VarName='RAINC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
@@ -2142,7 +2142,7 @@ endif  ! 1==2
         end do
        end do
 !       print*,'CUPREC at ',ii,jj,' = ',CUPREC(ii,jj)
-	write(6,*) 'getting RAINNC'
+      if (me==0) write(6,*) 'getting RAINNC'
       VarName='RAINNC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2152,7 +2152,7 @@ endif  ! 1==2
         end do
        end do
 !       print*,'ANCPRC at ',ii,jj,' = ',ANCPRC(ii,jj)
-	write(6,*) 'past getting RAINNC'
+      if (me==0) write(6,*) 'past getting RAINNC'
 
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -2162,7 +2162,7 @@ endif  ! 1==2
 
 !-- RAINC_bucket is "ACCUMULATED CUMULUS PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
 
-        write(6,*) 'getting PREC_ACC_C, [mm] '
+      if (me==0) write(6,*) 'getting PREC_ACC_C, [mm] '
 !      VarName='RAINC_BUCKET'
       VarName='PREC_ACC_C'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2175,7 +2175,7 @@ endif  ! 1==2
 
 !-- RAINC_bucket1 is "ACCUMULATED CUMULUS PRECIPITATION OVER BUCKET_DT1 PERIODS OF TIME"
 
-        write(6,*) 'getting PREC_ACC_C1, [mm] '
+      if (me==0) write(6,*) 'getting PREC_ACC_C1, [mm] '
       VarName='PREC_ACC_C1'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2187,7 +2187,7 @@ endif  ! 1==2
 
 !-- RAINNC_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
 
-        write(6,*) 'getting PREC_ACC_NC, [mm]'
+      if (me==0) write(6,*) 'getting PREC_ACC_NC, [mm]'
 !      VarName='RAINNC_BUCKET'
       VarName='PREC_ACC_NC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2200,7 +2200,7 @@ endif  ! 1==2
 
 !-- RAINNC_bucket1  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT1 PERIODS OF TIME"
 
-        write(6,*) 'getting PREC_ACC_NC1, [mm]'
+      if (me==0) write(6,*) 'getting PREC_ACC_NC1, [mm]'
       VarName='PREC_ACC_NC1'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2252,7 +2252,7 @@ endif  ! 1==2
 
 !-- SNOW_bucket  is "ACCUMULATED GRID SCALE SNOW OVER BUCKET_DT PERIODS OF TIME"
 
-        write(6,*) 'getting SNOW_ACC_NC, [mm] '
+      if (me==0) write(6,*) 'getting SNOW_ACC_NC, [mm] '
 !      VarName='SNOW_BUCKET'
       VarName='SNOW_ACC_NC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2265,7 +2265,7 @@ endif  ! 1==2
 
 !-- SNOW_bucket1  is "ACCUMULATED GRID SCALE SNOW OVER BUCKET_DT1 PERIODS OF TIME"
 
-        write(6,*) 'getting SNOW_ACC_NC1, [mm] '
+      if (me==0) write(6,*) 'getting SNOW_ACC_NC1, [mm] '
       VarName='SNOW_ACC_NC1'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2277,7 +2277,7 @@ endif  ! 1==2
 
 !-- GRAUP_bucket  is "ACCUMULATED GRID SCALE GRAUPEL OVER BUCKET_DT PERIODS OF TIME"
 
-        write(6,*) 'getting GRAUP_ACC_NC, [mm] '
+      if (me==0) write(6,*) 'getting GRAUP_ACC_NC, [mm] '
       VarName='GRAUP_ACC_NC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2289,7 +2289,7 @@ endif  ! 1==2
 
 !-- GRAUP_bucket1  is "ACCUMULATED GRID SCALE GRAUPEL OVER BUCKET_DT1 PERIODS OF TIME"
 
-        write(6,*) 'getting GRAUP_ACC_NC1, [mm] '
+      if (me==0) write(6,*) 'getting GRAUP_ACC_NC1, [mm] '
       VarName='GRAUP_ACC_NC1'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
