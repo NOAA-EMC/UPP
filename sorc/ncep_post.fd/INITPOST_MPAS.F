@@ -166,18 +166,18 @@
 !      DateStr = '2002-03-05_18:00:00'
 !  how do I get the filename?
          call ext_ncd_ioinit(SysDepInfo,Status)
-          print*,'called ioinit', Status
+!          print*,'called ioinit', Status
          call ext_ncd_open_for_read( trim(fileName), 0, 0, " ",        &  
             DataHandle, Status)
-          print*,'called open for read', Status
+!          print*,'called open for read', Status
        if ( Status /= 0 ) then
          print*,'error opening ',fileName, ' Status = ', Status ; stop
        endif
 ! get date/time info
 !  this routine will get the next time from the file, not using it
-      print *,'DateStr before calling ext_ncd_get_next_time=',DateStr
+!      print *,'DateStr before calling ext_ncd_get_next_time=',DateStr
 !      call ext_ncd_get_next_time(DataHandle, DateStr, Status)
-      print *,'DateStri,Status,DataHandle = ',DateStr,Status,DataHandle
+!      print *,'DateStri,Status,DataHandle = ',DateStr,Status,DataHandle
 
 !  The end j row is going to be jend_2u for all variables except for V.
       JS=JSTA_2L
@@ -970,9 +970,9 @@
         do i = 1, im
             ZINT(I,J,LM+1)=FIS(I,J)/G
             DUMMY(I,J)=FIS(I,J)
-         if(i==im/2.and.j==(jsta+jend)/2)                           &
-        print*,'i,j,L,ZINT from unipost= ',i,j,LM+1,ZINT(I,J,LM+1)      &
-              , ALPINT(I,J,LM+1),ALPINT(I,J,LM)  
+         !if(i==im/2.and.j==(jsta+jend)/2)                            &
+         !  print*,'i,j,L,ZINT from unipost= ',i,j,LM+1,ZINT(I,J,LM+1)&
+         !     ,ALPINT(I,J,LM+1),ALPINT(I,J,LM)  
         end do
        end do
       DO L=LM,1,-1
@@ -984,22 +984,22 @@
          DUM3D(I,J,L)=ZINT(I,J,L)-DUMMY2(I,J)/g
 ! now replace model heights with unipost heights
          ZINT(I,J,L)=DUMMY2(I,J)/G
-         if(i==im/2.and.j==(jsta+jend)/2)       &
-        print*,'i,j,L,ZINT from unipost= ',i,j,l,ZINT(I,J,L)
+         !if(i==im/2.and.j==(jsta+jend)/2) &
+         !  print*,'i,j,L,ZINT from unipost= ',i,j,l,ZINT(I,J,L)
          DUMMY(I,J)=DUMMY2(I,J)
         ENDDO
        ENDDO
       END DO
-      DO L=LM,1,-1
-       do j = js, je
-        do i = 1, im
-         if(i==im/2.and.j==(jsta+jend)/2) then
-        print*,'DIFF heights model-unipost= ',         &
-         i,j,l,DUM3D(I,J,L)
-         endif
-        ENDDO
-       ENDDO
-      END DO
+      !DO L=LM,1,-1
+      ! do j = js, je
+      !  do i = 1, im
+      !   if(i==im/2.and.j==(jsta+jend)/2) then
+      !  print*,'DIFF heights model-unipost= ',         &
+      !   i,j,l,DUM3D(I,J,L)
+      !   endif
+      !  ENDDO
+      ! ENDDO
+      !END DO
 
       print*,'finish deriving geopotential in ARW'
 
@@ -1021,7 +1021,7 @@
          !         i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
          ENDDO
         ENDDO
-       print*,'max/min ZMID= ',l,maxval(dummy),minval(dummy)
+       !print*,'max/min ZMID= ',l,maxval(dummy),minval(dummy)
        ENDDO
 
         DO I=1,IM
