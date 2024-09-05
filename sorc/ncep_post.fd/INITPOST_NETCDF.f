@@ -56,6 +56,7 @@
 !> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
 !> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
+!> 2024-08-20 | Eric James    | Enable reading of seasonal max/min green vegetation fraction
 !> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
