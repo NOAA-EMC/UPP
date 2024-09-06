@@ -170,7 +170,7 @@
          call ext_ncd_open_for_read( trim(fileName), 0, 0, " ",        &  
             DataHandle, Status)
 !          print*,'called open for read', Status
-       if ( Status /= 0 ) then
+       if ( Status /= 0 .and. me == 0 ) then
          print*,'error opening ',fileName, ' Status = ', Status ; stop
        endif
 ! get date/time info
@@ -196,14 +196,16 @@
       call ext_ncd_get_dom_ti_char(DataHandle,'START_DATE',startdate,   &
         status )
 #endif
-        print*,'startdate= ',startdate
+        if (me==0) print*,'startdate= ',startdate
       jdate=0
       idate=0
       read(startdate,15)iyear,imn,iday,ihrst,imin      
  15   format(i4,1x,i2,1x,i2,1x,i2,1x,i2)
-      print*,'start yr mo day hr min=',iyear,imn,iday,ihrst,imin
-      print*,'processing yr mo day hr min='                             &
-        ,idat(3),idat(1),idat(2),idat(4),idat(5)
+      if (me==0) then
+        print*,'start yr mo day hr min=',iyear,imn,iday,ihrst,imin
+        print*,'processing yr mo day hr min='                             &
+          ,idat(3),idat(1),idat(2),idat(4),idat(5)
+      endif
       idate(1)=iyear
       idate(2)=imn
       idate(3)=iday
@@ -222,7 +224,7 @@
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
       ifhr=nint(rinc(2)+rinc(1)*24.)
       ifmin=nint(rinc(3))
-      print*,' in INITPOST_MPAS ifhr ifmin fileName=',ifhr,ifmin,fileName
+      if (me==0) print*,' in INITPOST_MPAS ifhr ifmin fileName=',ifhr,ifmin,fileName
 !  OK, since all of the variables are dimensioned/allocated to be
 !  the same size, this means we have to be careful int getVariable
 !  to not try to get too much data.  For example, 
@@ -232,7 +234,7 @@
       call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'          &
        ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
-      print*,'MP_PHYSICS= ',itmp
+      if (me==0) print*,'MP_PHYSICS= ',itmp
 
 ! Initializes constants for Ferrier microphysics       
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
@@ -241,11 +243,11 @@
       
       call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'          &
        ,itmp,1,ioutcount,istatus)
-        icu_physics=itmp
-        print*,'CU_PHYSICS= ',icu_physics
+      icu_physics=itmp
+      if (me==0) print*,'CU_PHYSICS= ',icu_physics
 	
 ! get 3-D variables
-      print*,'im,jm,lm= ',im,jm,lm
+      if (me==0) print*,'im,jm,lm= ',im,jm,lm
       ii=im/2
       jj=(jsta+jend)/2
       ll=lm
@@ -1001,7 +1003,7 @@
       ! ENDDO
       !END DO
 
-      print*,'finish deriving geopotential in ARW'
+      if (me==0) print*,'Finished deriving geopotential in RAPR application'
 
       ENDIF  ! IF(MODELNAME == 'RAPR')THEN
 
@@ -1033,8 +1035,8 @@
           dummy(i,j)=ZMID(I,J,LM)
          ENDDO
         ENDDO
-       print*,'max/min ZMID= ',lm,maxval(ZMID(1:im,js:je,lm)),       &
-                                  minval(ZMID(1:im,js:je,lm))
+       !print*,'max/min ZMID= ',lm,maxval(ZMID(1:im,js:je,lm)),       &
+       !                           minval(ZMID(1:im,js:je,lm))
      ELSE
 
        DO L=1,LM
@@ -1063,12 +1065,12 @@
             taod5503d ( i, j, l ) = dum3d ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample TAOD5503D= ',   &
-          i,j,l,TAOD5503D ( i, j, l )
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
-          dz
-        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
-          i,j,l,AEXTC55 ( i, j, l )
+
+            if( me==0 .and. i==im/2 .and. j==(jsta+jend)/2 ) then
+              print*,'sample TAOD5503D= ',i,j,l,TAOD5503D( i, j, l )
+              print*,'sample dz= ',dz
+              print*,'sample AEXTC55= ',i,j,l,AEXTC55( i, j, l )
+            endif
         end do
        end do
       end do
@@ -1379,7 +1381,7 @@ endif  ! 1==2
       ELSE
        call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
-       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
+       if (me==0) print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
       END IF
 
 ! SRD
@@ -1930,7 +1932,7 @@ endif  ! 1==2
             VEGFRC ( i, j ) = dummy ( i, j )/100.
         end do
        end do
-       print*,'VEGFRC at ',ii,jj,' = ',VEGFRC(ii,jj)
+       if (me==0) print*,'VEGFRC at ',ii,jj,' = ',VEGFRC(ii,jj)
 
       VarName='SHDMIN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
@@ -1940,7 +1942,7 @@ endif  ! 1==2
             shdmin ( i, j ) = dummy ( i, j )/100.
         end do
        end do
-       print*,'SHDMIN at ',ii,jj,' = ',SHDMIN(ii,jj)
+       if (me==0) print*,'SHDMIN at ',ii,jj,' = ',SHDMIN(ii,jj)
 
       VarName='SHDMAX'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
@@ -1950,7 +1952,7 @@ endif  ! 1==2
             shdmax ( i, j ) = dummy ( i, j )/100.
         end do
        end do
-       print*,'SHDMAX at ',ii,jj,' = ',SHDMAX(ii,jj)
+       if (me==0) print*,'SHDMAX at ',ii,jj,' = ',SHDMAX(ii,jj)
 
       VarName='LAI'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
@@ -1960,7 +1962,7 @@ endif  ! 1==2
             lai ( i, j ) = dummy ( i, j )
         end do
        end do
-       print*,'LAI at ',ii,jj,' = ',LAI(ii,jj)
+       if (me==0) print*,'LAI at ',ii,jj,' = ',LAI(ii,jj)
 
       VarName='ACSNOW'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        & 
@@ -1970,7 +1972,7 @@ endif  ! 1==2
             ACSNOW ( i, j ) = dummy ( i, j )
         end do
        end do
-      print*,'maxval ACSNOW: ', maxval(ACSNOW)
+      if (me==0) print*,'maxval ACSNOW: ', maxval(ACSNOW)
       VarName='ACSNOM'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        & 
         IM,1,JM,1,IM,JS,JE,1)
@@ -2504,7 +2506,7 @@ endif  ! 1==2
              SWRADmean ( i, j ) = dummy ( i, j )
         end do
        end do
-       print*,'SWRADmean at ',ii,jj,' = ',SWRADmean(ii,jj)
+       if (me==0) print*,'SWRADmean at ',ii,jj,' = ',SWRADmean(ii,jj)
 
 ! time_averaged SWNORM
       VarName='SWNORMMEAN'
@@ -2516,7 +2518,7 @@ endif  ! 1==2
              SWNORMmean ( i, j ) = dummy ( i, j )
         end do
        end do
-       print*,'SWNORMmean at ',ii,jj,' = ',SWNORMmean(ii,jj)
+       if (me==0) print*,'SWNORMmean at ',ii,jj,' = ',SWNORMmean(ii,jj)
 
       VarName='GLW'
 ! Downwelling longwave flux at surface
@@ -2724,7 +2726,7 @@ endif  ! 1==2
             SNFDEN ( i, j ) = max(0.,dummy ( i, j ))
         end do
        end do
-        print *,' MIN/MAX SNFDEN ',minval(SNFDEN),maxval(SNFDEN)
+       if (me==0) print *,' MIN/MAX SNFDEN ',minval(SNFDEN),maxval(SNFDEN)
 
 ! snowfall accumulation
       VarName='SNOWFALLAC'
@@ -2735,7 +2737,7 @@ endif  ! 1==2
             SNDEPAC ( i, j ) = dummy ( i, j )
         end do
        end do
-        print *,' MIN/MAX SNDEPAC ',minval(SNDEPAC),maxval(SNDEPAC)
+       if (me==0) print *,' MIN/MAX SNDEPAC ',minval(SNDEPAC),maxval(SNDEPAC)
 
 ! snow temperature at the interface of 2 snow layers
       VarName='SOILT1'
@@ -2766,7 +2768,7 @@ endif  ! 1==2
             ISLTYP ( i, j ) = idummy ( i, j ) 
         end do
        end do
-       print*,'MAX ISLTYP=', maxval(idummy)
+       if (me==0) print*,'MAX ISLTYP=', maxval(idummy)
 
 !      VarName='ISLOPE'
 !      call getIVariableN(fileName,DateStr,DataHandle,VarName,IDUMMY,     &
@@ -2840,7 +2842,7 @@ endif  ! 1==2
        end do
 ! pos north
 !      print*,'GDLAT at ',ii,jj,' = ',GDLAT(ii,jj)
-      print*,'read past GDLAT'
+!      print*,'read past GDLAT'
       VarName='XLONG'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,         &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2854,7 +2856,7 @@ endif  ! 1==2
         end do
        end do
 !       print*,'GDLON at ',ii,jj,' = ',GDLON(ii,jj)
-       print*,'read past GDLON' 
+!       print*,'read past GDLON' 
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me==0)then
@@ -2926,7 +2928,7 @@ endif  ! 1==2
              CZMEAN ( i, j ) = CZEN ( i, j )
          end do
         end do
-         print*,'sample RAPR zenith angle=',acos(czen(ii,jj))*rtd
+        if (me==0) print*,'sample RAPR zenith angle=',acos(czen(ii,jj))*rtd
       ENDIF
 
 
@@ -3028,14 +3030,14 @@ endif  ! 1==2
        end do
        ii=im/2
        jj=(jend+jsta)/2
-       print*,'Sample dx,dy(meters),msft=',dx(ii,jj),dy(ii,jj),msft(ii,jj)
+       if (me==0) print*,'Sample dx,dy(meters),msft=',dx(ii,jj),dy(ii,jj),msft(ii,jj)
 
 ! Convert DXVAL and DYVAL for ARW rotated latlon from meters to radian
         if(maptype==6)then
          dxval=(DXVAL * 360.)/(ERAD*2.*pi)*gdsdegr
          dyval=(DYVAL * 360.)/(ERAD*2.*pi)*gdsdegr
 
-         print*,'dx and dy for arw rotated latlon= ', &
+         if (me==0) print*,'dx and dy for rotated latlon= ', &
          dxval,dyval
         end if
  
@@ -3097,18 +3099,18 @@ endif  ! 1==2
 !need to get DT
       call ext_ncd_get_dom_ti_real(DataHandle,'DT',tmp,1,ioutcount,istatus)
       DT=abs(tmp)
-      print*,'DT= ',DT
+      if (me==0) print*,'DT= ',DT
 
 !need to get period of time for precipitation buckets
       !call ext_ncd_get_dom_ti_real(DataHandle,'PREC_ACC_DT',tmp,1,ioutcount,istatus)
       !prec_acc_dt=abs(tmp)
       prec_acc_dt=360.0 ! temporary hard-coding for MPAS
-      print*,'PREC_ACC_DT= ',prec_acc_dt
+      if (me==0) print*,'PREC_ACC_DT= ',prec_acc_dt
 
 !need to get period of time for precipitation bucket 1 (15-min precip)
 !talk to Tanya about getting this output in wrfout file
       prec_acc_dt1=15.0
-      print*,'PREC_ACC_DT1= ',prec_acc_dt1
+      if (me==0) print*,'PREC_ACC_DT1= ',prec_acc_dt1
 
 !      DT = 120. !MEB need to get DT
       NPHS = 1  !CHUANG SET IT TO 1 BECAUSE ALL THE INST PRECIP ARE ACCUMULATED 1 TIME STEP
@@ -3126,7 +3128,7 @@ endif  ! 1==2
 
       TPREC=float(NPREC)/TSPH
       IF(NPREC==0)TPREC=float(ifhr)  !in case buket does not get emptied
-      print*,'NPREC,TPREC = ',NPREC,TPREC
+      if (me==0) print*,'NPREC,TPREC = ',NPREC,TPREC
 
 !tgs      TPREC=float(ifhr)  ! WRF EM does not empty precip buket at all
 
@@ -3136,7 +3138,7 @@ endif  ! 1==2
 !      THEAT=float(NHEAT)/TSPH
 !      TCLOD=float(NCLOD)/TSPH
 !      TPREC=float(NPREC)/TSPH
-      print*,'TSRFC TRDLW TRDSW= ',TSRFC, TRDLW, TRDSW
+      if (me==0) print*,'TSRFC TRDLW TRDSW= ',TSRFC, TRDLW, TRDSW
 !MEB need to get DT
 
 !how am i going to get this information?
