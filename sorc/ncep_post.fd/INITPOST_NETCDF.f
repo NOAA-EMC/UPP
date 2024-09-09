@@ -56,6 +56,7 @@
 !> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
 !> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
 !> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
+!> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -105,7 +106,7 @@
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust,  &
-              smoke_ave, dust_ave, coarsepm_ave
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1998,11 +1999,26 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,v10max)
      if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
-! max hourly 10m agl wind speed
-      VarName='spd10max'
+! max 10m agl wind speed
+      if (modelname=='FV3R') then
+        VarName='spd10max'  ! hourly max wind speed at 10m
+      else if (modelname=='GFS') then
+        VarName='wind10m_max' ! temporal max wind speed at 10m
+      endif
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10max)
      if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
+
+! max temporal u comp of 10m agl wind
+      VarName='u10m_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,wspd10umax)
+     if(debugprint)print*,'sample ',VarName,' = ',u10max(isa,jsa)
+! max temporal v comp of 10m agl wind
+      VarName='v10m_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,wspd10vmax)
+     if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'

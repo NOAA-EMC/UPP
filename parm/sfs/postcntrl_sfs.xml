@@ -657,6 +657,21 @@
        <scale>6.0</scale>
     </param>
 
+    <param>
+        <shortname>MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+        <scale>-4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MAX_UGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+        <scale>-4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MAX_VGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+        <scale>-4.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>
