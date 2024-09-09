@@ -19,6 +19,7 @@
 !> 2024-08-14 | Jaymes Kenyon| Copied INITPOST as INITPOST_MPAS (reference INITPOST history prior to this date)
 !> 2024-08-30 | Jaymes Kenyon| Add processing for lat-lon projection
 !> 2024-08-30 | Jaymes Kenyon| Add temporary hard coding of SLLEVEL (for RUC LSM) and PREC_ACC_DT
+!> 2024-09-09 | Eric James   | Add checks for missing values before entering some computations
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
