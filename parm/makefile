@@ -33,6 +33,7 @@ ALL_TXT= \
   ./gefs/postxconfig-NT-gefs-f00.txt \
   ./gefs/postxconfig-NT-gefs-aerosol.txt \
   ./gefs/postxconfig-NT-gefs-f00-aerosol.txt \
+  ./gefs/postxconfig-NT-gefs-wafs.txt \
   ./sfs/postxconfig-NT-sfs.txt \
   postxconfig-NT-NMM.txt \
   postxconfig-NT-NGAC.txt \
@@ -69,6 +70,7 @@ clean:
 ./gefs/postxconfig-NT-gefs-f00.txt:         ./gefs/postcntrl_gefs_f00.xml         post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00-aerosol.txt: ./gefs/postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
+./gefs/postxconfig-NT-gefs-wafs.txt:        ./gefs/postcntrl_gefs_wafs.xml        post_avblflds.xml
 ./sfs/postxconfig-NT-sfs.txt:		    ./sfs/postcntrl_sfs.xml	          post_avblflds.xml
 postxconfig-NT-NMM.txt:              nam_cntrl_cmaq.xml             nam_post_avblflds.xml
 postxconfig-NT-NGAC.txt:             ngac_postcntrl.xml             ngac_post_avblflds.xml
