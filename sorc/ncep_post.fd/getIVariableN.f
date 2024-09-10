@@ -13,6 +13,11 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
 !
 ! PROGRAM HISTORY LOG:
 !
+!  Date      |  Programmer   | Comments
+! -----------|---------------|---------
+! 2024-08-06 | Jaymes Kenyon | Read-in netCDF fill values for MPAS applications
+! 2024-09-05 | Jaymes Kenyon | Limiting write statements to process 0 only
+!
 ! USAGE:    CALL getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM,IM1,JS,JE,LM1)
 !
 !   INPUT ARGUMENT LIST:
@@ -51,7 +56,7 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
  ! the portion of VarBuff that is needed for this task.
 
    use wrf_io_flags_mod
-   use ctlblk_mod, only: spval, submodelname
+   use ctlblk_mod, only: me, spval, submodelname
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none
 !
@@ -81,12 +86,12 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
    end_index = 1
    call ext_ncd_get_var_info(dh,TRIM(VarName),ndim,ordering,Stagger,start_index,end_index,WrfType,ierr)
    IF ( ierr /= 0 ) THEN
-     write(*,*)'Error: ',ierr,TRIM(VarName),' not found in ',fileName
+     if (me==0) write(*,*)'Error: ',ierr,TRIM(VarName),' not found in ',fileName
      VarBuff=0.
      return
    ENDIF
    allocate(data (end_index(1), end_index(2), end_index(3), 1))
-   write(*,*)'WrfType in getIVariable= ',WrfType
+   if (me==0) write(*,*)'WrfType in getIVariable= ',WrfType
 !   if( WrfType /= WRF_REAL .AND. WrfType /= WRF_REAL8 ) then !Ignore if not a real variable
 !     write(*,*) 'Error: Not a real variable',WrfType
 !     return
@@ -104,23 +109,29 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
                              start_index,end_index, & !pat
                              ierr)
    IF ( ierr /= 0 ) THEN
-     write(*,*)'Error reading ',Varname,' from ',fileName
-     write(*,*)' ndim = ', ndim
-     write(*,*)' end_index(1) ',end_index(1)
-     write(*,*)' end_index(2) ',end_index(2)
-     write(*,*)' end_index(3) ',end_index(3)
+     if (me==0) then
+       write(*,*)'Error reading ',Varname,' from ',fileName
+       write(*,*)' ndim = ', ndim
+       write(*,*)' end_index(1) ',end_index(1)
+       write(*,*)' end_index(2) ',end_index(2)
+       write(*,*)' end_index(3) ',end_index(3)
+       write(*,*)'Error reading ',Varname,' from ',fileName
+     endif
      VarBuff = 0.0
      return
    ENDIF
-   if (im1>end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
-                ' but data dim=',end_index(1)
-   if (je>end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
-                ' but data dim=',end_index(2)
-   if (lm1>end_index(3)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
-                ' but data dim=',end_index(3)
-   if (ndim>3) then
-     write(*,*) 'Error: ndim = ',ndim
-   endif 
+
+   if (me==0) then
+     if (im1>end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
+                  ' but data dim=',end_index(1)
+     if (je>end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
+                  ' but data dim=',end_index(2)
+     if (lm1>end_index(3)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
+                  ' but data dim=',end_index(3)
+     if (ndim>3) then
+       write(*,*) 'Error: ndim = ',ndim
+     endif 
+   endif
 
    if (SUBMODELNAME=='MPAS') then
    ! For MPAS: determine the fill value associated with the variable
