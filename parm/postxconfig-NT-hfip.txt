@@ -6133,13 +6133,13 @@ TSOIL
 ?
 ?
 depth_bel_land_sfc
-0
-?
+1
+2
 9
 0. 1. 4. 10. 30. 60. 100. 160. 300.
 depth_bel_land_sfc
-0
-?
+1
+2
 9
 0. 1. 4. 10. 30. 60. 100. 160. 300.
 ?
@@ -6175,13 +6175,13 @@ SOILW
 NCEP
 ?
 depth_bel_land_sfc
-0
-?
+1
+2
 9
 0. 1. 4. 10. 30. 60. 100. 160. 300.
 depth_bel_land_sfc
-0
-?
+1
+2
 9
 0. 1. 4. 10. 30. 60. 100. 160. 300.
 ?
@@ -6947,13 +6947,13 @@ SOILW
 NCEP
 ?
 depth_bel_land_sfc
-0
-?
+1
+2
 2
 0. 1.
 depth_bel_land_sfc
-0
-?
+1
+2
 2
 0. 1.
 ?
