@@ -19,6 +19,7 @@
 !> 2024-08-14 | Jaymes Kenyon| Copied INITPOST as INITPOST_MPAS (reference INITPOST history prior to this date)
 !> 2024-08-30 | Jaymes Kenyon| Add processing for lat-lon projection
 !> 2024-08-30 | Jaymes Kenyon| Add temporary hard coding of SLLEVEL (for RUC LSM) and PREC_ACC_DT
+!> 2024-09-09 | Eric James   | Add checks for missing values before entering some computations
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -258,7 +259,11 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
+         if(dum3d(i,j,l)<spval) then
             t ( i, j, l ) = dum3d ( i, j, l ) + 300.
+         else
+            t ( i, j, l ) = spval
+         endif
 ! JSK (2 Aug 2024): The VarName 'T' is the perturbation potential
 ! temperature; the addition of 300 K yields the full potential
 ! temperature. Further below, after the read-in of hydrostatic 
@@ -334,7 +339,11 @@
 !HC            q ( i, j, l ) = dum3d ( i, j, l )
 !HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
 !mhu check !!!!            if (dum3d(i,j,l) < 10E-12) dum3d(i,j,l) = 10E-12
+           if(dum3d(i,j,l)<spval) then
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
+           else
+            q ( i, j, l ) = spval
+           endif
         end do
        end do
       end do
@@ -355,6 +364,7 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
+           if(dum3d(i,j,l)<spval) then
 !            PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
             PMID(I,J,L)=DUM3D(I,J,L)
             thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
@@ -370,7 +380,13 @@
 !	       qqs(i,j,l)=qqr(i,j,l)
 !	       qqi(i,j,l)=qqw(i,j,l)
 !	      end if 
-!	     end if 	                      
+!	     end if 	              
+           else
+            PMID(I,J,L) = spval
+            thv(i,j,l) = spval
+            t(i,j,l) = spval
+            omga(i,j,l) = spval
+           endif
         end do
        end do
       end do
@@ -2662,6 +2678,7 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+          if( dummy ( i, j ) < SPVAL) then
            if( dummy ( i, j ) <= 5000.0 .and. dummy ( i, j ) >=0.0) then
               SNO ( i, j ) = dummy ( i, j )
            elseif( dummy ( i, j ) > 5000.0) then 
@@ -2674,6 +2691,7 @@ endif  ! 1==2
               SNO ( i, j ) = 0.0
               write(*,*) 'strange SNOW=',i,j,dummy ( i, j )
            endif
+          endif
         end do
        end do
 ! Snow depth
@@ -2682,6 +2700,7 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+          if( dummy ( i, j ) < SPVAL) then
            if( dummy ( i, j ) <= 50.0 .and. dummy ( i, j ) >=0.0) then
               SI ( i, j ) = dummy ( i, j ) * 1000.
            elseif( dummy ( i, j ) > 50.0) then 
@@ -2694,6 +2713,7 @@ endif  ! 1==2
               SI ( i, j ) = 0.0
               write(*,*) 'strange SNOWH=',i,j,dummy ( i, j )
            endif
+          endif
         end do
        end do
 
