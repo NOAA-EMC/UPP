@@ -22,8 +22,14 @@
 
     <param>
        <shortname>HGT_ON_ISOBARIC_SFC</shortname>
-       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
+       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 22500. 25000. 27500. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>DPT_ON_ISOBARIC_SFC</shortname>
+       <level>30000. 50000. 70000. 85000.</level>
+       <scale>5.0</scale>
     </param>
 
     <param>
@@ -46,13 +52,13 @@
 
     <param>
        <shortname>UGRD_ON_ISOBARIC_SFC</shortname>
-       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
+       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 22500. 25000. 27500. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>       
     </param>
 
     <param>
        <shortname>VGRD_ON_ISOBARIC_SFC</shortname>
-       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
+       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 22500. 25000. 27500. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>       
     </param>
 
@@ -353,6 +359,16 @@
     <param>
        <shortname>AVE_TCDC_ON_ENTIRE_ATMOS</shortname>
        <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>HGT_ON_CLOUD_TOP</shortname>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -777,6 +793,12 @@
     </param>
 
     <param>
+       <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>TCDC_ON_ISOBARIC_SFC</shortname>
        <level>47500.</level>
        <scale>3.0</scale>
@@ -901,6 +923,12 @@
     <param>
        <shortname>ICAHT_ON_TROPOPAUSE</shortname>
        <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <table_info>NCEP</table_info>
+       <scale>-6.0</scale>
     </param>
 
     <param>
