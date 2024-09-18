@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">UPP<span id="projectnumber">&#160;11.0.0</span>
+   <div id="projectname">UPP<span id="projectnumber">&#160;(develop)</span>
    </div>
   </td>
  </tr>
@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('INITPOST__NETCDF_8f.html',''); initRes
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aca6793185b6d5dcf532cc4931b5addf4" id="r_aca6793185b6d5dcf532cc4931b5addf4"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NETCDF_8f.html#aca6793185b6d5dcf532cc4931b5addf4">initpost_netcdf</a> (ncid2d, ncid3d)</td></tr>
-<tr class="memdesc:aca6793185b6d5dcf532cc4931b5addf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng | Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James | Read in SOILL on 9 levels for RRFS 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain) 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output 2023-09-22 | Wen Meng | Bug fix in cwm initialization 2023-10-17 | Eric James | Including hail mixing ratio in calculation of hydrometeor VIL and cwm when present (NSSL microphysics) 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS 2024-01-12 | Wen Meng | Remove the hard-wired bucket for beyond F240 2024-02-07 | Eric James | Adding reading of direct and diffuse irradiance and LAI 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from <a class="el" href="INITPOST_8F.html" title="initpost() initializes post for run.">INITPOST.F</a>) to support RRFS 10-m wind gust diagnostic 2024-03-15 | Wen Meng | Add option to read 3D soil-related variables 2024-03-25 | Eric James | Enabling reading of snow melt and surface albedo from RRFS 2024-04-03 | Eric James | Add reading of hourly averaged smoke and dust 2024-04-23 | Eric James | Updating smoke emissions to be 3D variable (ebu_smoke) 2024-05-01 | Eric James | set "prec_acc_dt1" as 15 min for RRFS 2024-05-09 | Eric James | Enable reading of clear-sky downwelling shortwave irradiance 2024-05-10 | Karina Asmar | Read omega from model output and calculate HGT for hydrostatic runs 2024-06-25 | Wen Meng | Add capability to read fhzero as either an integer or float  <br /></td></tr>
+<tr class="memdesc:aca6793185b6d5dcf532cc4931b5addf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng | Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James | Read in SOILL on 9 levels for RRFS 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain) 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output 2023-09-22 | Wen Meng | Bug fix in cwm initialization 2023-10-17 | Eric James | Including hail mixing ratio in calculation of hydrometeor VIL and cwm when present (NSSL microphysics) 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS 2024-01-12 | Wen Meng | Remove the hard-wired bucket for beyond F240 2024-02-07 | Eric James | Adding reading of direct and diffuse irradiance and LAI 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from <a class="el" href="INITPOST_8F.html" title="initpost() initializes post for run.">INITPOST.F</a>) to support RRFS 10-m wind gust diagnostic 2024-03-15 | Wen Meng | Add option to read 3D soil-related variables 2024-03-25 | Eric James | Enabling reading of snow melt and surface albedo from RRFS 2024-04-03 | Eric James | Add reading of hourly averaged smoke and dust 2024-04-23 | Eric James | Updating smoke emissions to be 3D variable (ebu_smoke) 2024-05-01 | Eric James | set "prec_acc_dt1" as 15 min for RRFS 2024-05-09 | Eric James | Enable reading of clear-sky downwelling shortwave irradiance 2024-05-10 | Karina Asmar | Read omega from model output and calculate HGT for hydrostatic runs 2024-06-25 | Wen Meng | Add capability to read fhzero as either an integer or float 2024-08-26 | Karina Asmar | Add temporal u/v, speed max wind components at 10m agl  <br /></td></tr>
 <tr class="separator:aca6793185b6d5dcf532cc4931b5addf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0b47ac11223ca7217131e3b0b4effac" id="r_aa0b47ac11223ca7217131e3b0b4effac"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NETCDF_8f.html#aa0b47ac11223ca7217131e3b0b4effac">read_netcdf_2d_para</a> (ncid, ista, ista_2l, iend, iend_2u, jsta, jsta_2l, jend, jend_2u, spval, varname, buf)</td></tr>
 <tr class="memdesc:aa0b47ac11223ca7217131e3b0b4effac"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="INITPOST__NETCDF_8f.html#aa0b47ac11223ca7217131e3b0b4effac" title="read_netcdf_2d_para() reads physics variables from UFS model output.">read_netcdf_2d_para()</a> reads physics variables from UFS model output.  <br /></td></tr>
@@ -117,7 +117,7 @@ Functions/Subroutines</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2016-03-04</dd></dl>
 <p>This routine initializes constants and variables at the start of GFS model or post processor run.</p>
-<h3><a class="anchor" id="autotoc_md62"></a>
+<h3><a class="anchor" id="autotoc_md63"></a>
 Program History Log</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -196,7 +196,7 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng | Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James | Read in SOILL on 9 levels for RRFS 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain) 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output 2023-09-22 | Wen Meng | Bug fix in cwm initialization 2023-10-17 | Eric James | Including hail mixing ratio in calculation of hydrometeor VIL and cwm when present (NSSL microphysics) 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS 2024-01-12 | Wen Meng | Remove the hard-wired bucket for beyond F240 2024-02-07 | Eric James | Adding reading of direct and diffuse irradiance and LAI 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from <a class="el" href="INITPOST_8F.html" title="initpost() initializes post for run.">INITPOST.F</a>) to support RRFS 10-m wind gust diagnostic 2024-03-15 | Wen Meng | Add option to read 3D soil-related variables 2024-03-25 | Eric James | Enabling reading of snow melt and surface albedo from RRFS 2024-04-03 | Eric James | Add reading of hourly averaged smoke and dust 2024-04-23 | Eric James | Updating smoke emissions to be 3D variable (ebu_smoke) 2024-05-01 | Eric James | set "prec_acc_dt1" as 15 min for RRFS 2024-05-09 | Eric James | Enable reading of clear-sky downwelling shortwave irradiance 2024-05-10 | Karina Asmar | Read omega from model output and calculate HGT for hydrostatic runs 2024-06-25 | Wen Meng | Add capability to read fhzero as either an integer or float </p>
+<p>2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng | Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James | Read in SOILL on 9 levels for RRFS 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain) 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output 2023-09-22 | Wen Meng | Bug fix in cwm initialization 2023-10-17 | Eric James | Including hail mixing ratio in calculation of hydrometeor VIL and cwm when present (NSSL microphysics) 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS 2024-01-12 | Wen Meng | Remove the hard-wired bucket for beyond F240 2024-02-07 | Eric James | Adding reading of direct and diffuse irradiance and LAI 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from <a class="el" href="INITPOST_8F.html" title="initpost() initializes post for run.">INITPOST.F</a>) to support RRFS 10-m wind gust diagnostic 2024-03-15 | Wen Meng | Add option to read 3D soil-related variables 2024-03-25 | Eric James | Enabling reading of snow melt and surface albedo from RRFS 2024-04-03 | Eric James | Add reading of hourly averaged smoke and dust 2024-04-23 | Eric James | Updating smoke emissions to be 3D variable (ebu_smoke) 2024-05-01 | Eric James | set "prec_acc_dt1" as 15 min for RRFS 2024-05-09 | Eric James | Enable reading of clear-sky downwelling shortwave irradiance 2024-05-10 | Karina Asmar | Read omega from model output and calculate HGT for hydrostatic runs 2024-06-25 | Wen Meng | Add capability to read fhzero as either an integer or float 2024-08-26 | Karina Asmar | Add temporal u/v, speed max wind components at 10m agl </p>
 <dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2016-03-04</dd></dl>
 <p>INITPOST_NETCDF() This routine initializes constants and variables at the start of GFS model or post processor run.</p>
@@ -208,11 +208,11 @@ Program History Log</h3>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l00068">68</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l00069">69</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
-<p class="reference">References <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>, <a class="el" href="MSFPS_8f_source.html#l00027">msfps()</a>, <a class="el" href="INITPOST__NETCDF_8f_source.html#l04098">read_netcdf_2d_para()</a>, and <a class="el" href="INITPOST__NETCDF_8f_source.html#l04029">read_netcdf_3d_para()</a>.</p>
+<p class="reference">References <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>, <a class="el" href="MSFPS_8f_source.html#l00027">msfps()</a>, <a class="el" href="INITPOST__NETCDF_8f_source.html#l04114">read_netcdf_2d_para()</a>, and <a class="el" href="INITPOST__NETCDF_8f_source.html#l04045">read_netcdf_3d_para()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="WRFPOST_8F_source.html#l00044">wrfpost()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="WRFPOST_8F_source.html#l00046">wrfpost()</a>.</p>
 
 </div>
 </div>
@@ -321,9 +321,9 @@ Program History Log</h3>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l04096">4096</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l04112">4112</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="INITPOST__NETCDF_8f_source.html#l00069">initpost_netcdf()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="INITPOST__NETCDF_8f_source.html#l00070">initpost_netcdf()</a>.</p>
 
 </div>
 </div>
@@ -453,9 +453,9 @@ Program History Log</h3>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l04027">4027</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l04043">4043</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="INITPOST__NETCDF_8f_source.html#l00069">initpost_netcdf()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="INITPOST__NETCDF_8f_source.html#l00070">initpost_netcdf()</a>.</p>
 
 </div>
 </div>
@@ -464,7 +464,7 @@ Program History Log</h3>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d8b772108138bf796aaa3f7fe4e09294.html">sorc</a></li><li class="navelem"><a class="el" href="dir_29f0049402def9fd0d109199f2d306c2.html">ncep_post.fd</a></li><li class="navelem"><a class="el" href="INITPOST__NETCDF_8f.html">INITPOST_NETCDF.f</a></li>
+    <li class="navelem"><a class="el" href="INITPOST__NETCDF_8f.html">INITPOST_NETCDF.f</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

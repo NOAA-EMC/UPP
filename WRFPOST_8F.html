@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">UPP<span id="projectnumber">&#160;11.0.0</span>
+   <div id="projectname">UPP<span id="projectnumber">&#160;(develop)</span>
    </div>
   </td>
  </tr>
@@ -108,7 +108,7 @@ Functions/Subroutines</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="WRFPOST_8F.html#a1cd6b17d058d09a1a2f18c0b72160c95">wrfpost()</a> drives the external wrf post processor. </p>
 <dl class="section return"><dt>Returns</dt><dd>wrfpost</dd></dl>
-<h3><a class="anchor" id="autotoc_md108"></a>
+<h3><a class="anchor" id="autotoc_md109"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -176,7 +176,11 @@ Program history log:</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">2023-08-16   </td><td class="markdownTableBodyNone">Yali Mao   </td><td class="markdownTableBodyNone">Add gtg_on logical option    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2023-11-29   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Add method_blsn logical option   </td></tr>
+<td class="markdownTableBodyNone">2023-11-29   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Add method_blsn logical option    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2024-08-19   </td><td class="markdownTableBodyNone">Jaymes Kenyon   </td><td class="markdownTableBodyNone">Adding a call to INITPOST_MPAS    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2024-08-30   </td><td class="markdownTableBodyNone">Jaymes Kenyon   </td><td class="markdownTableBodyNone">Hard coding iSF_SURFACE_PHYSICS=3 when modelname=RAPR and submodelname=MPAS   </td></tr>
 </table>
 <dl class="section author"><dt>Author</dt><dd>Mike Bladwin NSSL/SPC </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2002-06-18 </dd></dl>
@@ -196,9 +200,9 @@ Program history log:</h3>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>wrfpost </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="WRFPOST_8F_source.html#l00044">44</a> of file <a class="el" href="WRFPOST_8F_source.html">WRFPOST.F</a>.</p>
+<p class="definition">Definition at line <a class="el" href="WRFPOST_8F_source.html#l00046">46</a> of file <a class="el" href="WRFPOST_8F_source.html">WRFPOST.F</a>.</p>
 
-<p class="reference">References <a class="el" href="ALLOCATE__ALL_8f_source.html#l00039">allocate_all()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::calrad_wcloud_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::cldrad_tim</a>, <a class="el" href="DEALLOCATE_8f_source.html#l00019">de_allocate()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::eta2p_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::etafld2_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::fixed_tim</a>, <a class="el" href="INITPOST_8F_source.html#l00026">initpost()</a>, <a class="el" href="INITPOST__GFS__NEMS__MPIIO_8f_source.html#l00039">initpost_gfs_nems_mpiio()</a>, <a class="el" href="INITPOST__NEMS_8f_source.html#l00028">initpost_nems()</a>, <a class="el" href="INITPOST__NETCDF_8f_source.html#l00069">initpost_netcdf()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2agl_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2sigma_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2std_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2thandpv_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::miscln_tim</a>, <a class="el" href="MPI__FIRST_8f_source.html#l00046">mpi_first()</a>, <a class="el" href="MPI__LAST_8f_source.html#l00032">mpi_last()</a>, <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>, <a class="el" href="READ__xml_8f_source.html#l00014">read_xml()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::readxml_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::run_ifi_tim</a>, <a class="el" href="SERVER_8f_source.html#l00037">server()</a>, <a class="el" href="SET__OUTFLDS_8f_source.html#l00024">set_outflds()</a>, <a class="el" href="SETUP__SERVERS_8f_source.html#l00025">setup_servers()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::surfce2_tim</a>, and <a class="el" href="CTLBLK_8f_source.html#l00219">ctlblk_mod::time_output</a>.</p>
+<p class="reference">References <a class="el" href="ALLOCATE__ALL_8f_source.html#l00039">allocate_all()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::calrad_wcloud_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::cldrad_tim</a>, <a class="el" href="DEALLOCATE_8f_source.html#l00019">de_allocate()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::eta2p_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::etafld2_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::fixed_tim</a>, <a class="el" href="INITPOST_8F_source.html#l00026">initpost()</a>, <a class="el" href="INITPOST__GFS__NEMS__MPIIO_8f_source.html#l00039">initpost_gfs_nems_mpiio()</a>, <a class="el" href="INITPOST__MPAS_8F_source.html#l00027">initpost_mpas()</a>, <a class="el" href="INITPOST__NEMS_8f_source.html#l00028">initpost_nems()</a>, <a class="el" href="INITPOST__NETCDF_8f_source.html#l00070">initpost_netcdf()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2agl_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2sigma_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2std_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::mdl2thandpv_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::miscln_tim</a>, <a class="el" href="MPI__FIRST_8f_source.html#l00046">mpi_first()</a>, <a class="el" href="MPI__LAST_8f_source.html#l00032">mpi_last()</a>, <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>, <a class="el" href="READ__xml_8f_source.html#l00014">read_xml()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::readxml_tim</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::run_ifi_tim</a>, <a class="el" href="SERVER_8f_source.html#l00037">server()</a>, <a class="el" href="SET__OUTFLDS_8f_source.html#l00024">set_outflds()</a>, <a class="el" href="SETUP__SERVERS_8f_source.html#l00025">setup_servers()</a>, <a class="el" href="CTLBLK_8f_source.html#l00209">ctlblk_mod::surfce2_tim</a>, and <a class="el" href="CTLBLK_8f_source.html#l00219">ctlblk_mod::time_output</a>.</p>
 
 </div>
 </div>
@@ -207,7 +211,7 @@ Program history log:</h3>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d8b772108138bf796aaa3f7fe4e09294.html">sorc</a></li><li class="navelem"><a class="el" href="dir_29f0049402def9fd0d109199f2d306c2.html">ncep_post.fd</a></li><li class="navelem"><a class="el" href="WRFPOST_8F.html">WRFPOST.F</a></li>
+    <li class="navelem"><a class="el" href="WRFPOST_8F.html">WRFPOST.F</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
