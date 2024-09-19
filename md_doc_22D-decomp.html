@@ -92,14 +92,14 @@ $(document).ready(function(){initNavTree('md_doc_22D-decomp.html',''); initResiz
   <div class="headertitle"><div class="title">2-D Decomposition Overview</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md1"></a> <b>Author:</b> George Vandenberghe</p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md2"></a> <b>Author:</b> George Vandenberghe</p>
 <p><b>Date:</b> June 2022</p>
-<h1><a class="anchor" id="autotoc_md2"></a>
+<h1><a class="anchor" id="autotoc_md3"></a>
 Comparison of 1D vs. 2D Decomposition</h1>
 <p>The 1D decomposition can read state from a model forecast file, either by reading on rank 0 and scattering, or by doing MPI_IO on the model history file using either nemsio, sigio, or netcdf serial or parallel I/O. Very old post tags also implement the more primitive full state broadcast or (a performance bug rectified 10/17) read the entire state on all tasks. This is mentioned in case a very old tag is encountered. <br  />
 </p>
 <p>The 2D decomposition only supports MPI_IO, namely NetCDF Parallel I/O. But the code is backwards compatible and all I/O methods remain supported for the 1D decomposition cases and works for all cases currently supported by older 1D tags and branches.</p>
-<h1><a class="anchor" id="autotoc_md3"></a>
+<h1><a class="anchor" id="autotoc_md4"></a>
 2D Decomposition Design</h1>
 <p>The 2D decomposition operates on subdomains with some latitudes and some longitudes. The subdomains are lon-lat rectangles rather than strips. This means state must be chopped into pieces in any scatter operation and the pieces reassembled in any gather operation that requires a continuous in memory state. I/O and halo exchanges both require significantly more bookkeeping.</p>
 <p>The structural changes needed for the 2D decomposition are implemented in <a class="el" href="MPI__FIRST_8f.html" title="SUBPROGRAM: MPI_FIRST SET UP MESSAGE PASSING INFO PRGRMMR: TUCCILLO ORG: IBM.">MPI_FIRST.f</a> and <a class="el" href="CTLBLK_8f.html" title="CTLBLK sets default parameters that are used throughout the UPP code.">CTLBLK.f</a>. The <a class="el" href="CTLBLK_8f.html" title="CTLBLK sets default parameters that are used throughout the UPP code.">CTLBLK.f</a> routine contains numerous additional variables describing left and right domain boundaries. Many additional changes are also implemented in <a class="el" href="EXCH_8f.html" title="Subroutines that exchange one halo row.">EXCH.f</a> to support 2D halos. Many additional routines required addition of the longitude subdomain limits but changes to the layouts are handled in <a class="el" href="CTLBLK_8f.html" title="CTLBLK sets default parameters that are used throughout the UPP code.">CTLBLK.f</a> and the "many additional routines" do not require additional changes when subdomain shapes are changed and have not been a trouble point.</p>
