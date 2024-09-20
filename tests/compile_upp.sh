@@ -8,37 +8,48 @@ set -eu
 
 usage() {
   echo
-  echo "Usage: $0 [-p] [-g] [-w] [-v] [-c] [-i] [-d] -h"
+  echo "Usage: $0 [options]"
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
-  echo "  -I  build with libIFI(users with ifi repos. access only)  DEFAULT: OFF"
   echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
+  echo "  -I  build with libIFI (users with ifi repos. access only) DEFAULT: OFF"
+  echo "  -B  build libIFI test programs (only valid with -I)       DEFAULT: OFF"
   echo "  -n  build without nemsio            DEFAULT: ON"
   echo "  -w  build without WRF-IO            DEFAULT: ON"
   echo "  -v  build with cmake verbose        DEFAULT: NO"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
   echo "  -d  Debug mode of CMAKE_BUILD_TYPE  DEFAULT: Release"
+  echo "  -Doption=value   Passes this option to cmake (can use more than once)"
   echo "  -h  display this message and quit"
   echo
   exit 1
 }
 
+load_ifi_module=NO
 prefix="../install"
 ifi_opt=" -DBUILD_WITH_IFI=OFF"
+build_ifi_executables_opt=" "
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
 nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
+more=" "
 compiler="intel"
 verbose_opt=""
 debug_opt=""
-while getopts ":p:gnwc:vhiId" opt; do
+while getopts ":p:gnwc:vhiIdBD:" opt; do
   case $opt in
+    D)
+      more="$more -$opt$OPTARG"
+      ;;
     p)
       prefix=$OPTARG
       ;;
     g)
       gtg_opt=" -DBUILD_WITH_GTG=ON"
+      ;;
+    B)
+      build_ifi_executables_opt=" -DBUILD_IFI_EXECUTABLES=ON"
       ;;
     n)
       nemsio_opt=" -DBUILD_WITH_NEMSIO=OFF"
@@ -51,6 +62,7 @@ while getopts ":p:gnwc:vhiId" opt; do
       ;;
     i)
       ifi_opt=" -DREQUIRE_IFI=ON"
+      load_ifi_module=YES
       ;;
     c)
       compiler=$OPTARG
@@ -74,7 +86,7 @@ if [[ ! -z $debug_opt && $ifi_opt =~ INTERNAL.*=ON ]] ; then
     debug_opt="$debug_opt -DIFI_DEBUG=ON"
 fi
 
-cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}
+cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}${build_ifi_executables_opt}${more}
 
 if [[ $(uname -s) == Darwin ]]; then
   readonly MYDIR=$(cd "$(dirname "$(greadlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
@@ -110,6 +122,10 @@ if [[ $MACHINE_ID != "unknown" ]]; then
       exit 1
    fi
    module load $modulefile
+   if [[ "$load_ifi_module" == YES ]] ; then
+       echo "Loading modulefile for external libIFI library"
+       module load ${modulefile}_ifi
+   fi
    module list
 fi
 
