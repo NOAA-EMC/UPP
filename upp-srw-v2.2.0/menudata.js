@@ -24,7 +24,7 @@
 */
 var menudata={children:[
 {text:"Main Page",url:"index.html"},
-{text:"Topics",url:"topics.html"},
+{text:"Related Pages",url:"pages.html"},
 {text:"Data Types",url:"annotated.html",children:[
 {text:"Data Types List",url:"annotated.html"},
 {text:"Data Fields",url:"functions.html",children:[
@@ -51,7 +51,6 @@ var menudata={children:[
 {text:"r",url:"globals.html#index_r"},
 {text:"s",url:"globals.html#index_s"},
 {text:"t",url:"globals.html#index_t"},
-{text:"u",url:"globals.html#index_u"},
 {text:"w",url:"globals.html#index_w"},
 {text:"z",url:"globals.html#index_z"}]},
 {text:"Functions/Subroutines",url:"globals_func.html",children:[
@@ -72,6 +71,6 @@ var menudata={children:[
 {text:"r",url:"globals_func.html#index_r"},
 {text:"s",url:"globals_func.html#index_s"},
 {text:"t",url:"globals_func.html#index_t"},
-{text:"u",url:"globals_func.html#index_u"},
 {text:"w",url:"globals_func.html#index_w"},
-{text:"z",url:"globals_func.html#index_z"}]}]}]}]}
+{text:"z",url:"globals_func.html#index_z"}]},
+{text:"Variables",url:"globals_vars.html"}]}]}]}

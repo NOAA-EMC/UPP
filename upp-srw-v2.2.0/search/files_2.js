@@ -21,9 +21,6 @@ var searchData=
   ['calupdhel_2ef_18',['CALUPDHEL.f',['../CALUPDHEL_8f.html',1,'']]],
   ['calwxt_5fbourg_2ef_19',['CALWXT_BOURG.f',['../CALWXT__BOURG_8f.html',1,'']]],
   ['cldrad_2ef_20',['CLDRAD.f',['../CLDRAD_8f.html',1,'']]],
-  ['cmassi_2ef_21',['CMASSI.f',['../CMASSI_8f.html',1,'']]],
-  ['collect_2ef_22',['COLLECT.f',['../COLLECT_8f.html',1,'']]],
-  ['collect_5floc_2ef_23',['COLLECT_LOC.f',['../COLLECT__LOC_8f.html',1,'']]],
-  ['ctlblk_2ef_24',['CTLBLK.f',['../CTLBLK_8f.html',1,'']]],
-  ['cuparm_2ef_25',['cuparm.f',['../cuparm_8f.html',1,'']]]
+  ['collect_2ef_21',['COLLECT.f',['../COLLECT_8f.html',1,'']]],
+  ['collect_5floc_2ef_22',['COLLECT_LOC.f',['../COLLECT__LOC_8f.html',1,'']]]
 ];

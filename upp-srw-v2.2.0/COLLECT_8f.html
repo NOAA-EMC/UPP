@@ -103,7 +103,6 @@ $(document).ready(function(){initNavTree('COLLECT_8f.html',''); initResizable();
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac93edd583d11f3d8219d70b12c400bc5" id="r_ac93edd583d11f3d8219d70b12c400bc5"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="COLLECT_8f.html#ac93edd583d11f3d8219d70b12c400bc5">collect</a> (a, b)</td></tr>
-<tr class="memdesc:ac93edd583d11f3d8219d70b12c400bc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">COLLECT() Subroutine that collect gathers from all MPI tasks.  <br /></td></tr>
 <tr class="separator:ac93edd583d11f3d8219d70b12c400bc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -111,12 +110,12 @@ Functions/Subroutines</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">A</td><td>Array being gathered. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">B</td><td>gathered array - only valid on task 0.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">A</td><td>gathered array - only valid on task 0.</td></tr>
   </table>
   </dd>
 </dl>
 <p>Gather "A" from all MPI tasks onto task 0.</p>
-<h3><a class="anchor" id="autotoc_md24"></a>
+<h3><a class="anchor" id="autotoc_md27"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -155,16 +154,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>COLLECT() Subroutine that collect gathers from all MPI tasks. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">A</td><td>Array being gathered. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">B</td><td>gathered array - only valid on task 0. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="COLLECT_8f_source.html#l00021">21</a> of file <a class="el" href="COLLECT_8f_source.html">COLLECT.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="COLLECT_8f_source.html#l00015">15</a> of file <a class="el" href="COLLECT_8f_source.html">COLLECT.f</a>.</p>
 
 </div>
 </div>

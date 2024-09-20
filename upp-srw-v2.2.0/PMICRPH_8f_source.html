@@ -97,149 +97,46 @@ $(document).ready(function(){initNavTree('PMICRPH_8f_source.html',''); initResiz
   <div class="headertitle"><div class="title">PMICRPH.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="PMICRPH_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!-----------------------------------------------------------------</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>     <span class="keyword">module</span> pmicrph_mod</div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">! -----  Constants related to microphysics</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">!          -- computed in paramr.f</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">!      REAL ABER1(31),ABER2(31)</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">! LOOKUP TABLE FOR A1 AND A2 IN BERGERON PROCESS</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>      <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a75f5dcf85a1d5adaa9cab6c0420afc2b">   15</a></span><span class="keywordtype">      REAL</span> pi</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a9d12018339b841a2c6fcbce457ee3ecd">   16</a></span><span class="keywordtype">      REAL</span> ron</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae97ef7024a1e88a6c2896b735a684f57">   17</a></span><span class="keywordtype">      REAL</span> son</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae65ec138413ce327e322448736d7376d">   18</a></span><span class="keywordtype">      REAL</span> gon</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a4783237691a5bf6121a9230014a70d95">   19</a></span><span class="keywordtype">      REAL</span> br</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ad3f778a57b036fe3ab84edc2854d63aa">   20</a></span><span class="keywordtype">      REAL</span> bs</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a62311d157e3daeb51ffac015e7428538">   21</a></span><span class="keywordtype">      REAL</span> bg</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a6fe8bad162188aab7a89689cc92e9435">   22</a></span><span class="keywordtype">      REAL</span> drain</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a80ec493bcdbebe1364269fff49f752ba">   23</a></span><span class="keywordtype">      REAL</span> dsnow</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a854926f1c3d4f4dcaaebc37f495a6265">   24</a></span><span class="keywordtype">      REAL</span> dgraupel</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#af3a54b3b6dc9d99703e14130400e2c2e">   25</a></span><span class="keywordtype">      REAL</span> ron2</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a034501588d056ec102294dc3996fa8f5">   26</a></span><span class="keywordtype">      REAL</span> diace_min</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a599b312d0a130ce61a24996aabff80e2">   27</a></span><span class="keywordtype">      REAL</span> drain2</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ad6b0b125d2290c926a7fbbf790176233">   28</a></span><span class="keywordtype">      REAL</span> dsnow2</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a7f5eeef83c586526a5f1f260eb7c15e8">   29</a></span><span class="keywordtype">      REAL</span> topr</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab788ff13b2431b8c6d17a089a627328a">   30</a></span><span class="keywordtype">      REAL</span> tops</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab3f7810ec0f1b03bc775d6a2c818e961">   31</a></span><span class="keywordtype">      REAL</span> topg</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a69dff6ad2471cb9e88849a212becdf56">   32</a></span><span class="keywordtype">      REAL</span> arain</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#acc3b627313e34f430e0b73a1aef0d531">   33</a></span><span class="keywordtype">      REAL</span> asnow</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aba7177996af99ee8fd362b684a60054f">   34</a></span><span class="keywordtype">      REAL</span> agraupel</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a9c9a0554cdaf5e76491315b66cadece3">   35</a></span><span class="keywordtype">      REAL</span> tno</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a0aa3b96de83a7528a0a486bba920e0c9">   36</a></span><span class="keywordtype">      REAL</span> ato</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a8dab5d8cdb19bdb3d4b9a44bbc4bc9ee">   37</a></span><span class="keywordtype">      REAL</span> xsmax</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a01bcdba8fe25aca518102472ed6943d1">   38</a></span><span class="keywordtype">      REAL</span> berc1</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aef24ebe0a3b9036e1d2e139d24b1544c">   39</a></span><span class="keywordtype">      REAL</span> bp</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a3371e445054b4647d134074e8369b50a">   40</a></span><span class="keywordtype">      REAL</span> ap</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a72ad3bca8cf15788fe8550370c9b1f34">   41</a></span><span class="keywordtype">      REAL</span> cnp</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a5dce8e6f0945e2941bc28f51bd0a66a0">   42</a></span><span class="keywordtype">      REAL</span> frd1</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a798967a4847b4e97627465a350cc7d35">   43</a></span><span class="keywordtype">      REAL</span> fra1</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a5c07b533d9460e4b27a5c8875178d4fc">   44</a></span><span class="keywordtype">      REAL</span> efis</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ad8f7c9c7771975a8439b919381be207f">   45</a></span><span class="keywordtype">      REAL</span> efir</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a52d4ce237546cfb84ef278c8aa736d68">   46</a></span><span class="keywordtype">      REAL</span> efsr</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a9fc9e34a8b191eec90fdb491da32ed08">   47</a></span><span class="keywordtype">      REAL</span> efcs</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab648ea785b2ddcd881843e4ab8e080c1">   48</a></span><span class="keywordtype">      REAL</span> efgi</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a275d49273f71a72c881d616e8121b74a">   49</a></span><span class="keywordtype">      REAL</span> efgc</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a6df7797237632d545252006af34fee63">   50</a></span><span class="keywordtype">      REAL</span> efgr</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a60bbdaa3aeedadd3b1e9fa30f809fc49">   51</a></span><span class="keywordtype">      REAL</span> efgs</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a9b19265eff6f63b8cd91467f10da2171">   52</a></span><span class="keywordtype">      REAL</span> efcr</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a80694cf1a0000a70a5f207f4050eb390">   53</a></span><span class="keywordtype">      REAL</span> acris</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ad12f4dcb2554de93dbf5776eaa4a58ef">   54</a></span><span class="keywordtype">      REAL</span> bacris</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a5e71dcbd9b71d9d4915dce1e18727557">   55</a></span><span class="keywordtype">      REAL</span> cir</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a7b57f59b2c7eb339db88cbf62d428a2f">   56</a></span><span class="keywordtype">      REAL</span> cirf</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a6077cbbc11537057b6df8064aea937a1">   57</a></span><span class="keywordtype">      REAL</span> cpiacr0</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aed6f6872c54e669f23885e30b4576d11">   58</a></span><span class="keywordtype">      REAL</span> cpiacr1</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a7c3084a189f3f3c4aa547a21cd7d19be">   59</a></span><span class="keywordtype">      REAL</span> cpiacr2</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a04de89e99ee633c8f011c7fd1e92867c">   60</a></span><span class="keywordtype">      REAL</span> cpiacr3</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a25f25fe26baa12f22445cb568afd178c">   61</a></span><span class="keywordtype">      REAL</span> frain</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a0191aa5aaa29583feebd4e0179c7779c">   62</a></span><span class="keywordtype">      REAL</span> fsnow</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a0664c16f351df3c97deff96932348516">   63</a></span><span class="keywordtype">      REAL</span> fgraupel</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab4cfe94f33f29cbcd8a87096ef5c62e8">   64</a></span><span class="keywordtype">      REAL</span> csr</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#acc1bac4d295daae4d656d69d18d7f9a1">   65</a></span><span class="keywordtype">      REAL</span> crs</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab7b1de1b80428e589c22d252935b02b2">   66</a></span><span class="keywordtype">      REAL</span> acrcs</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a614080c088b3975d0caea6125db7af85">   67</a></span><span class="keywordtype">      REAL</span> bacrcs</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a338061fd308262db86a8fd9b87a90779">   68</a></span><span class="keywordtype">      REAL</span> rmc</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#adf89dc511ad22cf3fdfe39cf88b09a23">   69</a></span><span class="keywordtype">      REAL</span> acrls</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a1c1cb684e774aab7965130770318e2b2">   70</a></span><span class="keywordtype">      REAL</span> bacls</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a8588e68b51783cc631b81d4ef5b644f0">   71</a></span><span class="keywordtype">      REAL</span> acrcg</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aed8bd44b35bd6ff54cab727ad811ee6a">   72</a></span><span class="keywordtype">      REAL</span> bacrcg</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a790f20027bf96b980c49fa500b04b3cc">   73</a></span><span class="keywordtype">      REAL</span> acrig</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a559f54aff9e4a5dfc9b82ab00b059f3d">   74</a></span><span class="keywordtype">      REAL</span> bacrig</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#afdddf5e843322cc8ff8ddda8a745572c">   75</a></span><span class="keywordtype">      REAL</span> crg</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aa8c5953c8e4aee2c3ab95318e24d4a4f">   76</a></span><span class="keywordtype">      REAL</span> csg</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#afe84465e5e9777e2491948d60e26caf8">   77</a></span><span class="keywordtype">      REAL</span> depg1</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae822b05c4f94313164cc9bef316f18fb">   78</a></span><span class="keywordtype">      REAL</span> depg2</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aad83d23e4011028c2f2ea39179e8e2de">   79</a></span><span class="keywordtype">      REAL</span> depg3</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae9fd8a830146884a9bb5c2e6866638cf">   80</a></span><span class="keywordtype">      REAL</span> depg4</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a351615105aa50e421cf4ae39ae4f0dc9">   81</a></span><span class="keywordtype">      REAL</span> deps1</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a78467c2bf8cc85bab9726e484341701a">   82</a></span><span class="keywordtype">      REAL</span> deps2</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#af68c99fa6b6948374efa5e84042d2e76">   83</a></span><span class="keywordtype">      REAL</span> deps3</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a90cc4ed12cd5deb55d6d84ab9cb968bb">   84</a></span><span class="keywordtype">      REAL</span> deps4</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#abf9bd73f7f7dd7f0ad472a0ed4675e55">   85</a></span><span class="keywordtype">      REAL</span> acrcr</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aafacb773bb566bedb9f8fefb747e71bc">   86</a></span><span class="keywordtype">      REAL</span> bacrcr</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a28ae8ec602bf50bfc33cebcfa230d65c">   87</a></span><span class="keywordtype">      REAL</span> depr1</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aca4afb26785f00e8aec29ef35bb44dab">   88</a></span><span class="keywordtype">      REAL</span> depr2</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a7b0bcaa97482c6c63f15fc059dc70888">   89</a></span><span class="keywordtype">      REAL</span> depr3</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a62978b67240aafcdf1515bcd14a50c62">   90</a></span><span class="keywordtype">      REAL</span> depr4</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a32f6e163e965eb88172362470e0d0e82">   91</a></span><span class="keywordtype">      REAL</span> psm1</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae97b39222642653e02f057e6b6a868fe">   92</a></span><span class="keywordtype">      REAL</span> psm2</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a9b08612a4da302826804afce534b0ea8">   93</a></span><span class="keywordtype">      REAL</span> psm3</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a07522cb0da35abb37af69a451ed188a1">   94</a></span><span class="keywordtype">      REAL</span> psm4</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ac093b812544468571d8d57d52b9ce54b">   95</a></span><span class="keywordtype">      REAL</span> pgm1</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aa0290662fe66270858ab50f38b720770">   96</a></span><span class="keywordtype">      REAL</span> pgm2</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a52cf5a90b1e065474257718e957446db">   97</a></span><span class="keywordtype">      REAL</span> pgm3</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a3f56f1c865e0e67b5fef4d9fb7b7fb0e">   98</a></span><span class="keywordtype">      REAL</span> pgm4</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ad5afb8b22ccbbc1030f86f06fd085cf6">   99</a></span><span class="keywordtype">      REAL</span> cw</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab7f5c077008114e3431850c60ab67cdf">  100</a></span><span class="keywordtype">      REAL</span> hgfr</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#af76c91d161e5966a221e258ce46ddc48">  101</a></span><span class="keywordtype">      REAL</span> xm01</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a3f4cf30eb7b75b0446b3e16d1c56b4c5">  102</a></span><span class="keywordtype">      REAL</span> cnp1</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a7433e5d068f1b52dd4cf82a5c29c7e28">  103</a></span><span class="keywordtype">      REAL</span> dice</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a09ac157363c2b85965ca98d753a5af8f">  104</a></span><span class="keywordtype">      REAL</span> c1</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab0564123d56d474cff68d529c66ae8a3">  105</a></span><span class="keywordtype">      REAL</span> alpha1</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a870db1b545aa75e614aae1b357bbf027">  106</a></span><span class="keywordtype">      REAL</span> beta1</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a6d741a76fd5772a902c7f96c67432e30">  107</a></span><span class="keywordtype">      REAL</span> gamma3</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">!jmb--removed INT0 frm the real declaration since declared integer blo</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a79d0179d3e5cfbbc3ab0ec8603488ffd">  109</a></span><span class="keywordtype">      REAL</span> const1a</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ada20302da3a39dbcdd8a8393bcc2f092">  110</a></span><span class="keywordtype">      REAL</span> const1b</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae12d165f74de9564a5a220524ad93c4d">  111</a></span><span class="keywordtype">      REAL</span> xm0s</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a1c3e003a9152e8821b273557b9afeef2">  112</a></span><span class="keywordtype">      REAL</span> xr0s</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#afa4e98a1aca47349d9b3a48c2defd5ab">  113</a></span><span class="keywordtype">      REAL</span> xm0g</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ae708dabfd7843a97a6c9cfe67849e753">  114</a></span><span class="keywordtype">      REAL</span> acrcs_new</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aa6e26c9a25651d47530bc2ae4a8d7ac3">  115</a></span><span class="keywordtype">      REAL</span> bacrcs_new</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a7dd4ef6d6e6dfb43653047dc72b9327a">  116</a></span><span class="keywordtype">      REAL</span> acrcg_new</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a4bd1209593a3325c53fd29dce87d8416">  117</a></span><span class="keywordtype">      REAL</span> bacrcg_new</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a482bc8e0100ee651fdf6b3c13f390969">  118</a></span><span class="keywordtype">      REAL</span> const_ns1</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab1b712d208f5488f26bf96430d0ab414">  119</a></span><span class="keywordtype">      REAL</span> const_ns2</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a713a3b03b9412795b0f47b6ec876c921">  120</a></span><span class="keywordtype">      REAL</span> const_ng1</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#adf2298d00ca37c6d9516449e662365a1">  121</a></span><span class="keywordtype">      REAL</span> const_ng2</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aef0b085fe5bb04d92754053522555497">  122</a></span><span class="keywordtype">      REAL</span> xr0g</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a24a9fbf26a1c6ac5707369bf82d1afd4">  123</a></span><span class="keywordtype">      REAL</span> r1</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ad7a568054d6f395bb03ab594c94e0bde">  124</a></span><span class="keywordtype">      REAL</span> slor_r1</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aaab4b058f65731591de7520c3544dce6">  125</a></span><span class="keywordtype">      REAL</span> slos_r1</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ac11645a5a67c4ffa998cddd61a39a9b5">  126</a></span><span class="keywordtype">      REAL</span> slog_r1</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#acdf9c432a21a5af8804c8847ff7f4fb0">  127</a></span><span class="keywordtype">      REAL</span> rho_not</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ac495087adae3f70c10d478174eef5e68">  128</a></span><span class="keywordtype">      REAL</span> qck1</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab5f38ce7805567c87828282d64d80e38">  129</a></span><span class="keywordtype">      REAL</span> qcth</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a08570a035f31c7a711db634711d14040">  130</a></span><span class="keywordtype">      REAL</span> ron_min</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#aa7d0dc6d02dc4dcef8302f99ce7d62c7">  131</a></span><span class="keywordtype">      REAL</span> qr0</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a6d5bbe0abb2ee89095ddb7b058a119ee">  132</a></span><span class="keywordtype">      REAL</span> delqr0</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a23270c821142af565928df22b10852be">  133</a></span><span class="keywordtype">      REAL</span> const1r</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a597510991628d1ed7631e64bbd504e33">  134</a></span><span class="keywordtype">      REAL</span> const2r</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#ab509de74e843ec73f86913aa15010542">  135</a></span><span class="keywordtype">      REAL</span> xnu</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno"><a class="line" href="PMICRPH_8f.html#a71df9f87eb6f32155f80675b1c55bed9">  137</a></span>      <span class="keywordtype">INTEGER</span> int0</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>     <span class="keyword">end module </span>PMICRPH_mod</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>      <span class="keyword">module</span> pmicrph_mod</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span> </div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">! -----  Constants related to microphysics</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!          -- computed in paramr.f</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">!      REAL ABER1(31),ABER2(31)</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">! LOOKUP TABLE FOR A1 AND A2 IN BERGERON PROCESS</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>      <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keywordtype">      REAL</span> PI,RON,SON,GON,BR,BS,BG,DRAIN,DSNOW,          &amp;</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>      dgraupel,ron2,diace_min,                           &amp;</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>      drain2,dsnow2,                                     &amp;</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>      topr,tops,topg,arain,asnow,agraupel,               &amp;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>      tno,ato,xsmax,berc1,bp,ap,cnp,frd1,fra1,efis,      &amp;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>      efir,efsr,efcs,efgi,efgc,efgr,efgs,efcr,acris,     &amp;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>      bacris,cir,cirf,cpiacr0,cpiacr1,cpiacr2,cpiacr3,   &amp;</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>      frain,fsnow,fgraupel,csr,crs,                      &amp;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>      acrcs,bacrcs,rmc,acrls,bacls,acrcg,bacrcg,acrig,   &amp;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>      bacrig,crg,csg,depg1,depg2,depg3,depg4,deps1,      &amp;</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>      deps2,deps3,deps4,acrcr,bacrcr,depr1,depr2,depr3,  &amp;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      depr4,psm1,psm2,psm3,psm4,pgm1,pgm2,pgm3,pgm4,     &amp;</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>      cw,hgfr,xm01,cnp1,dice,c1,alpha1,beta1,gamma3      &amp;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">!jmb--removed INT0 frm the real declaration since declared integer blo</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>      ,const1a,const1b,xm0s,xr0s,xm0g                    &amp;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>      ,acrcs_new,bacrcs_new,acrcg_new,bacrcg_new         &amp;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>      ,const_ns1,const_ns2,const_ng1,const_ng2,xr0g      &amp; </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>      ,r1,slor_r1,slos_r1,slog_r1,rho_not                &amp;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>      ,qck1,qcth,ron_min,qr0,delqr0,const1r,const2r      &amp;</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>      ,xnu</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>      <span class="keywordtype">INTEGER</span> INT0</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>     end module PMICRPH_mod</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="PMICRPH_8f.html">PMICRPH.f</a></li>
+    <li class="navelem"><b>PMICRPH.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

@@ -164,12 +164,12 @@ $(document).ready(function(){initNavTree('CALRCH_8f_source.html',''); initResiza
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>      <span class="keywordflow">DO</span> l = 1,lm1</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="comment">!</span></div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <span class="keywordflow">if</span>(gridtype /= <span class="stringliteral">&#39;A&#39;</span>)<span class="keywordflow">THEN</span>  </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>          <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(vtm(1,jsta_2l,l))</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>          <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(uh(1,jsta_2l,l))</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(vh(1,jsta_2l,l))</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>          <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(vtm(1,jsta_2l,l+1))</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>          <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(uh(1,jsta_2l,l+1))</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>          <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(vh(1,jsta_2l,l+1))</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>          <span class="keyword">call </span>exch(vtm(1,jsta_2l,l))</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>          <span class="keyword">call </span>exch(uh(1,jsta_2l,l))</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          <span class="keyword">call </span>exch(vh(1,jsta_2l,l))</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>          <span class="keyword">call </span>exch(vtm(1,jsta_2l,l+1))</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>          <span class="keyword">call </span>exch(uh(1,jsta_2l,l+1))</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>          <span class="keyword">call </span>exch(vh(1,jsta_2l,l+1))</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordflow">        end if</span>  </div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>         </div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
@@ -254,7 +254,6 @@ $(document).ready(function(){initNavTree('CALRCH_8f_source.html',''); initResiza
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>      <span class="keyword">END</span></div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
 <div class="ttc" id="aCALRCH_8f_html_a902231c4486108fd0bd66f93bef60e23"><div class="ttname"><a href="CALRCH_8f.html#a902231c4486108fd0bd66f93bef60e23">calrch</a></div><div class="ttdeci">subroutine calrch(el, richno)</div><div class="ttdoc">Subroutine that computes GRD RCH number.</div><div class="ttdef"><b>Definition</b> <a href="CALRCH_8f_source.html#l00031">CALRCH.f:32</a></div></div>
-<div class="ttc" id="aEXCH_8f_html_a32e60ff8ecca9f6f9b84128bede5078e"><div class="ttname"><a href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a></div><div class="ttdeci">subroutine exch(a)</div><div class="ttdoc">exch() Subroutine that exchanges one halo row.</div><div class="ttdef"><b>Definition</b> <a href="EXCH_8f_source.html#l00026">EXCH.f:27</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('CALHEL3_8f.html',''); initResizable();
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a072333eba55fc8ce4b0872ae42ba8415" id="r_a072333eba55fc8ce4b0872ae42ba8415"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALHEL3_8f.html#a072333eba55fc8ce4b0872ae42ba8415">calhel3</a> (llow, lupp, ust, vst, heli)</td></tr>
-<tr class="memdesc:a072333eba55fc8ce4b0872ae42ba8415"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine computes estimated storm motion and storm-relative environmental helicity.  <br /></td></tr>
+<tr class="memdesc:a072333eba55fc8ce4b0872ae42ba8415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subroutine that computes storm relative helicity.  <br /></td></tr>
 <tr class="separator:a072333eba55fc8ce4b0872ae42ba8415"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -155,69 +155,21 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>This routine computes estimated storm motion and storm-relative environmental helicity. </p>
-<p>(Davies-Jones, et al., 1990) the algorithm processd as follows.</p>
-<p>The storm motion computation no longer employs the Davies and Johns (1993) method which defined storm motion as 30 degress to the right of the 0-6 km mean wind at 75% of the speed for mean speeds less than 15 m/s and 20 degrees to the right for speeds greater than 15 m/s. Instead, we now use the dynamic method (Bunkers et al. 1988) which has been found to do better in cases with 'non-classic' hodographs (such as Northwest-flow events) and do as well or better than the old method in more classic situations.</p>
+<p>Subroutine that computes storm relative helicity. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">LLOW</td><td>Lower bound CAPE&gt;=100 and CINS&gt;=-250. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">LUPP</td><td>Upper bound CAPE&lt; 100 or CINS&lt; -250; allows one to distinguish 0-3 km and 0-1 km values. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">UST</td><td>Estimated U Component (m/s) Of Storm motion. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">VST</td><td>Estimated V Component (m/s) Of Storm motion. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">HELI</td><td>Storm-relative heliciry (m**2/s**2).</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">HELI</td><td>Storm-relative heliciry (m**2/s**2). </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd><ul>
-<li>CANGLE Critical angle. </li>
-<li>USHR1 U Component (m/s) Of 0-1 km shear. </li>
-<li>VSHR1 V Component (m/s) Of 0-1 km shear. </li>
-<li>USHR6 U Component (m/s) Of 0-0.5 to 5.5-6.0 km shear. </li>
-<li>VSHR6 V Component (m/s) Of 0-0.5 to 5.5-6.0 km shear.</li>
-</ul>
-</dd></dl>
-<h3><a class="anchor" id="autotoc_md7"></a>
-Program history log:</h3>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1994-08-22   </td><td class="markdownTableBodyNone">Michael Baldwin   </td><td class="markdownTableBodyNone">Initial    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">1997-03-27   </td><td class="markdownTableBodyNone">Michael Baldwin   </td><td class="markdownTableBodyNone">Speed up code    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1998-06-15   </td><td class="markdownTableBodyNone">T Black   </td><td class="markdownTableBodyNone">Conversion from 1-D to 2-D    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2000-01-04   </td><td class="markdownTableBodyNone">Jim Tuccillo   </td><td class="markdownTableBodyNone">MPI Version    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2000-01-10   </td><td class="markdownTableBodyNone">G Manikin   </td><td class="markdownTableBodyNone">Changed to Bunkers method    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2002-05-22   </td><td class="markdownTableBodyNone">G Manikin   </td><td class="markdownTableBodyNone">Now allow choice of computing helicity over two different (0-1 and 0-3 km) depths    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2003-03-25   </td><td class="markdownTableBodyNone">G Manikin   </td><td class="markdownTableBodyNone">Modified code to compute mean winds using arithmetic averages instead of mass weighting; differences are minor but want to be consistent with the Bunkers method    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2004-04-16   </td><td class="markdownTableBodyNone">M Pyle   </td><td class="markdownTableBodyNone">Minimal modifications but put into NMM WRFPOST code    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2005-02-25   </td><td class="markdownTableBodyNone">H Chuang   </td><td class="markdownTableBodyNone">Add computation for ARW A grid    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2005-07-07   </td><td class="markdownTableBodyNone">Binbin Zhou   </td><td class="markdownTableBodyNone">Add RSM for A grid    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2019-09-03   </td><td class="markdownTableBodyNone">J Meng   </td><td class="markdownTableBodyNone">Modified to compute effective helicity and critical angle    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2021-03-15   </td><td class="markdownTableBodyNone">E Colon   </td><td class="markdownTableBodyNone">CALHEL2 modified to compute effective rather than fixed layer helicity    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2021-09-02   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Decompose UPP in X direction    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2022-05-12   </td><td class="markdownTableBodyNone">E Colon   </td><td class="markdownTableBodyNone">Resolved a bug which looped over the calculation of SRH at two fixed levels, erroneously doubling the magnitude.   </td></tr>
-</table>
-<dl class="section author"><dt>Author</dt><dd>Michael Baldwin W/NP2 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>1994-08-22 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="CALHEL3_8f_source.html#l00049">49</a> of file <a class="el" href="CALHEL3_8f_source.html">CALHEL3.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALHEL3_8f_source.html#l00056">56</a> of file <a class="el" href="CALHEL3_8f_source.html">CALHEL3.f</a>.</p>
 
-<p class="reference">References <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00058">miscln()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00090">miscln()</a>.</p>
 
 </div>
 </div>

@@ -103,46 +103,11 @@ $(document).ready(function(){initNavTree('BNDLYR_8f.html',''); initResizable(); 
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a70db56607e07c7247f370327b43bae9a" id="r_a70db56607e07c7247f370327b43bae9a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="BNDLYR_8f.html#a70db56607e07c7247f370327b43bae9a">bndlyr</a> (pbnd, tbnd, qbnd, rhbnd, ubnd, vbnd, wbnd, omgbnd, pwtbnd, qcnvbnd, lvlbnd)</td></tr>
-<tr class="memdesc:a70db56607e07c7247f370327b43bae9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes boundary layer fields.  <br /></td></tr>
+<tr class="memdesc:a70db56607e07c7247f370327b43bae9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes constant mass mean fields.  <br /></td></tr>
 <tr class="separator:a70db56607e07c7247f370327b43bae9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Subroutine that computes boundary layer fields. </p>
-<p>Computes constant mass mean fields</p>
-<p>This routine computes constant mass (boundary layer) fields. The fields are a mean over layers parameter DPBND (pascals) thick. There are NBND constant mass layers, each DPBND thick starting from the surface up. Computed boundary layer fields are pressure, temperature, specific humidity, relative humidity, U and V winds, vertical velocity, and precipitable water. Given these fundamental variables other fields may be computed.</p>
-<dl class="section note"><dt>Note</dt><dd>If you change parameter NBND in this routine don't forget to change it also in the calling subprogram, MISCLN.</dd></dl>
-<h3><a class="anchor" id="autotoc_md0"></a>
-Program history log:</h3>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1993-01-29   </td><td class="markdownTableBodyNone">RUSS TREADON   </td><td class="markdownTableBodyNone">Original file    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">1993-05-07   </td><td class="markdownTableBodyNone">RUSS TREADON   </td><td class="markdownTableBodyNone">ADDED DOC BLOCK AND MORE COMMENTS.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1993-06-19   </td><td class="markdownTableBodyNone">RUSS TREADON   </td><td class="markdownTableBodyNone">ADDED LVLBND TO PARAMETER LIST.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">1996-03-07   </td><td class="markdownTableBodyNone">MIKE BALDWIN   </td><td class="markdownTableBodyNone">CHANGE PWTR CALC TO INCLUDE CLD WTR SPEED UP CODE    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1998-06-16   </td><td class="markdownTableBodyNone">T BLACK   </td><td class="markdownTableBodyNone">CONVERSION FROM 1-D TO 2-D    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">1998-08-18   </td><td class="markdownTableBodyNone">MIKE BALDWIN   </td><td class="markdownTableBodyNone">CHANGE QSBND TO RHBND IN CALL, COMPUTE RH OVER ICE    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1998-12-22   </td><td class="markdownTableBodyNone">MIKE BALDWIN   </td><td class="markdownTableBodyNone">BACK OUT RH OVER ICE    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2000-01-04   </td><td class="markdownTableBodyNone">JIM TUCCILLO   </td><td class="markdownTableBodyNone">MPI VERSION    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2002-01-15   </td><td class="markdownTableBodyNone">MIKE BALDWIN   </td><td class="markdownTableBodyNone">WRF VERSION    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2020-11-10   </td><td class="markdownTableBodyNone">JESSE MENG   </td><td class="markdownTableBodyNone">USE UPP_PHYSICS MODULE    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2021-08-20   </td><td class="markdownTableBodyNone">Wen Meng   </td><td class="markdownTableBodyNone">Retrict computation fro undefined points.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2021-09-02   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Decompose UPP in X direction.   </td></tr>
-</table>
-<dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>1993-01-29 </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="BNDLYR_8f_source.html">BNDLYR.f</a>.</p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -226,7 +191,9 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Computes boundary layer fields. </p>
+<p>Computes constant mass mean fields. </p>
+<p>This routine computes constant mass (boundary layer) fields. The fields are a mean over layers parameter DPBND (pascals) thick. There are NBND constant mass layers, each DPBND thick starting from the surface up. Computed boundary layer fields are pressure, temperature, specific humidity, relative humidity, U and V winds, vertical velocity, and precipitable water. Given these fundamental variables other fields may be computed.</p>
+<dl class="section note"><dt>Note</dt><dd>If you change parameter NBND in this routine don't forget to change it also in the calling subprogram, MISCLN.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">PBND</td><td>- Layer mean pressure in NBND boundary layers (NBL). </td></tr>
@@ -243,13 +210,28 @@ Program history log:</h3>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>If you change parameter NBND in this routine don't forget to change it also in the calling subprogram, MISCLN. </dd></dl>
+<p>Program History</p><ul>
+<li>93-01-29 RUSS TREADON</li>
+<li>93-05-07 RUSS TREADON - ADDED DOC BLOCK AND MORE COMMENTS.</li>
+<li>93-06-19 RUSS TREADON - ADDED LVLBND TO PARAMETER LIST.</li>
+<li>96-03-07 MIKE BALDWIN - CHANGE PWTR CALC TO INCLUDE CLD WTR SPEED UP CODE</li>
+<li>98-06-16 T BLACK - CONVERSION FROM 1-D TO 2-D</li>
+<li>98-08-18 MIKE BALDWIN - CHANGE QSBND TO RHBND IN CALL, COMPUTE RH OVER ICE</li>
+<li>98-12-22 MIKE BALDWIN - BACK OUT RH OVER ICE</li>
+<li>00-01-04 JIM TUCCILLO - MPI VERSION</li>
+<li>02-01-15 MIKE BALDWIN - WRF VERSION</li>
+<li>20-11-10 JESSE MENG - USE UPP_PHYSICS MODULE</li>
+<li>21-08-20 Wen Meng - Retrict computation fro undefined points.</li>
+<li>21-09-02 Bo Cui - Decompose UPP in X direction.</li>
+</ul>
+<dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>1993-01-29 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="BNDLYR_8f_source.html#l00055">55</a> of file <a class="el" href="BNDLYR_8f_source.html">BNDLYR.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="BNDLYR_8f_source.html#l00048">48</a> of file <a class="el" href="BNDLYR_8f_source.html">BNDLYR.f</a>.</p>
 
-<p class="reference">References <a class="el" href="CALMCVG_8f_source.html#l00044">calmcvg()</a>, and <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>.</p>
+<p class="reference">References <a class="el" href="CALMCVG_8f_source.html#l00044">calmcvg()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00058">miscln()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00090">miscln()</a>.</p>
 
 </div>
 </div>

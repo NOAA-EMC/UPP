@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('SELECT__CHANNELS_8f.html',''); initRes
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information; no longer used.">select_channels()</a> verifies channel information.  
+<p><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information.">select_channels()</a> verifies channel information.  
 <a href="#details">More...</a></p>
 
 <p><a href="SELECT__CHANNELS_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,21 +103,20 @@ $(document).ready(function(){initNavTree('SELECT__CHANNELS_8f.html',''); initRes
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a2cf21ae23a6f75c2c112b0d92180572b" id="r_a2cf21ae23a6f75c2c112b0d92180572b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b">select_channels</a> (channelinfo, nchannels, channels)</td></tr>
-<tr class="memdesc:a2cf21ae23a6f75c2c112b0d92180572b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information; no longer used.">select_channels()</a> verifies channel information; no longer used.  <br /></td></tr>
+<tr class="memdesc:a2cf21ae23a6f75c2c112b0d92180572b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information.">select_channels()</a> verifies channel information.  <br /></td></tr>
 <tr class="separator:a2cf21ae23a6f75c2c112b0d92180572b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ac0b86844b85d27ccc3f56fc844a392" id="r_a5ac0b86844b85d27ccc3f56fc844a392"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="SELECT__CHANNELS_8f.html#a5ac0b86844b85d27ccc3f56fc844a392">select_channels_l</a> (channelinfo, nchannels, channels, l, igot)</td></tr>
-<tr class="memdesc:a5ac0b86844b85d27ccc3f56fc844a392"><td class="mdescLeft">&#160;</td><td class="mdescRight">select_channels_L() verifies channel information.  <br /></td></tr>
 <tr class="separator:a5ac0b86844b85d27ccc3f56fc844a392"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information; no longer used.">select_channels()</a> verifies channel information. </p>
+<div class="textblock"><p><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information.">select_channels()</a> verifies channel information. </p>
 <dl class="section author"><dt>Author</dt><dd>HWRF </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2012-09-27 This subroutine verifies channel information and print error to output file if detected, finally excuting a program STOP - which may cause a hang condifition if run on multiple processors.</dd></dl>
 <p>If data passed validation the channel indices passed in via the "channels" array are stored in the structure defining the channel object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">channelinfo</td><td>Structure defining channel object. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">nchannels</td><td>Number of channels for sensor. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">channelinfo</td><td>structure defining channel object. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nchannels</td><td>number of channels for sensor. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">channels.</td><td></td></tr>
   </table>
   </dd>
@@ -159,18 +158,17 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information; no longer used.">select_channels()</a> verifies channel information; no longer used. </p>
-<p>Replaced by select_channels_L().</p>
+<p><a class="el" href="SELECT__CHANNELS_8f.html#a2cf21ae23a6f75c2c112b0d92180572b" title="select_channels() verifies channel information.">select_channels()</a> verifies channel information. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">channelinfo</td><td>Structure defining channel object. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">nchannels</td><td>integer Number of channels for sensor. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">channels</td><td>integer array Holds information on available channels. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">channels</td><td>integer array Holds infomation on available channels. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="SELECT__CHANNELS_8f_source.html#l00026">26</a> of file <a class="el" href="SELECT__CHANNELS_8f_source.html">SELECT_CHANNELS.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SELECT__CHANNELS_8f_source.html#l00025">25</a> of file <a class="el" href="SELECT__CHANNELS_8f_source.html">SELECT_CHANNELS.f</a>.</p>
 
 </div>
 </div>
@@ -218,21 +216,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>select_channels_L() verifies channel information. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">channelinfo</td><td>Structure defining channel object. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">nchannels</td><td>integer Number of channels for sensor. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">channels</td><td>integer array Holds information on available channels. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">L</td><td>integer array with the same size as the number of channels; if a channel c is requested for output, L[c]==1; if the channel is not requested for output, then L[c]==0. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">igot</td><td>integer If &gt; 0, then at least 1 channel was requested for that variable, if 0 then no channels were selected for that variable. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SELECT__CHANNELS_8f_source.html#l00069">69</a> of file <a class="el" href="SELECT__CHANNELS_8f_source.html">SELECT_CHANNELS.f</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l00029">calrad_wcloud()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SELECT__CHANNELS_8f_source.html#l00055">55</a> of file <a class="el" href="SELECT__CHANNELS_8f_source.html">SELECT_CHANNELS.f</a>.</p>
 
 </div>
 </div>

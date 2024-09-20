@@ -97,32 +97,34 @@ $(document).ready(function(){initNavTree('VRBLS4D__mod_8f_source.html',''); init
   <div class="headertitle"><div class="title">VRBLS4D_mod.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="VRBLS4D__mod_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>      <span class="keyword">module</span> vrbls4d</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">!</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#ad2a13181ecb135644821d3b082ad8576">   15</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: dust(:,:,:,:)</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a3b5de3b5ffdd2046a0ff58c09d8833b8">   16</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: salt(:,:,:,:)</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a43def738f9f5d89daf17efac7e101980">   17</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: soot(:,:,:,:)</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a2fba6a69a200357aa164cfa3512d4168">   18</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: waso(:,:,:,:)</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a11cee367554651d5b4e31affaeb0397e">   19</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: suso(:,:,:,:)</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a6c8f6df1d089533b75fe8820830da9f5">   20</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: no3(:,:,:,:)</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a9b69defaae7defcb0dd4a7eecf37f0c3">   21</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: nh4(:,:,:,:)</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a28dbce4d07ce127505f542d839d7fa07">   22</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: smoke(:,:,:,:)</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a204b79fda2204408c41fadfc4bbe2069">   23</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: fv3dust(:,:,:,:)</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a2d36c80a257c94ad3a09bb20be3a2d35">   24</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: coarsepm(:,:,:,:)</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a747ab39787207b95cb42da9748d604d4">   25</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: ebb(:,:,:,:)</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#aedcad7edd298f43b947e80c59e72a869">   26</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: pp25(:,:,:,:)</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="VRBLS4D__mod_8f.html#a3ca61677f067c2921c859a3bf4948945">   27</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: pp10(:,:,:,:)</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">!</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>      <span class="keyword">end module </span>vrbls4d</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">!   02-04-17  BALDWIN  - MODIFIED TO INCLUDE ALL 3D ARRAYS</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!   11-10-18  SARAH LU - MODIFIED TO INCLUDE GOCART AEROSOLS</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!   22-09-18  Li(Kate) Zhang - MODIFIED TO INCLUDE new NASA GOCART AEROSOLS of NO3 and NH4</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>      <span class="keyword">module</span> vrbls4d</div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">!</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: DUST(:,:,:,:)        <span class="comment">! dust</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: SALT(:,:,:,:)        <span class="comment">! sea salt</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: SOOT(:,:,:,:)        <span class="comment">! black carbon</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: WASO(:,:,:,:)        <span class="comment">! organic carbon</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: SUSO(:,:,:,:)        <span class="comment">! sulfate</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: NO3(:,:,:,:)         <span class="comment">! no3</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: NH4(:,:,:,:)         <span class="comment">! nh4</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: SMOKE(:,:,:,:)</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: FV3DUST(:,:,:,:)</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: COARSEPM(:,:,:,:)</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: PP25(:,:,:,:)        <span class="comment">! PP25</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: PP10(:,:,:,:)        <span class="comment">! PP10</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">!</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      <span class="keyword">end module </span>vrbls4d</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="VRBLS4D__mod_8f.html">VRBLS4D_mod.f</a></li>
+    <li class="navelem"><b>VRBLS4D_mod.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

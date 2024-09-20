@@ -91,7 +91,8 @@ $(document).ready(function(){initNavTree('GFIP3_8f.html',''); initResizable(); }
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">GFIP3.f File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -104,7 +105,6 @@ $(document).ready(function(){initNavTree('GFIP3_8f.html',''); initResizable(); }
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcloudlayers_1_1clouds__t.html">cloudlayers::clouds_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">_____?  <a href="structcloudlayers_1_1clouds__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structseveritymaps_1_1scenarios__t.html">severitymaps::scenarios_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -112,17 +112,20 @@ Data Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ace55a45217fe8d511a8dc8979b4ce490" id="r_ace55a45217fe8d511a8dc8979b4ce490"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GFIP3_8f.html#ace55a45217fe8d511a8dc8979b4ce490">derivedfields::derive_fields</a> (imp_physics, t, rh, pres, hgt, totalwater, totalcond, nz, topok, hprcp, hcprcp, cin, cape, ept, wbt, twp, pc, kx, lx, tott, prcptype)</td></tr>
-<tr class="memdesc:ace55a45217fe8d511a8dc8979b4ce490"><td class="mdescLeft">&#160;</td><td class="mdescRight">derive_fields() Calculates several derived fields.  <br /></td></tr>
+<tr class="memdesc:ace55a45217fe8d511a8dc8979b4ce490"><td class="mdescLeft">&#160;</td><td class="mdescRight">derive_fields() calculates several derived fields.  <br /></td></tr>
 <tr class="separator:ace55a45217fe8d511a8dc8979b4ce490"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0d51e3ebba2a5339de128912fac5b40" id="r_af0d51e3ebba2a5339de128912fac5b40"><td class="memItemLeft" align="right" valign="top">integer function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GFIP3_8f.html#af0d51e3ebba2a5339de128912fac5b40">gettopok</a> (hgt, alt, nz)</td></tr>
-<tr class="memdesc:af0d51e3ebba2a5339de128912fac5b40"><td class="mdescLeft">&#160;</td><td class="mdescRight">getTopoK() Maps the topography height to the model's vertical coordinate  <br /></td></tr>
+<tr class="memdesc:af0d51e3ebba2a5339de128912fac5b40"><td class="mdescLeft">&#160;</td><td class="mdescRight">getTopoK() Map the topography height to the model's vertical coordinate  <br /></td></tr>
 <tr class="separator:af0d51e3ebba2a5339de128912fac5b40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefc81eec1be27f3003719444a80c9a5a" id="r_aefc81eec1be27f3003719444a80c9a5a"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GFIP3_8f.html#aefc81eec1be27f3003719444a80c9a5a">icingseverity::icing_sev</a> (imp_physics, hgt, rh, t, pres, vv, liqcond, icecond, twp, ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcptype, clouds, iseverity)</td></tr>
-<tr class="memdesc:aefc81eec1be27f3003719444a80c9a5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">icing_sev() Calculates icing severity.  <br /></td></tr>
-<tr class="separator:aefc81eec1be27f3003719444a80c9a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed6d45a1a066ed81b97bc398274060f6" id="r_aed6d45a1a066ed81b97bc398274060f6"><td class="memItemLeft" align="right" valign="top">elemental real function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GFIP3_8f.html#aed6d45a1a066ed81b97bc398274060f6">derivedfields::mixing_ratio</a> (td, pres)</td></tr>
-<tr class="memdesc:aed6d45a1a066ed81b97bc398274060f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">mixing_ratio() Calculates the mixing ratio in g/kg = water vapor/dry air.  <br /></td></tr>
-<tr class="separator:aed6d45a1a066ed81b97bc398274060f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ac7d9782f6733c5ef8f5b5cfcda2ce8e1" id="r_ac7d9782f6733c5ef8f5b5cfcda2ce8e1"><td class="memItemLeft" align="right" valign="top">type(precipitations_t), parameter, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GFIP3_8f.html#ac7d9782f6733c5ef8f5b5cfcda2ce8e1">precips</a> = precipitations_t()</td></tr>
+<tr class="memdesc:ac7d9782f6733c5ef8f5b5cfcda2ce8e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of precipitation.  <br /></td></tr>
+<tr class="separator:ac7d9782f6733c5ef8f5b5cfcda2ce8e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a970b9ed1941b8fbb78b2e63aeff9d9c0" id="r_a970b9ed1941b8fbb78b2e63aeff9d9c0"><td class="memItemLeft" align="right" valign="top">type(scenarios_t), parameter, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GFIP3_8f.html#a970b9ed1941b8fbb78b2e63aeff9d9c0">scenarios</a> = scenarios_t()</td></tr>
+<tr class="memdesc:a970b9ed1941b8fbb78b2e63aeff9d9c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Precipitation scenarios.  <br /></td></tr>
+<tr class="separator:a970b9ed1941b8fbb78b2e63aeff9d9c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains a collection of UPP modules used to calculate icing probability from the model. </p>
@@ -269,7 +272,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>derive_fields() Calculates several derived fields. </p>
+<p>derive_fields() calculates several derived fields. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">imp_physics</td><td>integer Microphysics option used in the model run. </td></tr>
@@ -277,10 +280,10 @@ Functions/Subroutines</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">rh</td><td>real Relative humidity. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">pres</td><td>real Pressure (Pa). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">hgt</td><td>real Height. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">totalWater</td><td>real _____? </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">totalWater</td><td>real </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">totalCond</td><td>real Precipitation Condensate in g/kg. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">nz</td><td>integer Number of vertical levels. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">topoK</td><td>integer _____? </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">topoK</td><td>integer </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">hprcp</td><td>real Hourly accumulated precipitation. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">hcprcp</td><td>real Hourly accumulated convective precipitation. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">cin</td><td>real Convective inhibition (CIN). </td></tr>
@@ -312,7 +315,9 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l00064">64</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l00061">61</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
+
+<p class="reference">References <a class="el" href="GFIP3_8f_source.html#l00025">precips</a>.</p>
 
 </div>
 </div>
@@ -348,7 +353,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>getTopoK() Maps the topography height to the model's vertical coordinate </p>
+<p>getTopoK() Map the topography height to the model's vertical coordinate </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">hgt</td><td>real Geopotential height (m). </td></tr>
@@ -357,220 +362,52 @@ Functions/Subroutines</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>getTopoK Mapping of the topography height to the model's vertical coordinates </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>getTopoK integer </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l02449">2449</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l02404">2404</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
 
-<p class="reference">References <a class="el" href="GFIP3_8f_source.html#l02450">gettopok()</a>.</p>
+<p class="reference">References <a class="el" href="GFIP3_8f_source.html#l02405">gettopok()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="GFIP3_8f_source.html#l02450">gettopok()</a>, and <a class="el" href="GFIP3_8f_source.html#l01663">icingseverity::icing_sev()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="GFIP3_8f_source.html#l02405">gettopok()</a>.</p>
 
 </div>
 </div>
-<a id="aefc81eec1be27f3003719444a80c9a5a" name="aefc81eec1be27f3003719444a80c9a5a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aefc81eec1be27f3003719444a80c9a5a">&#9670;&#160;</a></span>icing_sev()</h2>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ac7d9782f6733c5ef8f5b5cfcda2ce8e1" name="ac7d9782f6733c5ef8f5b5cfcda2ce8e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7d9782f6733c5ef8f5b5cfcda2ce8e1">&#9670;&#160;</a></span>precips</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine, public icingseverity::icing_sev </td>
-          <td>(</td>
-          <td class="paramtype">integer, intent(in)&#160;</td>
-          <td class="paramname"><em>imp_physics</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>hgt</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>rh</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>pres</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>vv</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>liqcond</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>icecond</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>twp</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(in)&#160;</td>
-          <td class="paramname"><em>ice_pot</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">integer, intent(in)&#160;</td>
-          <td class="paramname"><em>nz</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>hcprcp</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>cape</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>lx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>kx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>tott</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>pc</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">integer, intent(in)&#160;</td>
-          <td class="paramname"><em>prcptype</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="structcloudlayers_1_1clouds__t.html">clouds_t</a>), intent(in)&#160;</td>
-          <td class="paramname"><em>clouds</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, dimension(nz), intent(out)&#160;</td>
-          <td class="paramname"><em>iseverity</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="memname">type(precipitations_t), parameter, public precips = precipitations_t()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>icing_sev() Calculates icing severity. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">imp_physics</td><td>integer Microphysics scheme. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hgt</td><td>real Geopotential height (m). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">rh</td><td>real Relative humidity. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">t</td><td>real Temperature. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">pres</td><td>real Pressure. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">vv</td><td>real Vertical velocity. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">liqCond</td><td>real </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">iceCond</td><td>real </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">twp</td><td>real Total water path. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ice_pot</td><td>real Icing potential. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">nz</td><td>integer Number of vertical levels. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hcprcp</td><td>real Hourly accumulated convective precipitation. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">cape</td><td>real Convective Available Potential Energy (CAPE) </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">lx</td><td>real Lifted index. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">kx</td><td>real k index. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">tott</td><td>real Total totals. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">pc</td><td>real Precipitation condensate. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">prcpType</td><td>integer Surface precipitation type. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">clouds</td><td></td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">iseverity</td><td>real Category of icing severity. </td></tr>
-  </table>
-  </dd>
-</dl>
+<p>Type of precipitation. </p>
 
-<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l01660">1660</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l00025">25</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
 
-<p class="reference">References <a class="el" href="GFIP3_8f_source.html#l02450">gettopok()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="GFIP3_8f_source.html#l00064">derivedfields::derive_fields()</a>.</p>
 
 </div>
 </div>
-<a id="aed6d45a1a066ed81b97bc398274060f6" name="aed6d45a1a066ed81b97bc398274060f6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed6d45a1a066ed81b97bc398274060f6">&#9670;&#160;</a></span>mixing_ratio()</h2>
+<a id="a970b9ed1941b8fbb78b2e63aeff9d9c0" name="a970b9ed1941b8fbb78b2e63aeff9d9c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a970b9ed1941b8fbb78b2e63aeff9d9c0">&#9670;&#160;</a></span>scenarios</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">elemental real function, public derivedfields::mixing_ratio </td>
-          <td>(</td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>td</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">real, intent(in)&#160;</td>
-          <td class="paramname"><em>pres</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="memname">type(scenarios_t), parameter, public scenarios = scenarios_t()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>mixing_ratio() Calculates the mixing ratio in g/kg = water vapor/dry air. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">td</td><td>real dew point temperture (K). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">pres</td><td>real Pressure (Pa). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>mixing_ratio </dd></dl>
+<p>Precipitation scenarios. </p>
 
-<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l00187">187</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="GFIP3_8f_source.html#l01164">1164</a> of file <a class="el" href="GFIP3_8f_source.html">GFIP3.f</a>.</p>
 
 </div>
 </div>

@@ -103,22 +103,18 @@ $(document).ready(function(){initNavTree('CALRAD__WCLOUD__newcrtm_8f.html',''); 
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aab9fb09e374702f5b1382e914c136663" id="r_aab9fb09e374702f5b1382e914c136663"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALRAD__WCLOUD__newcrtm_8f.html#aab9fb09e374702f5b1382e914c136663">calrad_wcloud</a></td></tr>
-<tr class="memdesc:aab9fb09e374702f5b1382e914c136663"><td class="mdescLeft">&#160;</td><td class="mdescRight">CALRAD_WCLOUD Subroutine that computes model derived brightness temperature.  <br /></td></tr>
 <tr class="separator:aab9fb09e374702f5b1382e914c136663"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af339a9dd83bcf692a5fafd37f93ebad0" id="r_af339a9dd83bcf692a5fafd37f93ebad0"><td class="memItemLeft" align="right" valign="top">real function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALRAD__WCLOUD__newcrtm_8f.html#af339a9dd83bcf692a5fafd37f93ebad0">effr</a> (pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, qqnr, qqni, qqnw, mp_opt, species)</td></tr>
-<tr class="memdesc:af339a9dd83bcf692a5fafd37f93ebad0"><td class="mdescLeft">&#160;</td><td class="mdescRight">EFFR Computes effective particle radii channel selection using LVLS from WRF_CNTRL.PARM.  <br /></td></tr>
 <tr class="separator:af339a9dd83bcf692a5fafd37f93ebad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2f6cf0578ffee0c43bfcf484bea67ac" id="r_aa2f6cf0578ffee0c43bfcf484bea67ac"><td class="memItemLeft" align="right" valign="top">real function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALRAD__WCLOUD__newcrtm_8f.html#aa2f6cf0578ffee0c43bfcf484bea67ac">gammln</a> (xx)</td></tr>
-<tr class="memdesc:aa2f6cf0578ffee0c43bfcf484bea67ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">GAMMLN.  <br /></td></tr>
 <tr class="separator:aa2f6cf0578ffee0c43bfcf484bea67ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3f6f731ef68d24dd73863d0af131eeb" id="r_ab3f6f731ef68d24dd73863d0af131eeb"><td class="memItemLeft" align="right" valign="top">real function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALRAD__WCLOUD__newcrtm_8f.html#ab3f6f731ef68d24dd73863d0af131eeb">wgamma</a> (y)</td></tr>
-<tr class="memdesc:ab3f6f731ef68d24dd73863d0af131eeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">WGAMMA.  <br /></td></tr>
 <tr class="separator:ab3f6f731ef68d24dd73863d0af131eeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Subroutine that computes model derived brightness temperature. </p>
 <p>This routine computes model derived brightness temperature using CRTM. It is patterned after GSI setuprad with Treadon's help.</p>
-<h3><a class="anchor" id="autotoc_md16"></a>
+<h3><a class="anchor" id="autotoc_md19"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -146,12 +142,11 @@ Program history log:</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">2022-09-12   </td><td class="markdownTableBodyNone">Wen Meng   </td><td class="markdownTableBodyNone">Added cloud fraction changes for crtm/2.4.0    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2023-03-22   </td><td class="markdownTableBodyNone">WM Lewis   </td><td class="markdownTableBodyNone">Added support for using effective radius arrays from RRFS    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2023-10-25   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Bug fix for invalid land category in CRTM   </td></tr>
+<td class="markdownTableBodyNone">2023-03-22   </td><td class="markdownTableBodyNone">WM Lewis   </td><td class="markdownTableBodyNone">Added support for using effective radius arrays from RRFS   </td></tr>
 </table>
 <dl class="section author"><dt>Author</dt><dd>Chuang </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2007-01-17 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2007-01-17 <br  />
+ </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -167,13 +162,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>CALRAD_WCLOUD Subroutine that computes model derived brightness temperature. </p>
-
-<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l00028">28</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
-
-<p class="reference">References <a class="el" href="INITPOST_8F_source.html#l00026">initpost()</a>, <a class="el" href="CTLBLK_8f_source.html#l00104">ctlblk_mod::list</a>, <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>, <a class="el" href="SELECT__CHANNELS_8f_source.html#l00070">select_channels_l()</a>, and <a class="el" href="ZENSUN_8f_source.html#l00062">zensun()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l00024">24</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
 
 </div>
 </div>
@@ -287,35 +276,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>EFFR Computes effective particle radii channel selection using LVLS from WRF_CNTRL.PARM. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pmid</td><td>real Mid-layer pressure. </td></tr>
-    <tr><td class="paramname">t</td><td>real Temperature. </td></tr>
-    <tr><td class="paramname">q</td><td>real Specific humidity. </td></tr>
-    <tr><td class="paramname">qqw</td><td>real Cloud water mixing ratio. </td></tr>
-    <tr><td class="paramname">qqi</td><td>real Ice mixing ratio. </td></tr>
-    <tr><td class="paramname">qqr</td><td>real Rain mixing ratio. </td></tr>
-    <tr><td class="paramname">f_rimef</td><td>real "Rime Factor", ratio of total ice growth to deposition growth. </td></tr>
-    <tr><td class="paramname">nlice</td><td>real Time-averaged number concentration of large ice. </td></tr>
-    <tr><td class="paramname">nrain</td><td>real Number concentration of rain drops. </td></tr>
-    <tr><td class="paramname">qqs</td><td>real Snow mixing ratio. </td></tr>
-    <tr><td class="paramname">qqg</td><td>real Graupel mixing ratio. </td></tr>
-    <tr><td class="paramname">qqnr</td><td>real Rain number concentration. </td></tr>
-    <tr><td class="paramname">qqni</td><td>real Ice number concentration. </td></tr>
-    <tr><td class="paramname">qqnw</td><td>real cloud water number concentration. </td></tr>
-    <tr><td class="paramname">mp_opt</td><td>integer Microphysics option. </td></tr>
-    <tr><td class="paramname">species</td><td>character Particle type (e.g., cloud, rain, graupel, snow, ice). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>EFFR Effective particle radii channel selection. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02228">2228</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
-
-<p class="reference">References <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02230">effr()</a>, and <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02883">wgamma()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02230">effr()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02202">2202</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
 
 </div>
 </div>
@@ -335,20 +296,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>GAMMLN. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">XX</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>GAMMLN Returns the value of LN(GAMMA(XX)) FOR XX &gt; 0. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02851">2851</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
-
-<p class="reference">References <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02852">gammln()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02852">gammln()</a>, and <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02883">wgamma()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02818">2818</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
 
 </div>
 </div>
@@ -368,20 +316,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>WGAMMA. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>WGAMMA </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02882">2882</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
-
-<p class="reference">References <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02852">gammln()</a>, and <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02883">wgamma()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02230">effr()</a>, and <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02883">wgamma()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html#l02842">2842</a> of file <a class="el" href="CALRAD__WCLOUD__newcrtm_8f_source.html">CALRAD_WCLOUD_newcrtm.f</a>.</p>
 
 </div>
 </div>

@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('BOUND_8f.html',''); initResizable(); }
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="BOUND_8f.html#a8faa64a3f798c316535a008dd5379525" title="Clips data in passed array.">bound()</a> clips data in passed array.  
+<p><a class="el" href="BOUND_8f.html#a8faa64a3f798c316535a008dd5379525" title="This routine bounds data in the passed array FLD (im x jm elements long) and clips data values such t...">bound()</a> clips data in passed array.  
 <a href="#details">More...</a></p>
 
 <p><a href="BOUND_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,33 +103,11 @@ $(document).ready(function(){initNavTree('BOUND_8f.html',''); initResizable(); }
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a8faa64a3f798c316535a008dd5379525" id="r_a8faa64a3f798c316535a008dd5379525"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="BOUND_8f.html#a8faa64a3f798c316535a008dd5379525">bound</a> (fld, fmin, fmax)</td></tr>
-<tr class="memdesc:a8faa64a3f798c316535a008dd5379525"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clips data in passed array.  <br /></td></tr>
+<tr class="memdesc:a8faa64a3f798c316535a008dd5379525"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine bounds data in the passed array FLD (im x jm elements long) and clips data values such that on exiting the routine.  <br /></td></tr>
 <tr class="separator:a8faa64a3f798c316535a008dd5379525"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="BOUND_8f.html#a8faa64a3f798c316535a008dd5379525" title="Clips data in passed array.">bound()</a> clips data in passed array. </p>
-<dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>1993-01-18</dd></dl>
-<p>This routine bounds data in the passed array FLD (im x jm elements long) and clips data values such that on exiting the routine </p><div class="fragment"><div class="line">fmin &lt;= fld(i,j) &lt;= fmax</div>
-</div><!-- fragment --><p> for all points.</p>
-<h3><a class="anchor" id="autotoc_md1"></a>
-Program History Log</h3>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1993-01-18   </td><td class="markdownTableBodyNone">Russ Treadon   </td><td class="markdownTableBodyNone">Initial    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">1993-05-07   </td><td class="markdownTableBodyNone">Russ Treadon   </td><td class="markdownTableBodyNone">Added DOCBLOC    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1998-05-29   </td><td class="markdownTableBodyNone">T Black   </td><td class="markdownTableBodyNone">Conversion from 1-D to 2-D    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2000-01-04   </td><td class="markdownTableBodyNone">Jim Tuccillo   </td><td class="markdownTableBodyNone">MPI Version    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2002-04-24   </td><td class="markdownTableBodyNone">Mike Baldwin   </td><td class="markdownTableBodyNone">WRF Version    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2021-09002   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Decompose UPP in X direction   </td></tr>
-</table>
+<div class="textblock"><p><a class="el" href="BOUND_8f.html#a8faa64a3f798c316535a008dd5379525" title="This routine bounds data in the passed array FLD (im x jm elements long) and clips data values such t...">bound()</a> clips data in passed array. </p>
 <dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>1993-01-18 </dd></dl>
 
@@ -167,19 +145,41 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Clips data in passed array. </p>
+<p>This routine bounds data in the passed array FLD (im x jm elements long) and clips data values such that on exiting the routine. </p>
+<div class="fragment"><div class="line">fmin &lt;= fld(i,j) &lt;= fmax</div>
+</div><!-- fragment --><p> for all points.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">FMIN</td><td>Lower (inclusive) bound for data. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">FMAX</td><td>Upper (inclusive) bound for data. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">FLD</td><td>Array whose elements are bounded by [FMIN,FMAX]. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">FLD</td><td>Array whose elements are bounded by [FMIN,FMAX].</td></tr>
   </table>
   </dd>
 </dl>
+<h3><a class="anchor" id="autotoc_md4"></a>
+Program History Log</h3>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">1993-01-18   </td><td class="markdownTableBodyNone">Russ Treadon   </td><td class="markdownTableBodyNone">Initial    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">1993-05-07   </td><td class="markdownTableBodyNone">Russ Treadon   </td><td class="markdownTableBodyNone">Added DOCBLOC    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">1998-05-29   </td><td class="markdownTableBodyNone">T Black   </td><td class="markdownTableBodyNone">Conversion from 1-D to 2-D    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2000-01-04   </td><td class="markdownTableBodyNone">Jim Tuccillo   </td><td class="markdownTableBodyNone">MPI Version    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2002-04-24   </td><td class="markdownTableBodyNone">Mike Baldwin   </td><td class="markdownTableBodyNone">WRF Version    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2021-09002   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Decompose UPP in X direction   </td></tr>
+</table>
+<dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>1993-01-18 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="BOUND_8f_source.html#l00031">31</a> of file <a class="el" href="BOUND_8f_source.html">BOUND.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="BOUND_8f_source.html#l00029">29</a> of file <a class="el" href="BOUND_8f_source.html">BOUND.f</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="CLDRAD_8f_source.html#l00088">cldrad()</a>, <a class="el" href="MDL2P_8f_source.html#l00050">mdl2p()</a>, <a class="el" href="MDL2SIGMA_8f_source.html#l00055">mdl2sigma()</a>, <a class="el" href="MDLFLD_8f_source.html#l00100">mdlfld()</a>, <a class="el" href="MISCLN_8f_source.html#l00058">miscln()</a>, and <a class="el" href="SURFCE_8f_source.html#l00079">surfce()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="MDL2SIGMA_8f_source.html#l00055">mdl2sigma()</a>, <a class="el" href="MDLFLD_8f_source.html#l00091">mdlfld()</a>, <a class="el" href="MISCLN_8f_source.html#l00090">miscln()</a>, and <a class="el" href="SURFCE_8f_source.html#l00067">surfce()</a>.</p>
 
 </div>
 </div>

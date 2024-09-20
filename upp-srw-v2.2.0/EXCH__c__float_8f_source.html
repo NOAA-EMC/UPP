@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="EXCH__c__float_8f.html#a6e9d5040a61105df34ad0e1bf4cf1260">   27</a></span>      <span class="keyword">SUBROUTINE </span><a class="code hl_function" href="EXCH__c__float_8f.html#a6e9d5040a61105df34ad0e1bf4cf1260">exch_c_float</a>(A)</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>      <span class="keywordtype">use </span>ctlblk_mod, <span class="keywordtype">only</span>: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&amp;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>          <a class="code hl_variable" href="group__CTLBLK.html#gaa5a0e73bae60918a647344b58f3b7842">icoords</a>,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>,bufs,ibufs,me,numx, &amp;  </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>          icoords,ibcoords,bufs,ibufs,me,numx, &amp;  </div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>          jsta_2l, jend_2u,ileft,iright,ista_2l,iend_2u,ista,iend,jm,modelname</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>      <span class="keywordtype">use </span>iso_c_binding, <span class="keywordtype">only</span>: c_sizeof, c_float</div>
@@ -166,17 +166,17 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>      <span class="keywordflow">if</span> (checkcoords) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        <span class="keywordflow">if</span>(ifirst .le. 0) <span class="keywordflow">then</span> <span class="comment">!IFIRST ONLY</span></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>          <span class="keyword">call </span>mpi_sendrecv(<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista,jend),iend-ista+1,mpi_integer,iup,1,            &amp;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>         &amp;                  <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista,jstam1),iend-ista+1,mpi_integer,idn,1,          &amp;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>          <span class="keyword">call </span>mpi_sendrecv(ibcoords(ista,jend),iend-ista+1,mpi_integer,iup,1,            &amp;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>         &amp;                  ibcoords(ista,jstam1),iend-ista+1,mpi_integer,idn,1,          &amp;</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>         &amp;                  mpi_comm_comp,status,ierr)</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          <span class="keywordflow">if</span> ( ierr /= 0 ) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            print *, <span class="stringliteral">&#39; problem with second sendrecv in exch, ierr = &#39;</span>,ierr</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            stop 7661</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keywordflow">          endif</span></div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>          <span class="keywordflow">do</span> i=ista,iend</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,jstam1)/10000</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>            jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,jstam1)-(ii*10000)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. jstam1 ) print *,<span class="stringliteral">&#39; GWVX JEXCH CHECK FAIL &#39;</span>,ii,jj,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,jstam1),i</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            ii=ibcoords(i,jstam1)/10000</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>            jj=ibcoords(i,jstam1)-(ii*10000)</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. jstam1 ) print *,<span class="stringliteral">&#39; GWVX JEXCH CHECK FAIL &#39;</span>,ii,jj,ibcoords(i,jstam1),i</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keywordflow">        endif</span> <span class="comment">!IFIRST</span></div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keywordflow">      endif</span> <span class="comment">!checkcoords</span></div>
@@ -220,11 +220,11 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>          a(iend+1,j)=colr(j)</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>          <span class="keywordflow">if</span>(checkcoords) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            <span class="keywordflow">if</span>(ifirst .le. 0) <span class="keywordflow">then</span> <span class="comment">!IFIRST ONLY</span></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>              <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(iend+1,j)=icolr(j) </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>               ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(iend+1,j)/10000</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>               jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( iend+1,j)-(ii*10000)</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>              ibcoords(iend+1,j)=icolr(j) </div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>               ii=ibcoords(iend+1,j)/10000</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>               jj=ibcoords( iend+1,j)-(ii*10000)</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>               <span class="keywordflow">if</span>( j .ne. jj .or. ii .ne. iend+1 .and. ii .ne. im .and. ii .ne. 1) &amp;</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>               <span class="keyword">write</span>(*,921) j,iend+1,ii,jj,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(iend+1,j),<span class="stringliteral">&#39;IEXCH COORD FAIL j,iend+1,ii,jj,ibcoord &#39;</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>               <span class="keyword">write</span>(*,921) j,iend+1,ii,jj,ibcoords(iend+1,j),<span class="stringliteral">&#39;IEXCH COORD FAIL j,iend+1,ii,jj,ibcoord &#39;</span></div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="keywordflow">            endif</span> <span class="comment">!IFIRST</span></div>
 <div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span><span class="keywordflow">          endif</span> <span class="comment">!checkcoords</span></div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="keywordflow">        end do</span></div>
@@ -258,8 +258,8 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>      </div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>      <span class="keywordflow">if</span> (checkcoords) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        <span class="keywordflow">if</span> (ifirst .le. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>          <span class="keyword">call </span>mpi_sendrecv(<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista,jsta),iend-ista+1,mpi_integer,idn,1, &amp;</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>     &amp;                  <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista,jendp1),iend-ista+1,mpi_integer,iup,1,   &amp;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>          <span class="keyword">call </span>mpi_sendrecv(ibcoords(ista,jsta),iend-ista+1,mpi_integer,idn,1, &amp;</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>     &amp;                  ibcoords(ista,jendp1),iend-ista+1,mpi_integer,iup,1,   &amp;</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>     &amp;                  mpi_comm_comp,status,ierr)</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          <span class="keywordflow">if</span> ( ierr /= 0 ) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>            print *, <span class="stringliteral">&#39; problem with seventh sendrecv in exch, ierr = &#39;</span>,ierr</div>
@@ -294,11 +294,11 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>          a(ista-1,j)=coll(j)</div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>          <span class="keywordflow">if</span>(checkcoords) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>            <span class="keywordflow">if</span>(ifirst .le. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>              <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista-1,j)=icoll(j) </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>              ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista-1,j)/10000</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>              jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( ista-1,j)-(ii*10000)</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>              ibcoords(ista-1,j)=icoll(j) </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>              ii=ibcoords(ista-1,j)/10000</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>              jj=ibcoords( ista-1,j)-(ii*10000)</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>              <span class="keywordflow">if</span>( j .ne. jj .or. ii .ne. ista-1 .and. ii .ne. im .and. ii .ne. 1) &amp;</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>                <span class="keyword">write</span>(*,921) j,ista-1,ii,jj,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista-1,j),<span class="stringliteral">&#39;EXCH COORD FAIL j,ista-1,ii,jj,ibcoord &#39;</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>                <span class="keyword">write</span>(*,921) j,ista-1,ii,jj,ibcoords(ista-1,j),<span class="stringliteral">&#39;EXCH COORD FAIL j,ista-1,ii,jj,ibcoord &#39;</span></div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">            endif</span> <span class="comment">!IFIRST</span></div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keywordflow">          endif</span> <span class="comment">!checkcoords</span></div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span><span class="keywordflow">        end do</span></div>
@@ -310,9 +310,9 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>        <span class="keywordflow">if</span>(ifirst .le. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>          <span class="keywordflow">do</span> j=jsta,jend</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>            <span class="keywordflow">do</span> i=ista,iend</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>              ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j)/10000</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>              jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( i,j)-(ii*10000)</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>              <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;INFAILED IJ &#39;</span>,i,j,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j),ibl,jbl,ibu,jbu</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>              ii=ibcoords(i,j)/10000</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>              jj=ibcoords( i,j)-(ii*10000)</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>              <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;INFAILED IJ &#39;</span>,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu</div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="keywordflow">            end do</span></div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordflow">        endif</span> <span class="comment">!IFIRST</span></div>
@@ -377,50 +377,50 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>      <span class="keywordflow">if</span>(checkcoords) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        <span class="keywordflow">if</span>(ifirst .le. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>          <span class="keyword">call </span>mpi_sendrecv(<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(iend,jbl   ),1    ,mpi_integer,iright,1 ,          &amp;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        &amp;                  <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ibl   ,jbl   ),1   ,mpi_integer,ileft ,1,           &amp;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>          <span class="keyword">call </span>mpi_sendrecv(ibcoords(iend,jbl   ),1    ,mpi_integer,iright,1 ,          &amp;</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        &amp;                  ibcoords(ibl   ,jbl   ),1   ,mpi_integer,ileft ,1,           &amp;</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>        &amp;                  mpi_comm_comp,status,ierr)</div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          <span class="keyword">call </span>mpi_sendrecv(<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(iend,jbu   ),1    ,mpi_integer,iright,1,           &amp;</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>        &amp;                  <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ibl   ,jbu   ),1   ,mpi_integer,ileft ,1,           &amp;</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          <span class="keyword">call </span>mpi_sendrecv(ibcoords(iend,jbu   ),1    ,mpi_integer,iright,1,           &amp;</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>        &amp;                  ibcoords(ibl   ,jbu   ),1   ,mpi_integer,ileft ,1,           &amp;</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>        &amp;                  mpi_comm_comp,status,ierr)</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          <span class="keyword">call </span>mpi_sendrecv(<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista,jbl   ),1    ,mpi_integer,ileft ,1,           &amp;</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>        &amp;                  <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ibu   ,jbl   ),1   ,mpi_integer,iright,1,           &amp;</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          <span class="keyword">call </span>mpi_sendrecv(ibcoords(ista,jbl   ),1    ,mpi_integer,ileft ,1,           &amp;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>        &amp;                  ibcoords(ibu   ,jbl   ),1   ,mpi_integer,iright,1,           &amp;</div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>        &amp;                  mpi_comm_comp,status,ierr)</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          <span class="keyword">call </span>mpi_sendrecv(<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ista,jbu   ),1    ,mpi_integer,ileft ,1 ,          &amp;</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>        &amp;                  <a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(ibu   ,jbu   ),1   ,mpi_integer,iright,1,           &amp;</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          <span class="keyword">call </span>mpi_sendrecv(ibcoords(ista,jbu   ),1    ,mpi_integer,ileft ,1 ,          &amp;</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>        &amp;                  ibcoords(ibu   ,jbu   ),1   ,mpi_integer,iright,1,           &amp;</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>                           mpi_comm_comp,status,ierr)</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span><span class="comment">!    corner check for coordnates</span></div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>          icc=ibl</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>          jcc=jbl</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)/10000</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)-(ii*10000)</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          ii=ibcoords(icc,jcc)/10000</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          jj=ibcoords(icc,jcc)-(ii*10000)</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>          <span class="keywordflow">if</span>(ii .ne. icc .and. icc .ne. 0) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb  ll &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>          <span class="keywordflow">if</span>( jj .ne. jcc)  <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb  ll &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>          <span class="keywordflow">if</span>(ii .ne. icc .and. icc .ne. 0) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb  ll &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>          <span class="keywordflow">if</span>( jj .ne. jcc)  <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb  ll &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>          icc=ibu</div>
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>          jcc=jbl</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)/10000</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>          jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)-(ii*10000)</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>          <span class="keywordflow">if</span>(ii .ne. icc .and. icc .ne. im+1 ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb ul  &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>          <span class="keywordflow">if</span>( jj .ne. jcc  ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb ul  &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          ii=ibcoords(icc,jcc)/10000</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>          jj=ibcoords(icc,jcc)-(ii*10000)</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>          <span class="keywordflow">if</span>(ii .ne. icc .and. icc .ne. im+1 ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb ul  &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>          <span class="keywordflow">if</span>( jj .ne. jcc  ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb ul  &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>          icc=ibu</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>          jcc=jbu</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>          ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)/10000</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>          jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)-(ii*10000)</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>          <span class="keywordflow">if</span>(ii .ne. icc  .and. icc .ne. im+1) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb uu  &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>          <span class="keywordflow">if</span>( jj .ne. jcc  ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb ul  &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>          ii=ibcoords(icc,jcc)/10000</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>          jj=ibcoords(icc,jcc)-(ii*10000)</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>          <span class="keywordflow">if</span>(ii .ne. icc  .and. icc .ne. im+1) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb uu  &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>          <span class="keywordflow">if</span>( jj .ne. jcc  ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb ul  &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>          icc=ibl</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>          jcc=jbu</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>          ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)/10000.</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>          jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc)-(ii*10000)</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>          <span class="keywordflow">if</span>(ii .ne. icc  .and. icc .ne. 0 ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb lu  &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>          <span class="keywordflow">if</span>( jj .ne. jcc  ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb ul  &#39;</span>,icc,jcc,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>          ii=ibcoords(icc,jcc)/10000.</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>          jj=ibcoords(icc,jcc)-(ii*10000)</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>          <span class="keywordflow">if</span>(ii .ne. icc  .and. icc .ne. 0 ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILI ilb lu  &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>          <span class="keywordflow">if</span>( jj .ne. jcc  ) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39; CORNER FAILJ ilb ul  &#39;</span>,icc,jcc,ibcoords(icc,jcc),ii,jj</div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span><span class="comment">!         if(ileft .ge. 0) then</span></div>
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="comment">!119  format(&#39; GWX LEFT EXCHANGE ileft,me,ibcoords(ista-1,jend+1),ibcoords(ista-1,jend-1),ista-1,jend-1,jend+1&#39;, &amp;</span></div>
@@ -437,9 +437,9 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>          <span class="keywordflow">do</span> j=jsta,jend</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>            <span class="keywordflow">do</span> i=ista,iend</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>              ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j)/10000</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>              jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( i,j)-(ii*10000)</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>              <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILED IJ &#39;</span>,i,j,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j),ibl,jbl,ibu,jbu</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>              ii=ibcoords(i,j)/10000</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>              jj=ibcoords( i,j)-(ii*10000)</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>              <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILED IJ &#39;</span>,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu</div>
 <div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span><span class="keywordflow">            end do</span></div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordflow">          end do</span> </div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
@@ -450,32 +450,32 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>          j=jbu </div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>          <span class="keywordflow">do</span> i=ista,iend</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>            ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j)/10000</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>            jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( i,j)-(ii*10000)</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>            <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILEDI JBU IJ &#39;</span>,i,j,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j),ibl,jbl,ibu,jbu</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>            ii=ibcoords(i,j)/10000</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>            jj=ibcoords( i,j)-(ii*10000)</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>            <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILEDI JBU IJ &#39;</span>,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu</div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span> </div>
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>          j=jbl</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>          <span class="keywordflow">do</span> i=ista,iend</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>            ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j)/10000</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>            jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( i,j)-(ii*10000)</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>            <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILEDI JBL IJ &#39;</span>,i,j,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j),ibl,jbl,ibu,jbu</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>            ii=ibcoords(i,j)/10000</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>            jj=ibcoords( i,j)-(ii*10000)</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>            <span class="keywordflow">if</span>(ii .ne. i .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILEDI JBL IJ &#39;</span>,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span><span class="comment">! second and last, check left and right halo columns</span></div>
 <div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span> </div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>          i=ibl</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>          <span class="keywordflow">do</span> j=jsta,jend</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>            ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j)/10000</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>            jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( i,j)-(ii*10000)</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>            <span class="keywordflow">if</span>(ii .ne. i .and. ii .ne. im  .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILED IBL IJ &#39;</span>,ii,i,j,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j),ibl,jbl,ibu,jbu</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>            ii=ibcoords(i,j)/10000</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>            jj=ibcoords( i,j)-(ii*10000)</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>            <span class="keywordflow">if</span>(ii .ne. i .and. ii .ne. im  .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILED IBL IJ &#39;</span>,ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu</div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span> </div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>          i=ibu</div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>          <span class="keywordflow">do</span> j=jsta,jend</div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>            ii=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j)/10000</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>            jj=<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>( i,j)-(ii*10000)</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>            <span class="keywordflow">if</span>(ii .ne. i .and. ii .ne. 1  .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILED IBU ii i j ibcoords ibl,jbl,ibu,jbu&#39;</span>,ii,i,j,<a class="code hl_variable" href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ibcoords</a>(i,j),ibl,jbl,ibu,jbu</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>            ii=ibcoords(i,j)/10000</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>            jj=ibcoords( i,j)-(ii*10000)</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>            <span class="keywordflow">if</span>(ii .ne. i .and. ii .ne. 1  .or. jj .ne. j) <span class="keyword">write</span>(*,151) <span class="stringliteral">&#39;GWVX FAILED IBU ii i j ibcoords ibl,jbl,ibu,jbu&#39;</span>,ii,i,j,ibcoords(i,j),ibl,jbl,ibu,jbu</div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span> </div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>          <span class="keywordflow">if</span>(me .eq. 0) <span class="keyword">write</span>(*,*) <span class="stringliteral">&#39;  IFIRST CHECK&#39;</span></div>
@@ -493,8 +493,6 @@ $(document).ready(function(){initNavTree('EXCH__c__float_8f_source.html',''); in
 </div>
 <div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>      <span class="keyword">end</span></div>
 <div class="ttc" id="aEXCH__c__float_8f_html_a6e9d5040a61105df34ad0e1bf4cf1260"><div class="ttname"><a href="EXCH__c__float_8f.html#a6e9d5040a61105df34ad0e1bf4cf1260">exch_c_float</a></div><div class="ttdeci">subroutine exch_c_float(a)</div><div class="ttdoc">EXCH_c_float Subroutines that exchange one halo row.</div><div class="ttdef"><b>Definition</b> <a href="EXCH__c__float_8f_source.html#l00027">EXCH_c_float.f:28</a></div></div>
-<div class="ttc" id="agroup__CTLBLK_html_ga7a503b55b69fb02edcaeb58ee1eab749"><div class="ttname"><a href="group__CTLBLK.html#ga7a503b55b69fb02edcaeb58ee1eab749">ctlblk_mod::ibcoords</a></div><div class="ttdeci">integer, dimension(:,:), allocatable ibcoords</div><div class="ttdoc">Arrays that store the coordinates of their elements; used to validate communications; when scattered ...</div><div class="ttdef"><b>Definition</b> <a href="CTLBLK_8f_source.html#l00177">CTLBLK.f:177</a></div></div>
-<div class="ttc" id="agroup__CTLBLK_html_gaa5a0e73bae60918a647344b58f3b7842"><div class="ttname"><a href="group__CTLBLK.html#gaa5a0e73bae60918a647344b58f3b7842">ctlblk_mod::icoords</a></div><div class="ttdeci">integer, dimension(:,:), allocatable icoords</div><div class="ttdoc">Arrays that store the coordinates of their elements; used to validate communications; when scattered ...</div><div class="ttdef"><b>Definition</b> <a href="CTLBLK_8f_source.html#l00176">CTLBLK.f:176</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

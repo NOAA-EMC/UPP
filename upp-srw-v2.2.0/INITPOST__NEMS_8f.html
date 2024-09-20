@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('INITPOST__NEMS_8f.html',''); initResiz
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="INITPOST__NEMS_8f.html#a978d14ff24bccbd535607695dc98cefc" title="INITPOST_NEMS This routine initializes constants and variables at the start of an NEMS model or post ...">initpost_nems()</a> initializes post for run.  
+<p><a class="el" href="INITPOST__NEMS_8f.html#a978d14ff24bccbd535607695dc98cefc" title="This routine initializes constants and variables at the start of an NEMS model or post processor run.">initpost_nems()</a> initializes post for run.  
 <a href="#details">More...</a></p>
 
 <p><a href="INITPOST__NEMS_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,31 +103,11 @@ $(document).ready(function(){initNavTree('INITPOST__NEMS_8f.html',''); initResiz
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a978d14ff24bccbd535607695dc98cefc" id="r_a978d14ff24bccbd535607695dc98cefc"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NEMS_8f.html#a978d14ff24bccbd535607695dc98cefc">initpost_nems</a> (nrec, nfile)</td></tr>
-<tr class="memdesc:a978d14ff24bccbd535607695dc98cefc"><td class="mdescLeft">&#160;</td><td class="mdescRight">INITPOST_NEMS This routine initializes constants and variables at the start of an NEMS model or post processor run.  <br /></td></tr>
+<tr class="memdesc:a978d14ff24bccbd535607695dc98cefc"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine initializes constants and variables at the start of an NEMS model or post processor run.  <br /></td></tr>
 <tr class="separator:a978d14ff24bccbd535607695dc98cefc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="INITPOST__NEMS_8f.html#a978d14ff24bccbd535607695dc98cefc" title="INITPOST_NEMS This routine initializes constants and variables at the start of an NEMS model or post ...">initpost_nems()</a> initializes post for run. </p>
-<dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2007-03-26</dd></dl>
-<p>This routine initializes constants and variables at the start of an NEMS model or post processor run.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">NREC.</td><td></td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NFILE.</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<h3><a class="anchor" id="autotoc_md58"></a>
-Program History Log</h3>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2007-03-01   </td><td class="markdownTableBodyNone">Hui-Ya Chuang   </td><td class="markdownTableBodyNone">Initial    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2021-03-11   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Change local arrays to dimension (im,jsta:jend)   </td></tr>
-</table>
+<div class="textblock"><p><a class="el" href="INITPOST__NEMS_8f.html#a978d14ff24bccbd535607695dc98cefc" title="This routine initializes constants and variables at the start of an NEMS model or post processor run.">initpost_nems()</a> initializes post for run. </p>
 <dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2007-03-26 </dd></dl>
 
@@ -159,20 +139,30 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>INITPOST_NEMS This routine initializes constants and variables at the start of an NEMS model or post processor run. </p>
+<p>This routine initializes constants and variables at the start of an NEMS model or post processor run. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">NREC</td><td>integer Number of records in file. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">nfile</td><td>nemsio_gfile Name of the NEMS-formatted model output file. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">NREC.</td><td></td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">NFILE.</td><td></td></tr>
   </table>
   </dd>
 </dl>
+<h3><a class="anchor" id="autotoc_md60"></a>
+Program History Log</h3>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2007-03-01   </td><td class="markdownTableBodyNone">Hui-Ya Chuang   </td><td class="markdownTableBodyNone">Initial    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2021-03-11   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Change local arrays to dimension (im,jsta:jend)   </td></tr>
+</table>
+<dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2007-03-26 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="INITPOST__NEMS_8f_source.html#l00027">27</a> of file <a class="el" href="INITPOST__NEMS_8f_source.html">INITPOST_NEMS.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NEMS_8f_source.html#l00020">20</a> of file <a class="el" href="INITPOST__NEMS_8f_source.html">INITPOST_NEMS.f</a>.</p>
 
-<p class="reference">References <a class="el" href="COLLECT__LOC_8f_source.html#l00023">collect_loc()</a>, and <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="WRFPOST_8F_source.html#l00046">wrfpost()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="WRFPOST_8f_source.html#l00039">wrfpost()</a>.</p>
 
 </div>
 </div>

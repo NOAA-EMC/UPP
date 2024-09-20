@@ -972,7 +972,7 @@ $(document).ready(function(){initNavTree('INITPOST_8F_source.html',''); initResi
 <div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span><span class="keywordflow">      ENDDO</span></div>
 <div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span> </div>
 <div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>      <span class="keywordflow">do</span> l=1,405</div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>        <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(pvapor(1,jsta_2l))</div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>        <span class="keyword">call </span>exch(pvapor(1,jsta_2l))</div>
 <div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>        <span class="keywordflow">do</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>        <span class="keywordflow">do</span> i=2,im-1</div>
 <div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span> </div>
@@ -2929,7 +2929,7 @@ $(document).ready(function(){initNavTree('INITPOST_8F_source.html',''); initResi
 <div class="line"><a id="l02851" name="l02851"></a><span class="lineno"> 2851</span><span class="comment">!       print*,&#39;GDLON at &#39;,ii,jj,&#39; = &#39;,GDLON(ii,jj)</span></div>
 <div class="line"><a id="l02852" name="l02852"></a><span class="lineno"> 2852</span>       print*,<span class="stringliteral">&#39;read past GDLON&#39;</span> </div>
 <div class="line"><a id="l02853" name="l02853"></a><span class="lineno"> 2853</span><span class="comment">! pos east</span></div>
-<div class="line"><a id="l02854" name="l02854"></a><span class="lineno"> 2854</span>       <span class="keyword">call </span><a class="code hl_function" href="COLLECT__LOC_8f.html#aae1563438f2d28dc637a236658e1891d">collect_loc</a>(gdlat,dummy)</div>
+<div class="line"><a id="l02854" name="l02854"></a><span class="lineno"> 2854</span>       <span class="keyword">call </span>collect_loc(gdlat,dummy)</div>
 <div class="line"><a id="l02855" name="l02855"></a><span class="lineno"> 2855</span>       <span class="keywordflow">if</span>(me==0)<span class="keywordflow">then</span></div>
 <div class="line"><a id="l02856" name="l02856"></a><span class="lineno"> 2856</span>        latstart=nint(dummy(1,1)*gdsdegr)</div>
 <div class="line"><a id="l02857" name="l02857"></a><span class="lineno"> 2857</span>        latlast=nint(dummy(im,jm)*gdsdegr)</div>
@@ -2942,7 +2942,7 @@ $(document).ready(function(){initNavTree('INITPOST_8F_source.html',''); initResi
 <div class="line"><a id="l02864" name="l02864"></a><span class="lineno"> 2864</span>       <span class="keyword">call </span>mpi_bcast(latstart,1,mpi_integer,0,mpi_comm_comp,irtn)</div>
 <div class="line"><a id="l02865" name="l02865"></a><span class="lineno"> 2865</span>       <span class="keyword">call </span>mpi_bcast(latlast,1,mpi_integer,0,mpi_comm_comp,irtn)</div>
 <div class="line"><a id="l02866" name="l02866"></a><span class="lineno"> 2866</span>       <span class="keyword">write</span>(6,*) <span class="stringliteral">&#39;laststart,latlast A calling bcast= &#39;</span>,latstart,latlast</div>
-<div class="line"><a id="l02867" name="l02867"></a><span class="lineno"> 2867</span>       <span class="keyword">call </span><a class="code hl_function" href="COLLECT__LOC_8f.html#aae1563438f2d28dc637a236658e1891d">collect_loc</a>(gdlon,dummy)</div>
+<div class="line"><a id="l02867" name="l02867"></a><span class="lineno"> 2867</span>       <span class="keyword">call </span>collect_loc(gdlon,dummy)</div>
 <div class="line"><a id="l02868" name="l02868"></a><span class="lineno"> 2868</span>       <span class="keywordflow">if</span>(me==0)<span class="keywordflow">then</span></div>
 <div class="line"><a id="l02869" name="l02869"></a><span class="lineno"> 2869</span>        <span class="keywordflow">if</span>(dummy(1,1)&lt;0.0) dummy(1,1)=360.0+dummy(1,1)</div>
 <div class="line"><a id="l02870" name="l02870"></a><span class="lineno"> 2870</span>        <span class="keywordflow">if</span>(dummy(im,jm)&lt;0.0) dummy(im,jm)=360.0+dummy(im,jm)</div>
@@ -3321,11 +3321,9 @@ $(document).ready(function(){initNavTree('INITPOST_8F_source.html',''); initResi
 <div class="line"><a id="l03243" name="l03243"></a><span class="lineno"> 3243</span>      <span class="keywordflow">RETURN</span></div>
 </div>
 <div class="line"><a id="l03244" name="l03244"></a><span class="lineno"> 3244</span>      <span class="keyword">END</span></div>
-<div class="ttc" id="aCOLLECT__LOC_8f_html_aae1563438f2d28dc637a236658e1891d"><div class="ttname"><a href="COLLECT__LOC_8f.html#aae1563438f2d28dc637a236658e1891d">collect_loc</a></div><div class="ttdeci">subroutine collect_loc(a, b)</div><div class="ttdoc">COLLECT_LOC.</div><div class="ttdef"><b>Definition</b> <a href="COLLECT__LOC_8f_source.html#l00022">COLLECT_LOC.f:23</a></div></div>
-<div class="ttc" id="aEXCH_8f_html_a32e60ff8ecca9f6f9b84128bede5078e"><div class="ttname"><a href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a></div><div class="ttdeci">subroutine exch(a)</div><div class="ttdoc">exch() Subroutine that exchanges one halo row.</div><div class="ttdef"><b>Definition</b> <a href="EXCH_8f_source.html#l00026">EXCH.f:27</a></div></div>
 <div class="ttc" id="aINITPOST_8F_html_ade20f4d822e605984beda816c7c7eb46"><div class="ttname"><a href="INITPOST_8F.html#ade20f4d822e605984beda816c7c7eb46">initpost</a></div><div class="ttdeci">subroutine initpost</div><div class="ttdoc">This routine initializes constants and variables at the start of an ETA model or post processor run.</div><div class="ttdef"><b>Definition</b> <a href="INITPOST_8F_source.html#l00025">INITPOST.F:26</a></div></div>
 <div class="ttc" id="aMSFPS_8f_html_acc75fc66c78aead347584294cd75f6f7"><div class="ttname"><a href="MSFPS_8f.html#acc75fc66c78aead347584294cd75f6f7">msfps</a></div><div class="ttdeci">subroutine msfps(lat, truelat1, msf)</div><div class="ttdoc">msfps() computes the map scale factor for a polar stereographic grid at a give latitude.</div><div class="ttdef"><b>Definition</b> <a href="MSFPS_8f_source.html#l00026">MSFPS.f:27</a></div></div>
-<div class="ttc" id="aZENSUN_8f_html_aa41bf2e5fbccb90c1197d86d4b3f51bd"><div class="ttname"><a href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a></div><div class="ttdeci">subroutine zensun(day, time, lat, lon, pi, sun_zenith, sun_azimuth)</div><div class="ttdoc">Makes sun zenith and sun azimuth angle.</div><div class="ttdef"><b>Definition</b> <a href="ZENSUN_8f_source.html#l00061">ZENSUN.f:62</a></div></div>
+<div class="ttc" id="aZENSUN_8f_html_aa41bf2e5fbccb90c1197d86d4b3f51bd"><div class="ttname"><a href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a></div><div class="ttdeci">subroutine zensun(day, time, lat, lon, pi, sun_zenith, sun_azimuth)</div><div class="ttdoc">This subroutine computes solar position information as a function of geographic coordinates,...</div><div class="ttdef"><b>Definition</b> <a href="ZENSUN_8f_source.html#l00062">ZENSUN.f:63</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

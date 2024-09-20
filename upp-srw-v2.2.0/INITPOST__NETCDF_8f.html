@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('INITPOST__NETCDF_8f.html',''); initRes
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="INITPOST__NETCDF_8f.html#aca6793185b6d5dcf532cc4931b5addf4" title="2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 |...">initpost_netcdf()</a> initializes post for run.  
+<p><a class="el" href="INITPOST__NETCDF_8f.html#aca6793185b6d5dcf532cc4931b5addf4" title="This routine initializes constants and variables at the start of GFS model or post processor run.">initpost_netcdf()</a> initializes post for run.  
 <a href="#details">More...</a></p>
 
 <p><a href="INITPOST__NETCDF_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,21 +103,48 @@ $(document).ready(function(){initNavTree('INITPOST__NETCDF_8f.html',''); initRes
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aca6793185b6d5dcf532cc4931b5addf4" id="r_aca6793185b6d5dcf532cc4931b5addf4"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NETCDF_8f.html#aca6793185b6d5dcf532cc4931b5addf4">initpost_netcdf</a> (ncid2d, ncid3d)</td></tr>
-<tr class="memdesc:aca6793185b6d5dcf532cc4931b5addf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng | Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James | Read in SOILL on 9 levels for RRFS 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain) 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output 2023-09-22 | Wen Meng | Bug fix in cwm initialization 2023-10-17 | Eric James | Including hail mixing ratio in calculation of hydrometeor VIL and cwm when present (NSSL microphysics) 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS 2024-01-12 | Wen Meng | Remove the hard-wired bucket for beyond F240 2024-02-07 | Eric James | Adding reading of direct and diffuse irradiance and LAI 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from <a class="el" href="INITPOST_8F.html" title="initpost() initializes post for run.">INITPOST.F</a>) to support RRFS 10-m wind gust diagnostic 2024-03-15 | Wen Meng | Add option to read 3D soil-related variables 2024-03-25 | Eric James | Enabling reading of snow melt and surface albedo from RRFS 2024-04-03 | Eric James | Add reading of hourly averaged smoke and dust 2024-04-23 | Eric James | Updating smoke emissions to be 3D variable (ebu_smoke) 2024-05-01 | Eric James | set "prec_acc_dt1" as 15 min for RRFS 2024-05-09 | Eric James | Enable reading of clear-sky downwelling shortwave irradiance 2024-05-10 | Karina Asmar | Read omega from model output and calculate HGT for hydrostatic runs 2024-06-25 | Wen Meng | Add capability to read fhzero as either an integer or float 2024-08-26 | Karina Asmar | Add temporal u/v, speed max wind components at 10m agl  <br /></td></tr>
+<tr class="memdesc:aca6793185b6d5dcf532cc4931b5addf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine initializes constants and variables at the start of GFS model or post processor run.  <br /></td></tr>
 <tr class="separator:aca6793185b6d5dcf532cc4931b5addf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0b47ac11223ca7217131e3b0b4effac" id="r_aa0b47ac11223ca7217131e3b0b4effac"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NETCDF_8f.html#aa0b47ac11223ca7217131e3b0b4effac">read_netcdf_2d_para</a> (ncid, ista, ista_2l, iend, iend_2u, jsta, jsta_2l, jend, jend_2u, spval, varname, buf)</td></tr>
-<tr class="memdesc:aa0b47ac11223ca7217131e3b0b4effac"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="INITPOST__NETCDF_8f.html#aa0b47ac11223ca7217131e3b0b4effac" title="read_netcdf_2d_para() reads physics variables from UFS model output.">read_netcdf_2d_para()</a> reads physics variables from UFS model output.  <br /></td></tr>
 <tr class="separator:aa0b47ac11223ca7217131e3b0b4effac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1694290dc62d68715191b0c3ce589162" id="r_a1694290dc62d68715191b0c3ce589162"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="INITPOST__NETCDF_8f.html#a1694290dc62d68715191b0c3ce589162">read_netcdf_3d_para</a> (ncid, im, jm, ista, ista_2l, iend, iend_2u, jsta, jsta_2l, jend, jend_2u, spval, varname, buf, lm)</td></tr>
-<tr class="memdesc:a1694290dc62d68715191b0c3ce589162"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="INITPOST__NETCDF_8f.html#a1694290dc62d68715191b0c3ce589162" title="read_netcdf_3d_para() reads dynamics variables from UFS model output.">read_netcdf_3d_para()</a> reads dynamics variables from UFS model output.  <br /></td></tr>
 <tr class="separator:a1694290dc62d68715191b0c3ce589162"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="INITPOST__NETCDF_8f.html#aca6793185b6d5dcf532cc4931b5addf4" title="2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 |...">initpost_netcdf()</a> initializes post for run. </p>
+<div class="textblock"><p><a class="el" href="INITPOST__NETCDF_8f.html#aca6793185b6d5dcf532cc4931b5addf4" title="This routine initializes constants and variables at the start of GFS model or post processor run.">initpost_netcdf()</a> initializes post for run. </p>
 <dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2016-03-04</dd></dl>
-<p>This routine initializes constants and variables at the start of GFS model or post processor run.</p>
-<h3><a class="anchor" id="autotoc_md59"></a>
+<dl class="section date"><dt>Date</dt><dd>2016-03-04 </dd></dl>
+
+<p class="definition">Definition in file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
+</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="aca6793185b6d5dcf532cc4931b5addf4" name="aca6793185b6d5dcf532cc4931b5addf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca6793185b6d5dcf532cc4931b5addf4">&#9670;&#160;</a></span>initpost_netcdf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine initpost_netcdf </td>
+          <td>(</td>
+          <td class="paramtype">integer&#160;</td>
+          <td class="paramname"><em>ncid2d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer&#160;</td>
+          <td class="paramname"><em>ncid3d</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This routine initializes constants and variables at the start of GFS model or post processor run. </p>
+<h3><a class="anchor" id="autotoc_md61"></a>
 Program History Log</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -167,52 +194,15 @@ Program History Log</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">2023-04-04   </td><td class="markdownTableBodyNone">Li(Kate Zhang)   </td><td class="markdownTableBodyNone">Add namelist optoin for CCPP-Chem(UFS-Chem)   </td></tr>
 </table>
-
-<p class="definition">Definition in file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="aca6793185b6d5dcf532cc4931b5addf4" name="aca6793185b6d5dcf532cc4931b5addf4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca6793185b6d5dcf532cc4931b5addf4">&#9670;&#160;</a></span>initpost_netcdf()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">subroutine initpost_netcdf </td>
-          <td>(</td>
-          <td class="paramtype">integer&#160;</td>
-          <td class="paramname"><em>ncid2d</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">integer&#160;</td>
-          <td class="paramname"><em>ncid3d</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng | Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James | Read in SOILL on 9 levels for RRFS 2023-07-24 | Hui-Ya Chuang | Bug fix in tke inialization 2023-08-04 | Jaymes Kenyon | Read RRFS microphysics number concentrations (cloud water, cloud ice, rain) 2023-08-31 | Li(Kate Zhang)| Add condition to include/exclude processing nitrate from model output 2023-09-22 | Wen Meng | Bug fix in cwm initialization 2023-10-17 | Eric James | Including hail mixing ratio in calculation of hydrometeor VIL and cwm when present (NSSL microphysics) 2023-10-23 | Jaymes Kenyon | Read HAILCAST diagnostic output from RRFS 2024-01-12 | Wen Meng | Remove the hard-wired bucket for beyond F240 2024-02-07 | Eric James | Adding reading of direct and diffuse irradiance and LAI 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from <a class="el" href="INITPOST_8F.html" title="initpost() initializes post for run.">INITPOST.F</a>) to support RRFS 10-m wind gust diagnostic 2024-03-15 | Wen Meng | Add option to read 3D soil-related variables 2024-03-25 | Eric James | Enabling reading of snow melt and surface albedo from RRFS 2024-04-03 | Eric James | Add reading of hourly averaged smoke and dust 2024-04-23 | Eric James | Updating smoke emissions to be 3D variable (ebu_smoke) 2024-05-01 | Eric James | set "prec_acc_dt1" as 15 min for RRFS 2024-05-09 | Eric James | Enable reading of clear-sky downwelling shortwave irradiance 2024-05-10 | Karina Asmar | Read omega from model output and calculate HGT for hydrostatic runs 2024-06-25 | Wen Meng | Add capability to read fhzero as either an integer or float 2024-08-26 | Karina Asmar | Add temporal u/v, speed max wind components at 10m agl </p>
+<p>2023-04-17 | Eric James | Read in unified ext550 extinction (and remove aodtot) for RRFS 2023-04-21 | Eric James | Read in / calculate some fields needed for GSL p-type diagnosis for RRFS 2023-05-31 | Wen Meng | Bug fix in qrmax initialization 2023-06-14 | Wen Meng ! Bug fix of reading seaswtc and modification of sndepac calculation 2023-07-06 | Eric James ! Read in SOILL on 9 levels for RRFS</p>
 <dl class="section author"><dt>Author</dt><dd>Hui-Ya Chuang </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2016-03-04</dd></dl>
-<p>INITPOST_NETCDF() This routine initializes constants and variables at the start of GFS model or post processor run.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">ncid2d</td><td>integer netCDF ID of physics model output file. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ncid3d</td><td>integer netCDF ID of dynamics model output file. </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="section date"><dt>Date</dt><dd>2016-03-04 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l00069">69</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l00043">43</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
-<p class="reference">References <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>, <a class="el" href="MSFPS_8f_source.html#l00027">msfps()</a>, <a class="el" href="INITPOST__NETCDF_8f_source.html#l04114">read_netcdf_2d_para()</a>, and <a class="el" href="INITPOST__NETCDF_8f_source.html#l04045">read_netcdf_3d_para()</a>.</p>
+<p class="reference">References <a class="el" href="MSFPS_8f_source.html#l00027">msfps()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="WRFPOST_8F_source.html#l00046">wrfpost()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="WRFPOST_8f_source.html#l00039">wrfpost()</a>.</p>
 
 </div>
 </div>
@@ -302,28 +292,7 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="INITPOST__NETCDF_8f.html#aa0b47ac11223ca7217131e3b0b4effac" title="read_netcdf_2d_para() reads physics variables from UFS model output.">read_netcdf_2d_para()</a> reads physics variables from UFS model output. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">ncid</td><td>integer netCDF ID. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ista</td><td>integer Start longitude latitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ista_2l</td><td>integer Start longitude -2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">iend</td><td>integer End longitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">iend_2u</td><td>integer End longitude +2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jsta</td><td>integer Start latitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jsta_2l</td><td>integer Start latitude -2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jend</td><td>integer End latitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jend_2u</td><td>integer End latitude +2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">spval</td><td>real Missing value defined in UPP. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">varname</td><td>character Variable name in netCDF file. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">buf</td><td>real Variable values. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l04112">4112</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="INITPOST__NETCDF_8f_source.html#l00070">initpost_netcdf()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l03879">3879</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
 </div>
 </div>
@@ -431,31 +400,7 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="INITPOST__NETCDF_8f.html#a1694290dc62d68715191b0c3ce589162" title="read_netcdf_3d_para() reads dynamics variables from UFS model output.">read_netcdf_3d_para()</a> reads dynamics variables from UFS model output. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">ncid</td><td>integer netCDF ID. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">im</td><td>integer Full longitude domain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jm</td><td>integer Full latitude domain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ista</td><td>integer Start longitude latitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ista_2l</td><td>integer Start longitude -2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">iend</td><td>integer End longitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">iend_2u</td><td>integer End longitude +2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jsta</td><td>integer Start latitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jsta_2l</td><td>integer Start latitude -2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jend</td><td>integer End latitude on a task subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">jend_2u</td><td>integer End latitude +2 of the subdomain. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">spval</td><td>real Missing value defined in UPP. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">varname</td><td>character Variable name in netCDF file. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">buf</td><td>real Variable values. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">lm</td><td>integer Model levels. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l04043">4043</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="INITPOST__NETCDF_8f_source.html#l00070">initpost_netcdf()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="INITPOST__NETCDF_8f_source.html#l03827">3827</a> of file <a class="el" href="INITPOST__NETCDF_8f_source.html">INITPOST_NETCDF.f</a>.</p>
 
 </div>
 </div>

@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('TRPAUS_8f.html',''); initResizable(); 
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="TRPAUS_8f.html#aa177e5379705c8a7bc8870368f312637" title="Computes tropopause data.">trpaus()</a> computes tropopause level fields.  
+<p><a class="el" href="TRPAUS_8f.html#aa177e5379705c8a7bc8870368f312637" title="This routine computes tropopause data.">trpaus()</a> computes tropopause data.  
 <a href="#details">More...</a></p>
 
 <p><a href="TRPAUS_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,32 +103,11 @@ $(document).ready(function(){initNavTree('TRPAUS_8f.html',''); initResizable(); 
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa177e5379705c8a7bc8870368f312637" id="r_aa177e5379705c8a7bc8870368f312637"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TRPAUS_8f.html#aa177e5379705c8a7bc8870368f312637">trpaus</a> (ptrop, ttrop, ztrop, utrop, vtrop, shtrop)</td></tr>
-<tr class="memdesc:aa177e5379705c8a7bc8870368f312637"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes tropopause data.  <br /></td></tr>
+<tr class="memdesc:aa177e5379705c8a7bc8870368f312637"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine computes tropopause data.  <br /></td></tr>
 <tr class="separator:aa177e5379705c8a7bc8870368f312637"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="TRPAUS_8f.html#aa177e5379705c8a7bc8870368f312637" title="Computes tropopause data.">trpaus()</a> computes tropopause level fields. </p>
-<p>This routine computes tropopause data. At each mass point a surface up search is made for the first occurrence of a three layer mean lapse rate less than or equal to a critical lapse rate. This critcal lapse rate is 2 deg/km. This is in accord with the WMO definition of a tropopause. A maximum tropopause pressure of 500mb is enforced. Once the tropopause is located in a column, pressure, temperature, u and v winds, and vertical wind shear are computed.</p>
-<h3><a class="anchor" id="autotoc_md88"></a>
-Program history log:</h3>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1992-12-22   </td><td class="markdownTableBodyNone">Russ Treadon   </td><td class="markdownTableBodyNone">Initial    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">1997-03-06   </td><td class="markdownTableBodyNone">Geoff Manikin   </td><td class="markdownTableBodyNone">Changed criteria for determining the tropopause and added height    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">1998-06-15   </td><td class="markdownTableBodyNone">T Black   </td><td class="markdownTableBodyNone">Conversion from 1-D TO 2-D    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2000-01-04   </td><td class="markdownTableBodyNone">Jim Tuccillo   </td><td class="markdownTableBodyNone">MPI Version    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2002-04-23   </td><td class="markdownTableBodyNone">Mike Baldwin   </td><td class="markdownTableBodyNone">WRF Version    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2019-10-30   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">ReMOVE "GOTO" STATEMENT    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2021-09-13   </td><td class="markdownTableBodyNone">JESSE MENG   </td><td class="markdownTableBodyNone">2D DECOMPOSITION   </td></tr>
-</table>
+<div class="textblock"><p><a class="el" href="TRPAUS_8f.html#aa177e5379705c8a7bc8870368f312637" title="This routine computes tropopause data.">trpaus()</a> computes tropopause data. </p>
 <dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>1992-12-22 </dd></dl>
 
@@ -184,7 +163,8 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Computes tropopause data. </p>
+<p>This routine computes tropopause data. </p>
+<p>At each mass point a surface up search is made for the first occurrence of a three layer mean lapse rate less than or equal to a critical lapse rate. This critcal lapse rate is 2deg/km. This is in accord with the WMO definition of a tropopause. A maximum tropopause pressure of 500mb is enforced. Onc the tropopause is located in a column, pressure, temperature, u and v winds, and vertical wind shear are computed.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">PTROP</td><td>Tropopause pressure. </td></tr>
@@ -192,12 +172,34 @@ Program history log:</h3>
     <tr><td class="paramdir">[out]</td><td class="paramname">ZTROP</td><td>Tropopause height. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">UTROP</td><td>Tropopause u wind component. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">VTROP</td><td>Tropopause v wind component. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">SHTROP</td><td>Vertical wind shear at tropopause. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">SHTROP</td><td>Vertical wind shear at tropopause.</td></tr>
   </table>
   </dd>
 </dl>
+<h3><a class="anchor" id="autotoc_md86"></a>
+Program history log:</h3>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">1992-12-22   </td><td class="markdownTableBodyNone">Russ Treadon   </td><td class="markdownTableBodyNone">Initial    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">1997-03-06   </td><td class="markdownTableBodyNone">Geoff Manikin   </td><td class="markdownTableBodyNone">Changed criteria for determining the tropopause and added height    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">1998-06-15   </td><td class="markdownTableBodyNone">T Black   </td><td class="markdownTableBodyNone">Conversion from 1-D TO 2-D    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2000-01-04   </td><td class="markdownTableBodyNone">Jim Tuccillo   </td><td class="markdownTableBodyNone">MPI Version    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2002-04-23   </td><td class="markdownTableBodyNone">Mike Baldwin   </td><td class="markdownTableBodyNone">WRF Version    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2019-10-30   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">ReMOVE "GOTO" STATEMENT    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2021-09-13   </td><td class="markdownTableBodyNone">JESSE MENG   </td><td class="markdownTableBodyNone">2D DECOMPOSITION   </td></tr>
+</table>
+<dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>1992-12-22 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="TRPAUS_8f_source.html#l00036">36</a> of file <a class="el" href="TRPAUS_8f_source.html">TRPAUS.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="TRPAUS_8f_source.html#l00035">35</a> of file <a class="el" href="TRPAUS_8f_source.html">TRPAUS.f</a>.</p>
 
 </div>
 </div>

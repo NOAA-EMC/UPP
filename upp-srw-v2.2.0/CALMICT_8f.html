@@ -103,14 +103,13 @@ $(document).ready(function(){initNavTree('CALMICT_8f.html',''); initResizable();
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac459f80cad690b859c4deac7ef425e21" id="r_ac459f80cad690b859c4deac7ef425e21"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALMICT_8f.html#ac459f80cad690b859c4deac7ef425e21">calmict_new</a> (p1d, t1d, q1d, c1d, fi1d, fr1d, fs1d, curefl, qw1, qi1, qr1, qs1, dbz1, dbzr1, dbzi1, dbzc1, nlice1, nrain1)</td></tr>
-<tr class="memdesc:ac459f80cad690b859c4deac7ef425e21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subroutine that computes hydrometeors.  <br /></td></tr>
 <tr class="separator:ac459f80cad690b859c4deac7ef425e21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff8741de80f7dafe0270ba5531b31793" id="r_aff8741de80f7dafe0270ba5531b31793"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALMICT_8f.html#aff8741de80f7dafe0270ba5531b31793">calmict_old</a> (p1d, t1d, q1d, c1d, fi1d, fr1d, fs1d, curefl, qw1, qi1, qr1, qs1, dbz1, dbzr1, dbzi1, dbzc1, nlice1, nrain1)</td></tr>
 <tr class="separator:aff8741de80f7dafe0270ba5531b31793"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Subroutine that computes hydrometeors. </p>
-<p>This routine computes the mixing ratios of cloud water, cloud ice, rain, and snow. The code is based on subroutines GSMDRIVE and GSMCOLUMN in the NMM model.</p>
+<p>This routin computes the mixing ratios of cloud water, cloud ice, rain, and snow. The code is based on subroutines GSMDRIVE and GSMCOLUMN in the NMM model.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">P1D</td><td>Pressure (Pa). </td></tr>
@@ -128,13 +127,11 @@ Functions/Subroutines</h2></td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">DBZ1</td><td>Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">DBZR</td><td>Equivalent radar reflectivity factor from rain in dBZ. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">DBZI</td><td>Equivalent radar reflectivity factor from ice (all forms) in dBZ. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">DBZC</td><td>Equivalent radar reflectivity factor from parameterized convection in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NLICE1</td><td>Time-averaged number concentration of large ice. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NRAIN1</td><td>Number concentration of rain drops (m).</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">DBZC</td><td>Equivalent radar reflectivity factor from parameterized convection in dBZ.</td></tr>
   </table>
   </dd>
 </dl>
-<h3><a class="anchor" id="autotoc_md10"></a>
+<h3><a class="anchor" id="autotoc_md13"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -279,37 +276,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Subroutine that computes hydrometeors. </p>
-<p>This routine computes the mixing ratios of cloud water, cloud ice, rain, and snow. The code is based on subroutines GSMDRIVE and GSMCOLUMN in the NMM model.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">P1D</td><td>Pressure (Pa). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">T1D</td><td>Temperature (K). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">Q1D</td><td>Specific humidity (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">C1D</td><td>Total condensate (CWM, kg/kg). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">FI1D</td><td>F_ice (fraction of condensate in form of ice). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">FR1D</td><td>F_rain (fraction of liquid water in form of rain). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">FS1D</td><td>F_RimeF ("Rime Factor", ratio of total ice growth to deposition growth). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">CUREFL</td><td>Radar reflectivity contribution from convection (mm**6/m**3). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QW1</td><td>Cloud water mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QI1</td><td>Cloud ice mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QR1</td><td>Rain mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QS1</td><td>"Snow" (precipitation ice) mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZ1</td><td>Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZR1</td><td>Equivalent radar reflectivity factor from rain in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZI1</td><td>Equivalent radar reflectivity factor from ice (all forms) in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZC1</td><td>Equivalent radar reflectivity factor from parameterized convection in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NLICE1</td><td>Time-averaged number concentration of large ice. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NRAIN1</td><td>Number concentration of rain drops (m). </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="CALMICT_8f_source.html#l00065">65</a> of file <a class="el" href="CALMICT_8f_source.html">CALMICT.f</a>.</p>
-
-<p class="reference">References <a class="el" href="GPVS_8f_source.html#l00085">fpvs()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="MDLFLD_8f_source.html#l00100">mdlfld()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALMICT_8f_source.html#l00036">36</a> of file <a class="el" href="CALMICT_8f_source.html">CALMICT.f</a>.</p>
 
 </div>
 </div>
@@ -435,7 +402,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 <p>CALMICT_old computes hydrometeors from the older version of the microphysics.</p>
-<p>This routine computes the mixing ratios of cloud water, cloud ice, rain, and snow. The code is based on option MP_PHYSICS==95 in the WRF namelist and option MICRO='fer' in NMMB configure files.</p>
+<p>This routin computes the mixing ratios of cloud water, cloud ice, rain, and snow. The code is based on option MP_PHYSICS==95 in the WRF namelist and option MICRO='fer' in NMMB configure files.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">P1D</td><td>Pressure (Pa). </td></tr>
@@ -446,20 +413,18 @@ Program history log:</h3>
     <tr><td class="paramdir">[in]</td><td class="paramname">FR1D</td><td>F_rain (fraction of liquid water in form of rain). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">FS1D</td><td>F_RimeF ("Rime Factor", ratio of total ice growth to deposition growth). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">CUREFL</td><td>Radar reflectivity contribution from convection (mm**6/m**3). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QW1</td><td>Cloud water mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QI1</td><td>Cloud ice mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QR1</td><td>Rain mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">QS1</td><td>"Snow" (precipitation ice) mixing ratio (kg/kg). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZ1</td><td>Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z). </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZR1</td><td>Equivalent radar reflectivity factor from rain in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZI1</td><td>Equivalent radar reflectivity factor from ice (all forms) in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">DBZC1</td><td>Equivalent radar reflectivity factor from parameterized convection in dBZ. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NLICE1</td><td>Time-averaged number concentration of large ice. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">NRAIN1</td><td>Number concentration of rain drops (m).</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">QW1</td><td>Cloud water mixing ratio (kg/kg). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">QI1</td><td>Cloud ice mixing ratio (kg/kg). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">QR1</td><td>Rain mixing ratio (kg/kg). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">QS1</td><td>"Snow" (precipitation ice) mixing ratio (kg/kg). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">DBZ1</td><td>Equivalent radar reflectivity factor in dBZ; i.e., 10*LOG10(Z). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">DBZR</td><td>Equivalent radar reflectivity factor from rain in dBZ. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">DBZI</td><td>Equivalent radar reflectivity factor from ice (all forms) in dBZ. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">DBZC</td><td>Equivalent radar reflectivity factor from parameterized convection in dBZ.</td></tr>
   </table>
   </dd>
 </dl>
-<h3><a class="anchor" id="autotoc_md11"></a>
+<h3><a class="anchor" id="autotoc_md14"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -478,11 +443,11 @@ Program history log:</h3>
 <dl class="section author"><dt>Author</dt><dd>Yi Jin W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2001-08-14</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="CALMICT_8f_source.html#l00331">331</a> of file <a class="el" href="CALMICT_8f_source.html">CALMICT.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALMICT_8f_source.html#l00302">302</a> of file <a class="el" href="CALMICT_8f_source.html">CALMICT.f</a>.</p>
 
-<p class="reference">References <a class="el" href="GPVS_8f_source.html#l00085">fpvs()</a>.</p>
+<p class="reference">References <a class="el" href="GPVS_8f_source.html#l00055">fpvs()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="MDLFLD_8f_source.html#l00100">mdlfld()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="MDLFLD_8f_source.html#l00091">mdlfld()</a>.</p>
 
 </div>
 </div>

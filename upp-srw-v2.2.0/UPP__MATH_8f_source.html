@@ -234,7 +234,7 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>      <span class="keywordflow">else</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;E&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>       <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        <span class="keywordflow">DO</span> i=ista_m,iend_m</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>     ie=i+mod(j,2)</div>
@@ -243,7 +243,7 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;B&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>       <span class="keywordflow">DO</span> j=jsta,jend_m</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        <span class="keywordflow">DO</span> i=ista,iend_m</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>     outgrid(i,j)=(ingrid(i,j)+ingrid(i,j+1)+ingrid(i+1,j)+ingrid(i+1,j+1))/4.0</div>
@@ -259,7 +259,7 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="keywordflow">        END DO</span></div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="keywordflow">       END IF</span>      </div>
 <div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;C&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>       <span class="keywordflow">DO</span> j=jsta,jend</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>        <span class="keywordflow">DO</span> i=ista,iend_m</div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>          outgrid(i,j)=(ingrid(i,j)+ingrid(i+1,j))/2.0</div>
@@ -292,7 +292,7 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">        end do</span></div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>      <span class="keywordflow">else</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;E&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>        <span class="keywordflow">DO</span> i=ista_m,iend_m</div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>     ie=i+mod(j,2)</div>
@@ -301,14 +301,14 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;B&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       <span class="keywordflow">DO</span> j=jsta,jend_m</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>        <span class="keywordflow">DO</span> i=ista,iend_m</div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>     outgrid(i,j)=(ingrid(i,j)+ingrid(i,j+1)+ingrid(i+1,j)+ingrid(i+1,j+1))/4.0</div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;C&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>       <span class="keywordflow">DO</span> j=jsta,jend_m</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>        <span class="keywordflow">DO</span> i=ista,iend</div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>     outgrid(i,j)=(ingrid(i,j)+ingrid(i,j+1))/2.0</div>
@@ -341,7 +341,7 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>      <span class="keywordflow">else</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;E&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>        <span class="keywordflow">DO</span> i=ista_m,iend_m</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>     ie=i+mod(j+1,2)</div>
@@ -350,14 +350,14 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;B&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>       <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>        <span class="keywordflow">DO</span> i=ista_m,iend_m</div>
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>     outgrid(i,j)=(ingrid(i-1,j-1)+ingrid(i,j-1)+ingrid(i-1,j)+ingrid(i,j))/4.0</div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;C&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       <span class="keywordflow">DO</span> j=jsta,jend</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>        <span class="keywordflow">DO</span> i=ista_m,iend</div>
 <div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>     outgrid(i,j)=(ingrid(i-1,j)+ingrid(i,j))/2.0</div>
@@ -390,7 +390,7 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>      <span class="keywordflow">else</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;E&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>       <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>        <span class="keywordflow">DO</span> i=ista_m,iend_m</div>
 <div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>     ie=i+mod(j,2)</div>
@@ -399,14 +399,14 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;B&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>       <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>        <span class="keywordflow">DO</span> i=ista_m,iend_m</div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>     outgrid(i,j)=(ingrid(i-1,j-1)+ingrid(i,j-1)+ingrid(i-1,j)+ingrid(i,j))/4.0</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>      <span class="keywordflow">ELSE</span> <span class="keywordflow">IF</span>(gridtype == <span class="stringliteral">&#39;C&#39;</span>)<span class="keywordflow">THEN</span></div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       <span class="keyword">call </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ingrid(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       <span class="keyword">call </span>exch(ingrid(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>       <span class="keywordflow">DO</span> j=jsta_m,jend</div>
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>        <span class="keywordflow">DO</span> i=ista,iend</div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>     outgrid(i,j)=(ingrid(i,j-1)+ingrid(i,j))/2.0</div>
@@ -420,7 +420,6 @@ $(document).ready(function(){initNavTree('UPP__MATH_8f_source.html',''); initRes
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span><span class="comment">!-------------------------------------------------------------------------------------</span></div>
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span><span class="comment">!        </span></div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>  <span class="keyword">end module </span>upp_math</div>
-<div class="ttc" id="aEXCH_8f_html_a32e60ff8ecca9f6f9b84128bede5078e"><div class="ttname"><a href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a></div><div class="ttdeci">subroutine exch(a)</div><div class="ttdoc">exch() Subroutine that exchanges one halo row.</div><div class="ttdef"><b>Definition</b> <a href="EXCH_8f_source.html#l00026">EXCH.f:27</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -98,177 +98,177 @@ $(document).ready(function(){initNavTree('ZENSUN_8f_source.html',''); initResiza
 </div><!--header-->
 <div class="contents">
 <a href="ZENSUN_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment">!-------------------------------------------------------------------------------------</span></div>
-<div class="foldopen" id="foldopen00061" data-start="" data-end="">
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">   61</a></span>      <span class="keyword">subroutine </span><a class="code hl_function" href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a>(day,time,lat,lon,pi,sun_zenith,sun_azimuth)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="comment">!</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  <span class="keywordtype">use </span>kinds, <span class="keywordtype">only</span>: r_kind,i_kind</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keywordtype">integer(i_kind)</span>,<span class="keywordtype">intent(in)</span>::   day</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keywordtype">  real</span>(r_kind),<span class="keywordtype">intent(in)</span> ::  pi,time,lat,lon</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keywordtype">integer(i_kind)</span>   di</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keywordtype">  real</span>(r_kind)      z,gaz</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordtype">  real</span>(r_kind)      ut,noon</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordtype">  real</span>(r_kind)      y(5),y2(5),x(2,5),Tx(5,2),xTx(2,2),aTx(5,2),det</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keywordtype">  real</span>(r_kind)      tt,eqtime,decang,latsun,lonsun</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordtype">  real</span>(r_kind)      nday(74),eqt(74),dec(74)</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordtype">  real</span>(r_kind)      beta(2), beta2(2), a(2,2)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keywordtype">  real</span>(r_kind)      t0,t1,p0,p1,zz,xx,yy</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordtype">  real</span>(r_kind),<span class="keywordtype">intent(out)</span> ::     sun_zenith,sun_azimuth</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <span class="keyword">data</span>   nday/1.0,   6.0,  11.0,  16.0,  21.0,  26.0,  31.0,  36.0,  41.0,  46.0,&amp;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>             51.0,  56.0,  61.0,  66.0,  71.0,  76.0,  81.0,  86.0,  91.0,  96.0,&amp;</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>             101.0, 106.0, 111.0, 116.0, 121.0, 126.0, 131.0, 136.0, 141.0, 146.0,&amp;</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>             151.0, 156.0, 161.0, 166.0, 171.0, 176.0, 181.0, 186.0, 191.0, 196.0,&amp;</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>             201.0, 206.0, 211.0, 216.0, 221.0, 226.0, 231.0, 236.0, 241.0, 246.0,&amp;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>             251.0, 256.0, 261.0, 266.0, 271.0, 276.0, 281.0, 286.0, 291.0, 296.0,&amp;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>             301.0, 306.0, 311.0, 316.0, 321.0, 326.0, 331.0, 336.0, 341.0, 346.0,&amp;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>             351.0, 356.0, 361.0, 366.0/</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>  <span class="keyword">data</span>  eqt/ -3.23, -5.49, -7.60, -9.48,-11.09,-12.39,-13.34,-13.95,-14.23,-14.19,&amp;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            -13.85,-13.22,-12.35,-11.26,-10.01, -8.64, -7.18, -5.67, -4.16, -2.69,&amp;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>             -1.29, -0.02,  1.10,  2.05,  2.80,  3.33,  3.63,  3.68,  3.49,  3.09,&amp;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>              2.48,  1.71,  0.79, -0.24, -1.33, -2.41, -3.45, -4.39, -5.20, -5.84,&amp;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>             -6.28, -6.49, -6.44, -6.15, -5.60, -4.82, -3.81, -2.60, -1.19,  0.36,&amp;</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>              2.03,  3.76,  5.54,  7.31,  9.04, 10.69, 12.20, 13.53, 14.65, 15.52,&amp;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>             16.12, 16.41, 16.36, 15.95, 15.19, 14.09, 12.67, 10.93,  8.93,  6.70,&amp;</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>              4.32,  1.86, -0.62, -3.23/</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keyword">data</span> dec/ -23.06,-22.57,-21.91,-21.06,-20.05,-18.88,-17.57,-16.13,-14.57,-12.91,&amp;</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            -11.16, -9.34, -7.46, -5.54, -3.59, -1.62,  0.36,  2.33,  4.28,  6.19,&amp;</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>              8.06,  9.88, 11.62, 13.29, 14.87, 16.34, 17.70, 18.94, 20.04, 21.00,&amp;</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>             21.81, 22.47, 22.95, 23.28, 23.43, 23.40, 23.21, 22.85, 22.32, 21.63,&amp;</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>             20.79, 19.80, 18.67, 17.42, 16.05, 14.57, 13.00, 11.33,  9.60,  7.80,&amp;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>              5.95,  4.06,  2.13,  0.19, -1.75, -3.69, -5.62, -7.51, -9.36,-11.16,&amp;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            -12.88,-14.53,-16.07,-17.50,-18.81,-19.98,-20.99,-21.85,-22.52,-23.02,&amp;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            -23.33,-23.44,-23.35,-23.06/</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="comment">!</span></div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">! compute the subsolar coordinates</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="comment">!</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  tt= mod(real((int(day)+time/24.-1.)),365.25) +1.  <span class="comment">! fractional day number</span></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>                                                    <span class="comment">! with 12am 1jan = 1.</span></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <span class="keywordflow">do</span> di = 1, 73</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">if</span> ((tt &gt;= nday(di)) .and. (tt &lt;= nday(di+1))) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordflow">  end do</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="comment">!============== Perform a least squares regression on doy**3 ==============</span></div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  x(1,:) = 1.0</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  <span class="keywordflow">if</span> ((di &gt;= 3) .and. (di &lt;= 72)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    y(:) = eqt(di-2:di+2)</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    y2(:) = dec(di-2:di+2)</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    x(2,:) = nday(di-2:di+2)**3</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>  <span class="keywordflow">if</span> (di == 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    y(1) = eqt(73)</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    y(2:5) = eqt(di-1:di+2)</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    y2(1) = dec(73)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    y2(2:5) = dec(di-1:di+2)</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    x(2,1) = nday(73)**3</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    x(2,2:5) = (365.+nday(di-1:di+2))**3</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  <span class="keywordflow">if</span> (di == 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    y(1:2) = eqt(72:73)</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    y(3:5) = eqt(di:di+2)</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    y2(1:2) = dec(72:73)</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    y2(3:5) = dec(di:di+2)</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    x(2,1:2) = nday(72:73)**3</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    x(2,3:5) = (365.+nday(di:di+2))**3</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>  <span class="keywordflow">if</span> (di == 73) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    y(1:4) = eqt(di-2:di+1)</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    y(5) = eqt(2)</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    y2(1:4) = dec(di-2:di+1)</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    y2(5) = dec(2)</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    x(2,1:4) = nday(di-2:di+1)**3</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    x(2,5) = (365.+nday(2))**3</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="keywordflow">if</span> (di == 74) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    y(1:3) = eqt(di-2:di)</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    y(4:5) = eqt(2:3)</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    y2(1:3) = dec(di-2:di)</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    y2(4:5) = dec(2:3)</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    x(2,1:3) = nday(di-2:di)**3</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    x(2,4:5) = (365.+nday(2:3))**3</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="comment">!  Tx = transpose(x)</span></div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  tx(1:5,1)=x(1,1:5)</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  tx(1:5,2)=x(2,1:5)</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="comment">!  xTx = MATMUL(x,Tx)</span></div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  xtx(1,1)=x(1,1)*tx(1,1)+x(1,2)*tx(2,1)+x(1,3)*tx(3,1)+x(1,4)*tx(4,1)+x(1,5)*tx(5,1)</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  xtx(1,2)=x(1,1)*tx(1,2)+x(1,2)*tx(2,2)+x(1,3)*tx(3,2)+x(1,4)*tx(4,2)+x(1,5)*tx(5,2)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>  xtx(2,1)=x(2,1)*tx(1,1)+x(2,2)*tx(2,1)+x(2,3)*tx(3,1)+x(2,4)*tx(4,1)+x(2,5)*tx(5,1)</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  xtx(2,2)=x(2,1)*tx(1,2)+x(2,2)*tx(2,2)+x(2,3)*tx(3,2)+x(2,4)*tx(4,2)+x(2,5)*tx(5,2)</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  det = xtx(1,1)*xtx(2,2) - xtx(1,2)*xtx(2,1)</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>  a(1,1) = xtx(2,2)/det</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  a(1,2) = -xtx(1,2)/det</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>  a(2,1) = -xtx(2,1)/det</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  a(2,2) = xtx(1,1)/det</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="comment">!  aTx = MATMUL(Tx,a)</span></div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  atx(1,1)=tx(1,1)*a(1,1)+tx(1,2)*a(2,1) </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  atx(2,1)=tx(2,1)*a(1,1)+tx(2,2)*a(2,1) </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  atx(3,1)=tx(3,1)*a(1,1)+tx(3,2)*a(2,1) </div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  atx(4,1)=tx(4,1)*a(1,1)+tx(4,2)*a(2,1) </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  atx(5,1)=tx(5,1)*a(1,1)+tx(5,2)*a(2,1) </div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>  atx(1,2)=tx(1,1)*a(1,2)+tx(1,2)*a(2,2) </div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  atx(2,2)=tx(2,1)*a(1,2)+tx(2,2)*a(2,2) </div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  atx(3,2)=tx(3,1)*a(1,2)+tx(3,2)*a(2,2) </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  atx(4,2)=tx(4,1)*a(1,2)+tx(4,2)*a(2,2) </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>  atx(5,2)=tx(5,1)*a(1,2)+tx(5,2)*a(2,2) </div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="comment">!  beta = MATMUL(y,aTx)</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>  beta(1) = y(1)*atx(1,1)+y(2)*atx(2,1)+y(3)*atx(3,1)+y(4)*atx(4,1)+y(5)*atx(5,1)</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>  beta(2) = y(1)*atx(1,2)+y(2)*atx(2,2)+y(3)*atx(3,2)+y(4)*atx(4,2)+y(5)*atx(5,2)</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="comment">!  beta2 = MATMUL(y2,aTx)</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  beta2(1) = y2(1)*atx(1,1)+y2(2)*atx(2,1)+y2(3)*atx(3,1)+y2(4)*atx(4,1)+y2(5)*atx(5,1)</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  beta2(2) = y2(1)*atx(1,2)+y2(2)*atx(2,2)+y2(3)*atx(3,2)+y2(4)*atx(4,2)+y2(5)*atx(5,2)</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="comment">!============== finished least squares regression on doy**3 ==============</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>  <span class="keywordflow">if</span> ((di &lt; 3) .or. (di &gt; 72)) tt = tt + 365.</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  eqtime=(beta(1) + beta(2)*tt**3)/60.</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  decang=beta2(1) + beta2(2)*tt**3</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  latsun=decang</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>  ut=time</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  noon=12.-lon/15.                             <span class="comment">! universal time of noon</span></div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  lonsun=-15.*(ut-12.+eqtime)</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>  t0=(90.-lat)*pi/180.</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  t1=(90.-latsun)*pi/180.</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  p0=lon*pi/180.</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>  p1=lonsun*pi/180.</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  zz=cos(t0)*cos(t1)+sin(t0)*sin(t1)*cos(p1-p0)</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="comment">!  zz2=sin(t0)*sin(t1)+cos(t0)*cos(t1)*cos(p1-p0)</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  xx=sin(t1)*sin(p1-p0)</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  yy=sin(t0)*cos(t1)-cos(t0)*sin(t1)*cos(p1-p0)</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>  sun_zenith=90-acos(zz)/(pi/180)</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  sun_azimuth=atan2(xx,yy)/(pi/180)</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="foldopen" id="foldopen00062" data-start="" data-end="">
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">   62</a></span>      <span class="keyword">subroutine </span><a class="code hl_function" href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a>(day,time,lat,lon,pi,sun_zenith,sun_azimuth)</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="comment">!</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  <span class="keywordtype">use </span>kinds, <span class="keywordtype">only</span>: r_kind,i_kind</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  <span class="keywordtype">integer(i_kind)</span>,<span class="keywordtype">intent(in)</span>::   day</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordtype">  real</span>(r_kind),<span class="keywordtype">intent(in)</span> ::  pi,time,lat,lon</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keywordtype">integer(i_kind)</span>   di</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordtype">  real</span>(r_kind)      z,gaz</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordtype">  real</span>(r_kind)      ut,noon</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keywordtype">  real</span>(r_kind)      y(5),y2(5),x(2,5),Tx(5,2),xTx(2,2),aTx(5,2),det</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordtype">  real</span>(r_kind)      tt,eqtime,decang,latsun,lonsun</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordtype">  real</span>(r_kind)      nday(74),eqt(74),dec(74)</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keywordtype">  real</span>(r_kind)      beta(2), beta2(2), a(2,2)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordtype">  real</span>(r_kind)      t0,t1,p0,p1,zz,xx,yy</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keywordtype">  real</span>(r_kind),<span class="keywordtype">intent(out)</span> ::     sun_zenith,sun_azimuth</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keyword">data</span>   nday/1.0,   6.0,  11.0,  16.0,  21.0,  26.0,  31.0,  36.0,  41.0,  46.0,&amp;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>             51.0,  56.0,  61.0,  66.0,  71.0,  76.0,  81.0,  86.0,  91.0,  96.0,&amp;</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>             101.0, 106.0, 111.0, 116.0, 121.0, 126.0, 131.0, 136.0, 141.0, 146.0,&amp;</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>             151.0, 156.0, 161.0, 166.0, 171.0, 176.0, 181.0, 186.0, 191.0, 196.0,&amp;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>             201.0, 206.0, 211.0, 216.0, 221.0, 226.0, 231.0, 236.0, 241.0, 246.0,&amp;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>             251.0, 256.0, 261.0, 266.0, 271.0, 276.0, 281.0, 286.0, 291.0, 296.0,&amp;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>             301.0, 306.0, 311.0, 316.0, 321.0, 326.0, 331.0, 336.0, 341.0, 346.0,&amp;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>             351.0, 356.0, 361.0, 366.0/</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <span class="keyword">data</span>  eqt/ -3.23, -5.49, -7.60, -9.48,-11.09,-12.39,-13.34,-13.95,-14.23,-14.19,&amp;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            -13.85,-13.22,-12.35,-11.26,-10.01, -8.64, -7.18, -5.67, -4.16, -2.69,&amp;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>             -1.29, -0.02,  1.10,  2.05,  2.80,  3.33,  3.63,  3.68,  3.49,  3.09,&amp;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>              2.48,  1.71,  0.79, -0.24, -1.33, -2.41, -3.45, -4.39, -5.20, -5.84,&amp;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>             -6.28, -6.49, -6.44, -6.15, -5.60, -4.82, -3.81, -2.60, -1.19,  0.36,&amp;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>              2.03,  3.76,  5.54,  7.31,  9.04, 10.69, 12.20, 13.53, 14.65, 15.52,&amp;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>             16.12, 16.41, 16.36, 15.95, 15.19, 14.09, 12.67, 10.93,  8.93,  6.70,&amp;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>              4.32,  1.86, -0.62, -3.23/</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keyword">data</span> dec/ -23.06,-22.57,-21.91,-21.06,-20.05,-18.88,-17.57,-16.13,-14.57,-12.91,&amp;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            -11.16, -9.34, -7.46, -5.54, -3.59, -1.62,  0.36,  2.33,  4.28,  6.19,&amp;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>              8.06,  9.88, 11.62, 13.29, 14.87, 16.34, 17.70, 18.94, 20.04, 21.00,&amp;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>             21.81, 22.47, 22.95, 23.28, 23.43, 23.40, 23.21, 22.85, 22.32, 21.63,&amp;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>             20.79, 19.80, 18.67, 17.42, 16.05, 14.57, 13.00, 11.33,  9.60,  7.80,&amp;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>              5.95,  4.06,  2.13,  0.19, -1.75, -3.69, -5.62, -7.51, -9.36,-11.16,&amp;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            -12.88,-14.53,-16.07,-17.50,-18.81,-19.98,-20.99,-21.85,-22.52,-23.02,&amp;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            -23.33,-23.44,-23.35,-23.06/</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">!</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="comment">! compute the subsolar coordinates</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="comment">!</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  tt= mod(real((int(day)+time/24.-1.)),365.25) +1.  <span class="comment">! fractional day number</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>                                                    <span class="comment">! with 12am 1jan = 1.</span></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  <span class="keywordflow">do</span> di = 1, 73</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordflow">if</span> ((tt &gt;= nday(di)) .and. (tt &lt;= nday(di+1))) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordflow">  end do</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="comment">!============== Perform a least squares regression on doy**3 ==============</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  x(1,:) = 1.0</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>  <span class="keywordflow">if</span> ((di &gt;= 3) .and. (di &lt;= 72)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    y(:) = eqt(di-2:di+2)</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    y2(:) = dec(di-2:di+2)</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    x(2,:) = nday(di-2:di+2)**3</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>  <span class="keywordflow">if</span> (di == 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    y(1) = eqt(73)</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    y(2:5) = eqt(di-1:di+2)</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    y2(1) = dec(73)</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    y2(2:5) = dec(di-1:di+2)</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    x(2,1) = nday(73)**3</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    x(2,2:5) = (365.+nday(di-1:di+2))**3</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keywordflow">if</span> (di == 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    y(1:2) = eqt(72:73)</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    y(3:5) = eqt(di:di+2)</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    y2(1:2) = dec(72:73)</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    y2(3:5) = dec(di:di+2)</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    x(2,1:2) = nday(72:73)**3</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    x(2,3:5) = (365.+nday(di:di+2))**3</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>  <span class="keywordflow">if</span> (di == 73) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    y(1:4) = eqt(di-2:di+1)</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    y(5) = eqt(2)</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    y2(1:4) = dec(di-2:di+1)</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    y2(5) = dec(2)</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    x(2,1:4) = nday(di-2:di+1)**3</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    x(2,5) = (365.+nday(2))**3</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>  <span class="keywordflow">if</span> (di == 74) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    y(1:3) = eqt(di-2:di)</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    y(4:5) = eqt(2:3)</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    y2(1:3) = dec(di-2:di)</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    y2(4:5) = dec(2:3)</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    x(2,1:3) = nday(di-2:di)**3</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    x(2,4:5) = (365.+nday(2:3))**3</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="comment">!  Tx = transpose(x)</span></div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  tx(1:5,1)=x(1,1:5)</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  tx(1:5,2)=x(2,1:5)</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span><span class="comment">!  xTx = MATMUL(x,Tx)</span></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  xtx(1,1)=x(1,1)*tx(1,1)+x(1,2)*tx(2,1)+x(1,3)*tx(3,1)+x(1,4)*tx(4,1)+x(1,5)*tx(5,1)</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>  xtx(1,2)=x(1,1)*tx(1,2)+x(1,2)*tx(2,2)+x(1,3)*tx(3,2)+x(1,4)*tx(4,2)+x(1,5)*tx(5,2)</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  xtx(2,1)=x(2,1)*tx(1,1)+x(2,2)*tx(2,1)+x(2,3)*tx(3,1)+x(2,4)*tx(4,1)+x(2,5)*tx(5,1)</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>  xtx(2,2)=x(2,1)*tx(1,2)+x(2,2)*tx(2,2)+x(2,3)*tx(3,2)+x(2,4)*tx(4,2)+x(2,5)*tx(5,2)</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>  det = xtx(1,1)*xtx(2,2) - xtx(1,2)*xtx(2,1)</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  a(1,1) = xtx(2,2)/det</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>  a(1,2) = -xtx(1,2)/det</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  a(2,1) = -xtx(2,1)/det</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>  a(2,2) = xtx(1,1)/det</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="comment">!  aTx = MATMUL(Tx,a)</span></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  atx(1,1)=tx(1,1)*a(1,1)+tx(1,2)*a(2,1) </div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  atx(2,1)=tx(2,1)*a(1,1)+tx(2,2)*a(2,1) </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  atx(3,1)=tx(3,1)*a(1,1)+tx(3,2)*a(2,1) </div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  atx(4,1)=tx(4,1)*a(1,1)+tx(4,2)*a(2,1) </div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>  atx(5,1)=tx(5,1)*a(1,1)+tx(5,2)*a(2,1) </div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  atx(1,2)=tx(1,1)*a(1,2)+tx(1,2)*a(2,2) </div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  atx(2,2)=tx(2,1)*a(1,2)+tx(2,2)*a(2,2) </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  atx(3,2)=tx(3,1)*a(1,2)+tx(3,2)*a(2,2) </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>  atx(4,2)=tx(4,1)*a(1,2)+tx(4,2)*a(2,2) </div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>  atx(5,2)=tx(5,1)*a(1,2)+tx(5,2)*a(2,2) </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="comment">!  beta = MATMUL(y,aTx)</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>  beta(1) = y(1)*atx(1,1)+y(2)*atx(2,1)+y(3)*atx(3,1)+y(4)*atx(4,1)+y(5)*atx(5,1)</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  beta(2) = y(1)*atx(1,2)+y(2)*atx(2,2)+y(3)*atx(3,2)+y(4)*atx(4,2)+y(5)*atx(5,2)</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="comment">!  beta2 = MATMUL(y2,aTx)</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  beta2(1) = y2(1)*atx(1,1)+y2(2)*atx(2,1)+y2(3)*atx(3,1)+y2(4)*atx(4,1)+y2(5)*atx(5,1)</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>  beta2(2) = y2(1)*atx(1,2)+y2(2)*atx(2,2)+y2(3)*atx(3,2)+y2(4)*atx(4,2)+y2(5)*atx(5,2)</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="comment">!============== finished least squares regression on doy**3 ==============</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>  <span class="keywordflow">if</span> ((di &lt; 3) .or. (di &gt; 72)) tt = tt + 365.</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  eqtime=(beta(1) + beta(2)*tt**3)/60.</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  decang=beta2(1) + beta2(2)*tt**3</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>  latsun=decang</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  ut=time</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  noon=12.-lon/15.                             <span class="comment">! universal time of noon</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>  lonsun=-15.*(ut-12.+eqtime)</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  t0=(90.-lat)*pi/180.</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  t1=(90.-latsun)*pi/180.</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>  p0=lon*pi/180.</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>  p1=lonsun*pi/180.</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  zz=cos(t0)*cos(t1)+sin(t0)*sin(t1)*cos(p1-p0)</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="comment">!  zz2=sin(t0)*sin(t1)+cos(t0)*cos(t1)*cos(p1-p0)</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  xx=sin(t1)*sin(p1-p0)</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>  yy=sin(t0)*cos(t1)-cos(t0)*sin(t1)*cos(p1-p0)</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  sun_zenith=90-acos(zz)/(pi/180)</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  sun_azimuth=atan2(xx,yy)/(pi/180)</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  <span class="keywordflow">return</span></div>
 </div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span><span class="keyword">end subroutine </span><a class="code hl_function" href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a></div>
-<div class="ttc" id="aZENSUN_8f_html_aa41bf2e5fbccb90c1197d86d4b3f51bd"><div class="ttname"><a href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a></div><div class="ttdeci">subroutine zensun(day, time, lat, lon, pi, sun_zenith, sun_azimuth)</div><div class="ttdoc">Makes sun zenith and sun azimuth angle.</div><div class="ttdef"><b>Definition</b> <a href="ZENSUN_8f_source.html#l00061">ZENSUN.f:62</a></div></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keyword">end subroutine </span><a class="code hl_function" href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a></div>
+<div class="ttc" id="aZENSUN_8f_html_aa41bf2e5fbccb90c1197d86d4b3f51bd"><div class="ttname"><a href="ZENSUN_8f.html#aa41bf2e5fbccb90c1197d86d4b3f51bd">zensun</a></div><div class="ttdeci">subroutine zensun(day, time, lat, lon, pi, sun_zenith, sun_azimuth)</div><div class="ttdoc">This subroutine computes solar position information as a function of geographic coordinates,...</div><div class="ttdef"><b>Definition</b> <a href="ZENSUN_8f_source.html#l00062">ZENSUN.f:63</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

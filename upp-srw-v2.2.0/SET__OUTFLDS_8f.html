@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('SET__OUTFLDS_8f.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="SET__OUTFLDS_8f.html#a35f65eea8d34127dcdcccfe2ee91f450" title="Reads post XML control file.">set_outflds()</a> reads the post XML control file.  
+<p>@ brief <a class="el" href="SET__OUTFLDS_8f.html#a35f65eea8d34127dcdcccfe2ee91f450" title="This routine reads the control file in xml format specifying field(s) to post, and save all the field...">set_outflds()</a> reads post xml control file.  
 <a href="#details">More...</a></p>
 
 <p><a href="SET__OUTFLDS_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,26 +103,13 @@ $(document).ready(function(){initNavTree('SET__OUTFLDS_8f.html',''); initResizab
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a35f65eea8d34127dcdcccfe2ee91f450" id="r_a35f65eea8d34127dcdcccfe2ee91f450"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="SET__OUTFLDS_8f.html#a35f65eea8d34127dcdcccfe2ee91f450">set_outflds</a> (kth, th, kpv, pv)</td></tr>
-<tr class="memdesc:a35f65eea8d34127dcdcccfe2ee91f450"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads post XML control file.  <br /></td></tr>
+<tr class="memdesc:a35f65eea8d34127dcdcccfe2ee91f450"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine reads the control file in xml format specifying field(s) to post, and save all the field information in a datatype array PSET.  <br /></td></tr>
 <tr class="separator:a35f65eea8d34127dcdcccfe2ee91f450"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="SET__OUTFLDS_8f.html#a35f65eea8d34127dcdcccfe2ee91f450" title="Reads post XML control file.">set_outflds()</a> reads the post XML control file. </p>
+<div class="textblock"><p>@ brief <a class="el" href="SET__OUTFLDS_8f.html#a35f65eea8d34127dcdcccfe2ee91f450" title="This routine reads the control file in xml format specifying field(s) to post, and save all the field...">set_outflds()</a> reads post xml control file. </p>
 <dl class="section author"><dt>Author</dt><dd>J. Wang NCEP/EMC </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2012-01-27</dd></dl>
-<p>This routine reads the control file in xml format specifying field(s) to post, and save all the field information in a datatype array PSET.</p>
-<h3><a class="anchor" id="autotoc_md83"></a>
-Program History Log</h3>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2012-01-27   </td><td class="markdownTableBodyNone">Jun Wang   </td><td class="markdownTableBodyNone">Initial    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2015-03-10   </td><td class="markdownTableBodyNone">Lin Gan   </td><td class="markdownTableBodyNone">Replace XML file with flat file implementation    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2019-10-30   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Removw "GOTO" Statement   </td></tr>
-</table>
+<dl class="section date"><dt>Date</dt><dd>2012-01-27 </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="SET__OUTFLDS_8f_source.html">SET_OUTFLDS.f</a>.</p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -164,22 +151,34 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Reads post XML control file. </p>
+<p>This routine reads the control file in xml format specifying field(s) to post, and save all the field information in a datatype array PSET. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">KTH</td><td>total number of isentropic levels </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">TH</td><td>isentropic levels </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">KPV</td><td>total number of potential vorticity levels </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">PV</td><td>potential vorticity levels </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">KTH</td><td></td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">TH</td><td></td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">KPV</td><td></td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">PV</td><td></td></tr>
   </table>
   </dd>
 </dl>
+<h3><a class="anchor" id="autotoc_md81"></a>
+Program History Log</h3>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Date   </th><th class="markdownTableHeadNone">Programmer   </th><th class="markdownTableHeadNone">Comments    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2012-01-27   </td><td class="markdownTableBodyNone">Jun Wang   </td><td class="markdownTableBodyNone">Initial    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2015-03-10   </td><td class="markdownTableBodyNone">Lin Gan   </td><td class="markdownTableBodyNone">Replace XML file with flat file implementation    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">2019-10-30   </td><td class="markdownTableBodyNone">Bo Cui   </td><td class="markdownTableBodyNone">Removw "GOTO" Statement   </td></tr>
+</table>
+<dl class="section author"><dt>Author</dt><dd>J. Wang NCEP/EMC </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2012-01-27 </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="SET__OUTFLDS_8f_source.html#l00023">23</a> of file <a class="el" href="SET__OUTFLDS_8f_source.html">SET_OUTFLDS.f</a>.</p>
 
-<p class="reference">References <a class="el" href="xml__perl__data_8f_source.html#l00113">xml_perl_data::paramset</a>, <a class="el" href="xml__perl__data_8f_source.html#l00114">xml_perl_data::post_avblflds</a>, and <a class="el" href="SET__LVLSXML_8f_source.html#l00025">set_lvlsxml()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="WRFPOST_8F_source.html#l00046">wrfpost()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="WRFPOST_8f_source.html#l00039">wrfpost()</a>.</p>
 
 </div>
 </div>

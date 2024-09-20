@@ -97,36 +97,56 @@ $(document).ready(function(){initNavTree('RQSTFLD_8f_source.html',''); initResiz
   <div class="headertitle"><div class="title">RQSTFLD.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="RQSTFLD_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">!--------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keyword">module</span> rqstfld_mod</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>    <span class="keyword">module</span> rqstfld_mod</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">!--------------------------------------------------------------------</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">! revision history</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!   2011-02-06 Jun Wang add grib2 option</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">!   2011-10-18 Sarah Lu add GOCART aerosol fields</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">!   2011-12-18 Sarah Lu add GOCART aerosol optical properties, mass</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">!                           fields, and production/removal fluxes</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">!   2011-12-29 Sarah Lu add GOCART AOD at multiple channels</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">!   2012-01-06 Sarah Lu add GOCART SS, OC, BC, SU aerosols</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">!   2012-01-07 Sarah Lu add air density and dpres</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">!   2012-01-27 Sarah Lu use index 601-700 for GOCART</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">!   2012-01-30 Jun Wang add post available fields from xml file for grib2</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">!   2012-05-07 Tricia Slovacek use index 800-899 for satellite</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">!                       use index 900-949 for HWRF</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">!   2014-12-09 William Lewis added MSG/SEVIRI imager, </span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">!                      GOES-13 and GOES-15 imagers,</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">!                      and completed SSMI and SSMIS (F13-F20)</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">!   2019-04-01 Sharon Nebuda added GOES-16 GOES-17 ABI IR Channels 7-16</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">!   2019-04-22 Wen Meng increased model MXLVL to 500</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">!   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">!                       419).</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">!   2019-09-03 Jesse Meng added cape related variables for hrrr (950-957)</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">!   2021-08-31 Lin Zhu added ssmis-f17 channels 15-18 grib2 output</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">!   2021-11-03 Tracy Hertneky removed all grib1 settings</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">!--------------------------------------------------------------------</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>      <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">!</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">!     increase MXFLD each time you add a new field</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#a4dcd28a63999428035804c7f518751aa">   30</a></span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: mxfld=1200</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#a52d47c70667ea17d737972090cea668f">   31</a></span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: mxlvl=500</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: MXFLD=1200</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: MXLVL=500</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>      </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#a260ace7802ef3c8676d096166365568d">   33</a></span>      <span class="keywordtype">CHARACTER*20</span> datset</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>      <span class="keywordtype">CHARACTER*6</span> DATSET      </div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">!</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#a02fd1e4f321b1982c88ad2e5b783ea69">   35</a></span>      <span class="keywordtype">LOGICAL</span> ritehd</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>      <span class="keywordtype">LOGICAL</span> RITEHD</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">!</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#ade95abc72e6c3e72cf15e023f83e8836">   37</a></span>      <span class="keywordtype">integer</span> :: nfld &amp;                   !&lt; Number of requested output fields</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>                 ,iget(mxfld) &amp;           !&lt; The <span class="stringliteral">&quot;get field&quot;</span> flag array indicating which fields to get</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                 ,lvls(mxlvl,mxfld) &amp;     !&lt; 2D array of model and field levels</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                 ,ident(mxfld) &amp;          !&lt; Array of UPP ID numbers corresponding to the GRIB2 fields produced by UPP</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>                 ,iavblfld(mxfld) &amp;       !&lt; _____?</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>                 ,id(25)</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#a78c5d9f27abc6a54013ec8ffaacc4e64">   43</a></span>      <span class="keywordtype">integer</span> :: num_post_afld</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="RQSTFLD_8f.html#afcc95dbbe5112185112816ab951ff9d9">   44</a></span>      <span class="keywordtype">integer</span>,<span class="keywordtype">allocatable</span> :: lvlsxml(:,:)</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>   <span class="keyword">end module </span>rqstfld_mod</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>      <span class="keywordtype">integer</span> :: NFLD,IGET(MXFLD),                                &amp;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>                 LVLS(MXLVL,MXFLD),                               &amp;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                 IDENT(MXFLD),IAVBLFLD(MXFLD),                    &amp;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                 ID(25)</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>      <span class="keywordtype">integer</span> :: num_post_afld</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>      <span class="keywordtype">integer</span>,<span class="keywordtype">allocatable</span> :: LVLSXML(:,:)</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>   <span class="keyword">end module </span>rqstfld_mod</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="RQSTFLD_8f.html">RQSTFLD.f</a></li>
+    <li class="navelem"><b>RQSTFLD.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

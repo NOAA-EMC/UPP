@@ -355,7 +355,7 @@ $(document).ready(function(){initNavTree('SLP__new_8f_source.html',''); initResi
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="comment">!***  FOR GRID BOXES NEXT TO MOUNTAINS, COMPUTE TV TO USE AS</span></div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="comment">!***  BOUNDARY CONDITIONS FOR THE RELAXATION UNDERGROUND</span></div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="comment">!</span></div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>        <span class="keyword">CALL </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(htm2d(ista_2l,jsta_2l))  <span class="comment">!ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID</span></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>        <span class="keyword">CALL </span>exch(htm2d(ista_2l,jsta_2l))  <span class="comment">!ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID</span></div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="comment">!       DO J=JSTA_M2,JEND_M2</span></div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="comment">!$omp parallel do private(i,j,tem)</span></div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>        <span class="keywordflow">DO</span> j=jsta_m,jend_m</div>
@@ -385,7 +385,7 @@ $(document).ready(function(){initNavTree('SLP__new_8f_source.html',''); initResi
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="comment">!      print*,&#39;Debug:L,KMM=&#39;,L,KMM</span></div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="comment">!</span></div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>        <span class="keywordflow">DO</span> n=1,nrlx</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>          <span class="keyword">CALL </span><a class="code hl_function" href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a>(ttv(ista_2l,jsta_2l))</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>          <span class="keyword">CALL </span>exch(ttv(ista_2l,jsta_2l))</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span><span class="comment">!!$omp parallel do private(i,j,km,a1,a2,a3,a4,a5,a6,a7,a8)</span></div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>          <span class="keywordflow">DO</span> km=1,kmm</div>
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>            i = imnt(km,l)</div>
@@ -656,7 +656,6 @@ $(document).ready(function(){initNavTree('SLP__new_8f_source.html',''); initResi
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span><span class="comment">!--------------------------------------------------------------------</span></div>
 <div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>      <span class="keywordflow">RETURN</span></div>
 <div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>      <span class="keyword">END</span></div>
-<div class="ttc" id="aEXCH_8f_html_a32e60ff8ecca9f6f9b84128bede5078e"><div class="ttname"><a href="EXCH_8f.html#a32e60ff8ecca9f6f9b84128bede5078e">exch</a></div><div class="ttdeci">subroutine exch(a)</div><div class="ttdoc">exch() Subroutine that exchanges one halo row.</div><div class="ttdef"><b>Definition</b> <a href="EXCH_8f_source.html#l00026">EXCH.f:27</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

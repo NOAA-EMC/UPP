@@ -103,14 +103,25 @@ $(document).ready(function(){initNavTree('FRZLVL2_8f.html',''); initResizable();
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac336ee60a4be6d7b984f439bfe5d692b" id="r_ac336ee60a4be6d7b984f439bfe5d692b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="FRZLVL2_8f.html#ac336ee60a4be6d7b984f439bfe5d692b">frzlvl2</a> (isotherm, zfrz, rhfrz, pfrzl)</td></tr>
-<tr class="memdesc:ac336ee60a4be6d7b984f439bfe5d692b"><td class="mdescLeft">&#160;</td><td class="mdescRight">FRZLVL2 computes FRZING LVL, Z and RH.  <br /></td></tr>
+<tr class="memdesc:ac336ee60a4be6d7b984f439bfe5d692b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subroutine that computes FRZING LVL, Z and RH.  <br /></td></tr>
 <tr class="separator:ac336ee60a4be6d7b984f439bfe5d692b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Subroutine that computes FRZING LVL, Z and RH. </p>
-<p>This routine computes the isothermal level height and relative humidity at this level for each mass point on the ETA grid. The computed isothermal level height is the mean sea level height. At each mass point we move up from the surface to find the last ETA layer where the temperature is less than isotherm and the temp in the layer below is above isotherm. Vertical interpolation in temperature to the isotherm temperature gives the isothermal level height. Pressure and specific humidity are interpolated to this level and along with the temperature provide the isothermal level relative humidity. If the entire atmosphere is below isotherm, the routine uses surface based fields to compute the relative humidity.</p>
+<p>This routine computes the isothermal level height and relative humidity at this level for each mass point on the ETA grid. The computed isothermal level height is the mean sea level height. At each mass point we move up from the surface to <br  />
+ find the last ETA layer where the temperature is less than isotherm and the temp in the layer below is above isotherm. Vertical interpolation in temperature to the isotherm temperature gives the isothermal level height. Pressure and <br  />
+ specific humidity are interpolated to this level and along with the temperature provide the isothermal level relative humidity. If the entire atmosphere is below isotherm, the routine uses surface based fields to compute the relative humidity.</p>
 <p>Note that in posting freezing level data the LFM look-alike file (IE, GRID 26), we pack 273.15K as the freezing temperature. All other output grids use 273.16K.</p>
-<h3><a class="anchor" id="autotoc_md36"></a>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">isotherm</td><td>isothermal value of height to be output. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">ZFRZ</td><td>Above ground level/ZFL at isotherm height. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">RHFRZ</td><td>Relative humidity at isotherm level. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">PFRZL</td><td>pressure at isotherm level.</td></tr>
+  </table>
+  </dd>
+</dl>
+<h3><a class="anchor" id="autotoc_md38"></a>
 Program History Log</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -189,7 +200,7 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>FRZLVL2 computes FRZING LVL, Z and RH. </p>
+<p>Subroutine that computes FRZING LVL, Z and RH. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ISOTHERM</td><td>real Isothermal value of height to be output. </td></tr>
@@ -200,9 +211,9 @@ Program History Log</h3>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="FRZLVL2_8f_source.html#l00050">50</a> of file <a class="el" href="FRZLVL2_8f_source.html">FRZLVL2.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="FRZLVL2_8f_source.html#l00055">55</a> of file <a class="el" href="FRZLVL2_8f_source.html">FRZLVL2.f</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00058">miscln()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00090">miscln()</a>.</p>
 
 </div>
 </div>

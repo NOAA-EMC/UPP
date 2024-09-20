@@ -97,50 +97,27 @@ $(document).ready(function(){initNavTree('LOOKUP_8f_source.html',''); initResiza
   <div class="headertitle"><div class="title">LOOKUP.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="LOOKUP_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  <span class="keyword">module</span>  lookup_mod</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>  <span class="keyword">module</span>  lookup_mod</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">!</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">!</span></div>
-<div class="foldopen" id="foldopen00007" data-start="" data-end="">
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#afd483ddd90e8665359035645d6910c46">    7</a></span>  <span class="keywordtype">integer</span>,<span class="keywordtype">parameter</span> :: itb=076,   &amp;  !&lt; Table horizontal size (i index)</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>  jtb=134,   &amp;    </div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>  itbq=152,  &amp;    </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>  jtbq=440       </div>
-</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>  </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>  </div>
-<div class="foldopen" id="foldopen00013" data-start="" data-end="">
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#ae6f536d68e83a1b29a05b9ec9b46ba85">   13</a></span><span class="keywordtype">  real</span> :: pl   &amp;  !&lt; Lower bound of pressure range</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>  ,thl  &amp;      !&lt; Lower bound of potential temperature range</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>  ,rdq &amp;       !&lt; Scaling factor for specific humidity</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>  ,rdth  &amp;     !&lt; Scaling factor for potential temperature</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  ,rdp &amp;       !&lt; Scaling factor for pressure</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  ,rdthe &amp;     !&lt; Scaling factor for equivalent potential temperature</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  ,plq   &amp;     !&lt; Lower bound of pressure range for specific humidity _____?</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  ,rdpq &amp;      !&lt; Scaling factor for pressure and specific humidity _____?</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  ,rdtheq</div>
-</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="foldopen" id="foldopen00023" data-start="" data-end="">
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#aec8d00aa1fe92b1e7a45b870d6bcadd2">   23</a></span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(JTB)</span>  :: qs0, &amp;    !&lt; Base for specific humidity</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  sqs</div>
-</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#adb1a23241d6fde97f0d4ba7822191206">   25</a></span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(ITB)</span>  :: the0, &amp;   !&lt; Base for equivalent potential temperature</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  sthe</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#abe17d8b5abb7a6d5c39afbfeb5e02169">   27</a></span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(ITBQ)</span> :: the0q, &amp;  !&lt; _____?</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  stheq</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#a352bee0849209eaf2b4a6d8b022afa69">   29</a></span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(ITB,JTB)</span> :: ptbl</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#a4a15f9a5792070b3e8ea7ee8bd85b823">   30</a></span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(JTB,ITB)</span> :: ttbl</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="LOOKUP_8f.html#a7f74e8e7817faf8ae298d1df7a7796bc">   31</a></span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(JTBQ,ITBQ)</span> :: ttblq</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="keyword">end module </span>lookup_mod</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">integer</span>,<span class="keywordtype">parameter</span> :: ITB=076,jtb=134,itbq=152,jtbq=440 </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keywordtype">  real</span> :: PL,THL,RDQ,RDTH,RDP,RDTHE,PLQ,RDPQ,RDTHEQ</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(JTB)</span>  :: QS0,SQS</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(ITB)</span>  :: THE0,STHE</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(ITBQ)</span> :: THE0Q,STHEQ</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(ITB,JTB)</span> :: PTBL</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(JTB,ITB)</span> :: TTBL</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keywordtype">  real</span>,<span class="keywordtype">dimension(JTBQ,ITBQ)</span> :: TTBLQ</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">!</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>  <span class="keyword">end module </span>lookup_mod</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="LOOKUP_8f.html">LOOKUP.f</a></li>
+    <li class="navelem"><b>LOOKUP.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

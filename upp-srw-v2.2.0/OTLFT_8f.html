@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('OTLFT_8f.html',''); initResizable(); }
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa" title="Computes lifted index at 500mb.">otlft()</a> computes lifted index.  
+<p><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa" title="otlft() computes lifted index.">otlft()</a> computes lifted index.  
 <a href="#details">More...</a></p>
 
 <p><a href="OTLFT_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,13 +103,22 @@ $(document).ready(function(){initNavTree('OTLFT_8f.html',''); initResizable(); }
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a002af8855d3ab10d8b468d673fc666aa" id="r_a002af8855d3ab10d8b468d673fc666aa"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa">otlft</a> (pbnd, tbnd, qbnd, slindx)</td></tr>
-<tr class="memdesc:a002af8855d3ab10d8b468d673fc666aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes lifted index at 500mb.  <br /></td></tr>
+<tr class="memdesc:a002af8855d3ab10d8b468d673fc666aa"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa" title="otlft() computes lifted index.">otlft()</a> computes lifted index.  <br /></td></tr>
 <tr class="separator:a002af8855d3ab10d8b468d673fc666aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa" title="Computes lifted index at 500mb.">otlft()</a> computes lifted index. </p>
+<div class="textblock"><p><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa" title="otlft() computes lifted index.">otlft()</a> computes lifted index. </p>
 <p>This routine lifts a parcel specified by the passed pressure, temperature, and specific humidity to 500mb and then computes a lifted index. This lifted index is the difference between the lifted parcel's temperature at 500mb and the ambient 500mb temperature.</p>
-<h3><a class="anchor" id="autotoc_md74"></a>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">PBND</td><td>Parcel pressure. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">TBND</td><td>Parcel temperature. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">QBND</td><td>Parcel specific humidity. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">SLINDX</td><td>Lifted index.</td></tr>
+  </table>
+  </dd>
+</dl>
+<h3><a class="anchor" id="autotoc_md75"></a>
 Program History Log</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -172,7 +181,8 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Computes lifted index at 500mb. </p>
+<p><a class="el" href="OTLFT_8f.html#a002af8855d3ab10d8b468d673fc666aa" title="otlft() computes lifted index.">otlft()</a> computes lifted index. </p>
+<p>This routine lifts a parcel specified by the passed pressure, temperature, and specific humidity to 500mb and then computes a lifted index. This lifted index is the difference between the lifted parcel's temperature at 500mb and the ambient 500mb temperature.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">PBND</td><td>Parcel pressure. </td></tr>
@@ -183,9 +193,9 @@ Program History Log</h3>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="OTLFT_8f_source.html#l00031">31</a> of file <a class="el" href="OTLFT_8f_source.html">OTLFT.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="OTLFT_8f_source.html#l00044">44</a> of file <a class="el" href="OTLFT_8f_source.html">OTLFT.f</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00058">miscln()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="MISCLN_8f_source.html#l00090">miscln()</a>.</p>
 
 </div>
 </div>

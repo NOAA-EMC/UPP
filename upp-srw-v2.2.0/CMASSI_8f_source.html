@@ -97,66 +97,45 @@ $(document).ready(function(){initNavTree('CMASSI_8f_source.html',''); initResiza
   <div class="headertitle"><div class="title">CMASSI.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="CMASSI_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keyword">module</span> cmassi_mod</div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>   <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">!</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">!-----------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#a426f142e226d5bc177478c89f2651f38">    9</a></span><span class="keywordtype">      REAL</span>, <span class="keywordtype">PARAMETER</span> :: dmimin=.05e-3, &amp;    </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>      dmimax=1.e-3,       &amp;                  </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>      xmimin=1.e6*dmimin, &amp;                  </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>      xmimax=1.e6*dmimax                     </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>      </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#ad4db077532a2dd752e212fa74e3593a5">   14</a></span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: mdimin=xmimin, &amp; </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>      mdimax=xmimax                          </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">!-----------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#ae3247eac401f63ac3fefcf9db8672cb4">   19</a></span><span class="keywordtype">      REAL</span> massi(mdimin:mdimax)</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">!--- Mean rain drop diameters vary from 50 microns to 1000 microns</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>      </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#a620ed4f16ff494fdde6ae17cd65b9cfa">   24</a></span><span class="keywordtype">      REAL</span>, <span class="keywordtype">PARAMETER</span> :: dmrmin=.05e-3, &amp;          </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>      deldmr=1.e-6,           &amp;                    </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>      xmrmin=1.e6*dmrmin,     &amp;                    </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>      n0r0=8.e6,              &amp;                    </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>      n0rmin=1.e4                                  </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="foldopen" id="foldopen00030" data-start="" data-end="">
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#a280f574130379bceb36b2f6654b66c6a">   30</a></span><span class="keywordtype">      REAL</span> dmrmax    &amp;                             !&lt; Maximum mean rain drop diameter.</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>      ,xmrmax</div>
-</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>      </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#aa7c66204220ffb70d96b5f82e8183ebb">   33</a></span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: mdrmin=xmrmin          </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#a1c7810ef9a58f0d06add0da4a39dcca8">   34</a></span>      <span class="keywordtype">INTEGER</span> mdrmax</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">! </span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">!--- Various rain lookup tables</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">! </span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#a40f22a4b0fd767e8aa12329a7f2bdabd">   40</a></span><span class="keywordtype">      REAL</span> rqr_drmin   &amp;                       !&lt; Rain content (kg/m**3) for mean drop diameter of .05 mm.</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>      ,rqr_drmax       &amp;                       !&lt; Rain content (kg/m**3) for mean drop diameter of 1.0 mm.</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>      ,cn0r0           &amp;                       !&lt; Constant derived from N0r0.</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>      ,cn0r_dmrmin     &amp;                       !&lt; Minimum (starting) value for rain lookup tables for mean rain drop diameters.</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>      ,cn0r_dmrmax</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">!--- Other important parameters</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">!     (NLImax, FLARGE2 are used for the older version of the microphysics)</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">! </span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="CMASSI_8f.html#a108ff1b652bfd2ce40edd1ffde54401f">   49</a></span><span class="keywordtype">      REAL</span> t_ice       &amp;                       !&lt; Temperature (C) threshold at which all remaining liquid water is glaciated to ice.</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>      ,nlimax          &amp;                       !&lt; Maximum number concentrations (m**-3) of large ice (snow/graupel/sleet).</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      ,flarge2         &amp;                       !&lt; Set in MICROINIT.F (no longer used).</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>      ,trad_ice</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keyword">end module  </span>cmassi_mod</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>  <span class="keyword">module</span> cmassi_mod</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>   <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">!-----------------------------------------------------------------------</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keywordtype">      REAL</span>, <span class="keywordtype">PARAMETER</span> :: DMImin=.05e-3, dmimax=1.e-3,      &amp;</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>     &amp;  xmimin=1.e6*dmimin, xmimax=1.e6*dmimax</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: MDImin=xmimin, mdimax=xmimax</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">!-----------------------------------------------------------------------</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">!--- Mean mass of precpitation ice particles as functions of their mean</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">!    size (in microns)</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">!</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keywordtype">      REAL</span> MASSI(MDImin:MDImax)</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">!</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">!--- Mean rain drop diameters vary from 50 microns to 1000 microns</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">! DMRmax definition is moved to microinit and has different values depending on imp_physics</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keywordtype">      REAL</span>, <span class="keywordtype">PARAMETER</span> :: DMRmin=.05e-3, deldmr=1.e-6    &amp;</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>     &amp;, xmrmin=1.e6*dmrmin, n0r0=8.e6, n0rmin=1.e4</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keywordtype">      REAL</span> DMRmax,XMRmax</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>      <span class="keywordtype">INTEGER</span>, <span class="keywordtype">PARAMETER</span> :: MDRmin=xmrmin</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>      <span class="keywordtype">INTEGER</span> MDRmax</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">!</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">!--- Various rain lookup tables</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">!</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keywordtype">      REAL</span> RQR_DRmin,RQR_DRmax,           &amp;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>           CN0r0,CN0r_DMRmin,CN0r_DMRmax</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment">!</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">!--- Other important parameters</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">!    (NLImax, FLARGE2 are used for the older version of the microphysics)</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">!</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keywordtype">      REAL</span> T_ICE,NLImax,FLARGE2,TRAD_ice</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="keyword">end module  </span>cmassi_mod</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="CMASSI_8f.html">CMASSI.f</a></li>
+    <li class="navelem"><b>CMASSI.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

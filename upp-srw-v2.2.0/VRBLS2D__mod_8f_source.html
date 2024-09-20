@@ -97,367 +97,118 @@ $(document).ready(function(){initNavTree('VRBLS2D__mod_8f_source.html',''); init
   <div class="headertitle"><div class="title">VRBLS2D_mod.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="VRBLS2D__mod_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>      <span class="keyword">module</span> vrbls2d</div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">!</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno"><a class="line" href="VRBLS2D__mod_8f.html#a6d0f4723f49e76ccb69098cd06bf573f">    7</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: &amp;</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>      u10(:,:) &amp;        </div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>      ,akms(:,:) &amp;       </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>      ,akhs(:,:) &amp;       </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>      ,ths(:,:) &amp;       </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>      ,qs(:,:) &amp;           </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>      ,uz0(:,:) &amp;          </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>      ,vz0(:,:) &amp;          </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>      ,thz0(:,:) &amp;         </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>      ,qz0(:,:) &amp;          </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>      ,sno(:,:) &amp;       </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>      ,tshltr(:,:) &amp;    </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>      ,qshltr(:,:) &amp;       </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>      ,mrshltr(:,:) &amp;      </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>      ,v10(:,:) &amp;          </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      ,acprec(:,:) &amp;       </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>      ,cuprec(:,:) &amp;       </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>      ,ancprc(:,:) &amp;       </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>      ,cuppt(:,:) &amp;        </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>      ,smstav(:,:) &amp;       </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>      ,ssroff(:,:) &amp;       </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>      ,bgroff(:,:) &amp;       </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>      ,vegfrc(:,:) &amp;       </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>      ,shdmin(:,:) &amp;       </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>      ,shdmax(:,:) &amp;       </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>      ,lai(:,:) &amp;          </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>      ,acsnow(:,:) &amp;       </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>      ,acsnom(:,:) &amp;       </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>      ,cmc(:,:) &amp;          </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>      ,sst(:,:) &amp;          </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>      ,rswin(:,:) &amp;        </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>      ,rlwin(:,:) &amp;        </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>      ,rlwtoa(:,:) &amp;       </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>      ,lwdnbc(:,:) &amp;       </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>      ,lwupbc(:,:) &amp;       </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>      ,tg(:,:) &amp;           </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>      ,sfcshx(:,:) &amp;       </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>      ,pslp(:,:) &amp;         </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>      ,t700(:,:) &amp;         </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>      ,z500(:,:) &amp;         </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>      ,z700(:,:) &amp;         </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>      ,sfclhx(:,:) &amp;       </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>      ,fis(:,:) &amp;          </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>      ,t500(:,:) &amp;         </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      ,z1000(:,:) &amp;        </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>      ,slp(:,:) &amp;          </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>      ,cfracl(:,:) &amp;       </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>      ,cfracm(:,:) &amp;       </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>      ,cfrach(:,:) &amp;       </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>      ,acfrst(:,:) &amp;       </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>      ,acfrcv(:,:) &amp;       </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>      ,ncfrst(:,:) &amp;       </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>      ,ncfrcv(:,:) &amp;       </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>      ,hbot(:,:) &amp;         </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>      ,htop(:,:) &amp;         </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>      ,aswin(:,:) &amp;        </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>      ,alwin(:,:) &amp;        </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>      ,aswout(:,:) &amp;       </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>      ,alwout(:,:) &amp;       </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>      ,aswtoa(:,:) &amp;       </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>      ,alwtoa(:,:) &amp;       </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>      ,czen(:,:) &amp;         </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>      ,czmean(:,:) &amp;       </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>      ,sigt4(:,:) &amp;        </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>      ,rswout(:,:) &amp;       </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>      ,radot(:,:) &amp;        </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>      ,smstot(:,:) &amp;       </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>      ,pctsno(:,:) &amp;       </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>      ,pshltr(:,:) &amp;       </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>      ,th10(:,:) &amp;         </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>      ,q10(:,:) &amp;          </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>      ,sr(:,:) &amp;           </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>      ,prec(:,:) &amp;         </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>      ,subshx(:,:) &amp;       </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>      ,snopcx(:,:) &amp;       </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>      ,sfcuvx(:,:) &amp;       </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>      ,sfcevp(:,:) &amp;       </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>      ,potevp(:,:) &amp;       </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>      ,z0(:,:) &amp;           </div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>      ,ustar(:,:) &amp;        </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>      ,twbs(:,:) &amp;         </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>      ,qwbs(:,:) &amp;         </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>      ,sfcexc(:,:) &amp;       </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>      ,grnflx(:,:) &amp;       </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>      ,soiltb(:,:) &amp;       </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>      ,f(:,:) &amp;            </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>      ,albedo(:,:) &amp;       </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>      ,cldfra(:,:) &amp;       </div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>      ,cprate(:,:) &amp;       </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>      ,cnvcfr(:,:) &amp;       </div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>      ,pblh(:,:) &amp;         </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>      ,pblhgust(:,:) &amp;     </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>      ,hbotd(:,:) &amp;        </div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      ,htopd(:,:) &amp;        </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>      ,hbots(:,:) &amp;        </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      ,htops(:,:) &amp;        </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>      ,cldefi(:,:) &amp;       </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>      ,albase(:,:) &amp;       </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>      ,si(:,:) &amp;           </div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>      ,lspa(:,:) &amp;         </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>      ,rswinc(:,:) &amp;       </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>      ,vis(:,:) &amp;          </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>      ,pd(:,:) &amp;           </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>      ,mxsnal(:,:) &amp;       </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>      ,mixht(:,:) &amp;        </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>      ,snonc(:,:) &amp;        </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>      ,epsr(:,:) &amp;         </div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>      ,rswtoa(:,:) &amp;       </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>      ,teql(:,:) &amp;         </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="comment">! Variables saved for input to IFI</span></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>      ,ifi_apcp(:,:) &amp;     </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>      ,cape(:,:) &amp;         </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>      ,cin(:,:) &amp;          </div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="comment">! HWRF additions</span></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>      ,mdltaux(:,:) &amp;      </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>      ,mdltauy(:,:) &amp;      </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>      ,cd10(:,:) &amp;         </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>      ,ch10(:,:)  &amp;        </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>      ,acswupt(:,:) &amp;      </div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>      ,swdnt(:,:) &amp;        </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>      ,acswdnt(:,:) &amp;      </div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span><span class="comment">! NAMB additions</span></div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>      ,snoavg(:,:) &amp;       </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>      ,psfcavg(:,:) &amp;      </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>      ,t10avg(:,:) &amp;       </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>      ,akhsavg(:,:) &amp;      </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>      ,akmsavg(:,:) &amp;      </div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>      ,t10m(:,:) &amp;         </div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>      ,u10max(:,:) &amp;       </div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>      ,v10max(:,:) &amp;       </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>      ,u10h(:,:) &amp;         </div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>      ,v10h(:,:) &amp;         </div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>      ,prate_max(:,:) &amp;    </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>      ,fprate_max(:,:) &amp;   </div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="comment">! GSD addition</span></div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>      ,wspd10max(:,:) &amp;       </div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>      ,w_up_max(:,:) &amp;        </div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>      ,w_dn_max(:,:) &amp;        </div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>      ,refd_max(:,:) &amp;        </div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>      ,up_heli_max(:,:) &amp;     </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>      ,up_heli_max16(:,:) &amp;   </div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>      ,grpl_max(:,:) &amp;        </div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>      ,qrmax(:,:) &amp;           </div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>      ,up_heli(:,:) &amp;         </div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>      ,up_heli16(:,:) &amp;       </div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>      ,ltg1_max(:,:) &amp;        </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>      ,ltg2_max(:,:) &amp;        </div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>      ,ltg3_max(:,:) &amp;        </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>      ,up_heli_min(:,:) &amp;     </div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>      ,up_heli_min16(:,:) &amp;   </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>      ,up_heli_max02(:,:) &amp;   </div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>      ,up_heli_min02(:,:) &amp;   </div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>      ,up_heli_max03(:,:) &amp;   </div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>      ,up_heli_min03(:,:) &amp;   </div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>      ,rel_vort_max(:,:) &amp;    </div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>      ,rel_vort_max01(:,:) &amp;  </div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>      ,rel_vort_maxhy1(:,:) &amp; </div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>      ,wspd10umax(:,:) &amp;      </div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>      ,wspd10vmax(:,:) &amp;      </div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>      ,refdm10c_max(:,:) &amp;    </div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>      ,hail_max2d(:,:) &amp;      </div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>      ,hail_maxk1(:,:) &amp;      </div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>      ,hail_maxhailcast(:,:) &amp; </div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>      ,nci_ltg(:,:) &amp;         </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>      ,nca_ltg(:,:) &amp;         </div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>      ,nci_wq(:,:) &amp;          </div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>      ,nca_wq(:,:) &amp;          </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>      ,nci_refd(:,:) &amp;        </div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>      ,nca_refd(:,:) &amp;        </div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>      ,rainc_bucket1(:,:) &amp;   </div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>      ,rainnc_bucket1(:,:) &amp;  </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>      ,rainc_bucket(:,:) &amp;    </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>      ,rainnc_bucket(:,:) &amp;   </div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>      ,snow_bucket(:,:) &amp;     </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>      ,graup_bucket(:,:) &amp;    </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>      ,pcp_bucket(:,:) &amp;      </div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>      ,acgraup(:,:) &amp;         </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>      ,acfrain(:,:) &amp;         </div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>      ,frzrn_bucket(:,:) &amp;    </div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>      ,snow_acm(:,:) &amp;        </div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>      ,snow_bkt(:,:) &amp;        </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>      ,snow_bucket1(:,:) &amp;    </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>      ,graup_bucket1(:,:) &amp;   </div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>      ,pcp_bucket1(:,:) &amp;     </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>      ,snownc(:,:) &amp;          </div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>      ,graupelnc(:,:) &amp;       </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>      ,tmax(:,:) &amp;            </div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>      ,w_mean(:,:) &amp;          </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>      ,tsnow(:,:) &amp;           </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>      ,qvg(:,:) &amp;             </div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>      ,qv2m(:,:) &amp;            </div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>      ,qvl1(:,:) &amp;            </div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>      ,refc_10cm(:,:) &amp;       </div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>      ,ref1km_10cm(:,:) &amp;     </div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>      ,ref4km_10cm(:,:) &amp;     </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>      ,swradmean(:,:) &amp;       </div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>      ,u10mean(:,:) &amp;         </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>      ,v10mean(:,:) &amp;         </div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>      ,spduv10mean(:,:) &amp;     </div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>      ,swnormmean(:,:) &amp;      </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>      ,snfden(:,:) &amp;          </div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>      ,sndepac(:,:) &amp;         </div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>      ,swddni(:,:) &amp;          </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>      ,swddif(:,:) &amp;          </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>      ,swdnbc(:,:) &amp;          </div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>      ,swddnic(:,:) &amp;         </div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>      ,swddifc(:,:) &amp;         </div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>      ,swupbc(:,:) &amp;          </div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>      ,swupt(:,:) &amp;           </div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>      ,taod5502d(:,:) &amp;       </div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>      ,aerasy2d(:,:) &amp;        </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>      ,aerssa2d(:,:) &amp;        </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>      ,mean_frp(:,:) &amp;        </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>      ,hwp(:,:) &amp;             </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>      ,lwp(:,:) &amp;             </div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>      ,iwp(:,:) &amp;             </div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>      ,xlaixy(:,:) &amp;          </div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>      ,smoke_ave(:,:) &amp;       </div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>      ,dust_ave(:,:)   &amp;      </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>      ,coarsepm_ave(:,:) &amp;    </div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span><span class="comment">! add new fields for GFS</span></div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>      ,sfcux(:,:) &amp;           </div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>      ,sfcvx(:,:) &amp;           </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>      ,sfcuxi(:,:) &amp;          </div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>      ,sfcvxi(:,:) &amp;          </div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>      ,avgalbedo(:,:) &amp;       </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>      ,avgcprate(:,:) &amp;       </div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>      ,avgprec(:,:) &amp;         </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>      ,ptop(:,:) &amp;            </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>      ,pbot(:,:) &amp;            </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>      ,avgcfrach(:,:) &amp;       </div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>      ,avgcfracm(:,:) &amp;       </div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>      ,avgcfracl(:,:) &amp;       </div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>      ,avgtcdc(:,:) &amp;         </div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>      ,auvbin(:,:) &amp;          </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>      ,auvbinc(:,:) &amp;         </div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>      ,ptopl(:,:) &amp;           </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>      ,pbotl(:,:) &amp;           </div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>      ,ttopl(:,:) &amp;           </div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>      ,ptopm(:,:) &amp;           </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>      ,pbotm(:,:) &amp;           </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>      ,ttopm(:,:) &amp;           </div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>      ,ptoph(:,:) &amp;           </div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>      ,pboth(:,:) &amp;           </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>      ,ttoph(:,:) &amp;           </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>      ,sfcugs(:,:) &amp;          </div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>      ,sfcvgs(:,:) &amp;          </div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>      ,pblcfr(:,:) &amp;          </div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>      ,cldwork(:,:) &amp;         </div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>      ,gtaux(:,:) &amp;           </div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>      ,gtauy(:,:) &amp;           </div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>      ,runoff(:,:) &amp;          </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>      ,maxtshltr(:,:) &amp;       </div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>      ,mintshltr(:,:) &amp;       </div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>      ,maxrhshltr(:,:) &amp;      </div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>      ,minrhshltr(:,:) &amp;      </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>      ,dzice(:,:) &amp;           </div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>      ,maxqshltr(:,:) &amp;       </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>      ,minqshltr(:,:) &amp;       </div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>      ,alwinc(:,:) &amp;          </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>      ,alwoutc(:,:) &amp;         </div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>      ,alwtoac(:,:) &amp;         </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>      ,aswinc(:,:) &amp;          </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>      ,aswoutc(:,:) &amp;         </div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>      ,aswtoac(:,:) &amp;         </div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>      ,aswintoa(:,:) &amp;        </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>      ,smcwlt(:,:) &amp;          </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>      ,suntime(:,:) &amp;         </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>      ,fieldcapa(:,:) &amp;       </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>      ,avisbeamswin(:,:) &amp;    </div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>      ,avisdiffswin(:,:) &amp;    </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>      ,airbeamswin(:,:) &amp;     </div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>      ,airdiffswin(:,:) &amp;     </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>      ,snowfall(:,:) &amp;        </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>      ,acond(:,:) &amp;           </div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>      ,edir(:,:) &amp;            </div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>      ,ecan(:,:) &amp;            </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>      ,etrans(:,:) &amp;          </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>      ,esnow(:,:) &amp;           </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>      ,avgedir(:,:) &amp;         </div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>      ,avgecan(:,:) &amp;         </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>      ,avgetrans(:,:)&amp;        </div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>      ,avgesnow(:,:) &amp;        </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>      ,avgpotevp(:,:) &amp;       </div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>      ,avgprec_cont(:,:) &amp;    </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>      ,avgcprate_cont(:,:) &amp;  </div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>      ,ti(:,:) &amp;              </div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>      ,aod550(:,:) &amp;          </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>      ,du_aod550(:,:) &amp;       </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>      ,ss_aod550(:,:) &amp;       </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>      ,su_aod550(:,:) &amp;       </div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>      ,bc_aod550(:,:) &amp;       </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>      ,oc_aod550(:,:) &amp;       </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>      ,landfrac(:,:) &amp;        </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>      ,paha(:,:) &amp;            </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>      ,pahi(:,:) &amp;            </div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>      ,tecan(:,:) &amp;           </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>      ,tetran(:,:) &amp;          </div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>      ,tedir(:,:) &amp;           </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>      ,twa(:,:) &amp;             </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>      ,fdnsst(:,:) &amp;          </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>      ,pwat(:,:)              </div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno"><a class="line" href="VRBLS2D__mod_8f.html#ace74ab39c8850b2d783fef679a14f057">  309</a></span>      <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: ivgtyp(:,:) &amp;</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>      ,isltyp(:,:) &amp;          </div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>      ,islope(:,:) &amp;          </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>      ,ieql(:,:)              </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>      </div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="comment">! Add 2d aerosol diagnosis fields for GOCART (NEMS-GFS Aerosol Component [NGAC])</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno"><a class="line" href="VRBLS2D__mod_8f.html#a83e1a337e9060fbab7526d56c36ff5a1">  315</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> ::                                                   &amp;</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       dusmass(:,:) &amp;         </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>      ,ducmass(:,:) &amp;         </div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>      ,dusmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>      ,ducmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>      ,susmass(:,:) &amp;         </div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      ,sucmass(:,:) &amp;         </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>      ,susmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>      ,sucmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>      ,ocsmass(:,:) &amp;         </div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>      ,occmass(:,:) &amp;         </div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>      ,ocsmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>      ,occmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>      ,bcsmass(:,:) &amp;         </div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>      ,bccmass(:,:) &amp;         </div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>      ,bcsmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>      ,bccmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>      ,sssmass(:,:) &amp;         </div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>      ,sscmass(:,:) &amp;         </div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>      ,sssmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>      ,sscmass25(:,:) &amp;       </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>      ,dustcb(:,:) &amp;          </div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>      ,sscb(:,:) &amp;            </div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>      ,occb(:,:) &amp;            </div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>      ,bccb(:,:) &amp;            </div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>      ,sulfcb(:,:) &amp;          </div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>      ,dustallcb(:,:) &amp;       </div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>      ,ssallcb(:,:) &amp;         </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>      ,dustpm(:,:) &amp;          </div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>      ,sspm(:,:) &amp;            </div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>      ,pp25cb(:,:) &amp;          </div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>      ,dustpm10(:,:) &amp;        </div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>      ,pp10cb(:,:) &amp;          </div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>      ,no3cb(:,:) &amp;           </div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>      ,nh4cb(:,:) &amp;           </div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>      ,maod(:,:)              </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span> </div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="comment">! Add new field for AQM</span></div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno"><a class="line" href="VRBLS2D__mod_8f.html#a3d0bd7f7dea522b57e2a15f78e86c145">  353</a></span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: aqm_aod550(:,:)</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span><span class="comment">!</span></div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>      <span class="keyword">end module </span>vrbls2d</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>      <span class="keyword">module</span> vrbls2d</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">!</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> ::                                                   &amp;</div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>      u10(:,:),akms(:,:),akhs(:,:),ths(:,:),qs(:,:)                &amp;</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>      ,uz0(:,:),vz0(:,:),thz0(:,:),qz0(:,:)                                  &amp;</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>      ,sno(:,:),tshltr(:,:),qshltr(:,:), mrshltr(:,:)                  &amp;</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>      ,v10(:,:),acprec(:,:),cuprec(:,:),ancprc(:,:),cuppt(:,:)               &amp;</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>      ,smstav(:,:),ssroff(:,:),bgroff(:,:),vegfrc(:,:)                       &amp;</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>      ,shdmin(:,:),shdmax(:,:),lai(:,:)                                      &amp;</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>      ,acsnow(:,:),acsnom(:,:),cmc(:,:),sst(:,:)                             &amp;</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>      ,rswin(:,:),rlwin(:,:),rlwtoa(:,:)                                     &amp;</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>      ,lwdnbc(:,:),lwupbc(:,:)                                               &amp;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>      ,tg(:,:),sfcshx(:,:),pslp(:,:),t700(:,:),z500(:,:),z700(:,:)           &amp;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>      ,sfclhx(:,:),fis(:,:),t500(:,:),z1000(:,:),slp(:,:)                    &amp;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>      ,cfracl(:,:),cfracm(:,:),cfrach(:,:),acfrst(:,:)                       &amp;</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>      ,acfrcv(:,:),ncfrst(:,:),ncfrcv(:,:),hbot(:,:)                         &amp;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>      ,htop(:,:),aswin(:,:),alwin(:,:),aswout(:,:)                           &amp;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>      ,alwout(:,:),aswtoa(:,:),alwtoa(:,:),czen(:,:)                         &amp;</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>      ,czmean(:,:),sigt4(:,:),rswout(:,:),radot(:,:)                         &amp;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      ,smstot(:,:),pctsno(:,:),pshltr(:,:),th10(:,:)                         &amp;</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>      ,q10(:,:),sr(:,:),prec(:,:),subshx(:,:)                                &amp;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>      ,snopcx(:,:),sfcuvx(:,:),sfcevp(:,:),potevp(:,:)                       &amp;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>      ,z0(:,:),ustar(:,:),twbs(:,:),qwbs(:,:)                                &amp;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>      ,sfcexc(:,:),grnflx(:,:),soiltb(:,:),f(:,:)                            &amp;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>      ,albedo(:,:),cldfra(:,:),cprate(:,:),cnvcfr(:,:)                       &amp;</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>      ,pblh(:,:),pblhgust(:,:),hbotd(:,:),htopd(:,:),hbots(:,:),htops(:,:)   &amp;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>      ,cldefi(:,:),albase(:,:),si(:,:),lspa(:,:)                             &amp;</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>      ,rswinc(:,:),vis(:,:),pd(:,:),mxsnal(:,:),mixht(:,:)                   &amp;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>      ,snonc(:,:),epsr(:,:),rswtoa(:,:),teql(:,:)                            &amp;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">! Variables saved for input to IFI</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>      ,ifi_apcp(:,:),cape(:,:),cin(:,:)                                      &amp;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">! HWRF additions</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>      ,mdltaux(:,:),mdltauy(:,:),cd10(:,:),ch10(:,:)  &amp;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>      ,acswupt(:,:),swdnt(:,:),acswdnt(:,:) &amp;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">! NAMB additions</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>      ,snoavg(:,:),psfcavg(:,:),t10avg(:,:),akhsavg(:,:),akmsavg(:,:)        &amp;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>      ,t10m(:,:),u10max(:,:),v10max(:,:),u10h(:,:),v10h(:,:)                 &amp;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>      ,prate_max(:,:),fprate_max(:,:)                                        &amp;</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment">! GSD addition</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>      ,wspd10max(:,:),w_up_max(:,:),w_dn_max(:,:),refd_max(:,:)              &amp;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>      ,up_heli_max(:,:),up_heli_max16(:,:),grpl_max(:,:),qrmax(:,:)          &amp;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>      ,up_heli(:,:),up_heli16(:,:),ltg1_max(:,:),ltg2_max(:,:),ltg3_max(:,:) &amp;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>      ,up_heli_min(:,:),up_heli_min16(:,:)                                   &amp;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>      ,up_heli_max02(:,:),up_heli_min02(:,:)                                 &amp;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>      ,up_heli_max03(:,:),up_heli_min03(:,:)                                 &amp;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>      ,rel_vort_max(:,:),rel_vort_max01(:,:),rel_vort_maxhy1(:,:)            &amp;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>      ,wspd10umax(:,:),wspd10vmax(:,:)                                       &amp;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>      ,refdm10c_max(:,:),hail_max2d(:,:),hail_maxk1(:,:)                     &amp;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      ,hail_maxhailcast(:,:)                                                 &amp;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>      ,nci_ltg(:,:),nca_ltg(:,:),nci_wq(:,:),nca_wq(:,:)                     &amp;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>      ,nci_refd(:,:),nca_refd(:,:),rainc_bucket1(:,:),rainnc_bucket1(:,:)   &amp;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>      ,rainc_bucket(:,:),rainnc_bucket(:,:),snow_bucket(:,:)                 &amp;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>      ,graup_bucket(:,:),pcp_bucket(:,:),acgraup(:,:),acfrain(:,:)           &amp;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>      ,frzrn_bucket(:,:),snow_acm(:,:),snow_bkt(:,:)                         &amp;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>      ,snow_bucket1(:,:),graup_bucket1(:,:),pcp_bucket1(:,:)                 &amp;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>      ,snownc(:,:),graupelnc(:,:),tmax(:,:),w_mean(:,:)                      &amp;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>      ,tsnow(:,:),qvg(:,:),qv2m(:,:),qvl1(:,:)                               &amp;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>      ,refc_10cm(:,:), ref1km_10cm(:,:), ref4km_10cm(:,:)                    &amp;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>      ,swradmean(:,:),u10mean(:,:),v10mean(:,:),spduv10mean(:,:)             &amp;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>      ,swnormmean(:,:),snfden(:,:),sndepac(:,:),swddni(:,:),swddif(:,:)      &amp;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>      ,swdnbc(:,:),swddnic(:,:),swddifc(:,:), swupbc(:,:), swupt(:,:)        &amp;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>      ,taod5502d(:,:),aerasy2d(:,:),aerssa2d(:,:),mean_frp(:,:),ebb(:,:)     &amp;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>      ,hwp(:,:),lwp(:,:),iwp(:,:)                                            &amp;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="comment">! add new fields for GFS</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>      ,sfcux(:,:),sfcvx(:,:),sfcuxi(:,:), sfcvxi(:,:),avgalbedo(:,:),avgcprate(:,:)                   &amp;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>      ,avgprec(:,:),ptop(:,:),pbot(:,:),avgcfrach(:,:)                       &amp;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>      ,avgcfracm(:,:),avgcfracl(:,:),avgtcdc(:,:)                            &amp;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>      ,auvbin(:,:),auvbinc(:,:)                                              &amp;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>      ,ptopl(:,:),pbotl(:,:),ttopl(:,:)                                      &amp;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>      ,ptopm(:,:),pbotm(:,:),ttopm(:,:)                                      &amp;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>      ,ptoph(:,:),pboth(:,:),ttoph(:,:)                                      &amp;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>      ,sfcugs(:,:),sfcvgs(:,:),pblcfr(:,:)                                   &amp;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>      ,cldwork(:,:),gtaux(:,:),gtauy(:,:),runoff(:,:)                        &amp;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>      ,maxtshltr(:,:),mintshltr(:,:),maxrhshltr(:,:)                         &amp;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>      ,minrhshltr(:,:),dzice(:,:),maxqshltr(:,:),minqshltr(:,:)              &amp;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>      ,alwinc(:,:),alwoutc(:,:),alwtoac(:,:)                                 &amp;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>      ,aswinc(:,:),aswoutc(:,:),aswtoac(:,:),aswintoa(:,:)                   &amp;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>      ,smcwlt(:,:),suntime(:,:),fieldcapa(:,:)                               &amp;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>      ,avisbeamswin(:,:),avisdiffswin(:,:),airbeamswin(:,:)                  &amp;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>      ,airdiffswin(:,:),snowfall(:,:),acond(:,:),edir(:,:),ecan(:,:) &amp;</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>      ,etrans(:,:),esnow(:,:),avgedir(:,:),avgecan(:,:),avgetrans(:,:)&amp;</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>      ,avgesnow(:,:),avgpotevp(:,:),avgprec_cont(:,:),avgcprate_cont(:,:)&amp;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>      ,ti(:,:),aod550(:,:),du_aod550(:,:),ss_aod550(:,:),su_aod550(:,:)      &amp;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>      ,bc_aod550(:,:),oc_aod550(:,:),landfrac(:,:),paha(:,:),pahi(:,:)       &amp;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>      ,tecan(:,:),tetran(:,:),tedir(:,:),twa(:,:),fdnsst(:,:),pwat(:,:)</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>      <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) &amp;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>      ,ieql(:,:)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>      </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="comment">! Add 2d aerosol diagnosis fields for GOCART (NGAC)</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> ::                                                   &amp;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>       dusmass(:,:),ducmass(:,:),dusmass25(:,:),ducmass25(:,:)               &amp;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>      ,susmass(:,:),sucmass(:,:),susmass25(:,:),sucmass25(:,:)               &amp;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>      ,ocsmass(:,:),occmass(:,:),ocsmass25(:,:),occmass25(:,:)               &amp;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>      ,bcsmass(:,:),bccmass(:,:),bcsmass25(:,:),bccmass25(:,:)               &amp;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>      ,sssmass(:,:),sscmass(:,:),sssmass25(:,:),sscmass25(:,:)               &amp;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>      ,dustcb(:,:),sscb(:,:),occb(:,:),bccb(:,:),sulfcb(:,:)                 &amp;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>      ,dustallcb(:,:),ssallcb(:,:),dustpm(:,:),sspm(:,:),pp25cb(:,:)         &amp;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      ,dustpm10(:,:),pp10cb(:,:),no3cb(:,:),nh4cb(:,:),maod(:,:)<span class="comment">!lzhang, add for FV3-Chem</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">! Add new field for AQM</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordtype">      real</span>, <span class="keywordtype">allocatable</span> :: aqm_aod550(:,:)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="comment">!</span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>      <span class="keyword">end module </span>vrbls2d</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="VRBLS2D__mod_8f.html">VRBLS2D_mod.f</a></li>
+    <li class="navelem"><b>VRBLS2D_mod.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

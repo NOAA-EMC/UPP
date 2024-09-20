@@ -97,33 +97,26 @@ $(document).ready(function(){initNavTree('machine_8f_source.html',''); initResiz
   <div class="headertitle"><div class="title">machine.f</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="machine_8f.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>      <span class="keyword">MODULE</span> machine_post</div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>      <span class="keywordtype">IMPLICIT NONE</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>      <span class="keywordtype">SAVE</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>      </div>
-<div class="foldopen" id="foldopen00008" data-start="" data-end="">
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno"><a class="line" href="machine_8f.html#aa02e0cc60d49906608f4e54179425384">    8</a></span>      <span class="keywordtype">integer</span> kind_io4 &amp;</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>      ,kind_io8 &amp;           </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>      ,kind_phys &amp;          </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>      ,kind_rad &amp;           </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>      ,kint_mpi             </div>
-</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>      </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>      parameter(kind_rad = selected_real_kind(13,60)) <span class="comment">! the &#39;60&#39; maps to 64-bit real</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>      parameter(kind_phys = selected_real_kind(13,60)) <span class="comment">! the &#39;60&#39; maps to 64-bit real</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>      parameter(kind_io4 = 4)</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>      parameter(kind_io8 = 8)</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>      parameter(kint_mpi = 4)</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>      <span class="keyword">END MODULE </span>machine_post</div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>      <span class="keyword">MODULE</span> machine_post</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span> </div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>      <span class="keywordtype">IMPLICIT NONE</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>      <span class="keywordtype">SAVE</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">!  Machine dependant constants</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>      <span class="keywordtype">integer</span> kind_io4,kind_io8,kind_phys,kind_rad</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>      parameter(kind_rad = selected_real_kind(13,60)) <span class="comment">! the &#39;60&#39; maps to 64-bit real</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>      parameter(kind_phys = selected_real_kind(13,60)) <span class="comment">! the &#39;60&#39; maps to 64-bit real</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>      parameter(kind_io4 = 4)</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>      parameter(kind_io8 = 8)</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>      <span class="keywordtype">integer</span> kint_mpi</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>      parameter(kint_mpi = 4)</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>      <span class="keyword">END MODULE </span>machine_post</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="machine_8f.html">machine.f</a></li>
+    <li class="navelem"><b>machine.f</b></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

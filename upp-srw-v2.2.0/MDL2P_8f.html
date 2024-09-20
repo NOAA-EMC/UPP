@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('MDL2P_8f.html',''); initResizable(); }
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="MDL2P_8f.html#a29eb4483be26403a12b34f7e9c279be2" title="MDL2P() computes vertical interpolation of model levels to pressure.">mdl2p()</a> computes vertical interpolation of model levels to pressure.  
+<p>mdl2p() computes vert intrp of model lvls to pressure.  
 <a href="#details">More...</a></p>
 
 <p><a href="MDL2P_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,13 +103,12 @@ $(document).ready(function(){initNavTree('MDL2P_8f.html',''); initResizable(); }
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a29eb4483be26403a12b34f7e9c279be2" id="r_a29eb4483be26403a12b34f7e9c279be2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="MDL2P_8f.html#a29eb4483be26403a12b34f7e9c279be2">mdl2p</a> (iostatusd3d)</td></tr>
-<tr class="memdesc:a29eb4483be26403a12b34f7e9c279be2"><td class="mdescLeft">&#160;</td><td class="mdescRight">MDL2P() computes vertical interpolation of model levels to pressure.  <br /></td></tr>
 <tr class="separator:a29eb4483be26403a12b34f7e9c279be2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="MDL2P_8f.html#a29eb4483be26403a12b34f7e9c279be2" title="MDL2P() computes vertical interpolation of model levels to pressure.">mdl2p()</a> computes vertical interpolation of model levels to pressure. </p>
-<p>For most applications this routine is the workhorse of the post processor. In a nutshell it interpolates data from model to pressure surfaces. It originated from the vertical interpolation code in the old ETA post processor subroutine outmap() and is a revision of subroutine eta2p().</p>
-<h3><a class="anchor" id="autotoc_md63"></a>
+<div class="textblock"><p>mdl2p() computes vert intrp of model lvls to pressure. </p>
+<p>For most applications this routine is the workhorse of the post processor. In a nutshell it interpolates data from model to pressure surfaces. It origiaated from the vertical interpolation code in the old ETA post processor subroutine outmap() and is a revision of subroutine eta2p().</p>
+<h3><a class="anchor" id="autotoc_md65"></a>
 Program History Log</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -166,7 +165,7 @@ Program History Log</h3>
 <td class="markdownTableBodyNone">2022-11-16   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Adding dust from RRFS   </td></tr>
 </table>
 <p>2022-12-21 | J Meng ! Adding snow density SDEN <br  />
- 2023-02-23 | E James | Adding coarse PM from RRFS 2023-08-24 | Y Mao | Add gtg_on option for GTG interpolation 2023-09-12 | J Kenyon | Prevent spurious supercooled rain and cloud water 2024-04-23 | E James | Adding smoke emissions (ebb) from RRFS</p>
+ 2023-02-23 | E James | Adding coarse PM from RRFS</p>
 <dl class="section author"><dt>Author</dt><dd>T Black W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>1999-09-23 </dd></dl>
 
@@ -188,19 +187,7 @@ Program History Log</h3>
       </table>
 </div><div class="memdoc">
 
-<p>MDL2P() computes vertical interpolation of model levels to pressure. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">iostatusD3D</td><td>integer No longer used/supported. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="MDL2P_8f_source.html#l00049">49</a> of file <a class="el" href="MDL2P_8f_source.html">MDL2P.f</a>.</p>
-
-<p class="reference">References <a class="el" href="BOUND_8f_source.html#l00037">bound()</a>, <a class="el" href="AVIATION_8f_source.html#l00265">calcat()</a>, <a class="el" href="CALDWP_8f_source.html#l00028">caldwp()</a>, <a class="el" href="AVIATION_8f_source.html#l00161">calicing()</a>, <a class="el" href="CALMCVG_8f_source.html#l00044">calmcvg()</a>, <a class="el" href="CALSTRM_8f_source.html#l00032">calstrm()</a>, <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>, <a class="el" href="SMOOTH_8f_source.html#l00043">smooth()</a>, and <a class="el" href="SMOOTH_8f_source.html#l00135">smoothc()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="MDL2P_8f_source.html#l00041">41</a> of file <a class="el" href="MDL2P_8f_source.html">MDL2P.f</a>.</p>
 
 </div>
 </div>

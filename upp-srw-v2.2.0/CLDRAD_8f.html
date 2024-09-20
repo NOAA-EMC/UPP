@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('CLDRAD_8f.html',''); initResizable(); 
 </div><!--header-->
 <div class="contents">
 
-<p>Subroutine that posts SNDING/CLOUD/RADTN fields.  
+<p>Subroutine that post SNDING/CLOUD/RADTN fields.  
 <a href="#details">More...</a></p>
 
 <p><a href="CLDRAD_8f_source.html">Go to the source code of this file.</a></p>
@@ -105,14 +105,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aba0b3021fb1440b6ed121efdd97c8fd1" id="r_aba0b3021fb1440b6ed121efdd97c8fd1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CLDRAD_8f.html#aba0b3021fb1440b6ed121efdd97c8fd1">cb_cover</a> (cbcov)</td></tr>
 <tr class="separator:aba0b3021fb1440b6ed121efdd97c8fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02ea14cc0ffdd5ea0588c881bd387a70" id="r_a02ea14cc0ffdd5ea0588c881bd387a70"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CLDRAD_8f.html#a02ea14cc0ffdd5ea0588c881bd387a70">cldrad</a></td></tr>
-<tr class="memdesc:a02ea14cc0ffdd5ea0588c881bd387a70"><td class="mdescLeft">&#160;</td><td class="mdescRight">CLDRAD Subroutine that computes/posts SOUNDING/CLOUD/RADIATION fields.  <br /></td></tr>
 <tr class="separator:a02ea14cc0ffdd5ea0588c881bd387a70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add1d79f909da9aac577a8f9fbf73d5d5" id="r_add1d79f909da9aac577a8f9fbf73d5d5"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CLDRAD_8f.html#add1d79f909da9aac577a8f9fbf73d5d5">wrt_aero_diag</a> (igetfld, nbin, data)</td></tr>
-<tr class="memdesc:add1d79f909da9aac577a8f9fbf73d5d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">wrt_aero_diag outputs aerosol field in grib2.  <br /></td></tr>
 <tr class="separator:add1d79f909da9aac577a8f9fbf73d5d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Subroutine that posts SNDING/CLOUD/RADTN fields. </p>
+<div class="textblock"><p>Subroutine that post SNDING/CLOUD/RADTN fields. </p>
 <p>This routine computes/posts sounding cloud related, and radiation fields. Under the heading of sounding fields fall the three ETA model lifted indices, CAPE, CIN, and total column precipitable water.</p>
 <p>The three ETA model lifted indices differ only in the definition of the parcel to lift. One lifts parcels from the lowest above ground ETA layer. Another lifts mean <br  />
  parcels from any of NBND boundary layers (See subroutine BNDLYR). The final type of lifted index is a best lifted inden based on the NBND bouddary layer lifted indices.</p>
@@ -122,7 +120,7 @@ Functions/Subroutines</h2></td></tr>
  cloud water, 3-D cloud fraction, and temperature tendencies due to precipotation are not posted in this routine. See sunroutine ETAFLD for these fields. Lifting condensation level height and pressure are computed and posted in subroutine MISCLN. <br  />
 </p>
 <p>The radiation fields posted by this routine are those computed directly in the model.</p>
-<h3><a class="anchor" id="autotoc_md23"></a>
+<h3><a class="anchor" id="autotoc_md26"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -210,15 +208,7 @@ Program history log:</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">2023-04-04   </td><td class="markdownTableBodyNone">Li(Kate Zhang)   </td><td class="markdownTableBodyNone">Add namelist optoin for CCPP-Chem (UFS-Chem) model.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2023-04-17   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2023-09-26   </td><td class="markdownTableBodyNone">Jaymes Kenyon   </td><td class="markdownTableBodyNone">For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-04-23   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Adding smoke emissions (ebb) from RRFS    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2024-05-01   </td><td class="markdownTableBodyNone">Jaymes Kenyon   </td><td class="markdownTableBodyNone">Updates to the GSL exp-1 ceiling diagnostic    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-05-24   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Correcting the vertical summing of biomass burning emissions (EBB)   </td></tr>
+<td class="markdownTableBodyNone">2023-04-17   </td><td class="markdownTableBodyNone">Eric James   </td><td class="markdownTableBodyNone">Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)   </td></tr>
 </table>
 <dl class="section author"><dt>Author</dt><dd>Russ Treadon W/NP2 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>1993-08-30 </dd></dl>
@@ -247,9 +237,7 @@ Program history log:</h3>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="CLDRAD_8f_source.html#l05841">5841</a> of file <a class="el" href="CLDRAD_8f_source.html">CLDRAD.f</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="CLDRAD_8f_source.html#l00088">cldrad()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CLDRAD_8f_source.html#l05778">5778</a> of file <a class="el" href="CLDRAD_8f_source.html">CLDRAD.f</a>.</p>
 
 </div>
 </div>
@@ -265,13 +253,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>CLDRAD Subroutine that computes/posts SOUNDING/CLOUD/RADIATION fields. </p>
-
-<p class="definition">Definition at line <a class="el" href="CLDRAD_8f_source.html#l00087">87</a> of file <a class="el" href="CLDRAD_8f_source.html">CLDRAD.f</a>.</p>
-
-<p class="reference">References <a class="el" href="BOUND_8f_source.html#l00037">bound()</a>, <a class="el" href="AVIATION_8f_source.html#l00497">calceiling()</a>, <a class="el" href="AVIATION_8f_source.html#l00551">calfltcnd()</a>, <a class="el" href="CALPW_8f_source.html#l00052">calpw()</a>, <a class="el" href="CLDRAD_8f_source.html#l05842">cb_cover()</a>, <a class="el" href="COLLECT__LOC_8f_source.html#l00094">collect_all()</a>, <a class="el" href="OTLIFT_8f_source.html#l00039">otlift()</a>, and <a class="el" href="CLDRAD_8f_source.html#l05903">wrt_aero_diag()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CLDRAD_8f_source.html#l00079">79</a> of file <a class="el" href="CLDRAD_8f_source.html">CLDRAD.f</a>.</p>
 
 </div>
 </div>
@@ -307,19 +289,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>wrt_aero_diag outputs aerosol field in grib2. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">igetfld</td><td>integer UPP field ID number. </td></tr>
-    <tr><td class="paramname">nbin</td><td>integer. </td></tr>
-    <tr><td class="paramname">data</td><td>real. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="CLDRAD_8f_source.html#l05902">5902</a> of file <a class="el" href="CLDRAD_8f_source.html">CLDRAD.f</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="CLDRAD_8f_source.html#l00088">cldrad()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CLDRAD_8f_source.html#l05833">5833</a> of file <a class="el" href="CLDRAD_8f_source.html">CLDRAD.f</a>.</p>
 
 </div>
 </div>

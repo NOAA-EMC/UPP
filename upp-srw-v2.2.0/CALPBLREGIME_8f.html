@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('CALPBLREGIME_8f.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 
-<p>Subroutine that determines the PBL regime.  
+<p>Subroutine that computes PBL height based on bulk RCH number.  
 <a href="#details">More...</a></p>
 
 <p><a href="CALPBLREGIME_8f_source.html">Go to the source code of this file.</a></p>
@@ -103,12 +103,11 @@ $(document).ready(function(){initNavTree('CALPBLREGIME_8f.html',''); initResizab
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a09c0a082eec71e6154beb821a2b13665" id="r_a09c0a082eec71e6154beb821a2b13665"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CALPBLREGIME_8f.html#a09c0a082eec71e6154beb821a2b13665">calpblregime</a> (pblregime)</td></tr>
-<tr class="memdesc:a09c0a082eec71e6154beb821a2b13665"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subroutine that determines the PBL regime.  <br /></td></tr>
 <tr class="separator:a09c0a082eec71e6154beb821a2b13665"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Subroutine that determines the PBL regime. </p>
-<p>This routine computes the bulk Richardson number based on algorithms from WRF surface layer and then derives PBL regime as follows:</p><ol type="1">
+<div class="textblock"><p>Subroutine that computes PBL height based on bulk RCH number. </p>
+<p>This routine computes the bulk Richardson number based on algorithms from WRF surface layer and then derive PBL regime as follows:</p><ol type="1">
 <li>BR &gt;= 0.2; Represents nighttime stable conditions (Regime=1),</li>
 <li>BR &lt; 0.2 .AND. BR &gt; 0.0; Represents damped mechanical turbulent conditions (Regime=2),</li>
 <li>BR == 0.0 Represents forced convection conditions (Regime=3),</li>
@@ -117,11 +116,11 @@ Functions/Subroutines</h2></td></tr>
 </ol>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">PBLREGIME</td><td>PBL regime.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">PBLRI</td><td>PBL Height above ground.</td></tr>
   </table>
   </dd>
 </dl>
-<h3><a class="anchor" id="autotoc_md13"></a>
+<h3><a class="anchor" id="autotoc_md16"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -152,19 +151,7 @@ Program history log:</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Subroutine that determines the PBL regime. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">PBLREGIME</td><td>PBL regime. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="CALPBLREGIME_8f_source.html#l00033">33</a> of file <a class="el" href="CALPBLREGIME_8f_source.html">CALPBLREGIME.f</a>.</p>
-
-<p class="reference">References <a class="el" href="EXCH_8f_source.html#l00027">exch()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="MDLFLD_8f_source.html#l00100">mdlfld()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="CALPBLREGIME_8f_source.html#l00028">28</a> of file <a class="el" href="CALPBLREGIME_8f_source.html">CALPBLREGIME.f</a>.</p>
 
 </div>
 </div>

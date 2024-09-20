@@ -111,7 +111,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This routine posts surface-based fields. </p>
-<h3><a class="anchor" id="autotoc_md87"></a>
+<h3><a class="anchor" id="autotoc_md85"></a>
 Program history log:</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -193,31 +193,7 @@ Program history log:</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">2023-05-19   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Cleaning up GRIB2 encoding for 1-h max precip rate    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2023-06-15   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2023-10-04   </td><td class="markdownTableBodyNone">W Meng   </td><td class="markdownTableBodyNone">Fix mismatched IDs from 526-530    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2023-10-05   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Correcting bug fix in GSL precip type for RRFS (was using 1000x 1h pcp)    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-01-23   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Using consistent snow ratio SR from history files throughout GSL precip type diagnosis.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2024-01-30   </td><td class="markdownTableBodyNone">A Jensen   </td><td class="markdownTableBodyNone">Comment out graupel precipitation warning.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-02-07   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Enabling output of LAI and wilting point for RRFS.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2024-03-25   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Enabling output of column integrated soil moisture.    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-04-03   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Enabling output of hourly average smoke PM2.5 and dust PM10    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2024-04-23   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Adding smoke emissions (ebb) from RRFS    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-05-01   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Adapt the BUCKET1 type fields (15-min acc) for use in RRFS    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2024-05-24   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Modify the run total acc precip fields for 15-min output    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2024-06-11   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">2024-08-26   </td><td class="markdownTableBodyNone">K Asmar   </td><td class="markdownTableBodyNone">Modify max winds at 10m agl for UFS time buckets   </td></tr>
+<td class="markdownTableBodyNone">2023-06-15   </td><td class="markdownTableBodyNone">E James   </td><td class="markdownTableBodyNone">Correcting bug fix in GSL precip type for RRFS (use 1h pcp, not run total pcp)   </td></tr>
 </table>
 <dl class="section note"><dt>Note</dt><dd>USAGE: CALL SURFCE </dd>
 <dd>
@@ -282,9 +258,9 @@ LIBRARY: COMMON - <ul>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="SURFCE_8f_source.html#l07024">7024</a> of file <a class="el" href="SURFCE_8f_source.html">SURFCE.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SURFCE_8f_source.html#l06715">6715</a> of file <a class="el" href="SURFCE_8f_source.html">SURFCE.f</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="SURFCE_8f_source.html#l00079">surfce()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="SURFCE_8f_source.html#l00067">surfce()</a>.</p>
 
 </div>
 </div>
@@ -302,11 +278,9 @@ LIBRARY: COMMON - <ul>
 
 <p>SURFCE posts surface-based fields. </p>
 
-<p class="definition">Definition at line <a class="el" href="SURFCE_8f_source.html#l00078">78</a> of file <a class="el" href="SURFCE_8f_source.html">SURFCE.f</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SURFCE_8f_source.html#l00066">66</a> of file <a class="el" href="SURFCE_8f_source.html">SURFCE.f</a>.</p>
 
-<p class="reference">References <a class="el" href="BOUND_8f_source.html#l00037">bound()</a>, <a class="el" href="CALDRG_8f_source.html#l00022">caldrg()</a>, <a class="el" href="CALTAU_8f_source.html#l00034">caltau()</a>, <a class="el" href="CALWXT__BOURG_8f_source.html#l00086">calwxt_bourg_post()</a>, <a class="el" href="DEWPOINT_8f_source.html#l00052">dewpoint()</a>, and <a class="el" href="SURFCE_8f_source.html#l07025">qpf_comp()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="PROCESS_8f_source.html#l00040">process()</a>.</p>
+<p class="reference">References <a class="el" href="BOUND_8f_source.html#l00035">bound()</a>, <a class="el" href="CALDRG_8f_source.html#l00022">caldrg()</a>, <a class="el" href="CALTAU_8f_source.html#l00034">caltau()</a>, <a class="el" href="CALWXT__BOURG_8f_source.html#l00086">calwxt_bourg_post()</a>, <a class="el" href="DEWPOINT_8f_source.html#l00052">dewpoint()</a>, and <a class="el" href="SURFCE_8f_source.html#l06716">qpf_comp()</a>.</p>
 
 </div>
 </div>

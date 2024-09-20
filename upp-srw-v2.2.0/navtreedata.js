@@ -25,7 +25,11 @@
 var NAVTREE =
 [
   [ "UPP", "index.html", [
-    [ "Topics", "topics.html", "topics" ],
+    [ "Unified Post-Processing (UPP)", "index.html#autotoc_md0", null ],
+    [ "2-D Decomposition Overview", "md_docs_22D-decomp.html", [
+      [ "Comparison of 1D vs. 2D Decomposition", "md_docs_22D-decomp.html#autotoc_md2", null ],
+      [ "2D Decomposition Design", "md_docs_22D-decomp.html#autotoc_md3", null ]
+    ] ],
     [ "Data Types", "annotated.html", [
       [ "Data Types List", "annotated.html", "annotated_dup" ],
       [ "Data Fields", "functions.html", [
@@ -37,7 +41,8 @@ var NAVTREE =
       [ "File List", "files.html", "files_dup" ],
       [ "Globals", "globals.html", [
         [ "All", "globals.html", null ],
-        [ "Functions/Subroutines", "globals_func.html", null ]
+        [ "Functions/Subroutines", "globals_func.html", null ],
+        [ "Variables", "globals_vars.html", null ]
       ] ]
     ] ]
   ] ]
@@ -46,12 +51,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "ALLOCATE__ALL_8f.html",
-"CTLBLK_8f.html#abd9b68a952ee55f476a94dd367497c45",
-"OTLIFT_8f.html",
-"VRBLS2D__mod_8f.html#a0be53c738b7badd99850deedc6fbb36c",
-"VRBLS2D__mod_8f.html#acd381e19a55105f1f6bdfe6b3ff3122a",
-"cuparm_8f.html#a4bbafff9b23ecc8d6eeac7f3e3f817d6",
-"params_8F.html#a51ec27d4352eea50c2c2ae4e2fcbd073"
+"SCLFLD_8f.html#a49e1d061a1bb3dbb9ef7476e474c826d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
