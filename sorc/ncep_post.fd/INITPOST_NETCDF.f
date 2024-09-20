@@ -4049,7 +4049,7 @@
       implicit none
       INCLUDE "mpif.h"
 
-      character(len=20),intent(in) :: varname
+      character(len=*),intent(in) :: varname
       real,intent(in)    :: spval
       integer,intent(in) :: ncid,im,jm,lm,jsta_2l,jend_2u,jsta,jend
       integer,intent(in) :: ista_2l,iend_2u,ista,iend
