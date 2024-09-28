@@ -30,6 +30,7 @@ load_ifi_module=NO
 prefix="../install"
 ifi_opt=" -DBUILD_WITH_IFI=OFF"
 build_ifi_executables_opt=" "
+build_ifi_executables=NO
 gtg_opt=" -DBUILD_WITH_GTG=OFF"
 nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
 wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
@@ -50,6 +51,7 @@ while getopts ":p:gnwc:vhiIdBD:" opt; do
       ;;
     B)
       build_ifi_executables_opt=" -DBUILD_IFI_EXECUTABLES=ON"
+      build_ifi_executables=YES
       ;;
     n)
       nemsio_opt=" -DBUILD_WITH_NEMSIO=OFF"
@@ -139,3 +141,8 @@ make install
 
 rm -rf $PATHTR/exec && mkdir -p $PATHTR/exec
 cp $prefix/bin/upp.x $PATHTR/exec/.
+
+cp $prefix/bin/upp.x $PATHTR/exec/.
+if [[ "$build_ifi_executables" == YES ]] ; then
+    cp $prefix/bin/fip2-lookalike.x $PATHTR/exec/.
+fi
