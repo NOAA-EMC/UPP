@@ -1032,7 +1032,7 @@ contains !==============================================================
     93 format(A,': ',A,': ',A,'(',I0,')')
   end subroutine nc_check
 
-  subroutine write_fip_output(ifi_data,fcst_lead_sec,output_file,rename,z2dname,z3dname)
+  subroutine write_fip_output(ifi_data,fcst_lead_sec,output_file,rename,z2dname,z3dname,z_dim_data)
     use ifi_mod
     use iso_c_binding
     use netcdf
@@ -1043,6 +1043,9 @@ contains !==============================================================
     logical, intent(in) :: rename
     double precision, intent(in) :: fcst_lead_sec
     character(len=*), intent(in) :: z2dname,z3dname
+
+    real, optional :: z_dim_data(:)
+
     type var_info
       character(len=maxname) :: varname, outname
       integer :: varid, ndims, dims(4), dimids(4), count
@@ -1066,7 +1069,7 @@ contains !==============================================================
 
     character(len=200) :: varname,nextname
 
-    integer :: dimids(4), ncid, ivar, id, nvars, nx0, ny0, nz0, ntime, dims(4)
+    integer :: dimids(4), ncid, ivar, id, nvars, nx0, ny0, nz0, ntime, dims(4), z_varid
     type(var_info),target :: var_data(maxvars)
 
     if(me==0) then
@@ -1088,6 +1091,15 @@ contains !==============================================================
       write(*,'(A,A)') output_file,': cataloging variables and defining NetCDF file'
     endif
 
+    if(present(z_dim_data)) then
+      if(size(z_dim_data) == nz0) then
+        call nc_check(def_axis_var(z3dname, z_dim_data, dimids(3), z_varid), output_file, 'def_axis_var')
+      else if(me == 0) then
+102     format('Error: length of z dimension data (',I0,') differs from z dimension (',I0,')')
+        write(0,102) size(z_dim_data),size(z_dim_data),nz0
+      endif
+    endif
+
     ivar=0
     do while(ivar<maxvars)
       nextname='internal_error_nextname_was_not_updated'
@@ -1105,16 +1117,13 @@ contains !==============================================================
       endif
       
       if(ivar==1 .and. me==0) then
-59      format(A,': write to file')
-        print 59,output_file
-        
         call nc_check(nf90_create(output_file,ior(NF90_NOCLOBBER,NF90_64BIT_OFFSET),ncid),&
              output_file,'nf90_create')
 
         call nc_check(nf90_put_att(ncid,NF90_GLOBAL,"fcst_lead_sec",fcst_lead_sec),&
              output_file,"nf90_put_att fcst_lead_sec")
         
-        call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
+        call nc_check(nf90_def_dim(ncid,2Hx0,nx0,dimids(1)),output_file,"nf90_def_dim x0")
         call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
         call nc_check(nf90_def_dim(ncid,z3dname,nz0,dimids(3)),output_file,"nf90_def_dim "//z3dname)
         call nc_check(nf90_def_dim(ncid,"time",ntime,dimids(4)),output_file,"nf90_def_dim time")
@@ -1124,11 +1133,11 @@ contains !==============================================================
       var_data(ivar)%outname = varname
       var_data(ivar)%should_dealloc = .false.
       nullify(var_data(ivar)%data)
+
+      call set_dims(var_data(ivar),rename,dims,dimids)
+
       if(me==0) then
-33      format('  def var ',A)
-        print 33,trim(var_data(ivar)%varname)
-        call set_dims(var_data(ivar),dims,dimids)
-        var_data(ivar)%varid = def_var(var_data(ivar),rename)
+        var_data(ivar)%varid = def_var(var_data(ivar))
       endif
     enddo
 
@@ -1146,6 +1155,12 @@ contains !==============================================================
       write(*,"(A,A)") output_file,': write data'
     endif
 
+    if(present(z_dim_data)) then
+      if(size(z_dim_data) == nz0) then
+        call write_axis_var(z3dname, z_dim_data, dimids(3), z_varid)
+      endif
+    endif
+
     do ivar=1,nvars
       varname = var_data(ivar)%varname
       nullify(var_data(ivar)%data)
@@ -1153,9 +1168,6 @@ contains !==============================================================
                                       var_data(ivar)%should_dealloc) ! updates "should_dealloc"
 
       if(me == 0) then
-24       format('  put var ',A)
-         print 24,trim(var_data(ivar)%varname)
-
          call find_range(var_data(ivar)%data,var_data(ivar)%count, &
             var_data(ivar)%missing_value_is_set,var_data(ivar)%missing_value,&
             var_data(ivar)%min_not_miss,var_data(ivar)%max_not_miss, &
@@ -1174,18 +1186,44 @@ contains !==============================================================
     endif
   contains
 
-    subroutine set_dims(var,dims,dimids)
+    subroutine set_dims(var,rename,dims,dimids)
       implicit none
       type(var_info), intent(inout), target :: var
+      logical, intent(in) :: rename
       integer, intent(in) :: dims(:), dimids(:)
+
       character(len=:), pointer :: varname
+      real(kind=ifi_real_t), pointer :: local_data_1D(:)
 
       varname=>var%varname(1:len_trim(var%varname))
 
-      if(me/=0) then
-        ! Ranks that are not writing are done now
-        return
+      ! Get the variable's dimensions.
+      local_data_1D => ifi_data%get_data(trim(varname),var%missing_value_is_set,var%missing_value, &
+           ims,ime,jms,jme,kms,kme, ids,ide,jds,jde,kds,kde, ips,ipe,jps,jpe,kps,kpe)
+
+      if(rename) then
+        var%outname=var%varname
+        select case(trim(var%varname))
+          case('CIMIXR')
+            var%outname = 'ICMR'
+          case('SPFH')
+            var%outname = 'MIXR'
+          case('GRLE')
+            var%outname = 'GRMR'
+          case('CAPE_surface')
+            var%outname = 'CAPE'
+          case('CIN_surface')
+            var%outname = 'CIN'
+          case('CLMR')
+            var%outname = 'CLWMR'
+          case('APCP_surface')
+            var%outname = 'APCP1Hr'
+        end select
       endif
+
+      var%ims=ims ; var%ime=ime ; var%jms=jms ; var%jme=jme ; var%kms=kms ; var%kme=kme
+      var%ids=ids ; var%ide=ide ; var%jds=jds ; var%jde=jde ; var%kds=kds ; var%kde=kde
+      var%ips=ips ; var%ipe=ipe ; var%jps=jps ; var%jpe=jpe ; var%kps=kps ; var%kpe=kpe
 
       ! These must also be in IFITest.cc IFITest::write_netcdf
 
@@ -1213,8 +1251,8 @@ contains !==============================================================
       else if(kme<=kms) then
         var%dims=(/nx0,ny0,ntime,1/)
         var%dimids=(/dimids(1),dimids(2),dimids(4),-1/)
-        var%ndims=3 
-     else
+        var%ndims=3
+      else
         var%dims=(/nx0,ny0,nz0,ntime/)
         var%dimids=dimids
         var%ndims=4
@@ -1224,6 +1262,7 @@ contains !==============================================================
     end subroutine set_dims
 
     subroutine write_var(var)
+      use ctlblk_mod, only: spval
       implicit none
       type(var_info), intent(inout) :: var
 
@@ -1252,42 +1291,29 @@ contains !==============================================================
       call nc_check(nf90_put_att(ncid,var%varid,"max_value",var%max_not_miss), &
            output_file,"nf90_put_att "//trim(var%outname)//" max_value")
 
+      if(var%missing_value_is_set) then
+        call nc_check(nf90_put_att(ncid,var%varid,"_FillValue",var%missing_value), &
+             output_file,"nf90_put_att "//trim(var%outname)//" _FillValue")
+      else
+        if(me==0) then
+          print *,'Warning: no missing value for ',trim(var%varname),' (will use spval)'
+        endif
+        call nc_check(nf90_put_att(ncid,var%varid,"_FillValue",spval), &
+             output_file,"nf90_put_att "//trim(var%outname)//" _FillValue")
+      endif
+
       ! call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
 
     end subroutine write_var
 
-    integer function def_var(var,rename)
+    integer function def_var(var)
+      use ctlblk_mod, only: spval
       use iso_c_binding, only: c_float
       implicit none
-      logical :: rename
       type(var_info), intent(inout) :: var
 
       integer :: varid, xtype, dimids(var%ndims)
       character(len=100) :: outname
-
-      if(rename) then
-        var%outname=var%varname
-        select case(trim(var%varname))
-          case('CIMIXR')
-            var%outname = 'ICMR'
-          case('SPFH')
-            var%outname = 'MIXR'
-          case('GRLE')
-            var%outname = 'GRMR'
-          case('CAPE_surface')
-            var%outname = 'CAPE'
-          case('CIN_surface')
-            var%outname = 'CIN'
-          case('CLMR')
-            var%outname = 'CLWMR'
-          case('APCP_surface')
-            var%outname = 'APCP1Hr'
-        end select
-      endif
-
-      var%ims=ims ; var%ime=ime ; var%jms=jms ; var%jme=jme ; var%kms=kms ; var%kme=kme
-      var%ids=ids ; var%ide=ide ; var%jds=jds ; var%jde=jde ; var%kds=kds ; var%kde=kde
-      var%ips=ips ; var%ipe=ipe ; var%jps=jps ; var%jpe=jpe ; var%kps=kps ; var%kpe=kpe
 
       dimids = var%dimids(1:var%ndims)
 
@@ -1306,14 +1332,62 @@ contains !==============================================================
       call nc_check(nf90_put_att(ncid,def_var,"max_value",var%max_not_miss), &
            output_file,"nf90_put_att "//trim(var%outname)//" max_value")
 
-      if(var%missing_value_is_set) then
-        call nc_check(nf90_put_att(ncid,def_var,"_FillValue",-9999.0), &
-             output_file,"nf90_put_att "//trim(var%outname)//" _FillValue")
-      end if
+      call nc_check(nf90_put_att(ncid,def_var,"_FillValue",-9999.0), &
+           output_file,"nf90_put_att "//trim(var%outname)//" _FillValue")
 
     end function def_var
 
+    subroutine write_axis_var(name, values, dimid, varid)
+      use ctlblk_mod, only: spval
+      use iso_c_binding, only: c_float
+      implicit none
+      character(len=*), intent(in) :: name
+      integer, intent(in) :: varid
+      real(ifi_real_t), intent(in) :: values(:)
+      integer, intent(in) :: dimid
+
+      integer :: dimids(1), xtype, ones(1)
+
+      if(me/=0) then
+        ! Ranks that are not writing are done now
+        return
+      endif
+
+      ones = 1
+      dimids = dimid
+      
+      call nc_check(nf90_put_var(ncid=ncid,varid=varid,values=values, &
+                                 start=ones,count=dimids), &
+                    output_file,"nf90_put_var "//trim(name))
+
+    end subroutine write_axis_var
+
+    integer function def_axis_var(name, values, dimid, varid)
+      use ctlblk_mod, only: spval
+      use iso_c_binding, only: c_float
+      implicit none
+      character(len=*), intent(in) :: name
+      real(ifi_real_t), intent(in) :: values(:)
+      integer, intent(in) :: dimid
+      integer, intent(inout) :: varid
+
+      integer :: dimids(1), xtype
+
+      dimids = dimid
+
+      if(ifi_real_t==c_float) then
+        xtype = NF90_FLOAT
+      else
+        xtype = NF90_DOUBLE
+      endif
+
+      call nc_check(nf90_def_var(ncid,trim(name),xtype,dimids,def_axis_var), &
+           output_file,"nf90_def_var "//trim(name))
+
+    end function def_axis_var
+
     function read_var(var,varname,should_dealloc)
+      use ctlblk_mod, only: spval
       use mpi
       implicit none
       type(var_info), intent(inout) :: var
@@ -1324,7 +1398,7 @@ contains !==============================================================
 
       real(kind=ifi_real_t), allocatable :: local_data(:,:),global_data(:,:)
       real(kind=ifi_real_t), pointer :: global_data_1D(:)
-
+      real(kind=ifi_real_t) :: local
       integer :: nxny_local,nxny_global,nz,count,i,j,k
       integer :: local_ilen,local_jlen,local_klen,local_index
       integer :: global_ilen,global_jlen,global_klen,global_index, ierr
@@ -1392,7 +1466,12 @@ contains !==============================================================
       do k=kds,kde
         do j=jps,jpe
           do i=ips,ipe
-            local_data(i-ips+1,j-jps+1) = local_data_1D( 1 + (i-ims) + ((j-jms) + (k-kms)*(jme-jms+1))*(ime-ims+1) )
+            local = local_data_1D( 1 + (i-ims) + ((j-jms) + (k-kms)*(jme-jms+1))*(ime-ims+1) )
+            if(.not. (local < spval)) then
+              ! The default missing value in FIP2 is -9999
+              local = -9999
+            endif
+            local_data(i-ips+1,j-jps+1) = local
           enddo
         enddo
         call gather_for_write(local_data,global_data,0)
