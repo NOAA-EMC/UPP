@@ -126,7 +126,11 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    module load $modulefile
    if [[ "$load_ifi_module" == YES ]] ; then
        echo "Loading modulefile for external libIFI library"
-       module load ${modulefile}_ifi
+       module load ${modulefile}_external_ifi
+   fi
+   if [[ "$build_ifi_executables" == YES ]] ; then
+       echo "Loading libIFI executables' prerequisites"
+       module load ${modulefile}_ifi_test_prereqs
    fi
    module list
 fi
