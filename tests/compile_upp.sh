@@ -145,8 +145,6 @@ make install
 
 rm -rf $PATHTR/exec && mkdir -p $PATHTR/exec
 cp $prefix/bin/upp.x $PATHTR/exec/.
-
-cp $prefix/bin/upp.x $PATHTR/exec/.
 if [[ "$build_ifi_executables" == YES ]] ; then
     cp $prefix/bin/fip2-lookalike.x $PATHTR/exec/.
 fi
