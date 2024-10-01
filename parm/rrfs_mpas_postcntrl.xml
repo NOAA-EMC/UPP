@@ -137,13 +137,13 @@
            <shortname>GSD_ACM_SNOD_ON_SURFACE</shortname>
            <scale>5.0</scale>
        </param>
-<!--
+
        <param>
            <shortname>VGTYP_ON_SURFACE</shortname>
            <table_info>NCEP</table_info>
            <scale>3.0</scale>
        </param>
--->
+
        <param>
            <shortname>4LFTX_ON_SPEC_PRES_ABOVE_GRND</shortname>
            <level>18000.</level>
