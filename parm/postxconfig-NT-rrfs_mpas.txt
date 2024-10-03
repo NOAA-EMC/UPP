@@ -1,5 +1,5 @@
 3
-18
+19
 14
 144
 WRFTWO
@@ -7400,6 +7400,48 @@ smaller_than_first_limit
 ?
 ?
 ?
+116
+TSOIL_ON_DEPTH_BEL_LAND_SFC
+?
+1
+tmpl4_0
+TSOIL
+?
+?
+depth_bel_land_sfc
+1
+2
+9
+0. 1. 4. 10. 30. 60. 100. 160. 300.
+depth_bel_land_sfc
+1
+2
+9
+0. 1. 4. 10. 30. 60. 100. 160. 300.
+?
+?
+?
+0
+0.0
+0
+0.0
+?
+0
+0.0
+0
+0.0
+0
+0.0
+0
+0.0
+1
+4.0
+0
+0
+0
+?
+?
+?
 117
 SOILW_ON_DEPTH_BEL_LAND_SFC
 ?
@@ -7411,13 +7453,13 @@ NCEP
 depth_bel_land_sfc
 1
 2
-2
-0. 1.
+9
+0. 1. 4. 10. 30. 60. 100. 160. 300.
 depth_bel_land_sfc
 1
 2
-2
-0. 1.
+9
+0. 1. 4. 10. 30. 60. 100. 160. 300.
 ?
 ?
 ?
