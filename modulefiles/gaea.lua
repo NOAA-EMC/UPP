@@ -5,7 +5,7 @@ help([[
 
 whatis([===[Loads libraries needed for building the UPP on Gaea ]===])
 
-prepend_path("MODULEPATH", "/autofs/ncrc-svm1_proj/epic/spack-stack/spack-stack-1.6.0/envs/upp-addon-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2023.1.0"
 load(pathJoin("stack-intel", stack_intel_ver))
@@ -13,7 +13,7 @@ load(pathJoin("stack-intel", stack_intel_ver))
 stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.25"
 load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
-cmake_ver=os.getenv("cmake_ver") or "3.23.1"
+cmake_ver=os.getenv("cmake_ver") or "3.27.9"
 load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
