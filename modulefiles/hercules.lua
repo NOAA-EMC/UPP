@@ -11,7 +11,7 @@ load(pathJoin("stack-intel", stack_intel_ver))
 stack_impi_ver=os.getenv("stack_impi_ver") or "2021.9.0"
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
-cmake_ver=os.getenv("cmake_ver") or "3.23.1"
+cmake_ver=os.getenv("cmake_ver") or "3.27.9"
 load(pathJoin("cmake", cmake_ver))
 
 python_ver=os.getenv("python_ver") or "3.10.8"
