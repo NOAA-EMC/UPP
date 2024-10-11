@@ -57,6 +57,7 @@
 !> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
 !> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
 !> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
+!> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
