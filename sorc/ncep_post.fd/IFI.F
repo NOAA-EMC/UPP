@@ -1123,7 +1123,7 @@ contains !==============================================================
         call nc_check(nf90_put_att(ncid,NF90_GLOBAL,"fcst_lead_sec",fcst_lead_sec),&
              output_file,"nf90_put_att fcst_lead_sec")
         
-        call nc_check(nf90_def_dim(ncid,2Hx0,nx0,dimids(1)),output_file,"nf90_def_dim x0")
+        call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
         call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
         call nc_check(nf90_def_dim(ncid,z3dname,nz0,dimids(3)),output_file,"nf90_def_dim "//z3dname)
         call nc_check(nf90_def_dim(ncid,"time",ntime,dimids(4)),output_file,"nf90_def_dim time")
