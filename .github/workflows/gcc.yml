@@ -10,9 +10,9 @@ defaults:
 
 env:
   cache_key: gcc3  # The number (#) following the cache_key "gcc" is to flush Action cache.
-  CC: gcc-11
-  FC: gfortran-11
-  CXX: g++-11
+  CC: gcc-10
+  FC: gfortran-10
+  CXX: g++-10
 
 # A note on flushing Action cache and relevance to "cache_key" above.
 # There is no way to flush the Action cache, and hence a number (#) is appended
@@ -67,7 +67,7 @@ jobs:
 
   build:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: checkout-upp
