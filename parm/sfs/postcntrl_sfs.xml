@@ -299,6 +299,12 @@
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
+    
+    <param>
+       <shortname>AVE_DSWRF_ON_TOP_OF_ATMOS</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
 
     <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
@@ -655,21 +661,6 @@
        <shortname>AVE_NBDSF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>6.0</scale>
-    </param>
-
-    <param>
-        <shortname>MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-        <scale>-4.0</scale>
-    </param>
-
-    <param>
-        <shortname>MAX_UGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-        <scale>-4.0</scale>
-    </param>
-
-    <param>
-        <shortname>MAX_VGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-        <scale>-4.0</scale>
     </param>
 
     <!--  comments wherever I like -->
