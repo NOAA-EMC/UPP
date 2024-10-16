@@ -1737,6 +1737,7 @@
 !> 2019-10-17 | Y Mao        | Skip calculation when U/V is SPVAL
 !> 2020-11-06 | J Meng       | Use UPP_MATH Module
 !> 2022-05-26 | H Chuang     | Use GSL approach for FV3R
+!> 2024-10-16 | J Kenyon     | In CALVOR, initialize ABSV as SPVAL, regardless of "modelname"
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 
@@ -1773,21 +1774,12 @@
 !     
 !     LOOP TO COMPUTE ABSOLUTE VORTICITY FROM WINDS.
 !     
-      IF(MODELNAME  == 'RAPR') then
 !$omp  parallel do private(i,j)
-        DO J=JSTA_2L,JEND_2U
-          DO I=ISTA_2L,IEND_2U
-            ABSV(I,J) = D00
-          ENDDO
+      DO J=JSTA_2L,JEND_2U
+        DO I=ISTA_2L,IEND_2U
+          ABSV(I,J) = SPVAL
         ENDDO
-      else
-!$omp  parallel do private(i,j)
-        DO J=JSTA_2L,JEND_2U
-          DO I=ISTA_2L,IEND_2U
-            ABSV(I,J) = SPVAL
-          ENDDO
-        ENDDO
-      endif
+      ENDDO
 
       CALL EXCH(UWND)
       CALL EXCH(VWND)
