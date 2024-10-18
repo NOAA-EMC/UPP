@@ -1,69 +1,69 @@
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
-59dd480958e9ac6f16a0878bb6ec52be78ed57ef
+11dc42891b03185dbafbed90d8743a8a20f1a150
 
 Submodule hashes:
--1ba8270870947b583cd51bc72ff8960f4c1fb36e sorc/libIFI.fd
+-6104d2c5d656d32123cde7088aa1e1acde2d8094 sorc/libIFI.fd
 -529f870d33b65c3b6c1aa3c3236b94efc3bd336d sorc/ncep_post.fd/post_gtg.fd
 
-Run directory: /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1060/ci/rundir/upp-HERA
+Run directory: /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1056/ci/rundir/upp-HERA
 Baseline directory: /scratch2/NAGAPE/epic/UPP/test_suite
 
-Total runtime: 00h:11m:41s
-Test Date: 20241009 13:23:59
+Total runtime: 00h:10m:50s
+Test Date: 20241010 19:47:10
 Summary Results:
 
-10/09 13:17:06Z -fv3gefs pe test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
-10/09 13:17:09Z -fv3gefs test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
-10/09 13:17:19Z -fv3hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
-10/09 13:17:20Z -fv3hafs pe test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
-10/09 13:17:38Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF04 as the trunk
-10/09 13:17:40Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
-10/09 13:17:42Z -fv3r test: your new post executable generates bit-identical PRSLEV10.tm00 as the trunk
-10/09 13:17:43Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
-10/09 13:17:58Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF16 as the trunk
-10/09 13:18:22Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF16 as the trunk
-10/09 13:18:26Z -fv3r test: your new post executable generates bit-identical NATLEV10.tm00 as the trunk
-10/09 13:18:28Z -rap pe test: your new post executable did generate changed results in WRFPRS.GrbF16
-10/09 13:18:33Z -hrrr pe test: your new post executable generates bit-identical WRFTWO.GrbF04 as the trunk
-10/09 13:18:35Z -rap pe test: your new post executable generates bit-identical WRFNAT.GrbF16 as the trunk
-10/09 13:18:36Z -fv3r pe test: your new post executable generates bit-identical PRSLEV10.tm00 as the trunk
-10/09 13:18:36Z -rtma pe test: your new post executable generates bit-identical NATLEV00.tm00 as the trunk
-10/09 13:18:40Z -hrrr pe test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
-10/09 13:18:43Z -hrrr pe test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
-10/09 13:18:44Z -rtma test: your new post executable generates bit-identical NATLEV00.tm00 as the trunk
-10/09 13:18:52Z -fv3r pe test: your new post executable generates bit-identical NATLEV10.tm00 as the trunk
-10/09 13:18:53Z -rtma pe test: your new post executable generates bit-identical PRSLEV00.tm00 as the trunk
-10/09 13:18:53Z -rtma test: your new post executable generates bit-identical PRSLEV00.tm00 as the trunk
-10/09 13:18:56Z -rtma test: your new post executable generates bit-identical IFIFIP00.tm00 as the trunk
-10/09 13:18:56Z -rtma pe test: your new post executable generates bit-identical IFIFIP00.tm00 as the trunk
-10/09 13:19:41Z -nmmb pe test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
-10/09 13:19:42Z -nmmb pe test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
-10/09 13:19:43Z -nmmb pe test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
-10/09 13:19:45Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
-10/09 13:19:46Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
-10/09 13:19:47Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
-10/09 13:22:23Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
-10/09 13:22:27Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
-10/09 13:22:27Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
-10/09 13:23:52Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
-10/09 13:23:54Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
-10/09 13:23:54Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
-10/09 13:19:53Z -Runtime: nmmb_test 00:02:54 -- baseline 00:01:00
-10/09 13:19:53Z -Runtime: nmmb_pe_test 00:02:46 -- baseline 00:01:00
-10/09 13:19:53Z -Runtime: fv3gefs_test 00:00:16 -- baseline 00:40:00
-10/09 13:19:54Z -Runtime: fv3gefs_pe_test 00:00:22 -- baseline 00:40:00
-10/09 13:19:54Z -Runtime: rap_test 00:01:38 -- baseline 00:02:00
-10/09 13:19:54Z -Runtime: rap_pe_test 00:01:42 -- baseline 00:02:00
-10/09 13:19:55Z -Runtime: hrrr_test 00:02:31 -- baseline 00:02:00
-10/09 13:19:55Z -Runtime: hrrr_pe_test 00:02:26 -- baseline 00:02:00
-10/09 13:22:41Z -Runtime: fv3gfs_test 00:07:36 -- baseline 00:15:00
-10/09 13:23:57Z -Runtime: fv3gfs_pe_test 00:07:50 -- baseline 00:15:00
-10/09 13:23:57Z -Runtime: fv3r_test 00:02:17 -- baseline 00:03:00
-10/09 13:23:58Z -Runtime: fv3r_pe_test 00:02:12 -- baseline 00:03:00
-10/09 13:23:58Z -Runtime: fv3hafs_test 00:00:35 -- baseline 00:03:00
-10/09 13:23:58Z -Runtime: fv3hafs_pe_test 00:00:36 -- baseline 00:03:00
-10/09 13:23:59Z -Runtime: rtma_test 00:02:36 -- baseline 00:03:00
-10/09 13:23:59Z -Runtime: rtma_test_pe_test 00:02:51 -- baseline 
+10/10 19:39:13Z -fv3gefs pe test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
+10/10 19:39:33Z -fv3gefs test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
+10/10 19:39:39Z -fv3hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
+10/10 19:39:47Z -fv3hafs pe test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
+10/10 19:40:00Z -nmmb pe test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
+10/10 19:40:01Z -nmmb pe test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
+10/10 19:40:02Z -nmmb pe test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
+10/10 19:40:03Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
+10/10 19:40:05Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
+10/10 19:40:05Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
+10/10 19:40:08Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF16 as the trunk
+10/10 19:40:10Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF16 as the trunk
+10/10 19:40:25Z -rap pe test: your new post executable did generate changed results in WRFPRS.GrbF16
+10/10 19:40:26Z -rap pe test: your new post executable generates bit-identical WRFNAT.GrbF16 as the trunk
+10/10 19:40:30Z -fv3r test: your new post executable generates bit-identical PRSLEV10.tm00 as the trunk
+10/10 19:40:35Z -fv3r test: your new post executable generates bit-identical NATLEV10.tm00 as the trunk
+10/10 19:40:36Z -fv3r pe test: your new post executable generates bit-identical PRSLEV10.tm00 as the trunk
+10/10 19:40:39Z -rtma pe test: your new post executable generates bit-identical NATLEV00.tm00 as the trunk
+10/10 19:40:42Z -rtma pe test: your new post executable generates bit-identical PRSLEV00.tm00 as the trunk
+10/10 19:40:42Z -fv3r pe test: your new post executable generates bit-identical NATLEV10.tm00 as the trunk
+10/10 19:40:43Z -rtma pe test: your new post executable generates bit-identical IFIFIP00.tm00 as the trunk
+10/10 19:40:43Z -rtma test: your new post executable generates bit-identical NATLEV00.tm00 as the trunk
+10/10 19:40:47Z -rtma test: your new post executable generates bit-identical PRSLEV00.tm00 as the trunk
+10/10 19:40:47Z -rtma test: your new post executable generates bit-identical IFIFIP00.tm00 as the trunk
+10/10 19:40:55Z -hrrr pe test: your new post executable generates bit-identical WRFTWO.GrbF04 as the trunk
+10/10 19:40:56Z -hrrr pe test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
+10/10 19:40:59Z -hrrr pe test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
+10/10 19:41:17Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF04 as the trunk
+10/10 19:41:18Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
+10/10 19:41:19Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
+10/10 19:46:12Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
+10/10 19:46:16Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
+10/10 19:46:16Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
+10/10 19:46:55Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
+10/10 19:46:58Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
+10/10 19:46:58Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
+10/10 19:40:17Z -Runtime: nmmb_test 00:01:21 -- baseline 00:01:00
+10/10 19:40:17Z -Runtime: nmmb_pe_test 00:00:52 -- baseline 00:01:00
+10/10 19:40:17Z -Runtime: fv3gefs_test 00:00:23 -- baseline 00:40:00
+10/10 19:40:18Z -Runtime: fv3gefs_pe_test 00:00:22 -- baseline 00:40:00
+10/10 19:40:18Z -Runtime: rap_test 00:01:08 -- baseline 00:02:00
+10/10 19:40:33Z -Runtime: rap_pe_test 00:01:16 -- baseline 00:02:00
+10/10 19:41:34Z -Runtime: hrrr_test 00:02:25 -- baseline 00:02:00
+10/10 19:41:35Z -Runtime: hrrr_pe_test 00:02:11 -- baseline 00:02:00
+10/10 19:46:22Z -Runtime: fv3gfs_test 00:07:18 -- baseline 00:15:00
+10/10 19:47:08Z -Runtime: fv3gfs_pe_test 00:08:00 -- baseline 00:15:00
+10/10 19:47:08Z -Runtime: fv3r_test 00:01:37 -- baseline 00:03:00
+10/10 19:47:08Z -Runtime: fv3r_pe_test 00:01:45 -- baseline 00:03:00
+10/10 19:47:09Z -Runtime: fv3hafs_test 00:00:37 -- baseline 00:03:00
+10/10 19:47:09Z -Runtime: fv3hafs_pe_test 00:00:38 -- baseline 00:03:00
+10/10 19:47:09Z -Runtime: rtma_test 00:01:49 -- baseline 00:03:00
+10/10 19:47:09Z -Runtime: rtma_test_pe_test 00:01:48 -- baseline 
 No changes in test results detected.
 ===== End of UPP Regression Testing Log =====
