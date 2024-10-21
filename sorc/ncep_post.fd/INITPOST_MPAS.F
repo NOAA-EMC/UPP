@@ -20,6 +20,7 @@
 !> 2024-08-30 | Jaymes Kenyon| Add processing for lat-lon projection
 !> 2024-08-30 | Jaymes Kenyon| Add temporary hard coding of SLLEVEL (for RUC LSM) and PREC_ACC_DT
 !> 2024-09-09 | Eric James   | Add checks for missing values before entering some computations
+!> 2024-10-16 | Jaymes Kenyon| Missing-value checks for wind interp, fix to LH flux 
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -287,7 +288,11 @@
 !  fill up UH which is U at P-points including 2 row halo
        do j = jsta_2l, jend_2u
         do i = 1, im
-            UH (I,J,L) = (dum3d(I,J,L)+dum3d(I+1,J,L))*0.5
+         if (dum3d(I,J,L) < SPVAL .AND. dum3d(I+1,J,L) < SPVAL) then 
+          UH (I,J,L) = (dum3d(I,J,L)+dum3d(I+1,J,L))*0.5
+         else 
+          UH (I,J,L) = SPVAL
+         endif
         end do
        end do
       end do
@@ -304,7 +309,11 @@
 !  fill up VH which is V at P-points including 2 row halo
        do j = jsta_2l, jend_2u
         do i = 1, im
+         if (dum3d(I,J,L) < SPVAL .AND. dum3d(I,J+1,L) < SPVAL) then 
           VH(I,J,L) = (dum3d(I,J,L)+dum3d(I,J+1,L))*0.5
+         else 
+          VH(I,J,L) = SPVAL
+         endif
         end do
        end do
       end do
@@ -2624,26 +2633,14 @@ endif  ! 1==2
        end do
 
 ! latent heat flux
-      IF(iSF_SURFACE_PHYSICS/=3) then
       VarName='LH'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
             QWBS(I,J) = dummy ( i, j )
-!            SFCLHX ( i, j ) = dummy ( i, j )
         end do
        end do
-      else
-       VarName='QFX'
-       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-        IM,1,JM,1,IM,JS,JE,1)
-        do j = jsta_2l, jend_2u
-         do i = 1, im
-             QWBS(I,J) = dummy ( i, j ) * LHEAT
-         end do
-        end do
-      ENDIF
 
 ! ground heat fluxes       
       VarName='GRDFLX'
