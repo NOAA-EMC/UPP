@@ -69,6 +69,18 @@
     </param>
 
     <param>
+       <shortname>VPOT_ON_ISOBARIC_SFC_FROM_WIND_FLD</shortname>
+       <level>20000.</level>
+       <scale>3.0</scale>
+    </param>
+
+    <param> 
+       <shortname>STRM_ON_ISOBARIC_SFC_FROM_WIND_FLD</shortname>
+       <level>20000.</level>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <scale>6.0</scale>
     </param>

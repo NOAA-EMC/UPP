@@ -8479,5 +8479,21 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>1021</post_avblfldidx>
+       <shortname>VPOT_ON_ISOBARIC_SFC_FROM_WIND_FLD</shortname>
+       <pname>VPOT</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1022</post_avblfldidx>
+       <shortname>STRM_ON_ISOBARIC_SFC_FROM_WIND_FLD</shortname>
+       <pname>STRM</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>
