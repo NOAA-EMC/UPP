@@ -1747,7 +1747,7 @@
       use vrbls2d,      only: f
       use masks,        only: gdlat, gdlon, dx, dy
       use params_mod,   only: d00, dtr, small, erad
-      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, submodelname, global, &
                               jsta, jend, im, jm, jsta_m, jend_m, gdsdegr,&
                               ista, iend, ista_m, iend_m, ista_2l, iend_2u, me, num_procs
       use gridspec_mod, only: gridtype, dyval
