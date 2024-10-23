@@ -1,3 +1,4 @@
+
 !> @file
 !> @brief mdl2p() computes vertical interpolation of model levels to pressure.
 !>
@@ -39,6 +40,7 @@
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
+!> 2024-07-17 | K Asmar		| Add velocity potential and streamfunction from wind vectors
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -107,6 +109,9 @@
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
+!
+      real, dimension(ISTA:IEND,JSTA:JEND,LSM) :: USLP, VSLP
+      real, dimension(IM,JM,LSM) :: CHI, PSI
 !
       INTEGER K, NSMOOTH
 !
@@ -228,6 +233,7 @@
          (IGET(257) > 0) .OR. (IGET(258) > 0) .OR.      &
          (IGET(294) > 0) .OR. (IGET(268) > 0) .OR.      &
          (IGET(331) > 0) .OR. (IGET(326) > 0) .OR.      &
+	 (IGET(1021) > 0) .OR. (IGET(1022) > 0) .OR.	&
 ! add D3D fields
          (IGET(354) > 0) .OR. (IGET(355) > 0) .OR.      &
          (IGET(356) > 0) .OR. (IGET(357) > 0) .OR.      &
@@ -1769,6 +1775,19 @@
             endif
           ENDIF
         ENDIF
+!
+! *** K. ASMAR - SAVE ALL P-LEVELS OF U/V WINDS FOR VELOCITY POTENTIAL AND STREAMFUNCTION
+!
+      IF (IGET(1021)>0 .OR. IGET(1022)>0) THEN
+!$omp parallel do private(i,j)
+      	DO J=JSTA,JEND
+          DO I=ISTA,IEND
+	    USLP(I,J,LP)=USL(I,J)
+     	    VSLP(I,J,LP)=VSL(I,J)
+	  ENDDO
+        ENDDO
+      ENDIF
+
 !     
 !***  ABSOLUTE VORTICITY
 !
@@ -4318,6 +4337,72 @@
             enddo
          endif
       ENDIF
+!
+! *** K. ASMAR - COMPUTE VELOCITY POTENTIAL AND STREAMFUNCTION
+!
+      IF (IGET(1021) > 0 .OR. IGET(1022) > 0) THEN        
+        CALL CALCHIPSI(USLP,VSLP,CHI,PSI)
+	! SEPARATE VERTICAL LOOP TO STORE VELOCITY POTENTIAL AND STREAMFUNCTION 
+ 	DO LP=1,LSM
+	! VELOCITY POTENTIAL
+            IF(IGET(1021) > 0) THEN
+              IF(LVLS(LP,IGET(1021)) > 0)THEN
+!$omp  parallel do private(i,j)
+                DO J=JSTA,JEND
+                  DO I=ISTA,IEND
+		    IF(CHI(I,J,LP) < SPVAL) THEN
+                	GRID1(I,J) = CHI(I,J,LP)
+              	    ELSE
+                	GRID1(I,J) = SPVAL
+              	    ENDIF
+                  ENDDO
+                ENDDO
+                if(grib == 'grib2')then
+                  cfld = cfld + 1
+                  fld_info(cfld)%ifld = IAVBLFLD(IGET(1021))
+                  fld_info(cfld)%lvl  = LVLSXML(LP,IGET(1021))
+!$omp parallel do private(i,j,ii,jj)
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,iend-ista+1
+                      ii=ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
+                    enddo
+                  enddo
+                endif
+              ENDIF
+            ENDIF     
+
+	!STREAMFUNCTION
+            IF(IGET(1022) > 0) THEN
+              IF(LVLS(LP,IGET(1022)) > 0)THEN
+!$omp  parallel do private(i,j)
+                DO J=JSTA,JEND
+                  DO I=ISTA,IEND
+		    IF(PSI(I,J,LP) < SPVAL) THEN
+                	GRID1(I,J) = PSI(I,J,LP)
+              	    ELSE
+                	GRID1(I,J) = SPVAL
+              	    ENDIF                  
+		   ENDDO
+                ENDDO
+                if(grib == 'grib2')then
+                  cfld = cfld + 1
+                  fld_info(cfld)%ifld = IAVBLFLD(IGET(1022))
+                  fld_info(cfld)%lvl  = LVLSXML(LP,IGET(1022))
+!$omp parallel do private(i,j,ii,jj)
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,iend-ista+1
+                      ii=ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
+                    enddo
+                  enddo
+                endif
+              ENDIF
+            ENDIF
+	ENDDO											! END OF VERTICAL LOOP LW=1,LSM FOR VPOT AND STRM
+      ENDIF											! END OF IF BLOCK FOR CALVPOTSTRM
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)

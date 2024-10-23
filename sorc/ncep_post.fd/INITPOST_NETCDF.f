@@ -58,6 +58,7 @@
 !> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
 !> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
 !> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
+!> 2024-10-21 | Karina Asmar  | Read in and store idrt in gridspec_mod
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -127,7 +128,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
-              latse,lonse,latnw,lonnw
+              latse,lonse,latnw,lonnw,idrt
       use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -195,7 +196,7 @@
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,k1,kf,irtn,igdout,n,Index,nframe,                &
-              nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
+              nframed2,iunitd3d,ierr,idum,iret,nrec
       integer ncid3d,ncid2d,varid,nhcas,varid_bl,iret_bl
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv, tx1, tx2, zpbltop

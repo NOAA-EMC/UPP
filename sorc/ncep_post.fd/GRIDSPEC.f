@@ -35,6 +35,7 @@
        integer cenlonv     !< center longitude of grid
        integer latlastv    !< latitude of last grid point (upper right corner latitude)
        integer lonlastv    !< longitude of last grid point (upper right corner longitude)
+       integer idrt        !< grid identifier
        real    PSMAPF      !< map scale factor
        character(len=1) gridtype !< type of grid staggering as in Arakawa grids (Arakawa-A through Arakawa-E)
 !

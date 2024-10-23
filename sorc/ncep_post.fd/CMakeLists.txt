@@ -4,6 +4,7 @@ list(APPEND LIB_SRC
     AVIATION.f
     BNDLYR.f
     BOUND.f
+    CALCHIPSI.f
     CALDRG.f
     CALDWP.f
     CALGUST.f
