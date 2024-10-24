@@ -4119,7 +4119,7 @@
       implicit none
       INCLUDE "mpif.h"
 
-      character(len=20),intent(in) :: VarName
+      character(len=*),intent(in) :: VarName
       real,intent(in)    :: spval
       integer,intent(in) :: ncid,jsta_2l,jend_2u,jsta,jend,ista_2l,iend_2u,ista,iend
       real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
