@@ -295,6 +295,12 @@
     </param>
 
     <param>
+       <shortname>AVE_DSWRF_ON_TOP_OF_ATMOS</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+    
+    <param>
        <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
