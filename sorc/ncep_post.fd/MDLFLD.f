@@ -62,6 +62,7 @@
 !!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
 !!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
 !!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
+!!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -107,7 +108,7 @@
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
-      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, twbs, qwbs,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
       use masks, only: lmh, gdlat, gdlon,sm,sice,dx,dy
@@ -4255,8 +4256,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
         qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
         q2(ista:iend,:,:),&
-        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
-        sfclhx(ista:iend,:),ustar(ista:iend,:),&
+        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),twbs(ista:iend,:),&
+        qwbs(ista:iend,:),ustar(ista:iend,:),&
         z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
