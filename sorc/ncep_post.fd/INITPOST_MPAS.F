@@ -21,6 +21,7 @@
 !> 2024-08-30 | Jaymes Kenyon| Add temporary hard coding of SLLEVEL (for RUC LSM) and PREC_ACC_DT
 !> 2024-09-09 | Eric James   | Add checks for missing values before entering some computations
 !> 2024-10-16 | Jaymes Kenyon| Missing-value checks for wind interp, fix to LH flux 
+!> 2024-10-28 | Jaymes Kenyon| Removing outdated processing for various "imp_physics" cases
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -238,11 +239,6 @@
       imp_physics=itmp
       if (me==0) print*,'MP_PHYSICS= ',itmp
 
-! Initializes constants for Ferrier microphysics       
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
-       CALL MICROINIT(imp_physics)
-      end if
-      
       call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'          &
        ,itmp,1,ioutcount,istatus)
       icu_physics=itmp
@@ -383,13 +379,6 @@
              if(abs(t( i, j, l ))>1.0e-3)                              &
               omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/                     &
                               (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
-! seperate rain from snow and cloud water from cloud ice for WSM3 scheme
-!             if(imp_physics == 3)then
-!	      if(t(i,j,l) < TFRZ)then
-!	       qqs(i,j,l)=qqr(i,j,l)
-!	       qqi(i,j,l)=qqw(i,j,l)
-!	      end if 
-!	     end if 	              
            else
             PMID(I,J,L) = spval
             thv(i,j,l) = spval
@@ -473,52 +462,24 @@
        end do
       end do
 
-
-! Brad comment out the output of individual species for Ferriers scheme within
-! ARW in Registry file
-
-      qqw=0.
-      qqr=0.
-      qqs=0.
-      qqi=0.
-      qqg=0. 
-      qqni=0. 
-      qqnr=0. 
-      cwm=0.
-
 ! extinction coef for aerosol
       extcof55=0.
       aextc55=0.
       
-      if(imp_physics/=5 .and. imp_physics/=0)then
       VarName='QCLOUD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-! partition cloud water and ice for WSM3 
-	    if(imp_physics==3)then 
-             if(t(i,j,l) >= TFRZ)then  
-              qqw ( i, j, l ) = dum3d ( i, j, l )
-	     else
-	      qqi  ( i, j, l ) = dum3d ( i, j, l )
-	     end if
-            else ! bug fix provided by J CASE
-             qqw ( i, j, l ) = dum3d ( i, j, l )
-	    end if  	     
+           qqw ( i, j, l ) = dum3d ( i, j, l )
         end do
        end do
       end do
 !      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QCLOUD= ',QQW(ii,jj,ll)
 !      print*,'finish reading cloud mixing ratio'
-      end if 
-      
 
-
-      if(imp_physics/=1 .and. imp_physics/=3                          &
-        .and. imp_physics/=5 .and. imp_physics/=0)then
       VarName='QICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -531,34 +492,20 @@
       end do
 !      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QICE= ',qqi(ii,jj,ll)
-      end if
       
-
-      if(imp_physics/=5 .and. imp_physics/=0)then
       VarName='QRAIN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-! partition rain and snow for WSM3 	
-          if(imp_physics == 3)then
-	    if(t(i,j,l) >= TFRZ)then  
-             qqr ( i, j, l ) = dum3d ( i, j, l )
-	    else
-	     qqs ( i, j, l ) = dum3d ( i, j, l )
-	    end if
-           else ! bug fix provided by J CASE
-            qqr ( i, j, l ) = dum3d ( i, j, l )  
-	   end if 
-            dummy(i,j)=dum3d(i,j,l)
+           qqr ( i, j, l ) = dum3d ( i, j, l )  
         end do
        end do
-!       print*,'max rain water= ',l,maxval(dummy)
       end do
 !      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QRAIN= ',qqr(ii,jj,ll)
-!tgs
+
 ! Compute max QRAIN in the column to be used later in precip type computation
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -573,12 +520,7 @@
         end do
        end do
       end do
-
-      end if 
      
-
-      if(imp_physics/=1 .and. imp_physics/=3 .and.                    &
-         imp_physics/=5 .and. imp_physics/=0)then
       VarName='QSNOW'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -591,11 +533,7 @@
        end do
 !       print*,'max snow= ',l,maxval(dummy)
       end do
-      end if
       
-
-      if(imp_physics==2 .or. imp_physics==6 .or.                      &
-         imp_physics==8 .or. imp_physics==9 .or. imp_physics==28)then
       VarName='QGRAUP'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -608,9 +546,7 @@
       end do
 !      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QGRAUP= ',qqg(ii,jj,ll)
-      end if  
 
-      if(imp_physics==8 .or. imp_physics==9 .or.imp_physics==28)then
       VarName='QNICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -623,6 +559,7 @@
         end do
        end do
       end do
+
       VarName='QNRAIN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -635,10 +572,8 @@
         end do
        end do
       end do
-      end if
 
 ! For aerosol aware microphyscis
-      if(imp_physics==28) then
       VarName='QNCLOUD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -651,6 +586,7 @@
         end do
        end do
       end do
+
       VarName='QNWFA'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -663,6 +599,7 @@
         end do
        end do
       end do
+
       VarName='QNIFA'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -675,7 +612,6 @@
         end do
        end do
       end do
-      end if
 
 ! Read in extinction coefficient for aerosol at 550 nm
 !      VarName='EXTCOF55'
@@ -690,7 +626,6 @@
 !      end do
 !      print*,'finish reading EXTCOF55'
 
-      if(imp_physics/=5)then     
 !HC SUM UP ALL CONDENSATE FOR CWM       
        do l = 1, lm
         do j = jsta_2l, jend_2u
@@ -713,53 +648,6 @@
          end do
         end do
        end do
-      else
-      
-       VarName='CWM'
-       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
-        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-       do l = 1, lm
-        do j = jsta_2l, jend_2u
-         do i = 1, im
-            CWM ( i, j, l ) = dum3d ( i, j, l )
-         end do
-        end do
-       end do 
-
-       VarName='F_ICE_PHY'
-       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
-        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-       do l = 1, lm
-        do j = jsta_2l, jend_2u
-         do i = 1, im
-            F_ICE( i, j, l ) = dum3d ( i, j, l )
-         end do
-        end do
-       end do 
-       
-       VarName='F_RAIN_PHY'
-       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
-        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-       do l = 1, lm
-        do j = jsta_2l, jend_2u
-         do i = 1, im
-            F_RAIN( i, j, l ) = dum3d ( i, j, l )
-         end do
-        end do
-       end do 
-
-       VarName='F_RIMEF_PHY'
-       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,       &
-        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-       do l = 1, lm
-        do j = jsta_2l, jend_2u
-         do i = 1, im
-            F_RIMEF( i, j, l ) = dum3d ( i, j, l )
-         end do
-        end do
-       end do 
-
-      end if
       
        VarName='HTOP'
       IF(ICU_PHYSICS == 3 .or. ICU_PHYSICS == 5) VarName='CUTOP'
@@ -812,8 +700,6 @@
          end do
       ENDIF
 
-
-!MEB      call getVariable(fileName,DateStr,DataHandle,'QRAIN',new)
 
 !  get sfc pressure
       VarName='MU'
@@ -1080,7 +966,6 @@
 ! E. James - 8 Dec 2017: this is for HRRR-smoke; it needs to be after ZINT
 ! is defined.
 !
-      if(imp_physics==28) then
       VarName='AOD3D_SMOKE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -1099,7 +984,6 @@
         end do
        end do
       end do
-      end if
 
 ! get 3-d soil variables
       VarName='SMOIS'
@@ -1214,13 +1098,8 @@
        end do
       end do 
 
-#ifdef COMMCODE
-      IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')THEN
-        if(imp_physics/=5 .and. imp_physics/=0)then
-#else
-        IF(MODELNAME == 'RAPR')THEN
+      IF(MODELNAME == 'RAPR')THEN
 ! J. Kenyon - 4 Apr 2019:  revised cloud-cover diagnostics for RAP/HRRR
-#endif
           PTOP_LOW  = 64200.
           PTOP_MID  = 35000.
           PTOP_HIGH = 15000.
@@ -1243,10 +1122,7 @@
   
             enddo
           enddo
-#ifdef COMMCODE
-        ENDIF  ! Not Ferrier or null mp_physics
-#endif
-      ENDIF   ! NCAR or RAPR
+      ENDIF
 
 ! GRAUP
 ! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
