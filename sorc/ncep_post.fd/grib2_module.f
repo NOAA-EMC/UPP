@@ -587,10 +587,10 @@
       if(gefs_status /= 0) print *, &
       "GEFS Run: Could not read e3 envir. var, User needs to set in script"
 
-      print*,'GEFS env var ',e1_type,perturb_num,num_ens_fcst
+!      print*,'GEFS env var ',e1_type,perturb_num,num_ens_fcst
 
       ! Set pdstmpl to tmpl4_1 or tmpl4_11
-      print *, "Processing for GEFS and default setting is tmpl4_1 and tmpl4_11"
+!      print *, "Processing for GEFS and default setting is tmpl4_1 and tmpl4_11"
       if (trim(pset%param(nprm)%pdstmpl)=='tmpl4_0') then
         pset%param(nprm)%pdstmpl='tmpl4_1'
       elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
@@ -640,8 +640,8 @@
          elseif(e1_type==3.or.e1_type==4) then
            listsec1(13)=4
          endif
-         print *, "After g2sec1 call we need to set listsec1(2) = ",listsec1(2)
-         print *, "After g2sec1 call we need to set listsec1(13) = ",listsec1(13)         
+!         print *, "After g2sec1 call we need to set listsec1(2) = ",listsec1(2)
+!         print *, "After g2sec1 call we need to set listsec1(13) = ",listsec1(13)         
        else
          listsec1(2)=0
        endif
@@ -1444,7 +1444,7 @@
                 lon1 = gfld%igdtmpl(13)/scale_factor
                 dx = gfld%igdtmpl(17)/scale_factor
                 nlat = gfld%igdtmpl(18)
-                write(*,*) gfld%igdtnum, nx, ny, lat1, lon1, dx, nlat
+!                write(*,*) gfld%igdtnum, nx, ny, lat1, lon1, dx, nlat
         else
                 write(*,*) 'unknown projection'
                 stop 1235
