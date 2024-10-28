@@ -4140,7 +4140,7 @@ GSD_VIL_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 VIL
-NCEP
+?
 ?
 entire_atmos
 0
@@ -4169,7 +4169,7 @@ entire_atmos
 0
 0.0
 1
-6.0
+4.0
 0
 0
 0

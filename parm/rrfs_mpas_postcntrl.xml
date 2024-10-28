@@ -590,8 +590,7 @@
 
        <param>
            <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
-           <table_info>NCEP</table_info>
-           <scale>6.0</scale>
+           <scale>4.0</scale>
        </param>
 
        <param>
