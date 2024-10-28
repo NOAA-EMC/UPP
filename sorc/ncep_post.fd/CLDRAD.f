@@ -4703,7 +4703,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         ENDDO
 
         IF ( LAEROPT ) THEN
-         PRINT *, 'COMPUTE AEROSOL OPTICAL PROPERTIES'
+         if(me == 0)PRINT *, 'COMPUTE AEROSOL OPTICAL PROPERTIES'
 
 !!! ALLOCATE AEROSOL OPTICAL PROPERTIES
          ALLOCATE ( extrhd_DU(KRHLEV,nbin_du,NBDSW))
@@ -4740,9 +4740,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          else if (nasa_on) then
          nAero=KCM2
          endif
-         PRINT *, 'aft  AEROSOL allocate, nbin_du=',nbin_du,  &
-          'nbin_ss=',nbin_ss,'nbin_su=',nbin_su,'nbin_bc=',     &
-          'nbin_oc=',nbin_oc,'nbin_ni=',nbin_no3,'nAero=',nAero
+!         PRINT *, 'aft  AEROSOL allocate, nbin_du=',nbin_du,  &
+!          'nbin_ss=',nbin_ss,'nbin_su=',nbin_su,'nbin_bc=',     &
+!          'nbin_oc=',nbin_oc,'nbin_ni=',nbin_no3,'nAero=',nAero
 
 !!! READ AEROSOL LUTS
          DO i = 1, nAero
