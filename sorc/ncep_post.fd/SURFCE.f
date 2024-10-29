@@ -6479,8 +6479,7 @@
 !     LEAF AREA INDEX
       IF (MODELNAME == 'NCAR'.OR.MODELNAME=='NMM' .OR. &
           MODELNAME == 'FV3R' .OR. MODELNAME=='RAPR')THEN
-      IF (iSF_SURFACE_PHYSICS == 2 .OR. iSF_SURFACE_PHYSICS == 1 .OR. &
-          MODELNAME=='FV3R' .OR. MODELNAME=='RAPR') THEN
+      IF (iSF_SURFACE_PHYSICS == 2 .OR. iSF_SURFACE_PHYSICS == 1) THEN 
         IF (IGET(254)>0) THEN
               if (me==0)print*,'starting LAI'
               DO J=JSTA,JEND
