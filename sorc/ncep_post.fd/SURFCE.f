@@ -55,7 +55,7 @@
 !> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
 !> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
-!> 2024-10-29 | W Meng     | Add land related variable process for both NOAH and NOAH MP
+!> 2024-10-29 | W Meng     | Unify iSF_SURFACE_PHYSICS as:1 for NOHA,2 for NOAH MP,3 for RUC 
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -6479,7 +6479,8 @@
 !     LEAF AREA INDEX
       IF (MODELNAME == 'NCAR'.OR.MODELNAME=='NMM' .OR. &
           MODELNAME == 'FV3R' .OR. MODELNAME=='RAPR')THEN
-      IF (iSF_SURFACE_PHYSICS == 2 .OR. iSF_SURFACE_PHYSICS == 1) THEN 
+      IF (iSF_SURFACE_PHYSICS == 2 .OR. iSF_SURFACE_PHYSICS == 1 .OR. &
+          iSF_SURFACE_PHYSICS == 3) THEN 
         IF (IGET(254)>0) THEN
               if (me==0)print*,'starting LAI'
               DO J=JSTA,JEND
