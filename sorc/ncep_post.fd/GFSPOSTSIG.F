@@ -48,6 +48,9 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
   use sigio_module,   only : sigio_intkind, sigio_head
   use sigio_r_module, only : sigio_dati, sigio_rrdati
   use physcons_post,       only : con_omega, con_fvirt
+#ifdef USE_SP_MOD
+  use sp_mod, only : sptezd, sptezm, sptezmv
+#endif
   use omp_lib
   implicit none
   integer(sigio_intkind),intent(in)    :: lusig
@@ -131,7 +134,11 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
   endif
   if (allocated(wrk)) deallocate(wrk)
 
+#ifdef USE_SP_MOD
+  call sptezd(0,jcap,idrt,io,jo,trisca(1,k1+1),(/pmean/),px,py,1)
+#else
   call sptezd(0,jcap,idrt,io,jo,trisca(1,k1+1),pmean,px,py,1)
+#endif
   iret = 0
 
 ! if (k2 < k1) return
@@ -449,6 +456,9 @@ end subroutine
                        cpi,idrt,lonb,latb,ijl,ijn,j1,j2,jc,chgq0,          &
                        szs,sps,st,sd,sz,sq,gfszs,gfsps,gfsp,gfsdp,         &
                        gfst,gfsu,gfsv,gfsq,gfsw)
+#ifdef USE_SP_MOD
+      use sp_mod, only : sptran, sptranv
+#endif
       implicit none
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb
       integer,intent(in)::ijl,ijn,j1,j2,jc,chgq0
@@ -641,6 +651,9 @@ end subroutine
             lonb,latb,ijn,j1,j2,jc,sd,sps,psi,ti,ui,vi,wi,pm,pd)
 !!!!!
       use sigio_module, only : sigio_modprd
+#ifdef USE_SP_MOD
+      use sp_mod, only : sptran, sptrand
+#endif
       implicit none
 
       integer,intent(in):: jcap,nc,km,idvc,idvm,idrt,idsl,nvcoord
@@ -660,8 +673,13 @@ end subroutine
       ij=lonb2*(j2-j1+1)
       in=1
       is=1+lonb
+#ifdef USE_SP_MOD
+      call sptrand(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijn,    &
+           j1,j2,jc,sps,(/real(psmean,4)/),psx(in),psx(is),psy(in),psy(is),1)
+#else
       call sptrand(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijn,    &
            j1,j2,jc,sps,psmean,psx(in),psx(is),psy(in),psy(is),1)
+#endif
 
       call sptran(0,jcap,idrt,lonb,latb,km,1,1,lonb2,lonb2,nc,ijn,    &
                   j1,j2,jc,sd,di(in,1),di(is,1),1)

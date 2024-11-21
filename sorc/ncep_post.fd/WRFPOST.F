@@ -39,6 +39,7 @@
 !> 2023-11-29 | Eric James                | Add method_blsn logical option
 !> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
 !> 2024-08-30 | Jaymes Kenyon             | Hard coding iSF_SURFACE_PHYSICS=3 when modelname=RAPR and submodelname=MPAS
+!> 2024-10-29 | Wen Meng                  | Set iSF_SURFACE_PHYSICS: 1 for NOAH; 2 for NOAH MP; 3 for RUC
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -423,11 +424,12 @@
           Status=nf90_get_att(ncid2d,nf90_global,'landsfcmdl', iSF_SURFACE_PHYSICS)
           if(Status/=0)then
             print*,'landsfcmdl not found; assigning to 2'
-            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH MP
+            ! LSM physics 1 for NOAH
           endif
-          if(iSF_SURFACE_PHYSICS<2)then
-            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
-          endif
+!          if(iSF_SURFACE_PHYSICS<2)then
+!            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+!          endif
           Status=nf90_get_att(ncid2d,nf90_global,'nsoil', NSOIL)
           if(Status/=0)then
             print*,'nsoil not found; assigning to 4'
