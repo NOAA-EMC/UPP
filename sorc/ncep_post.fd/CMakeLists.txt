@@ -242,10 +242,18 @@ endif()
 
 if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
+  if(ip_FOUND)
+    set(sp_target ip::ip_4)
+    if(ip_VERSION VERSION_GREATER_EQUAL 5.1)
+      target_compile_definitions(${EXENAME} PRIVATE USE_SP_MOD=1)
+    endif()
+  else()
+    set(sp_target sp::sp_4)
+  endif()
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
     w3emc::w3emc_4
-    sp::sp_4)
+    ${sp_target})
   set_target_properties(${EXENAME} PROPERTIES LINKER_LANGUAGE Fortran)
   if(IFI_FOUND)
     target_link_libraries(${EXENAME} PRIVATE IFI)
