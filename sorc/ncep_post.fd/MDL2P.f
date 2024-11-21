@@ -1,4 +1,3 @@
-
 !> @file
 !> @brief mdl2p() computes vertical interpolation of model levels to pressure.
 !>
@@ -40,7 +39,7 @@
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
-!> 2024-07-17 | K Asmar		| Add velocity potential and streamfunction from wind vectors
+!> 2024-09-23 | K Asmar		| Add velocity potential and streamfunction from wind vectors
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -77,7 +76,7 @@
                             IEND_2U, slrutah_on, gtg_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH, CALCHIPSI
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
@@ -109,9 +108,8 @@
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
-!
       real, dimension(ISTA:IEND,JSTA:JEND,LSM) :: USLP, VSLP
-      real, dimension(IM,JM,LSM) :: CHI, PSI
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: CHI, PSI
 !
       INTEGER K, NSMOOTH
 !
@@ -1779,7 +1777,6 @@
 ! *** K. ASMAR - SAVE ALL P-LEVELS OF U/V WINDS FOR VELOCITY POTENTIAL AND STREAMFUNCTION
 !
       IF (IGET(1021)>0 .OR. IGET(1022)>0) THEN
-!$omp parallel do private(i,j)
       	DO J=JSTA,JEND
           DO I=ISTA,IEND
 	    USLP(I,J,LP)=USL(I,J)
@@ -1787,7 +1784,6 @@
 	  ENDDO
         ENDDO
       ENDIF
-
 !     
 !***  ABSOLUTE VORTICITY
 !
@@ -1834,6 +1830,101 @@
             endif
           ENDIF
         ENDIF
+!     
+!***  CHIPSI
+!
+        IF (IGET(1021) > 0 .or. IGET(1022) > 0) THEN
+          IF (LVLS(LP,IGET(1021)) > 0 .or. LVLS(LP,IGET(1022)) > 0) THEN
+            CALL CALCHIPSI(USL,VSL,CHI,PSI)
+!         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
+!     
+!*** CHI 
+!
+          IF (LVLS(LP,IGET(1021)) > 0) THEN  
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = CHI(I,J)
+               ENDDO
+             ENDDO
+
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(4.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
+
+            if(grib == 'grib2')then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(1021))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(1021))
+!$omp parallel do private(i,j,ii,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,iend-ista+1
+                  ii=ista+i-1
+                  datapd(i,j,cfld) = GRID1(ii,jj)
+                enddo
+              enddo
+            endif
+          ENDIF !CHI
+!     
+!*** PSI 
+!
+          IF (LVLS(LP,IGET(1022)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = PSI(I,J)
+               ENDDO
+             ENDDO
+
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(4.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
+
+            if(grib == 'grib2')then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(1022))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(1022))
+!$omp parallel do private(i,j,ii,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,iend-ista+1
+                  ii=ista+i-1
+                  datapd(i,j,cfld) = GRID1(ii,jj)
+                enddo
+              enddo
+            endif
+          ENDIF !PSI
+
+        ENDIF !LVLS(CHIPSI)
+        ENDIF !CHIPSI
+!     
 !     
 !        GEOSTROPHIC STREAMFUNCTION.
          IF (IGET(086) > 0) THEN
@@ -4337,72 +4428,6 @@
             enddo
          endif
       ENDIF
-!
-! *** K. ASMAR - COMPUTE VELOCITY POTENTIAL AND STREAMFUNCTION
-!
-      IF (IGET(1021) > 0 .OR. IGET(1022) > 0) THEN        
-        CALL CALCHIPSI(USLP,VSLP,CHI,PSI)
-	! SEPARATE VERTICAL LOOP TO STORE VELOCITY POTENTIAL AND STREAMFUNCTION 
- 	DO LP=1,LSM
-	! VELOCITY POTENTIAL
-            IF(IGET(1021) > 0) THEN
-              IF(LVLS(LP,IGET(1021)) > 0)THEN
-!$omp  parallel do private(i,j)
-                DO J=JSTA,JEND
-                  DO I=ISTA,IEND
-		    IF(CHI(I,J,LP) < SPVAL) THEN
-                	GRID1(I,J) = CHI(I,J,LP)
-              	    ELSE
-                	GRID1(I,J) = SPVAL
-              	    ENDIF
-                  ENDDO
-                ENDDO
-                if(grib == 'grib2')then
-                  cfld = cfld + 1
-                  fld_info(cfld)%ifld = IAVBLFLD(IGET(1021))
-                  fld_info(cfld)%lvl  = LVLSXML(LP,IGET(1021))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                      ii=ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                endif
-              ENDIF
-            ENDIF     
-
-	!STREAMFUNCTION
-            IF(IGET(1022) > 0) THEN
-              IF(LVLS(LP,IGET(1022)) > 0)THEN
-!$omp  parallel do private(i,j)
-                DO J=JSTA,JEND
-                  DO I=ISTA,IEND
-		    IF(PSI(I,J,LP) < SPVAL) THEN
-                	GRID1(I,J) = PSI(I,J,LP)
-              	    ELSE
-                	GRID1(I,J) = SPVAL
-              	    ENDIF                  
-		   ENDDO
-                ENDDO
-                if(grib == 'grib2')then
-                  cfld = cfld + 1
-                  fld_info(cfld)%ifld = IAVBLFLD(IGET(1022))
-                  fld_info(cfld)%lvl  = LVLSXML(LP,IGET(1022))
-!$omp parallel do private(i,j,ii,jj)
-                  do j=1,jend-jsta+1
-                    jj = jsta+j-1
-                    do i=1,iend-ista+1
-                      ii=ista+i-1
-                      datapd(i,j,cfld) = GRID1(ii,jj)
-                    enddo
-                  enddo
-                endif
-              ENDIF
-            ENDIF
-	ENDDO											! END OF VERTICAL LOOP LW=1,LSM FOR VPOT AND STRM
-      ENDIF											! END OF IF BLOCK FOR CALVPOTSTRM
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
