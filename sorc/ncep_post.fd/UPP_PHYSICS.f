@@ -4869,6 +4869,8 @@
     
 !        deallocate (wrk1, wrk11, wrk2, wrk3, cosl, iw, ie)
 
+    ENDIF  ! END of MODELNAME=='GFS' BLOCK
+    
       call exch(absv(ista_2l:iend_2u,jsta_2l:jend_2u))
       call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u))
 
