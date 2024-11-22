@@ -4505,8 +4505,8 @@
 !> Computes streamfunction and velocity potential from absolute vorticity
 !> and divergence (computed as in CALVOR subroutine). 
 !>
-!> Applies a Poisson Solver with 300,000 iterations (developed by J. Meng)
-!> plus a convergence condition to exit the loop when the error is below 50.
+!> Applies a Poisson Solver with 300,000 iterations plus a convergence
+!> condition to exit the loop when the error is below 50.
 !>
 !> @param[in] UWND U-wind (m/s) at P-points
 !> @param[in] VWND V-wind (m/s) at P-points
@@ -4516,9 +4516,10 @@
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
-!> 2024-11-21 | George Vandenberghe | Initial
+!> 2024-10-28 | K. Asmar and J. Meng | Initial
+!> 2024-11-21 | George Vandenberghe  | Add convergence condition 
 !>
-!> @author(s) George Vandenberghe @date 2024-11-21
+!> @author(s) K. Asmar, J. Meng, G. Vandenberghe @date 2024-11-21
       SUBROUTINE CALCHIPSI (UWND,VWND,CHI,PSI)
    
 !
@@ -4571,6 +4572,8 @@
       CALL EXCH(UWND)
       CALL EXCH(VWND)
 !
+
+      IF (MODELNAME == 'GFS' .or. global) THEN
         CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
         CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
 
