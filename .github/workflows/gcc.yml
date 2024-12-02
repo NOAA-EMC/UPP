@@ -35,14 +35,14 @@ jobs:
 
     steps:
       - name: checkout-upp  # This is for getting spack.yaml
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
             path: UPP
 
       # Cache spack, compiler and dependencies
       - name: cache-env
         id: cache-env
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             spack
@@ -71,13 +71,13 @@ jobs:
 
     steps:
       - name: checkout-upp
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
             path: UPP
 
       - name: cache-env
         id: cache-env
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             spack

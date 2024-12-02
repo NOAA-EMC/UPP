@@ -341,6 +341,16 @@
        </param>
 
        <param>
+           <shortname>GSD_EXP_CEILING</shortname>
+           <scale>-3.0</scale>
+       </param>
+
+       <param>
+           <shortname>GSD_EXP_CEILING_2</shortname>
+           <scale>-3.0</scale>
+       </param>
+
+       <param>
             <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
             <scale>-3.0</scale>
        </param>
@@ -580,8 +590,7 @@
 
        <param>
            <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
-           <table_info>NCEP</table_info>
-           <scale>6.0</scale>
+           <scale>4.0</scale>
        </param>
 
        <param>
