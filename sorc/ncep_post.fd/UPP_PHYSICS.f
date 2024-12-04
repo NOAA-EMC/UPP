@@ -2066,7 +2066,7 @@
         if(jsta== 1) absv(ista:iend, 1)=avtemp(ista:iend, 1)
         if(jend==jm) absv(ista:iend,jm)=avtemp(ista:iend,jm)
     
-!        deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+        deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 
       ELSE !(MODELNAME == 'GFS' .or. global)
 
