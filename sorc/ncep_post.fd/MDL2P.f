@@ -108,7 +108,6 @@
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
-      real, dimension(ISTA:IEND,JSTA:JEND,LSM) :: USLP, VSLP
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: CHI, PSI
 !
       INTEGER K, NSMOOTH
@@ -1773,17 +1772,6 @@
             endif
           ENDIF
         ENDIF
-!
-! *** K. ASMAR - SAVE ALL P-LEVELS OF U/V WINDS FOR VELOCITY POTENTIAL AND STREAMFUNCTION
-!
-      IF (IGET(1021)>0 .OR. IGET(1022)>0) THEN
-      	DO J=JSTA,JEND
-          DO I=ISTA,IEND
-	    USLP(I,J,LP)=USL(I,J)
-     	    VSLP(I,J,LP)=VSL(I,J)
-	  ENDDO
-        ENDDO
-      ENDIF
 !     
 !***  ABSOLUTE VORTICITY
 !
