@@ -1740,6 +1740,7 @@
 !> 2019-10-17 | Y Mao        | Skip calculation when U/V is SPVAL
 !> 2020-11-06 | J Meng       | Use UPP_MATH Module
 !> 2022-05-26 | H Chuang     | Use GSL approach for FV3R
+!> 2024-10-16 | J Kenyon     | Initialize ABSV as SPVAL for MPAS applications
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 
@@ -1776,7 +1777,7 @@
 !     
 !     LOOP TO COMPUTE ABSOLUTE VORTICITY FROM WINDS.
 !     
-      IF(MODELNAME  == 'RAPR') then
+      IF(MODELNAME  == 'RAPR' .AND. SUBMODELNAME /= 'MPAS') then ! for RAP / HRRR only
 !$omp  parallel do private(i,j)
         DO J=JSTA_2L,JEND_2U
           DO I=ISTA_2L,IEND_2U
