@@ -2142,8 +2142,6 @@
         END DO 
       END IF 
       END IF
-
-      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 !     
 !     END OF ROUTINE.
 !     
