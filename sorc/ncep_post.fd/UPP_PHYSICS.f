@@ -4571,16 +4571,14 @@
       CALL EXCH(UWND)
       CALL EXCH(VWND)
 !
+      CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+      CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
 
-      IF (MODELNAME == 'GFS' .or. global) THEN
-        CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
-        CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
-
-        allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
+      allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
      &            wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
-        allocate(iw(im),ie(im))
+       allocate(iw(im),ie(im))
 
-        imb2 = im/2
+       imb2 = im/2
 !$omp  parallel do private(i)
       do i=ista,iend
         ie(i) = i+1
@@ -4867,9 +4865,7 @@
         if(jend==jm) absv(ista:iend,jm)=avtemp(ista:iend,jm)
     
 !        deallocate (wrk1, wrk11, wrk2, wrk3, cosl, iw, ie)
-
-    ENDIF  ! END of MODELNAME=='GFS' BLOCK
-    
+!    
       call exch(absv(ista_2l:iend_2u,jsta_2l:jend_2u))
       call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u))
 
