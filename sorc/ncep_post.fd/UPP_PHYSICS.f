@@ -4667,8 +4667,6 @@
 
 !$omp  parallel do private(i,j,ip1,im1,ii,jj,tx1,tx2)
         DO J=JSTA,JEND
-!         npass = npass2
-!         if (j > jm-jtem+1 .or. j < jtem) npass = npass3
           IF(J == 1) then                            ! Near North or South pole
             if(gdlat(ista,j) > 0.) then ! count from north to south
               IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
