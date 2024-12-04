@@ -1836,22 +1836,22 @@
                ENDDO
              ENDDO
 
-            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
-              call AllGETHERV(GRID1)
-              if (ioform == 'binarympiio') then
-!               nsmooth = max(2, min(30,nint(jm/94.0)))
-!             do k=1,5
-                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
-                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
-!             enddo
-              else
-                NSMOOTH = nint(4.*(13500./dxm))
-!             endif
-              do k=1,NSMOOTH
-                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-              end do
-              endif
-            ENDIF
+!            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+!              call AllGETHERV(GRID1)
+!              if (ioform == 'binarympiio') then
+!!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!!             do k=1,5
+!                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+!                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!!             enddo
+!              else
+!                NSMOOTH = nint(4.*(13500./dxm))
+!!             endif
+!              do k=1,NSMOOTH
+!                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+!              end do
+!              endif
+!            ENDIF
 
             if(grib == 'grib2')then
               cfld = cfld + 1
@@ -1878,22 +1878,22 @@
                ENDDO
              ENDDO
 
-            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
-              call AllGETHERV(GRID1)
-              if (ioform == 'binarympiio') then
-!               nsmooth = max(2, min(30,nint(jm/94.0)))
-!             do k=1,5
-                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
-                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
-!             enddo
-              else
-                NSMOOTH = nint(4.*(13500./dxm))
-!             endif
-              do k=1,NSMOOTH
-                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-              end do
-              endif
-            ENDIF
+!            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+!              call AllGETHERV(GRID1)
+!              if (ioform == 'binarympiio') then
+!!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!!             do k=1,5
+!                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+!                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!!             enddo
+!              else
+!                NSMOOTH = nint(4.*(13500./dxm))
+!!             endif
+!              do k=1,NSMOOTH
+!                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+!              end do
+!              endif
+!            ENDIF
 
             if(grib == 'grib2')then
               cfld = cfld + 1
