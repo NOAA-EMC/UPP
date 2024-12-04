@@ -1821,7 +1821,7 @@
 !     
 !***  CHIPSI
 !
-IF ( (IGET(1021) > 0 .or. IGET(1022) > 0). and. MODELNAME == 'GFS' ) THEN
+IF ( (IGET(1021) > 0 .or. IGET(1022) > 0) .and. MODELNAME == 'GFS' ) THEN
           IF (LVLS(LP,IGET(1021)) > 0 .or. LVLS(LP,IGET(1022)) > 0) THEN
             CALL CALCHIPSI(USL,VSL,CHI,PSI)
 !         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
