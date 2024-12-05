@@ -7068,7 +7068,7 @@
 
     <param>
        <post_avblfldidx>767</post_avblfldidx>
-       <shortname>GSD_NCIFA_ON_HYBRID_LVL</shortname>
+       <shortname>NCIFA_ON_HYBRID_LVL</shortname>
        <pname>PMTC</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
