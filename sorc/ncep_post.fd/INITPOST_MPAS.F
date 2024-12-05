@@ -22,6 +22,8 @@
 !> 2024-09-09 | Eric James   | Add checks for missing values before entering some computations
 !> 2024-10-16 | Jaymes Kenyon| Missing-value checks for wind interp, fix to LH flux 
 !> 2024-10-28 | Jaymes Kenyon| Removing outdated processing for various "imp_physics" cases
+!> 2024-12-05 | Jaymes Kenyon| Temporary hard coding of imp_physics=8 for RRFS-MPAS (required for 
+!>                           | brightness-temperature calculations in subroutine CALRAD_WCLOUD)
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -234,8 +236,9 @@
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
 
-      call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'          &
+      call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'          &    
        ,itmp,1,ioutcount,istatus)
+      IF (MODELNAME=='RAPR') itmp=8 ! J. Kenyon / 5 Dec 2024: Temporary hard code for RRFS-MPAS
       imp_physics=itmp
       if (me==0) print*,'MP_PHYSICS= ',itmp
 
