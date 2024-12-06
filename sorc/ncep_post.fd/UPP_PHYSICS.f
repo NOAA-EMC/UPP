@@ -4538,7 +4538,7 @@
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: UWND, VWND
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: ABSV, DIV
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: CHI, PSI
-      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: PTMP
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: PTMP, ATMP, DTMP
       REAL, dimension(IM,2) :: GLATPOLES, COSLPOLES, UPOLES, VPOLES, AVPOLES
       REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, AVTEMP
 !
@@ -4866,6 +4866,14 @@
       call exch(absv(ista_2l:iend_2u,jsta_2l:jend_2u))
       call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u))
 !
+! store absv and div factors before poisson loops
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+        ATMP(I,J)=0.25*(ABSV(I,J)-F(I,J))/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.)
+        DTMP(I,J)=0.25*DIV(I,J)/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.)
+      ENDDO
+      ENDDO
+!
 ! poisson solver for psi and chi 
       PSI=0.
       ta=mpi_wtime()
@@ -4878,8 +4886,7 @@
         DO I=ISTA,IEND
           IF(J>1 .and. J<JM) THEN
             pval=psi(i,j)
-            PSI(I,J) = 0.25*( PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1)  &
-                   - (ABSV(I,J)-F(I,J))/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.))
+            PSI(I,J) = 0.25*(PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1))-ATMP(I,J)
             edif=psi(i,j)-pval
             edif=abs(edif)
             err=max(edif,err)
@@ -4917,16 +4924,16 @@
       tb=mpi_wtime()
       if (me .eq. 5)  print 109,' GWVX RELAX TIME ',tb-ta
  109  format(a,f20.10,i10)
-      DO jj=1,300000 
-        call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
+      do jjk=1,1000
+      DO jj=1,300 
+      call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
         PTMP=CHI
         err=0
         DO J=JSTA,JEND
         DO I=ISTA,IEND
           IF(J>1 .and. J<JM) THEN
             pval=chi(i,j)
-            CHI(I,J) = 0.25*( PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1)  &
-                   - DIV(I,J)/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.))
+            CHI(I,J) = 0.25*(PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1))-DTMP(I,J)
             edif=chi(i,j)-pval
             edif=abs(edif)
             err=max(edif,err)
@@ -4951,13 +4958,14 @@
             CHI(I,JM)=CHI(IEND,JM)/(IEND-ISTA)
           ENDDO
         ENDIF
-        call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_world,ier)
+      ENDDO    ! end of jj loop for chi
+      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_world,ier)
         if(me .eq. 0)  print 109,' GWVX CHI ERRS',errmax,jj
         if(  errmax .lt. 50.)  then
         if(me .eq. 0) print *,' GWVX CONVERGED CHI ITERATION', jj
             exit
             endif
-      ENDDO   ! end of jj loop for chi
+      ENDDO   ! end of jjk loop for chi
       tc=mpi_wtime()
 !
      if (me .eq. 5)     print 109,' GWVX3  RELAX TIME ',tc-ta
@@ -4971,4 +4979,3 @@
 !-------------------------------------------------------------------------------------
 !
   end module upp_physics
-
