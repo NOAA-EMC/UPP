@@ -4549,7 +4549,6 @@
       integer I,J,ip1,im1,ii,iir,iil,jj,JMT2,imb2, npass, nn, jtem
       real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI, tx1(im+2), tx2(im+2)
       real    rtmp, rerr, err,pval,errmax,errmin,edif
-      real*8 ta,tb,tc,td,de,tf
       integer ier,jjk, mype
 !     
 !***************************************************************************
@@ -4876,7 +4875,6 @@
 !
 ! poisson solver for psi and chi 
       PSI=0.
-      ta=mpi_wtime()
       do jjk=1,1000
       DO jj=1,300 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -4913,16 +4911,12 @@
         ENDIF
       ENDDO   ! end of jj loop for psi
       call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_world,ier)
-        if(me .eq. 0)  print 109,' GWVX PSI ERRS',errmax,jjk
         if(  errmax .lt. 50.)  then
-        if(me .eq. 0) print *,' GWVX CONVERGED PSI ITERATION', jjk*300
             exit
             endif
       ENDDO    ! end of jjk loop for psi
 !
       CHI=0.
-      tb=mpi_wtime()
-      if (me .eq. 5)  print 109,' GWVX RELAX TIME ',tb-ta
  109  format(a,f20.10,i10)
       do jjk=1,1000
       DO jj=1,300 
@@ -4960,15 +4954,11 @@
         ENDIF
       ENDDO    ! end of jj loop for chi
       call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_world,ier)
-        if(me .eq. 0)  print 109,' GWVX CHI ERRS',errmax,jj
         if(  errmax .lt. 50.)  then
-        if(me .eq. 0) print *,' GWVX CONVERGED CHI ITERATION', jj
             exit
             endif
       ENDDO   ! end of jjk loop for chi
-      tc=mpi_wtime()
 !
-     if (me .eq. 5)     print 109,' GWVX3  RELAX TIME ',tc-ta
      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 !     
 !     END OF ROUTINE.

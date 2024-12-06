@@ -10,8 +10,7 @@
 !> Date       | Programmer          | Comments
 !> -----------|---------------------|----------
 !> 2000-01-06 | Jim Tuccillo        | Initial
-!> 2021-06-01 | George Vandenberghe | 2D Decomposition      
-!> 2024-11-19 | George Vandenberghe | Add timers
+!> 2021-06-01 | George Vandenberghe | 2D Decomposition             
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
 !--------------------------------------------------------------------------------
@@ -34,12 +33,10 @@
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in) :: a
       real, dimension(im,jm), intent(out) :: b
       integer ierr,n
-      real*8 ta,tb,tc,td,te
       real, allocatable :: rbufs(:)
       allocate(buff(im*jm))
       jj=( jexa(me)-jsxa(me)+1) * (iexa(me)-isxa(me)+1)  
       allocate( rbufs(( jexa(me)-jsxa(me)+1) * (iexa(me)-isxa(me)+1)) )
-       ta=mpi_wtime()
 !
       if ( num_procs <= 1 ) then
          b = a
@@ -84,9 +81,6 @@
       deallocate(buff)
       deallocate(rbufs)
 
-       tb=mpi_wtime()
-       if(me .eq. 0) print 109,' GWVX COLLECT TIME ',im,jm,tb-ta
- 109   format(a,2i10,f20.10)
       end               
 !
 !-----------------------------------------------------------------------
@@ -110,8 +104,6 @@
       real, dimension(im,jm), intent(out) :: b
       integer ierr,n
       real, allocatable :: rbufs(:)
-      real*8 tb,ta
-        ta=mpi_wtime()
       allocate(buff(im*jm))
       jj=( jexa(me)-jsxa(me)+1) * (iexa(me)-isxa(me)+1)
       allocate( rbufs(( jexa(me)-jsxa(me)+1) * (iexa(me)-isxa(me)+1)) )
@@ -154,9 +146,6 @@
 
       deallocate(buff)
       deallocate(rbufs)
-        tb=mpi_wtime()
-       if(me .eq. 0)  print 109,' GWVX COLLECT_ALL',tb-ta
- 109   format(a,f20.10)
 
       end
 
