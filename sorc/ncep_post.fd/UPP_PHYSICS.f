@@ -4866,6 +4866,7 @@
       call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u))
 !
 ! store absv and div factors before poisson loops
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
         ATMP(I,J)=0.25*(ABSV(I,J)-F(I,J))/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.)
