@@ -4546,10 +4546,8 @@
       INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
 !
       integer, parameter :: npass2=2, npass3=3
-      integer I,J,ip1,im1,ii,iir,iil,jj,JMT2,imb2, npass, nn, jtem
+      integer I,J,ip1,im1,ii,iir,iil,jj,jjk,JMT2,imb2, npass, nn, jtem
       real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI, tx1(im+2), tx2(im+2)
-      real    rtmp, rerr, err,pval,errmax,errmin,edif
-      integer ier,jjk, mype
 !     
 !***************************************************************************
 !     START CALCHIPSI HERE.
@@ -4876,19 +4874,15 @@
 !
 ! poisson solver for psi and chi 
       PSI=0.
-      do jjk=1,1000
-      DO jj=1,300 
+!$omp parallel do private(jjk,jj)
+      do jjk=1,500
+      DO jj=1,200 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
         PTMP=PSI
-        err=0
         DO J=JSTA,JEND
         DO I=ISTA,IEND
           IF(J>1 .and. J<JM) THEN
-            pval=psi(i,j)
             PSI(I,J) = 0.25*(PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1))-ATMP(I,J)
-            edif=psi(i,j)-pval
-            edif=abs(edif)
-            err=max(edif,err)
           ENDIF
         ENDDO
         ENDDO
@@ -4911,27 +4905,19 @@
           ENDDO
         ENDIF
       ENDDO   ! end of jj loop for psi
-      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_world,ier)
-        if(  errmax .lt. 50.)  then
-            exit
-            endif
       ENDDO    ! end of jjk loop for psi
 !
       CHI=0.
  109  format(a,f20.10,i10)
-      do jjk=1,1000
-      DO jj=1,300 
+!$omp parallel do private(jjk,jj)
+      do jjk=1,500
+      DO jj=1,200 
       call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
         PTMP=CHI
-        err=0
         DO J=JSTA,JEND
         DO I=ISTA,IEND
           IF(J>1 .and. J<JM) THEN
-            pval=chi(i,j)
             CHI(I,J) = 0.25*(PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1))-DTMP(I,J)
-            edif=chi(i,j)-pval
-            edif=abs(edif)
-            err=max(edif,err)
           ENDIF  
         ENDDO
         ENDDO
@@ -4954,10 +4940,6 @@
           ENDDO
         ENDIF
       ENDDO    ! end of jj loop for chi
-      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_world,ier)
-        if(  errmax .lt. 50.)  then
-            exit
-            endif
       ENDDO   ! end of jjk loop for chi
 !
      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
