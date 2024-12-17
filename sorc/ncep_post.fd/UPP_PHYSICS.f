@@ -4504,8 +4504,9 @@
 !> Computes streamfunction and velocity potential from absolute vorticity
 !> and divergence (computed as in calvor subroutine). 
 !>
-!> Applies a poisson solver with 300,000 iterations plus a convergence
-!> condition to exit the loop when the error is below 50.
+!> Applies a poisson solver with 100,000 iterations to solve for
+!> streamfunction and velocity potential from absolute vorticity 
+!> and divergence.
 !>
 !> @param[in] UWND U-wind (m/s) at mass-points
 !> @param[in] VWND V-wind (m/s) at mass-points
@@ -4865,82 +4866,79 @@
 !
 ! store absv and div factors before poisson loops
 !$omp parallel do private(i,j)
-      DO J=JSTA,JEND
-      DO I=ISTA,IEND
-        ATMP(I,J)=0.25*(ABSV(I,J)-F(I,J))/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.)
-        DTMP(I,J)=0.25*DIV(I,J)/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*COSL(i,j)*4.)
-      ENDDO
-      ENDDO
+      do j=jsta,jend
+      do i=ista,iend
+        atmp(i,j)=0.25*(absv(i,j)-f(i,j))/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*cosl(i,j)*4.)
+        dtmp(i,j)=0.25*div(i,j)/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*cosl(i,j)*4.)
+      enddo
+      enddo
 !
 ! poisson solver for psi and chi 
-      PSI=0.
-!$omp parallel do private(jjk,jj)
+      psi=0.
       do jjk=1,500
-      DO jj=1,200 
+      do jj=1,200 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
-        PTMP=PSI
-        DO J=JSTA,JEND
-        DO I=ISTA,IEND
-          IF(J>1 .and. J<JM) THEN
-            PSI(I,J) = 0.25*(PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1))-ATMP(I,J)
-          ENDIF
-        ENDDO
-        ENDDO
-        IF(JSTA==1) THEN
-          PSI(IEND,1)=0.
-          DO I=ISTA,IEND-1
-            PSI(IEND,1)=PSI(IEND,1)+PSI(I,2)
-          ENDDO
-          DO I=ISTA,IEND
-            PSI(I,1)=PSI(IEND,1)/(IEND-ISTA)
-          ENDDO
-        ENDIF
-        IF(JEND==JM) THEN
-          PSI(IEND,JM)=0.
-          DO I=ISTA,IEND-1
-            PSI(IEND,JM)=PSI(IEND,JM)+PSI(I,JM-1)
-          ENDDO
-          DO I=ISTA,IEND
-            PSI(I,JM)=PSI(IEND,JM)/(IEND-ISTA)
-          ENDDO
-        ENDIF
-      ENDDO   ! end of jj loop for psi
-      ENDDO    ! end of jjk loop for psi
+        ptmp=psi
+        do j=jsta,jend
+        do i=ista,iend
+          if (j>1 .and. j<jm) then
+            psi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-atmp(i,j)
+          endif
+        enddo
+        enddo
+        if (jsta==1) then
+          psi(iend,1)=0.
+          do i=ista,iend-1
+            psi(iend,1)=psi(iend,1)+psi(i,2)
+          enddo
+          do i=ista,iend
+            psi(i,1)=psi(iend,1)/(iend-ista)
+          enddo
+        endif
+        if (jend==jm) then
+          psi(iend,jm)=0.
+          do i=ista,iend-1
+            psi(iend,jm)=psi(iend,jm)+psi(i,jm-1)
+          enddo
+          do i=ista,iend
+            psi(i,jm)=psi(iend,jm)/(iend-ista)
+          enddo
+        endif
+      enddo   ! end of jj loop for psi
+      enddo    ! end of jjk loop for psi
 !
-      CHI=0.
- 109  format(a,f20.10,i10)
-!$omp parallel do private(jjk,jj)
+      chi=0.
       do jjk=1,500
-      DO jj=1,200 
-      call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
-        PTMP=CHI
-        DO J=JSTA,JEND
-        DO I=ISTA,IEND
-          IF(J>1 .and. J<JM) THEN
-            CHI(I,J) = 0.25*(PTMP(I-1,J)+PTMP(I+1,J)+PTMP(I,J-1)+PTMP(I,J+1))-DTMP(I,J)
-          ENDIF  
-        ENDDO
-        ENDDO
-        IF(JSTA==1) THEN
-          CHI(IEND,1)=0.
-          DO I=ISTA,IEND-1
-            CHI(IEND,1)=CHI(IEND,1)+CHI(I,2)
-          ENDDO
-          DO I=ISTA,IEND
-            CHI(I,1)=CHI(IEND,1)/(IEND-ISTA)
-          ENDDO
-        ENDIF
-        IF(JEND==JM) THEN
-          CHI(IEND,JM)=0.
-          DO I=ISTA,IEND-1
-            CHI(IEND,JM)=CHI(IEND,JM)+CHI(I,JM-1)
-          ENDDO
-          DO I=ISTA,IEND
-            CHI(I,JM)=CHI(IEND,JM)/(IEND-ISTA)
-          ENDDO
-        ENDIF
-      ENDDO    ! end of jj loop for chi
-      ENDDO   ! end of jjk loop for chi
+      do jj=1,200 
+        call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
+        ptmp=chi
+        do j=jsta,jend
+        do i=ista,iend
+          if (j>1 .and. j<jm) then
+            chi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-dtmp(i,j)
+          endif
+        enddo
+        enddo
+        if (jsta==1) then
+          chi(iend,1)=0.
+          do i=ista,iend-1
+            chi(iend,1)=chi(iend,1)+chi(i,2)
+          enddo
+          do i=ista,iend
+            chi(i,1)=chi(iend,1)/(iend-ista)
+          enddo
+        endif
+        if (jend==jm) then
+          chi(iend,jm)=0.
+          do i=ista,iend-1
+            chi(iend,jm)=chi(iend,jm)+chi(i,jm-1)
+          enddo
+          do i=ista,iend
+            chi(i,jm)=chi(iend,jm)/(iend-ista)
+          enddo
+        endif
+      enddo   ! end of jj loop for chi
+      enddo    ! end of jjk loop for chi
 !
      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 !     
@@ -4952,3 +4950,4 @@
 !-------------------------------------------------------------------------------------
 !
   end module upp_physics
+
