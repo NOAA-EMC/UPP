@@ -4549,6 +4549,7 @@
       integer, parameter :: npass2=2, npass3=3
       integer I,J,ip1,im1,ii,iir,iil,jj,jjk,JMT2,imb2, npass, nn, jtem
       real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI, tx1(im+2), tx2(im+2)
+      real*8 ta,tb,tc
 !     
 !***************************************************************************
 !     START CALCHIPSI HERE.
@@ -4875,6 +4876,7 @@
 !
 ! poisson solver for psi and chi 
       psi=0.
+      ta=mpi_wtime()
       do jjk=1,500
       do jj=1,200 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -4908,6 +4910,7 @@
       enddo    ! end of jjk loop for psi
 !
       chi=0.
+      tb=mpi_wtime()
       do jjk=1,500
       do jj=1,200 
         call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -4939,6 +4942,9 @@
         endif
       enddo   ! end of jj loop for chi
       enddo    ! end of jjk loop for chi
+      tc=mpi_wtime()
+901 format(a,2f10.3)
+      if(me .eq. 0)print 901,'RELAX TIMES, PSI AND CHI',tb-ta,tc-tb
 !
      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 !     
