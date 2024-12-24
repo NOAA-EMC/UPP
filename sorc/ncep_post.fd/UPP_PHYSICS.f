@@ -4527,7 +4527,8 @@
       use params_mod,   only: d00, dtr, small, erad
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
                               jsta, jend, im, jm, jsta_m, jend_m, gdsdegr,&
-                              ista, iend, ista_m, iend_m, ista_2l, iend_2u, me, num_procs
+                              ista, iend, ista_m, iend_m, ista_2l, iend_2u, &
+			       me, num_procs, mpi_comm_comp
       use gridspec_mod, only: gridtype, dyval
       use upp_math,     only: DVDXDUDY, DDVDX, DDUDY, UUAVG
       use mpi
@@ -4547,7 +4548,8 @@
       INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
 !
       integer, parameter :: npass2=2, npass3=3
-      integer I,J,ip1,im1,ii,iir,iil,jj,jjk,JMT2,imb2, npass, nn, jtem
+      integer I,J,ip1,im1,ii,iir,iil,jj,jjk,JMT2,imb2, npass, nn, jtem, ier
+      real    rtmp, rerr, err,pval,errmax,errmin,edif
       real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI, tx1(im+2), tx2(im+2)
       real*8 ta,tb,tc
 !     
@@ -4877,14 +4879,17 @@
 ! poisson solver for psi and chi 
       psi=0.
       ta=mpi_wtime()
-      do jjk=1,500
-      do jj=1,200 
+      do jjk=1,1000
+      do jj=1,300 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
         ptmp=psi
         do j=jsta,jend
         do i=ista,iend
           if (j>1 .and. j<jm) then
             psi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-atmp(i,j)
+            edif=psi(i,j)-pval
+            edif=abs(edif)
+            err=max(edif,err)
           endif
         enddo
         enddo
@@ -4907,18 +4912,25 @@
           enddo
         endif
       enddo   ! end of jj loop for psi
+      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_comp,ier)
+        if(  errmax .lt. 50.)  then
+            exit
+            endif
       enddo    ! end of jjk loop for psi
 !
       chi=0.
       tb=mpi_wtime()
-      do jjk=1,500
-      do jj=1,200 
+      do jjk=1,1000
+      do jj=1,300 
         call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
         ptmp=chi
         do j=jsta,jend
         do i=ista,iend
           if (j>1 .and. j<jm) then
             chi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-dtmp(i,j)
+            edif=psi(i,j)-pval
+            edif=abs(edif)
+            err=max(edif,err)
           endif
         enddo
         enddo
@@ -4941,6 +4953,10 @@
           enddo
         endif
       enddo   ! end of jj loop for chi
+      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_comp,ier)
+        if(  errmax .lt. 50.)  then
+            exit
+            endif
       enddo    ! end of jjk loop for chi
       tc=mpi_wtime()
 901 format(a,2f10.3)
