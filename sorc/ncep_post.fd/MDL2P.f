@@ -39,6 +39,7 @@
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
+!> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -75,7 +76,8 @@
                             IEND_2U, slrutah_on, gtg_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH, &
+                             CALSLR_UUTAH2
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
@@ -4287,11 +4289,9 @@
 ! SNOW DESITY SOLID-LIQUID-RATION SLR
       IF ( IGET(1006)>0 ) THEN
          egrid1=spval
-         if(slrutah_on) then
-            call calslr_uutah(EGRID1)
-         else
-            call calslr_roebber(TPRS,RHPRS,EGRID1)
-         endif
+            call calslr_uutah2(EGRID1)
+!            call calslr_uutah(EGRID1)
+!            call calslr_roebber(TPRS,RHPRS,EGRID1)
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend

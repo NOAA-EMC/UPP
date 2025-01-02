@@ -19,6 +19,8 @@
 !> calslr_roebber() computes snow solid-liquid-ratio slr using the Roebber algorithm.
 !>      
 !> calslr_uutah() computes snow solid-liquid-ratio slr using the UUtah Steenburgh algorithm.
+!>      
+!> calslr_uutah2() computes snow solid-liquid-ratio slr using the UUtah Steenburgh 2024 algorithm.
 !>   
 !> calvor() computes absolute vorticity.   
 !>      
@@ -33,6 +35,7 @@
 !> 2022-07-11 | Jesse Meng | CALSLR_ROEBBER
 !> 2023-02-14 | Jesse Meng | CALSLR_UUTAH     
 !> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
+!> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -48,7 +51,7 @@
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
-  public :: CALSLR_ROEBBER, CALSLR_UUTAH
+  public :: CALSLR_ROEBBER, CALSLR_UUTAH, CALSLR_UUTAH2
   public :: CALVOR
 
   public :: FPVSNEW
@@ -2809,7 +2812,7 @@
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
-         PRES(I,J)=SLP(I,J)
+         PRES(I,J)=PSFC(I,J)
          QPF(I,J)=AVGPREC_CONT(I,J)*3600.*3.
          SWND(I,J)=SPVAL
          IF(U10(I,J)/=SPVAL .AND. V10(I,J)/=SPVAL) &
@@ -3043,10 +3046,10 @@
 
       if(lprob(i,j) < .67) then
          slrgrid2(i,j) = hprob(i,j)*8.0+mprob(i,j)*13.0+lprob(i,j)*18.0
-         slrgrid2(i,j) = slrgrid2(i,j)*p/(hprob(i,j)+mprob(i,j)+lprob(i,j))
+         slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
       else
          slrgrid2(i,j) = hprob(i,j)*8.0+mprob(i,j)*13.0+lprob(i,j)*27.0
-         slrgrid2(i,j) = slrgrid2(i,j)*p/(hprob(i,j)+mprob(i,j)+lprob(i,j))
+         slrgrid2(i,j) = slrgrid2(i,j)/(hprob(i,j)+mprob(i,j)+lprob(i,j))
       endif
  
 !      slr(i,j) = climosub(i,j)
@@ -4466,12 +4469,12 @@
       ENDDO
       ENDDO
 
-      DO L=LM,1,-1
+      DO L=1,LM
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
          IF(TWET05(I,J) < 0) THEN
-            IF(TWET(I,J,L) <= 273.15+0.5) THEN
+            IF(TWET(I,J,L) >= 273.15+0.5) THEN
                ZWET(I,J)=ZMID(I,J,L)
                TWET05(I,J)=1
             ENDIF
@@ -4495,6 +4498,222 @@
       DEALLOCATE (TWET)
 
       END SUBROUTINE CALSLR_UUTAH
+!
+!-------------------------------------------------------------------------------------
+!
+!> Computes snow solid-liquid-ratio slr using the Steenburgh 2024 algorithm.
+!>
+!> Obtained the code and data from U of Utah Jim Steenburgh, 
+!> Peter Veals, and Michael Pletcher.
+!>
+!> @param[out] SLR real Solid snow to liquid ratio
+!> 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2024-11-15 | Jesse Meng | Initial
+!>
+!> @author Jesse Meng @date 2024-11-15
+
+      subroutine calslr_uutah2(slr)
+
+      use vrbls3d,    only: zint,zmid,pmid,t,q,uh,vh
+      use masks,      only: lmh,htm,gdlat,gdlon
+      use ctlblk_mod, only: me,ista,iend,jsta,jend,ista_2l,iend_2u,jsta_2l,jend_2u,&
+                            lm,spval
+
+      implicit none
+
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(out) :: slr !slr=snod/weasd=1000./sndens
+
+      integer, parameter :: nfl=8
+      real,    parameter :: htfl(nfl)=(/ 300., 600., 900., 1200., &
+                                        1500.,1800.,2100., 2400. /)
+      real,dimension(ista:iend,jsta:jend,nfl) :: tfd,ufd,vfd,pfd,qfd,rhfd
+      real,dimension(ista:iend,jsta:jend)     :: zsfc
+
+      real lhl(nfl),dzabh(nfl),swnd(nfl)
+      real htsfc,htabh,dz,rdz,delt,delu,delv,delp,delq
+
+      real, parameter :: s03 = 0.2113589753880838
+      real, parameter :: s06 =-0.3113780353218734
+      real, parameter :: s09 = 0.030295727788329747
+      real, parameter :: s12 = 0.14200126274780872
+      real, parameter :: s15 =-0.3036948150474089
+      real, parameter :: s18 = 0.36742135429588796
+      real, parameter :: s21 =-0.45316009735021756
+      real, parameter :: s24 = 0.2732018488504477
+      real, parameter :: t03 = 0.08908223593334653
+      real, parameter :: t06 =-0.24948847161912707
+      real, parameter :: t09 = 0.14521457107694088
+      real, parameter :: t12 = 0.17265963006356744
+      real, parameter :: t15 =-0.3741056734263027
+      real, parameter :: t18 = 0.39704205782424823
+      real, parameter :: t21 =-0.36577798019766355
+      real, parameter :: t24 =-0.12603742209070648
+      real, parameter :: r03 =-0.08523012915185951
+      real, parameter :: r06 = 0.0879493556495648
+      real, parameter :: r09 =-0.04508491900731953
+      real, parameter :: r12 = 0.0347032913014311
+      real, parameter :: r15 =-0.031872141634061976
+      real, parameter :: r18 = 0.05199814866971972
+      real, parameter :: r21 =-0.02739515218481534
+      real, parameter :: r24 =-0.0338838765912164
+      real, parameter ::   b = 97.96209163
+
+      integer,dimension(ista:iend,jsta:jend) :: karr
+      integer,dimension(ista:iend,jsta:jend) :: twet05
+      real,dimension(ista:iend,jsta:jend)    :: zwet
+
+      real, allocatable :: twet(:,:,:)
+
+      integer i,j,l,llmh,lmhk,ifd
+!
+!***************************************************************************
+!
+      allocate(twet(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+
+      do ifd = 1,nfl
+!$omp parallel do private(i,j)      
+        do j=jsta,jend
+          do i=ista,iend
+             zsfc(i,j)        = spval
+             tfd(i,j,ifd)     = spval
+             ufd(i,j,ifd)     = spval
+             vfd(i,j,ifd)     = spval
+             pfd(i,j,ifd)     = spval
+             qfd(i,j,ifd)     = spval
+            rhfd(i,j,ifd)     = spval
+          enddo
+        enddo
+      enddo        
+
+!        locate vertical indices of t,u,v, level just
+!        above each fd level.
+
+      do j=jsta,jend
+      do i=ista,iend
+      if(zint(i,j,lm+1)<spval) then
+         zsfc(i,j) = zint(i,j,lm+1)
+         htsfc = zint(i,j,lm+1)
+         llmh  = nint(lmh(i,j))
+      ifd = 1
+      do l = llmh,1,-1
+         htabh = zmid(i,j,l)-htsfc
+         if(htabh>htfl(ifd)) then
+            lhl(ifd) = l
+            dzabh(ifd) = htabh-htfl(ifd)
+            ifd = ifd + 1
+         endif
+         if(ifd > nfl) exit
+      enddo
+
+!        compute t, u, v at fd levels.
+
+      do ifd = 1,nfl 
+         l = lhl(ifd)
+         if (l<lm .and. t(i,j,l)<spval .and. uh(i,j,l)<spval .and. vh(i,j,l)<spval) then
+           dz   = zmid(i,j,l)-zmid(i,j,l+1)
+           rdz  = 1./dz
+           delt = t(i,j,l)-t(i,j,l+1)
+           tfd(i,j,ifd) = t(i,j,l) - delt*rdz*dzabh(ifd)
+           delu = uh(i,j,l)-uh(i,j,l+1)
+           delv = vh(i,j,l)-vh(i,j,l+1)
+           ufd(i,j,ifd) = uh(i,j,l) - delu*rdz*dzabh(ifd)
+           vfd(i,j,ifd) = vh(i,j,l) - delv*rdz*dzabh(ifd)
+           delp = pmid(i,j,l)-pmid(i,j,l+1)
+           pfd(i,j,ifd) = pmid(i,j,l) - delp*rdz*dzabh(ifd)
+           delq = q(i,j,l)-q(i,j,l+1)
+           qfd(i,j,ifd) = q(i,j,l) - delq*rdz*dzabh(ifd)
+         else
+           tfd(i,j,ifd) = t(i,j,l)
+           ufd(i,j,ifd) = uh(i,j,l)
+           vfd(i,j,ifd) = vh(i,j,l)
+           pfd(i,j,ifd) = pmid(i,j,l)
+           qfd(i,j,ifd) = q(i,j,l)
+         endif
+      enddo
+      endif !if(zint(i,j,lm+1)<spval)
+      enddo !i loop
+      enddo !j loop
+
+      do ifd = 1,nfl
+         call calrh(pfd(:,:,ifd),tfd(:,:,ifd),qfd(:,:,ifd),rhfd(:,:,ifd))
+      enddo
+
+!        compute slr
+
+      slr = spval
+
+!$omp parallel do private(i,j)      
+      do j=jsta,jend
+      do i=ista,iend
+      if(zsfc(i,j)<spval) then
+      if(tfd(i,j,1)<spval .and. ufd(i,j,1)<spval .and. vfd(i,j,1)<spval) then
+         swnd(1)=sqrt(ufd(i,j,1)*ufd(i,j,1)+vfd(i,j,1)*vfd(i,j,1))
+         swnd(2)=sqrt(ufd(i,j,2)*ufd(i,j,2)+vfd(i,j,2)*vfd(i,j,2))
+         swnd(3)=sqrt(ufd(i,j,3)*ufd(i,j,3)+vfd(i,j,3)*vfd(i,j,3))
+         swnd(4)=sqrt(ufd(i,j,4)*ufd(i,j,4)+vfd(i,j,4)*vfd(i,j,4))
+         swnd(5)=sqrt(ufd(i,j,5)*ufd(i,j,5)+vfd(i,j,5)*vfd(i,j,5))
+         swnd(6)=sqrt(ufd(i,j,6)*ufd(i,j,6)+vfd(i,j,6)*vfd(i,j,6))
+         swnd(7)=sqrt(ufd(i,j,7)*ufd(i,j,7)+vfd(i,j,7)*vfd(i,j,7))
+         swnd(8)=sqrt(ufd(i,j,8)*ufd(i,j,8)+vfd(i,j,8)*vfd(i,j,8))
+
+         slr(i,j) = s03*swnd(1)+s06*swnd(2)+s09*swnd(3)+s12*swnd(4) &
+                  + s15*swnd(5)+s18*swnd(6)+s21*swnd(7)+s24*swnd(8) &
+                  + t03*tfd(i,j,1)+t06*tfd(i,j,2)+t09*tfd(i,j,3)+t12*tfd(i,j,4) &
+                  + t15*tfd(i,j,5)+t18*tfd(i,j,6)+t21*tfd(i,j,7)+t24*tfd(i,j,8) &
+                  + r03*rhfd(i,j,1)+r06*rhfd(i,j,2)+r09*rhfd(i,j,3)+r12*rhfd(i,j,4) &
+                  + r15*rhfd(i,j,5)+r18*rhfd(i,j,6)+r21*rhfd(i,j,7)+r24*rhfd(i,j,8) &
+                  + b
+         slr(i,j) = max(slr(i,j),3.)
+      endif
+      endif
+      enddo
+      enddo
+
+!        compute wetbulb temperature and search for twet > 0.5c
+
+      karr = 1
+      call wetbulb(t,q,pmid,htm,karr,twet)
+
+!$omp parallel do private(i,j)      
+      do j=jsta,jend
+      do i=ista,iend
+         zwet(i,j)=zmid(i,j,lm)
+         twet05(i,j)=-1
+      enddo
+      enddo
+
+      do l=1,lm
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+      do i=ista,iend
+         if(twet05(i,j) < 0) then
+            if(twet(i,j,l) >= 273.15+0.5) then
+               zwet(i,j)=zmid(i,j,l)
+               twet05(i,j)=1
+            endif
+         endif
+      enddo
+      enddo
+      enddo
+
+!$omp parallel do private(i,j,htabh)      
+      do j=jsta,jend
+      do i=ista,iend
+         if(twet05(i,j) > 0 .and. slr(i,j)<spval) then
+            htabh=zwet(i,j)-zint(i,j,lm+1)
+            if(htabh<0.) htabh=0.
+            slr(i,j)=slr(i,j)*(1.-htabh/200.)
+            if(slr(i,j)<0.) slr(i,j)=0.
+         endif
+      enddo
+      enddo
+
+      deallocate (twet)
+
+      end subroutine calslr_uutah2
 !
 !-------------------------------------------------------------------------------------
 !
