@@ -4886,9 +4886,11 @@
       do jj=1,300 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
         ptmp=psi
+	err=0
         do j=jsta,jend
         do i=ista,iend
           if (j>1 .and. j<jm) then
+            pval=psi(i,j)
             psi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-atmp(i,j)
             edif=psi(i,j)-pval
             edif=abs(edif)
@@ -4927,11 +4929,13 @@
       do jj=1,300 
         call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
         ptmp=chi
+	err=0
         do j=jsta,jend
         do i=ista,iend
           if (j>1 .and. j<jm) then
+            pval=chi(i,j)
             chi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-dtmp(i,j)
-            edif=psi(i,j)-pval
+            edif=chi(i,j)-pval
             edif=abs(edif)
             err=max(edif,err)
           endif
