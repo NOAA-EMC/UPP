@@ -11,6 +11,9 @@ load(pathJoin("intel", intel_ver))
 load(pathJoin("craype", craype_ver))
 load(pathJoin("cray-mpich", cray_mpich_ver))
 
+cmake_ver=os.getenv("cmake_ver") or "3.20.2"
+load(pathJoin("cmake", cmake_ver))
+
 hdf5_ver=os.getenv("hdf5_ver") or "1.10.6"
 netcdf_ver=os.getenv("netcdf_ver") or "4.7.4"
 load(pathJoin("hdf5", hdf5_ver))
