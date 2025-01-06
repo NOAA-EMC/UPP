@@ -4563,7 +4563,7 @@
 !     
 !$omp  parallel do private(i,j)
       do j=jsta_2l,jend_2u
-      do i=ista_2l,iend,_2u
+      do i=ista_2l,iend_2u
         absv(i,j) = spval
 	div(i,j) = spval
         chi(i,j) = spval
