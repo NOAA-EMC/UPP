@@ -4880,7 +4880,7 @@
 !
 ! poisson solver for psi and chi 
       psi=0.
-      ta=mpi_wtime()
+!      ta=mpi_wtime()
       do jjk=1,1000
       do jj=1,300 
         call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -4923,7 +4923,7 @@
       enddo    ! end of jjk loop for psi
 !
       chi=0.
-      tb=mpi_wtime()
+!      tb=mpi_wtime()
       do jjk=1,1000
       do jj=1,300 
         call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
