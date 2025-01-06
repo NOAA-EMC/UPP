@@ -4601,7 +4601,7 @@
           ip1 = ie(i)
           im1 = iw(i)
           cosl(i,j) = cos(gdlat(i,j)*dtr)
-          IF(cosl(i,j) >= small) then
+          if(cosl(i,j) >= small) then
             wrk1(i,j) = 1.0 / (erad*cosl(i,j))
           else
             wrk1(i,j) = 0.
@@ -4619,7 +4619,7 @@
       call fullpole(gdlat(ista_2l:iend_2u,jsta_2l:jend_2u),glatpoles)
 !
 !$omp  parallel do private(i,j,ii)
-      DO j=jsta,jend
+      do j=jsta,jend
         if (j == 1) then
           if(gdlat(ista,j) > 0.) then ! count from north to south
             do i=ista,iend
