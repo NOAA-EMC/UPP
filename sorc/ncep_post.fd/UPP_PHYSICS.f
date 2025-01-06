@@ -4964,9 +4964,9 @@
             exit
             endif
       enddo    ! end of jjk loop for chi
-      tc=mpi_wtime()
-901 format(a,2f10.3)
-      if(me .eq. 0)print 901,'relax times, psi and chi',tb-ta,tc-tb
+!      tc=mpi_wtime()
+!901 format(a,2f10.3)
+!      if(me .eq. 0)print 901,'relax times, psi and chi',tb-ta,tc-tb
 !
      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 !     
