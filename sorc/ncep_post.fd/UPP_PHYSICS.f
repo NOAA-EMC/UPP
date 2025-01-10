@@ -28,6 +28,8 @@
 !>
 !> tvirtual() computes virtual temperature.
 !>
+!> calchipsi() computes streamfunction and velocity potential.
+!>
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
@@ -35,6 +37,7 @@
 !> 2022-07-11 | Jesse Meng | CALSLR_ROEBBER
 !> 2023-02-14 | Jesse Meng | CALSLR_UUTAH     
 !> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
+!> 2024-11-21 | K. Asmar, J. Meng, G. Vandenberghe | CALCHIPSI
 !> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
 !>
 !> @author Jesse Meng @date 2020-05-20
@@ -52,7 +55,7 @@
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
   public :: CALSLR_ROEBBER, CALSLR_UUTAH, CALSLR_UUTAH2
-  public :: CALVOR
+  public :: CALVOR, CALCHIPSI
 
   public :: FPVSNEW
   public :: TVIRTUAL
@@ -4501,6 +4504,476 @@
 !
 !-------------------------------------------------------------------------------------
 !
+!> Computes streamfunction and velocity potential from absolute vorticity
+!> and divergence (computed as in calvor subroutine). 
+!>
+!> Applies a poisson solver with 100,000 iterations to solve for
+!> streamfunction and velocity potential from absolute vorticity 
+!> and divergence.
+!>
+!> @param[in] uwnd u-wind (m/s) at mass-points
+!> @param[in] vwnd v-wind (m/s) at mass-points
+!> @param[out] chi velocity potential (m^2/s) at mass-points
+!> @param[out] psi streamfunction (m^2/s) at mass-points
+!> 
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 2024-10-28 | K. Asmar and J. Meng | Initial
+!> 2024-11-21 | George Vandenberghe  | Add convergence condition 
+!>
+!> @author(s) K. Asmar, J. Meng, G. Vandenberghe @date 2024-11-21
+      subroutine calchipsi (uwnd,vwnd,chi,psi)
+!
+      use vrbls2d,      only: f
+      use masks,        only: gdlat, gdlon, dx, dy
+      use params_mod,   only: d00, dtr, small, erad
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+                              jsta, jend, im, jm, jsta_m, jend_m, gdsdegr,&
+                              ista, iend, ista_m, iend_m, ista_2l, iend_2u, &
+			       me, num_procs, mpi_comm_comp
+      use gridspec_mod, only: gridtype, dyval
+      use upp_math,     only: dvdxdudy, ddvdx, ddudy, uuavg
+      use mpi
+!
+      implicit none
+!
+!     declare variables.
+!     
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: uwnd, vwnd
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: absv, div
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: chi, psi
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: ptmp, atmp, dtmp
+      real, dimension(im,2) :: glatpoles, coslpoles, upoles, vpoles, avpoles
+      real, dimension(im,jsta:jend) :: cosltemp, avtemp
+!
+      real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      integer, allocatable ::  ihe(:),ihw(:), ie(:),iw(:)
+!
+      integer, parameter :: npass2=2, npass3=3
+      integer I,J,ip1,im1,ii,iir,iil,jj,jjk,JMT2,imb2, npass, nn, jtem, ier
+      real    rtmp, rerr, err,pval,errmax,errmin,edif
+      real    r2dx,r2dy,dvdx,dudy,uavg,tph1,tphi, tx1(im+2), tx2(im+2)
+      real*8 ta,tb,tc
+!     
+!***************************************************************************
+!     start calchipsi here.
+!     
+!     loop to compute absolute vorticity from winds.
+!     
+!$omp  parallel do private(i,j)
+      do j=jsta_2l,jend_2u
+      do i=ista_2l,iend_2u
+        absv(i,j) = spval
+	div(i,j) = spval
+        chi(i,j) = spval
+	psi(i,j) = spval
+      enddo
+      enddo
+!
+      call exch(uwnd)
+      call exch(vwnd)
+!
+      call exch(gdlat(ista_2l,jsta_2l))
+      call exch(gdlon(ista_2l,jsta_2l))
+!
+      allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
+     &          wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(iw(im),ie(im))
+
+      imb2 = im/2
+!$omp  parallel do private(i)
+      do i=ista,iend
+        ie(i) = i+1
+        iw(i) = i-1
+      enddo
+!      iw(1)  = im
+!      ie(im) = 1
+!
+!       if(1>=jsta .and. 1<=jend)then
+!        if(cos(gdlat(1,1)*dtr)<small)poleflag=.T.
+!       end if 	
+!       call mpi_bcast(poleflag,1,MPI_LOGICAL,0,mpi_comm_comp,iret)
+!
+!$omp  parallel do private(i,j,ip1,im1)
+      do j=jsta,jend
+        do i=ista,iend
+          ip1 = ie(i)
+          im1 = iw(i)
+          cosl(i,j) = cos(gdlat(i,j)*dtr)
+          if(cosl(i,j) >= small) then
+            wrk1(i,j) = 1.0 / (erad*cosl(i,j))
+          else
+            wrk1(i,j) = 0.
+          end if    
+          if(i == im .or. i == 1) then
+            wrk2(i,j) = 1.0 / ((360.+gdlon(ip1,J)-gdlon(im1,J))*dtr) !1/dlam
+          else
+            wrk2(i,j) = 1.0 / ((gdlon(ip1,J)-gdlon(im1,J))*dtr)      !1/dlam
+          end if
+        enddo
+      enddo
+      call exch(cosl)
+!
+      call fullpole( cosl(ista_2l:iend_2u,jsta_2l:jend_2u),coslpoles)
+      call fullpole(gdlat(ista_2l:iend_2u,jsta_2l:jend_2u),glatpoles)
+!
+!$omp  parallel do private(i,j,ii)
+      do j=jsta,jend
+        if (j == 1) then
+          if(gdlat(ista,j) > 0.) then ! count from north to south
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !    wrk3(i,j) = 1.0 / ((180.-gdlat(i,J+1)-gdlat(II,J))*dtr) !1/dphi
+              wrk3(i,j) = 1.0 / ((180.-gdlat(i,J+1)-glatpoles(ii,1))*dtr) !1/dphi
+            enddo
+          else ! count from south to north
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !     wrk3(i,j) = 1.0 / ((180.+gdlat(i,J+1)+gdlat(II,J))*dtr) !1/dphi
+                wrk3(i,j) = 1.0 / ((180.+gdlat(i,J+1)+glatpoles(ii,1))*dtr) !1/dphi
+!
+            enddo
+          end if      
+        elseif (j == jm) then
+          if(gdlat(ista,j) < 0.) then ! count from north to south
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !      wrk3(i,j) = 1.0 / ((180.+gdlat(i,J-1)+gdlat(II,J))*dtr)
+                wrk3(i,j) = 1.0 / ((180.+gdlat(i,J-1)+glatpoles(ii,2))*dtr)
+            enddo
+          else ! count from south to north
+            do i=ista,iend
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+          !     wrk3(i,j) = 1.0 / ((180.-gdlat(i,J-1)-gdlat(II,J))*dtr)
+                wrk3(i,j) = 1.0 / ((180.-gdlat(i,J-1)-glatpoles(ii,2))*dtr)
+            enddo
+          end if  
+        else
+          do i=ista,iend
+            wrk3(i,j) = 1.0 / ((gdlat(I,J-1)-gdlat(I,J+1))*dtr) !1/dphi
+          enddo
+        endif
+      enddo  
+!
+      npass = 0
+!
+      jtem = jm / 18 + 1
+!
+      call fullpole(uwnd(ista_2l:iend_2u,jsta_2l:jend_2u),upoles)
+      call fullpole(vwnd(ista_2l:iend_2u,jsta_2l:jend_2u),vpoles)
+!
+!$omp  parallel do private(i,j,ip1,im1,ii,jj,tx1,tx2)
+      do j=jsta,jend
+        if(j == 1) then                            ! near north or south pole
+          if(gdlat(ista,j) > 0.) then ! count from north to south
+            if(cosl(ista,j) >= small) then            !not a pole point
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                if(vwnd(ip1,j)==spval .or. vwnd(im1,j)==spval .or. &
+!                   uwnd(ii,j)==spval .or. uwnd(i,j+1)==spval) cycle
+                    upoles(ii,1)==spval .or. uwnd(i,j+1)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,j)-vwnd(im1,j))*wrk2(i,j)                 &
+     &                      +  (upoles(ii,1)*coslpoles(ii,1)                     &
+     &                      +   uwnd(i,j+1)*cosl(i,j+1))*wrk3(i,j)) * wrk1(i,j)  &
+     &                      + f(i,j)
+                div(i,j)  = ((uwnd(ip1,j)-uwnd(im1,j))*wrk2(i,j)                 &
+     &                      -  (vpoles(ii,1)*coslpoles(ii,1)                     &
+     &                      +   vwnd(i,j+1)*cosl(i,j+1))*wrk3(i,j)) * wrk1(i,j)  
+              enddo
+            else                                   !pole point, compute at j=2
+              jj = 2
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                if(vwnd(ip1,jj)==spval .or. vwnd(im1,jj)==spval .or. &
+                    uwnd(i,j)==spval .or. uwnd(i,jj+1)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,jj)-vwnd(im1,jj))*wrk2(i,jj)                 &
+     &                      -  (uwnd(i,j)*cosl(i,j)                                 &
+                            -   uwnd(i,jj+1)*cosl(i,jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + f(i,jj)
+                div(i,j)  = ((uwnd(ip1,jj)-uwnd(im1,jj))*wrk2(i,jj) &
+     &                      +  (vwnd(i,j)*cosl(i,j)                                 &
+                            -   vwnd(i,jj+1)*cosl(i,jj+1))*wrk3(i,jj)) * wrk1(i,jj) 
+              enddo
+            endif
+          else
+            if(cosl(ista,j) >= small) then            !not a pole point
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                if(vwnd(ip1,j)==spval .or. vwnd(im1,j)==spval .or. &
+!                   uwnd(ii,j)==spval .or. uwnd(i,j+1)==spval) cycle
+                    upoles(ii,1)==spval .or. uwnd(i,j+1)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,j)-vwnd(im1,j))*wrk2(i,j)                     &
+     &                      -  (upoles(ii,1)*coslpoles(ii,1)                         &
+     &                      +   uwnd(i,j+1)*cosl(i,j+1))*wrk3(i,j)) * wrk1(i,j)      &
+     &                      + f(i,j)
+                div(i,j)  = ((uwnd(ip1,j)-uwnd(im1,j))*wrk2(i,j)                     &
+     &                      +  (vpoles(ii,1)*coslpoles(ii,1)                         &
+     &                      +   vwnd(i,j+1)*cosl(i,j+1))*wrk3(i,j)) * wrk1(i,j)  
+              enddo
+            else                                   !pole point, compute at j=2
+              jj = 2
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                if(vwnd(ip1,jj)==spval .or. vwnd(im1,jj)==spval .or. &
+                  uwnd(i,j)==spval .or. uwnd(i,jj+1)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,jj)-vwnd(im1,jj))*wrk2(i,jj)                 &
+     &                      +  (uwnd(i,j)*cosl(i,j)                                 &
+                            -   uwnd(i,jj+1)*cosl(i,jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + f(i,jj)
+                div(i,j)  = ((uwnd(ip1,jj)-uwnd(im1,jj))*wrk2(i,jj)                 &
+     &                      -  (vwnd(i,j)*cosl(i,j)                                 &
+                            -   vwnd(i,jj+1)*cosl(i,jj+1))*wrk3(i,jj)) * wrk1(i,jj) 
+              enddo
+            endif
+          endif
+        else if(j == jm) then                      ! near north or south pole
+          if(gdlat(ista,j) < 0.) then ! count from north to south
+            if(cosl(ista,j) >= small) then            !not a pole point
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                if(vwnd(ip1,j)==spval .or. vwnd(im1,j)==spval .or. &
+!                  uwnd(i,j-1)==spval .or. uwnd(ii,j)==spval) cycle
+                   uwnd(i,j-1)==spval .or. upoles(ii,2)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,j)-vwnd(im1,j))*wrk2(i,j)                       &
+     &                      -  (uwnd(i,j-1)*cosl(i,j-1)                                &
+     &                      +   upoles(ii,2)*coslpoles(ii,2))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      + f(i,j)
+                div(i,j)  = ((uwnd(ip1,j)-uwnd(im1,j))*wrk2(i,j)                       &
+     &                      +  (vwnd(i,j-1)*cosl(i,j-1)                                &
+     &                      +   vpoles(ii,2)*coslpoles(ii,2))*wrk3(i,j)) * wrk1(i,j)   
+              enddo
+            else                                   !pole point,compute at jm-1
+              jj = jm-1
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                if(vwnd(ip1,jj)==spval .or. vwnd(im1,jj)==spval .or. &
+                   uwnd(i,jj-1)==spval .or. uwnd(i,j)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,jj)-vwnd(im1,jj))*wrk2(i,jj)           &
+     &                      -  (uwnd(i,jj-1)*cosl(i,jj-1)                     &
+     &                      -   uwnd(i,j)*cosl(i,j))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + f(i,jj)
+                div(i,j)  = ((uwnd(ip1,jj)-uwnd(im1,jj))*wrk2(i,jj)           &
+     &                      +  (vwnd(i,jj-1)*cosl(i,jj-1)                     &
+     &                      -   vwnd(i,j)*cosl(i,j))*wrk3(i,jj)) * wrk1(i,jj) 
+              enddo
+            endif
+          else
+            if(cosl(ista,j) >= small) then            !not a pole point
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                if(vwnd(ip1,j)==spval .or. vwnd(im1,j)==spval .or. &
+!                  uwnd(i,j-1)==spval .or. uwnd(ii,j)==spval) cycle
+                   uwnd(i,j-1)==spval .or. upoles(ii,2)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,j)-vwnd(im1,j))*wrk2(i,j)                       &
+     &                      +  (uwnd(i,j-1)*cosl(i,j-1)                                &
+     &                      +   upoles(ii,2)*coslpoles(ii,2))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      + f(i,j)
+                div(i,j)  = ((uwnd(ip1,j)-uwnd(im1,j))*wrk2(i,j)                       &
+     &                      -  (vwnd(i,j-1)*cosl(i,j-1)                                &
+     &                      +   vpoles(ii,2)*coslpoles(ii,2))*wrk3(i,j)) * wrk1(i,j)   
+              enddo
+            else                                   !pole point,compute at jm-1
+              jj = jm-1
+              do i=ista,iend
+                ip1 = ie(i)
+                im1 = iw(i)
+                if(vwnd(ip1,jj)==spval .or. vwnd(im1,jj)==spval .or. &
+                    uwnd(i,jj-1)==spval .or. uwnd(i,j)==spval) cycle
+                absv(i,j) = ((vwnd(ip1,jj)-vwnd(im1,jj))*wrk2(i,jj)             &
+     &                      +  (uwnd(i,jj-1)*cosl(i,jj-1)                       &
+     &                      -   uwnd(i,j)*cosl(i,j))*wrk3(i,jj)) * wrk1(i,jj)   &
+     &                      + f(i,jj)
+                  div(i,j)  = ((uwnd(ip1,jj)-uwnd(im1,jj))*wrk2(i,jj)           &
+     &                      -  (vwnd(i,jj-1)*cosl(i,jj-1)                       &
+     &                      -   vwnd(i,j)*cosl(i,j))*wrk3(i,jj)) * wrk1(i,jj) 
+              enddo
+            endif
+          endif
+        else
+          do i=ista,iend
+            ip1 = ie(i)
+            im1 = iw(i)
+            if(vwnd(ip1,j)==spval .or. vwnd(im1,j)==spval .or. &
+               uwnd(i,j-1)==spval .or. uwnd(i,j+1)==spval) cycle
+            absv(i,j)   = ((vwnd(ip1,j)-vwnd(im1,j))*wrk2(i,j)                 &
+     &                    -  (uwnd(i,j-1)*cosl(i,j-1)                          &
+                          -   uwnd(i,j+1)*cosl(i,j+1))*wrk3(i,j)) * wrk1(i,j)  &
+                          + f(i,j)
+            div(i,j)    = ((uwnd(ip1,j)-uwnd(im1,j))*wrk2(i,j)                 &
+     &                    +  (vwnd(i,j-1)*cosl(i,j-1)                          &
+                          -   vwnd(i,j+1)*cosl(i,j+1))*wrk3(i,j)) * wrk1(i,j)  
+          enddo
+        end if
+        if (npass > 0) then
+          do i=ista,iend
+            tx1(i) = absv(i,j)
+          enddo
+          do nn=1,npass
+            do i=ista,iend
+              tx2(i+1) = tx1(i)
+            enddo
+            tx2(1)    = tx2(im+1)
+            tx2(im+2) = tx2(2)
+            do i=2,im+1
+              tx1(i-1) = 0.25 * (tx2(i-1) + tx2(i+1)) + 0.5*tx2(i)
+            enddo
+          enddo
+          do i=ista,iend
+            absv(i,j) = tx1(i)
+          enddo
+        endif
+      end do                               ! end of j loop
+
+!     deallocate (wrk1, wrk2, wrk3, cosl)
+! gfs use lon avg as one scaler value for pole point
+!
+      ! call poleavg(im,jm,jsta,jend,small,cosl(1,jsta),spval,absv(1,jsta))
+!
+      call exch(absv(ista_2l:iend_2u,jsta_2l:jend_2u))
+      call fullpole(absv(ista_2l:iend_2u,jsta_2l:jend_2u),avpoles)     
+!
+      cosltemp=spval
+      if(jsta== 1) cosltemp(1:im, 1)=coslpoles(1:im,1)
+      if(jend==jm) cosltemp(1:im,jm)=coslpoles(1:im,2)
+      avtemp=spval
+      if(jsta== 1) avtemp(1:im, 1)=avpoles(1:im,1)
+      if(jend==jm) avtemp(1:im,jm)=avpoles(1:im,2)
+!        
+      call poleavg(im,jm,jsta,jend,small,cosltemp(1,jsta),spval,avtemp(1,jsta))
+!
+      if(jsta== 1) absv(ista:iend, 1)=avtemp(ista:iend, 1)
+      if(jend==jm) absv(ista:iend,jm)=avtemp(ista:iend,jm)
+!    
+!        deallocate (wrk1, wrk11, wrk2, wrk3, cosl, iw, ie)
+!    
+      call exch(absv(ista_2l:iend_2u,jsta_2l:jend_2u))
+      call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u))
+!
+! store absv and div factors before poisson loops
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+      do i=ista,iend
+        atmp(i,j)=0.25*(absv(i,j)-f(i,j))/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*cosl(i,j)*4.)
+        dtmp(i,j)=0.25*div(i,j)/(wrk2(i,j)*wrk1(i,j)*wrk3(i,j)*wrk1(i,j)*cosl(i,j)*4.)
+      enddo
+      enddo
+!
+! poisson solver for psi and chi 
+      psi=0.
+!      ta=mpi_wtime()
+      do jjk=1,1000
+      do jj=1,300 
+        call exch(psi(ista_2l:iend_2u,jsta_2l:jend_2u))
+        ptmp=psi
+	err=0
+        do j=jsta,jend
+        do i=ista,iend
+          if (j>1 .and. j<jm) then
+            pval=psi(i,j)
+            psi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-atmp(i,j)
+            edif=psi(i,j)-pval
+            edif=abs(edif)
+            err=max(edif,err)
+          endif
+        enddo
+        enddo
+        if (jsta==1) then
+          psi(iend,1)=0.
+          do i=ista,iend-1
+            psi(iend,1)=psi(iend,1)+psi(i,2)
+          enddo
+          do i=ista,iend
+            psi(i,1)=psi(iend,1)/(iend-ista)
+          enddo
+        endif
+        if (jend==jm) then
+          psi(iend,jm)=0.
+          do i=ista,iend-1
+            psi(iend,jm)=psi(iend,jm)+psi(i,jm-1)
+          enddo
+          do i=ista,iend
+            psi(i,jm)=psi(iend,jm)/(iend-ista)
+          enddo
+        endif
+      enddo   ! end of jj loop for psi
+      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_comp,ier)
+        if(  errmax .lt. 50.)  then
+            exit
+            endif
+      enddo    ! end of jjk loop for psi
+!
+      chi=0.
+!      tb=mpi_wtime()
+      do jjk=1,1000
+      do jj=1,300 
+        call exch(chi(ista_2l:iend_2u,jsta_2l:jend_2u))
+        ptmp=chi
+	err=0
+        do j=jsta,jend
+        do i=ista,iend
+          if (j>1 .and. j<jm) then
+            pval=chi(i,j)
+            chi(i,j) = 0.25*(ptmp(i-1,j)+ptmp(i+1,j)+ptmp(i,j-1)+ptmp(i,j+1))-dtmp(i,j)
+            edif=chi(i,j)-pval
+            edif=abs(edif)
+            err=max(edif,err)
+          endif
+        enddo
+        enddo
+        if (jsta==1) then
+          chi(iend,1)=0.
+          do i=ista,iend-1
+            chi(iend,1)=chi(iend,1)+chi(i,2)
+          enddo
+          do i=ista,iend
+            chi(i,1)=chi(iend,1)/(iend-ista)
+          enddo
+        endif
+        if (jend==jm) then
+          chi(iend,jm)=0.
+          do i=ista,iend-1
+            chi(iend,jm)=chi(iend,jm)+chi(i,jm-1)
+          enddo
+          do i=ista,iend
+            chi(i,jm)=chi(iend,jm)/(iend-ista)
+          enddo
+        endif
+      enddo   ! end of jj loop for chi
+      call mpi_allreduce (err,errmax,1,mpi_real,mpi_max,mpi_comm_comp,ier)
+        if(  errmax .lt. 50.)  then
+            exit
+            endif
+      enddo    ! end of jjk loop for chi
+!      tc=mpi_wtime()
+!901 format(a,2f10.3)
+!      if(me .eq. 0)print 901,'relax times, psi and chi',tb-ta,tc-tb
+!
+     deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+!     
+     end subroutine calchipsi
+!
+!-------------------------------------------------------------------------------------
+!
 !> Computes snow solid-liquid-ratio slr using the Steenburgh 2024 algorithm.
 !>
 !> Obtained the code and data from U of Utah Jim Steenburgh, 
@@ -4718,4 +5191,3 @@
 !-------------------------------------------------------------------------------------
 !
   end module upp_physics
-
