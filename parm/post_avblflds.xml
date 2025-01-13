@@ -8495,5 +8495,13 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>1023</post_avblfldidx>
+       <shortname>NCGRAUP_ON_HYBRID_LVL</shortname>
+       <pname>SPNCG</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>
