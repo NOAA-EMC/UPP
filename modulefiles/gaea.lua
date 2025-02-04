@@ -1,9 +1,9 @@
 help([[
   This module loads libraries required for building and running UPP
-  on the NOAA RDHPC machine Gaea C6 using Intel-2023.2.0.
+  on the NOAA RDHPC machine Gaea using Intel-2023.2.0.
 ]])
 
-whatis([===[Loads libraries needed for building the UPP on Gaea C6 ]===])
+whatis([===[Loads libraries needed for building the UPP on Gaea ]===])
 
 prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/c6/spack-stack-1.8.0/envs/ue-intel-2021.10.0/install/modulefiles/Core")
 
@@ -25,4 +25,4 @@ setenv("CC","cc")
 setenv("CXX","CC")
 setenv("FC","ftn")
 
-setenv("CMAKE_Platform","gaeac6.intel")
+setenv("CMAKE_Platform","gaea.intel")
