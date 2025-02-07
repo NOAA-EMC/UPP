@@ -266,6 +266,26 @@
     </param>
 
     <param>
+       <shortname>AVE_TCDC_ON_LOW_CLOUD_LYR</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_TCDC_ON_MID_CLOUD_LYR</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_TCDC_ON_HIGH_CLOUD_LYR</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_TCDC_ON_BOUND_LYR_CLOUD_LYR</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <shortname>VIS_ON_SURFACE</shortname>
        <scale>3.0</scale>
     </param>
