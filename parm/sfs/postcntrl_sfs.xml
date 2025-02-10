@@ -69,6 +69,20 @@
     </param>
 
     <param>
+       <shortname>VVEL_ON_ISOBARIC_SFC</shortname>
+       <level>1. 2. 4. 7. 10. 20. 40. 70. 100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 20000. 25000. 30000. 35000. 40000.</level>
+       <scale>5.0</scale>
+    </param>
+
+
+    <param>
+       <shortname>DZDT_ON_ISOBARIC_SFC</shortname>
+       <level>1. 2. 4. 7. 10. 20. 40. 70. 100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 20000. 25000. 30000. 35000. 40000.</level>
+       <scale>-5.0</scale>
+    </param>
+
+
+    <param>
        <shortname>POISSION_VPOT_ON_ISOBARIC_SFC</shortname>
        <level>20000.</level>
        <scale>3.0</scale>
