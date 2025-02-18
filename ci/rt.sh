@@ -88,7 +88,7 @@ mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
 if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
- export homedir=${homedir:-"/scratch2/BMC/ifi/Samuel.Trahan/test_suite/"}
+ export homedir=${homedir:-"/scratch2/BMC/wrfruc/Samuel.Trahan/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
  module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
  module load stack-intel/2021.5.0
@@ -286,6 +286,7 @@ set +xe
 echo "Job cards submitted for enabled tests, waiting on timestamps for finished jobs..."
 
 #get run time for each test
+some_failed=NO
 sleep 30
 for job_id in $jobid_list; do
   ic=1
@@ -294,6 +295,9 @@ for job_id in $jobid_list; do
      job_id=`echo $job_id | cut -d"." -f1`
      status=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f4|awk 'FNR == 2'`
      if [ "$status" = "COMPLETED" ]; then
+       break
+     elif ( echo "$status" | grep -E 'FAIL|TIMEOUT|CANCEL|DEAD|SIGNAL|SPECIAL' > /dev/null ) ; then
+       some_failed=YES
        break
      else
       ic=`expr $ic + 1`
@@ -314,6 +318,11 @@ elapsed_time=$( printf '%02dh:%02dm:%02ds\n' $((SECONDS%86400/3600)) $((SECONDS%
 
 python ${test_v}/ci/rt-status.py
 test_results=$?
+
+if [ $some_failed = YES ] ; then
+  test_results=99
+  echo WARNING: some tests exited with non-zero status.
+fi
 
 # Cleanup rt log
 cd ${test_v}
@@ -341,6 +350,12 @@ Summary Results:
 
 EOF
 
+
+if [ $some_failed = YES ] ; then
+    echo "Warning: some tests exited with non-zero. status" >> rt.log.${machine}.temp
+    echo >> rt.log.${machine}.temp
+fi
+
 cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
 cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
 python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
@@ -351,5 +366,8 @@ mv rt.log.${machine} ${test_v}/tests/logs
 # should indicate failure to Jenkins
 if [ $test_results -ne 0 ]; then
    python ${test_v}/ci/rt-status.py > changed_results.txt
+   if [ $some_failed = YES ]; then
+     echo "Warning: some tests exited with non-zero status." >> changed_results.txt
+   fi
    exit 1
 fi
