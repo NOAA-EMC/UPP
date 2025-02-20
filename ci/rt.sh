@@ -96,7 +96,7 @@ if [ $mac2 = hf ]; then # for HERA
  module load prod_util/2.1.1
 elif [ $mac3 = orio ] ; then
  export machine=ORION
- export homedir=${homedir:-"/work2/noaa/wrfruc/strahan/upp-ifi-regtest/upp-data"}
+ export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
  module load stack-intel/2021.9.0
