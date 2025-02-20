@@ -105,7 +105,7 @@ elif [ $mac3 = orio ] ; then
  module load python/3.10.8
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
- export homedir=${homedir:-"/work2/noaa/wrfruc/strahan/upp-ifi-regtest/upp-data"}
+ export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
  module load stack-intel/2021.9.0
