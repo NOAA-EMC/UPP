@@ -10,6 +10,7 @@ usage() {
   echo
   echo "Usage: $0 [options]"
   echo
+  echo "  -o  exe_name.x   Name of built UPP executable in exec. Default: upp.x"
   echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
   echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
   echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
@@ -17,15 +18,18 @@ usage() {
   echo "  -B  build libIFI test programs (only valid with -I)       DEFAULT: OFF"
   echo "  -n  build without nemsio            DEFAULT: ON"
   echo "  -w  build without WRF-IO            DEFAULT: ON"
-  echo "  -v  build with cmake verbose        DEFAULT: NO"
+  echo "  -v  build with cmake verbose        DEFAULT: OFF"
   echo "  -c  Compiler to use for build       DEFAULT: intel"
   echo "  -d  Debug mode of CMAKE_BUILD_TYPE  DEFAULT: Release"
+  echo "  -a  Skip deletion of exec. Add new executables. DEFAULT: OFF"
   echo "  -Doption=value   Passes this option to cmake (can use more than once)"
   echo "  -h  display this message and quit"
   echo
   exit 1
 }
 
+delete_exec=YES
+upp_name="upp.x"
 load_ifi_module=NO
 prefix="../install"
 ifi_opt=" -DBUILD_WITH_IFI=OFF"
@@ -38,8 +42,14 @@ more=" "
 compiler="intel"
 verbose_opt=""
 debug_opt=""
-while getopts ":p:gnwc:vhiIdBD:" opt; do
+while getopts ":p:gnwc:vhiIdBD:o:a" opt; do
   case $opt in
+    a)
+      delete_exec=NO
+      ;;
+    o)
+      upp_name="$OPTARG"
+      ;;
     D)
       more="$more -$opt$OPTARG"
       ;;
@@ -143,8 +153,11 @@ cmake $cmake_opts ${PATHTR}
 make -j${BUILD_JOBS:-6} $verbose_opt
 make install
 
-rm -rf $PATHTR/exec && mkdir -p $PATHTR/exec
-cp $prefix/bin/upp.x $PATHTR/exec/.
+if [[ "$delete_exec" == YES ]] ; then
+    rm -rf $PATHTR/exec
+fi
+test -d $PATHTR/exec || mkdir -p $PATHTR/exec
+cp $prefix/bin/upp.x $PATHTR/exec/$upp_name
 if [[ "$build_ifi_executables" == YES ]] ; then
     cp $prefix/bin/fip2-lookalike.x $PATHTR/exec/.
 fi
