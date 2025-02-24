@@ -43,6 +43,7 @@ ALL_TXT= \
   postxconfig-NT-hafs_nosat.txt \
   postxconfig-NT-hafs.txt \
   postxconfig-NT-hrrr.txt \
+  postxconfig-NT-ifi.txt \
   postxconfig-NT-rap.txt \
   postxconfig-NT-rrfs.txt \
   postxconfig-NT-rrfs_subh.txt \
@@ -80,6 +81,7 @@ postxconfig-NT-hafs_ar_nosat.txt:    postcntrl_hafs_ar_nosat.xml    post_avblfld
 postxconfig-NT-hafs_ar_nosat_l65.txt: postcntrl_hafs_ar_nosat_l65.xml post_avblflds.xml
 postxconfig-NT-hafs.txt:             postcntrl_hafs.xml             post_avblflds.xml
 postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
+postxconfig-NT-ifi.txt:              ifi_postcntrl.xml              post_avblflds.xml
 postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
 postxconfig-NT-rrfs.txt:             rrfs_postcntrl.xml             post_avblflds.xml
 postxconfig-NT-rrfs_subh.txt:        rrfs_postcntrl_subh.xml        post_avblflds.xml
