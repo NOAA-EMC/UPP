@@ -838,6 +838,11 @@
     </param>
 
     <param>
+       <shortname>ICETMP_ON_SURFACE</shortname>
+       <scale>5.0</scale>
+    </param>
+
+    <param>
        <shortname>HGT_ON_CLOUD_CEILING</shortname>
        <scale>6.0</scale>
     </param>
