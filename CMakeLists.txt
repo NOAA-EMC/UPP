@@ -20,6 +20,7 @@ option(BUILD_WITH_IFI "Build NCEPpost with In-Flight Icing (IFI) library if pres
 option(REQUIRE_IFI "Abort if libIFI is not found ; enables BUILD_WITH_IFI=ON" OFF)
 option(BUILD_WITH_GTG   "Build NCEPpost with NCAR/GTG" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
+option(BUILD_IFI_EXECUTABLES "Build libIFI FIP2-lookalike and test programs." OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -81,6 +82,14 @@ else()
   endif()
   if(IFI_FOUND)
     message(NOTICE "Linking to IFI external to the post.")
+  endif()
+endif()
+
+if(BUILD_IFI_EXECUTABLES)
+  if(NOT INTERNAL_IFI)
+    message(SEND_ERROR "Can only BUILD_IFI_EXECUTABLES when INTERNAL_IFI is enabled.")
+  else()
+    message(NOTICE "Building libIFI FIP2-lookalike and test programs.")
   endif()
 endif()
 

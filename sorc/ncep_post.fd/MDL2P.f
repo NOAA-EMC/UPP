@@ -41,6 +41,7 @@
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
 !> 2024-09-23 | K Asmar		| Add velocity potential and streamfunction from wind vectors
 !> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
+!> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@
       use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
-                         QQNW, QQNI, QQNR, RLWTT, RSWTT, VDIFFTT, TCUCN,     &
+                         QQNW, QQNI, QQNR, QQNG, RLWTT, RSWTT, VDIFFTT, TCUCN, &
                          TCUCNS, TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,&
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
@@ -128,7 +129,7 @@
 !  QQNR1 - number concentration of rain particles
 !
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
-      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1
+      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1, QQNG1
 
       REAL SDUMMY(IM,2)
 
@@ -308,6 +309,7 @@
               QQNW1(I,J)    = SPVAL
               QQNI1(I,J)    = SPVAL
               QQNR1(I,J)    = SPVAL
+              QQNG1(I,J)    = SPVAL
 
               if (gtg_interpolation) then
                  GTGSL(I,J)    = SPVAL
@@ -407,6 +409,8 @@
                  QQNI1(I,J) = MAX(QQNI1(I,J),zero)          ! Ice number concentration
                  IF(QQNR(I,J,1)    < SPVAL) QQNR1(I,J) = QQNR(I,J,1)
                  QQNR1(I,J) = MAX(QQNR1(I,J),zero)          ! Rain number concentration
+                 IF(QQNG(I,J,1)    < SPVAL) QQNG1(I,J) = QQNG(I,J,1)
+                 QQNG1(I,J) = MAX(QQNG1(I,J),zero)          ! Graupel number concentration
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
@@ -644,6 +648,10 @@
                  IF(QQNR(I,J,LL) < SPVAL .AND. QQNR(I,J,LL-1) < SPVAL)         &
                    QQNR1(I,J) = QQNR(I,J,LL) + (QQNR(I,J,LL)-QQNR(I,J,LL-1))*FACT
                    QQNR1(I,J) = MAX(QQNR1(I,J),zero)      ! Rain number concentration
+
+                 IF(QQNG(I,J,LL) < SPVAL .AND. QQNG(I,J,LL-1) < SPVAL)         &
+                   QQNG1(I,J) = QQNG(I,J,LL) + (QQNG(I,J,LL)-QQNG(I,J,LL-1))*FACT
+                   QQNG1(I,J) = MAX(QQNG1(I,J),zero)      ! Graupel number concentration
 
                  IF(TTND(I,J,LL) < SPVAL .AND. TTND(I,J,LL-1) < SPVAL)        &
                    RAD(I,J) = TTND(I,J,LL) + (TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
@@ -916,6 +924,7 @@
                  QQNW1(I,J) = 0.
                  QQNI1(I,J) = 0.
                  QQNR1(I,J) = 0.
+                 QQNG1(I,J) = 0.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
                  IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
@@ -2187,6 +2196,25 @@
                  do i=1,iend-ista+1
                   ii=ista+i-1
                    datapd(i,j,cfld) = QQNR1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for graupel on isobaric surfaces
+         IF (IGET(1024) > 0) THEN
+          IF (LVLS(LP,IGET(1024)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1024))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1024))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNG1(ii,jj)
                  enddo
                enddo
              endif

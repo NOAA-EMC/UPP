@@ -24,6 +24,7 @@
 !> 2024-10-28 | Jaymes Kenyon| Removing outdated processing for various "imp_physics" cases
 !> 2024-12-05 | Jaymes Kenyon| Temporary hard coding of imp_physics=8 for RRFS-MPAS (required for 
 !>                           | brightness-temperature calculations in subroutine CALRAD_WCLOUD)
+!> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -31,7 +32,7 @@
 
       use vrbls4d, only: dust, smoke
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
-              qqr, qqs, qqi, qqg, qqnw, qqni,qqnr, cwm, qqw, qqi, qqr, qqs, extcof55,&
+              qqr, qqs, qqi, qqg, qqnw, qqni, qqnr, qqng, cwm, qqw, qqi, qqr, qqs, extcof55,&
               f_ice, f_rain, f_rimef, q2, zint, zmid, ttnd, cfr, cfr_raw, qc_bl, REF_10CM,  &
               qqnwfa,qqnifa,taod5503d,aextc55
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,      &
@@ -572,6 +573,19 @@
             qqnr ( i, j, l ) = dum3d ( i, j, l )
         !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
         !  i,j,l,QQNR ( i, j, l )
+        end do
+       end do
+      end do
+
+      VarName='QNGRAUP'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqng ( i, j, l ) = dum3d ( i, j, l )
+        !if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNG= ',    &
+        !  i,j,l,QQNG ( i, j, l )
         end do
        end do
       end do

@@ -27,6 +27,8 @@
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !! -  23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
 !! -  23-08-16  Yali Mao - Make it optional to allocate GTG related fields only when gtg_on
+!! -  25-01-13  Jaymes Kenyon - Add graupel number concentration (QQNG)
+
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
 !!
@@ -155,6 +157,7 @@
       allocate(QQNW(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNI(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(QQNG(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNWFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNIFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(TAOD5503D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
