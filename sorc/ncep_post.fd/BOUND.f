@@ -2,18 +2,13 @@
 !> @brief bound() clips data in passed array.
 !> 
 !> @author Russ Treadon W/NP2 @date 1993-01-18
-
-!> This routine bounds data in the passed array 
-!> FLD (im x jm elements long) and clips data values such 
-!> that on exiting the routine
+!> 
+!> This routine bounds data in the passed array FLD (im x jm elements long) 
+!> and clips data values such that on exiting the routine
 !> @code
 !>              FMIN <= FLD(I,J) <= FMAX
 !> @endcode
 !> for all points.
-!>
-!> @param[in] FMIN Lower (inclusive) bound for data.
-!> @param[in] FMAX Upper (inclusive) bound for data.
-!> @param[out] FLD Array whose elements are bounded by [FMIN,FMAX].
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -26,6 +21,13 @@
 !> 2021-09002 | Bo Cui       | Decompose UPP in X direction
 !>
 !> @author Russ Treadon W/NP2 @date 1993-01-18
+!---------------------------------------------------------------------------------------
+!> @brief Clips data in passed array.
+!> 
+!> @param[in] FMIN Lower (inclusive) bound for data.
+!> @param[in] FMAX Upper (inclusive) bound for data.
+!> @param[out] FLD Array whose elements are bounded by [FMIN,FMAX].
+!>
       SUBROUTINE BOUND(FLD,FMIN,FMAX)
 
 !     

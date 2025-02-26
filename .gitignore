@@ -9,7 +9,9 @@
 # USE CAUTION WHEN ADDING WILDCARDS, as some builds use different filename   #
 # conventions than others                                                    #
 ##############################################################################
-build*/
+build
+install
+build/*/
 install*/
 
 *.[aox]

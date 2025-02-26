@@ -93,6 +93,7 @@
 	scale_fact_fixed_sfc2_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_fact_fixed_sfc2/text()',
 	level2_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../level2/text()',
 	aerosol_type_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../aerosol_type/text()',
+	prob_type_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../prob_type/text()',
 	typ_intvl_size_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../typ_intvl_size/text()',
 	scale_fact_1st_size_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_fact_1st_size/text()',
 	scale_val_1st_size_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_val_1st_size/text()',
@@ -103,6 +104,10 @@
 	scale_val_1st_wvlen_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_val_1st_wvlen/text()',
 	scale_fact_2nd_wvlen_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_fact_2nd_wvlen/text()',
 	scale_val_2nd_wvlen_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_val_2nd_wvlen/text()',
+        scale_fact_lower_limit_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_fact_lower_limit/text()',
+        scale_val_lower_limit_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_val_lower_limit/text()',
+        scale_fact_upper_limit_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_fact_upper_limit/text()',
+        scale_val_upper_limit_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale_val_upper_limit/text()',
 	scale_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../scale/text()',
 	stat_miss_val_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../stat_miss_val/text()',
 	leng_time_range_prev_query  => '/postxml/paramset/datset[text()=\'$inpone\']/../param/shortname[text()=\'$inptwo\']/../leng_time_range_prev/text()',
@@ -129,6 +134,7 @@
 	scale_fact_fixed_sfc2_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_fact_fixed_sfc2/text()',
 	level2_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../level2/text()',
 	aerosol_type_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../aerosol_type/text()',
+	prob_type_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../prob_type/text()',
 	typ_intvl_size_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../typ_intvl_size/text()',
 	scale_fact_1st_size_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_fact_1st_size/text()',
 	scale_val_1st_size_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_val_1st_size/text()',
@@ -139,6 +145,10 @@
 	scale_val_1st_wvlen_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_val_1st_wvlen/text()',
 	scale_fact_2nd_wvlen_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_fact_2nd_wvlen/text()',
 	scale_val_2nd_wvlen_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_val_2nd_wvlen/text()',
+        scale_fact_lower_limit_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_fact_lower_limit/text()',
+        scale_val_lower_limit_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_val_lower_limit/text()',
+        scale_fact_upper_limit_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_fact_upper_limit/text()',
+        scale_val_upper_limit_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale_val_upper_limit/text()',
 	scale_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../scale/text()',
 	stat_miss_val_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../stat_miss_val/text()',
 	leng_time_range_prev_avil_query  => '/postxml/post_avblflds/param/shortname[text()=\'$inpone\']/../leng_time_range_prev/text()',
@@ -274,57 +284,72 @@
   $xml_query_array[40][0] = "aerosol_type";
   $xml_query_array[40][1] = aerosol_type_query;
   $xml_query_array[40][2] = "?";
-  $xml_query_array[41][0] = "typ_intvl_size";
-  $xml_query_array[41][1] = typ_intvl_size_query;
+  $xml_query_array[41][0] = "prob_type";
+  $xml_query_array[41][1] = prob_type_query;
   $xml_query_array[41][2] = "?";
-  $xml_query_array[42][0] = "scale_fact_1st_size";
-  $xml_query_array[42][1] = scale_fact_1st_size_query;
-  $xml_query_array[42][2] = "0";
-  $xml_query_array[43][0] = "scale_val_1st_size";
-  $xml_query_array[43][1] = scale_val_1st_size_query;
-  $xml_query_array[43][2] = "0.0";
-  $xml_query_array[44][0] = "scale_fact_2nd_size";
-  $xml_query_array[44][1] = scale_fact_2nd_size_query;
-  $xml_query_array[44][2] = "0";
-  $xml_query_array[45][0] = "scale_val_2nd_size";
-  $xml_query_array[45][1] = scale_val_2nd_size_query;
-  $xml_query_array[45][2] = "0.0";
-  $xml_query_array[46][0] = "typ_intvl_wvlen";
-  $xml_query_array[46][1] = typ_intvl_wvlen_query;
-  $xml_query_array[46][2] = "?";
-  $xml_query_array[47][0] = "scale_fact_1st_wvlen";
-  $xml_query_array[47][1] = scale_fact_1st_wvlen_query;
-  $xml_query_array[47][2] = "0";
-  $xml_query_array[48][0] = "scale_val_1st_wvlen";
-  $xml_query_array[48][1] = scale_val_1st_wvlen_query;
-  $xml_query_array[48][2] = "0.0";
-  $xml_query_array[49][0] = "scale_fact_2nd_wvlen";
-  $xml_query_array[49][1] = scale_fact_2nd_wvlen_query;
-  $xml_query_array[49][2] = "0";
-  $xml_query_array[50][0] = "scale_val_2nd_wvlen";
-  $xml_query_array[50][1] = scale_val_2nd_wvlen_query;
-  $xml_query_array[50][2] = "0.0";
-  $xml_query_array[51][0] = "scale";
-  $xml_query_array[51][1] = scale_query;
-  $xml_query_array[51][2] = "?";
-  $xml_query_array[52][0] = "stat_miss_val";
-  $xml_query_array[52][1] = stat_miss_val_query;
+  $xml_query_array[42][0] = "typ_intvl_size";
+  $xml_query_array[42][1] = typ_intvl_size_query;
+  $xml_query_array[42][2] = "?";
+  $xml_query_array[43][0] = "scale_fact_1st_size";
+  $xml_query_array[43][1] = scale_fact_1st_size_query;
+  $xml_query_array[43][2] = "0";
+  $xml_query_array[44][0] = "scale_val_1st_size";
+  $xml_query_array[44][1] = scale_val_1st_size_query;
+  $xml_query_array[44][2] = "0.0";
+  $xml_query_array[45][0] = "scale_fact_2nd_size";
+  $xml_query_array[45][1] = scale_fact_2nd_size_query;
+  $xml_query_array[45][2] = "0";
+  $xml_query_array[46][0] = "scale_val_2nd_size";
+  $xml_query_array[46][1] = scale_val_2nd_size_query;
+  $xml_query_array[46][2] = "0.0";
+  $xml_query_array[47][0] = "typ_intvl_wvlen";
+  $xml_query_array[47][1] = typ_intvl_wvlen_query;
+  $xml_query_array[47][2] = "?";
+  $xml_query_array[48][0] = "scale_fact_1st_wvlen";
+  $xml_query_array[48][1] = scale_fact_1st_wvlen_query;
+  $xml_query_array[48][2] = "0";
+  $xml_query_array[49][0] = "scale_val_1st_wvlen";
+  $xml_query_array[49][1] = scale_val_1st_wvlen_query;
+  $xml_query_array[49][2] = "0.0";
+  $xml_query_array[50][0] = "scale_fact_2nd_wvlen";
+  $xml_query_array[50][1] = scale_fact_2nd_wvlen_query;
+  $xml_query_array[50][2] = "0";
+  $xml_query_array[51][0] = "scale_val_2nd_wvlen";
+  $xml_query_array[51][1] = scale_val_2nd_wvlen_query;
+  $xml_query_array[51][2] = "0.0";
+  $xml_query_array[52][0] = "scale_fact_lower_limit";
+  $xml_query_array[52][1] = scale_fact_lower_limit_query;
   $xml_query_array[52][2] = "0";
-  $xml_query_array[53][0] = "leng_time_range_prev";
-  $xml_query_array[53][1] = leng_time_range_prev_query;
-  $xml_query_array[53][2] = "0";
-  $xml_query_array[54][0] = "time_inc_betwn_succ_fld";
-  $xml_query_array[54][1] = time_inc_betwn_succ_fld_query;
+  $xml_query_array[53][0] = "scale_val_lower_limit";
+  $xml_query_array[53][1] = scale_val_lower_limit_query;
+  $xml_query_array[53][2] = "0.0";
+  $xml_query_array[54][0] = "scale_fact_upper_limit";
+  $xml_query_array[54][1] = scale_fact_upper_limit_query;
   $xml_query_array[54][2] = "0";
-  $xml_query_array[55][0] = "type_of_time_inc";
-  $xml_query_array[55][1] = type_of_time_inc_query;
-  $xml_query_array[55][2] = "?";
-  $xml_query_array[56][0] = "stat_unit_time_key_succ";
-  $xml_query_array[56][1] = stat_unit_time_key_succ_query;
+  $xml_query_array[55][0] = "scale_val_upper_limit";
+  $xml_query_array[55][1] = scale_val_upper_limit_query;
+  $xml_query_array[55][2] = "0.0";
+  $xml_query_array[56][0] = "scale";
+  $xml_query_array[56][1] = scale_query;
   $xml_query_array[56][2] = "?";
-  $xml_query_array[57][0] = "bit_map_flag";
-  $xml_query_array[57][1] = bit_map_flag_query;
-  $xml_query_array[57][2] = "?";
+  $xml_query_array[57][0] = "stat_miss_val";
+  $xml_query_array[57][1] = stat_miss_val_query;
+  $xml_query_array[57][2] = "0";
+  $xml_query_array[58][0] = "leng_time_range_prev";
+  $xml_query_array[58][1] = leng_time_range_prev_query;
+  $xml_query_array[58][2] = "0";
+  $xml_query_array[59][0] = "time_inc_betwn_succ_fld";
+  $xml_query_array[59][1] = time_inc_betwn_succ_fld_query;
+  $xml_query_array[59][2] = "0";
+  $xml_query_array[60][0] = "type_of_time_inc";
+  $xml_query_array[60][1] = type_of_time_inc_query;
+  $xml_query_array[60][2] = "?";
+  $xml_query_array[61][0] = "stat_unit_time_key_succ";
+  $xml_query_array[61][1] = stat_unit_time_key_succ_query;
+  $xml_query_array[61][2] = "?";
+  $xml_query_array[62][0] = "bit_map_flag";
+  $xml_query_array[62][1] = bit_map_flag_query;
+  $xml_query_array[62][2] = "?";
 
 #--------------------------------------------------------------    
 # param section in available table 
@@ -373,57 +398,72 @@
   $xml_query_array[80][0] = "aerosol_type";
   $xml_query_array[80][1] = aerosol_type_avil_query;
   $xml_query_array[80][2] = "?";
-  $xml_query_array[81][0] = "typ_intvl_size";
-  $xml_query_array[81][1] = typ_intvl_size_avil_query;
+  $xml_query_array[81][0] = "prob_type";
+  $xml_query_array[81][1] = prob_type_avil_query;
   $xml_query_array[81][2] = "?";
-  $xml_query_array[82][0] = "scale_fact_1st_size";
-  $xml_query_array[82][1] = scale_fact_1st_size_avil_query;
-  $xml_query_array[82][2] = "0";
-  $xml_query_array[83][0] = "scale_val_1st_size";
-  $xml_query_array[83][1] = scale_val_1st_size_avil_query;
-  $xml_query_array[83][2] = "0.0";
-  $xml_query_array[84][0] = "scale_fact_2nd_size";
-  $xml_query_array[84][1] = scale_fact_2nd_size_avil_query;
-  $xml_query_array[84][2] = "0";
-  $xml_query_array[85][0] = "scale_val_2nd_size";
-  $xml_query_array[85][1] = scale_val_2nd_size_avil_query;
-  $xml_query_array[85][2] = "0.0";
-  $xml_query_array[86][0] = "typ_intvl_wvlen";
-  $xml_query_array[86][1] = typ_intvl_wvlen_avil_query;
-  $xml_query_array[86][2] = "?";
-  $xml_query_array[87][0] = "scale_fact_1st_wvlen";
-  $xml_query_array[87][1] = scale_fact_1st_wvlen_avil_query;
-  $xml_query_array[87][2] = "0";
-  $xml_query_array[88][0] = "scale_val_1st_wvlen";
-  $xml_query_array[88][1] = scale_val_1st_wvlen_avil_query;
-  $xml_query_array[88][2] = "0.0";
-  $xml_query_array[89][0] = "scale_fact_2nd_wvlen";
-  $xml_query_array[89][1] = scale_fact_2nd_wvlen_avil_query;
-  $xml_query_array[89][2] = "0";
-  $xml_query_array[90][0] = "scale_val_2nd_wvlen";
-  $xml_query_array[90][1] = scale_val_2nd_wvlen_avil_query;
-  $xml_query_array[90][2] = "0.0";
-  $xml_query_array[91][0] = "scale";
-  $xml_query_array[91][1] = scale_avil_query;
-  $xml_query_array[91][2] = "?";
-  $xml_query_array[92][0] = "stat_miss_val";
-  $xml_query_array[92][1] = stat_miss_val_avil_query;
+  $xml_query_array[82][0] = "typ_intvl_size";
+  $xml_query_array[82][1] = typ_intvl_size_avil_query;
+  $xml_query_array[82][2] = "?";
+  $xml_query_array[83][0] = "scale_fact_1st_size";
+  $xml_query_array[83][1] = scale_fact_1st_size_avil_query;
+  $xml_query_array[83][2] = "0";
+  $xml_query_array[84][0] = "scale_val_1st_size";
+  $xml_query_array[84][1] = scale_val_1st_size_avil_query;
+  $xml_query_array[84][2] = "0.0";
+  $xml_query_array[85][0] = "scale_fact_2nd_size";
+  $xml_query_array[85][1] = scale_fact_2nd_size_avil_query;
+  $xml_query_array[85][2] = "0";
+  $xml_query_array[86][0] = "scale_val_2nd_size";
+  $xml_query_array[86][1] = scale_val_2nd_size_avil_query;
+  $xml_query_array[86][2] = "0.0";
+  $xml_query_array[87][0] = "typ_intvl_wvlen";
+  $xml_query_array[87][1] = typ_intvl_wvlen_avil_query;
+  $xml_query_array[87][2] = "?";
+  $xml_query_array[88][0] = "scale_fact_1st_wvlen";
+  $xml_query_array[88][1] = scale_fact_1st_wvlen_avil_query;
+  $xml_query_array[88][2] = "0";
+  $xml_query_array[89][0] = "scale_val_1st_wvlen";
+  $xml_query_array[89][1] = scale_val_1st_wvlen_avil_query;
+  $xml_query_array[89][2] = "0.0";
+  $xml_query_array[90][0] = "scale_fact_2nd_wvlen";
+  $xml_query_array[90][1] = scale_fact_2nd_wvlen_avil_query;
+  $xml_query_array[90][2] = "0";
+  $xml_query_array[91][0] = "scale_val_2nd_wvlen";
+  $xml_query_array[91][1] = scale_val_2nd_wvlen_avil_query;
+  $xml_query_array[91][2] = "0.0";
+  $xml_query_array[92][0] = "scale_fact_lower_limit";
+  $xml_query_array[92][1] = scale_fact_lower_limit_avil_query;
   $xml_query_array[92][2] = "0";
-  $xml_query_array[93][0] = "leng_time_range_prev";
-  $xml_query_array[93][1] = leng_time_range_prev_avil_query;
-  $xml_query_array[93][2] = "0";
-  $xml_query_array[94][0] = "time_inc_betwn_succ_fld";
-  $xml_query_array[94][1] = time_inc_betwn_succ_fld_avil_query;
+  $xml_query_array[93][0] = "scale_val_lower_limit";
+  $xml_query_array[93][1] = scale_val_lower_limit_avil_query;
+  $xml_query_array[93][2] = "0.0";
+  $xml_query_array[94][0] = "scale_fact_upper_limit";
+  $xml_query_array[94][1] = scale_fact_upper_limit_avil_query;
   $xml_query_array[94][2] = "0";
-  $xml_query_array[95][0] = "type_of_time_inc";
-  $xml_query_array[95][1] = type_of_time_inc_avil_query;
-  $xml_query_array[95][2] = "?";
-  $xml_query_array[96][0] = "stat_unit_time_key_succ";
-  $xml_query_array[96][1] = stat_unit_time_key_succ_avil_query;
+  $xml_query_array[95][0] = "scale_val_upper_limit";
+  $xml_query_array[95][1] = scale_val_upper_limit_avil_query;
+  $xml_query_array[95][2] = "0.0";
+  $xml_query_array[96][0] = "scale";
+  $xml_query_array[96][1] = scale_avil_query;
   $xml_query_array[96][2] = "?";
-  $xml_query_array[97][0] = "bit_map_flag";
-  $xml_query_array[97][1] = bit_map_flag_avil_query;
-  $xml_query_array[97][2] = "?";
+  $xml_query_array[97][0] = "stat_miss_val";
+  $xml_query_array[97][1] = stat_miss_val_avil_query;
+  $xml_query_array[97][2] = "0";
+  $xml_query_array[98][0] = "leng_time_range_prev";
+  $xml_query_array[98][1] = leng_time_range_prev_avil_query;
+  $xml_query_array[98][2] = "0";
+  $xml_query_array[99][0] = "time_inc_betwn_succ_fld";
+  $xml_query_array[99][1] = time_inc_betwn_succ_fld_avil_query;
+  $xml_query_array[99][2] = "0";
+  $xml_query_array[100][0] = "type_of_time_inc";
+  $xml_query_array[100][1] = type_of_time_inc_avil_query;
+  $xml_query_array[100][2] = "?";
+  $xml_query_array[101][0] = "stat_unit_time_key_succ";
+  $xml_query_array[101][1] = stat_unit_time_key_succ_avil_query;
+  $xml_query_array[101][2] = "?";
+  $xml_query_array[102][0] = "bit_map_flag";
+  $xml_query_array[102][1] = bit_map_flag_avil_query;
+  $xml_query_array[102][2] = "?";
 
 #--------------------------------------------------------------  
 # use XML LibXML package
@@ -763,7 +803,7 @@ sub constract_ctrl_elements {
 # read all param elements from ctrl file
 # set record found counter 
 # record found element data in $xml_query_array[$emt_ctrl_main][4]
-# loop from array # 26-57 (see above) 
+# loop from array # 26-62 (see above) 
 #--------------------------------------------------------------
 
 	    	my $param_ctrl_count=26;
@@ -837,7 +877,7 @@ sub constract_ctrl_elements {
 	    		     $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    		     $level2_array_count=$number_space_found+1;
 	    		   }
-	    		   if ($param_ctrl_count == 51) {
+	    		   if ($param_ctrl_count == 56) {
                              $tmp_regex_st=~ s/\s{2}//g;
 	    		     $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    		     $scale_array_count=$number_space_found+1;
@@ -857,7 +897,7 @@ sub constract_ctrl_elements {
 	    				
 	    		 $param_ctrl_count ++;
 	    		 
-	    	 } while ($param_ctrl_count<=57);
+	    	 } while ($param_ctrl_count<=62);
 
 #--------------------------------------------------------------	    			
 # Store in short name
@@ -869,7 +909,7 @@ sub constract_ctrl_elements {
 # loop through counter array element in ctrl param data
 # read all param elements from avil file if not found in ctrl param section
 # set record found in array in "ctrl counter" -  $xml_query_array[$emt_ctrl_main][4]
-# loop from array # 66-97 (see above)
+# loop from array # 66-102 (see above)
 #--------------------------------------------------------------
 
 	    	 my $param_avil_count=66;
@@ -932,7 +972,7 @@ sub constract_ctrl_elements {
 	    			    $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    			    $level2_array_count=$number_space_found+1;
 	    			  }
-	    			  if ($param_avil_count == 91) {
+	    			  if ($param_avil_count == 96) {
                                     $tmp_regex_st=~ s/\s{2}//g;
  	    		            $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    		            $scale_array_count=$number_space_found+1;
@@ -943,7 +983,7 @@ sub constract_ctrl_elements {
 	    		 		
 	    		 $param_avil_count ++;
 	    				
-	    	 } while ($param_avil_count<=97);
+	    	 } while ($param_avil_count<=102);
 	    			
 #--------------------------------------------------------------	    			
 # loop through all param section on ctrl array find those not found
@@ -983,7 +1023,7 @@ sub constract_ctrl_elements {
 	    		    push (@output_resultset_list, constract_string_txt("level2_array_count",$level2_array_count));
 	    		    $level2_array_count=0;
 	    		  }
-	    		  if ($all_param_count == 51) {
+	    		  if ($all_param_count == 56) {
 	    		    push (@output_resultset_list, constract_string_txt("scale_array_count",$scale_array_count));
 	    		    $scale_array_count=0;
 	    		  }
@@ -998,7 +1038,7 @@ sub constract_ctrl_elements {
 	    		  $xml_query_array[$all_param_count][4]=""; 
 	    				 
 	    	     $all_param_count ++;	  
-	         } while ($all_param_count<=57);
+	         } while ($all_param_count<=62);
 	    		
 	    			 
 	       }

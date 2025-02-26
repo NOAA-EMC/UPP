@@ -1,0 +1,237 @@
+On branch 2024Nov21_ce5f3b1
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	modified:   ../../.github/CODEOWNERS
+	modified:   ../../.github/workflows/gcc.yml
+	modified:   ../../.github/workflows/intel.yml
+	modified:   ../../.gitignore
+	modified:   ../../.readthedocs.yml
+	modified:   ../../CMakeLists.txt
+	modified:   ../../README.md
+	modified:   ../../ci/Jenkinsfile
+	modified:   ../../ci/rt.sh
+	modified:   ../../ci/spack.yaml
+	renamed:    ../../docs/2D-decomp.md -> ../../doc/2D-decomp.md
+	renamed:    ../../docs/CMakeLists.txt -> ../../doc/CMakeLists.txt
+	renamed:    ../../docs/Doxyfile.in -> ../../doc/Doxyfile.in
+	renamed:    ../../docs/Release_Notes.ncep_post.v7.0.0 -> ../../doc/Release_Notes.ncep_post.v7.0.0
+	renamed:    ../../docs/Acknowledgments.rst -> ../../doc/UserGuide/BackgroundInfo/Acknowledgments.rst
+	renamed:    ../../docs/CodeOverview.rst -> ../../doc/UserGuide/BackgroundInfo/CodeOverview.rst
+	renamed:    ../../docs/Introduction.rst -> ../../doc/UserGuide/BackgroundInfo/Introduction.rst
+	new file:   ../../doc/UserGuide/BackgroundInfo/index.rst
+	new file:   ../../doc/UserGuide/BuildingRunningTesting/BuildingUPP.rst
+	new file:   ../../doc/UserGuide/BuildingRunningTesting/InputsOutputs.rst
+	new file:   ../../doc/UserGuide/BuildingRunningTesting/RunningUPP.rst
+	new file:   ../../doc/UserGuide/BuildingRunningTesting/TestingUPP.rst
+	new file:   ../../doc/UserGuide/BuildingRunningTesting/index.rst
+	renamed:    ../../docs/AddNewVariable.rst -> ../../doc/UserGuide/CustomizingTheUPP/AddNewVariable.rst
+	renamed:    ../../docs/Regridding.rst -> ../../doc/UserGuide/CustomizingTheUPP/Regridding.rst
+	new file:   ../../doc/UserGuide/CustomizingTheUPP/index.rst
+	new file:   ../../doc/UserGuide/Makefile
+	new file:   ../../doc/UserGuide/Reference/FAQ.rst
+	renamed:    ../../docs/Glossary.rst -> ../../doc/UserGuide/Reference/Glossary.rst
+	new file:   ../../doc/UserGuide/Reference/index.rst
+	renamed:    ../../docs/_static/custom.css -> ../../doc/UserGuide/_static/custom.css
+	renamed:    ../../docs/_static/theme_overrides.css -> ../../doc/UserGuide/_static/theme_overrides.css
+	renamed:    ../../docs/conf.py -> ../../doc/UserGuide/conf.py
+	new file:   ../../doc/UserGuide/index.rst
+	new file:   ../../doc/UserGuide/requirements.in
+	new file:   ../../doc/UserGuide/requirements.txt
+	renamed:    ../../docs/UFS_unified_variables_table.csv -> ../../doc/UserGuide/tables/UFS_unified_variables_table.csv
+	renamed:    ../../docs/UFS_unified_variables_table.rst -> ../../doc/UserGuide/tables/UFS_unified_variables_table.rst
+	renamed:    ../../docs/UPP_GRIB2_Table_byID.csv -> ../../doc/UserGuide/tables/UPP_GRIB2_Table_byID.csv
+	renamed:    ../../docs/UPP_GRIB2_Table_byID.rst -> ../../doc/UserGuide/tables/UPP_GRIB2_Table_byID.rst
+	renamed:    ../../docs/module-load-make-howto.txt -> ../../doc/module-load-make-howto.txt
+	renamed:    ../../docs/user_guide.md -> ../../doc/user_guide.md
+	deleted:    ../../docs/InputsOutputs.rst
+	deleted:    ../../docs/Installation.rst
+	deleted:    ../../docs/Running.rst
+	deleted:    ../../docs/index.rst
+	deleted:    ../../docs/requirements.txt
+	renamed:    ../hires_micro_lookup.dat -> ../../fix/hires_micro_lookup.dat
+	renamed:    ../nam_micro_lookup.dat -> ../../fix/nam_micro_lookup.dat
+	renamed:    ../rap_micro_lookup.dat -> ../../fix/rap_micro_lookup.dat
+	deleted:    ../../modulefiles/cheyenne
+	deleted:    ../../modulefiles/cheyenne_gnu
+	deleted:    ../../modulefiles/gaea-c5.lua
+	deleted:    ../../modulefiles/gaea.lua
+	new file:   ../../modulefiles/gaeac5.lua
+	new file:   ../../modulefiles/gaeac6.lua
+	modified:   ../../modulefiles/hera.lua
+	new file:   ../../modulefiles/hera_external_ifi.lua
+	new file:   ../../modulefiles/hera_ifi_test_prereqs.lua
+	modified:   ../../modulefiles/hercules.lua
+	deleted:    ../../modulefiles/jet
+	new file:   ../../modulefiles/jet.lua
+	new file:   ../../modulefiles/jet_external_ifi.lua
+	new file:   ../../modulefiles/jet_ifi_test_prereqs.lua
+	new file:   ../../modulefiles/noaacloud.lua
+	modified:   ../../modulefiles/orion.lua
+	deleted:    ../../modulefiles/s4
+	new file:   ../../modulefiles/s4.lua
+	modified:   ../../modulefiles/upp_common.lua
+	modified:   ../../modulefiles/wcoss2.lua
+	modified:   ../../modulefiles/wcoss2_a.lua
+	deleted:    ../CMakeLists.txt
+	modified:   ../POST-XML-Library-NT.pl
+	modified:   ../README.make_flatfile
+	new file:   ../gefs/post_itag_gefs128
+	renamed:    ../postcntrl_gefs.xml -> ../gefs/postcntrl_gefs.xml
+	renamed:    ../postcntrl_gefs_aerosol.xml -> ../gefs/postcntrl_gefs_aerosol.xml
+	renamed:    ../postcntrl_gefs_aerosol_f00.xml -> ../gefs/postcntrl_gefs_aerosol_f00.xml
+	renamed:    ../postcntrl_gefs_chem.xml -> ../gefs/postcntrl_gefs_chem.xml
+	renamed:    ../postcntrl_gefs_f00.xml -> ../gefs/postcntrl_gefs_f00.xml
+	renamed:    ../postcntrl_gefs_wafs.xml -> ../gefs/postcntrl_gefs_wafs.xml
+	renamed:    ../postxconfig-NT-GEFS-aerosol.txt -> ../gefs/postxconfig-NT-gefs-aerosol.txt
+	renamed:    ../postxconfig-NT-gefs-chem.txt -> ../gefs/postxconfig-NT-gefs-chem.txt
+	renamed:    ../postxconfig-NT-GEFS-F00-aerosol.txt -> ../gefs/postxconfig-NT-gefs-f00-aerosol.txt
+	renamed:    ../postxconfig-NT-GEFS.txt -> ../gefs/postxconfig-NT-gefs-f00.txt
+	renamed:    ../postxconfig-NT-GEFS-WAFS.txt -> ../gefs/postxconfig-NT-gefs-wafs.txt
+	new file:   ../gefs/postxconfig-NT-gefs.txt
+	new file:   post_itag_gfs128
+	renamed:    ../post_tag_gfs65 -> post_itag_gfs65
+	renamed:    ../postcntrl_gfs.xml -> postcntrl_gfs.xml
+	renamed:    ../postcntrl_gfs_anl.xml -> postcntrl_gfs_anl.xml
+	renamed:    ../postcntrl_gfs_f00.xml -> postcntrl_gfs_f00.xml
+	renamed:    ../postcntrl_gfs_f00_two.xml -> postcntrl_gfs_f00_two.xml
+	renamed:    ../postcntrl_gfs_flux.xml -> postcntrl_gfs_flux.xml
+	renamed:    ../postcntrl_gfs_flux_f00.xml -> postcntrl_gfs_flux_f00.xml
+	renamed:    ../postcntrl_gfs_goes.xml -> postcntrl_gfs_goes.xml
+	renamed:    ../postcntrl_gfs_two.xml -> postcntrl_gfs_two.xml
+	renamed:    ../postcntrl_gfs_wafs.xml -> postcntrl_gfs_wafs.xml
+	renamed:    ../postcntrl_gfs_wafs_anl.xml -> postcntrl_gfs_wafs_anl.xml
+	renamed:    ../postcntrl_gfs_wafs_ext.xml -> postcntrl_gfs_wafs_ext.xml
+	renamed:    ../postxconfig-NT-GFS-ANL.txt -> postxconfig-NT-gfs-anl.txt
+	renamed:    ../postxconfig-NT-GFS-F00-TWO.txt -> postxconfig-NT-gfs-f00-two.txt
+	renamed:    ../postxconfig-NT-GFS-F00.txt -> postxconfig-NT-gfs-f00.txt
+	renamed:    ../postxconfig-NT-GFS-FLUX-F00.txt -> postxconfig-NT-gfs-flux-f00.txt
+	renamed:    ../postxconfig-NT-GFS-FLUX.txt -> postxconfig-NT-gfs-flux.txt
+	renamed:    ../postxconfig-NT-GFS-GOES.txt -> postxconfig-NT-gfs-goes.txt
+	renamed:    ../postxconfig-NT-GFS-TWO.txt -> postxconfig-NT-gfs-two.txt
+	renamed:    ../postxconfig-NT-GFS-WAFS-ANL.txt -> postxconfig-NT-gfs-wafs-anl.txt
+	renamed:    ../postxconfig-NT-GFS-WAFS-EXT.txt -> postxconfig-NT-gfs-wafs-ext.txt
+	renamed:    ../postxconfig-NT-GFS-WAFS.txt -> postxconfig-NT-gfs-wafs.txt
+	renamed:    ../postxconfig-NT-GFS.txt -> postxconfig-NT-gfs.txt
+	modified:   ../global_1x1_paramlist_g2
+	modified:   ../global_1x1_paramlist_g2.anl
+	modified:   ../global_1x1_paramlist_g2.f000
+	new file:   ../hfip_postcntrl.xml
+	modified:   ../hrrr_postcntrl.xml
+	modified:   ../makefile
+	modified:   ../nam_cntrl_cmaq.xml
+	modified:   ../nam_post_avblflds.xml
+	modified:   ../ngac_post_avblflds.xml
+	modified:   ../params_grib2_tbl_new
+	modified:   ../params_grib2_tbl_new.text
+	modified:   ../post_avblflds.xml
+	modified:   ../post_avblflds_raphrrr.xml
+	deleted:    ../post_tag_gfs128
+	deleted:    ../postcntrl_gfs_goes.xml-new
+	new file:   ../postcntrl_hafs_ar_nosat.xml
+	new file:   ../postcntrl_hafs_ar_nosat_l65.xml
+	modified:   ../postxconfig-NT-AQM.txt
+	modified:   ../postxconfig-NT-NGAC.txt
+	modified:   ../postxconfig-NT-NMM.txt
+	modified:   ../postxconfig-NT-UFS-aerosol-F00.txt
+	modified:   ../postxconfig-NT-UFS-aerosol.txt
+	modified:   ../postxconfig-NT-hafs.txt
+	new file:   ../postxconfig-NT-hafs_ar_nosat.txt
+	new file:   ../postxconfig-NT-hafs_ar_nosat_l65.txt
+	modified:   ../postxconfig-NT-hafs_nosat.txt
+	modified:   ../postxconfig-NT-hafs_sat.txt
+	new file:   ../postxconfig-NT-hfip.txt
+	modified:   ../postxconfig-NT-hrrr.txt
+	modified:   ../postxconfig-NT-rap.txt
+	renamed:    ../postxconfig-NT-fv3lam_rrfs.txt -> ../postxconfig-NT-rrfs.txt
+	new file:   ../postxconfig-NT-rrfs_mpas.txt
+	new file:   ../postxconfig-NT-rrfs_subh.txt
+	modified:   ../rap_postcntrl.xml
+	new file:   ../rrfs_mpas_postcntrl.xml
+	renamed:    ../fv3lam_rrfs.xml -> ../rrfs_postcntrl.xml
+	new file:   ../rrfs_postcntrl_subh.xml
+	new file:   ../sfs/postcntrl_sfs.xml
+	renamed:    ../postxconfig-NT-GEFS-F00.txt -> ../sfs/postxconfig-NT-sfs.txt
+	modified:   ../../sorc/libIFI.fd
+	modified:   ../../sorc/ncep_post.fd/ALLOCATE_ALL.f
+	modified:   ../../sorc/ncep_post.fd/BNDLYR.f
+	modified:   ../../sorc/ncep_post.fd/BOUND.f
+	modified:   ../../sorc/ncep_post.fd/CALDWP.f
+	modified:   ../../sorc/ncep_post.fd/CALGUST.f
+	modified:   ../../sorc/ncep_post.fd/CALHEL.f
+	modified:   ../../sorc/ncep_post.fd/CALUPDHEL.f
+	modified:   ../../sorc/ncep_post.fd/CALVIS_GSD.f
+	modified:   ../../sorc/ncep_post.fd/CLDRAD.f
+	modified:   ../../sorc/ncep_post.fd/CMASSI.f
+	modified:   ../../sorc/ncep_post.fd/CMakeLists.txt
+	modified:   ../../sorc/ncep_post.fd/CTLBLK.f
+	modified:   ../../sorc/ncep_post.fd/DEALLOCATE.f
+	modified:   ../../sorc/ncep_post.fd/FILL_PSETFLD.f
+	modified:   ../../sorc/ncep_post.fd/FRZLVL2.f
+	modified:   ../../sorc/ncep_post.fd/GFIP3.f
+	modified:   ../../sorc/ncep_post.fd/GFSPOSTSIG.F
+	modified:   ../../sorc/ncep_post.fd/IFI.F
+	new file:   ../../sorc/ncep_post.fd/INITPOST_MPAS.F
+	modified:   ../../sorc/ncep_post.fd/INITPOST_NETCDF.f
+	modified:   ../../sorc/ncep_post.fd/LOOKUP.f
+	modified:   ../../sorc/ncep_post.fd/MASKS_mod.f
+	modified:   ../../sorc/ncep_post.fd/MDL2P.f
+	modified:   ../../sorc/ncep_post.fd/MDLFLD.f
+	modified:   ../../sorc/ncep_post.fd/MISCLN.f
+	modified:   ../../sorc/ncep_post.fd/OTLFT.f
+	modified:   ../../sorc/ncep_post.fd/PARA_RANGE.f
+	modified:   ../../sorc/ncep_post.fd/READ_xml.f
+	modified:   ../../sorc/ncep_post.fd/RHGRD.f
+	modified:   ../../sorc/ncep_post.fd/RQSTFLD.f
+	modified:   ../../sorc/ncep_post.fd/SET_LVLSXML.f
+	modified:   ../../sorc/ncep_post.fd/SET_OUTFLDS.f
+	modified:   ../../sorc/ncep_post.fd/SOIL_mod.f
+	modified:   ../../sorc/ncep_post.fd/SURFCE.f
+	modified:   ../../sorc/ncep_post.fd/TRPAUS.f
+	modified:   ../../sorc/ncep_post.fd/UPP_PHYSICS.f
+	modified:   ../../sorc/ncep_post.fd/VRBLS2D_mod.f
+	modified:   ../../sorc/ncep_post.fd/VRBLS3D_mod.f
+	modified:   ../../sorc/ncep_post.fd/VRBLS4D_mod.f
+	renamed:    ../../sorc/ncep_post.fd/WRFPOST.f -> ../../sorc/ncep_post.fd/WRFPOST.F
+	modified:   ../../sorc/ncep_post.fd/ZENSUN.f
+	modified:   ../../sorc/ncep_post.fd/cuparm.f
+	modified:   ../../sorc/ncep_post.fd/getIVariableN.f
+	modified:   ../../sorc/ncep_post.fd/getVariable.f
+	modified:   ../../sorc/ncep_post.fd/grib2_module.f
+	modified:   ../../sorc/ncep_post.fd/gtg_filter.F90
+	modified:   ../../sorc/ncep_post.fd/gtg_indices.F90
+	new file:   ../../sorc/ncep_post.fd/gtg_interp.F90
+	modified:   ../../sorc/ncep_post.fd/gtg_read_config.F90
+	modified:   ../../sorc/ncep_post.fd/intio_tags.f
+	modified:   ../../sorc/ncep_post.fd/io_int_stubs.f
+	modified:   ../../sorc/ncep_post.fd/machine.f
+	modified:   ../../sorc/ncep_post.fd/params.F
+	modified:   ../../sorc/ncep_post.fd/physcons.f
+	modified:   ../../sorc/ncep_post.fd/post_gtg.fd
+	modified:   ../../sorc/ncep_post.fd/svptbl.f
+	modified:   ../../sorc/ncep_post.fd/wrf_io_flags.f
+	modified:   ../../sorc/ncep_post.fd/xml_perl_data.f
+	modified:   ../../tests/compile_upp.sh
+	modified:   ../../tests/detect_machine.sh
+	modified:   ../../tests/logs/rt.log.HERA
+	new file:   ../../tests/logs/rt.log.HERCULES
+	modified:   ../../tests/logs/rt.log.ORION
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   postcntrl_gfs.xml
+	modified:   postcntrl_gfs_two.xml
+	modified:   postxconfig-NT-gfs-two.txt
+	modified:   postxconfig-NT-gfs.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	../../git
+	../../modulefiles/hera.lua.orig
+	postxconfig-NT-gfs-two.txt.orig
+	postxconfig-NT-gfs-two.txt.v1
+	postxconfig-NT-gfs.txt.orig
+	unmerge.txt
+

@@ -1,6 +1,6 @@
 !> @file
 !> @brief Subroutine that computes boundary layer fields.
-!
+!>
 !> Computes constant mass mean fields
 !>
 !> This routine computes constant mass (boundary layer)
@@ -11,10 +11,30 @@
 !> relative humidity, U and V winds, vertical velocity,
 !> and precipitable water.  Given these fundamental variables
 !> other fields may be computed.
-!>
+!> 
 !> @note If you change parameter NBND in this routine 
 !>       don't forget to change it also in the calling
 !>       subprogram, MISCLN.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1993-01-29 | RUSS TREADON | Original file
+!> 1993-05-07 | RUSS TREADON | ADDED DOC BLOCK AND MORE COMMENTS.
+!> 1993-06-19 | RUSS TREADON | ADDED LVLBND TO PARAMETER LIST.
+!> 1996-03-07 | MIKE BALDWIN | CHANGE PWTR CALC TO INCLUDE CLD WTR SPEED UP CODE
+!> 1998-06-16 | T BLACK      | CONVERSION FROM 1-D TO 2-D
+!> 1998-08-18 | MIKE BALDWIN | CHANGE QSBND TO RHBND IN CALL, COMPUTE RH OVER ICE
+!> 1998-12-22 | MIKE BALDWIN | BACK OUT RH OVER ICE
+!> 2000-01-04 | JIM TUCCILLO | MPI VERSION 
+!> 2002-01-15 | MIKE BALDWIN | WRF VERSION
+!> 2020-11-10 | JESSE MENG   | USE UPP_PHYSICS MODULE
+!> 2021-08-20 | Wen Meng     | Retrict computation fro undefined points.
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction.
+!>     
+!> @author Russ Treadon W/NP2 @date 1993-01-29
+! ------------------------------------------------------------------------------------------
+!> @brief Computes boundary layer fields.
 !>
 !> @param[out] PBND - Layer mean pressure in NBND boundary layers (NBL).
 !> @param[out] TBND - Layer mean temperature in NBL.
@@ -28,23 +48,10 @@
 !> @param[out] QCNVBND - Layer moisture convergence in NBL.
 !> @param[out] LVLBND - ETA layer at midpoint of NBL.
 !>
-!> Program History
-!> - 93-01-29  RUSS TREADON
-!> - 93-05-07  RUSS TREADON - ADDED DOC BLOCK AND MORE COMMENTS.
-!> - 93-06-19  RUSS TREADON - ADDED LVLBND TO PARAMETER LIST.
-!> - 96-03-07  MIKE BALDWIN - CHANGE PWTR CALC TO INCLUDE CLD WTR
-!>                            SPEED UP CODE
-!> - 98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!> - 98-08-18  MIKE BALDWIN - CHANGE QSBND TO RHBND IN CALL,
-!>                            COMPUTE RH OVER ICE
-!> - 98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!> - 00-01-04  JIM TUCCILLO - MPI VERSION 
-!> - 02-01-15  MIKE BALDWIN - WRF VERSION
-!> - 20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!> - 21-08-20  Wen Meng     - Retrict computation fro undefined points.
-!> - 21-09-02  Bo Cui       - Decompose UPP in X direction.
-!>     
-!> @author Russ Treadon W/NP2 @date 1993-01-29
+!> @note If you change parameter NBND in this routine 
+!>       don't forget to change it also in the calling
+!>       subprogram, MISCLN.
+
       SUBROUTINE BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,       &
                         WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
 

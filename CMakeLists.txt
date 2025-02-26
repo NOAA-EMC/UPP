@@ -14,6 +14,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Handle user options.
 option(OPENMP "use OpenMP threading" ON)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
+option(BUILD_WITH_NEMSIO "Build NCEPpost with nemsio library" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
 option(BUILD_WITH_IFI "Build NCEPpost with In-Flight Icing (IFI) library if present" OFF)
 option(REQUIRE_IFI "Abort if libIFI is not found ; enables BUILD_WITH_IFI=ON" OFF)
@@ -29,7 +30,7 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
                                                "MinSizeRel" "RelWithDebInfo")
 endif()
 
-if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|Clang|AppleClang)$")
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM|GNU|Clang|AppleClang)$")
   message(WARNING "Compiler not officially supported: ${CMAKE_Fortran_COMPILER_ID}")
 endif()
 
@@ -84,9 +85,10 @@ else()
 endif()
 
 if(BUILD_POSTEXEC)
-  find_package(nemsio REQUIRED)
-  find_package(sfcio REQUIRED)
-  find_package(sigio REQUIRED)
+  if(BUILD_WITH_NEMSIO)
+    find_package(nemsio REQUIRED)
+    find_package(sigio REQUIRED)
+  endif()
   find_package(sp REQUIRED)
   find_package(w3emc REQUIRED)
   if(BUILD_WITH_WRFIO)
@@ -111,12 +113,11 @@ if(IFI_FOUND OR INTERNAL_IFI)
 endif()
 
 add_subdirectory(sorc)
-add_subdirectory(parm)
 
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)
   find_package(Doxygen REQUIRED)
-  add_subdirectory(docs)
+  add_subdirectory(doc)
 endif()
 
 ### Package config

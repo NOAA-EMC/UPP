@@ -57,7 +57,13 @@
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
-!!   23-10-17 | E James | Include hail hydrometeors in VIL computation when available
+!!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
+!!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
+!!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
+!!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
+!!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
+!!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
+!!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
 !!
@@ -95,14 +101,14 @@
 
 !    
       use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust,&
-              coarsepm
+              coarsepm, ebb
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, qqh, zint,&
               qqni, qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
-      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, twbs, qwbs,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
       use masks, only: lmh, gdlat, gdlon,sm,sice,dx,dy
@@ -587,7 +593,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
       ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R' &
         .OR. MODELNAME == 'GFS') &
-        .and. imp_physics==8)THEN !NMMB or FV3R or GFS +THOMPSON
+        .and. (imp_physics==8 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB or FV3R or GFS +THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=ista,iend
@@ -2443,6 +2449,33 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
              END IF
            ENDIF
 !
+! E. James - 23 Apr 2024: EBB from RRFS
+!
+           IF (IGET(1015)>0) THEN
+             IF (LVLS(L,IGET(1015))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=ista,iend
+                 GRID1(I,J) = EBB(I,J,LL,1)/(1E9)
+               ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1015))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1015))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+!
        if ( gocart_on .or. gccpp_on .or. nasa_on ) then
 !          DUST 1
            IF (IGET(629)>0) THEN
@@ -4044,9 +4077,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
             ENDIF
 !	    
-! CALCULATE Gust based on Ri PBL
+! Calculate 10-m wind gust based on PBL height (as diagnosed from either Ri or theta-v) 
       IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
-        IF(MODELNAME=='RAPR') THEN
+        IF (MODELNAME=='RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
              if(grib=='grib2') then
@@ -4084,9 +4117,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          loopL:DO L=NINT(LMH(I,J)),1,-1
-          IF(MODELNAME=='RAPR') THEN
+          IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
            HGT=ZMID(I,J,L)
            PBLHOLD=PBLHGUST(I,J)
+           IF(PBLHOLD == spval) THEN
+             LPBL(I,J) = LM
+             EXIT loopL
+           ENDIF
           ELSE
            HGT=ZINT(I,J,L)
            PBLHOLD=PBLRI(I,J)
@@ -4104,7 +4141,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
         ENDDO
        ENDDO
-       IF(MODELNAME=='RAPR') THEN
+       IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
         CALL CALGUST(LPBL,PBLHGUST,GUST)
        ELSE
         CALL CALGUST(LPBL,PBLRI,GUST)
@@ -4205,7 +4242,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(gtg_on) then
+      IF(gtg_on .and. (IGET(464) > 0 .or. IGET(467) > 0 .or. IGET(470) > 0)) then
         i=(ista+iend)/2
         j=(jsta+jend)/2
 !        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
@@ -4219,13 +4256,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
         qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
         q2(ista:iend,:,:),&
-        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
-        sfclhx(ista:iend,:),ustar(ista:iend,:),&
+        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),twbs(ista:iend,:),&
+        qwbs(ista:iend,:),ustar(ista:iend,:),&
         z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&
         catedr(ista:iend,:,:),mwt(ista:iend,:,:),cit(ista:iend,:,:),&
-        gtg(ista:iend,:,:),RICHNO(ista:iend,:,:),item)
+        RICHNO(ista:iend,:,:),gtg(ista:iend,:,:),item)
 
         i=iend
         j=jend ! 321,541
