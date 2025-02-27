@@ -18,12 +18,8 @@ RM=rm -f
 # Make sure all of the .txt files are in the ALL_TXT variable.
 
 ALL_TXT= \
-  ./gfs/postxconfig-NT-gfs.txt \
   ./gfs/postxconfig-NT-gfs-goes.txt \
   ./gfs/postxconfig-NT-gfs-anl.txt \
-  ./gfs/postxconfig-NT-gfs-f00.txt \
-  ./gfs/postxconfig-NT-gfs-flux.txt \
-  ./gfs/postxconfig-NT-gfs-flux-f00.txt \
   ./gfs/postxconfig-NT-gfs-two.txt \
   ./gfs/postxconfig-NT-gfs-f00-two.txt \
   ./gfs/postxconfig-NT-gfs-wafs-anl.txt \
@@ -56,12 +52,8 @@ all: $(ALL_TXT)
 clean:
 	$(RM) $(ALL_TXT)
 
-./gfs/postxconfig-NT-gfs.txt:               ./gfs/postcntrl_gfs.xml               post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-goes.txt:          ./gfs/postcntrl_gfs_goes.xml          post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-anl.txt:           ./gfs/postcntrl_gfs_anl.xml           post_avblflds.xml
-./gfs/postxconfig-NT-gfs-f00.txt:           ./gfs/postcntrl_gfs_f00.xml           post_avblflds.xml
-./gfs/postxconfig-NT-gfs-flux.txt:          ./gfs/postcntrl_gfs_flux.xml          post_avblflds.xml
-./gfs/postxconfig-NT-gfs-flux-f00.txt:      ./gfs/postcntrl_gfs_flux_f00.xml      post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-two.txt:           ./gfs/postcntrl_gfs_two.xml           post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-wafs-anl.txt:      ./gfs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
