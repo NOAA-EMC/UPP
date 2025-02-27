@@ -58,6 +58,7 @@
 !> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
 !> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
 !> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
+!> 2025-02-25 | Wen Meng      | Remove duplicated declaraion for tshltr 
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -86,7 +87,7 @@
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
-              tshltr, albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,&
+              albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,        &
               sigt4,cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,    &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
