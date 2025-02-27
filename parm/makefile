@@ -18,12 +18,8 @@ RM=rm -f
 # Make sure all of the .txt files are in the ALL_TXT variable.
 
 ALL_TXT= \
-  ./gfs/postxconfig-NT-gfs.txt \
   ./gfs/postxconfig-NT-gfs-goes.txt \
   ./gfs/postxconfig-NT-gfs-anl.txt \
-  ./gfs/postxconfig-NT-gfs-f00.txt \
-  ./gfs/postxconfig-NT-gfs-flux.txt \
-  ./gfs/postxconfig-NT-gfs-flux-f00.txt \
   ./gfs/postxconfig-NT-gfs-two.txt \
   ./gfs/postxconfig-NT-gfs-f00-two.txt \
   ./gfs/postxconfig-NT-gfs-wafs-anl.txt \
@@ -43,6 +39,7 @@ ALL_TXT= \
   postxconfig-NT-hafs_nosat.txt \
   postxconfig-NT-hafs.txt \
   postxconfig-NT-hrrr.txt \
+  postxconfig-NT-ifi.txt \
   postxconfig-NT-rap.txt \
   postxconfig-NT-rrfs.txt \
   postxconfig-NT-rrfs_subh.txt \
@@ -55,12 +52,8 @@ all: $(ALL_TXT)
 clean:
 	$(RM) $(ALL_TXT)
 
-./gfs/postxconfig-NT-gfs.txt:               ./gfs/postcntrl_gfs.xml               post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-goes.txt:          ./gfs/postcntrl_gfs_goes.xml          post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-anl.txt:           ./gfs/postcntrl_gfs_anl.xml           post_avblflds.xml
-./gfs/postxconfig-NT-gfs-f00.txt:           ./gfs/postcntrl_gfs_f00.xml           post_avblflds.xml
-./gfs/postxconfig-NT-gfs-flux.txt:          ./gfs/postcntrl_gfs_flux.xml          post_avblflds.xml
-./gfs/postxconfig-NT-gfs-flux-f00.txt:      ./gfs/postcntrl_gfs_flux_f00.xml      post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-two.txt:           ./gfs/postcntrl_gfs_two.xml           post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-wafs-anl.txt:      ./gfs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
@@ -80,6 +73,7 @@ postxconfig-NT-hafs_ar_nosat.txt:    postcntrl_hafs_ar_nosat.xml    post_avblfld
 postxconfig-NT-hafs_ar_nosat_l65.txt: postcntrl_hafs_ar_nosat_l65.xml post_avblflds.xml
 postxconfig-NT-hafs.txt:             postcntrl_hafs.xml             post_avblflds.xml
 postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
+postxconfig-NT-ifi.txt:              ifi_postcntrl.xml              post_avblflds.xml
 postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
 postxconfig-NT-rrfs.txt:             rrfs_postcntrl.xml             post_avblflds.xml
 postxconfig-NT-rrfs_subh.txt:        rrfs_postcntrl_subh.xml        post_avblflds.xml
