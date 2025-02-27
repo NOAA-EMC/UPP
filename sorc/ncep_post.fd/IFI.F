@@ -1,5 +1,12 @@
 !> @file
 !> @brief upp_ifi_mod declares variables used in the in-flight icing (IFI) routines.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> ca 2023-2025 | Sam Trahan and UCAR collaborators    | Initial
+!> 2025-02-27   | Sam Trahan                           | Bugfix: Reject IFI_APCP only where it is spval
+
 module upp_ifi_mod
 
 #ifdef USE_IFI
