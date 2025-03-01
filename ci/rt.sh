@@ -71,7 +71,7 @@ run_rtma=yes
 # Tests with IFI enabled only work if libIFI is present.
 if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
   run_hrrr_ifi=yes
-  run_ifi_standalone_hrrr=no # turned off by default because it doesn't match UPP output yet
+  run_ifi_standalone_hrrr=yes
   run_fv3r_ifi=yes
   run_ifi_standalone_fv3r=yes
 else

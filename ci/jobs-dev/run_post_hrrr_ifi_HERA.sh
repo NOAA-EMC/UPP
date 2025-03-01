@@ -72,9 +72,6 @@ write_ifi_debug_files=.true.
 EOF
 #FMIN
 
-#copy fix data
-cp $homedir/fix/fix_2.3.0/*bin .
-
 #copy xml
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-ifi.txt postxconfig-NT.txt

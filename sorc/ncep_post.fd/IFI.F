@@ -1,5 +1,12 @@
 !> @file
 !> @brief upp_ifi_mod declares variables used in the in-flight icing (IFI) routines.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> ca 2023-2025 | Sam Trahan and UCAR collaborators    | Initial
+!> 2025-02-27   | Sam Trahan                           | Bugfix: Reject IFI_APCP only where it is spval
+
 module upp_ifi_mod
 
 #ifdef USE_IFI
@@ -792,7 +799,7 @@ contains !==============================================================
 !$OMP PARALLEL DO COLLAPSE(2)
     do j=jsta,jend
        do i=ista,iend
-          if(ifi_apcp(i,j)>9e9 .or. ifi_apcp(i,j)<-9e9 .or. ifi_apcp(i,j)==0) then
+          if(ifi_apcp(i,j) == spval) then
              ifi_apcp(i,j) = avgprec_cont(i,j)*to_hourly
           else if(ITPREC>1e-5) then
              ifi_apcp(i,j) = ifi_apcp(i,j)/itprec
