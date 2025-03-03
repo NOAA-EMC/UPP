@@ -56,6 +56,7 @@
 !> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
 !> 2024-10-29 | W Meng     | Unify iSF_SURFACE_PHYSICS as:1 for NOHA,2 for NOAH MP,3 for RUC 
+!> 2025-02-27 | S Trahan   | Update comment to match new use of IFI_APCP in IFI.F
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -4048,7 +4049,7 @@
                ENDIF 
              ENDDO
            ENDDO
-           ! Note: IFI.F may replace IFI_APCP with other values where it is spval or 0
+           ! Note: IFI.F may replace IFI_APCP=spval with other values
          ENDIF
 
          IF (IGET(434)>0.) THEN
