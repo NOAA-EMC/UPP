@@ -50,6 +50,7 @@
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
 !> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
+!> 2024-03-25 | Biju Thomas   | Bug fix float overlow in hafs_upp debug build run
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
