@@ -47,7 +47,7 @@ ALL_TXT= \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-AQM.txt \
-  postxconfig-NT-hrrr_gtg.txt
+  postxconfig-NT-hrrr_dafs.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
@@ -83,7 +83,7 @@ postxconfig-NT-rrfs_subh.txt:        rrfs_postcntrl_subh.xml        post_avblfld
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
-postxconfig-NT-hrrr_gtg.txt:         hrrr_postcntrl_gtg.xml         post_avblflds_raphrrr.xml
+postxconfig-NT-hrrr_dafs.txt:        hrrr_postcntrl_dafs.xml        post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
