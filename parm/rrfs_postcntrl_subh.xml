@@ -232,20 +232,6 @@
        </param>
 
        <param>
-       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLW</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
-       <pname>TCOLI</pname>
-       <table_info>NCEP</table_info>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
        <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
        <pname>HGT</pname>
        <scale>-3.0</scale>
