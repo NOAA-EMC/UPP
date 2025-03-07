@@ -35,8 +35,13 @@ ALL_TXT= \
   postxconfig-NT-GFS-F00-TWO.txt \
   postxconfig-NT-hrrr.txt \
   postxconfig-NT-rap.txt \
-  postxconfig-NT-rrfs.txt \
-  postxconfig-NT-rrfs_subh.txt \
+  ./rrfs/postxconfig-NT-rrfs.txt \
+  ./rrfs/postxconfig-NT-rrfs_subh.txt \
+  ./rrfs/postxconfig-NT-rrfs_f00.txt \
+  ./rrfs/postxconfig-NT-rrfs_f01.txt \
+  ./rrfs/postxconfig-NT-rrfs_nosmokedust.txt \
+  ./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt \
+  ./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-GEFS-aerosol.txt \
@@ -66,7 +71,13 @@ postxconfig-NT-GFS-TWO.txt:          postcntrl_gfs_two.xml          post_avblfld
 postxconfig-NT-GFS-F00-TWO.txt:      postcntrl_gfs_f00_two.xml      post_avblflds.xml
 postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
 postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
-postxconfig-NT-rrfs.txt:             rrfs_postcntrl.xml             post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs.txt:      ./rrfs/rrfs_postcntrl.xml      post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_subh.txt: ./rrfs/rrfs_postcntrl_subh.xml post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_f00.txt:  ./rrfs/rrfs_postcntrl_f00.xml  post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_f01.txt:  ./rrfs/rrfs_postcntrl_f01.xml  post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_nosmokedust.txt:     ./rrfs/rrfs_postcntrl_nosmokedust.xml     post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f00.xml post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f01.xml post_avblflds.xml
 postxconfig-NT-rrfs_subh.txt:        rrfs_postcntrl_subh.xml        post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
