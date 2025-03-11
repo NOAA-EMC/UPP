@@ -194,6 +194,7 @@
             QQNW(i,j,l)=spval
             QQNI(i,j,l)=spval
             QQNR(i,j,l)=spval
+            QQNG(i,j,l)=spval
             QQNWFA(i,j,l)=spval
             QQNIFA(i,j,l)=spval
             TAOD5503D(i,j,l)=spval
