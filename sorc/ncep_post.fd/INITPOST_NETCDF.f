@@ -2093,8 +2093,10 @@
 !$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
         Do i=ista,iend
-          TLMH = T(I,J,LM) * T(I,J,LM)
-          Sigt4(i,j) = 5.67E-8 * TLMH * TLMH
+          if ( T(I,J,LM) < spval ) then
+            TLMH = T(I,J,LM) * T(I,J,LM)
+            Sigt4(i,j) = 5.67E-8 * TLMH * TLMH
+          endif
         End do
       End do
 
@@ -2643,7 +2645,9 @@
           if(ext550(i,j,l)<spval)then
             taod5503d ( i, j, l) = ext550 ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
-            aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+            if ( dz /= 0.0) then
+              aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+            endif
           endif
           if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
            i,j,l,taod5503d ( i, j, l )
