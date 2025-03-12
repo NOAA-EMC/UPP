@@ -25,6 +25,7 @@
 !> 2024-12-05 | Jaymes Kenyon| Temporary hard coding of imp_physics=8 for RRFS-MPAS (required for 
 !>                           | brightness-temperature calculations in subroutine CALRAD_WCLOUD)
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
+!> 2025-03-12 | Jaymes Kenyon| Add temporary hard coding of SLDPTH (for Noah LSM)
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -1286,8 +1287,7 @@ endif  ! 1==2
 ! Soil layer/depth - extract thickness of soil layers from wrf output
       SLDPTH=0.0 !Assign bogus value
 
-      ! RUC LSM - use depths of center of soil layer
-      IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
+      IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM - use depths of center of soil layer
       ! call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
       !  NSOIL,1,1,1,NSOIL,1,1,1)
       ! print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
@@ -1296,6 +1296,15 @@ endif  ! 1==2
       ! RUC LSM until the 'ZS' array (from MPASSIT) can be correctly read.
       ! A similar hard-coding approach is also used in INITPOST_NETCDF.
         SLLEVEL = (/ 0.0, 0.01, 0.04, 0.1, 0.3, 0.6, 1.0, 1.6, 3.0 /)
+
+      ELSE IF(iSF_SURFACE_PHYSICS==2)then ! Noah - use thicknesses of soil layers
+      ! call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
+      !  NSOIL,1,1,1,NSOIL,1,1,1)
+
+      ! J. Kenyon / 12 Mar 2025: Assign thicknesses of soil levels for 
+      ! Noah until the 'DZS' array (from MPASSIT) can be correctly read.
+        SLDPTH = (/ 0.1, 0.3, 0.6, 1.0 /)
+
       ELSE
        call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
