@@ -25,7 +25,7 @@
 !> 2024-12-05 | Jaymes Kenyon| Temporary hard coding of imp_physics=8 for RRFS-MPAS (required for 
 !>                           | brightness-temperature calculations in subroutine CALRAD_WCLOUD)
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
-!> 2025-03-12 | Jaymes Kenyon| Add temporary hard coding of SLDPTH (for Noah LSM)
+!> 2025-03-13 | Jaymes Kenyon| Fix read-in of soil type and vegetaion type
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -1284,7 +1284,7 @@ endif  ! 1==2
 
 ! CRA
 
-! Soil layer/depth - extract thickness of soil layers from wrf output
+! Soil layer/depth - extract thickness of soil layers
       SLDPTH=0.0 !Assign bogus value
 
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM - use depths of center of soil layer
@@ -1297,15 +1297,7 @@ endif  ! 1==2
       ! A similar hard-coding approach is also used in INITPOST_NETCDF.
         SLLEVEL = (/ 0.0, 0.01, 0.04, 0.1, 0.3, 0.6, 1.0, 1.6, 3.0 /)
 
-      ELSE IF(iSF_SURFACE_PHYSICS==2)then ! Noah - use thicknesses of soil layers
-      ! call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
-      !  NSOIL,1,1,1,NSOIL,1,1,1)
-
-      ! J. Kenyon / 12 Mar 2025: Assign thicknesses of soil levels for 
-      ! Noah until the 'DZS' array (from MPASSIT) can be correctly read.
-        SLDPTH = (/ 0.1, 0.3, 0.6, 1.0 /)
-
-      ELSE
+      ELSE ! Other LSMs (e.g., Noah) - use thicknesses of soil layers
        call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
        if (me==0) print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
@@ -2668,26 +2660,24 @@ endif  ! 1==2
         end do
        end do
 
-! GET VEGETATION TYPE
-
-      call getIVariableN(fileName,DateStr,DataHandle,'IVGTYP',IDUMMY,    &
+      call getVariable(fileName,DateStr,DataHandle,'IVGTYP',DUMMY,    &
         IM,1,JM,1,IM,JS,JE,1)
-!      print*,'sample VEG TYPE',IDUMMY(20,20)
+!      print*,'sample VEG TYPE',DUMMY(20,20)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            IVGTYP ( i, j ) = idummy ( i, j ) 
+            IVGTYP ( i, j ) = dummy ( i, j ) 
         end do
        end do
        
       VarName='ISLTYP'
-      call getIVariableN(fileName,DateStr,DataHandle,VarName,IDUMMY,     & 
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     & 
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            ISLTYP ( i, j ) = idummy ( i, j ) 
+            ISLTYP ( i, j ) = dummy ( i, j ) 
         end do
        end do
-       if (me==0) print*,'MAX ISLTYP=', maxval(idummy)
+!       if (me==0) print*,'MAX ISLTYP=', maxval(dummy)
 
 !      VarName='ISLOPE'
 !      call getIVariableN(fileName,DateStr,DataHandle,VarName,IDUMMY,     &
