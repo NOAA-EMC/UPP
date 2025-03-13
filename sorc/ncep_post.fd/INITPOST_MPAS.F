@@ -1288,15 +1288,9 @@ endif  ! 1==2
       SLDPTH=0.0 !Assign bogus value
 
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM - use depths of center of soil layer
-      ! call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
-      !  NSOIL,1,1,1,NSOIL,1,1,1)
-      ! print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
-
-      ! J. Kenyon / 23 Aug 2024: Assign depths of soil levels for 
-      ! RUC LSM until the 'ZS' array (from MPASSIT) can be correctly read.
-      ! A similar hard-coding approach is also used in INITPOST_NETCDF.
-        SLLEVEL = (/ 0.0, 0.01, 0.04, 0.1, 0.3, 0.6, 1.0, 1.6, 3.0 /)
-
+       call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
+        NSOIL,1,1,1,NSOIL,1,1,1)
+       if (me==0) print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
       ELSE ! Other LSMs (e.g., Noah) - use thicknesses of soil layers
        call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
