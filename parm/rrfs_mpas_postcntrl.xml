@@ -69,6 +69,11 @@
        </param>
 
        <param>
+          <shortname>SOTYP_ON_SURFACE</shortname>
+          <scale>3.0</scale>
+       </param>
+
+       <param>
           <shortname>MAPS_PRMSL_ON_MEAN_SEA_LVL</shortname>
           <scale>-0.1</scale>
        </param>
