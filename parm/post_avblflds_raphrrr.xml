@@ -4180,6 +4180,23 @@
     </param>
 
     <param>
+       <post_avblfldidx>476</post_avblfldidx>
+       <shortname>MXEDPRM_ON_ENTIRE_ATMOS</shortname>
+       <pname>MXEDPRM</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+<!-- 477 EDR on FD_HEIGHT_LVL (for regional model)-->
+    <param>
+       <post_avblfldidx>477</post_avblfldidx>
+       <shortname>CIT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <pname>CITEDR</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>482</post_avblfldidx>
        <shortname>PRES_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
        <longname>pressure between Specific Altitude Above Mean Sea Level</longname>

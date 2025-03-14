@@ -22,15 +22,15 @@ ALL_TXT= \
   ./gfs/postxconfig-NT-gfs-anl.txt \
   ./gfs/postxconfig-NT-gfs-two.txt \
   ./gfs/postxconfig-NT-gfs-f00-two.txt \
-  ./gfs/postxconfig-NT-gfs-wafs-anl.txt \
-  ./gfs/postxconfig-NT-gfs-wafs-ext.txt \
-  ./gfs/postxconfig-NT-gfs-wafs.txt \
   ./gefs/postxconfig-NT-gefs.txt \
   ./gefs/postxconfig-NT-gefs-f00.txt \
   ./gefs/postxconfig-NT-gefs-gcafs.txt \
   ./gefs/postxconfig-NT-gefs-aerosol.txt \
   ./gefs/postxconfig-NT-gefs-f00-aerosol.txt \
-  ./gefs/postxconfig-NT-gefs-wafs.txt \
+  ./wafs/postxconfig-NT-gfs-wafs-anl.txt \
+  ./wafs/postxconfig-NT-gfs-wafs-ext.txt \
+  ./wafs/postxconfig-NT-gfs-wafs.txt \
+  ./wafs/postxconfig-NT-gefs-wafs.txt \
   ./sfs/postxconfig-NT-sfs.txt \
   postxconfig-NT-NMM.txt \
   postxconfig-NT-NGAC.txt \
@@ -46,7 +46,8 @@ ALL_TXT= \
   postxconfig-NT-rrfs_subh.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
-  postxconfig-NT-AQM.txt
+  postxconfig-NT-AQM.txt \
+  postxconfig-NT-hrrr_dafs.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
@@ -57,15 +58,15 @@ clean:
 ./gfs/postxconfig-NT-gfs-anl.txt:           ./gfs/postcntrl_gfs_anl.xml           post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-two.txt:           ./gfs/postcntrl_gfs_two.xml           post_avblflds.xml
 ./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
-./gfs/postxconfig-NT-gfs-wafs-anl.txt:      ./gfs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
-./gfs/postxconfig-NT-gfs-wafs-ext.txt:      ./gfs/postcntrl_gfs_wafs_ext.xml      post_avblflds.xml
-./gfs/postxconfig-NT-gfs-wafs.txt:          ./gfs/postcntrl_gfs_wafs.xml          post_avblflds.xml
 ./gefs/postxconfig-NT-gefs.txt:             ./gefs/postcntrl_gefs.xml             post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00.txt:         ./gefs/postcntrl_gefs_f00.xml         post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-gcafs.txt:       ./gefs/postcntrl_gefs_gcafs.xml       post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00-aerosol.txt: ./gefs/postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
-./gefs/postxconfig-NT-gefs-wafs.txt:        ./gefs/postcntrl_gefs_wafs.xml        post_avblflds.xml
+./wafs/postxconfig-NT-gfs-wafs-anl.txt:      ./wafs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
+./wafs/postxconfig-NT-gfs-wafs-ext.txt:      ./wafs/postcntrl_gfs_wafs_ext.xml      post_avblflds.xml
+./wafs/postxconfig-NT-gfs-wafs.txt:          ./wafs/postcntrl_gfs_wafs.xml          post_avblflds.xml
+./wafs/postxconfig-NT-gefs-wafs.txt:        ./wafs/postcntrl_gefs_wafs.xml        post_avblflds.xml
 ./sfs/postxconfig-NT-sfs.txt:		    ./sfs/postcntrl_sfs.xml	          post_avblflds.xml
 postxconfig-NT-NMM.txt:              nam_cntrl_cmaq.xml             nam_post_avblflds.xml
 postxconfig-NT-NGAC.txt:             ngac_postcntrl.xml             ngac_post_avblflds.xml
@@ -82,6 +83,7 @@ postxconfig-NT-rrfs_subh.txt:        rrfs_postcntrl_subh.xml        post_avblfld
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
+postxconfig-NT-hrrr_dafs.txt:        hrrr_postcntrl_dafs.xml        post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
