@@ -945,7 +945,7 @@
               pset%param(nprm)%scale_val_2nd_size,             &
               pset%gen_proc_type,                              &
               pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
-              pset%time_range_unit,ifhr,                       &
+              pset%time_range_unit,ihr_start,                  &
               pset%param(nprm)%fixed_sfc1_type,                &
               scale_fct_fixed_sfc1,                            &
               scaled_val_fixed_sfc1,                           &
