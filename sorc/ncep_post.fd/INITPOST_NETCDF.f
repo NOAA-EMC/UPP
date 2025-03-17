@@ -59,6 +59,7 @@
 !> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
 !> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
 !> 2025-02-25 | Wen Meng      | Remove duplicated declaraion for tshltr 
+!> 2024-03-25 | Biju Thomas   | Bug fix float overlow in hafs_upp debug build run
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -2125,8 +2126,10 @@
 !$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
         Do i=ista,iend
-          TLMH = T(I,J,LM) * T(I,J,LM)
-          Sigt4(i,j) = 5.67E-8 * TLMH * TLMH
+          if ( T(I,J,LM) < spval ) then
+            TLMH = T(I,J,LM) * T(I,J,LM)
+            Sigt4(i,j) = 5.67E-8 * TLMH * TLMH
+          endif
         End do
       End do
 
@@ -2675,7 +2678,9 @@
           if(ext550(i,j,l)<spval)then
             taod5503d ( i, j, l) = ext550 ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
-            aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+            if ( dz /= 0.0) then
+              aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+            endif
           endif
           if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample taod5503d= ',   &
            i,j,l,taod5503d ( i, j, l )
