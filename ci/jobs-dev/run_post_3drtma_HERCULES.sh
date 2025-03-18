@@ -81,7 +81,7 @@ EOF
 
 #copy fix data
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
-cp ${svndir}/parm/postxconfig-NT-rrfs.txt postxconfig-NT.txt
+cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
 #get crtm fix file
@@ -105,7 +105,7 @@ done
 
 #copy xml
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
-cp ${svndir}/parm/postxconfig-NT-rrfs.txt postxconfig-NT.txt
+cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
