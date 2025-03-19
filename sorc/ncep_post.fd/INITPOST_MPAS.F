@@ -2770,10 +2770,10 @@ endif  ! 1==2
 !        print*,'UL corner from model output= ',dummy(1,jm)
 !        print*,'UR corner from model output= ',dummy(im,jm)
        end if
-       write(6,*) 'laststart,latlast B calling bcast= ',latstart,latlast
+       if(me==0) write(6,*) 'laststart,latlast B calling bcast= ',latstart,latlast
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
+       if(me==0) write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
        call collect_loc(gdlon,dummy)
        if(me==0)then
         if(dummy(1,1)<0.0) dummy(1,1)=360.0+dummy(1,1)
@@ -2785,10 +2785,10 @@ endif  ! 1==2
 !        print*,'UL corner from model output= ',dummy(1,jm)
 !        print*,'UR corner from model output= ',dummy(im,jm)
        end if
-       write(6,*)'lonstart,lonlast B calling bcast=',lonstart,lonlast
+       if(me==0) write(6,*)'lonstart,lonlast B calling bcast=',lonstart,lonlast
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*)'lonstart,lonlast A calling bcast= ',lonstart,lonlast
+       if(me==0) write(6,*)'lonstart,lonlast A calling bcast= ',lonstart,lonlast
 !
 ! obtain map scale factor
 !      VarName='msft'
@@ -2835,7 +2835,7 @@ endif  ! 1==2
       ENDIF
 
 
-      write(6,*) 'filename in INITPOST_MPAS=', filename,' is'
+      if(me==0) write(6,*) 'filename in INITPOST_MPAS=', filename,' is'
 
 !	status=nf_open(filename,NF_NOWRITE,ncid)
 !	        write(6,*) 'returned ncid= ', ncid
@@ -2859,55 +2859,55 @@ endif  ! 1==2
         call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
           1,ioutcount,istatus)
         maptype=itmp
-        write(6,*) 'maptype is ', maptype
+        if(me==0) write(6,*) 'maptype is ', maptype
 
         call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp,                &      
           1,ioutcount,istatus)
         if(maptype==0)then
           dxval=tmp*gdsdegr ! grid length in degrees for lat-lon proj 
-          write(6,*) 'dxval= ',tmp
+          if(me==0) write(6,*) 'dxval= ',tmp
         else
           dxval=nint(tmp)
-          write(6,*) 'dxval= ',dxval
+          if(me==0) write(6,*) 'dxval= ',dxval
         endif
 
         call ext_ncd_get_dom_ti_real(DataHandle,'DY',tmp,                &
           1,ioutcount,istatus)
         if(maptype==0)then
           dyval=tmp*gdsdegr ! grid length in degrees for lat-lon proj 
-          write(6,*) 'dyval= ',tmp
+          if(me==0) write(6,*) 'dyval= ',tmp
         else
           dyval=nint(tmp)
-          write(6,*) 'dyval= ',dyval
+          if(me==0) write(6,*) 'dyval= ',dyval
         endif
 
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LAT',tmp,           &
           1,ioutcount,istatus)
         cenlat=nint(gdsdegr*tmp)
-        write(6,*) 'cenlat= ', cenlat
+        if(me==0) write(6,*) 'cenlat= ', cenlat
 
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LON',tmp,           &
           1,ioutcount,istatus)
         if(tmp < 0) tmp=360.0 + tmp
         cenlon=nint(gdsdegr*tmp)
-        write(6,*) 'cenlon= ', cenlon
+        if(me==0) write(6,*) 'cenlon= ', cenlon
 
         call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
           1,ioutcount,istatus)
         maptype=itmp
-        write(6,*) 'maptype is ', maptype
+        if(me==0) write(6,*) 'maptype is ', maptype
 
         if(maptype/=6)then
           call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
             1,ioutcount,istatus)
           truelat1=nint(gdsdegr*tmp)
-          write(6,*) 'truelat1= ', truelat1
+          if(me==0) write(6,*) 'truelat1= ', truelat1
 
           if(maptype/=2)then  !PS projection excluded
             call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
               1,ioutcount,istatus)
             truelat2=nint(gdsdegr*tmp)
-            write(6,*) 'truelat2= ', truelat2
+            if(me==0) write(6,*) 'truelat2= ', truelat2
           endif
         endif
 
@@ -2915,7 +2915,7 @@ endif  ! 1==2
           1,ioutcount,istatus)
         if(tmp < 0) tmp=360.0 + tmp
         STANDLON=nint(gdsdegr*tmp)
-        write(6,*) 'STANDLON= ', STANDLON
+        if(me==0) write(6,*) 'STANDLON= ', STANDLON
 
 ! Calculate DX and DY arrays
        do j = jsta_2l, jend_2u
