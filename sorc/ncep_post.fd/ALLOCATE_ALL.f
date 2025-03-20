@@ -653,6 +653,9 @@
           snow_bucket1(i,j)=spval
           graup_bucket(i,j)=spval
           graup_bucket1(i,j)=spval
+          frzrn_bucket(i,j)=spval
+          snow_acm(i,j)=spval
+          snow_bkt(i,j)=spval
           qrmax(i,j)=spval
           tmax(i,j)=spval
           snownc(i,j)=spval
@@ -762,6 +765,7 @@
           sfclhx(i,j)=spval
           fis(i,j)=spval
           t500(i,j)=spval
+          z500(i,j)=spval
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
