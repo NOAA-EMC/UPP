@@ -110,10 +110,9 @@ cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational rtma post processing generates 3 files
+# operational rtma post processing generates 2 files
 filelist="NATLEV00.tm00 \
-          PRSLEV00.tm00 \
-          IFIFIP00.tm00"
+          PRSLEV00.tm00"
 
 for file in $filelist; do
 export filein2=$file

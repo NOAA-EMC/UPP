@@ -106,10 +106,9 @@ done
 #$APRUN ${POSTGPEXEC} > wrfpost2.out
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational rtma post processing generates 3 files
+# operational rtma post processing generates 2 files
 filelist="NATLEV00.tm00 \
-          PRSLEV00.tm00 \
-          IFIFIP00.tm00"
+          PRSLEV00.tm00"
 
 for file in $filelist; do
 export filein2=$file
