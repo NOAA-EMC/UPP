@@ -674,7 +674,9 @@
           IF((IGET(728)>0) )THEN
              DO J=JSTA,JEND
              DO I=ISTA,IEND
+             IF(HAIL_MAXHAILCAST(I,J)<SPVAL)THEN
                GRID1(I,J)=HAIL_MAXHAILCAST(I,J)/1000.0 ! convert mm to m
+             ENDIF
              ENDDO
              ENDDO
              if(grib=='grib2') then
