@@ -29,8 +29,8 @@ module load libpng/1.6.37
 module load jasper/2.0.32
 module load prod_util/2.1.1
 module load crtm/2.4.0.1
-module load grib-util/1.3.0
-module load wgrib2/2.0.8
+module load grib-util/1.4.0
+module load wgrib2/3.1.1
 module list
 
 #export WGRIB2=wgrib2
