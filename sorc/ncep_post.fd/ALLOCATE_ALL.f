@@ -155,6 +155,7 @@
       allocate(QQNW(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNI(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(QQNG(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNWFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNIFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(TAOD5503D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
@@ -191,6 +192,7 @@
             QQNW(i,j,l)=spval
             QQNI(i,j,l)=spval
             QQNR(i,j,l)=spval
+            QQNG(i,j,l)=spval
             QQNWFA(i,j,l)=spval
             QQNIFA(i,j,l)=spval
             TAOD5503D(i,j,l)=spval
@@ -649,6 +651,9 @@
           snow_bucket1(i,j)=spval
           graup_bucket(i,j)=spval
           graup_bucket1(i,j)=spval
+          frzrn_bucket(i,j)=spval
+          snow_acm(i,j)=spval
+          snow_bkt(i,j)=spval
           qrmax(i,j)=spval
           tmax(i,j)=spval
           snownc(i,j)=spval
@@ -758,6 +763,7 @@
           sfclhx(i,j)=spval
           fis(i,j)=spval
           t500(i,j)=spval
+          z500(i,j)=spval
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
