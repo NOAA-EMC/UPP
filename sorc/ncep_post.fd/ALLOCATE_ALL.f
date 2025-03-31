@@ -155,7 +155,6 @@
       allocate(QQNW(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNI(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-      allocate(QQNG(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNWFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNIFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(TAOD5503D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
@@ -192,7 +191,6 @@
             QQNW(i,j,l)=spval
             QQNI(i,j,l)=spval
             QQNR(i,j,l)=spval
-            QQNG(i,j,l)=spval
             QQNWFA(i,j,l)=spval
             QQNIFA(i,j,l)=spval
             TAOD5503D(i,j,l)=spval
