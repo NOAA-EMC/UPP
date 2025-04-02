@@ -19,6 +19,7 @@
 !!   21-10-14  J MENG - 2D DECOMPOSITION
 !! 2023-03-02  S TRAHAN - copy lightning threat index 3 element-by-element
 !! 2023-10-23  J Kenyon - HAILCAST output enabled in RRFS
+!! 2025-04-01  W Meng - Bug fix in HAILCAST
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -676,6 +677,8 @@
              DO I=ISTA,IEND
              IF(HAIL_MAXHAILCAST(I,J)<SPVAL)THEN
                GRID1(I,J)=HAIL_MAXHAILCAST(I,J)/1000.0 ! convert mm to m
+             ELSE
+               GRID1(I,J)=SPVAL
              ENDIF
              ENDDO
              ENDDO
