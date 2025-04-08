@@ -106,7 +106,7 @@ module params_mod
     real, parameter :: abscoef=8.0        !< Cloud water absorption coefficient
     real, parameter :: abscoefi=5.0       !< Cloud ice absorption coefficient
     real, parameter :: XLAI=4.0           !< Leaf area index
-    real, parameter :: RHmin=1.0E-6       !< minimal RH bound
+    real, parameter :: RHmin=1.0E-7       !< minimal RH bound
     real, parameter :: SMALL=1.E-6        !< _____?
 !    real, parameter :: PTHRESH=0.000000
     real, parameter :: ELIVW=2.72E6       !< Latent heat of vaporization of water in J/kg, used in calculations involving energy transfer during evaporation
