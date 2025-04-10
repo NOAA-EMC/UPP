@@ -2,11 +2,14 @@
 ! Algorithm for calculating ice growth rate
 !
 ! PROGRAM HISTORY LOG:
+!   19-10-31  Bhavani Balasubrama - Incorporate ice growth rate calculation in UPP
 !   21-10-31  JESSE MENG - 2D DECOMPOSITION
+!   25-02-25  Wen Meng - Add changes based on OPC's comments
 
-      use vrbls2d, only: sst, u10h, v10h, tshltr
+      use vrbls2d, only: sst, u10h, v10h, tshltr, pshltr
       use masks, only: sm, sice
       use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
+      use params_mod, only: capa
 !-------------------------------------------
       implicit none
       integer I, J
@@ -32,11 +35,13 @@
             ICEG(i,j)=0.
             CYCLE
           endif
+! Covert to shelter level T
+          TSHLTR_C=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 
 !!! CHANGE TEMP to FROM K to C
 !!! TEMPERATURE CHECK
           SST_C=SST(I,J)-C2K  
-          TSHLTR_C=TSHLTR(I,J)-C2K
+          TSHLTR_C=TSHLTR_C-C2K
           if((SST_C<-1.7).OR. &
              (SST_C>12.0)) then
             ICEG(I,j)=0.
@@ -50,7 +55,7 @@
           endif
 
 !  CALCULATE ICE GROWTH
-          PR(i,j)=SPD10(i,j)*(-1.7-TSHLTR_C)/(1.+.4*(SST_C+1.7))
+          PR(i,j)=SPD10(i,j)*(-1.7-TSHLTR_C)/(1.+.3*(SST_C+1.7))
           ICEG(i,j)=(2.73E-02)*PR(i,j)+(2.91E-04)*PR(i,j)*PR(i,j) &
                    +(1.84E-06)*PR(i,j)**3
 

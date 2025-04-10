@@ -38,7 +38,6 @@
 !> 2023-08-16 | Yali Mao                  | Add gtg_on logical option
 !> 2023-11-29 | Eric James                | Add method_blsn logical option
 !> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
-!> 2024-08-30 | Jaymes Kenyon             | Hard coding iSF_SURFACE_PHYSICS=3 when modelname=RAPR and submodelname=MPAS
 !> 2024-10-29 | Wen Meng                  | Set iSF_SURFACE_PHYSICS: 1 for NOAH; 2 for NOAH MP; 3 for RUC
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
@@ -386,13 +385,8 @@
 ! Read and set global value for surface physics scheme
           call ext_ncd_get_dom_ti_integer(DataHandle                      &
             ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
-
-          ! J. Kenyon / 23 Aug 2024: GSL MPAS output erroneously
-          ! indicates SF_SURFACE_PHYSICS = 0 (should be 3), so overwrite
-          ! here:
-          if (modelname == 'RAPR' .and. submodelname == 'MPAS') itmp = 3 
-
           iSF_SURFACE_PHYSICS = itmp
+
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
           NSOIL = 4

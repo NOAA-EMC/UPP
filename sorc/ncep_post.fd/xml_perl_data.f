@@ -148,6 +148,32 @@
 ! Take the first line as paramset_count
 	read(22,*)paramset_count
 
+        if(associated(paramset)) then
+          if(size(paramset)>0) then
+            do i=1,size(paramset)
+              if (associated(paramset(i)%param)) then
+                if (size(paramset(i)%param)>0) then
+                  do j=1,size(paramset(i)%param)
+                    if (associated(paramset(i)%param(j)%scale_fact_fixed_sfc1)) &
+                        deallocate(paramset(i)%param(j)%scale_fact_fixed_sfc1)
+                    if (associated(paramset(i)%param(j)%level)) &
+                        deallocate(paramset(i)%param(j)%level)
+                    if (associated(paramset(i)%param(j)%scale_fact_fixed_sfc2)) &
+                        deallocate(paramset(i)%param(j)%scale_fact_fixed_sfc2)
+                    if (associated(paramset(i)%param(j)%level2)) &
+                        deallocate(paramset(i)%param(j)%level2)
+                    if (associated(paramset(i)%param(j)%scale)) &
+                        deallocate(paramset(i)%param(j)%scale)
+                  enddo
+                  deallocate(paramset(i)%param)
+                  nullify(paramset(i)%param)
+                endif
+              endif
+            enddo
+          endif
+          deallocate(paramset)
+        endif
+
 ! Allocate paramset array size
         allocate(paramset(paramset_count))
 
