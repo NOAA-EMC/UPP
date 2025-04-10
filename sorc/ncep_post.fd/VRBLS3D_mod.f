@@ -12,6 +12,7 @@
 !> 2015-07-02 | SARAH LU | MODIFIED TO INCLUDE SCATTERING AEROSOL OPTICAL THICKNESS
 !> 2023-03-22 | WM LEWIS | ADDED EFFECTIVE RADIUS ARRAYS
 !> 2023-08-16 | Yali Mao | Add CIT (Convectively-Induced Turbulence) for GTG4
+!> 2025-01-13 | J Kenyon | Add graupel number concentration (QQNG)
       module vrbls3d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -46,6 +47,7 @@
       ,QQNW(:,:,:) &       !< cloud water number concentration 
       ,QQNI(:,:,:) &       !< ice number concentration 
       ,QQNR(:,:,:) &       !< rain number concentration 
+      ,QQNG(:,:,:) &       !< graupel number concentration 
       ,QC_BL(:,:,:) &      !< cloud water mixing ratio in PBL schemes 
       ,QRIMEF(:,:,:) &     !< rime factor * ice mixing ratio ?
       ,CFR(:,:,:) &        !< Instantaneous 3d cloud fraction

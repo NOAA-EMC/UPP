@@ -39,6 +39,9 @@
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
+!> 2024-09-23 | K Asmar		| Add velocity potential and streamfunction from wind vectors
+!> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
+!> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -53,7 +56,7 @@
       use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
-                         QQNW, QQNI, QQNR, RLWTT, RSWTT, VDIFFTT, TCUCN,     &
+                         QQNW, QQNI, QQNR, QQNG, RLWTT, RSWTT, VDIFFTT, TCUCN, &
                          TCUCNS, TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,&
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
@@ -75,7 +78,8 @@
                             IEND_2U, slrutah_on, gtg_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH, &
+                             CALSLR_UUTAH2, CALCHIPSI
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
@@ -107,6 +111,7 @@
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: CHI, PSI
 !
       INTEGER K, NSMOOTH
 !
@@ -124,7 +129,7 @@
 !  QQNR1 - number concentration of rain particles
 !
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
-      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1
+      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1, QQNG1
 
       REAL SDUMMY(IM,2)
 
@@ -228,6 +233,7 @@
          (IGET(257) > 0) .OR. (IGET(258) > 0) .OR.      &
          (IGET(294) > 0) .OR. (IGET(268) > 0) .OR.      &
          (IGET(331) > 0) .OR. (IGET(326) > 0) .OR.      &
+	 (IGET(1021) > 0) .OR. (IGET(1022) > 0) .OR.	&
 ! add D3D fields
          (IGET(354) > 0) .OR. (IGET(355) > 0) .OR.      &
          (IGET(356) > 0) .OR. (IGET(357) > 0) .OR.      &
@@ -303,6 +309,7 @@
               QQNW1(I,J)    = SPVAL
               QQNI1(I,J)    = SPVAL
               QQNR1(I,J)    = SPVAL
+              QQNG1(I,J)    = SPVAL
 
               if (gtg_interpolation) then
                  GTGSL(I,J)    = SPVAL
@@ -402,6 +409,8 @@
                  QQNI1(I,J) = MAX(QQNI1(I,J),zero)          ! Ice number concentration
                  IF(QQNR(I,J,1)    < SPVAL) QQNR1(I,J) = QQNR(I,J,1)
                  QQNR1(I,J) = MAX(QQNR1(I,J),zero)          ! Rain number concentration
+                 IF(QQNG(I,J,1)    < SPVAL) QQNG1(I,J) = QQNG(I,J,1)
+                 QQNG1(I,J) = MAX(QQNG1(I,J),zero)          ! Graupel number concentration
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
@@ -639,6 +648,10 @@
                  IF(QQNR(I,J,LL) < SPVAL .AND. QQNR(I,J,LL-1) < SPVAL)         &
                    QQNR1(I,J) = QQNR(I,J,LL) + (QQNR(I,J,LL)-QQNR(I,J,LL-1))*FACT
                    QQNR1(I,J) = MAX(QQNR1(I,J),zero)      ! Rain number concentration
+
+                 IF(QQNG(I,J,LL) < SPVAL .AND. QQNG(I,J,LL-1) < SPVAL)         &
+                   QQNG1(I,J) = QQNG(I,J,LL) + (QQNG(I,J,LL)-QQNG(I,J,LL-1))*FACT
+                   QQNG1(I,J) = MAX(QQNG1(I,J),zero)      ! Graupel number concentration
 
                  IF(TTND(I,J,LL) < SPVAL .AND. TTND(I,J,LL-1) < SPVAL)        &
                    RAD(I,J) = TTND(I,J,LL) + (TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
@@ -911,6 +924,7 @@
                  QQNW1(I,J) = 0.
                  QQNI1(I,J) = 0.
                  QQNR1(I,J) = 0.
+                 QQNG1(I,J) = 0.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
                  IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
@@ -1816,6 +1830,64 @@
           ENDIF
         ENDIF
 !     
+!***  STREAMFUNCTION (PSI) AND VELOCITY POTENTIAL (CHI)
+!
+	IF ( (IGET(1021) > 0 .or. IGET(1022) > 0) .and. MODELNAME == 'GFS' ) THEN
+          IF (LVLS(LP,IGET(1021)) > 0 .or. LVLS(LP,IGET(1022)) > 0) THEN
+          CALL CALCHIPSI(USL,VSL,CHI,PSI)
+!         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
+!     
+!*** CHI 
+!
+          IF (LVLS(LP,IGET(1021)) > 0) THEN  
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = CHI(I,J)
+               ENDDO
+             ENDDO
+            if(grib == 'grib2')then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(1021))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(1021))
+!$omp parallel do private(i,j,ii,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,iend-ista+1
+                  ii=ista+i-1
+                  datapd(i,j,cfld) = GRID1(ii,jj)
+                enddo
+              enddo
+            endif
+          ENDIF !CHI
+!     
+!*** PSI 
+!
+          IF (LVLS(LP,IGET(1022)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = PSI(I,J)
+               ENDDO
+             ENDDO
+            if(grib == 'grib2')then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(1022))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(1022))
+!$omp parallel do private(i,j,ii,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,iend-ista+1
+                  ii=ista+i-1
+                  datapd(i,j,cfld) = GRID1(ii,jj)
+                enddo
+              enddo
+            endif
+          ENDIF !PSI
+	ENDIF !LVLS(CHIPSI)
+        ENDIF !CHIPSI
+!     
+!     
 !        GEOSTROPHIC STREAMFUNCTION.
          IF (IGET(086) > 0) THEN
           IF (LVLS(LP,IGET(086)) > 0) THEN
@@ -2124,6 +2196,25 @@
                  do i=1,iend-ista+1
                   ii=ista+i-1
                    datapd(i,j,cfld) = QQNR1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for graupel on isobaric surfaces
+         IF (IGET(1024) > 0) THEN
+          IF (LVLS(LP,IGET(1024)) > 0) THEN 
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1024))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1024))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNG1(ii,jj)
                  enddo
                enddo
              endif
@@ -4287,11 +4378,9 @@
 ! SNOW DESITY SOLID-LIQUID-RATION SLR
       IF ( IGET(1006)>0 ) THEN
          egrid1=spval
-         if(slrutah_on) then
-            call calslr_uutah(EGRID1)
-         else
-            call calslr_roebber(TPRS,RHPRS,EGRID1)
-         endif
+            call calslr_uutah2(EGRID1)
+!            call calslr_uutah(EGRID1)
+!            call calslr_roebber(TPRS,RHPRS,EGRID1)
 !$omp parallel do private(i,j) 
          do j=jsta,jend
          do i=ista,iend

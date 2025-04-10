@@ -63,6 +63,7 @@
 !!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
 !!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
 !!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
+!!   25-01-13 | J Kenyon | Add graupel number concentration (QQNG)
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -104,7 +105,7 @@
               coarsepm, ebb
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, qqh, zint,&
-              qqni, qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
+              qqni, qqnr, qqng, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
@@ -1199,6 +1200,35 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             ENDIF
           ENDIF
+!
+!---  QNGRAUP ON MDL SURFACE 
+!
+          IF (IGET(1023) > 0) THEN
+            IF (LVLS(L,IGET(1023)) > 0)THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=ista,iend
+                   if(QQNG(I,J,LL) < 1.e-8) QQNG(I,J,LL) = 0.
+                   GRID1(I,J) = QQNG(I,J,LL)
+                 ENDDO
+               ENDDO
+               if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1023))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1023))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+            ENDIF
+          ENDIF
+
 ! QNWFA ON MDL SURFACE   --tgs
 !
           IF (IGET(766) > 0) THEN
