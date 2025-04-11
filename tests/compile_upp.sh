@@ -112,6 +112,9 @@ source ${PATHTR}/tests/detect_machine.sh
 if [[ $MACHINE_ID != "unknown" ]]; then
    if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
       module reset
+   elif [ $MACHINE_ID == "container" ]; then
+      module purge
+      unset MODULEPATH
    elif [[ "$MACHINE_ID" =~ gaea* ]] ; then
        module reset
        # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
