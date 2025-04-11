@@ -22,6 +22,9 @@
 !2023-12-07         A. BENJAMIN      Added new parameters, and
 !                                    new tables: 4.2-2-6
 !                                    4.2-4-5,10 4.2-20-0,1,2,3
+!2024-07-17         A. BENJAMIN      GRIB2 v33.0 update, new parameters
+!
+!
 !
 !GRIB2 parameter table for all disciplines and categories
 !The fields in order are grib2_discipline  grib2_category 
@@ -839,6 +842,15 @@
 !  Added more parameters in 7/2/2019
    0  18    17   0 CIAIRC
    0  18    18   0 CAACL
+!  New parameters added 07/17/2024
+   0  18    19   0 DEPACTA
+   0  18    20   0 DEPACTE
+   0  18    21   0 CDLACTA
+   0  18    22   0 CDLACTE
+   0  18    23   0 EFFDOSER
+   0  18    24   0 THYDOSER
+   0  18    25   0 GAMDOSER
+   0  18    26   0 ACTEMM
 !
 ! GRIB2 - TABLE 4.2-0-19 PARAMETERS FOR DISCIPLINE 0 CATEGORY 19
 !
@@ -1046,6 +1058,17 @@
 !  Added new parameter 12/15/2023
    0  21    22   0 EADYGR
 !
+! GRIB2 - TABLE 4.2-0-22 PARAMETERS FOR DISCIPLINE 0 CATEGORY 22
+!
+! New table and parameters added 07/17/2024
+   0  22     0   0 SPI
+   0  22     1   0 SPEI
+   0  22     2   0 SSFI
+   0  22     3   0 SRSI
+   0  22     4   0 SWI
+   0  22     5   0 SMRI
+   0  22     6   0 SDI
+!
 ! GRIB2 - TABLE 4.2-0-190 PARAMETERS FOR DISCIPLINE 0 CATEGORY 190
 !
    0 190     0   0 ATEXT
@@ -1059,6 +1082,10 @@
    0 191     3   0 DSLOBS
 !  Added new parameter 12/15/2023
    0 191     4   0 TCDTRACK
+!  New parameters added 07/17/2024
+   0 191     5   0 HURTSV
+   0 191     6   0 TSTSV
+   0 191     7   0 TDTSV
 !  NCEP Local use
    0 191   192   1 NLAT
    0 191   193   1 ELON
@@ -1105,9 +1132,17 @@
    1   0    14   0 UPAPCP
    1   0    15   0 UPASM
    1   0    16   0 PERRATE
+!  New parameters added 07/17/2024
+   1   0    17   0 RVEROW
+   1   0    18   0 FLDPOW
+   1   0    19   0 FLDPATHOW
+   1   0    20   0 WATSURF
 !  NCEP Local use
    1   0   192   1 BGRUN
    1   0   193   1 SSRUN
+!  New parameters added 02/14/2025
+   1   0   194   1 FHO
+   1   0   196   1 AHD
 !
 ! GRIB2 - TABLE 4.2-1-1 PARAMETERS FOR DISCIPLINE 1 CATEGORY 1
 !
@@ -1145,6 +1180,14 @@
 !  Added new parameters 12/15/2023
    1   2    15   0 LDEPTH
    1   2    16   0 RDEPTH
+!  New parameters added 07/17/2024
+   1   2    17   0 FLDPDEPTH
+   1   2    18   0 FLDPFLFR
+   1   2    19   0 FLDPFLAR
+   1   2    20   0 RVERFR
+   1   2    21   0 RVERAR
+   1   2    22   0 FRCRF
+   1   2    23   0 ARCRF
 !
 ! GRIB2 - TABLE 4.2-2-0 PARAMETERS FOR DISCIPLINE 2 CATEGORY 0
 !
@@ -1324,7 +1367,7 @@
    2   3   201   1 AVSFT
    2   3   202   1 RADT
    2   3   203   1 FLDCP
-   2   3   204   1 MSTAV
+   2   3   204   1 MSTAVTOP
 !
 ! GRIB2 - TABLE 4.2-2-4 PARAMETERS FOR DISCIPLINE 2 CATEGORY 4
 !
@@ -1607,6 +1650,9 @@
    3 192    83   0 SBTA1814
    3 192    84   0 SBTA1815
    3 192    85   0 SBTA1816
+!  Added more parameters in 03/11/2025
+   3 192    86   0 SSMS1712
+   3 192    87   0 SSMS1713
 !
 ! GRIB2 - TABLE 4.2-4-0 PARAMETERS FOR DISCIPLINE 4 CATEGORY 0
 !
@@ -1821,6 +1867,8 @@
   10   0    95   0 TDMWAVE
   10   0    96   0 STMCREST
   10   0    97   0 STMWAVE
+!  New parameters added 07/17/2024
+  10   0    98   0 GODAPEAK
 !  NCEP Local use
   10   0   192   1 WSTP
 !  Added parameter in 8/26/2015
