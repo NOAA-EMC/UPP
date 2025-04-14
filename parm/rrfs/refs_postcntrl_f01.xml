@@ -10,7 +10,7 @@
     <sigreftime>fcst</sigreftime>
     <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
-    <gen_proc_type>fcst</gen_proc_type>
+    <gen_proc_type>ens_fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
     <gen_proc>refs</gen_proc>
@@ -1747,7 +1747,7 @@
     <sigreftime>fcst</sigreftime>
     <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
-    <gen_proc_type>fcst</gen_proc_type>
+    <gen_proc_type>ens_fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
     <gen_proc>refs</gen_proc>
