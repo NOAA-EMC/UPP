@@ -7447,6 +7447,22 @@
     </param>
 
     <param>
+       <post_avblfldidx>829</post_avblfldidx>
+       <shortname>SSMS1712_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1712</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>830</post_avblfldidx>
+       <shortname>SSMS1713_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1713</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>890</post_avblfldidx>
        <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1</shortname>
        <longname>Hourly max relative vorticity on hybrid level 1</longname>
