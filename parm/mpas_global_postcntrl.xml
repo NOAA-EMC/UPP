@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <postxml>
     <paramset>
-    <datset>WRFTWO</datset>
+    <datset>POSTTWO</datset>
     <grid_num>4</grid_num>
     <sub_center>ncep_emc</sub_center>
     <version_no>v2003</version_no>
@@ -356,12 +356,12 @@
        </param>
 
        <param>
-            <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
+            <shortname>HGT_ON_CLOUD_BASE</shortname>
             <scale>-3.0</scale>
        </param>
 
        <param>
-           <shortname>GSD_HGT_ON_CLOUD_TOP</shortname>
+           <shortname>HGT_ON_CLOUD_TOP</shortname>
            <scale>-3.0</scale>
        </param>
 
@@ -424,13 +424,7 @@
        </param>
 
        <param>
-           <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_10-100hpa</shortname>
-           <table_info>NCEP</table_info>
-           <scale>-4.0</scale>
-       </param>
-
-       <param>
-           <shortname>MAX_MAXDVV_ON_SPEC_HGT_LVL_ABOVE_GRND_10-100hpa</shortname>
+           <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
            <table_info>NCEP</table_info>
            <scale>-4.0</scale>
        </param>
@@ -636,7 +630,7 @@
        </param>
 
        <param>
-           <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
+           <shortname>PRES_ON_CLOUD_BASE</shortname>
            <scale>3.0</scale>
        </param>
 
@@ -853,7 +847,7 @@
     </paramset>
 
     <paramset>
-    <datset>WRFPRS</datset>
+    <datset>POSTPRS</datset>
     <grid_num>4</grid_num>
     <sub_center>ncep_emc</sub_center>
     <version_no>v2003</version_no>
@@ -1020,7 +1014,7 @@
     </paramset>
 
     <paramset>
-    <datset>WRFNAT</datset>
+    <datset>POSTNAT</datset>
     <grid_num>4</grid_num>
     <sub_center>ncep_emc</sub_center>
     <version_no>v2003</version_no>

@@ -3514,15 +3514,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>406</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_TOP</shortname>
-       <longname>GSD_pressure on cloud top</longname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>407</post_avblfldidx>
        <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <longname>GSD_instant precipitation type on surface</longname>
@@ -3537,15 +3528,6 @@
        <longname>GSD_geopotential height on cloud ceiling</longname>
        <pname>HGT</pname>
        <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>409</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_TOP</shortname>
-       <longname>GSD_geopotential height on cloud top</longname>
-       <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -7387,14 +7369,6 @@
        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
        <level>1.</level>
        <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>798</post_avblfldidx>
-       <shortname>GSD_PRES1_ON_CLOUD_BASE</shortname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
-       <scale>3.0</scale>
     </param>
 
     <param>
