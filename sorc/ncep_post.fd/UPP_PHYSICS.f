@@ -156,8 +156,8 @@
               IF (RH(I,J) < RHmin) THEN  !use smaller RH limit for stratosphere
                 IF (P1(I, J) >= 3e2) THEN
                   RH(I,J) = RHmin
-                ELSE IF (RH(I, J) < (RHmin / 10)) THEN
-                  RH(I, J) = RHmin / 10
+                ELSE IF (RH(I, J) < (RHmin / 10.)) THEN
+                  RH(I, J) = RHmin / 10.
                 END IF
                 Q1(I,J) = RH(I,J)*QC
               ENDIF
