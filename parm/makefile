@@ -39,9 +39,12 @@ ALL_TXT= \
   ./rrfs/postxconfig-NT-rrfs_subh.txt \
   ./rrfs/postxconfig-NT-rrfs_f00.txt \
   ./rrfs/postxconfig-NT-rrfs_f01.txt \
-  ./rrfs/postxconfig-NT-rrfs_nosmokedust.txt \
-  ./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt \
-  ./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt \
+  ./rrfs/postxconfig-NT-refs.txt \
+  ./rrfs/postxconfig-NT-refs_f00.txt \
+  ./rrfs/postxconfig-NT-refs_f01.txt \
+  ./rrfs/postxconfig-NT-rrfs_firewx.txt \
+  ./rrfs/postxconfig-NT-rrfs_firewx_f00.txt \
+  ./rrfs/postxconfig-NT-rrfs_firewx_f01.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-GEFS-aerosol.txt \
@@ -75,9 +78,12 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./rrfs/postxconfig-NT-rrfs_subh.txt: ./rrfs/rrfs_postcntrl_subh.xml post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_f00.txt:  ./rrfs/rrfs_postcntrl_f00.xml  post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_f01.txt:  ./rrfs/rrfs_postcntrl_f01.xml  post_avblflds.xml
-./rrfs/postxconfig-NT-rrfs_nosmokedust.txt:     ./rrfs/rrfs_postcntrl_nosmokedust.xml     post_avblflds.xml
-./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f00.xml post_avblflds.xml
-./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f01.xml post_avblflds.xml
+./rrfs/postxconfig-NT-refs.txt:      ./rrfs/refs_postcntrl.xml      post_avblflds.xml
+./rrfs/postxconfig-NT-refs_f00.txt:  ./rrfs/refs_postcntrl_f00.xml  post_avblflds.xml
+./rrfs/postxconfig-NT-refs_f01.txt:  ./rrfs/refs_postcntrl_f01.xml  post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_firewx.txt:     ./rrfs/rrfs_postcntrl_firewx.xml     post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_firewx_f00.txt: ./rrfs/rrfs_postcntrl_firewx_f00.xml post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_firewx_f01.txt: ./rrfs/rrfs_postcntrl_firewx_f01.xml post_avblflds.xml
 postxconfig-NT-rrfs_subh.txt:        rrfs_postcntrl_subh.xml        post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
