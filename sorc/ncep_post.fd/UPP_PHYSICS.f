@@ -96,7 +96,7 @@
 !>
 !> This routine computes relative humidity given pressure, 
 !> temperature, specific humidity. an upper and lower bound
-!> of 100 and 1 percent relative humidity is enforced.  When
+!> of 100 and 1e-4 percent relative humidity is enforced.  When
 !> these bounds are applied the passed specific humidity 
 !> array is adjusted as necessary to produce the set relative
 !> humidity.
@@ -117,6 +117,7 @@
 !> 2000-01-04 | Jim Tuccillo  | MPI Version
 !> 2002-06-11 | Mike Baldwin  | WRF Version
 !> 2006-03-19 | Wen Meng      | Modify top pressure to 1 pa
+!> 2025-04-16 | Daniel Wesloh | Reduce minimum RH above 3 mbar/near stratopause
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
      SUBROUTINE CALRH_NAM(P1,T1,Q1,RH)
@@ -153,7 +154,11 @@
                 Q1(I,J) = RH(I,J)*QC
               ENDIF
               IF (RH(I,J) < RHmin) THEN  !use smaller RH limit for stratosphere
-                RH(I,J) = RHmin
+                IF (P1(I, J) >= 3e2) THEN
+                  RH(I,J) = RHmin
+                ELSE IF (RH(I, J) < (RHmin / 10.)) THEN
+                  RH(I, J) = RHmin / 10.
+                END IF
                 Q1(I,J) = RH(I,J)*QC
               ENDIF
 !
