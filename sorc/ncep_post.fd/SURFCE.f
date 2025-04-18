@@ -6502,7 +6502,7 @@
            DO I=ISTA,IEND
              IF( (abs(SM(I,J)-0.)   < 1.0E-5) .AND.     &
      &           (abs(SICE(I,J)-0.) < 1.0E-5) .AND.     &
-     &           (IVGTYP(I,J) != 17)) THEN
+     &           (IVGTYP(I,J) .NE. 17)) THEN
               IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS = CZEN(I,J)/CZMEAN(I,J)
               ELSE
