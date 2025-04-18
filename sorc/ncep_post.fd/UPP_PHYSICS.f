@@ -1263,7 +1263,11 @@
                 TTHBTK  =  TBTK*APEBTK
                 TTHK    = (TTHBTK-THL)*RDTH
                 QQ(I,J) = TTHK - AINT(TTHK)
-                ITTBK   = INT(TTHK) + 1
+                IF(AINT(TTHK) >= JTB) THEN
+                  ITTBK   = JTB
+                ELSE
+                  ITTBK   = INT(TTHK) + 1
+                ENDIF
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
                 IF(ITTBK < 1)   THEN
                   ITTBK   = 1
