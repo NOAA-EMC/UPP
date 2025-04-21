@@ -1452,12 +1452,6 @@
        </param>
 
        <param>
-       <shortname>GSD_EXP_CEILING_2</shortname>
-       <pname>CEIL</pname>
-       <scale>-3.0</scale>
-       </param>
-
-       <param>
        <shortname>PRES_ON_TOP_OF_ATMOS</shortname>
        <pname>PRES</pname>
        <scale>3.0</scale>
