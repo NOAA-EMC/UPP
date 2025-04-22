@@ -4941,7 +4941,7 @@
        <scale>3.0</scale>
     </param>
 
-    <param>
+    <param> <!-- 581: VIL derived from reflectivity -->
        <post_avblfldidx>581</post_avblfldidx>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <longname>entire atmosphere Vertically Integrated Liquid (kg/m-2)</longname>
@@ -7085,20 +7085,12 @@
        <scale>3.0</scale>
     </param>
 
-    <param>
+    <param> <!-- 769: VIL derived from hydrometeor mass, rather than from reflectivity -->
        <post_avblfldidx>769</post_avblfldidx>
        <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
        <pname>VIL</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>770</post_avblfldidx>
-       <shortname>GSD_RADARVIL_ON_ENTIRE_ATMOS</shortname>
-       <pname>RADARVIL</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>3.0</scale>
     </param>
 
     <param>
