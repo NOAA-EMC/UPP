@@ -60,6 +60,7 @@
 !> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
 !> 2025-02-25 | Wen Meng      | Remove duplicated declaraion for tshltr 
 !> 2024-03-25 | Biju Thomas   | Bug fix float overlow in hafs_upp debug build run
+!> 2025-04-23 ! Jesse Meng    | Bug fix zmid calculation in very thin layers
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------

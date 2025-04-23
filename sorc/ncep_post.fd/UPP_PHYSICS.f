@@ -4990,6 +4990,7 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2024-11-15 | Jesse Meng | Initial
+!> 2025-04-23 | Jesse Meng | Bug fix zmid calculation in very thin layers
 !>
 !> @author Jesse Meng @date 2024-11-15
 
