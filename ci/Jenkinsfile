@@ -13,6 +13,7 @@ modifiedLabels = matchedNode.collect{"'" + it + "'"}
 def generateStage(nodeLabel) {
     return {
         stage("Running on ${nodeLabel}") {
+	  dir ("${nodeLabel}") {
             node(nodeLabel) {
                cleanWs()
                checkout scm
@@ -123,6 +124,7 @@ def generateStage(nodeLabel) {
                   }
                 }
               }
+	     }
            }
        }
 }
