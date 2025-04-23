@@ -14,7 +14,7 @@ def generateStage(nodeLabel) {
     return {
         stage("Running on ${nodeLabel}") {
             node(nodeLabel) {
-	      dir ("${nodeLabel}") {
+	      dir (nodeLabel) {
                cleanWs()
                checkout scm
                script {
