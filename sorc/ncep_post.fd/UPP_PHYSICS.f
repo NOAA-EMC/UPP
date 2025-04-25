@@ -4990,6 +4990,7 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2024-11-15 | Jesse Meng | Initial
+!> 2025-04-23 | Jesse Meng | Bug fix zmid calculation in very thin layers
 !>
 !> @author Jesse Meng @date 2024-11-15
 
@@ -5010,7 +5011,8 @@
       real,dimension(ista:iend,jsta:jend,nfl) :: tfd,ufd,vfd,pfd,qfd,rhfd
       real,dimension(ista:iend,jsta:jend)     :: zsfc
 
-      real lhl(nfl),dzabh(nfl),swnd(nfl)
+      integer lhl(nfl)
+      real dzabh(nfl),swnd(nfl)
       real htsfc,htabh,dz,rdz,delt,delu,delv,delp,delq
 
       real, parameter :: s03 = 0.2113589753880838
@@ -5076,13 +5078,16 @@
          htsfc = zint(i,j,lm+1)
          llmh  = nint(lmh(i,j))
       ifd = 1
+      lhl=llmh
       do l = llmh,1,-1
+        if(zmid(i,j,l)<spval) then
          htabh = zmid(i,j,l)-htsfc
-         if(htabh>htfl(ifd)) then
+         if(htabh>=htfl(ifd)) then
             lhl(ifd) = l
             dzabh(ifd) = htabh-htfl(ifd)
             ifd = ifd + 1
          endif
+        endif
          if(ifd > nfl) exit
       enddo
 
@@ -5090,7 +5095,7 @@
 
       do ifd = 1,nfl 
          l = lhl(ifd)
-         if (l<lm .and. t(i,j,l)<spval .and. uh(i,j,l)<spval .and. vh(i,j,l)<spval) then
+         if (l<lm .and. t(i,j,l)<spval .and. uh(i,j,l)<spval .and. vh(i,j,l)<spval .and. zmid(i,j,l)<spval) then
            dz   = zmid(i,j,l)-zmid(i,j,l+1)
            rdz  = 1./dz
            delt = t(i,j,l)-t(i,j,l+1)
