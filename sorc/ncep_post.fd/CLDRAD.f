@@ -1887,6 +1887,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           pcldbase = SPVAL
           zcldbase = SPVAL 
           watericemax = -99999.
+          if (zmid(i,j,lm) == spval) cycle
           do k=1,lm
             LL=LM-k+1
             watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
@@ -2077,8 +2078,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       nlifr = 0
       DO J=JSTA,JEND
       DO I=ISTA,IEND
+        if(cldz(i,j)<spval)then
         zcld = CLDZ(i,j) - FIS(I,J)*GI
         if (CLDZ(i,j)>=0..and.zcld<160.) nlifr = nlifr+1
+        endif
       end do
       end do
       !write(6,*)'No. pts w/ LIFR ceiling =',nlifr

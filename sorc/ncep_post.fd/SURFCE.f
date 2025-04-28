@@ -1611,7 +1611,7 @@
 !
 !        SHELTER LEVEL POT TEMP
         IF (IGET(546)>0) THEN
-!          GRID1=spval
+           GRID1=spval
 !          DO J=JSTA,JEND
 !            DO I=ISTA,IEND
 !              GRID1(I,J)=TSHLTR(I,J)
