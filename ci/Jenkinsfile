@@ -130,7 +130,7 @@ def generateStage(nodeLabel) {
 }
 
 def parallelStagesMap = modifiedLabels.collectEntries {
-    ["${it}" : generateStage(it.strip())]
+    ["${it}" : generateStage(it.replace("'", "")]
 }
 
 pipeline {
