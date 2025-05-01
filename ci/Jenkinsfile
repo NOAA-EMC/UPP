@@ -20,7 +20,7 @@ def generateStage(nodeLabel) {
                script {
                  try {
                     echo "Running on ${nodeLabel}"
-                       sh '''
+                       sh """
                        pwd
                        cd tests
                        export machine=${NODE_NAME}
@@ -97,10 +97,10 @@ def generateStage(nodeLabel) {
 
                       curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/$machine-RT
                         
-                       '''
+                       """
                   }
                   catch(err) {
-                    sh '''
+                    sh """
                       export machine=${NODE_NAME}
                       export CHANGE_ID=${CHANGE_ID}
                       export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
@@ -119,7 +119,7 @@ def generateStage(nodeLabel) {
                       GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
 
                       curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/$machine-RT
-                    '''
+                    """
                     currentBuild.result = 'FAILURE'
                   }
                 }
