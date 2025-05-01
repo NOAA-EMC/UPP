@@ -5733,14 +5733,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>770</post_avblfldidx>
-       <shortname>GSD_RADARVIL_ON_ENTIRE_ATMOS</shortname>
-       <pname>VIL</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>727</post_avblfldidx>
        <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <pname>UPHL</pname>
