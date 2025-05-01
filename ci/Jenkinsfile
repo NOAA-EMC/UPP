@@ -64,7 +64,7 @@ def generateStage(nodeLabel) {
                           then
                            echo "Running regression tests on $machine"
                              export ACCNR=epic
-			     cd $WORKSPACE/ci
+			     cd $WORKSPACE/${nodeLabel}/ci
                              ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
 			     cd $WORKSPACE/${nodeLabel}/tests/logs
 			     cp rt.log.HERA /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
