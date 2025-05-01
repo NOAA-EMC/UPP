@@ -574,13 +574,8 @@
        </param>
 
        <param>
-           <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
+           <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
            <table_info>NCEP</table_info>
-           <scale>6.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_RADARVIL_ON_ENTIRE_ATMOS</shortname>
            <scale>6.0</scale>
        </param>
 

@@ -64,6 +64,9 @@
 !!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
 !!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
 !!   25-01-13 | J Kenyon | Add graupel number concentration (QQNG)
+!!   25-04-22 | J Kenyon | Remove parameter 770 (GSL's reflectivity-derived VIL), since a functionally identical 
+!!            |          | calculation is available via paramater 581. Note that GSL's hydrometeor-derived VIL
+!!            |          | remains available (paramater 769).
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -592,9 +595,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        END DO  
 
-      ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R' &
+      ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') &
+        .OR. MODELNAME == 'RAPR' & ! (RAPR includes WRF-ARW and MPAS eras)
+        .OR. MODELNAME == 'FV3R' &
         .OR. MODELNAME == 'GFS') &
-        .and. (imp_physics==8 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB or FV3R or GFS +THOMPSON
+        .and. (imp_physics==8 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB, RAPR, FV3R or GFS + THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=ista,iend
@@ -3224,7 +3229,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 !     COMPUTE VIL (radar derived vertically integrated liquid water in each column)
 !     Per Mei Xu, VIL is radar derived vertically integrated liquid water based
-!     on emprical conversion factors (0.00344) 
+!     on emprical conversion factors (0.00344).
+!     ...Note that an alternative VIL formulation (obtained from hydrometeor masses)
+!     is available via parameter 769.
       IF (IGET(581)>0) THEN
         DO J=JSTA,JEND
           DO I=ista,iend
@@ -3468,52 +3475,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            enddo
          endif
       ENDIF
-!
-! Vertically integrated liquid based on reflectivity factor in kg/m^2
-! Use WRF Thompson reflectivity diagnostic from RAPR model output
-! Use unipost reflectivity diagnostic otherwise
-!
-      IF (IGET(770) > 0) THEN
-        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
-          DO J=JSTA,JEND
-            DO I=ista,iend
-              GRID1(I,J) = 0.0
-              DO L=1,NINT(LMH(I,J))
-                IF (REF_10CM(I,J,L) > -10.0 ) THEN
-                  GRID1(I,J) = GRID1(I,J) + 0.00344 *                &
-                             (10.**(REF_10CM(I,J,L)/10.))**0.57143 * &
-                             (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
-                ENDIF
-              ENDDO
-            ENDDO
-          ENDDO
-        ELSE
-          DO J=JSTA,JEND
-            DO I=ista,iend
-              GRID1(I,J) = 0.0
-              DO L=1,NINT(LMH(I,J))
-                GRID1(I,J) = GRID1(I,J) + 0.00344 *                 &
-                            (10.**(DBZ(I,J,L)/10.))**0.57143 *      &
-                            (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
-              ENDDO
-            ENDDO
-          ENDDO
-        ENDIF
-        if(grib=="grib2") then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(770))
-!$omp parallel do private(i,j,ii,jj)
-          do j=1,jend-jsta+1
-            jj = jsta+j-1
-            do i=1,iend-ista+1
-              ii = ista+i-1
-              datapd(i,j,cfld) = GRID1(ii,jj)
-            enddo
-          enddo
-        endif
-      ENDIF
-! CRA
-
 !
 !---   VISIBILITY
 !
