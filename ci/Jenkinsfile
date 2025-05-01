@@ -33,50 +33,50 @@ def generateStage(nodeLabel) {
                           then
                           echo "Running regression tests on $machine"
                             export dprefix=/work2/noaa/$ACCNR/$USER
-			    cd $WORKSPACE/ci
+			    cd $WORKSPACE/${nodeLabel}/ci
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
                             export ACCNR=epic
-                            ./rt.sh -a ${ACCNR} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-                            cd $WORKSPACE/tests/logs/
+                            ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
+                            cd $WORKSPACE/${nodeLabel}/tests/logs/
                             cp rt.log.HERCULES /work/noaa/epic/role-epic/jenkins/workspace
                             git remote -v
                             git fetch --no-recurse-submodules origin
                             git reset FETCH_HEAD --hard
                             cd .. && cd .. && cd ..
-                            cp rt.log.HERCULES $WORKSPACE/tests/logs/
-                            cd $WORKSPACE/tests/
+                            cp rt.log.HERCULES $WORKSPACE/${nodeLabel}/tests/logs/
+                            cd $WORKSPACE/${nodeLabel}/tests/
                           elif [[ $machine =~ "Orion" ]]
                           then
                            echo "Running regression tests on $machine"
                             export dprefix=/work2/noaa/$ACCNR/$USER
-			    cd $WORKSPACE/ci
+			    cd $WORKSPACE/${nodeLabel}/ci
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
-                            ./rt.sh -a ${ACCNR} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-                             cd $WORKSPACE/tests/logs/
+                            ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
+                             cd $WORKSPACE/${nodeLabel}/tests/logs/
                              cp rt.log.ORION /work/noaa/epic/role-epic/jenkins/workspace
                              git remote -v
                              git fetch --no-recurse-submodules origin
                              git reset FETCH_HEAD --hard
                              cd .. && cd .. && cd ..
-			     cp rt.log.ORION $WORKSPACE/tests/logs/
-			     cd $WORKSPACE/tests/
+			     cp rt.log.ORION $WORKSPACE/${nodeLabel}/tests/logs/
+			     cd $WORKSPACE/${nodeLabel}/tests/
                           elif [[ $machine =~ "Hera" ]]
                           then
                            echo "Running regression tests on $machine"
                              export ACCNR=epic
 			     cd $WORKSPACE/ci
-                             ./rt.sh -a ${ACCNR} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-			     cd $WORKSPACE/tests/logs
+                             ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
+			     cd $WORKSPACE/${nodeLabel}/tests/logs
 			     cp rt.log.HERA /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 			     git remote -v
                              git fetch --no-recurse-submodules origin
                              git reset FETCH_HEAD --hard
                              cd .. && cd .. && cd ..
-			     cp rt.log.HERA $WORKSPACE/tests/logs/
-			     cd $WORKSPACE/tests/
+			     cp rt.log.HERA $WORKSPACE/${nodeLabel}/tests/logs/
+			     cd $WORKSPACE/${nodeLabel}/tests/
                           else
                            echo "Running regression tests on $machine"
-                           ./rt.sh -a ${ACCNR} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                           ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
                           fi
 
                       git config user.email "ecc.platform@noaa.gov"
@@ -90,7 +90,7 @@ def generateStage(nodeLabel) {
                       git pull sshorigin $FORK_BRANCH
                       git push sshorigin HEAD:$FORK_BRANCH
 
-                      tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
+                      tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/${nodeLabel}/tests/logs/*.log
 
                       GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
                       GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
@@ -105,7 +105,7 @@ def generateStage(nodeLabel) {
                       export CHANGE_ID=${CHANGE_ID}
                       export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                       export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-                      cd $WORKSPACE/tests
+                      cd $WORKSPACE/${nodeLabel}/tests
                       git config user.email "ecc.platform@noaa.gov"
                       git config user.name "epic-cicd-jenkins"
                       export machine_name_logs=$(echo $machine | awk '{ print toupper($1) }')
@@ -113,7 +113,7 @@ def generateStage(nodeLabel) {
                       git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
                       git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
 
-                      tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
+                      tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/${nodeLabel}/tests/logs/*.log
 
                       GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
                       GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
