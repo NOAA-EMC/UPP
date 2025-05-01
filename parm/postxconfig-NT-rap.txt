@@ -4889,9 +4889,9 @@ cloud_ceilng
 ?
 ?
 ?
-409
-GSD_HGT_ON_CLOUD_TOP
-GSD_geopotential height on cloud top
+179
+HGT_ON_CLOUD_TOP
+?
 1
 tmpl4_0
 HGT
@@ -6527,8 +6527,8 @@ spec_pres_above_grnd
 ?
 ?
 ?
-798
-GSD_PRES_ON_CLOUD_BASE
+148
+PRES_ON_CLOUD_BASE
 ?
 1
 tmpl4_0
@@ -6653,8 +6653,8 @@ cloud_top
 ?
 ?
 ?
-711
-GSD_HGT_ON_CLOUD_BASE
+178
+HGT_ON_CLOUD_BASE
 ?
 1
 tmpl4_0
@@ -11163,8 +11163,8 @@ high_cloud_lyr
 ?
 ?
 ?
-798
-GSD_PRES_ON_CLOUD_BASE
+148
+PRES_ON_CLOUD_BASE
 ?
 1
 tmpl4_0
@@ -11289,8 +11289,8 @@ cloud_top
 ?
 ?
 ?
-711
-GSD_HGT_ON_CLOUD_BASE
+178
+HGT_ON_CLOUD_BASE
 ?
 1
 tmpl4_0
