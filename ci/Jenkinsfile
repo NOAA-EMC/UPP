@@ -64,19 +64,19 @@ def generateStage(nodeLabel) {
                           then
                            echo "Running regression tests on $machine"
                              export ACCNR=epic
-			     cd $WORKSPACE/${nodeLabel}/ci
-                             ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
-			     cd $WORKSPACE/${nodeLabel}/tests/logs
+			     cd $WORKSPACE/$nodeLabel/ci
+                             ./rt.sh -a ${ACCNR} | tee $WORKSPACE/$nodeLabel/tests/logs/RT-run-$machine.log
+			     cd $WORKSPACE/$nodeLabel/tests/logs
 			     cp rt.log.HERA /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 			     git remote -v
                              git fetch --no-recurse-submodules origin
                              git reset FETCH_HEAD --hard
                              cd .. && cd .. && cd ..
-			     cp rt.log.HERA $WORKSPACE/${nodeLabel}/tests/logs/
-			     cd $WORKSPACE/${nodeLabel}/tests/
+			     cp rt.log.HERA $WORKSPACE/$nodeLabel/tests/logs/
+			     cd $WORKSPACE/$nodeLabel/tests/
                           else
                            echo "Running regression tests on $machine"
-                           ./rt.sh -a ${ACCNR} | tee $WORKSPACE/${nodeLabel}/tests/logs/RT-run-$machine.log
+                           ./rt.sh -a ${ACCNR} | tee $WORKSPACE/$nodeLabel/tests/logs/RT-run-$machine.log
                           fi
 
                       git config user.email "ecc.platform@noaa.gov"
