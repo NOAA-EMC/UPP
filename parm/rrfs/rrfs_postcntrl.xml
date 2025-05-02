@@ -1442,19 +1442,13 @@
        <param>
        <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
        <pname>HGT</pname>
-       <scale>-3.0</scale>
+       <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>GSD_EXP_CEILING</shortname>
        <pname>CEIL</pname>
-       <scale>-3.0</scale>
-       </param>
-
-       <param>
-       <shortname>GSD_EXP_CEILING_2</shortname>
-       <pname>CEIL</pname>
-       <scale>-3.0</scale>
+       <scale>5.0</scale>
        </param>
 
        <param>
@@ -1777,11 +1771,6 @@
 
        <param>
            <shortname>GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
-           <scale>-4.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
            <scale>-4.0</scale>
        </param>
 
