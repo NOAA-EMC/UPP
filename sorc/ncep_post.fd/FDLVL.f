@@ -319,7 +319,7 @@
 !             DO 222 IFD = 1, NFD
               DONEH=.FALSE.
               DONEV=.FALSE.
-              IF(ZMID(I,J,LM) == SPVAL)CYCLE
+              IF(ZMID(I,J,LLMH) == SPVAL)CYCLE
               DO L = LLMH,1,-1
                 HTABH = ZMID(I,J,L)-HTSFC
 !                if(i==245.and.j==813)print*,'Debug FDL HTABH= ',htabh,zmid(i,j,l),htsfc
