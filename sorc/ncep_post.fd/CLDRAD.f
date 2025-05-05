@@ -78,6 +78,7 @@
 !> 2024-04-23 | Eric James        | Adding smoke emissions (ebb) from RRFS
 !> 2024-05-01 | Jaymes Kenyon     | Updates to the GSL exp-1 ceiling diagnostic
 !> 2024-05-24 | Eric James        | Correcting the vertical summing of biomass burning emissions (EBB)
+!> 2025-05-05 | Ben Blake         | Add sanity checks for RRFSv1 implementation
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------

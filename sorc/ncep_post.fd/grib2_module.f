@@ -13,6 +13,8 @@
 !   July,  2021    Jesse Meng 2D decomsition
 !   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
 !   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
+!   June,  2024    Sam Trahan    Bug fix for g2tmpl error messages
+!   April, 2025    Eric James    Use PDT 4.1 for encoding REFS grib2 output
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
