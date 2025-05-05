@@ -1,40 +1,6 @@
 !> @file
 !>
-!> @brief rtsig() reads and transforms sigma file.
-!>
-!> This subprogram reads a sigma file and transforms
-!> the fields to a designated global grid.
-!> Add Iredells subroutine to read sigma files.
-!>
-!> @param[out] lusig integer(sigio_intkind) sigma file unit number.
-!> @param[out] head type(sigio_head) sigma file header.
-!> @param[out] k1 integer first model level to return.
-!> @param[out] k2 integer last model level to return.
-!> @param[out] kgds integer (200) GDS to which to transform.
-!> @param[out] ijo integer dimension of output fields.
-!> @param[out] levs integer number of total vertical levels.
-!> @param[out] ntrac integer number of output tracers.
-!> @param[out] jcap integer number of waves.
-!> @param[out] lnt2 integer (jcap+1)*(jcap+2).
-!> @param[out] h real (ijo) surface orography (m).
-!> @param[out] p real (ijo) surface pressure (Pa).
-!> @param[out] px real (ijo) log surface pressure x-gradient (1/m).
-!> @param[out] py real (ijo) log surface pressure y-gradient (1/m).
-!> @param[out] t real (ijo,k1:k2) temperature (K).
-!> @param[out] tx real (ijo,k1:k2) virtual temperature x-gradient (K/m).
-!> @param[out] ty real (ijo,k1:k2) virtual temperature y-gradient (K/m).
-!> @param[out] u real (ijo,k1:k2) x-component wind (m/s).
-!> @param[out] v real (ijo,k1:k2) y-component wind (m/s).
-!> @param[out] d real (ijo,k1:k2) wind divergence (1/s).
-!> @param[out] trc real (ijo,k1:k2,ntrac) tracers.
-!><pre>
-!>                                   1 = specific humidity (kg/kg)
-!>                                   2 = Ozone mixing ratio (kg/kg)
-!>                                   3 = cloud condensate mixing ratio (kg/kg)
-!>                                       atomic oxyge, oxygen etc
-!>
-!></pre>
-!> @param[out] iret Integer return code.
+!> @brief RTSIG reads a sigma file and transforms the fields to a designated global grid.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -47,10 +13,8 @@
 !> 2014-02-20 | Shrinivas Moorthi | Modified conversion from spectral to grid taking advantage of threding in SP library. This really speeds up the code. Also threaded loop for Temperature from Tv
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
-
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> rtsig() reads and transforms sigma file.
-!>
+!------------------------------------------------------------------------------------------
+!> @brief Reads and transforms a sigma file.
 !> @param[out] lusig integer(sigio_intkind) sigma file unit number.
 !> @param[out] head type(sigio_head) sigma file header.
 !> @param[out] k1 integer first model level to return.
@@ -58,10 +22,10 @@
 !> @param[out] kgds integer (200) GDS to which to transform.
 !> @param[out] ijo integer dimension of output fields.
 !> @param[out] levs integer number of total vertical levels.
+!> @param[in] me integer MPI rank.
 !> @param[out] ntrac integer number of output tracers.
 !> @param[out] jcap integer number of waves.
 !> @param[out] lnt2 integer (jcap+1)*(jcap+2).
-!> @param[in] me integer
 !> @param[out] h real (ijo) surface orography (m).
 !> @param[out] p real (ijo) surface pressure (Pa).
 !> @param[out] px real (ijo) log surface pressure x-gradient (1/m).
@@ -71,32 +35,22 @@
 !> @param[out] v real (ijo,k1:k2) y-component wind (m/s).
 !> @param[out] d real (ijo,k1:k2) wind divergence (1/s).
 !> @param[out] trc real (ijo,k1:k2,ntrac) tracers.
-!><pre>
+!> <pre>
 !>                                   1 = specific humidity (kg/kg)
 !>                                   2 = Ozone mixing ratio (kg/kg)
 !>                                   3 = cloud condensate mixing ratio (kg/kg)
 !>                                       atomic oxyge, oxygen etc
-!>
-!></pre>
+!> </pre>
 !> @param[out] iret Integer return code.
-!>
-!> ### Program History Log
-!> Date | Programmer | Comments
-!> -----|------------|---------
-!> 1999-10-18 | Mark Iredell      | Initial
-!> 2013-04-19 | Jun  Wang         | Add option to get tmp and ps(in pascal) from enthalpy and ps(cb) option
-!> 2013-05-06 | Shrinivas Moorthi | Initialize midea to 0
-!> 2013-05-07 | Shrinivas Moorthi | Remove mo3, mct, midea and define io3, ict etc correctly and get correct cloud condensate.
-!> 2013-08-02 | Shrinivas Moorthi | Rewrote the whole routine to read the sigma file differently and to read all tracers. Added sptezj for two 2d fields
-!> 2014-02-20 | Shrinivas Moorthi | Modified conversion from spectral to grid taking advantage of threding in SP library. This really speeds up the code. Also threaded loop for Temperature from Tv
-!>
-!> @author Mark Iredell np23 @date 1999-10-18
 subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
                  h,p,px,py,t,u,v,d,trc,iret)
 
   use sigio_module,   only : sigio_intkind, sigio_head
   use sigio_r_module, only : sigio_dati, sigio_rrdati
   use physcons_post,       only : con_omega, con_fvirt
+#ifdef USE_SP_MOD
+  use sp_mod, only : sptezd, sptezm, sptezmv
+#endif
   use omp_lib
   implicit none
   integer(sigio_intkind),intent(in)    :: lusig
@@ -180,7 +134,11 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
   endif
   if (allocated(wrk)) deallocate(wrk)
 
+#ifdef USE_SP_MOD
+  call sptezd(0,jcap,idrt,io,jo,trisca(1,k1+1),(/pmean/),px,py,1)
+#else
   call sptezd(0,jcap,idrt,io,jo,trisca(1,k1+1),pmean,px,py,1)
+#endif
   iret = 0
 
 ! if (k2 < k1) return
@@ -267,7 +225,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 end subroutine  
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!> modstuff() computes model coordinate dependent functions.
+!> @brief Computes model coordinate dependent functions.
 !>
 !> This subprogram computes fields which depend on the model coordinate
 !> such as pressure thickness and vertical velocity.
@@ -342,7 +300,7 @@ end subroutine
   end subroutine
 
 !-------------------------------------------------------------------------------
-!> modstuff2() computes model coordinate dependent functions.
+!> @brief Computes model coordinate dependent functions.
 !>
 !> This subprogram computes fields which depend on the model coordinate
 !> such as pressure thickness and vertical velocity.
@@ -447,7 +405,7 @@ end subroutine
   end subroutine
 
 !-----------------------------------------------------------------------
-!> trssc() transforms sigma spectral fields to grid.
+!> @brief Transforms sigma spectral fields to grid.
 !>
 !> Transforms sigma spectral fields to grid and converts
 !> log surface pressure to surface pressure and virtual temperature
@@ -498,6 +456,9 @@ end subroutine
                        cpi,idrt,lonb,latb,ijl,ijn,j1,j2,jc,chgq0,          &
                        szs,sps,st,sd,sz,sq,gfszs,gfsps,gfsp,gfsdp,         &
                        gfst,gfsu,gfsv,gfsq,gfsw)
+#ifdef USE_SP_MOD
+      use sp_mod, only : sptran, sptranv
+#endif
       implicit none
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb
       integer,intent(in)::ijl,ijn,j1,j2,jc,chgq0
@@ -659,7 +620,7 @@ end subroutine
       return
       end
 !-----------------------------------------------------------------------
-!> getomega() computes omega.
+!> @brief Computes omega.
 !>
 !> @param[in] jcap integer spectral truncation.
 !> @param[in] nc integer first dimension (nc>=(jcap+1)*(jcap+2)).
@@ -690,6 +651,9 @@ end subroutine
             lonb,latb,ijn,j1,j2,jc,sd,sps,psi,ti,ui,vi,wi,pm,pd)
 !!!!!
       use sigio_module, only : sigio_modprd
+#ifdef USE_SP_MOD
+      use sp_mod, only : sptran, sptrand
+#endif
       implicit none
 
       integer,intent(in):: jcap,nc,km,idvc,idvm,idrt,idsl,nvcoord
@@ -709,8 +673,13 @@ end subroutine
       ij=lonb2*(j2-j1+1)
       in=1
       is=1+lonb
+#ifdef USE_SP_MOD
+      call sptrand(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijn,    &
+           j1,j2,jc,sps,(/real(psmean,4)/),psx(in),psx(is),psy(in),psy(is),1)
+#else
       call sptrand(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijn,    &
            j1,j2,jc,sps,psmean,psx(in),psx(is),psy(in),psy(is),1)
+#endif
 
       call sptran(0,jcap,idrt,lonb,latb,km,1,1,lonb2,lonb2,nc,ijn,    &
                   j1,j2,jc,sd,di(in,1),di(is,1),1)

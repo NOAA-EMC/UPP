@@ -1,12 +1,11 @@
 help([[
-Load environment to build UPP on Jet
+  This module loads libraries required for building and running UPP
+  on the NOAA RDHPC machine Gaeac6 using Intel-2023.2.0.
 ]])
 
+whatis([===[Loads libraries needed for building the UPP on Gaeac6 ]===])
 
-prepend_path("MODULEPATH", "/autofs/ncrc-svm1_proj/epic/spack-stack/spack-stack-1.6.0/envs/unified-env-c6/install/modulefiles/Core")
-
-PrgEnv_intel_ver=os.getenv("PrgEnv_intel_ver") or "8.5.0"
-load(pathJoin("PrgEnv-intel", PrgEnv_intel_ver))
+prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/c6/spack-stack-1.8.0/envs/ue-intel-2021.10.0/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2023.2.0"
 load(pathJoin("stack-intel", stack_intel_ver))
@@ -14,13 +13,16 @@ load(pathJoin("stack-intel", stack_intel_ver))
 stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.29"
 load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
-cmake_ver=os.getenv("cmake_ver") or "3.23.1"
+cmake_ver=os.getenv("cmake_ver") or "3.27.9"
 load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
+
+unload("darshan-runtime")
+unload("cray-libsci")
 
 setenv("CC","cc")
 setenv("CXX","CC")
 setenv("FC","ftn")
 
-whatis("Description: UPP build environment")
+setenv("CMAKE_Platform","gaeac6.intel")

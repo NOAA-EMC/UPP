@@ -50,6 +50,15 @@
 !> 2024-02-20 | Jaymes Kenyon | Add calculation of PBLHGUST (from INITPOST.F) to support RRFS 10-m wind gust diagnostic
 !> 2024-03-15 | Wen Meng      | Add option to read 3D soil-related variables
 !> 2024-03-25 | Eric James    | Enabling reading of snow melt and surface albedo from RRFS
+!> 2024-04-03 | Eric James    | Add reading of hourly averaged smoke and dust
+!> 2024-04-23 | Eric James    | Updating smoke emissions to be 3D variable (ebu_smoke)
+!> 2024-05-01 | Eric James    | set "prec_acc_dt1" as 15 min for RRFS
+!> 2024-05-09 | Eric James    | Enable reading of clear-sky downwelling shortwave irradiance
+!> 2024-05-10 | Karina Asmar  | Read omega from model output and calculate HGT for hydrostatic runs
+!> 2024-06-25 | Wen Meng      | Add capability to read fhzero as either an integer or float
+!> 2024-08-26 | Karina Asmar  | Add temporal u/v, speed max wind components at 10m agl
+!> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
+!> 2025-02-25 | Wen Meng      | Remove duplicated declaraion for tshltr 
 !> 2024-03-25 | Biju Thomas   | Bug fix float overlow in hafs_upp debug build run
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
@@ -64,7 +73,7 @@
 
 
       use netcdf
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, coarsepm,                &
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, smoke, fv3dust, coarsepm, ebb,           &
               no3,nh4, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
               qqr, qqnr, qqs, qqi, qqni, qqw, qqnw, qqg, qqh, cwm,                              &
@@ -79,7 +88,7 @@
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
-              tshltr, albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,&
+              albase, albedo, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot,        &
               sigt4,cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,    &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
@@ -99,7 +108,8 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, ebb, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust
+              pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust,  &
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -113,7 +123,7 @@
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
               nbin_oc, nbin_su, nbin_no3, nbin_nh4, gocart_on,gccpp_on, nasa_on,pt_tbl,hyb_sigp,&
-              filenameFlux, fileNameAER,                                               &
+              filenameFlux, fileNameAER, prec_acc_dt1,                                          &
               iSF_SURFACE_PHYSICS,rdaod, d2d_chem, modelname, aqf_on,                         &
               ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
@@ -177,7 +187,8 @@
 !     
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
-      integer fhzero !bucket
+      integer fhzero !bucket in integer
+      real fhzeror !bucket in real
       real dtp !physics time step
       real dz
       REAL RINC(5)
@@ -535,14 +546,14 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=22
+       nrec=23
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','hail','smoke',      &
                                      'dust','coarsepm','ext550',        &
-                                     'nicp','water_nc','rain_nc']
+                                     'ebu_smoke','nicp','water_nc','rain_nc']
       else
        nrec=8
        allocate (recname(nrec))
@@ -875,19 +886,20 @@
        spval,recname(9),dpres(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(10),buf3d(ista_2l,jsta_2l,1),lm)
-       do l=1,lm
-       do j=jsta,jend
-         do i=ista,iend
-            cwm(i,j,l)=spval
+! Asmar - read Omega from model output, otherwise calculate
+       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,'omga',omga(ista_2l,jsta_2l,1),lm)
+       do l=lm,1,-1
+         do j=jsta,jend
+           do i=ista,iend
+             cwm(i,j,l)=spval
 ! dong add missing value
-           if (wh(i,j,l) < spval) then
-            omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/abs(buf3d(i,j,l))
-           else
-            omga(i,j,l) = spval
-           end if
-!           if(t(i,j,l)>1000.)print*,'bad T ',t(i,j,l)
+             if(wh(i,j,l) /= spval) then
+               if (omga(i,j,l) == spval .and. dpres(i,j,l) /= spval .and. buf3d(i,j,l) /=spval)  &
+                  omga(i,j,l) = (-1.) * wh(i,j,l) * dpres(i,j,l)/abs(buf3d(i,j,l))
+             endif
+           enddo
          enddo
-       enddo
        enddo
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(11),qqi(ista_2l,jsta_2l,1),lm)
@@ -909,12 +921,14 @@
        spval,recname(18),coarsepm(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(19),ext550(ista_2l,jsta_2l,1),lm)
+       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       spval,recname(20),ebb(ista_2l,jsta_2l,1,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(20),qqni(ista_2l,jsta_2l,1),lm)
+       spval,recname(21),qqni(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(21),qqnw(ista_2l,jsta_2l,1),lm)
+       spval,recname(22),qqnw(ista_2l,jsta_2l,1),lm)
        call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-       spval,recname(22),qqnr(ista_2l,jsta_2l,1),lm)
+       spval,recname(23),qqnr(ista_2l,jsta_2l,1),lm)
        endif
 
 ! Compute max QRAIN in the column to be used later in precip type computation
@@ -1070,16 +1084,26 @@
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hail_maxhailcast(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hail_maxhailcast(isa,jsa)
-! biomass burning emissions
-      VarName='ebb_smoke_hr'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,ebb(ista_2l,jsta_2l))
-     if(debugprint)print*,'sample ',VarName,' =',ebb(isa,jsa)
 ! hourly wildfire potential
-      VarName='hwp'
+      VarName='hwp_ave'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,hwp(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',hwp(isa,jsa)
+! hourly averaged smoke
+      VarName='smoke_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,smoke_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',smoke_ave(isa,jsa)
+! hourly averaged dust
+      VarName='dust_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,dust_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',dust_ave(isa,jsa)
+! hourly averaged coarsepm
+      VarName='coarsepm_ave'
+      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,coarsepm_ave(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',coarsepm_ave(isa,jsa)
       endif
 
 ! lightning threat index 1
@@ -1164,21 +1188,6 @@
         enddo
       enddo
 
-      do l=lm,1,-1
-        do j=jsta,jend
-          do i=ista,iend
-            if(zint(i,j,l+1)/=spval .and. buf3d(i,j,l)/=spval)then
-!make sure delz is positive
-             zint(i,j,l)=zint(i,j,l+1)+abs(buf3d(i,j,l))
-!             if(zint(i,j,l)>1.0E6)print*,'bad H ',i,j,l,zint(i,j,l)
-            else
-             zint(i,j,l)=spval
-            end if
-          end do
-        end do
-        if(debugprint)print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
-      end do
-
       do l=lp1,1,-1
         do j=jsta,jend
           do i=ista,iend
@@ -1186,6 +1195,25 @@
           end do
         end do
       end do
+
+! Asmar - fix HGT for hydrostatic runs
+      do l=lm,1,-1
+        do j=jsta,jend
+          do i=ista,iend
+            if(wh(i,j,l) /= spval) then
+! make sure delz is positive
+              zint(i,j,l) = abs(buf3d(i,j,l)) + zint(i,j,l+1)
+            else
+              if(zint(i,j,l+1) /=spval .and. t(i,j,l) /= spval .and.  alpint(i,j,l+1) /= spval  &
+                             .and. alpint(i,j,l) /=spval .and. q(i,j,l) /= spval) then
+                 zint(i,j,l) = zint(i,j,l+1)+(rgas/grav)*t(i,j,l)*(1.+fv*q(i,j,l))*(alpint(i,j,l+1)-alpint(i,j,l))
+               else 
+                 zint(i,j,l) = spval
+              endif
+            endif
+          enddo
+        enddo
+      enddo
 
       do l=lm,1,-1
         do j=jsta,jend
@@ -1625,12 +1653,19 @@
       end if
       if (me == 0) print*,'novegtype= ',novegtype
 
+      !Read fhzero as integer
       Status=nf90_get_att(ncid2d,nf90_global,'fhzero',fhzero)
       if (Status /= 0) then
-       print*,'fhzero not found-Assigned 3 hours as default'
-       fhzero=3
+        !Read fhzero as real
+        Status=nf90_get_att(ncid2d,nf90_global,'fhzero',fhzeror)
+        if (Status /= 0) then
+          print*,'fhzero not found-Assigned 3 hours as default'
+          fhzeror=3.
+        endif
+      else
+        fhzeror=float(fhzero)
       end if
-      if (me == 0) print*,'fhzero= ',fhzero
+!      if(me==0)print*,'fhzeror= ',fhzeror
 !
       Status=nf90_get_att(ncid2d,nf90_global,'dtp',dtp)
       if (Status /= 0) then
@@ -1643,7 +1678,7 @@
         CALL MICROINIT(imp_physics)
       end if
 
-        tprec   = float(fhzero)
+        tprec   = fhzeror
         ! if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
@@ -1653,6 +1688,7 @@
         td3d    = tprec
         !print*,'tprec = ',tprec
 
+        prec_acc_dt1=15.0
 
       VarName='refl_10cm'
       call read_netcdf_3d_para(ncid2d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -1966,11 +2002,26 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,v10max)
      if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
-! max hourly 10m agl wind speed
-      VarName='spd10max'
+! max 10m agl wind speed
+      if (modelname=='FV3R') then
+        VarName='spd10max'  ! hourly max wind speed at 10m
+      else if (modelname=='GFS') then
+        VarName='wind10m_max' ! temporal max wind speed at 10m
+      endif
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,wspd10max)
      if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
+
+! max temporal u comp of 10m agl wind
+      VarName='u10m_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,wspd10umax)
+     if(debugprint)print*,'sample ',VarName,' = ',u10max(isa,jsa)
+! max temporal v comp of 10m agl wind
+      VarName='v10m_max'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,wspd10vmax)
+     if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
@@ -2763,6 +2814,11 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
 
+! inst incoming clear sky sfc shortwave 
+      VarName='dswrf_clr'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,rswinc)
+
 ! inst incoming direct beam sfc shortwave
       VarName='visbmdi'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
@@ -2777,15 +2833,6 @@
       VarName='xlaixy'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,xlaixy)
-
-! inst incoming clear sky sfc shortwave
-! FV3 do not output instant incoming clear sky sfc shortwave
-      !$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
-          rswinc(i,j) = spval 
-        enddo
-      enddo
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
@@ -4009,7 +4056,7 @@
       implicit none
       INCLUDE "mpif.h"
 
-      character(len=20),intent(in) :: varname
+      character(len=*),intent(in) :: varname
       real,intent(in)    :: spval
       integer,intent(in) :: ncid,im,jm,lm,jsta_2l,jend_2u,jsta,jend
       integer,intent(in) :: ista_2l,iend_2u,ista,iend
@@ -4078,7 +4125,7 @@
       implicit none
       INCLUDE "mpif.h"
 
-      character(len=20),intent(in) :: VarName
+      character(len=*),intent(in) :: VarName
       real,intent(in)    :: spval
       integer,intent(in) :: ncid,jsta_2l,jend_2u,jsta,jend,ista_2l,iend_2u,ista,iend
       real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)

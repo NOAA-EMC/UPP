@@ -1,26 +1,20 @@
 help([[
   This module loads libraries required for building and running UPP
-  on the NOAA RDHPC machine Gaea C5 using Intel-2023.1.0.
+  on the NOAA RDHPC machine Gaea using Intel-2023.2.0.
 ]])
 
 whatis([===[Loads libraries needed for building the UPP on Gaea ]===])
 
-load("PrgEnv-intel/8.3.3")
-load("intel-classic/2023.1.0")
-load("cray-mpich/8.1.25")
-load("python/3.9.12")
+prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/c6/spack-stack-1.8.0/envs/ue-intel-2021.10.0/install/modulefiles/Core")
 
-prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core")
-prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/modulefiles")
-
-stack_intel_ver=os.getenv("stack_intel_ver") or "2023.1.0"
+stack_intel_ver=os.getenv("stack_intel_ver") or "2023.2.0"
 load(pathJoin("stack-intel", stack_intel_ver))
 
-stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.25"
+stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.29"
 load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
-stack_python_ver=os.getenv("stack_python_ver") or "3.10.13"
-load(pathJoin("stack-python", stack_python_ver))
+cmake_ver=os.getenv("cmake_ver") or "3.27.9"
+load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
 

@@ -31,7 +31,7 @@ the instructions in the :doc:`spack-stack User's Guide <spack-stack:index>`.
 Common Modules
 ----------------
 
-As of February 1, 2024, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`__ from spack-stack: 
+As of October 2024, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`__ from spack-stack: 
 
 .. code-block:: console
 
@@ -46,8 +46,7 @@ As of February 1, 2024, the UPP uses the following `common modules <https://gith
    g2tmpl 1.10.2
    parallelio 2.5.10
    bacio 2.4.1
-   ip 4.3.0
-   sp 2.5.0
+   ip 5.0.0
    crtm 2.4.0.1
    w3emc 2.10.0
    nemsio 2.5.4

@@ -33,11 +33,12 @@
 !> 2022-11-08 | K Wang                    | Replace aqfamaq_on with aqf_on
 !> 2023-01-24 | Sam Trahan                | write_ifi_debug_files flag for IFI debug capability
 !> 2023-03-21 | Jesse Meng                | Add slrutah_on option to use U Utah SLR
-!> 2023-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) 
-!         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
+!> 2023-04-04 | Li(Kate Zhang)  |Add namelist optoin for CCPP-Chem (UFS-Chem) and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-05-20 | Rahul Mahajan             | Bug fix for fileNameFlat as namelist configurable
 !> 2023-08-16 | Yali Mao                  | Add gtg_on logical option
 !> 2023-11-29 | Eric James                | Add method_blsn logical option
+!> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
+!> 2024-10-29 | Wen Meng                  | Set iSF_SURFACE_PHYSICS: 1 for NOAH; 2 for NOAH MP; 3 for RUC
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -385,6 +386,7 @@
           call ext_ncd_get_dom_ti_integer(DataHandle                      &
             ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
           iSF_SURFACE_PHYSICS = itmp
+
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
           NSOIL = 4
@@ -416,11 +418,12 @@
           Status=nf90_get_att(ncid2d,nf90_global,'landsfcmdl', iSF_SURFACE_PHYSICS)
           if(Status/=0)then
             print*,'landsfcmdl not found; assigning to 2'
-            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH MP
+            ! LSM physics 1 for NOAH
           endif
-          if(iSF_SURFACE_PHYSICS<2)then
-            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
-          endif
+!          if(iSF_SURFACE_PHYSICS<2)then
+!            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+!          endif
           Status=nf90_get_att(ncid2d,nf90_global,'nsoil', NSOIL)
           if(Status/=0)then
             print*,'nsoil not found; assigning to 4'
@@ -571,7 +574,11 @@
  
         IF(TRIM(IOFORM) == 'netcdf' .OR. TRIM(IOFORM) == 'netcdfpara') THEN
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
-            CALL INITPOST
+            IF (SUBMODELNAME == 'MPAS') THEN
+              CALL INITPOST_MPAS
+            ELSE
+              CALL INITPOST
+            ENDIF
           ELSE IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
 ! use parallel netcdf library to read output directly
             CALL INITPOST_NETCDF(ncid2d,ncid3d)

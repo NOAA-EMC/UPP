@@ -150,6 +150,7 @@ list(APPEND LIB_SRC ${GTG_LIB_SRC})
 
 list(APPEND EXE_SRC
     INITPOST.F
+    INITPOST_MPAS.F
     INITPOST_NETCDF.f
     WRFPOST.F
     getIVariableN.f
@@ -181,6 +182,11 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -check all -check noarg_temp_created")
   set_source_files_properties(INITPOST_GFS_NEMS_MPIIO.f INITPOST_NETCDF.f INITPOST_NEMS.f PROPERTIES COMPILE_FLAGS -qoverride-limits)
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(IntelLLVM)$")
+  set(CMAKE_Fortran_FLAGS
+      "-g -traceback -fp-model precise -free -convert big_endian")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check bounds -check pointers -check shape -check stack -check uninit")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
       "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
@@ -236,10 +242,18 @@ endif()
 
 if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
+  if(ip_FOUND)
+    set(sp_target ip::ip_4)
+    if(ip_VERSION VERSION_GREATER_EQUAL 5.1)
+      target_compile_definitions(${EXENAME} PRIVATE USE_SP_MOD=1)
+    endif()
+  else()
+    set(sp_target sp::sp_4)
+  endif()
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
     w3emc::w3emc_4
-    sp::sp_4)
+    ${sp_target})
   set_target_properties(${EXENAME} PROPERTIES LINKER_LANGUAGE Fortran)
   if(IFI_FOUND)
     target_link_libraries(${EXENAME} PRIVATE IFI)

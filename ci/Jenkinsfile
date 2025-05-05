@@ -97,7 +97,22 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        echo $CHANGE_ID
+                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        cd ../tests/logs
+					git remote -v
+                                        git fetch --no-recurse-submodules origin
+                                        git config user.email "ecc.platform@noaa.gov"
+                                        git config user.name "epic-cicd-jenkins"
+                                        echo "Orion testing concluded..."
+					git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+                                        git pull sshorigin $FORK_BRANCH
+					git add rt.log.ORION
+                                        git commit -m "Orion Jobs Completed."
+                                        git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
 			}
@@ -124,7 +139,22 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        echo $CHANGE_ID
+                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        cd ../tests/logs
+					git remote -v
+                                        git fetch --no-recurse-submodules origin
+                                        git config user.email "ecc.platform@noaa.gov"
+                                        git config user.name "epic-cicd-jenkins"
+                                        echo "Hera testing concluded..."
+                                        git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+                                        git pull sshorigin $FORK_BRANCH
+					git add rt.log.HERA
+                                        git commit -m "Hera Jobs Completed."
+                                        git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
 			}
@@ -151,7 +181,22 @@ pipeline {
 					sh '''
 					echo $(pwd)
 					cd ci/
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir -t `pwd`/../
+                                        echo $CHANGE_ID
+                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        cd ../tests/logs
+					git remote -v
+                                        git fetch --no-recurse-submodules origin
+                                        git config user.email "ecc.platform@noaa.gov"
+                                        git config user.name "epic-cicd-jenkins"
+                                        echo "Hercules testing concluded..."
+                                        git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+                                        git pull sshorigin $FORK_BRANCH
+					git add rt.log.HERCULES
+                                        git commit -m "Hercules Jobs Completed."
+                                        git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
 			}

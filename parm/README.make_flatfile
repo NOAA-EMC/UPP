@@ -6,14 +6,14 @@ To make a .txt flat file for UPP, follow these steps within the parm/ directory:
 
 2) Select, then validate, the associated "postcntrl" file, e.g.,
 
-      xmllint --noout --schema EMC_POST_CTRL_Schema.xsd fv3lam_rrfs.xml
+      xmllint --noout --schema EMC_POST_CTRL_Schema.xsd rrfs_postcntrl.xml
 
 3) If file validation succeeds in steps (1) and (2), generate the .txt flat file, e.g.,
 
-      perl PostXMLPreprocessor.pl fv3lam_rrfs.xml post_avblflds.xml postxconfig-NT-fv3lam_rrfs.txt
+      perl PostXMLPreprocessor.pl rrfs_postcntrl.xml post_avblflds.xml postxconfig-NT-rrfs.txt
 
-   In this example, "fv3lam_rrfs.xml" and "fv3lam_post_avblflds.xml" are input files, read by the perl 
-   script. The "postxconfig-NT-fv3lam_rrfs.txt" flat file is the output file produced by the script, which 
+   In this example, "rrfs_postcntrl.xml" and "post_avblflds.xml" are input files, read by the perl 
+   script. The "postxconfig-NT-rrfs.txt" flat file is the output file produced by the script, which 
    can have any name.
 
    Note that a log file will be created by this script, in addition to the flat file.

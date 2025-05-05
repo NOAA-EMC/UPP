@@ -61,6 +61,9 @@
 !!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
 !!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
 !!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
+!!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
+!!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
+!!   25-01-13 | J Kenyon | Add graupel number concentration (QQNG)
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -99,14 +102,14 @@
 
 !    
       use vrbls4d, only: dust, salt, suso, waso, soot, no3, nh4, smoke, fv3dust,&
-              coarsepm
+              coarsepm, ebb
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, qqh, zint,&
-              qqni, qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
+              qqni, qqnr, qqng, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg,cit, REF_10CM, avgpmtf, avgozcon
 
-      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, twbs, qwbs,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
       use masks, only: lmh, gdlat, gdlon,sm,sice,dx,dy
@@ -1197,6 +1200,35 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             ENDIF
           ENDIF
+!
+!---  QNGRAUP ON MDL SURFACE 
+!
+          IF (IGET(1023) > 0) THEN
+            IF (LVLS(L,IGET(1023)) > 0)THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=ista,iend
+                   if(QQNG(I,J,LL) < 1.e-8) QQNG(I,J,LL) = 0.
+                   GRID1(I,J) = QQNG(I,J,LL)
+                 ENDDO
+               ENDDO
+               if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1023))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1023))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+            ENDIF
+          ENDIF
+
 ! QNWFA ON MDL SURFACE   --tgs
 !
           IF (IGET(766) > 0) THEN
@@ -2435,6 +2467,33 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(1012))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(1012))
+!$omp parallel do private(i,j,ii,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                     ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
+!
+! E. James - 23 Apr 2024: EBB from RRFS
+!
+           IF (IGET(1015)>0) THEN
+             IF (LVLS(L,IGET(1015))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=ista,iend
+                 GRID1(I,J) = EBB(I,J,LL,1)/(1E9)
+               ENDDO
+               ENDDO
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1015))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1015))
 !$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -4091,6 +4150,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
            HGT=ZMID(I,J,L)
            PBLHOLD=PBLHGUST(I,J)
+           IF(PBLHOLD == spval) THEN
+             LPBL(I,J) = LM
+             EXIT loopL
+           ENDIF
           ELSE
            HGT=ZINT(I,J,L)
            PBLHOLD=PBLRI(I,J)
@@ -4223,8 +4286,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         q(ista:iend,:,:),qqw(ista:iend,:,:),qqr(ista:iend,:,:),&
         qqs(ista:iend,:,:),qqg(ista:iend,:,:),qqi(ista:iend,:,:),&
         q2(ista:iend,:,:),&
-        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),sfcshx(ista:iend,:),&
-        sfclhx(ista:iend,:),ustar(ista:iend,:),&
+        ZINT(ista:iend,:,LP1),pblh(ista:iend,:),twbs(ista:iend,:),&
+        qwbs(ista:iend,:),ustar(ista:iend,:),&
         z0(ista:iend,:),gdlat(ista:iend,:),gdlon(ista:iend,:),&
         dx(ista:iend,:),dy(ista:iend,:),u10(ista:iend,:),v10(ista:iend,:),&
         GUST(ista:iend,:),avgprec(ista:iend,:),sm(ista:iend,:),sice(ista:iend,:),&

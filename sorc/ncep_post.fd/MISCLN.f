@@ -1,96 +1,59 @@
 !> @file
-!
-!> SUBPROGRAM:    MISCLN      POSTS MISCELLANEOUS FIELDS
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-20
-!!     
-!! ABSTRACT:
-!!     THIS ROUTINE HAS BECOME THE CATCH-ALL FOR MISCELLANEOUS
-!!     OUTPUT FIELDS POSTED BY THE ETA POST PROCESSOR.  
-!!     CURRENTLY THIS ROUTINE POSTS THE FOLLOWING FIELDS:
-!!        (1) TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
-!!        (2) MAX WIND LEVEL Z, P, U, AND V,
-!!        (3) FD LEVEL T, Q, U, AND V,
-!!        (4) FREEZING LEVEL Z AND RH,
-!!        (5) CONSTANT MASS (BOUNDARY) FIELDS,
-!!        (6) LFM LOOK-ALIKE FIELDS, AND
-!!        (7) NGM LOOK-ALIKE FIELDS.
-!!
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-20  RUSS TREADON
-!!   93-06-19  RUSS TREADON - ADDED TYPE 2 CAPE POSTING.
-!!   94-11-07  MIKE BALDWIN - ADDED HELICITY POSTING.
-!!   96-03-26  MIKE BALDWIN - CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
-!!   96-11-19  MIKE BALDWIN - BACK OUT PREVIOUS CHANGE 
-!!   97-04-25  MIKE BALDWIN - CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
-!!   97-04-29  GEOFF MANIKIN - ADDED TROPOPAUSE HEIGHT AND
-!!                             MAX WIND LEVEL FIELDS
-!!   98-06-15  T BLACK       - CONVERSION FROM 1-D TO 2-D
-!!   98-07-17  MIKE BALDWIN - REMOVED LABL84
-!!   00-01-04  JIM TUCCILLO - MPI VERSION
-!!   02-04-23  MIKE BALDWIN - WRF VERSION
-!!   11-02-06  JUN WANG     - ADD GRIB2 OPTION
-!!   11-10-16  SARAH LU     - ADD FD LEVEL DUST/ASH
-!!   12-04-03  Jun Wang     - FIXED LVLSXML for fields at FD height (spec_hgt_lvl_above_grnd)
-!!   13-05-3   Shrinivas Moorthi - Fix some bugs and make more efficient code
-!!   14-02-21  Shrinivas Moorthi - Add more threading
-!!   14-02-26  S Moorthi - threading datapd assignment and some cleanup &
-!!                         bug fix
-!!   15-11-18  S Moorthi - fixed some logical errors in the helicity and
-!!   i                     storm motion part of the code
-!!   17-06-01  Y Mao - ADD FD levels for GTG(EDPARM CATEDR MWTURB) and allow 
-!!                     levels input from control file
-!!   19-09-03  J Meng - ADD CAPE related variables for HRRR
-!!   20-03-24  J Meng - remove grib1
-!!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
-!!   21-03-25  E Colon - 3D-RTMA-specific SPC fields added as output
-!!   21-04-01  J Meng - computation on defined points only
-!!   21-09-01  E Colon - Correction to the effective layer top and
-!!                       bottoma calculation which is only employed 
-!!                       for RTMA usage.
-!!   21-10-14  J MENG - 2D DECOMPOSITION
-!!   22-09-22  L Zhang -  Li(Kate) Zhang - Remove Dust=> AERFD
-!!   22-10-06  W Meng - Generate SPC fields with RRFS input
-!!   23-01-24  Sam Trahan - when IFI is enabled, calculate and store CAPE & CIN. Add allocate_cape_arrays
-!!   23-04-03  E Colon - Added additional array assignments to resolve SPC fields crashes for RRFS input
-!!   23-08-16  Y Mao - Updated interpolation to flight levels for regional GTG fields
-!!   23-08-24  Y Mao - Add gtg_on option for GTG interpolation
-!!   24-01-07  H LIN - Add CIT output in NCAR GTG turbulence calculation
-!!   24-01-09  Y Mao - Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
-!!   24-04-09 Y Mao - Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
-!! USAGE:    CALL MISCLN
-!!   INPUT ARGUMENT LIST:
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       TRPAUS  - COMPUTE TROPOPAUSE LEVEL FIELDS.
-!!       CALMXW  - COMPUTE MAX WIND LEVEL FIELDS.
-!!       SCLFLD  - SCALE ARRAY ELEMENTS BY CONSTANT.
-!!       GRIBIT  - OUTPUT FIELD TO GRIB FILE.
-!!       CALPOT  - CALCULATE POTENTIAL TEMPERATURE.
-!!       FDLVL   - COMPUTE FD LEVEL DATA (AGL OR MSL).
-!!       FRZLVL  - COMPUTE FREEZING LEVEL DATA.
-!!       BOUND   - BOUND ARRAY ELEMENTS BETWEEN MINIMUM AND MAXIMUM VALUES.
-!!       BNDLYR  - COMPUTE BOUNDARY LAYER FIELDS.
-!!       CALDWP  - CALCULATE DEWPOINT TEMPERATURE.
-!!       OTLFT   - COMPUTE LIFTED INDEX AT 500MB.
-!!       CALLCL  - COMPUTE LCL DATA.
-!!       LFMFLD  - COMPUTE LFM LOOK-ALIKE FIELDS.
-!!       NGMFLD  - COMPUTE NGM LOOK-ALIKE FIELDS.
-!!       CALTHTE - COMPUTE THETA-E.
-!!       CALHEL  - COMPUTE HELICITY AND STORM MOTION.
-!!
-!!     LIBRARY:
-!!       COMMON - RQSTFLD
-!!                CTLBLK
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : CRAY C-90
-!!
+!> @brief MISCLN posts miscellaneous fields
+!>     
+!> This routine has become the catch-all for miscellaneous output fields posted by the ETA post-processor. 
+!> Currently this routine posts the following fields:
+!>        -# TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
+!>        -# MAX WIND LEVEL Z, P, U, AND V,
+!>        -# FD LEVEL T, Q, U, AND V,
+!>        -# FREEZING LEVEL Z AND RH,
+!>        -# CONSTANT MASS (BOUNDARY) FIELDS,
+!>        -# LFM LOOK-ALIKE FIELDS, AND
+!>        -# NGM LOOK-ALIKE FIELDS.
+!>
+!> ### Program history log:
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!!   1992-12-20 | RUSS TREADON | Original file
+!!   1993-06-19 | RUSS TREADON | ADDED TYPE 2 CAPE POSTING.
+!!   1994-11-07 | MIKE BALDWIN | ADDED HELICITY POSTING.
+!!   1996-03-26 | MIKE BALDWIN | CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
+!!   1996-11-19 | MIKE BALDWIN | BACK OUT PREVIOUS CHANGE 
+!!   1997-04-25 | MIKE BALDWIN | CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
+!!   1997-04-29 | GEOFF MANIKIN | ADDED TROPOPAUSE HEIGHT AND MAX WIND LEVEL FIELDS
+!!   1998-06-15 | T BLACK       | CONVERSION FROM 1-D TO 2-D
+!!   1998-07-17 | MIKE BALDWIN | REMOVED LABL84
+!!   2000-01-04 | JIM TUCCILLO | MPI VERSION
+!!   2002-04-23 | MIKE BALDWIN | WRF VERSION
+!!   2011-02-06 | JUN WANG     | ADD GRIB2 OPTION
+!!   2011-10-16 | SARAH LU     | ADD FD LEVEL DUST/ASH
+!!   2012-04-03 | Jun Wang     | FIXED LVLSXML for fields at FD height (spec_hgt_lvl_above_grnd)
+!!   2013-05-3  | Shrinivas Moorthi | Fix some bugs and make more efficient code
+!!   2014-02-21 | Shrinivas Moorthi | Add more threading
+!!   2014-02-26 | S Moorthi | threading datapd assignment and some cleanup & bug fix
+!!   2015-11-18 | S Moorthi | fixed some logical errors in the helicity and storm motion part of the code
+!!   2017-06-01 | Y Mao | ADD FD levels for GTG(EDPARM CATEDR MWTURB) and allow levels input from control file
+!!   2019-09-03 | J Meng | ADD CAPE related variables for HRRR
+!!   2020-03-24 | J Meng | remove grib1
+!!   2020-11-10 | J Meng | USE UPP_PHYSICS MODULE
+!!   2021-03-25 | E Colon | 3D-RTMA-specific SPC fields added as output
+!!   2021-04-01 | J Meng | computation on defined points only
+!!   2021-09-01 | E Colon | Correction to the effective layer top and bottoma calculation which is only employed for RTMA usage.
+!!   2021-10-14 | J MENG | 2D DECOMPOSITION
+!!   2022-09-22 | L Zhang |  Li(Kate) Zhang - Remove Dust=> AERFD
+!!   2022-10-06 | W Meng | Generate SPC fields with RRFS input
+!!   2023-01-24 | Sam Trahan | when IFI is enabled, calculate and store CAPE & CIN. Add allocate_cape_arrays
+!!   2023-04-03 | E Colon | Added additional array assignments to resolve SPC fields crashes for RRFS input
+!!   2023-08-16 | Y Mao | Updated interpolation to flight levels for regional GTG fields
+!!   2023-08-24 | Y Mao | Add gtg_on option for GTG interpolation
+!!   2024-01-07 | H LIN | Add CIT output in NCAR GTG turbulence calculation
+!!   2024-01-09 | Y Mao | Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
+!!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
+!> 
+!> @author RUSS TREADON 
+!> @date 1992-12-20
+!-----------------------------------------------------------------------------------------------------
+!> @brief MISCLN posts miscellaneous fields
       SUBROUTINE MISCLN
 
 !
@@ -4600,7 +4563,7 @@
 !     
       RETURN
    CONTAINS
-
+!> @brief allocate_cape_arrays - store CAPE in arrays
      subroutine allocate_cape_arrays
        if(.not.allocated(OMGBND))  allocate(OMGBND(ista:iend,jsta:jend,NBND))
        if(.not.allocated(PWTBND))  allocate(PWTBND(ista:iend,jsta:jend,NBND))

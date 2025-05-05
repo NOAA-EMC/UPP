@@ -4,11 +4,11 @@
 !> This routine computes the isothermal level height and relative
 !> humidity at this level for each mass point on the ETA grid.
 !> The computed isothermal level height is the mean sea level
-!> height. At each mass point we move up from the surface to  
+!> height. At each mass point we move up from the surface to 
 !> find the last ETA layer where the temperature is less than
 !> isotherm and the temp in the layer below is above isotherm.
 !> Vertical interpolation in temperature to the isotherm
-!> temperature gives the isothermal level height. Pressure and   
+!> temperature gives the isothermal level height. Pressure and 
 !> specific humidity are interpolated to this level and along with
 !> the temperature provide the isothermal level relative humidity.
 !> If the entire atmosphere is below isotherm, the routine
@@ -18,11 +18,6 @@
 !> (IE, GRID 26), we pack 273.15K as the freezing temperature. All 
 !> other output grids use 273.16K.
 !>
-!> @param[in] isotherm isothermal value of height to be output.
-!> @param[out] ZFRZ Above ground level/ZFL at isotherm height.
-!> @param[out] RHFRZ Relative humidity at isotherm level.
-!> @param[out] PFRZL pressure at isotherm level.
-!> 
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
@@ -44,7 +39,7 @@
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !-------------------------------------------------------------------------------
-!> Subroutine that computes FRZING LVL, Z and RH.
+!> @brief FRZLVL2 computes FRZING LVL, Z and RH.
 !>
 !> @param[in] ISOTHERM real Isothermal value of height to be output.
 !> @param[out] ZFRZ real Above ground level/ZFL at isotherm height.

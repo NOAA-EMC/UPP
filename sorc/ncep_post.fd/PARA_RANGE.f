@@ -1,14 +1,5 @@
 !> @file
-!> @brief para_range() sets up decomposition values.
-!>
-!> This subroutine sets up decomposition values.
-!>
-!> @param[in] N1 First interate value.
-!> @param[in] N2 Last interate value.
-!> @param[in] NPROCS Number of MPI tasks.
-!> @param[in] IRANK My taks ID.
-!> @param[out] ISTA First loop value.
-!> @param[out] IEND Last loop value.
+!> @brief Subroutines in this file set up decomposition values for 1D and 2D decomposition.
 !>
 !> ### Program History Log
 !> Date | Programmer | Comments
@@ -17,7 +8,7 @@
 !>
 !> @author Jim Tuccillo IBM @date 2000-01-06
 !-----------------------------------------------------------------
-!> para_range() sets up decomposition values.
+!> @brief Sets up decomposition values.
 !>
 !> @param[in] N1 First interate value.
 !> @param[in] N2 Last interate value.
@@ -40,34 +31,18 @@
       if ( iwork2 > irank ) iend = iend + 1
       return
       end
-!!
-!! USAGE:    CALL PARA_RANGE2(N1,N2,NX,NY,NRANK,ISTA,IEND,JSTA,JEND)(A)
-!!   INPUT ARGUMENT LIST:
-!!     N1 - LAAT INTERATE VALUE I dimension
-!!     N2 - LAST INTERATE VALUE  J dimension
-!!     NX  NUMBER OF subdomains in Z  dimension
-!!     NY  NUMBER OF subdomains  in Y dimension
-!!        NX * NY should be the total number of MPI procs
-!!     NRANK - MY TAKS ID
-!!
-!!   OUTPUT ARGUMENT LIST:
-!!     ISTA - FIRST LOOP VALUE I
-!!     IEND - LAST LOOP VALUE I
-!!     JSTA - FIRST LOOP VALUE J
-!!     JEND - LAST LOOP VALUE J
-!!
-!!   OUTPUT FILES:
-!!     STDOUT  - RUN TIME STANDARD OUT.
-!!
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       NONE
-!!     LIBRARY:
-!!
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN
-!!     MACHINE : IBM RS/6000 SP
-!!
+
+! ----------------------------------------------------------------------------------------------------
+!> @brief para_range2() sets up 2D decomposition values
+!> @param[in] N1 - LAAT INTERATE VALUE I dimension
+!> @param[in] N2 - LAST INTERATE VALUE  J dimension
+!> @param[in] NX NUMBER OF subdomains in Z dimension (NX * NY should be the total number of MPI procs)
+!> @param[in] NY NUMBER OF subdomains in Y dimension (NX * NY should be the total number of MPI procs)
+!> @param[in] NRANK - MY TASK ID
+!> @param[out] ISTA - FIRST LOOP VALUE I
+!> @param[out] IEND - LAST LOOP VALUE I
+!> @param[out] JSTA - FIRST LOOP VALUE J
+!> @param[out] JEND - LAST LOOP VALUE J
      subroutine para_range2(im,jm,nx,ny,nrank,ista,iend,jsta,jend)
 
       implicit none

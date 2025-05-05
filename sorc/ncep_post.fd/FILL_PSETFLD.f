@@ -102,6 +102,10 @@
       if(trim(param_ofld%aerosol_type)==''.and.trim(param_afld%aerosol_type)/='') then
          param_ofld%aerosol_type=param_afld%aerosol_type
       endif
+! prob type
+      if(trim(param_ofld%prob_type)==''.and.trim(param_afld%prob_type)/='') then
+         param_ofld%prob_type=param_afld%prob_type
+      endif
 ! typ_intvl_size
       if(trim(param_ofld%typ_intvl_size)==''.and.trim(param_afld%typ_intvl_size)/='') then
          param_ofld%typ_intvl_size=param_afld%typ_intvl_size

@@ -10,10 +10,9 @@ spack:
   - netcdf-fortran@4.6.1
   - bacio@2.4.1
   - w3emc@2.10.0
-  - g2@3.4.5
-  - g2tmpl@1.10.2
-  - sp@2.5.0
-  - ip@4.3.0
+  - g2@3.5.1
+  - g2tmpl@1.13.0
+  - ip@5.0.0
   - sigio@2.3.2
   - sfcio@1.4.1
   - nemsio@2.5.4

@@ -27,6 +27,8 @@
 !         and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !! -  23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
 !! -  23-08-16  Yali Mao - Make it optional to allocate GTG related fields only when gtg_on
+!! -  25-01-13  Jaymes Kenyon - Add graupel number concentration (QQNG)
+
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
 !!
@@ -155,6 +157,7 @@
       allocate(QQNW(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNI(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNR(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(QQNG(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNWFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(QQNIFA(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(TAOD5503D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
@@ -191,6 +194,7 @@
             QQNW(i,j,l)=spval
             QQNI(i,j,l)=spval
             QQNR(i,j,l)=spval
+            QQNG(i,j,l)=spval
             QQNWFA(i,j,l)=spval
             QQNIFA(i,j,l)=spval
             TAOD5503D(i,j,l)=spval
@@ -631,8 +635,10 @@
       allocate(snfden(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(sndepac(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(mean_frp(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(hwp(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(smoke_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(dust_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(coarsepm_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -661,13 +667,16 @@
           snfden(i,j)=spval
           sndepac(i,j)=spval
           mean_frp(i,j)=spval
-          ebb(i,j)=spval
           hwp(i,j)=spval
+          smoke_ave(i,j)=spval
+          dust_ave(i,j)=spval
+          coarsepm_ave(i,j)=spval
         enddo
       enddo
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
       allocate(fv3dust(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
       allocate(coarsepm(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
+      allocate(ebb(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
 !$omp parallel do private(i,j,l,k)
       do k=1,nbin_sm
         do l=1,lm
@@ -676,6 +685,7 @@
               smoke(i,j,l,k)=spval
               fv3dust(i,j,l,k)=spval
               coarsepm(i,j,l,k)=spval
+              ebb(i,j,l,k)=spval
             enddo
           enddo
         enddo
