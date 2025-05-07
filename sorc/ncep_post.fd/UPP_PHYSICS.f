@@ -35,6 +35,7 @@
 !> 2022-07-11 | Jesse Meng | CALSLR_ROEBBER
 !> 2023-02-14 | Jesse Meng | CALSLR_UUTAH     
 !> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
+!> 2025-05-05 | Ben Blake  | Add sanity checks for RRFSv1 implementation
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
