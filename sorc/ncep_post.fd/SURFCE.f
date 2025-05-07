@@ -54,6 +54,7 @@
 !> 2024-05-01 | E James    | Adapt the BUCKET1 type fields (15-min acc) for use in RRFS
 !> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
 !> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
+!> 2025-05-05 | B Blake    | Add sanity checks for RRFSv1 implementation
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -1611,7 +1612,7 @@
 !
 !        SHELTER LEVEL POT TEMP
         IF (IGET(546)>0) THEN
-!          GRID1=spval
+           GRID1=spval
 !          DO J=JSTA,JEND
 !            DO I=ISTA,IEND
 !              GRID1(I,J)=TSHLTR(I,J)
@@ -5415,7 +5416,11 @@
 !-- rain/freezing rain
 !  ---------------------------------------------------------------
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
-               rainl = (1. - SR(i,j))*prec(i,j)/DT
+               if (prec(i,j) < spval) then
+                 rainl = (1. - SR(i,j))*prec(i,j)/DT
+               else
+                 rainl = spval
+               endif
 !-- in RUC RAIN is in cm/h and the limit is 1.e-3,
 !-- converted to m/s will be 2.8e-9
                if((rainl > 2.8e-9 .and. snowratio<0.60) .or.      &
@@ -6497,7 +6502,8 @@
          DO J=JSTA,JEND
            DO I=ISTA,IEND
              IF( (abs(SM(I,J)-0.)   < 1.0E-5) .AND.     &
-     &           (abs(SICE(I,J)-0.) < 1.0E-5) ) THEN
+     &           (abs(SICE(I,J)-0.) < 1.0E-5) .AND.     &
+     &           (IVGTYP(I,J) .NE. 17)) THEN
               IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS = CZEN(I,J)/CZMEAN(I,J)
               ELSE

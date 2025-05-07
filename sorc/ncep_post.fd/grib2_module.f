@@ -13,6 +13,8 @@
 !   July,  2021    Jesse Meng 2D decomsition
 !   June,  2022    Lin Zhu change the dx/dy to reading in from calculating for latlon grid
 !   January, 2023  Sam Trahan    foot&meter Unit conversions for IFI
+!   June,  2024    Sam Trahan    Bug fix for g2tmpl error messages
+!   April, 2025    Eric James    Use PDT 4.1 for encoding REFS grib2 output
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
@@ -791,6 +793,16 @@
          scale_fct_fixed_sfc2=pset%param(nprm)%scale_fact_fixed_sfc2(1)
        else
          scale_fct_fixed_sfc2=0
+       endif
+
+       ! Sending an empty key string to g2tmpl is ALWAYS an error. Yet, the post does this for many fields.
+       ! Fixing that requires refactoring post GRIB2 code and xml reader. This is a workaround for one
+       ! problematic case of the fixed_sfc2_type that generates numerous error messages in g2tmpl 1.12.0
+       if(len_trim(fixed_sfc2_type) == 0) then
+         ! Internally, due to a g2tmpl bug, when fixed_sfc2_type is invalid, it ends up with the same
+         ! value as fixed_sfc1_type. This assignment produces that effect without an error message.
+         fixed_sfc2_type = 'missing'
+         pset%param(nprm)%fixed_sfc2_type = 'missing'
        endif
 
        if(abs(level_unit_conversion-1)>1e-4) then
