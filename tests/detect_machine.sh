@@ -8,6 +8,12 @@
 #
 # Thank you for your contribution
 
+# Check if it is in container
+if [[ -d /opt/spack-stack ]]; then
+  # We are in a container
+  MACHINE_ID=container
+fi
+
 # If the MACHINE_ID variable is set, skip this script.
 [[ -n ${MACHINE_ID:-} ]] && return
 
@@ -59,12 +65,6 @@ fi
 
 # Overwrite auto-detect with MACHINE if set
 MACHINE_ID=${MACHINE:-${MACHINE_ID}}
-
-# Check if it is in container
-if [[ -d /opt/spack-stack ]]; then
-  # We are in a container
-  MACHINE_ID=container
-fi
 
 # If MACHINE_ID is no longer UNKNNOWN, return it
 if [[ "${MACHINE_ID}" != "UNKNOWN" ]]; then

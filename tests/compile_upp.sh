@@ -113,6 +113,7 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
       module reset
    elif [ $MACHINE_ID == "container" ]; then
+      source /usr/lmod/lmod/init/bash
       module purge
       unset MODULEPATH
    elif [[ "$MACHINE_ID" =~ gaea* ]] ; then
