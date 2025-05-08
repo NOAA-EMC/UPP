@@ -57,6 +57,7 @@
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
 !> 2024-10-29 | W Meng     | Unify iSF_SURFACE_PHYSICS as:1 for NOHA,2 for NOAH MP,3 for RUC 
 !> 2025-02-27 | S Trahan   | Update comment to match new use of IFI_APCP in IFI.F
+!> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -4358,7 +4359,7 @@
          ENDIF
 
 !     PRECIPITATION BUCKETS - accumulated between output times
-!     BUCKET HAIL
+!     BUCKET HAIL (J. Kenyon, GSL / 8 May 2025)
          IF (IGET(1025)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND

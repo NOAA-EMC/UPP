@@ -26,7 +26,7 @@
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
 !> 2025-03-20 | Jaymes Kenyon| Remove some unused code carried over from INITPOST, 
 !>                             add/clarify comments, and modify several print/write statements
-!> 2025-05-05 | Jaymes Kenyon| Read-in of accumulated hail; remove old/unused blocks of code
+!> 2025-05-08 | Jaymes Kenyon| Add HAIL_BUCKET accumulation; remove old/unused blocks of code
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -2109,7 +2109,12 @@ endif  ! 1==2
         end do
        end do
 
-!-- HAIL_BUCKET is 
+!-- HAIL_BUCKET is "Maximum hail diameter at the surface accumulated over diagnostic output" 
+
+! The reset interval (set in MPAS) for this array is not strictly equal to the interval used 
+! for other bucket accumulations (PREC_ACC_DT). However, it is functionally "like" a bucket 
+! accumulation, and a 60-min reset interval is anticipated. Therefore, "HAIL_ACC" is 
+! introcuded into UPP as another bucket accumulation. (J. Kenyon / GSL, 8 May 2025)
 
       if (me==0) write(6,*) 'getting HAIL_ACC, [mm] '
       VarName='HAIL_ACC'
