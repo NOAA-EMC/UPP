@@ -1486,7 +1486,7 @@ endif  ! 1==2
        end do
 !       print*,'GRPL_MAX at ',ii,jj,' = ',GRPL_MAX(ii,jj)
 
-      VarName='HAIL_MAXK1' ! instantaneous maximum hail diameter at the surface
+      VarName='HAIL_MAXK1' ! maximum hail diameter at the surface (over diagnostic interval)
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -1496,7 +1496,7 @@ endif  ! 1==2
        end do
 !       print*,'HAIL_MAXK1 at ',ii,jj,' = ',HAIL_MAXK1(ii,jj)
 
-      VarName='HAIL_MAX2D' ! instantaneous maximum hail diameter in the column
+      VarName='HAIL_MAX2D' ! maximum hail diameter in the column (over diagnostic interval)
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
