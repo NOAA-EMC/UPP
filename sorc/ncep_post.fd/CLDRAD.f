@@ -74,10 +74,19 @@
 !> 2023-02-23 | Eric James        | Adding coarse PM from RRFS, and using AOD from FV3 for RRFS
 !> 2023-04-04 | Li(Kate Zhang)    | Add namelist optoin for CCPP-Chem (UFS-Chem) model.
 !> 2023-04-17 | Eric James        | Getting rid of special treatment for RRFS AOD (use RAP/HRRR approach)
-!> 2023-09-26 | Jaymes Kenyon     | For RRFS, use cloud fraction to diagnose cloud base/top (height and pressure)
+!> 2023-09-26 | Jaymes Kenyon     | For RRFS-FV3, use cloud fraction to diagnose cloud base/top (height and pressure)
 !> 2024-04-23 | Eric James        | Adding smoke emissions (ebb) from RRFS
 !> 2024-05-01 | Jaymes Kenyon     | Updates to the GSL exp-1 ceiling diagnostic
 !> 2024-05-24 | Eric James        | Correcting the vertical summing of biomass burning emissions (EBB)
+!> 2025-04-14 | Jaymes Kenyon     | 1) For RRFS-MPAS, use cloud fraction to diagnose cloud base/top, as was used 
+!>                                |    for RRFS-FV3 (see comment on 2023-09-26)
+!>                                | 2) Remove codes for parameters 409 and 406, corresponding to GSD/GSL cloud-top 
+!>                                |    height and pressure, respectively, which used grid-scale hydrometeor mixing ratios.  
+!>                                |    Current (2023 onward) GSL cloud-top diagnostics are now handled via 
+!>                                |    MODELNAME / SUBMODELNAME logic, and use cloud fraction.
+!>                                | 3) Remove code for parameter 798, corresponding to GSD/GSL cloud-base pressure. 
+!>                                |    Similar to (2) above, GSL cloud base is now handled via MODELNAME / SUBMODELNAME
+!>                                |    logic, rather than a dedicated parameter number.
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -111,10 +120,12 @@
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
                          PWAT,DUSTPM10,MAOD,NO3CB,NH4CB,aqm_aod550
       use masks,    only: LMH, HTM
-      use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
+      use params_mod, only: TFRZ, D00, H99999, QCLDMIN, CFRmin_BASE_TOP,      &
+                            SMALL, D608, H1, ROG,                             &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
                             A3, A4
-      use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD,  &
+      use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, SUBMODELNAME,       &
+                            GRIB, CFLD,DATAPD,                                &
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC,NBIN_BC,NBIN_SU,NBIN_NO3,DTQ2,   &
@@ -1615,8 +1626,7 @@
       IF((IGET(148)>0) .OR. (IGET(149)>0) .OR.              &
           (IGET(168)>0) .OR. (IGET(178)>0) .OR.             &
           (IGET(179)>0) .OR. (IGET(194)>0) .OR.             &
-          (IGET(408)>0) .OR.                                   & 
-          (IGET(409)>0) .OR. (IGET(406)>0) .OR.             &
+          (IGET(408)>0) .OR.                                & 
           (IGET(195)>0) .OR. (IGET(260)>0) .OR.             &
           (IGET(275)>0))  THEN
 !
@@ -1680,14 +1690,14 @@
              CLDZCu(I,J) = -5000.
            endif
 
-!   !
-    !--- Grid-scale cloud base & cloud top levels 
-    !
-    !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
-    !    or in the presence of snow when RH>=95% or at/above the PBL top.
-    !    However, for RRFS (FV3R), simply use a threshold cloud fraction. 
-    !
-        if(MODELNAME == 'RAPR') then
+   !--- Grid-scale cloud base & cloud top levels 
+   
+   !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
+   !    or in the presence of snow when RH>=95% or at/above the PBL top.
+   !    However, for RRFS (FV3R and MPAS), simply use a threshold cloud
+   !    fraction (CFRmin_BASE_TOP)
+    
+        if(MODELNAME == 'RAPR' .and. SUBMODELNAME /= 'MPAS') then ! RUC and RAP/HRRR eras
             IBOTGr(I,J)=0
             DO L=NINT(LMH(I,J)),1,-1
               QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
@@ -1704,17 +1714,19 @@
                 EXIT
               ENDIF
             ENDDO    !--- End L loop
-        else if (MODELNAME == 'FV3R') then ! RRFS: use cloud fraction to assign cloud base and cloud top
+        else if ((MODELNAME == 'FV3R') .or. &
+                (MODELNAME == 'RAPR' .and. SUBMODELNAME == 'MPAS')) then 
+                ! RRFS era (FV3R and MPAS): use cloud fraction to assign cloud base and cloud top
             IBOTGr(I,J)=0
             DO L=NINT(LMH(I,J)),1,-1
-              IF (CFR(I,J,L) >= 0.02) THEN
+              IF (CFR(I,J,L) >= CFRmin_BASE_TOP) THEN
                 IBOTGr(I,J)=L
                 EXIT
               ENDIF
             ENDDO    !--- End L loop
             ITOPGr(I,J)=100
             DO L=1,NINT(LMH(I,J))
-              IF (CFR(I,J,L) >= 0.02) THEN
+              IF (CFR(I,J,L) >= CFRmin_BASE_TOP) THEN
                 ITOPGr(I,J)=L
                 EXIT
               ENDIF
@@ -1753,11 +1765,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               ENDIF
             ENDDO    !--- End L loop
         endif
-    !
+ 
     !--- Combined (convective & grid-scale) cloud base & cloud top levels 
             IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R')THEN
-              IBOTT(I,J) = IBOTGr(I,J)
-              ITOPT(I,J) = ITOPGr(I,J)
+              IBOTT(I,J) = IBOTGr(I,J) ! For GSL physics, these "_Gr" arrays (assigned above) already
+              ITOPT(I,J) = ITOPGr(I,J) ! account for grid- and subgrid-scale cloudiness
 	    ELSE
               IBOTT(I,J) = MAX(IBOTGr(I,J), IBOTCu(I,J))
 !	      if(i==200 .and. j==139)print*,'Debug cloud base 1: ',&
@@ -1793,7 +1805,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             IBOT=IBOTT(I,J)     !-- Cloud base ("bottoms")
-            IF(MODELNAME == 'RAPR') then
+            IF(MODELNAME == 'RAPR' .AND. SUBMODELNAME /= 'MPAS') THEN
                IF (IBOT <= 0) THEN
                  CLDP(I,J) = SPVAL
                  CLDZ(I,J) = SPVAL
@@ -1808,13 +1820,14 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                            +ZINT(I,J,IBOT+1)
                  ENDIF     !--- End IF (IBOT == LM) ...
                ENDIF       !--- End IF (IBOT <= 0) ...
-            ELSE IF(MODELNAME == 'FV3R') then
+            ELSE IF((MODELNAME == 'FV3R') .OR. &
+                    (MODELNAME == 'RAPR' .AND. SUBMODELNAME == 'MPAS')) THEN
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
                  CLDP(I,J) = PINT(I,J,IBOT+1) ! Since IBOT corresponds to a mid-layer location, consider
                  CLDZ(I,J) = ZINT(I,J,IBOT+1) ! the underlying interfacial level as the cloud base
                ELSE
-                 CLDP(I,J) = -50000.
-                 CLDZ(I,J) = -5000.
+                 CLDP(I,J) = SPVAL
+                 CLDZ(I,J) = SPVAL
                ENDIF
             ELSE
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
@@ -2178,9 +2191,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 ! -- J. Kenyon, 12 Sep 2019
 !    Parameter 711 has been developed to eventually replace the GSD
 !    legacy ceiling diagnostic, and can be regarded as a ceiling.
-!    However, for RAPv5/HRRRv4, paramater 711 will be supplied as
+!    However, for RAPv5/HRRRv4, parameter 711 will be supplied as
 !    the GSD cloud-base height, and parameter 798 will be the
 !    corresponding cloud-base pressure. (J. Kenyon, 4 Nov 2019)
+! -- 14 Apr 2025 update:  parameter 798 code removed
 ! -- E. James, 15 Dec 2022
 !    The above experimental diagnostic, developed for the HRRR with
 !    lots of "add-ons" to correct for the HRRR's low bias in cloud
@@ -2188,10 +2202,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !    cloudiness.  For an FAA deliverable due Feb 2023, the diagnostic
 !    is being modified to get rid of some of the add ons.
 
-!    Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
-        IF ((IGET(711)>0) .OR. (IGET(798)>0)) THEN
+!    Parameters 711: experimental ceiling diagnostic #2 
+        IF (IGET(711)>0) THEN
           ! set minimum cloud fraction to represent a ceiling
-!          ceiling_thresh_cldfra = 0.4
           ceiling_thresh_cldfra = 0.5
           ! set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
           rhoice = 970.
@@ -2359,7 +2372,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           if (allocated(full_ceil)) deallocate(full_ceil)
           if (allocated(full_fis)) deallocate(full_fis)
 
-          ! Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
+          ! Parameters 711: experimental ceiling diagnostic #2 (height)
           IF (IGET(711)>0) THEN
 !!$omp parallel do private(i,j)
             DO J=JSTA,JEND
@@ -2374,21 +2387,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                endif
           ENDIF
 
-          ! Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
-          IF (IGET(798)>0) THEN
-!!$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=ISTA,IEND
-                GRID1(I,J) = CLDP(I,J)
-              ENDDO
-            ENDDO
-               if(grib=="grib2" )then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(798))
-                 datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-               endif
-          ENDIF
-      ENDIF    ! end of parameter-711 and -798 conditional code
+      ENDIF    ! end of parameter-711 code
 
 ! END OF EXPERIMENTAL GSD CEILING DIAGNOSTICS
  
@@ -2723,102 +2722,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDIF
       ENDIF
 
-! GSD COULD TOP HEIGHTS AND PRESSURE
-      IF ((IGET(409)>0) .OR. (IGET(406)>0)) THEN
-
-        Cloud_def_p = 0.0000001
-
-        DO J=JSTA,JEND
-          DO I=ISTA,IEND
-! imported from RUC post
-!  Cloud top
-          zcldtop = -5000. 
-          IF(MODELNAME == 'RAPR') zcldtop = SPVAL
-          do k=1,lm
-            LL=LM-k+1
-            watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
-          enddo
-
-          if (watericetotal(LM)<=cloud_def_p) then
-            loop373 : do k=LM-1,2,-1
-              if (watericetotal(k)>cloud_def_p) then
-                zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
-                      * (zmid(i,j,lm-k)-zmid(i,j,lm-k+1))                &
-                      / (watericetotal(k+1) - watericetotal(k))
-                exit loop373
-              end if
-            end do loop373
-          else
-            zcldtop = zmid(i,j,1)
-          end if
-
-            ITOP=ITOPT(I,J)
-            IF (ITOP>0 .AND. ITOP<=NINT(LMH(I,J))) THEN
-              CLDP(I,J) = PMID(I,J,ITOP)
-              CLDT(I,J) = T(I,J,ITOP)
-            ELSE
-              CLDP(I,J) = -50000.
-              IF(MODELNAME == 'RAPR') CLDP(I,J) = SPVAL
-!              CLDZ(I,J) = -5000.
-              CLDT(I,J) = -500.
-            ENDIF      !--- End IF (ITOP>0 .AND. ITOP<=LMH(I,J)) ...
-
-!- include convective clouds
-           ITOP=ITOPCu(I,J)
-       if(ITOP<lm+1) then
-!        print *,'ITOPCu(i,j)',i,j,ITOPCu(i,j)
-         if(zcldtop <-100.) then
-!        print *,'add convective cloud, ITOP,CLDZ(I,J),ZMID(I,J,ITOP)'
-!     1        ,ITOP,zcldtop,ZMID(I,J,ITOP),i,j
-            zcldtop=ZMID(I,J,ITOP)
-         else if(ZMID(I,J,ITOP)>zcldtop) then
-!        print *,'change cloud top for convective cloud, zcldtop,
-!     1              ZMID(I,J,ITOP),ITOP,i,j'
-!     1        ,zcldtop,ZMID(I,J,ITOP),ITOP,i,j
-            zcldtop=ZMID(I,J,ITOP)
-         endif
-       endif
-
-! check consistency of cloud base and cloud top
-            if(CLDZ(I,J)>-100. .and. zcldtop<-100.) then
-              zcldtop = CLDZ(I,J) + 200.
-            endif
-
-              CLDZ(I,J) = zcldtop   !  Now CLDZ is cloud top height
-
-          ENDDO        !--- End DO I loop
-        ENDDO          !--- End DO J loop
-!
-!   GSD CLOUD TOP PRESSURE
-!
-         IF (IGET(406)>0) THEN
-              DO J=JSTA,JEND
-              DO I=ISTA,IEND
-                 GRID1(I,J) = CLDP(I,J)
-               ENDDO
-               ENDDO
-              if(grib=="grib2" )then
-                cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(406))
-                datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-              endif
-         ENDIF
-!   GSD CLOUD TOP HEIGHT
-!
-          IF (IGET(409)>0) THEN
-              DO J=JSTA,JEND
-              DO I=ISTA,IEND
-                 GRID1(I,J) = CLDZ(I,J)
-               ENDDO
-               ENDDO
-              if(grib=="grib2" )then
-                cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(409))
-                datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-              endif
-         ENDIF
-       ENDIF   ! end of GSD algorithm
-!
 !   CLOUD TOP TEMPS
 !
           IF (IGET(168)>0) THEN 
