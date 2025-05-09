@@ -341,12 +341,12 @@
        </param>
 
        <param>
-            <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
+            <shortname>HGT_ON_CLOUD_BASE</shortname>
             <scale>-3.0</scale>
        </param>
 
        <param>
-           <shortname>GSD_HGT_ON_CLOUD_TOP</shortname>
+           <shortname>HGT_ON_CLOUD_TOP</shortname>
            <scale>-3.0</scale>
        </param>
 
@@ -585,11 +585,6 @@
        </param>
 
        <param>
-           <shortname>GSD_RADARVIL_ON_ENTIRE_ATMOS</shortname>
-           <scale>6.0</scale>
-       </param>
-
-       <param>
            <shortname>HGT_ON_EQUIL_LVL</shortname>
            <scale>-1.0</scale>
        </param>
@@ -622,7 +617,7 @@
        </param>
 
        <param>
-           <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
+           <shortname>PRES_ON_CLOUD_BASE</shortname>
            <scale>3.0</scale>
        </param>
 
