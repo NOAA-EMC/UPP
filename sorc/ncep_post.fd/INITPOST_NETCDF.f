@@ -60,6 +60,7 @@
 !> 2024-10-11 | Sam Trahan    | Fixed an incorrect array length in read_netcdf_3d_para
 !> 2025-02-25 | Wen Meng      | Remove duplicated declaraion for tshltr 
 !> 2024-03-25 | Biju Thomas   | Bug fix float overlow in hafs_upp debug build run
+!> 2025-04-23 ! Jesse Meng    | Bug fix zmid calculation in very thin layers
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -114,7 +115,7 @@
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
-      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa,pi
+      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa,pi, small
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe,    &
                             ttblq, rdpq, rdtheq, stheq, the0q, the0
       use ctlblk_mod, only: me, mpi_comm_comp, icnt, idsp, jsta, jend, ihrst, idat, sdat, ifhr, &
@@ -1220,9 +1221,13 @@
           do i=ista,iend
             if(zint(i,j,l+1)/=spval .and. zint(i,j,l)/=spval &
             .and. pmid(i,j,l)/=spval)then
-             zmid(i,j,l)=zint(i,j,l+1)+(zint(i,j,l)-zint(i,j,l+1))* &
+             if (abs(zint(i,j,l+1)-zint(i,j,l)) < small) then
+              zmid(i,j,l)=zint(i,j,l)
+             else
+              zmid(i,j,l)=zint(i,j,l+1)+(zint(i,j,l)-zint(i,j,l+1))* &
                     (log(pmid(i,j,l))-alpint(i,j,l+1))/ &
                     (alpint(i,j,l)-alpint(i,j,l+1))
+             endif
              if(zmid(i,j,l)>1.0E6)print*,'bad Hmid ',i,j,l,zmid(i,j,l)
             else
              zmid(i,j,l)=spval

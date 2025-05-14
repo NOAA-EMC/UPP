@@ -5,6 +5,7 @@
 # 2015/10       Lin Gan : Add HRRR and RAP
 # 2016/03       Lin Gan : Add GEFS and new control section tag using GEFS ctrl and GFS avail file
 # 2023/09       Sam Trahan : Rewritten with simpler syntax and better readability
+# 2025/05       Jaymes Kenyon : Adding files for MPAS applications
 
 SHELL=/bin/sh
 PERL=/usr/bin/perl
@@ -49,6 +50,9 @@ ALL_TXT= \
   ./rrfs/postxconfig-NT-rrfs_nosmokedust.txt \
   ./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt \
   ./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt \
+  ./mpas/postxconfig-NT-rrfs_mpas.txt \
+  ./mpas/postxconfig-NT-hfip_mpas.txt \
+  ./mpas/postxconfig-NT-global_mpas.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-AQM.txt \
@@ -90,6 +94,9 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./rrfs/postxconfig-NT-rrfs_nosmokedust.txt:     ./rrfs/rrfs_postcntrl_nosmokedust.xml     post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f00.xml post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f01.xml post_avblflds.xml
+./mpas/postxconfig-NT-rrfs_mpas.txt:   ./mpas/rrfs_mpas_postcntrl.xml   post_avblflds.xml
+./mpas/postxconfig-NT-hfip_mpas.txt:   ./mpas/hfip_mpas_postcntrl.xml   post_avblflds.xml
+./mpas/postxconfig-NT-global_mpas.txt: ./mpas/global_mpas_postcntrl.xml post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
