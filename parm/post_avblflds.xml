@@ -7362,10 +7362,22 @@
        <scale>4.0</scale>
     </param>
 
-    <!-- Note:  parameters 796 (instantaneous clear-sky SWDDNI) and 
-                           797 (instantaneous clear-sky SWDDIF) are
-                           both coded in CLDRAD.f, but are not listed here
-    --> 
+    <param>
+       <post_avblfldidx>796</post_avblfldidx>
+       <shortname>INST_CLRSKY_SWDDNI_ON_SURFACE</shortname>
+       <pname>DSWRFLXCS</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>797</post_avblfldidx>
+       <shortname>INST_CLRSKY_SWDDIF_ON_SURFACE</shortname>
+       <pname>DFSWRFLXCS</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
 
     <param>
        <post_avblfldidx>799</post_avblfldidx>
@@ -8504,7 +8516,8 @@
        <shortname>BUCKET_HAIL_ON_SURFACE</shortname>
        <longname>bucket hail on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>HAIL</pname>
+       <pname>HAILAC</pname>
+       <table_info>NCEP</table_info>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>

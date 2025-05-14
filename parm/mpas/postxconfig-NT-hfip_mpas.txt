@@ -1955,8 +1955,8 @@ BUCKET_HAIL_ON_SURFACE
 bucket hail on surface
 1
 tmpl4_8
-HAIL
-?
+HAILAC
+NCEP
 ACM
 surface
 0
