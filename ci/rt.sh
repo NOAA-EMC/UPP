@@ -215,9 +215,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_${machine}.sh`
 jobid_list=$jobid_list" "$job_id
-#cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3gefs test
@@ -226,9 +223,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3gefs_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-#cp $svndir/ci/jobs-dev/run_post_fv3gefs_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute rap test
@@ -237,9 +231,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_rap_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_rap_${machine}.sh`
 jobid_list=$jobid_list" "$job_id
-#cp $svndir/ci/jobs-dev/run_post_rap_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_rap_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute hrrr test
@@ -248,9 +239,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_hrrr_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_${machine}.sh`
 jobid_list=$jobid_list" "$job_id
-#cp $svndir/ci/jobs-dev/run_post_hrrr_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3gfs test
@@ -259,9 +247,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3gfs_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr}  run_post_fv3gfs_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-#cp $svndir/ci/jobs-dev/run_post_fv3gfs_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_fv3gfs_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3r test
@@ -273,9 +258,6 @@ jobid_list=$jobid_list" "${job_id}
 cp $svndir/ci/jobs-dev/run_post_fv3r_pe_test_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_pe_test_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-#cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_missing_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_ifi_missing_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3hafs test
@@ -284,9 +266,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3hafs_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-#cp $svndir/ci/jobs-dev/run_post_fv3hafs_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute rtma test
@@ -295,9 +274,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_3drtma_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-#cp $svndir/ci/jobs-dev/run_post_3drtma_pe_test_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_pe_test_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
 fi
 fi
 set +xe
