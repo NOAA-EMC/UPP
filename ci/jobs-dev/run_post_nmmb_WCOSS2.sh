@@ -45,7 +45,7 @@ export startdate=2014120818
 export fhr=03
 
 # specify your running and output directory
-export DATA=$rundir/post_nmmb_meso_${startdate}_Grib2
+export DATA=$rundir/nmmb_meso_${startdate}
 
 # specify your home directory 
 #export homedir=`pwd`/..

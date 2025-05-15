@@ -56,7 +56,7 @@ fi
 accnr=${accnr:-"rtrr"}
 
 #Build UPP executable
-build_exe=no
+build_exe=yes
 
 #Choose run specific model
 export run_nmmb=yes

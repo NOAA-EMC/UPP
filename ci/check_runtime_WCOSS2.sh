@@ -14,6 +14,9 @@ for job_id in $jobid_list; do
      status=`qstat -x ${job_id} | awk 'FNR == 3' |  awk '{print $5}'`
      if [ "$status" = "F" ]; then
        break
+     elif [ "$status" = "E" ]; then
+       some_failed=YES
+       break
      else
       ic=`expr $ic + 1`
       sleep 15
@@ -42,5 +45,52 @@ test_results=$?
 
 if [ $some_failed = YES ] ; then
 	  test_results=99
-	    echo WARNING: some tests exited with non-zero status.
+	  echo WARNING: some tests exited with non-zero status.
+fi
+
+# Cleanup rt log
+cd ${test_v}
+
+UPP_HASH=$(git rev-parse HEAD)
+SUBMODULE_HASHES=$(git submodule status --recursive)
+DATE="$(date '+%Y%m%d %T')"
+
+cd ${test_v}/ci
+
+cat << EOF > rt.log.${machine}.temp
+===== Start of UPP Regression Testing Log =====
+UPP Hash Tested:
+${UPP_HASH}
+
+Submodule hashes:
+${SUBMODULE_HASHES}
+
+Run directory: ${rundir}
+Baseline directory: ${homedir}
+
+Total runtime: ${elapsed_time}
+Test Date: ${DATE}
+Summary Results:
+
+EOF
+
+if [ $some_failed = YES ] ; then
+    echo "Warning: some tests exited with non-zero. status" >> rt.log.${machine}.temp
+    echo >> rt.log.${machine}.temp
+fi
+
+cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
+cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
+python ${test_v}/ci/rt-status_${machine}.py >> rt.log.${machine}.temp
+echo "===== End of UPP Regression Testing Log =====" >> rt.log.${machine}.temp
+mv rt.log.${machine}.temp rt.log.${machine}
+mv rt.log.${machine} ${test_v}/tests/logs
+  
+# should indicate failure to Jenkins
+if [ $test_results -ne 0 ]; then
+   python ${test_v}/ci/rt-status.py > changed_results.txt
+   if [ $some_failed = YES ]; then
+     echo "Warning: some tests exited with non-zero status." >> changed_results.txt
+   fi
+   exit 1
 fi
