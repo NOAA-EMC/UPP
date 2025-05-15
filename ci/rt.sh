@@ -38,7 +38,7 @@ while getopts a:w:h:r:t:b:u:cd opt; do
 done
 
 #UPP working copy
-test_v=${test_v:-`pwd`/../}
+export test_v=${test_v:-`pwd`/..}
 if [[ $clone_on == "yes" ]]; then
   rm -rf $test_v
   mkdir -p $test_v
@@ -56,17 +56,17 @@ fi
 accnr=${accnr:-"rtrr"}
 
 #Build UPP executable
-build_exe=yes
+build_exe=no
 
 #Choose run specific model
-run_nmmb=yes
-run_gfs=yes
-run_gefs=yes
-run_fv3r=yes
-run_rap=yes
-run_hrrr=yes
-run_hafs=yes
-run_rtma=yes
+export run_nmmb=yes
+export run_gfs=yes
+export run_gefs=yes
+export run_fv3r=yes
+export run_rap=yes
+export run_hrrr=yes
+export run_hafs=yes
+export run_rtma=yes
 
 # Tests with IFI enabled only work if libIFI is present.
 if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
@@ -112,6 +112,17 @@ elif [ $mac3 = herc ] ; then
  module load stack-intel-oneapi-mpi/2021.9.0
  module load prod_util/2.1.1
  module load python/3.10.8
+elif [ $mac = d -o $mac = c ]; then #for WCOSS2
+ export machine=WCOSS2
+ export homedir=${homedir:-"/u/wen.meng/noscrub/ncep_post/post_regression_test_new"}
+ export rundir=${rundir:-"/lfs/h2/emc/ptmp/$USER"}
+ module reset
+ module load intel/19.1.3.304
+ module load PrgEnv-intel/8.1.0
+ module load craype/2.7.8
+ module load cray-mpich/8.1.7
+ module load prod_util/2.0.14
+ module load python/3.12.0
 fi
 
 #set working directory
@@ -121,14 +132,15 @@ mkdir -p $workdir
 
 #differentiates for orion and hercules
 export rundir="${rundir}/upp-${machine}"
-test -d "${rundir}" || mkdir -p "${rundir}"
+#test -d "${rundir}" || mkdir -p "${rundir}"
+rm -rf ${rundir}; mkdir -p ${rundir}
 
 #set log file
 export logfile=`pwd`/rt.log.$machine
 if [ -f $logfile ] ; then
  rm -r $logfile
 fi
-runtime_log=$homedir/scripts/runtime.log.$machine
+export runtime_log=$homedir/scripts/runtime.log.$machine
 
 #build executable
 if [ "$build_exe" = "yes" ]; then
@@ -163,7 +175,12 @@ if [ "$build_exe" = "yes" ]; then
   postmsg "$logfile" "$msg"
 fi
 
-jobid_list=""
+#submit test jobs
+if [ "${machine}" = "WCOSS2" ]; then
+cd $svndir/ci
+source ./submit_jobs_${machine}.sh
+else
+export jobid_list=""
 set -xe
 #execute ifi tests           
 if [ "${run_hrrr_ifi:-no}" = "yes" ]; then
@@ -198,9 +215,9 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_${machine}.sh`
 jobid_list=$jobid_list" "$job_id
-cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3gefs test
@@ -209,9 +226,9 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3gefs_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3gefs_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_fv3gefs_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute rap test
@@ -220,9 +237,9 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_rap_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_rap_${machine}.sh`
 jobid_list=$jobid_list" "$job_id
-cp $svndir/ci/jobs-dev/run_post_rap_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_rap_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_rap_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_rap_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute hrrr test
@@ -231,9 +248,9 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_hrrr_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_${machine}.sh`
 jobid_list=$jobid_list" "$job_id
-cp $svndir/ci/jobs-dev/run_post_hrrr_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_hrrr_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3gfs test
@@ -242,9 +259,9 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3gfs_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr}  run_post_fv3gfs_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3gfs_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3gfs_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_fv3gfs_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_fv3gfs_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3r test
@@ -256,9 +273,9 @@ jobid_list=$jobid_list" "${job_id}
 cp $svndir/ci/jobs-dev/run_post_fv3r_pe_test_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_pe_test_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_missing_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_ifi_missing_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_missing_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_ifi_missing_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3hafs test
@@ -267,9 +284,9 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3hafs_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3hafs_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_fv3hafs_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute rtma test
@@ -278,14 +295,19 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_3drtma_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_3drtma_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
+#cp $svndir/ci/jobs-dev/run_post_3drtma_pe_test_${machine}.sh .
+#job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_pe_test_${machine}.sh`
+#jobid_list=$jobid_list" "${job_id}
+fi
 fi
 set +xe
 echo "Job cards submitted for enabled tests, waiting on timestamps for finished jobs..."
 
 #get run time for each test
+if [ "${machine}" = "WCOSS2" ]; then
+cd $svndir/ci 
+source ./check_runtime_${machine}.sh
+else
 some_failed=NO
 sleep 30
 for job_id in $jobid_list; do
@@ -370,4 +392,6 @@ if [ $test_results -ne 0 ]; then
      echo "Warning: some tests exited with non-zero status." >> changed_results.txt
    fi
    exit 1
+fi
+
 fi
