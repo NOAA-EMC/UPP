@@ -1,83 +1,77 @@
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
-794e585c5e847cafd62b31e8c644d7e990fd07c0
+d0e2131773dd2633436f1228c7532d16710d67cf
 
 Submodule hashes:
 -179cae1dd84401cf25d250bd9102e66560a9d328 sorc/libIFI.fd
 -3d35332fe66e3e63a285cc8d96facdf255a33481 sorc/ncep_post.fd/post_gtg.fd
 
-Run directory: /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA
+Run directory: /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA
 Baseline directory: /scratch2/NAGAPE/epic/UPP/test_suite
 
-Total runtime: 00h:14m:53s
-Test Date: 20250507 21:55:55
+Total runtime: 00h:10m:07s
+Test Date: 20250515 13:54:17
 Summary Results:
 
-05/07 21:48:38Z -fv3r_ifi_missing test: your new post executable generates bit-identical IFIFIP10.tm00 as the trunk
-05/07 21:48:46Z -fv3hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
-05/07 21:49:15Z -fv3hafs pe test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
-05/07 21:49:43Z -fv3gefs pe test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
-05/07 21:49:55Z -fv3gefs test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
-05/07 21:49:58Z -rap test: your new post executable did not generate bit-identical WRFPRS.GrbF16 as the trunk
-05/07 21:49:59Z -nmmb pe test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
-05/07 21:50:01Z -nmmb pe test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
-05/07 21:50:02Z -nmmb pe test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
-05/07 21:50:02Z -rap pe test: your new post executable did generate changed results in WRFPRS.GrbF16
-05/07 21:50:03Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
-05/07 21:50:05Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
-05/07 21:50:06Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
-05/07 21:50:16Z -rap test: your new post executable did not generate bit-identical WRFNAT.GrbF16 as the trunk
-05/07 21:50:20Z -rap pe test: your new post executable did generate changed results in WRFNAT.GrbF16
-05/07 21:50:40Z -hrrr pe test: your new post executable is fine in WRFTWO.GrbF04
-05/07 21:50:42Z -hrrr pe test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
-05/07 21:50:43Z -hrrr pe test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
-05/07 21:51:15Z -hrrr test: your new post executable did not generate bit-identical WRFTWO.GrbF04 as the trunk
-05/07 21:51:16Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
-05/07 21:51:17Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
-05/07 21:51:27Z -fv3r test: your new post executable did not generate bit-identical PRSLEV10.tm00 as the trunk
-05/07 21:51:34Z -fv3r pe test: your new post executable did not generate bit-identical PRSLEV10.tm00 as the trunk
-05/07 21:52:38Z -rtma pe test: your new post executable did not generate bit-identical NATLEV00.tm00 as the trunk
-05/07 21:52:46Z -rtma test: your new post executable did not generate bit-identical NATLEV00.tm00 as the trunk
-05/07 21:54:10Z -fv3r test: your new post executable did not generate bit-identical NATLEV10.tm00 as the trunk
-05/07 21:54:15Z -fv3r pe test: your new post executable did not generate bit-identical NATLEV10.tm00 as the trunk
-05/07 21:54:26Z -rtma pe test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the trunk
-05/07 21:54:31Z -rtma test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the trunk
-05/07 21:55:04Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
-05/07 21:55:07Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
-05/07 21:55:07Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
-05/07 21:55:44Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
-05/07 21:55:47Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
-05/07 21:55:47Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
-05/07 21:50:20Z -Runtime: nmmb_test 00:01:00 -- baseline 00:01:00
-05/07 21:50:20Z -Runtime: nmmb_pe_test 00:01:12 -- baseline 00:01:00
-05/07 21:50:20Z -Runtime: fv3gefs_test 00:01:10 -- baseline 00:40:00
-05/07 21:50:21Z -Runtime: fv3gefs_pe_test 00:01:03 -- baseline 00:40:00
-05/07 21:50:21Z -Runtime: rap_test 00:01:32 -- baseline 00:02:00
-05/07 21:50:21Z -Runtime: rap_pe_test 00:01:36 -- baseline 00:02:00
-05/07 21:51:22Z -Runtime: hrrr_test 00:02:33 -- baseline 00:02:00
-05/07 21:51:22Z -Runtime: hrrr_pe_test 00:02:37 -- baseline 00:02:00
-05/07 21:55:08Z -Runtime: fv3gfs_test 00:07:01 -- baseline 00:15:00
-05/07 21:55:54Z -Runtime: fv3gfs_pe_test 00:07:41 -- baseline 00:15:00
-05/07 21:55:54Z -Runtime: fv3r_test 00:06:04 -- baseline 00:03:00
-05/07 21:55:54Z -Runtime: fv3r_pe_test 00:06:10 -- baseline 00:03:00
-05/07 21:55:54Z -Runtime: fv3r_ifi_missing 00:00:32 -- baseline 00:03:00
-05/07 21:55:54Z -Runtime: fv3hafs_test 00:00:41 -- baseline 00:03:00
-05/07 21:55:54Z -Runtime: fv3hafs_pe_test 00:00:31 -- baseline 00:03:00
-05/07 21:55:55Z -Runtime: rtma_test 00:06:25 -- baseline 00:03:00
-05/07 21:55:55Z -Runtime: rtma_pe_test 00:06:20 -- baseline 00:03:00
-There are changes in results for case fv3r_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/fv3r_2023062800_pe_test/NATLEV10.tm00
-There are changes in results for case fv3r_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/fv3r_2023062800_pe_test/PRSLEV10.tm00
-There are changes in results for case fv3r in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/fv3r_2023062800/NATLEV10.tm00
-There are changes in results for case fv3r in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/fv3r_2023062800/PRSLEV10.tm00
-There are changes in results for case rap in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rap_2020072316/WRFNAT.GrbF16
-There are changes in results for case rap in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rap_2020072316/WRFPRS.GrbF16
-There are changes in results for case rap_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rap_2020072316_pe_test/WRFNAT.GrbF16
-There are changes in results for case rap_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rap_2020072316_pe_test/WRFPRS.GrbF16
-There are changes in results for case rtma_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rtma_2023040400_pe_test/PRSLEV00.tm00
-There are changes in results for case rtma_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rtma_2023040400_pe_test/NATLEV00.tm00
-There are changes in results for case hrrr in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/hrrr_2020060118/WRFTWO.GrbF04
-There are changes in results for case hrrr_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/hrrr_2020060118_pe_test/WRFTWO.GrbF04
-There are changes in results for case rtma in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rtma_2023040400/PRSLEV00.tm00
-There are changes in results for case rtma in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA/rtma_2023040400/NATLEV00.tm00
-Refer to .diff files in rundir: /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1185-retest/ci/rundir/upp-HERA for details on differences in results for each case.
+05/15 13:47:09Z -fv3r_ifi_missing test: your new post executable generates bit-identical IFIFIP10.tm00 as the trunk
+05/15 13:47:37Z -fv3gefs test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
+05/15 13:47:41Z -fv3gefs pe test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the trunk
+05/15 13:47:42Z -fv3hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
+05/15 13:48:14Z -fv3hafs pe test: your new post executable generates bit-identical HURPRS09.tm00 as the trunk
+05/15 13:48:30Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF16 as the trunk
+05/15 13:48:32Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF16 as the trunk
+05/15 13:48:42Z -hrrr pe test: your new post executable generates bit-identical WRFTWO.GrbF04 as the trunk
+05/15 13:48:44Z -hrrr pe test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
+05/15 13:48:45Z -hrrr pe test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
+05/15 13:48:51Z -nmmb pe test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
+05/15 13:48:53Z -nmmb pe test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
+05/15 13:48:53Z -nmmb pe test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
+05/15 13:48:55Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the trunk
+05/15 13:48:56Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the trunk
+05/15 13:48:57Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the trunk
+05/15 13:48:59Z -rap pe test: your new post executable did generate changed results in WRFPRS.GrbF16
+05/15 13:49:00Z -rap pe test: your new post executable generates bit-identical WRFNAT.GrbF16 as the trunk
+05/15 13:49:06Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF04 as the trunk
+05/15 13:49:07Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF04 as the trunk
+05/15 13:49:08Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF04 as the trunk
+05/15 13:50:02Z -fv3r test: your new post executable did not generate bit-identical PRSLEV10.tm00 as the trunk
+05/15 13:50:56Z -fv3r pe test: your new post executable did not generate bit-identical PRSLEV10.tm00 as the trunk
+05/15 13:51:00Z -rtma pe test: your new post executable did not generate bit-identical NATLEV00.tm00 as the trunk
+05/15 13:51:09Z -rtma test: your new post executable did not generate bit-identical NATLEV00.tm00 as the trunk
+05/15 13:52:44Z -rtma pe test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the trunk
+05/15 13:52:45Z -fv3r test: your new post executable did not generate bit-identical NATLEV10.tm00 as the trunk
+05/15 13:52:54Z -rtma test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the trunk
+05/15 13:53:26Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
+05/15 13:53:29Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
+05/15 13:53:29Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
+05/15 13:53:39Z -fv3r pe test: your new post executable did not generate bit-identical NATLEV10.tm00 as the trunk
+05/15 13:54:06Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the trunk
+05/15 13:54:10Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the trunk
+05/15 13:54:10Z -fv3gfs pe test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the trunk
+05/15 13:49:12Z -Runtime: nmmb_test 00:01:15 -- baseline 00:01:00
+05/15 13:49:12Z -Runtime: nmmb_pe_test 00:01:08 -- baseline 00:01:00
+05/15 13:49:12Z -Runtime: fv3gefs_test 00:00:41 -- baseline 00:40:00
+05/15 13:49:12Z -Runtime: fv3gefs_pe_test 00:00:29 -- baseline 00:40:00
+05/15 13:49:12Z -Runtime: rap_test 00:01:06 -- baseline 00:02:00
+05/15 13:49:13Z -Runtime: rap_pe_test 00:01:15 -- baseline 00:02:00
+05/15 13:49:13Z -Runtime: hrrr_test 00:02:29 -- baseline 00:02:00
+05/15 13:49:13Z -Runtime: hrrr_pe_test 00:02:07 -- baseline 00:02:00
+05/15 13:53:30Z -Runtime: fv3gfs_test 00:06:50 -- baseline 00:15:00
+05/15 13:54:15Z -Runtime: fv3gfs_pe_test 00:07:31 -- baseline 00:15:00
+05/15 13:54:15Z -Runtime: fv3r_test 00:06:06 -- baseline 00:03:00
+05/15 13:54:16Z -Runtime: fv3r_pe_test 00:05:54 -- baseline 00:03:00
+05/15 13:54:16Z -Runtime: fv3r_ifi_missing 00:00:30 -- baseline 00:03:00
+05/15 13:54:16Z -Runtime: fv3hafs_test 00:00:32 -- baseline 00:03:00
+05/15 13:54:16Z -Runtime: fv3hafs_pe_test 00:00:35 -- baseline 00:03:00
+05/15 13:54:17Z -Runtime: rtma_test 00:06:15 -- baseline 00:03:00
+05/15 13:54:17Z -Runtime: rtma_pe_test 00:06:05 -- baseline 00:03:00
+There are changes in results for case fv3r_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/fv3r_2023062800_pe_test/NATLEV10.tm00
+There are changes in results for case fv3r_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/fv3r_2023062800_pe_test/PRSLEV10.tm00
+There are changes in results for case fv3r in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/fv3r_2023062800/NATLEV10.tm00
+There are changes in results for case fv3r in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/fv3r_2023062800/PRSLEV10.tm00
+There are changes in results for case rtma_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/rtma_2023040400_pe_test/PRSLEV00.tm00
+There are changes in results for case rtma_pe_test in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/rtma_2023040400_pe_test/NATLEV00.tm00
+There are changes in results for case rtma in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/rtma_2023040400/PRSLEV00.tm00
+There are changes in results for case rtma in /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA/rtma_2023040400/NATLEV00.tm00
+Refer to .diff files in rundir: /scratch2/NAGAPE/epic/Gillian.Petro/RTs/upp-rts/1203/ci/rundir/upp-HERA for details on differences in results for each case.
 ===== End of UPP Regression Testing Log =====
