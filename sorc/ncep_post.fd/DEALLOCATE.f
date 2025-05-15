@@ -15,6 +15,8 @@
 !(UFS-Chem) and 2D diag. output (d2d_chem) for GEFS-Aerosols and CCPP-Chem model.
 !> 2023-08-16 | Yali Mao     | Add CIT to GTG fields. Add namelist optoin of gtg_on
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
+!> 2025-01-13 | Jaymes Kenyon| Add HAIL_BUCKET
+
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 
@@ -401,6 +403,7 @@
       deallocate(snow_bucket1)
       deallocate(graup_bucket)
       deallocate(graup_bucket1)
+      deallocate(hail_bucket)
       deallocate(frzrn_bucket)
       deallocate(snow_acm)
       deallocate(snow_bkt)
