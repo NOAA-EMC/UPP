@@ -87,6 +87,7 @@
 !>                                | 3) Remove code for parameter 798, corresponding to GSD/GSL cloud-base pressure. 
 !>                                |    Similar to (2) above, GSL cloud base is now handled via MODELNAME / SUBMODELNAME
 !>                                |    logic, rather than a dedicated parameter number.
+!> 2025-05-08 | Jaymes Kenyon     | For FV3 and MPAS applications, prevent cloud base from being diagnosed as below ground
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -1823,8 +1824,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ELSE IF((MODELNAME == 'FV3R') .OR. &
                     (MODELNAME == 'RAPR' .AND. SUBMODELNAME == 'MPAS')) THEN
                IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
-                 CLDP(I,J) = PINT(I,J,IBOT+1) ! Since IBOT corresponds to a mid-layer location, consider
-                 CLDZ(I,J) = ZINT(I,J,IBOT+1) ! the underlying interfacial level as the cloud base
+                 CLDP(I,J) = PINT(I,J,MIN(IBOT+1,LM)) ! Since IBOT corresponds to a mid-layer location, consider
+                 CLDZ(I,J) = ZINT(I,J,MIN(IBOT+1,LM)) ! the underlying interfacial level as the cloud base
                ELSE
                  CLDP(I,J) = SPVAL
                  CLDZ(I,J) = SPVAL
