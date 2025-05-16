@@ -16,6 +16,7 @@ for job_id in $jobid_list; do
        break
      elif [ "$status" = "E" ]; then
        some_failed=YES
+       echo "Test ${job_id}"
        break
      else
       ic=`expr $ic + 1`
@@ -43,7 +44,7 @@ elapsed_time=$( printf '%02dh:%02dm:%02ds\n' $((SECONDS%86400/3600)) $((SECONDS%
 python ${test_v}/ci/rt-status_${machine}.py
 test_results=$?
 
-if [ $some_failed = YES ] ; then
+if [ "$some_failed" = "YES" ] ; then
 	  test_results=99
 	  echo WARNING: some tests exited with non-zero status.
 fi
@@ -89,7 +90,7 @@ mv rt.log.${machine} ${test_v}/tests/logs
 # should indicate failure to Jenkins
 if [ $test_results -ne 0 ]; then
    python ${test_v}/ci/rt-status.py > changed_results.txt
-   if [ $some_failed = YES ]; then
+   if [ "$some_failed" = "YES" ]; then
      echo "Warning: some tests exited with non-zero status." >> changed_results.txt
    fi
    exit 1
