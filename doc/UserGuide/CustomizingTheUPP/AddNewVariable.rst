@@ -43,13 +43,13 @@ example in :numref:`Section %s <add-var-example>` below.
 
       \i. If NO (not available in the NCEP Grib2 Table):
 
-         a. NOAA users can email Andrew.Benjamin@noaa.gov with the following information for your new
+         a. NOAA users can email Benjamin.Blake@noaa.gov with the following information for your new
             variable: variable definition, unit, and what Grib2 discipline and category you think this
-            variable should belong to. Andrew will define your new variable in the `NCEP Grib2 Table
+            variable should belong to. Ben will define your new variable in the `NCEP Grib2 Table
             <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`_ and
             inform you of the Grib2 discipline and category numbers you should use.
 
-         b. Contact Andrew to update ``parm/params_grib2_tbl_new.text`` with your new variable and
+         b. Contact Ben to update ``parm/params_grib2_tbl_new.text`` with your new variable and
             generate a ``params_grib2_tbl_new`` that lists variables in alphabetical order to improve post-processing
             efficiency.
 
