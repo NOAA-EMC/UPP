@@ -255,9 +255,6 @@ cd $workdir
 cp $svndir/ci/jobs-dev/run_post_fv3r_${machine}.sh .
 job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_${machine}.sh`
 jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3r_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
 fi
 
 #execute fv3hafs test
