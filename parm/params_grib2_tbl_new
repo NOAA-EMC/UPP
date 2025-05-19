@@ -316,6 +316,7 @@
    0   0     7   0 DEPR
    1   0    13   0 DEPWSS
   20   1     6   0 DFPRATIO
+   0   4   206   1 DFSWRFLXCS
   10   2     2   0 DICED
    4  10     3   0 DIDXSG
    4   4     2   0 DIFEFLUX
@@ -553,6 +554,7 @@
    1   0     9   0 GWLOWS
    2   0   214   1 GWREC
    1   0     8   0 GWUPS
+   0   1   236   1 HAILAC
    0   1    71   0 HAILMXR
    0  19   198   1 HAILPROB
    0   1    73   0 HAILPR
