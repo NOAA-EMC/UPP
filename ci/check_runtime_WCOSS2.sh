@@ -41,7 +41,7 @@ done
 
 elapsed_time=$( printf '%02dh:%02dm:%02ds\n' $((SECONDS%86400/3600)) $((SECONDS%3600/60)) $((SECONDS%60)) )
 
-python ${test_v}/ci/rt-status_${machine}.py
+python ${test_v}/ci/rt-status.py
 test_results=$?
 
 if [ "$some_failed" = "YES" ] ; then

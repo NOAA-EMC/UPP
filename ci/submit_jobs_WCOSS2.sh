@@ -2,7 +2,7 @@
 
 jobid_list=""
 #test_list="hrrr"
-test_list="nmmb fv3gefs fv3r hrrr rap fv3hafs 3drtma fv3gfs"
+export test_list="nmmb fv3gefs fv3r hrrr rap fv3hafs 3drtma fv3gfs"
 
 cd $workdir
 for test in ${test_list}

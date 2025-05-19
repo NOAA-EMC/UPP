@@ -9,18 +9,22 @@ Feb/10/2025 - Sam Trahan: Detect if a test was unable to run.
 import os
 import sys
 
+print('Check tests:')
+test_list = os.environ["test_list"]
+print(test_list)
+tests = test_list
 # files used in result comparison
 #tests = [ 'hrrr' ]
-tests = [
-    'nmmb',
-    'gfs',
-    'fv3gefs',
-    'fv3r',
-    'rap',
-    'hrrr',
-    'fv3hafs',
-    'rtma'
-]
+#tests = [
+#    'nmmb',
+#    'gfs',
+#    'fv3gefs',
+#    'fv3r',
+#    'rap',
+#    'hrrr',
+#    'fv3hafs',
+#    'rtma'
+#]
 
 # look for .diff files
 # every case has its own directory in rundir
