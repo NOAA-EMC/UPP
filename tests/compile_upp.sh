@@ -149,7 +149,7 @@ set -x
 BUILD_DIR=${BUILD_DIR:-"build"}
 rm -rf ${BUILD_DIR} install
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
-cmake $cmake_opts ${PATHTR}
+cmake $cmake_opts ${PATHTR} ${CMAKE_TOOLCHAIN_FILE:+-DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE}
 make -j${BUILD_JOBS:-6} $verbose_opt
 make install
 

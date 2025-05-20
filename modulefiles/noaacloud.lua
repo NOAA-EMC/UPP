@@ -4,6 +4,7 @@ Load environment to build UPP on NOAA Cloud
 
 prepend_path("MODULEPATH", "/contrib/spack-stack-rocky8/spack-stack-1.8.0/envs/ue-intel-2021.10.0/install/modulefiles/Core")
 prepend_path("MODULEPATH", "/apps/modules/modulefiles")
+prepend_path("MODULEPATH", "/apps/oneapi/modulefiles")
 
 load("gnu/9.2.0")
 
@@ -18,8 +19,7 @@ load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
 
-setenv("CC","mpiicc")
-setenv("CXX","mpiicpc")
-setenv("FC","mpiifort")
+local upp_top = os.getenv("PATHTR")
+setenv("CMAKE_TOOLCHAIN_FILE", pathJoin(upp_top, "modulefiles/noaacloud.intel-toolchain.cmake"))
 
 whatis("Description: UPP build environment")
