@@ -19,7 +19,4 @@ load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
 
-local upp_top = os.getenv("PATHTR")
-setenv("CMAKE_TOOLCHAIN_FILE", pathJoin(upp_top, "modulefiles/noaacloud.intel-toolchain.cmake"))
-
 whatis("Description: UPP build environment")

@@ -105,7 +105,7 @@ if [[ $(uname -s) == Darwin ]]; then
 else
   readonly MYDIR=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
 fi
-export PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
+PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 source ${PATHTR}/tests/detect_machine.sh
 
 #Load required modulefiles
@@ -145,11 +145,17 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    module list
 fi
 
+# Provide host+compiler specific toolchains if available
+CMAKE_TOOLCHAIN_FILE="${PATHTR}/cmake/toolchains/${MACHINE_ID}.${compiler}-toolchain.cmake"
+if [[ -f "${CMAKE_TOOLCHAIN_FILE}" ]]; then
+  cmake_opts="${cmake_opts} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+fi
+
 set -x
 BUILD_DIR=${BUILD_DIR:-"build"}
 rm -rf ${BUILD_DIR} install
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
-cmake $cmake_opts ${PATHTR} ${CMAKE_TOOLCHAIN_FILE:+-DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE}
+cmake $cmake_opts ${PATHTR}
 make -j${BUILD_JOBS:-6} $verbose_opt
 make install
 
