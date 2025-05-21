@@ -105,7 +105,7 @@ if [[ $(uname -s) == Darwin ]]; then
 else
   readonly MYDIR=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
 fi
-PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
+export PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 source ${PATHTR}/tests/detect_machine.sh
 
 #Load required modulefiles
