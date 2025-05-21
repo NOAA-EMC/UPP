@@ -57,6 +57,7 @@
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
 !> 2024-10-29 | W Meng     | Unify iSF_SURFACE_PHYSICS as:1 for NOHA,2 for NOAH MP,3 for RUC 
 !> 2025-02-27 | S Trahan   | Update comment to match new use of IFI_APCP in IFI.F
+!> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -107,7 +108,7 @@
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
-                         frzrn_bucket, snow_acm, snow_bkt,                    &
+                         frzrn_bucket, snow_acm, snow_bkt, hail_bucket,       &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
                          tecan,tetran,tedir,twa,IFI_APCP,xlaixy,              &
                          smoke_ave,dust_ave,coarsepm_ave
@@ -4355,6 +4356,66 @@
                 enddo
               enddo
             endif
+         ENDIF
+
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     BUCKET HAIL (J. Kenyon, GSL / 8 May 2025)
+         IF (IGET(1025)>0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               GRID1(I,J) = HAIL_BUCKET(I,J)
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           ITPREC     = NINT(TPREC)
+
+           if (ITPREC /= 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+           else
+             IFINCR     = 0
+           endif
+
+           if(MODELNAME=='NCAR' .OR. MODELNAME=='RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+           ID(18)     = 0
+           ID(19)     = IFHR
+           IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+           ID(20)     = 4
+           IF (IFINCR==0) THEN
+             ID(18) = IFHR-ITPREC
+           ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+           ENDIF
+           IF (ID(18)<0) ID(18) = 0
+!           if(me==0)print*,'maxval BUCKET HAIL: ', maxval(GRID1)
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(1025))
+             if(ITPREC>0) then
+               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             else
+               fld_info(cfld)%ntrange=0
+             endif
+             fld_info(cfld)%tinvstat=ITPREC
+             if(fld_info(cfld)%ntrange==0) then
+               if (ifhr==0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,ii,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,iend-ista+1
+               ii = ista+i-1
+                 datapd(i,j,cfld) = GRID1(ii,jj)
+               enddo
+             enddo
+           endif
          ENDIF
 
 !     'BUCKET FREEZING RAIN '

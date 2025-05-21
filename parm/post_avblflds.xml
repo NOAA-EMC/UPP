@@ -7343,7 +7343,7 @@
 
     <param>
        <post_avblfldidx>794</post_avblfldidx>
-       <shortname>GSD_MAX_COLMAX_GRAUPEL_HAIL_DIAMETER</shortname>
+       <shortname>MAX_GRAUPEL_HAIL_DIAMETER_IN_COLUMN</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>HAIL</pname>
        <stats_proc>MAX</stats_proc>
@@ -7353,13 +7353,29 @@
 
     <param>
        <post_avblfldidx>795</post_avblfldidx>
-       <shortname>GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER</shortname>
+       <shortname>MAX_GRAUPEL_HAIL_DIAMETER_AT_LOWEST_LVL</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>HAIL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
        <level>1.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>796</post_avblfldidx>
+       <shortname>INST_CLRSKY_SWDDNI_ON_SURFACE</shortname>
+       <pname>DSWRFLXCS</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>797</post_avblfldidx>
+       <shortname>INST_CLRSKY_SWDDIF_ON_SURFACE</shortname>
+       <pname>DFSWRFLXCS</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
 
@@ -8492,6 +8508,18 @@
        <shortname>NCGRAUP_ON_ISOBARIC_SFC</shortname>
        <pname>SPNCG</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1025</post_avblfldidx>
+       <shortname>BUCKET_HAIL_ON_SURFACE</shortname>
+       <longname>bucket hail on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>HAILAC</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 

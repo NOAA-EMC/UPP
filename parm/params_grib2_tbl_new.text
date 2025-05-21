@@ -23,7 +23,7 @@
 !                                    new tables: 4.2-2-6
 !                                    4.2-4-5,10 4.2-20-0,1,2,3
 !2024-07-17         A. BENJAMIN      GRIB2 v33.0 update, new parameters
-!
+!2025-05-14         B. BLAKE         Added new parameters
 !
 !
 !GRIB2 parameter table for all disciplines and categories
@@ -321,6 +321,8 @@
    0   1   233   1 SNOWLR
    0   1   234   1 PCPDUR
    0   1   235   1 CLLMR
+!  Added new parameters on 5/14/2025
+   0   1   236   1 HAILAC
    0   1   241   1 TSNOW
    0   1   242   1 RHPW
    0   1   245   1 MAXVIG
@@ -590,6 +592,8 @@
    0   4   203   1 NDDSF
    0   4   204   1 DTRF
    0   4   205   1 UTRF
+!  Added new parameters on 5/14/2025
+   0   4   206   1 DFSWRFLXCS
 !
 ! GRIB2 - TABLE 4.2-0-5 PARAMETERS FOR DISCIPLINE 0 CATEGORY 5
 !
@@ -1367,6 +1371,7 @@
    2   3   201   1 AVSFT
    2   3   202   1 RADT
    2   3   203   1 FLDCP
+! Updated parameter name on 4/9/2025
    2   3   204   1 MSTAVTOP
 !
 ! GRIB2 - TABLE 4.2-2-4 PARAMETERS FOR DISCIPLINE 2 CATEGORY 4
@@ -1650,7 +1655,7 @@
    3 192    83   0 SBTA1814
    3 192    84   0 SBTA1815
    3 192    85   0 SBTA1816
-!  Added more parameters in 03/11/2025
+!  New parameters added 03/27/2025
    3 192    86   0 SSMS1712
    3 192    87   0 SSMS1713
 !
