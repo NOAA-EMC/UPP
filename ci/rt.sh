@@ -5,6 +5,7 @@
 # Fernando Andrade-Maldonado 5/2023 rework for CLI Options
 # Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
+# Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
 ######################################################################
 set -xue
 SECONDS=0
@@ -12,7 +13,7 @@ SECONDS=0
 git_branch="develop"
 git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
-disable_ifi="no" # don't use libIFI, even if it is present
+export disable_ifi="no" # don't use libIFI, even if it is present
 
 while getopts a:w:h:r:t:b:u:cd opt; do
   case $opt in
@@ -47,9 +48,9 @@ fi
 export svndir=${test_v}
 
 if [[ -d $svndir/sorc/libIFI.fd/src/ ]] ; then
-    have_ifi=yes
+    export have_ifi=yes
 else
-    have_ifi=no
+    export have_ifi=no
 fi
 
 #Assume a nems account to run with
@@ -59,28 +60,28 @@ accnr=${accnr:-"rtrr"}
 build_exe=yes
 
 #Choose run specific model
-export run_nmmb=yes
-export run_gfs=yes
-export run_gefs=yes
-export run_fv3r=yes
-export run_rap=yes
-export run_hrrr=yes
-export run_hafs=yes
-export run_rtma=yes
+#export run_nmmb=yes
+#export run_gfs=yes
+#export run_gefs=yes
+#export run_fv3r=yes
+#export run_rap=yes
+#export run_hrrr=yes
+#export run_hafs=yes
+#export run_rtma=yes
 
 # Tests with IFI enabled only work if libIFI is present.
-if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-  run_hrrr_ifi=yes
-  run_ifi_standalone_hrrr=yes
-  run_fv3r_ifi=yes
-  run_ifi_standalone_fv3r=yes
-else
-  # Cannot run these without ifi
-  run_hrrr_ifi=no
-  run_ifi_standalone_hrrr=no
-  run_fv3r_ifi=no
-  run_ifi_standalone_fv3r=no
-fi
+#if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
+#  run_hrrr_ifi=yes
+#  run_ifi_standalone_hrrr=yes
+#  run_fv3r_ifi=yes
+#  run_ifi_standalone_fv3r=yes
+#else
+#  # Cannot run these without ifi
+#  run_hrrr_ifi=no
+#  run_ifi_standalone_hrrr=no
+#  run_fv3r_ifi=no
+#  run_ifi_standalone_fv3r=no
+#fi
 
 #find machine
 mac=$(hostname | cut -c1-1)
@@ -143,7 +144,7 @@ export logfile=`pwd`/rt.log.$machine
 if [ -f $logfile ] ; then
  rm -r $logfile
 fi
-export runtime_log=$homedir/scripts/runtime.log.$machine
+export runtime_log=$svndir/ci/runtime.log.$machine
 
 #build executable
 if [ "$build_exe" = "yes" ]; then
@@ -178,13 +179,15 @@ if [ "$build_exe" = "yes" ]; then
   postmsg "$logfile" "$msg"
 fi
 
+#Setting tests
+export test_list="nmmb fv3gefs fv3r fv3r_ifi_missing hrrr rap fv3hafs 3drtma fv3gfs"
+
 #submit test jobs
+cd $svndir/ci
 if [ "${machine}" = "WCOSS2" ]; then
-cd $svndir/ci
-source ./submit_jobs_${machine}.sh
+  source ./submit_jobs_${machine}.sh
 else  ##R&D machines
-cd $svndir/ci
-source ./submit_jobs.sh
+  source ./submit_jobs.sh
 #export jobid_list=""
 #set -xe
 ##execute ifi tests           
@@ -219,94 +222,9 @@ set +xe
 echo "Job cards submitted for enabled tests, waiting on timestamps for finished jobs..."
 
 #get run time for each test
+cd $svndir/ci
 if [ "${machine}" = "WCOSS2" ]; then
-cd $svndir/ci 
-source ./check_runtime_${machine}.sh
+  source ./check_runtime_${machine}.sh
 else
-some_failed=NO
-sleep 30
-for job_id in $jobid_list; do
-  ic=1
-  sleep_loop_max=300
-  while [ $ic -le $sleep_loop_max ]; do
-     job_id=`echo $job_id | cut -d"." -f1`
-     status=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f4|awk 'FNR == 2'`
-     if [ "$status" = "COMPLETED" ]; then
-       break
-     elif ( echo "$status" | grep -E 'FAIL|TIMEOUT|CANCEL|DEAD|SIGNAL|SPECIAL' > /dev/null ) ; then
-       some_failed=YES
-       break
-     else
-      ic=`expr $ic + 1`
-      sleep 15
-     fi
-  done
-  if [ $ic -lt $sleep_loop_max ]; then
-     runtime=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f3|awk 'FNR == 2'`
-     jobname=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f2|awk 'FNR == 2'`
-     runtime_b=`grep "^${jobname}" ${runtime_log} | awk '{print $2}'`
-     echo "$runtime   $jobname ${runtime_b}"
-     msg="Runtime: $jobname $runtime -- baseline ${runtime_b}"
-     postmsg "$logfile" "$msg"
-  fi
-done
-
-elapsed_time=$( printf '%02dh:%02dm:%02ds\n' $((SECONDS%86400/3600)) $((SECONDS%3600/60)) $((SECONDS%60)) )
-
-python ${test_v}/ci/rt-status.py
-test_results=$?
-
-if [ $some_failed = YES ] ; then
-  test_results=99
-  echo WARNING: some tests exited with non-zero status.
-fi
-
-# Cleanup rt log
-cd ${test_v}
-
-UPP_HASH=$(git rev-parse HEAD)
-SUBMODULE_HASHES=$(git submodule status --recursive)
-DATE="$(date '+%Y%m%d %T')"
-
-cd ${test_v}/ci
-
-cat << EOF > rt.log.${machine}.temp
-===== Start of UPP Regression Testing Log =====
-UPP Hash Tested:
-${UPP_HASH}
-
-Submodule hashes:
-${SUBMODULE_HASHES}
-
-Run directory: ${rundir}
-Baseline directory: ${homedir}
-
-Total runtime: ${elapsed_time}
-Test Date: ${DATE}
-Summary Results:
-
-EOF
-
-
-if [ $some_failed = YES ] ; then
-    echo "Warning: some tests exited with non-zero. status" >> rt.log.${machine}.temp
-    echo >> rt.log.${machine}.temp
-fi
-
-cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
-cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
-python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
-echo "===== End of UPP Regression Testing Log =====" >> rt.log.${machine}.temp
-mv rt.log.${machine}.temp rt.log.${machine}
-mv rt.log.${machine} ${test_v}/tests/logs
-
-# should indicate failure to Jenkins
-if [ $test_results -ne 0 ]; then
-   python ${test_v}/ci/rt-status.py > changed_results.txt
-   if [ $some_failed = YES ]; then
-     echo "Warning: some tests exited with non-zero status." >> changed_results.txt
-   fi
-   exit 1
-fi
-
+  source ./check_runtime.sh
 fi
