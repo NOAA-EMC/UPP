@@ -87,6 +87,7 @@
 !>                                | 3) Remove code for parameter 798, corresponding to GSD/GSL cloud-base pressure. 
 !>                                |    Similar to (2) above, GSL cloud base is now handled via MODELNAME / SUBMODELNAME
 !>                                |    logic, rather than a dedicated parameter number.
+!> 2025-05-05 | Ben Blake         | Add sanity checks for RRFSv1 implementation
 !> 2025-05-08 | Jaymes Kenyon     | For FV3 and MPAS applications, prevent cloud base from being diagnosed as below ground
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
@@ -1901,6 +1902,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           pcldbase = SPVAL
           zcldbase = SPVAL 
           watericemax = -99999.
+          if (zmid(i,j,lm) == spval) cycle
           do k=1,lm
             LL=LM-k+1
             watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
@@ -1976,7 +1978,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 ! -- consider lowering of ceiling due to falling snow
 !      -- extracted from calvis.f (visibility diagnostic)
                if (QQS(i,j,LM)>0.) then
-                 TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+                 if (T(I,J,lm)<spval .and. Q(I,J,lm)<spval) then
+                   TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+                 else
+                   TV=spval
+                 endif
                  RHOAIR=PMID(I,J,lm)/(RD*TV)
                  vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
                  concfp = QQS(i,j,LM)/vovermd*1000.
@@ -1986,7 +1992,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                    zcldbase = FIS(I,J)*GI + vertvis
                    loop3741: do k2=2,LM
                      k1 = k2
-                     if (ZMID(i,j,lm-k2+1) > zcldbase) then
+                     if ((ZMID(i,j,lm-k2+1) > zcldbase).and.(pmid(i,j,lm-k1+1) < spval) &
+                      .and.(pmid(i,j,lm-k1+2) < spval).and.(zmid(i,j,lm-k1+1) < spval)  &
+                      .and.(zmid(i,j,lm-k1+2) < spval)) then
                        pcldbase = pmid(i,j,lm-k1+2) + (zcldbase-ZMID(i,j,lm-k1+2))   &
                         *(pmid(i,j,lm-k1+1)-pmid(i,j,lm-k1+2) )                   &
                         /(zmid(i,j,lm-k1+1)-zmid(i,j,lm-k1+2) )
@@ -2015,16 +2023,20 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          do k=1,LM
         LL=LM-K+1
         Tx=T(I,J,LL)-273.15
-        POL = 0.99999683       + TX*(-0.90826951E-02 +                  &
+        if (TX < spval) then
+          POL = 0.99999683      + TX*(-0.90826951E-02 +                 &
            TX*(0.78736169E-04   + TX*(-0.61117958E-06 +                 &
            TX*(0.43884187E-08   + TX*(-0.29883885E-10 +                 &
            TX*(0.21874425E-12   + TX*(-0.17892321E-14 +                 &
            TX*(0.11112018E-16   + TX*(-0.30994571E-19)))))))))
-        esx = 6.1078/POL**8
+          esx = 6.1078/POL**8
 
           ES = esx
           E = PMID(I,J,LL)/100.*Q(I,J,LL)/(0.62197+Q(I,J,LL)*0.37803)
           RHB(k) = 100.*MIN(1.,E/ES)
+        else
+          RHB(k) = spval
+        endif
 !
 !     COMPUTE VIRTUAL POTENTIAL TEMPERATURE.
 !
@@ -2081,8 +2093,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       nlifr = 0
       DO J=JSTA,JEND
       DO I=ISTA,IEND
+        if(cldz(i,j)<spval)then
         zcld = CLDZ(i,j) - FIS(I,J)*GI
         if (CLDZ(i,j)>=0..and.zcld<160.) nlifr = nlifr+1
+        endif
       end do
       end do
       !write(6,*)'No. pts w/ LIFR ceiling =',nlifr
@@ -2153,7 +2167,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !         consider lowering of ceiling due to falling snow (retained from legacy diagnostic)
 !         ...this is extracted from calvis.f (visibility diagnostic)
-                  if (QQS(i,j,LM)>0.) then
+                  if ((QQS(i,j,LM)>0.).and.(T(I,J,lm)<spval).and.(Q(I,J,lm)<spval)) then
                     TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
                     RHOAIR=PMID(I,J,lm)/(RD*TV)
                     vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
@@ -2361,7 +2375,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               CLDZ(I,J) = max(min(CLDZ(I,J), 20000.0),0.0) !set bounds
               ! find pressure at CLDZ
               do k=2,lm-2
-                if ( zmid(i,j,lm-k+1) >= CLDZ(i,j) ) then
+                if ((zmid(i,j,lm-k+1) >= CLDZ(i,j)) .and. (pmid(i,j,lm-k+1) < spval) &
+                 .and. (pmid(i,j,lm-k+2) < spval) .and. (zmid(i,j,lm-k+1) < spval)   &
+                 .and. (zmid(i,j,lm-k+2) < spval)) then
                    CLDP(I,J) = pmid(i,j,lm-k+2) + (CLDZ(i,j)-zmid(i,j,lm-k+2)) &
                              *(pmid(i,j,lm-k+1)-pmid(i,j,lm-k+2) )             &
                              /(zmid(i,j,lm-k+1)-zmid(i,j,lm-k+2) )

@@ -39,6 +39,7 @@
 !> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
 !> 2024-11-21 | K. Asmar, J. Meng, G. Vandenberghe | CALCHIPSI
 !> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
+!> 2025-05-05 | Ben Blake  | Add sanity checks for RRFSv1 implementation
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -1273,7 +1274,11 @@
                 TTHBTK  =  TBTK*APEBTK
                 TTHK    = (TTHBTK-THL)*RDTH
                 QQ(I,J) = TTHK - AINT(TTHK)
-                ITTBK   = INT(TTHK) + 1
+                IF(AINT(TTHK) >= JTB) THEN
+                  ITTBK   = JTB
+                ELSE
+                  ITTBK   = INT(TTHK) + 1
+                ENDIF
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
                 IF(ITTBK < 1)   THEN
                   ITTBK   = 1
@@ -2683,7 +2688,8 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2022-07-11 | Jesse Meng | Initial
-!> 2023-01-06 | Jesse Meng ! Import Breadboard coefficients into module
+!> 2023-01-06 | Jesse Meng | Import Breadboard coefficients into module
+!> 2025-05-07 | Jesse Meng | Bug fix for variable type mismatch
 !>
 !> @author Jesse Meng @date 2022-07-11
 
@@ -2770,7 +2776,7 @@
          .0022, .0005, -.0016, -.0052, -.0024, .0008, .0037/)
 
       type(all_grids), dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_grids, rh_grids
-      integer,         dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_levels, rh_levels
+      real,            dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_levels, rh_levels
 
       real,dimension(ista:iend,jsta:jend)    :: hprob,mprob,lprob
       real,dimension(ista:iend,jsta:jend)    :: slrgrid, slrgrid2
@@ -2788,6 +2794,11 @@
 !
 !***************************************************************************
 !
+      tmpk_grids%grid=spval
+      tmpk_levels=spval
+      rh_grids%grid=spval
+      rh_levels=spval
+
 ! day and month of the year
 
       imo = idat(1)
@@ -2819,9 +2830,13 @@
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
-         PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
+         PSFC(I,J)=SPVAL
+         IF(PINT(I,J,NINT(LMH(I,J))+1)/=SPVAL) &
+           PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
          PRES(I,J)=PSFC(I,J)
-         QPF(I,J)=AVGPREC_CONT(I,J)*3600.*3.
+         QPF(I,J)=SPVAL
+         IF(AVGPREC_CONT(I,J)/=SPVAL) &
+           QPF(I,J)=AVGPREC_CONT(I,J)*3600.*3.
          SWND(I,J)=SPVAL
          IF(U10(I,J)/=SPVAL .AND. V10(I,J)/=SPVAL) &
            SWND(I,J)=SQRT(U10(I,J)*U10(I,J)+V10(I,J)*V10(I,J))
@@ -2861,10 +2876,12 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
       do i=ista,iend
+       if(T2M(I,J)/=spval .and. pres(i,j)/=spval .and. RH2M(I,J)/=spval)then
          tmpk_grids(i,j,0)%grid=T2M(I,J)-273.15
          tmpk_levels(i,j,0)=pres(i,j)
          rh_grids(i,j,0)%grid=RH2M(I,J)
          rh_levels(i,j,0)=pres(i,j)
+       endif
       end do
       end do
 
@@ -2875,10 +2892,12 @@
 !!!$omp parallel do private(i,j,ll)
       do j=jsta,jend
       do i=ista,iend
+       if(tprs(I,J,L)/=spval .and. SPL(L)/=spval .and. rhprs(I,J,L)/=spval)then
          tmpk_grids(i,j,LL)%grid=tprs(I,J,L)-273.15
          tmpk_levels(i,j,LL)=SPL(L)
          rh_grids(i,j,LL)%grid=rhprs(I,J,L)
          rh_levels(i,j,LL)=SPL(L)
+       endif
       end do
       end do
       END DO

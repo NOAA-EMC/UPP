@@ -10,10 +10,10 @@
     <sigreftime>fcst</sigreftime>
     <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
-    <gen_proc_type>fcst</gen_proc_type>
+    <gen_proc_type>ens_fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>rrfs</gen_proc>
+    <gen_proc>refs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -1310,19 +1310,13 @@
        <param>
        <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
        <pname>HGT</pname>
-       <scale>-3.0</scale>
+       <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>GSD_EXP_CEILING</shortname>
        <pname>CEIL</pname>
-       <scale>-3.0</scale>
-       </param>
-
-       <param>
-       <shortname>GSD_EXP_CEILING_2</shortname>
-       <pname>CEIL</pname>
-       <scale>-3.0</scale>
+       <scale>5.0</scale>
        </param>
 
        <param>
@@ -1421,11 +1415,6 @@
        </param>
 
        <param>
-           <shortname>GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
-           <scale>-4.0</scale>
-       </param>
-
-       <param>
            <shortname>GSD_PRES_ON_0C_ISOTHERM</shortname>
            <scale>3.0</scale>
        </param>
@@ -1446,10 +1435,10 @@
     <sigreftime>fcst</sigreftime>
     <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
-    <gen_proc_type>fcst</gen_proc_type>
+    <gen_proc_type>ens_fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>rrfs</gen_proc>
+    <gen_proc>refs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
