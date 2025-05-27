@@ -59,30 +59,6 @@ accnr=${accnr:-"rtrr"}
 #Build UPP executable
 build_exe=yes
 
-#Choose run specific model
-#export run_nmmb=yes
-#export run_gfs=yes
-#export run_gefs=yes
-#export run_fv3r=yes
-#export run_rap=yes
-#export run_hrrr=yes
-#export run_hafs=yes
-#export run_rtma=yes
-
-# Tests with IFI enabled only work if libIFI is present.
-#if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-#  run_hrrr_ifi=yes
-#  run_ifi_standalone_hrrr=yes
-#  run_fv3r_ifi=yes
-#  run_ifi_standalone_fv3r=yes
-#else
-#  # Cannot run these without ifi
-#  run_hrrr_ifi=no
-#  run_ifi_standalone_hrrr=no
-#  run_fv3r_ifi=no
-#  run_ifi_standalone_fv3r=no
-#fi
-
 #find machine
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
@@ -188,36 +164,8 @@ if [ "${machine}" = "WCOSS2" ]; then
   source ./submit_jobs_${machine}.sh
 else  ##R&D machines
   source ./submit_jobs.sh
-#export jobid_list=""
-#set -xe
-##execute ifi tests           
-#if [ "${run_hrrr_ifi:-no}" = "yes" ]; then
-#cd $workdir
-#cp $svndir/ci/jobs-dev/run_post_hrrr_ifi_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_ifi_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
-#dep_job_id=$job_id
-#  if [ "$run_ifi_standalone_hrrr" = "yes" ]; then
-#    cp $svndir/ci/jobs-dev/run_ifi_standalone_hrrr_${machine}.sh .
-#    job_id=`sbatch --parsable -A ${accnr} --dependency=afterany:$dep_job_id run_ifi_standalone_hrrr_${machine}.sh`
-#    jobid_list=$jobid_list" "${job_id}
-#  fi
-#fi
-
-#if [ "$run_fv3r_ifi" = "yes" ]; then
-#cd $workdir
-#cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_${machine}.sh .
-#job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_ifi_${machine}.sh`
-#jobid_list=$jobid_list" "${job_id}
-#dep_job_id=$job_id
-#  if [ "$run_ifi_standalone_fv3r" = "yes" ]; then
-#    cp $svndir/ci/jobs-dev/run_ifi_standalone_fv3r_${machine}.sh .
-#    job_id=`sbatch --parsable -A ${accnr} --dependency=afterany:$dep_job_id run_ifi_standalone_fv3r_${machine}.sh`
-#    jobid_list=$jobid_list" "${job_id}
-#  fi
-#fi
-
 fi
+
 set +xe
 echo "Job cards submitted for enabled tests, waiting on timestamps for finished jobs..."
 
