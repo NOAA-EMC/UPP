@@ -1,7 +1,10 @@
 #!/bin/bash
+##########################################################################
+# This script is used to submit test jobs on R&D machines.
+# # Wen Meng, 05/2025, First version.
+# ##########################################################################
 
 export jobid_list=""
-#export test_list="nmmb fv3gefs fv3r hrrr rap fv3hafs 3drtma fv3gfs fv3r_ifi_missing"
 
 cd $workdir
 for test in ${test_list}
