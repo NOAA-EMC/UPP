@@ -32,4 +32,5 @@ if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
   cp $svndir/ci/jobs-dev/run_ifi_standalone_fv3r_${machine}.sh .
   job_id=`sbatch --parsable -A ${accnr} --dependency=afterany:$dep_job_id run_ifi_standalone_fv3r_${machine}.sh`
   export jobid_list=$jobid_list" "${job_id}
+  export test_list=${test_list}" fv3r_ifi"
 fi
