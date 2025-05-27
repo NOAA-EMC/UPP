@@ -1,8 +1,10 @@
 #!/bin/bash
+##########################################################################
+# This script is used to submit test jobs on WCOSS2.
+# # Wen Meng, 05/2025, First version.
+# ##########################################################################
 
 jobid_list=""
-#test_list="hrrr"
-#export test_list="nmmb fv3gefs fv3r hrrr rap fv3hafs 3drtma fv3gfs"
 
 cd $workdir
 for test in ${test_list}

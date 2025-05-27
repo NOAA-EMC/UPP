@@ -1,11 +1,11 @@
 #!/bin/bash
 ##########################################################################
-# This script is used to retrive runtime
+# This script is used to retrive runtime on WCOSS2
 # Wen Meng, 05/2025, First version.
 ##########################################################################
 
 #get runtime for each test
-export some_failed=NO
+export some_failed="NO"
 sleep 30
 for job_id in $jobid_list; do
   ic=1
