@@ -10,7 +10,9 @@
 !> July  2021   | Jesse Meng | 2D decomsition
 !> June  2022   | Lin Zhu    | Change the dx/dy to reading in from calculating for latlon grid
 !> January 2023 | Sam Trahan | Foot & meter unit conversions for IFI
+!> June  2024   | Sam Trahan | Bug fix for g2tmpl error messages
 !> August 2024  | Li Pan     | Enable template 4-49 to obtain aerosol ensemble information
+!> April 2025   | Eric James | Use PDT 4.1 for encoding REFS grib2 output
 !-------------------------------------------------------------------------
   module grib2_module
 !
@@ -556,6 +558,7 @@
 !
     integer ierr,ifhrorig,ihr_start
     integer gefs1,gefs2,gefs3,gefs_status
+    integer refs1,refs2,refs3,refs_status
     character(len=4) cdum
     integer perturb_num,num_ens_fcst,e1_type
 !
@@ -601,6 +604,46 @@
     endif
 !
 !----------------------------------------------------------------------------------------
+! Find out if the Post is being run for the REFS model
+! Check if gen_proc is refs
+    if(trim(pset%gen_proc)=='refs') then
+      call getenv('e1',cdum)
+      read(cdum,'(I4)',iostat=refs_status)refs1
+      e1_type=refs1
+
+      if(refs_status /= 0) print *, &
+      "REFS Run: Could not read e1 envir. var, User needs to set in script"
+
+      call getenv('e2',cdum)
+      read(cdum,'(I4)',iostat=refs_status)refs2
+      perturb_num=refs2
+
+      if(refs_status /= 0) print *, &
+      "REFS Run: Could not read e2 envir. var, User needs to set in script"
+
+      !set default number of ens forecasts to 5 for REFS
+      !num_ens_fcst=5
+      call getenv('e3',cdum)
+      read(cdum,'(I4)',iostat=refs_status)refs3
+      num_ens_fcst=refs3
+
+      if(refs_status /= 0) print *, &
+      "REFS Run: Could not read e3 envir. var, User needs to set in script"
+
+      print*,'REFS env var ',e1_type,perturb_num,num_ens_fcst
+
+      ! Set pdstmpl to tmpl4_1 or tmpl4_11
+!      print *, "Processing for REFS and default setting is tmpl4_1 and tmpl4_11"
+      if (trim(pset%param(nprm)%pdstmpl)=='tmpl4_0') then
+        pset%param(nprm)%pdstmpl='tmpl4_1'
+      elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
+        pset%param(nprm)%pdstmpl='tmpl4_11'
+      elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_48') then
+        pset%param(nprm)%pdstmpl='tmpl4_49'
+      endif
+    endif
+!
+!----------------------------------------------------------------------------------------
 ! Feed input keys for GRIB2 Section 0 and 1 and get outputs from arrays listsec0 and listsec1
 !
        call g2sec0(idisc,listsec0)
@@ -631,8 +674,8 @@
                pset%sigreftime,nint(sdat(3)),nint(sdat(1)),nint(sdat(2)),ihrst,imin, &
                isec,pset%prod_status,pset%data_type,listsec1)
 !jw : set sect1(2) to 0 to compare with cnvgrb grib file
-! For GEFS runs we need to set the section 1 values for Grib2
-       if(trim(pset%gen_proc)=='gefs') then
+! For GEFS and REFS runs we need to set the section 1 values for Grib2
+       if(trim(pset%gen_proc)=='gefs'.or.trim(pset%gen_proc)=='refs') then
          listsec1(2)=2
 ! Settings below for control (1 or 2) vs perturbed (3 or 4) ensemble forecast
          if(e1_type==1.or.e1_type==2) then

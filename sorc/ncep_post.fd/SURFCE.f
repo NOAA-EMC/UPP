@@ -57,6 +57,7 @@
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
 !> 2024-10-29 | W Meng     | Unify iSF_SURFACE_PHYSICS as:1 for NOHA,2 for NOAH MP,3 for RUC 
 !> 2025-02-27 | S Trahan   | Update comment to match new use of IFI_APCP in IFI.F
+!> 2025-05-05 | B Blake    | Add sanity checks for RRFSv1 implementation
 !> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
 !>     
 !> @note
@@ -1615,7 +1616,7 @@
 !
 !        SHELTER LEVEL POT TEMP
         IF (IGET(546)>0) THEN
-!          GRID1=spval
+           GRID1=spval
 !          DO J=JSTA,JEND
 !            DO I=ISTA,IEND
 !              GRID1(I,J)=TSHLTR(I,J)
@@ -5553,7 +5554,11 @@
 !-- rain/freezing rain
 !  ---------------------------------------------------------------
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
-               rainl = (1. - SR(i,j))*prec(i,j)/DT
+               if (prec(i,j) < spval) then
+                 rainl = (1. - SR(i,j))*prec(i,j)/DT
+               else
+                 rainl = spval
+               endif
 !-- in RUC RAIN is in cm/h and the limit is 1.e-3,
 !-- converted to m/s will be 2.8e-9
                if((rainl > 2.8e-9 .and. snowratio<0.60) .or.      &
@@ -6637,7 +6642,8 @@
          DO J=JSTA,JEND
            DO I=ISTA,IEND
              IF( (abs(SM(I,J)-0.)   < 1.0E-5) .AND.     &
-     &           (abs(SICE(I,J)-0.) < 1.0E-5) ) THEN
+     &           (abs(SICE(I,J)-0.) < 1.0E-5) .AND.     &
+     &           (IVGTYP(I,J) .NE. 17)) THEN
               IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS = CZEN(I,J)/CZMEAN(I,J)
               ELSE
