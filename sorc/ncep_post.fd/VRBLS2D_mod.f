@@ -179,6 +179,7 @@
       ,RAINNC_BUCKET(:,:) &   !< Accumulated grid-scale precipitation over BUCKET_DT periods of time
       ,SNOW_BUCKET(:,:) &     !< Accumulated grid-scale snow over BUCKET_DT periods of time
       ,GRAUP_BUCKET(:,:) &    !< Accumulated grid-scale graupel over BUCKET_DT periods of time
+      ,HAIL_BUCKET(:,:) &     !< Accumulated grid-scale hail over diagnostic period
       ,PCP_BUCKET(:,:) &      !< Bucket total precipitation over BUCKET_DT periods of time
       ,ACGRAUP(:,:) &         !< Accumulated graupel/sleet
       ,ACFRAIN(:,:) &         !< Accumulated freezing rain
