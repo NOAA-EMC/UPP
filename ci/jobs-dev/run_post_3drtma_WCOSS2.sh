@@ -1,7 +1,7 @@
 #!/bin/sh 
  
-#PBS -o out.3drtma
-#PBS -e out.3drtma
+#PBS -o out.post.3drtma
+#PBS -e out.post.3drtma
 #PBS -N 3drtma.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

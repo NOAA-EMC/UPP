@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#SBATCH -o out.post.nmmb_Grib2
-#SBATCH -e out.post.nmmb_Grib2
+#SBATCH -o out.post.nmmb
+#SBATCH -e out.post.nmmb
 #SBATCH -J nmmb_test
 #SBATCH -t 00:20:00
 #SBATCH -q debug
@@ -22,7 +22,6 @@ date
 ############################################
 # Loading module
 ############################################
-
 module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
 module load stack-intel/2021.9.0
 module load stack-intel-oneapi-mpi/2021.9.0

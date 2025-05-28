@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#PBS -o out.fv3r_ifi_missing
-#PBS -e out.fv3r_ifi_missing
+#PBS -o out.post.fv3r_ifi_missing
+#PBS -e out.post.fv3r_ifi_missing
 #PBS -N fv3r_ifi_missing
 #PBS -l walltime=00:30:00
 #PBS -q debug

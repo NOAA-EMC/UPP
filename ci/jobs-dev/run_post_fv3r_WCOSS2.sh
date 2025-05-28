@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#PBS -o out.fv3r
-#PBS -e out.fv3r
+#PBS -o out.post.fv3r
+#PBS -e out.post.fv3r
 #PBS -N fv3r.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

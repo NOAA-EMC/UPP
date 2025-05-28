@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#SBATCH -o out.post.nmmb_Grib2
-#SBATCH -e out.post.nmmb_Grib2
+#SBATCH -o out.post.nmmb
+#SBATCH -e out.post.nmmb
 #SBATCH -J nmmb_test
 #SBATCH -t 00:20:00
 ##SBATCH -q debug

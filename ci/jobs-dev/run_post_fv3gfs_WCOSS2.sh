@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#PBS -o out.fv3gfs
-#PBS -e out.fv3gfs
+#PBS -o out.post.fv3gfs
+#PBS -e out.post.fv3gfs
 #PBS -N fv3gfs.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

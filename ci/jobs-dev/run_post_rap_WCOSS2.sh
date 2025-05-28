@@ -1,7 +1,7 @@
 #!/bin/sh 
  
-#PBS -o out.rap
-#PBS -e out.rap
+#PBS -o out.post.rap
+#PBS -e out.post.rap
 #PBS -N rap.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

@@ -1,7 +1,7 @@
 #!/bin/sh 
  
-#SBATCH -o out.post.rtma
-#SBATCH -e out.post.rtma
+#SBATCH -o out.post.3drtma
+#SBATCH -e out.post.3drtma
 #SBATCH -J rtma_test
 #SBATCH -t 00:20:00
 ##SBATCH -q debug

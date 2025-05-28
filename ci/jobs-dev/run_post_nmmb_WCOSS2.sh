@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#PBS -o out.nmmb.test
-#PBS -e out.nmmb.test
+#PBS -o out.post.nmmb
+#PBS -e out.post.nmmb
 #PBS -N nmmb.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#PBS -o out.hafs
-#PBS -e out.hafs
+#PBS -o out.post.fv3hafs
+#PBS -e out.post.fv3hafs
 #PBS -N hafs.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

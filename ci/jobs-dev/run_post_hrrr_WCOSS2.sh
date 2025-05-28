@@ -1,7 +1,7 @@
 #!/bin/sh 
  
-#PBS -o out.hrrr
-#PBS -e out.hrrr
+#PBS -o out.post.hrrr
+#PBS -e out.post.hrrr
 #PBS -N hrrr.test
 #PBS -l walltime=00:30:00
 #PBS -q debug

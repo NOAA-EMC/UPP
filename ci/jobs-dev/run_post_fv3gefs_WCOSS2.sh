@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#PBS -o out.fv3gefs
-#PBS -e out.fv3gefs
+#PBS -o out.post.fv3gefs
+#PBS -e out.post.fv3gefs
 #PBS -N fv3gefs.test
 #PBS -l walltime=00:10:00
 #PBS -q debug

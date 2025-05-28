@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#SBATCH -o out.fv3hafs
-#SBATCH -e out.fv3hafs
+#SBATCH -o out.post.fv3hafs
+#SBATCH -e out.post.fv3hafs
 #SBATCH -J fv3hafs_test 
 #SBATCH -t 00:20:00
 #SBATCH -N 5 --ntasks-per-node=12
