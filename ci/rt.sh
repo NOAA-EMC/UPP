@@ -138,8 +138,13 @@ if [ "$build_exe" = "yes" ]; then
   fi
 
   if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-    ./compile_upp.sh -a -o upp_with_ifi.x -I -B
-    status=$?
+    if [ "${machine}" = "WCOSS2" ]; then ##No ifi standalone executable
+      ./compile_upp.sh -a -o upp_with_ifi.x -I 
+      status=$?
+    else
+      ./compile_upp.sh -a -o upp_with_ifi.x -I -B
+      status=$?
+    fi
     if [ $status -eq 0 ]; then
       msg="Building UPP+IFI executables successfully"
     else
