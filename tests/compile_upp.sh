@@ -145,6 +145,12 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    module list
 fi
 
+# Provide host+compiler specific toolchains if available
+CMAKE_TOOLCHAIN_FILE="${PATHTR}/cmake/toolchains/${MACHINE_ID}.${compiler}-toolchain.cmake"
+if [[ -f "${CMAKE_TOOLCHAIN_FILE}" ]]; then
+  cmake_opts="${cmake_opts} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+fi
+
 set -x
 BUILD_DIR=${BUILD_DIR:-"build"}
 rm -rf ${BUILD_DIR} install

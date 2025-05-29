@@ -20,6 +20,7 @@
 !   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-01-15  MIKE BALDWIN - WRF VERSION
 !   21-09-13  J MENG  - 2D DECOMPOSITION
+!   25-05-05  B BLAKE - ADD SANITY CHECKS FOR RRFSV1 IMPLEMENTATION
 !
 !   OUTPUT FILES:
 !     NONE
@@ -63,7 +64,11 @@
             PK  = PMIDL(I,J)
             TPK = (PK-PL)*RDP
             QQ(I,J)   = TPK-AINT(TPK)
-            IPTB(I,J) = INT(TPK) + 1
+            IF(AINT(TPK) >= ITB) THEN
+              IPTB(I,J) = ITB
+            ELSE
+              IPTB(I,J) = INT(TPK)+1
+            ENDIF
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
             IF(IPTB(I,J) < 1) THEN
               IPTB(I,J) = 1
@@ -88,7 +93,11 @@
 !     write(1000+me,*)' i=',i,' j=',j,' tthk=',tthk,' thesp=',thesp(i,j) &
 !            , ' bthk=',bthk,' sthk=',sthk,' rdthe=',rdthe
 
-            ITHTB(I,J) = INT(TTHK)+1
+            IF(AINT(TTHK) >= JTB) THEN
+              ITHTB(I,J) = JTB
+            ELSE
+              ITHTB(I,J) = INT(TTHK)+1
+            ENDIF
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
             IF(ITHTB(I,J) < 1) THEN
               ITHTB(I,J) = 1
