@@ -7,6 +7,7 @@
 ! program log:
 !   March, 2015    Lin Gan    Initial Code
 !   July,  2016    J. Carley  Clean up prints 
+!   May,   2025    B. Blake   Remove hardcoded value for tprec
 !   
 !------------------------------------------------------------------------
 !> @defgroup xml_perl_data_mod Sets parameters that are used to read in 
@@ -200,7 +201,6 @@
           if(paramset(i)%gen_proc_type=='ens_fcst')then
             read(22,*)paramset(i)%type_ens_fcst
             call filter_char_inp(paramset(i)%type_ens_fcst)
-            tprec   = 6  ! always 6 hr bucket for gefs
             tclod   = tprec
             trdlw   = tprec
             trdsw   = tprec
