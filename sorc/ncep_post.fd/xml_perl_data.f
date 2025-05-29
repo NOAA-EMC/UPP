@@ -239,7 +239,6 @@
           if(paramset(i)%gen_proc_type=='ens_fcst')then
             read(22,*)paramset(i)%type_ens_fcst
             call filter_char_inp(paramset(i)%type_ens_fcst)
-            tprec   = 6  ! always 6 hr bucket for gefs
             tclod   = tprec
             trdlw   = tprec
             trdsw   = tprec
