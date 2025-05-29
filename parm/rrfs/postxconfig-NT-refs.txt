@@ -9,7 +9,7 @@ local_tab_yes1
 fcst
 oper
 fcst
-ens_fcst
+fcst
 hour
 nws_ncep
 refs
@@ -17,7 +17,6 @@ complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
 lossless
-?
 1
 PRES_ON_HYBRID_LVL
 ?
@@ -11240,7 +11239,7 @@ local_tab_yes1
 fcst
 oper
 fcst
-ens_fcst
+fcst
 hour
 nws_ncep
 refs
@@ -11248,7 +11247,6 @@ complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
 lossless
-?
 12
 HGT_ON_ISOBARIC_SFC
 ?
