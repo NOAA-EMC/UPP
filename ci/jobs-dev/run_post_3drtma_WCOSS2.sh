@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #PBS -o out.post.3drtma
 #PBS -e out.post.3drtma

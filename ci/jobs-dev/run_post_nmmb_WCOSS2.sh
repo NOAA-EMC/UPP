@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #PBS -o out.post.nmmb
 #PBS -e out.post.nmmb
@@ -45,7 +45,7 @@ export startdate=2014120818
 export fhr=03
 
 # specify your running and output directory
-export DATA=$rundir/nmmb_meso_${startdate}
+export DATA=$rundir/nmmb_${startdate}
 
 # specify your home directory 
 #export homedir=`pwd`/..

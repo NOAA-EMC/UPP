@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #PBS -o out.post.fv3r_ifi_missing
 #PBS -e out.post.fv3r_ifi_missing
-#PBS -N fv3r_ifi_missing
+#PBS -N fv3r_ifi_mis
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

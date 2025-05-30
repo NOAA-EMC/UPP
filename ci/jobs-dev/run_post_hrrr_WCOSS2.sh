@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #PBS -o out.post.hrrr
 #PBS -e out.post.hrrr

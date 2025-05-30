@@ -54,7 +54,7 @@ else
 fi
 
 #Build UPP executable
-build_exe=yes
+build_exe=no
 
 #find machine
 mac=$(hostname | cut -c1-1)
@@ -124,7 +124,7 @@ fi
 export runtime_log=$svndir/ci/runtime.log.$machine
 
 #build executable
-if [ "$build_exe" = "yes" ]; then
+if [ "$build_exe" == "yes" ]; then
   cd ${test_v}
   mkdir -p ${test_v}/exec
   cd ${test_v}/tests
@@ -138,15 +138,15 @@ if [ "$build_exe" = "yes" ]; then
     exit 2
   fi
 
-  if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-    if [ "${machine}" = "WCOSS2" ]; then ##No ifi standalone executable
+  if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
+    if [[ "${machine}" == "WCOSS2" ]]; then ##No ifi standalone executable
       ./compile_upp.sh -a -o upp_with_ifi.x -I 
       status=$?
     else
       ./compile_upp.sh -a -o upp_with_ifi.x -I -B
       status=$?
     fi
-    if [ $status -eq 0 ]; then
+    if [ "$status" -eq 0 ]; then
       msg="Building UPP+IFI executables successfully"
     else
       msg="Building UPP+IFI executables with failure"
@@ -167,9 +167,9 @@ export test_list="nmmb fv3gefs fv3r fv3r_ifi_missing hrrr rap fv3hafs 3drtma fv3
 #submit test jobs
 cd $svndir/ci
 if [ "${machine}" = "WCOSS2" ]; then
-  source ./submit_jobs_${machine}.sh
+  source "./submit_jobs_${machine}.sh"
 else  ##R&D machines
-  source ./submit_jobs.sh
+  source "./submit_jobs.sh"
 fi
 
 set +xe
@@ -178,7 +178,7 @@ echo "Job cards submitted for enabled tests, waiting on timestamps for finished 
 #get run time for each test
 cd $svndir/ci
 if [ "${machine}" = "WCOSS2" ]; then
-  source ./check_runtime_${machine}.sh
+  source "./check_runtime_${machine}.sh"
 else
-  source ./check_runtime.sh
+  source "./check_runtime.sh"
 fi

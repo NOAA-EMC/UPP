@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #PBS -o out.post.fv3hafs
 #PBS -e out.post.fv3hafs

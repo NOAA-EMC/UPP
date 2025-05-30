@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #PBS -o out.post.hrrr_ifi
 #PBS -e out.post.hrrr_ifi

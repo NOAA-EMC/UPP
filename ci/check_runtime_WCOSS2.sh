@@ -11,31 +11,36 @@ for job_id in $jobid_list; do
   ic=1
   sleep_loop_max=300
   while [ $ic -le $sleep_loop_max ]; do
-     status=`qstat -x ${job_id} | awk 'FNR == 3' |  awk '{print $5}'`
+     status=$(qstat -x "$job_id" | awk 'FNR == 3 {print $5}')
      if [ "$status" = "F" ]; then
        break
-     elif [ "$status" = "E" ]; then
-       some_failed=YES
-       echo "Test ${job_id}"
-       break
+     #elif [ "$status" = "E" ]; then
+     #  export some_failed="YES"
+     #  jobname=`qstat -x ${job_id} | awk 'FNR == 3' | awk '{print $2}'`
+     #  echo "Test $jobname ${job_id} failed $status"
+     #  break
      else
-      ic=`expr $ic + 1`
-      sleep 15
+       ((ic++))
+       sleep 15
      fi
   done
+
   if [ $ic -lt $sleep_loop_max ]; then
-     stime=`qstat -xf ${job_id} | grep stime | awk -F "=" '{print $2}'`
-     stime=`date -d"$stime" +%s`
-     etime=`qstat -xf ${job_id} | grep mtime | awk -F "=" '{print $2}'`
-     etime=`date --date="$etime" +%s`
-     runtime=$(( ($etime - $stime) ))
-     runtime=`date -d@$runtime +%H:%M:%S`
-     #runtime=`qstat -x ${job_id} | awk 'FNR == 3' | awk '{print $4}'`
-     jobname=`qstat -x ${job_id} | awk 'FNR == 3' | awk '{print $2}'`
-     runtime_b=`grep ${jobname} ${runtime_log} | awk '{print $2}' `
-     echo "$runtime   $jobname ${runtime_b}"
-     msg="Runtime: $jobname $runtime -- baseline ${runtime_b}"
-     postmsg "$logfile" "$msg"
+
+    stime=$(qstat -xf "$job_id" | awk -F '=' '/stime/ {gsub(/^ +| +$/, "", $2); print $2}')
+    etime=$(qstat -xf "$job_id" | awk -F '=' '/mtime/ {gsub(/^ +| +$/, "", $2); print $2}')
+
+    stime_sec=$(date -d "$stime" +%s)
+    etime_sec=$(date -d "$etime" +%s)
+    runtime_sec=$((etime_sec - stime_sec))
+    runtime_fmt=$(date -u -d @"$runtime_sec" +%H:%M:%S)
+
+    jobname=$(qstat -x "$job_id" | awk 'FNR == 3 {print $2}')
+    runtime_b=$(grep "$jobname" "$runtime_log" | awk '{print $2}')
+
+    printf "%-10s %-16s %-10s %s\n" "$runtime_fmt" "$jobname" "baseline:" "$runtime_b"
+    msg="Runtime: $jobname $runtime_fmt -- baseline ${runtime_b}"
+    postmsg "$logfile" "$msg"
   fi
 done
 

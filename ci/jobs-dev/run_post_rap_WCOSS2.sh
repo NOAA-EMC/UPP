@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #PBS -o out.post.rap
 #PBS -e out.post.rap

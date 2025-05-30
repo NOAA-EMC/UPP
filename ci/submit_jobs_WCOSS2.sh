@@ -10,19 +10,19 @@ cd $workdir
 for test in ${test_list}
 do
 cp $svndir/ci/jobs-dev/run_post_${test}_${machine}.sh .
-job_id=`qsub -A ${accnr} run_post_${test}_${machine}.sh`
-export jobid_list=$jobid_list" "${job_id}
+job_id=$(qsub -A "${accnr}" run_post_${test}_${machine}.sh)
+jobid_list="${jobid_list} ${job_id}"
 done
 
 #Run additional ifi tests
-if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-  cp $svndir/ci/jobs-dev/run_post_hrrr_ifi_${machine}.sh .
-  job_id=`qsub -A ${accnr} run_post_hrrr_ifi_${machine}.sh`
-  export jobid_list=$jobid_list" "${job_id}
-  export test_list=${test_list}" hrrr_ifi"
-
-  cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_${machine}.sh .
-  job_id=`qsub -A ${accnr} run_post_fv3r_ifi_${machine}.sh`
-  export jobid_list=$jobid_list" "${job_id}
-  export test_list=${test_list}" fv3r_ifi"
+if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
+  for ifi_test in hrrr_ifi fv3r_ifi; do
+    cp $svndir/ci/jobs-dev/run_post_hrrr_ifi_${machine}.sh .
+    job_id=$(qsub -A "${accnr}" run_post_hrrr_ifi_${machine}.sh)
+    jobid_list="${jobid_list} ${job_id}"
+    test_list=${test_list}" ${ifi_test}"
+  done
 fi
+
+export jobid_list
+export test_list
