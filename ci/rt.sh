@@ -53,9 +53,6 @@ else
     export have_ifi=no
 fi
 
-#Assume a nems account to run with
-accnr=${accnr:-"rtrr"}
-
 #Build UPP executable
 build_exe=yes
 
@@ -67,6 +64,7 @@ if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
  export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
+ export accnr=${accnr:-"rtrr"}
  module purge
  module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
  module load stack-intel/2021.5.0
@@ -76,6 +74,7 @@ elif [ $mac3 = orio ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
+ export accnr=${accnr:-"rtrr"}
  module purge
  module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
  module load stack-intel/2021.9.0
@@ -86,6 +85,7 @@ elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
+ export accnr=${accnr:-"rtrr"}
  module purge
  module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
  module load stack-intel/2021.9.0
@@ -96,6 +96,7 @@ elif [ $mac = d -o $mac = c ]; then #for WCOSS2
  export machine=WCOSS2
  export homedir=${homedir:-"/u/wen.meng/noscrub/ncep_post/post_regression_test_new"}
  export rundir=${rundir:-"/lfs/h2/emc/ptmp/$USER"}
+ export accnr=${accnr:-"GFS-DEV"}
  module reset
  module load intel/19.1.3.304
  module load PrgEnv-intel/8.1.0

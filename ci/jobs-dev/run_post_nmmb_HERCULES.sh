@@ -41,7 +41,7 @@ postmsg "$logfile" "$msg"
 export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
 
 # specify user's own post executable for testing
-#export svndir=/u/Wen.Meng/save/ncep_post/trunk
+#export svndir=/u/Wen.Meng/save/ncep_post/develop branch
 export POSTGPEXEC=${svndir}/exec/upp.x           
 
 
@@ -116,10 +116,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"

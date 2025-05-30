@@ -35,7 +35,7 @@ module load libjpeg/9c
 module load prod_util/2.0.8
 module list
 
-msg="Starting rtma test"
+msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
 export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
@@ -45,7 +45,7 @@ export POSTGPEXEC=${svndir}/exec/upp.x
 export startdate=2023040400
 export fhr=000
 export tmmark=tm00
-export DATA=$rundir/rtma_${startdate}
+export DATA=$rundir/3drtma_${startdate}
 
 export NEWDATE=$startdate
 
@@ -99,7 +99,7 @@ done
 
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational rtma post processing generates 3 files
+# operational 3drtma post processing generates 3 files
 filelist="NATLEV00.tm00 \
           PRSLEV00.tm00"
 
@@ -110,17 +110,16 @@ export err=$?
 
 if [ $err = "0" ] ; then
 
- # operational rtma post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/3drtma/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="rtma test: your new post executable generates bit-identical ${filein2} as the develop"
+  msg="3drtma test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="rtma test: your new post executable did not generate bit-identical ${filein2} as the develop"
+  msg="3drtma test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   $cmp_grib2_grib2 $homedir/data_out/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
@@ -128,7 +127,7 @@ if [ $err = "0" ] ; then
 
 else
 
- msg="rtma test: post failed using your new post executable to generate ${filein2}"
+ msg="3drtma test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -136,7 +135,7 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending rtma test"
+msg="Ending 3drtma test"
 postmsg "$logfile" "$msg"
 
 
