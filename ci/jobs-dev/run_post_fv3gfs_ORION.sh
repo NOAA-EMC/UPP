@@ -43,7 +43,7 @@ ulimit -s unlimited
 msg="Starting fv3gfs test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=${homedir}/test_suite/scripts/cmp_grib2_grib2_new
+export cmp_grib2_grib2=${homedir}/scripts/cmp_grib2_grib2_new
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 
