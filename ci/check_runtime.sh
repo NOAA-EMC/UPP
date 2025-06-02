@@ -11,7 +11,6 @@ for job_id in $jobid_list; do
   ic=1
   sleep_loop_max=300
   while [ $ic -le $sleep_loop_max ]; do
-     #job_id=`echo $job_id | cut -d"." -f1`
      status=$(sacct --parsable -j "$job_id" --format=jobid,jobname,elapsed,state | awk -F"|" 'FNR == 2 {print $4}')
 
      if [ "$status" = "COMPLETED" ]; then
@@ -32,12 +31,8 @@ for job_id in $jobid_list; do
      runtime_fmt=$(echo "$info" | cut -d"|" -f3)
      jobname=$(echo "$info" | cut -d"|" -f2)
 
-     #jobname=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f2|awk 'FNR == 2'`
-     #runtime_b=`grep "^${jobname}" ${runtime_log} | awk '{print $2}'`
-
      runtime_b=$(grep "^${jobname}" "${runtime_log}" | awk '{print $2}')
      printf "%-10s %-16s %-10s %s\n" "$runtime_fmt" "$jobname" "baseline:" "$runtime_b"
-     #echo "$runtime   $jobname ${runtime_b}"
      msg="Runtime: $jobname $runtime_fmt -- baseline ${runtime_b}"
      postmsg "$logfile" "$msg"
   fi
@@ -79,7 +74,7 @@ Summary Results:
 
 EOF
 
-if [ $some_failed = YES ] ; then
+if [ "$some_failed" = "YES" ] ; then
     echo "Warning: some tests exited with non-zero. status" >> rt.log.${machine}.temp
     echo >> rt.log.${machine}.temp
 fi
