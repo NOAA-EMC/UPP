@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.nmmb
 #SBATCH -e out.post.nmmb

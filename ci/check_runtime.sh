@@ -11,24 +11,34 @@ for job_id in $jobid_list; do
   ic=1
   sleep_loop_max=300
   while [ $ic -le $sleep_loop_max ]; do
-     job_id=`echo $job_id | cut -d"." -f1`
-     status=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f4|awk 'FNR == 2'`
+     #job_id=`echo $job_id | cut -d"." -f1`
+     status=$(sacct --parsable -j "$job_id" --format=jobid,jobname,elapsed,state | awk -F"|" 'FNR == 2 {print $4}')
+
      if [ "$status" = "COMPLETED" ]; then
        break
      elif ( echo "$status" | grep -E 'FAIL|TIMEOUT|CANCEL|DEAD|SIGNAL|SPECIAL' > /dev/null ) ; then
-       some_failed=YES
+       some_failed="YES"
+       echo "? Job $job_id failed with status: $status"
        break
      else
-      ic=`expr $ic + 1`
+      ((ic++))
       sleep 15
      fi
   done
+
   if [ $ic -lt $sleep_loop_max ]; then
-     runtime=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f3|awk 'FNR == 2'`
-     jobname=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f2|awk 'FNR == 2'`
-     runtime_b=`grep "^${jobname}" ${runtime_log} | awk '{print $2}'`
-     echo "$runtime   $jobname ${runtime_b}"
-     msg="Runtime: $jobname $runtime -- baseline ${runtime_b}"
+
+     info=$(sacct --parsable -j "$job_id" --format=jobid,jobname,elapsed,state | awk -F"|" 'FNR == 2')
+     runtime_fmt=$(echo "$info" | cut -d"|" -f3)
+     jobname=$(echo "$info" | cut -d"|" -f2)
+
+     #jobname=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f2|awk 'FNR == 2'`
+     #runtime_b=`grep "^${jobname}" ${runtime_log} | awk '{print $2}'`
+
+     runtime_b=$(grep "^${jobname}" "${runtime_log}" | awk '{print $2}')
+     printf "%-10s %-16s %-10s %s\n" "$runtime_fmt" "$jobname" "baseline:" "$runtime_b"
+     #echo "$runtime   $jobname ${runtime_b}"
+     msg="Runtime: $jobname $runtime_fmt -- baseline ${runtime_b}"
      postmsg "$logfile" "$msg"
   fi
 done

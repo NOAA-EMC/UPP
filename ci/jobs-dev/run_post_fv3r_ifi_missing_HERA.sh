@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.fv3r_ifi_missing
 #SBATCH -e out.post.fv3r_ifi_missing
