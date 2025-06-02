@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.fv3r_ifi_missing
 #SBATCH -e out.post.fv3r_ifi_missing
-#SBATCH -J fv3r_ifi_missing
+#SBATCH -J fv3r_ifi_mis
 #SBATCH -t 00:30:00
 #SBATCH -N 5 --ntasks-per-node=12
 ##SBATCH -q batch

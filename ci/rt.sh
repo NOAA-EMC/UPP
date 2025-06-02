@@ -14,8 +14,9 @@ git_branch="develop"
 git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
 export disable_ifi="no" # don't use libIFI, even if it is present
+build_exe="yes" #build executable
 
-while getopts a:w:h:r:t:b:u:cd opt; do
+while getopts a:w:h:r:t:b:u:cde opt; do
   case $opt in
     d) disable_ifi=yes
         ;;
@@ -35,6 +36,8 @@ while getopts a:w:h:r:t:b:u:cd opt; do
         ;;
     c) clone_on="yes"
 	;;
+    e) build_exe="no" # don't build executable
+        ;;
   esac
 done
 
@@ -52,9 +55,6 @@ if [[ -d $svndir/sorc/libIFI.fd/src/ ]] ; then
 else
     export have_ifi=no
 fi
-
-#Build UPP executable
-build_exe=no
 
 #find machine
 mac=$(hostname | cut -c1-1)

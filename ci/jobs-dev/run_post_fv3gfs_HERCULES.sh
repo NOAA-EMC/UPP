@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.fv3gfs
 #SBATCH -e out.post.fv3gfs
