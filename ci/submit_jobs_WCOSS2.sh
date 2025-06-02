@@ -17,8 +17,8 @@ done
 #Run additional ifi tests
 if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
   for ifi_test in hrrr_ifi fv3r_ifi; do
-    cp $svndir/ci/jobs-dev/run_post_hrrr_ifi_${machine}.sh .
-    job_id=$(qsub -A "${accnr}" run_post_hrrr_ifi_${machine}.sh)
+    cp $svndir/ci/jobs-dev/run_post_${ifi_test}_${machine}.sh .
+    job_id=$(qsub -A "${accnr}" run_post_${ifi_test}_${machine}.sh)
     jobid_list="${jobid_list} ${job_id}"
     test_list=${test_list}" ${ifi_test}"
   done
