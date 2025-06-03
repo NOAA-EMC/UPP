@@ -136,13 +136,13 @@
     <param>
        <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <level>50.</level>
-       <scale>-4.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>
        <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <level>50.</level>
-       <scale>-4.0</scale>
+       <scale>4.0</scale>
      </param>
 
     <param>
