@@ -8,6 +8,7 @@
 #SBATCH -q batch
 #SBATCH -N 5 --ntasks-per-node=4
 #SBATCH -A ovp
+#SBATCH --exclusive
 
 set -x
 

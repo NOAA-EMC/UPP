@@ -8,6 +8,7 @@
 ##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
+#SBATCH --exclusive
 
 # specify computation resource
 export threads=1

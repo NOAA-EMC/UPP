@@ -8,6 +8,7 @@
 #SBATCH --tasks-per-node 16
 #SBATCH -q batch
 #SBATCH -A ovp
+#SBATCH --exclusive
 
 set -x
 

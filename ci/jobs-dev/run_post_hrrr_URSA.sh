@@ -7,6 +7,7 @@
 ##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
+#SBATCH --exclusive
 #SBATCH -N 2 --ntasks-per-node=24
 
 set -x

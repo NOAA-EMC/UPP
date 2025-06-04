@@ -10,6 +10,7 @@
 #SBATCH --partition bigmem
 #SBATCH -q batch
 #SBATCH -A ovp
+#SBATCH --exclusive
 
 # specify computation resource
 export threads=40

@@ -8,6 +8,7 @@
 ##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
+#SBATCH --exclusive
 
 set -x
 
