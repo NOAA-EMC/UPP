@@ -122,11 +122,7 @@ if [[ $MACHINE_ID != "unknown" ]]; then
       module purge
    fi
    module use $PATHTR/modulefiles
-   if [[ $compiler == "intel" ]]; then
-      modulefile=${MACHINE_ID}
-   else
-      modulefile=${MACHINE_ID}_${compiler}
-   fi
+   modulefile=${MACHINE_ID}_${compiler}
    if [ -f "${PATHTR}/modulefiles/${modulefile}" -o -f "${PATHTR}/modulefiles/${modulefile}.lua" ]; then
       echo "Building for machine ${MACHINE_ID}, compiler ${compiler}"
    else

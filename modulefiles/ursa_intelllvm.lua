@@ -2,7 +2,6 @@ help([[
 Load environment to build UPP on ursa
 ]])
 
-
 prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
 
 stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"

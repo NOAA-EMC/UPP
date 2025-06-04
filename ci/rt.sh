@@ -37,6 +37,8 @@ while getopts a:w:h:r:t:b:u:cd opt; do
   esac
 done
 
+export compiler=${1:-MISSING}
+
 #UPP working copy
 test_v=${test_v:-`pwd`/../}
 if [[ $clone_on == "yes" ]]; then
@@ -123,6 +125,11 @@ elif [ $mac3 = herc ] ; then
  module load python/3.10.8
 fi
 
+if [[ "$compiler" == MISSING && "$machine" == URSA ]] ; then
+    echo "ERROR: Specify compiler when running rt.sh on Ursa." 1>&2
+    echo "ERROR: Specify compiler: rt.sh [intel|intelllvm]" 1>&2
+fi
+
 #set working directory
 export workdir=${workdir:-"`pwd`/work-upp-${machine}"}
 rm -rf $workdir
@@ -144,7 +151,7 @@ if [ "$build_exe" = "yes" ]; then
   cd ${test_v}
   mkdir -p ${test_v}/exec
   cd ${test_v}/tests
-  ./compile_upp.sh -o upp_no_ifi.x
+  ./compile_upp.sh -o upp_no_ifi.x -c "$compiler"
   status=$?
   if [ $status -eq 0 ]; then
     msg="Building executable successfully"
@@ -155,7 +162,7 @@ if [ "$build_exe" = "yes" ]; then
   fi
 
   if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-    ./compile_upp.sh -a -o upp_with_ifi.x -I -B
+    ./compile_upp.sh -a -o upp_with_ifi.x -I -B -c "$compiler"
     status=$?
     if [ $status -eq 0 ]; then
       msg="Building UPP+IFI executables successfully"
