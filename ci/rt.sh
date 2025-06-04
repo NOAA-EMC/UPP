@@ -125,9 +125,21 @@ elif [ $mac3 = herc ] ; then
  module load python/3.10.8
 fi
 
-if [[ "$compiler" == MISSING && "$machine" == URSA ]] ; then
-    echo "ERROR: Specify compiler when running rt.sh on Ursa." 1>&2
-    echo "ERROR: Specify compiler: rt.sh [intel|intelllvm]" 1>&2
+if [[ "$compiler" == MISSING ]] ; then
+    if [[ "$machine" == URSA ]] ; then
+	set +uxe
+	echo "ERROR: Specify compiler when running rt.sh on Ursa." 1>&2
+	echo "ERROR: Specify compiler: rt.sh [intel|intelllvm]" 1>&2
+	exit 1
+    else
+	compiler=intel
+    fi
+fi
+
+if [[ "$machine" == URSA ]] ; then
+    runtime_log=$homedir/scripts/runtime.log.${machine}_${compiler}
+else
+    runtime_log=$homedir/scripts/runtime.log.$machine
 fi
 
 #set working directory
@@ -144,7 +156,6 @@ export logfile=`pwd`/rt.log.$machine
 if [ -f $logfile ] ; then
  rm -r $logfile
 fi
-runtime_log=$homedir/scripts/runtime.log.$machine
 
 #build executable
 if [ "$build_exe" = "yes" ]; then
