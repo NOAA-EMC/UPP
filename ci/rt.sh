@@ -94,6 +94,15 @@ if [ $mac2 = hf ]; then # for HERA
  module load stack-intel/2021.5.0
  module load stack-intel-oneapi-mpi/2021.5.1
  module load prod_util/2.1.1
+elif [ $mac2 = uf ]; then # for Ursa
+ export machine=URSA
+ export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
+ export rundir=${rundir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/scrub"}
+ module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module load stack-oneapi/2024.2.1
+ module load stack-intel-oneapi-mpi/2021.13
+ module load prod_util/2.1.1
+ module load python/3.11.7
 elif [ $mac3 = orio ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
