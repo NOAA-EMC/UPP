@@ -65,8 +65,9 @@
 !!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
 !!   25-01-13 | J Kenyon | Add graupel number concentration (QQNG)
 !!   25-04-22 | J Kenyon | Remove parameter 770 (GSL's reflectivity-derived VIL), since a functionally identical 
-!!            |          | calculation is available via paramater 581. Note that GSL's hydrometeor-derived VIL
-!!            |          | remains available (paramater 769).
+!!            |          | calculation is available via paramater 581.
+!!   25-06-04 | J Kenyon | Adding descriptive comments for parameter 769. This paramater previously had the
+!!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS", but is now "TCICON_ON_ENTIRE_ATMOS".
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3230,8 +3231,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     COMPUTE VIL (radar derived vertically integrated liquid water in each column)
 !     Per Mei Xu, VIL is radar derived vertically integrated liquid water based
 !     on emprical conversion factors (0.00344).
-!     ...Note that an alternative VIL formulation (obtained from hydrometeor masses)
-!     is available via parameter 769.
       IF (IGET(581)>0) THEN
         DO J=JSTA,JEND
           DO I=ista,iend
@@ -3434,9 +3433,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          enddo
        endif
       ENDIF
+
+! Total Column-Integrated Condensate (rain, snow, graupel, and hail; kg/m^2)
 !
-! Vertically integrated liquid in kg/m^2
-!
+! J. Kenyon / 4 Jun 2025: Parm 769 was previously associated with the shortname "GSD_VIL_ON_ENTIRE_ATMOS".
+! It is a VIL-like quantity, but is obtained from integrating precip-hydrometeor mixing ratios.  To help eliminate
+! ambiguity with true "VIL"/"RADARVIL" (as obtained from reflectivity columns via parm 581), parm 769 is now
+! output as "TCICON".
+
       IF (IGET(769)>0) THEN
          DO J=JSTA,JEND
             DO I=ista,iend
