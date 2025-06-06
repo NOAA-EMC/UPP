@@ -1,38 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.fv3hafs.pe_test
-#SBATCH -e out.fv3hafs.pe_test
-#SBATCH -J fv3hafs_pe_test 
-#SBATCH -t 00:20:00
-#SBATCH -N 4 --ntasks-per-node=12
-#SBATCH -q batch
-#SBATCH -A ovp
+#PBS -o out.post.fv3hafs
+#PBS -e out.post.fv3hafs
+#PBS -N hafs.test
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l place=vscatter,select=3:ncpus=24
+#PBS -V
 
 set -x
 
 # specify computation resource
 export threads=1
-export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 72 -ppn 24"
 
 ############################################
 # Loading module
 ############################################
-module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
-module load libpng/1.6.37
-module load jasper/2.0.32
-module load prod_util/2.1.1
-module load crtm/2.4.0.1
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
 
-msg="Starting fv3hafs pe test"
+msg="Starting fv3hafs test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
@@ -41,7 +43,7 @@ export fhr=009
 export CC=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
-export DATA=$rundir/fv3hafs_${startdate}_pe_test
+export DATA=$rundir/fv3hafs_${startdate}
 export tmmark=tm00
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
@@ -52,7 +54,6 @@ export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
-
 
 cat > itag <<EOF
 &model_inputs
@@ -68,14 +69,9 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-
-rm -f fort.*
-
+#copy fix files
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
-
-# copy flat files instead
 cp ${svndir}/parm/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
-
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
@@ -98,10 +94,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="fv3hafs pe test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="fv3hafs test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="fv3hafs pe test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="fv3hafs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
@@ -110,7 +106,7 @@ if [ $err = "0" ] ; then
 
 else
 
- msg="fv3hafs pe test: post failed using your new post executable to generate ${filein2}"
+ msg="fv3hafs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -118,5 +114,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending fv3hafs pe test"
+msg="Ending fv3hafs test"
 postmsg "$logfile" "$msg"

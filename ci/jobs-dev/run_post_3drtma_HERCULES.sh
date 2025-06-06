@@ -1,8 +1,8 @@
-#!/bin/sh 
+#!/bin/bash 
  
-#SBATCH -o out.post.rtma
-#SBATCH -e out.post.rtma
-#SBATCH -J rtma_test
+#SBATCH -o out.post.3drtma
+#SBATCH -e out.post.3drtma
+#SBATCH -J 3drtma_test
 #SBATCH -t 00:30:00
 #SBATCH -N 5 --ntasks-per-node=12
 #SBATCH -q batch
@@ -39,7 +39,7 @@ export WGRIB2=wgrib2
 export COMROOT=$rundir
 #export CRTM_FIX=/apps/contrib/NCEPLIBS/orion/fix/crtm_v2.3.0
 
-msg="Starting rtma test"
+msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
 export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
@@ -51,7 +51,7 @@ export POSTGPEXEC=${svndir}/exec/upp.x
 export startdate=2023040400
 export fhr=000
 export tmmark=tm00
-export DATA=$rundir/rtma_${startdate}
+export DATA=$rundir/3drtma_${startdate}
 
 export NEWDATE=$startdate
 
@@ -110,7 +110,7 @@ cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational rtma post processing generates 2 files
+# operational 3drtma post processing generates 2 files
 filelist="NATLEV00.tm00 \
           PRSLEV00.tm00"
 
@@ -121,17 +121,16 @@ export err=$?
 
 if [ $err = "0" ] ; then
 
- # operational rtma post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/3drtma/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="rtma test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="3drtma test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="rtma test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="3drtma test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   $cmp_grib2_grib2 $homedir/data_out/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
@@ -139,7 +138,7 @@ if [ $err = "0" ] ; then
 
 else
 
-    msg="rtma test: post failed using your new post executable to generate ${filein2}"
+    msg="3drtma test: post failed using your new post executable to generate ${filein2}"
     echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -147,7 +146,7 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending rtma test"
+msg="Ending 3drtma test"
 postmsg "$logfile" "$msg"
 
 
