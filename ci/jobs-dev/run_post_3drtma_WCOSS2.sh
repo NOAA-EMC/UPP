@@ -1,51 +1,45 @@
 #!/bin/bash 
  
-#SBATCH -o out.post.3drtma
-#SBATCH -e out.post.3drtma
-#SBATCH -J 3drtma_test
-#SBATCH -t 00:30:00
-#SBATCH -N 5 --ntasks-per-node=12
-#SBATCH -q batch
-#SBATCH -A nems
+#PBS -o out.post.3drtma
+#PBS -e out.post.3drtma
+#PBS -N 3drtma.test
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l select=4:ncpus=32
+#PBS -V
 
 set -x
 
 # specify computation resource
 export threads=1
 export OMP_NUM_THREADS=$threads
-export MP_LABELIO=yes
-export APRUN="srun"
+export APRUN="mpiexec -l -n 128 -ppn 32 --cpu-bind core --depth 1"
 
 echo "starting time"
 date
 
-######################################################################
-# Purpose: to run RAP post processing
-######################################################################
-
-# EXPORT list here
-
-module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
-module load stack-intel/2021.9.0
-module load stack-intel-oneapi-mpi/2021.9.0
-module load libpng/1.6.37
-module load jasper/2.0.32
-module load prod_util/2.1.1
+############################################
+# Loading module
+############################################
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
 module load crtm/2.4.0.1
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
-
-ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
-#export CRTM_FIX=/apps/contrib/NCEPLIBS/orion/fix/crtm_v2.3.0
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 export POSTGPEXEC=${svndir}/exec/upp.x
-
-# CALL executable job script here
 
 # specify your running and output directory
 export startdate=2023040400
@@ -69,7 +63,7 @@ cat > itag <<EOF
 fileName='$homedir/data_in/3drtma/dynf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
-DateStr='${YY}-${MM}-${DD}_${HH}:${min}:00'
+DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='FV3R'
 SUBMODELNAME='RTMA'
 fileNameFlux='$homedir/data_in/3drtma/phyf${fhr}.nc'
@@ -103,14 +97,9 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-#copy xml
-cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
-cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
-cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
-
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational 3drtma post processing generates 2 files
+# operational 3drtma post processing generates 3 files
 filelist="NATLEV00.tm00 \
           PRSLEV00.tm00"
 
@@ -138,8 +127,8 @@ if [ $err = "0" ] ; then
 
 else
 
-    msg="3drtma test: post failed using your new post executable to generate ${filein2}"
-    echo $msg 2>&1 | tee -a TEST_ERROR
+ msg="3drtma test: post failed using your new post executable to generate ${filein2}"
+ echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
 postmsg "$logfile" "$msg"
