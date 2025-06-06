@@ -76,6 +76,7 @@ elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
  export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
  export rundir=${rundir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/scrub"}
+ export accnr=${accnr:-"rtrr"}
  module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
  module load stack-oneapi/2024.2.1
  module load stack-intel-oneapi-mpi/2021.13
@@ -150,7 +151,7 @@ export logfile=`pwd`/$rt_log
 if [ -f $logfile ] ; then
  rm -r $logfile
 fi
-export runtime_log=$svndir/ci/runtime.log.$machine
+export runtime_log=$svndir/ci/runtime.log.${machine}_${compiler}
 
 #build executable
 if [ "$build_exe" == "yes" ]; then
