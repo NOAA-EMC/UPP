@@ -14,27 +14,30 @@ fi
 PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
 source ${PATHTR}/tests/detect_machine.sh
 
-delete_exec=YES
-upp_name="upp.x"
-load_ifi_module=NO
-prefix="../install"
-ifi_opt=" -DBUILD_WITH_IFI=OFF"
-build_ifi_executables_opt=" "
-build_ifi_executables=NO
-gtg_opt=" -DBUILD_WITH_GTG=OFF"
-nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
-wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
-more=" "
-verbose_opt=""
-debug_opt=""
+set_defaults() {
+    delete_exec=YES
+    upp_name="upp.x"
+    load_ifi_module=NO
+    prefix="../install"
+    ifi_opt=" -DBUILD_WITH_IFI=OFF"
+    build_ifi_executables_opt=" "
+    build_ifi_executables=NO
+    gtg_opt=" -DBUILD_WITH_GTG=OFF"
+    nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
+    wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
+    more=" "
+    verbose_opt=""
+    debug_opt=""
 
-if [[ "${MACHINE_ID}" == ursa ]] ; then
-    compiler="intelllvm"
-else
-    compiler="intel"
-fi
+    if [[ "${MACHINE_ID}" == ursa ]] ; then
+        compiler="intelllvm"
+    else
+        compiler="intel"
+    fi
+}
 
 usage() {
+  set_defaults # restore defaults so usage is correct
   echo
   echo "Usage: $0 [options]"
   echo
@@ -55,6 +58,8 @@ usage() {
   echo
   exit 1
 }
+
+set_defaults
 
 while getopts ":p:gnwc:vhiIdBD:o:a" opt; do
   case $opt in
