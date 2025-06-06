@@ -1,48 +1,43 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.post.nmmb_Grib2
-#SBATCH -e out.post.nmmb_Grib2
-#SBATCH -J nmmb_test
-#SBATCH -t 00:20:00
-#SBATCH -q debug
-#SBATCH -N 2 --ntasks-per-node=8
-#SBATCH -A nems
+#PBS -o out.post.nmmb
+#PBS -e out.post.nmmb
+#PBS -N nmmb.test
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l place=vscatter,select=2:ncpus=12
+#PBS -V
 
 set -x
 
 # specify computation resource
 export threads=1
-export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 24 -ppn 12" 
 
 echo "starting time" 
 date
 
-############################################
-# Loading module
-############################################
-
-module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
-module load stack-intel/2021.9.0
-module load stack-intel-oneapi-mpi/2021.9.0
-module load libpng/1.6.37
-module load jasper/2.0.32
-module load prod_util/2.1.1
-module load crtm/2.4.0.1
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
 
-ulimit -s unlimited
-#ulimit -s1900000000
 
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
-
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 # specify user's own post executable for testing
-#export svndir=/u/Wen.Meng/save/ncep_post/trunk
-export POSTGPEXEC=${svndir}/exec/upp.x           
+export POSTGPEXEC=${svndir}/exec/upp.x
 
 
 # specify forecast start time and hour for running your post job
@@ -50,7 +45,7 @@ export startdate=2014120818
 export fhr=03
 
 # specify your running and output directory
-export DATA=$rundir/post_nmmb_meso_${startdate}_Grib2
+export DATA=$rundir/nmmb_${startdate}
 
 # specify your home directory 
 #export homedir=`pwd`/..
@@ -69,7 +64,6 @@ export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
 
-
 cat > itag <<EOF
 &model_inputs
 fileName='$homedir/data_in/nmmb/nmmb_hst_01_nio_00${fhr}h_00m_00.00s'
@@ -79,7 +73,6 @@ DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='NMM'
 /
 EOF
-
 
 rm -f fort.*
 
@@ -91,7 +84,7 @@ export PARMnam=$homedir/parm
 cp ${svndir}/parm/postxconfig-NT-NMM.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 
-$APRUN ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
 mv BGDAWP${fhr}.tm00 BGDAWP${fhr}.tm00.Grib2
 mv BGRD3D${fhr}.tm00 BGRD3D${fhr}.tm00.Grib2
@@ -116,10 +109,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"

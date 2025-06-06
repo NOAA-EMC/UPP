@@ -1,55 +1,51 @@
-#!/bin/sh 
+#!/bin/bash 
  
-#SBATCH -o out.post.rtma_pe_test
-#SBATCH -e out.post.rtma_pe_test
-#SBATCH -J rtma_pe_test
-#SBATCH -t 00:20:00
-##SBATCH -q debug
-#SBATCH -q batch
-#SBATCH -A ovp
-#SBATCH -N 5 --ntasks-per-node=24
+#PBS -o out.post.3drtma
+#PBS -e out.post.3drtma
+#PBS -N 3drtma.test
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l select=4:ncpus=32
+#PBS -V
 
 set -x
 
 # specify computation resource
-export MP_LABELIO=yes
 export threads=1
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 128 -ppn 32 --cpu-bind core --depth 1"
 
 echo "starting time"
 date
 
-######################################################################
-# Purpose: to run RAP post processing
-######################################################################
-
-# EXPORT list here
-
-
-module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
-module load libpng/1.6.37
-module load jasper/2.0.32
-module load prod_util/2.1.1
+############################################
+# Loading module
+############################################
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
 module load crtm/2.4.0.1
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
 
-msg="Starting rtma pe test"
+msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 export POSTGPEXEC=${svndir}/exec/upp.x
-
-# CALL executable job script here
 
 # specify your running and output directory
 export startdate=2023040400
 export fhr=000
 export tmmark=tm00
-export DATA=$rundir/rtma_${startdate}_pe_test
+export DATA=$rundir/3drtma_${startdate}
 
 export NEWDATE=$startdate
 
@@ -57,13 +53,14 @@ export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
+export min=00
 
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/3drtma/dynf000.nc'
+fileName='$homedir/data_in/3drtma/dynf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
@@ -75,10 +72,8 @@ fileNameFlux='$homedir/data_in/3drtma/phyf${fhr}.nc'
 KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
 /
 EOF
-#FMIN
 
-
-#copy xml
+#copy fix data
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
@@ -102,11 +97,9 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-#export APRUN="aprun -n${ntasks} -N${ptile} "
-#$APRUN ${POSTGPEXEC} > wrfpost2.out
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational rtma post processing generates 2 files
+# operational 3drtma post processing generates 3 files
 filelist="NATLEV00.tm00 \
           PRSLEV00.tm00"
 
@@ -117,27 +110,24 @@ export err=$?
 
 if [ $err = "0" ] ; then
 
- # operational rtma post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/3drtma/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="rtma pe test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="3drtma test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="rtma pe test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="3drtma test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
-  echo " start comparing each grib record and write the comparison result to *diff files"
-  echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 
 else
 
- msg="rtma pe test: post failed using your new post executable to generate ${filein2}"
+ msg="3drtma test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -145,7 +135,7 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending rtma pe test"
+msg="Ending 3drtma test"
 postmsg "$logfile" "$msg"
 
 
