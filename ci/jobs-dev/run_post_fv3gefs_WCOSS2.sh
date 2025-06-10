@@ -1,39 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.fv3gefs_pe_test
-#SBATCH -e out.fv3gefs_pe_test
-#SBATCH -J fv3gefs_pe_test
-#SBATCH -t 00:30:00
-#SBATCH -N 4 --ntasks-per-node=12
-##SBATCH -q debug
-#SBATCH -q batch
-#SBATCH -A ovp
+#PBS -o out.post.fv3gefs
+#PBS -e out.post.fv3gefs
+#PBS -N fv3gefs.test
+#PBS -l walltime=00:10:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l place=vscatter,select=4:ncpus=12
+#PBS -V
 
 set -x
 
 # specify computation resource
 export threads=1
-export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 48 -ppn 12"
 
 ############################################
 # Loading module
 ############################################
-module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
-module load libpng/1.6.37
-module load jasper/2.0.32
-module load prod_util/2.1.1
-module load crtm/2.4.0.1
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
 
 msg="Starting fv3gefs test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
@@ -42,7 +43,7 @@ export fhr=060
 export CC=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
-export DATA=$rundir/fv3gefs_${startdate}_pe_test
+export DATA=$rundir/fv3gefs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
@@ -52,7 +53,6 @@ export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
-
 
 cat > itag <<EOF
 &model_inputs
@@ -64,10 +64,9 @@ MODELNAME='GFS'
 fileNameFlux='$homedir/data_in/gefs/geaer.t${CC}z.sfcf${fhr}.nemsio'
 /
  &NAMPGB
- KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,gocart_on=.true.,
+ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,0.4,gocart_on=.true.,
 /
 EOF
-
 
 rm -f fort.*
 
@@ -86,14 +85,10 @@ cp ${svndir}/fix/chem/optics_luts_SOOT.dat ./optics_luts_SOOT.dat
 cp ${svndir}/fix/chem/optics_luts_SUSO.dat ./optics_luts_SUSO.dat
 cp ${svndir}/fix/chem/optics_luts_WASO.dat ./optics_luts_WASO.dat
 
+
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-#$COPYGB2 -x -i'4,0,80' -k'1 3 0 7*-9999 101 0 0' $PGBOUT tfile
-#$WGRIB2 tfile -set_byte 4 11 1 -grib prmsl
-#$COPYGB2 -x -i'4,1,5' -k'1 3 5 7*-9999 100 0 50000' $PGBOUT tfile
-#$WGRIB2 tfile -set_byte 4 11 193 -grib h5wav
-#cat  prmsl h5wav >> $PGBOUT
 mv $PGBOUT geaer.t${CC}z.master.grb2f${fhr}
 
 fhr2=`printf "%02d" $fhr`
@@ -113,10 +108,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="fv3gefs pe test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="fv3gefs test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="fv3gefs pe test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="fv3gefs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
@@ -125,13 +120,13 @@ if [ $err = "0" ] ; then
 
 else
 
- msg="fv3gefs pe test: post failed using your new post executable to generate ${filein2}"
- echo $msg 2>&1 | tee -a TEST_ERROR
+ msg="fv3gefs test: post failed using your new post executable to generate ${filein2}"
+ echo $msg | tee -a TEST_ERROR
 
 fi
 postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending fv3gefs pe test"
+msg="Ending fv3gefs test"
 postmsg "$logfile" "$msg"

@@ -10,16 +10,20 @@ import os
 import sys
 
 # files used in result comparison
-tests = [
-    'nmmb',
-    'gfs',
-    'fv3gefs',
-    'fv3r',
-    'rap',
-    'hrrr',
-    'fv3hafs',
-    'rtma'
-]
+test_list = os.environ["test_list"]
+print('Check tests:')
+print(test_list)
+tests = test_list
+#tests = [
+#    'nmmb',
+#    'gfs',
+#    'fv3gefs',
+#    'fv3r',
+#    'rap',
+#    'hrrr',
+#    'fv3hafs',
+#    'rtma'
+#]
 
 # look for .diff files
 # every case has its own directory in rundir
