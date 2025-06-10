@@ -598,7 +598,7 @@
        </param>
 
        <param>
-           <shortname>TCICON_ON_ENTIRE_ATMOS</shortname>
+           <shortname>TCOLP_ON_ENTIRE_ATMOS</shortname>
            <scale>6.0</scale>
        </param>
 

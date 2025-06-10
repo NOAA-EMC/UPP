@@ -67,7 +67,7 @@
 !!   25-04-22 | J Kenyon | Remove parameter 770 (GSL's reflectivity-derived VIL), since a functionally identical 
 !!            |          | calculation is available via paramater 581.
 !!   25-06-04 | J Kenyon | Adding descriptive comments for parameter 769. This paramater previously had the
-!!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS", but is now "TCICON_ON_ENTIRE_ATMOS".
+!!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS", but is now "TCOLP_ON_ENTIRE_ATMOS".
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3434,12 +3434,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        endif
       ENDIF
 
-! Total Column-Integrated Condensate (rain, snow, graupel, and hail; kg/m^2)
-!
-! J. Kenyon / 4 Jun 2025: Parm 769 was previously associated with the shortname "GSD_VIL_ON_ENTIRE_ATMOS".
-! It is a VIL-like quantity, but is obtained from integrating precip-hydrometeor mixing ratios.  To help eliminate
-! ambiguity with true "VIL"/"RADARVIL" (as obtained from reflectivity columns via parm 581), parm 769 is now
-! output as "TCICON".
+! -- Total Column-Integrated Precip (rain, snow, graupel, and hail; kg m-2)
+! J. Kenyon / 10 Jun 2025: Parm 769 was previously associated with the shortname "GSD_VIL_ON_ENTIRE_ATMOS".
+! It is a 'VIL-like' quantity, obtained from integrating the mixing ratios of precip hydrometeors (i.e., 
+! it excludes cloud water, cloud ice, and water vapor).  To help distinguish this field from true 
+! "VIL"/"RADARVIL" (as obtained from reflectivity columns via parm 581), parm 769 is now labeled as 
+! "TCOLP".
 
       IF (IGET(769)>0) THEN
          DO J=JSTA,JEND

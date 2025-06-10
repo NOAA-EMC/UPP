@@ -4303,12 +4303,12 @@ entire_atmos_single_lyr
 ?
 ?
 769
-TCICON_ON_ENTIRE_ATMOS
+TCOLP_ON_ENTIRE_ATMOS
 ?
 1
 tmpl4_0
-TCICON
-?
+TCOLP
+NCEP
 ?
 entire_atmos
 0
