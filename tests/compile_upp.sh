@@ -6,20 +6,46 @@
 
 set -eu
 
+if [[ $(uname -s) == Darwin ]]; then
+  readonly MYDIR=$(cd "$(dirname "$(greadlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
+else
+  readonly MYDIR=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
+fi
+PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
+source ${PATHTR}/tests/detect_machine.sh
+
+set_defaults() {
+    delete_exec=YES
+    upp_name="upp.x"
+    load_ifi_module=NO
+    prefix="../install"
+    ifi_opt=" -DBUILD_WITH_IFI=OFF"
+    build_ifi_executables_opt=" "
+    build_ifi_executables=NO
+    gtg_opt=" -DBUILD_WITH_GTG=OFF"
+    nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
+    wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
+    more=" "
+    verbose_opt=""
+    debug_opt=""
+    compiler="intel"
+}
+
 usage() {
+  set_defaults # restore defaults so usage is correct
   echo
   echo "Usage: $0 [options]"
   echo
-  echo "  -o  exe_name.x   Name of built UPP executable in exec. Default: upp.x"
-  echo "  -p  installation prefix <prefix>    DEFAULT: ../install"
-  echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: OFF"
+  echo "  -o  exe_name.x   Name of built UPP executable in exec. Default: $upp_name"
+  echo "  -p  installation prefix <prefix>    DEFAULT: $prefix"
+  echo "  -g  build with GTG(users with gtg repos. access only)     DEFAULT: ${gtg_opt#*=}"
   echo "  -i  build with libIFI(users with ifi install access only) DEFAULT: OFF"
   echo "  -I  build with libIFI (users with ifi repos. access only) DEFAULT: OFF"
   echo "  -B  build libIFI test programs (only valid with -I)       DEFAULT: OFF"
-  echo "  -n  build without nemsio            DEFAULT: ON"
-  echo "  -w  build without WRF-IO            DEFAULT: ON"
+  echo "  -n  build with nemsio               DEFAULT: ${nemsio_opt#*=}"
+  echo "  -w  build with WRF-IO               DEFAULT: ${wrfio_opt#*=}"
   echo "  -v  build with cmake verbose        DEFAULT: OFF"
-  echo "  -c  Compiler to use for build       DEFAULT: intel"
+  echo "  -c  Compiler to use for build       DEFAULT: $compiler"
   echo "  -d  Debug mode of CMAKE_BUILD_TYPE  DEFAULT: Release"
   echo "  -a  Skip deletion of exec. Add new executables. DEFAULT: OFF"
   echo "  -Doption=value   Passes this option to cmake (can use more than once)"
@@ -28,20 +54,8 @@ usage() {
   exit 1
 }
 
-delete_exec=YES
-upp_name="upp.x"
-load_ifi_module=NO
-prefix="../install"
-ifi_opt=" -DBUILD_WITH_IFI=OFF"
-build_ifi_executables_opt=" "
-build_ifi_executables=NO
-gtg_opt=" -DBUILD_WITH_GTG=OFF"
-nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
-wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
-more=" "
-compiler="intel"
-verbose_opt=""
-debug_opt=""
+set_defaults
+
 while getopts ":p:gnwc:vhiIdBD:o:a" opt; do
   case $opt in
     a)
@@ -100,14 +114,6 @@ fi
 
 cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}${build_ifi_executables_opt}${more}
 
-if [[ $(uname -s) == Darwin ]]; then
-  readonly MYDIR=$(cd "$(dirname "$(greadlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
-else
-  readonly MYDIR=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
-fi
-PATHTR=${PATHTR:-$( cd ${MYDIR}/.. && pwd )}
-source ${PATHTR}/tests/detect_machine.sh
-
 #Load required modulefiles
 if [[ $MACHINE_ID != "unknown" ]]; then
    if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
@@ -122,11 +128,7 @@ if [[ $MACHINE_ID != "unknown" ]]; then
       module purge
    fi
    module use $PATHTR/modulefiles
-   if [[ $compiler == "intel" ]]; then
-      modulefile=${MACHINE_ID}
-   else
-      modulefile=${MACHINE_ID}_${compiler}
-   fi
+   modulefile=${MACHINE_ID}_${compiler}
    if [ -f "${PATHTR}/modulefiles/${modulefile}" -o -f "${PATHTR}/modulefiles/${modulefile}.lua" ]; then
       echo "Building for machine ${MACHINE_ID}, compiler ${compiler}"
    else
