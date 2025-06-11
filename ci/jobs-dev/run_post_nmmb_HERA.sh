@@ -24,9 +24,9 @@ date
 # Loading module
 ############################################
 module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
+module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module load stack-oneapi/2024.2.1
+module load stack-intel-oneapi-mpi/2021.13
 module load libpng/1.6.37
 module load jasper/2.0.32
 module load prod_util/2.1.1
