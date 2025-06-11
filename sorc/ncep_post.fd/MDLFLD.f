@@ -66,8 +66,9 @@
 !!   25-01-13 | J Kenyon | Add graupel number concentration (QQNG)
 !!   25-04-22 | J Kenyon | Remove parameter 770 (GSL's reflectivity-derived VIL), since a functionally identical 
 !!            |          | calculation is available via paramater 581.
-!!   25-06-04 | J Kenyon | Adding descriptive comments for parameter 769. This paramater previously had the
-!!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS", but is now "TCOLP_ON_ENTIRE_ATMOS".
+!!   25-06-10 | J Kenyon | Adding descriptive comments for parameter 769. This parameter previously had the
+!!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS" (hydrometeor-based VIL), but is now is
+!!                       | now "TCOLP_ON_ENTIRE_ATMOS".
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3434,11 +3435,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        endif
       ENDIF
 
-! -- Total Column-Integrated Precip (rain, snow, graupel, and hail; kg m-2)
+! -- Total column-integrated precip (rain, snow, graupel, and hail; kg m-2)
 ! J. Kenyon / 10 Jun 2025: Parm 769 was previously associated with the shortname "GSD_VIL_ON_ENTIRE_ATMOS".
 ! It is a 'VIL-like' quantity, obtained from integrating the mixing ratios of precip hydrometeors (i.e., 
 ! it excludes cloud water, cloud ice, and water vapor).  To help distinguish this field from true 
-! "VIL"/"RADARVIL" (as obtained from reflectivity columns via parm 581), parm 769 is now labeled as 
+! "RADARVIL" (as obtained from reflectivity columns via parm 581), parm 769 is now labeled as
 ! "TCOLP".
 
       IF (IGET(769)>0) THEN

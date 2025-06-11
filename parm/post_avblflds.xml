@@ -4923,16 +4923,7 @@
        <scale>3.0</scale>
     </param>
    
-    <param> <!-- 581, option 1: output as VIL -->
-       <post_avblfldidx>581</post_avblfldidx>
-       <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
-       <longname>entire atmosphere Vertically Integrated Liquid (kg/m-2)</longname>
-       <pname>VIL</pname>
-       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param> <!-- 581, option 2: output as RADARVIL (preferred by some RAP/HRRR/RRFS users)-->
+    <param>
        <post_avblfldidx>581</post_avblfldidx>
        <shortname>RADARVIL_ON_ENTIRE_ATMOS</shortname>
        <longname>entire atmosphere Vertically Integrated Liquid (kg/m-2)</longname>
@@ -7077,10 +7068,10 @@
        <scale>3.0</scale>
     </param>
 
-    <param> <!-- 769: total column-integrated precip (rain, snow, graupel, and hail)-->
+    <param>
        <post_avblfldidx>769</post_avblfldidx>     
-       <shortname>TCOLP_ON_ENTIRE_ATMOS</shortname> <!--previous shortname: "GSD_VIL_ON_ENTIRE_ATMOS"-->
-       <pname>TCOLP</pname>                         <!--previous pname:     "VIL"-->
+       <shortname>TCOLP_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLP</pname>
        <table_info>NCEP</table_info>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>6.0</scale>
