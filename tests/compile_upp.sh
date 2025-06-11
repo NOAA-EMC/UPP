@@ -28,12 +28,7 @@ set_defaults() {
     more=" "
     verbose_opt=""
     debug_opt=""
-
-    if [[ "${MACHINE_ID}" == ursa ]] ; then
-        compiler="intelllvm"
-    else
-        compiler="intel"
-    fi
+    compiler="intel"
 }
 
 usage() {
