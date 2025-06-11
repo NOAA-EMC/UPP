@@ -22,9 +22,9 @@ export APRUN_DWN="srun --export=ALL"
 ############################################
 # Loading module
 ############################################
-module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
-module load stack-intel/2021.9.0
-module load stack-intel-oneapi-mpi/2021.9.0
+module use ${svndir}/modulefiles
+module load stack-oneapi/2024.2.1
+module load stack-intel-oneapi-mpi/2021.13
 module load libpng/1.6.37
 module load jasper/2.0.32
 module load prod_util/2.1.1
