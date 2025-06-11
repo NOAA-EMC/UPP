@@ -22,7 +22,7 @@ export APRUN="srun"
 ############################################
 module purge
 . $MODULESHOME/init/sh
-module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module use ${svndir}/modulefiles
 module load stack-oneapi/2024.2.1
 module load stack-intel-oneapi-mpi/2021.13
 module load libpng/1.6.37
