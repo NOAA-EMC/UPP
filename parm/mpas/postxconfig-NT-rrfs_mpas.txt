@@ -4261,12 +4261,12 @@ cloud_top
 ?
 ?
 581
-RADARVIL_ON_ENTIRE_ATMOS
+VIL_ON_ENTIRE_ATMOS
 entire atmosphere Vertically Integrated Liquid (kg/m-2)
 1
 tmpl4_0
-RADARVIL
-NCEP
+VIL
+?
 ?
 entire_atmos_single_lyr
 0

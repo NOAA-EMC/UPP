@@ -588,7 +588,7 @@
        </param>
 
        <param>
-           <shortname>RADARVIL_ON_ENTIRE_ATMOS</shortname>
+           <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
            <scale>6.0</scale>
        </param>
 
