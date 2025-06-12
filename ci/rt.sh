@@ -196,6 +196,12 @@ export workdir=${workdir:-"`pwd`/work-upp-${machine}-${compiler}"}
 rm -rf $workdir
 mkdir -p $workdir
 
+if [[ "$machine" == URSA ]] ; then
+  export cmp_grib2_grib2=$svndir/ci/cmp_grib2_grib2.sh
+else:
+  export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+fi
+
 #differentiates for orion and hercules
 export rundir="${rundir}/upp-${machine}"
 #test -d "${rundir}" || mkdir -p "${rundir}"

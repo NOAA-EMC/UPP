@@ -34,7 +34,7 @@ module list
 msg="Starting fv3gfs test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 

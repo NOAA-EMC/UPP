@@ -35,7 +35,7 @@ ulimit -s unlimited
 msg="Starting fv3gefs test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x    
 
 # specify forecast start time and hour for running your post job

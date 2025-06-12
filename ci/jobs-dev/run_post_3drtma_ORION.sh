@@ -41,7 +41,7 @@ export COMROOT=$rundir
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # CALL executable job script here

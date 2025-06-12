@@ -36,7 +36,7 @@ module list
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 
 # specify user's own post executable for testing
 #export svndir=/u/Wen.Meng/save/ncep_post/develop branch

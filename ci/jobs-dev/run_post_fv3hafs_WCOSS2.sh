@@ -34,7 +34,7 @@ module list
 msg="Starting fv3hafs test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
