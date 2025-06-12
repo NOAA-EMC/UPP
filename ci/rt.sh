@@ -29,15 +29,16 @@ usage() {
 
   cat<<EOF
 
-Synopsis: rt.sh -a account -r /path/to/scrub/space [-options] [compiler]
+Synopsis: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
 Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
 
 Results are here:
-  ../tests/logs/MACHINE_compiler.log = report of regression tests for each machine and compiler.
+  ../tests/logs/MACHINE[_compiler].log = report of regression tests for each machine and compiler.
   changed_results.txt = A list of tests whose results have changed.
 
 Always set these:
   -a account = accounting code for job submission. Default account is often overused. Always set this!
+  -C = chosen compiler. Default: intel. Mandatory on Ursa!
   -r rundir = path to a scrub space. Default area is often over quota. Always set this!
 
 General options:
@@ -65,8 +66,10 @@ EOF
 
 set +x
 export OPTERR=1
-while getopts a:w:h:r:t:b:u:cdHe opt; do
+while getopts a:w:h:r:t:b:u:C:cdHe opt; do
   case $opt in
+    C) compiler=${OPTARG}
+        ;;
     d) disable_ifi=yes
         ;;
     a) accnr=${OPTARG}
@@ -96,18 +99,6 @@ while getopts a:w:h:r:t:b:u:cdHe opt; do
   esac
 done
 set -x
-
-if [[ "$OPTIND" > "$#" ]] ; then
-  compiler=MISSING
-else
-  shift $(( OPTIND - 1 ))
-  if [[ "$#" -gt 1 ]] ; then
-    echo "ERROR: Expected at most 1 positional argument but found:" "$@" 1>&2
-    usage FATAL ERROR: too many arguments. See error message above. 1>&2
-    exit 2
-  fi
-  compiler="$1"
-fi
 
 #UPP working copy
 export test_v=${test_v:-`pwd`/..}
@@ -186,10 +177,8 @@ fi
 
 if [[ "$compiler" == MISSING ]] ; then
     if [[ "$machine" == URSA ]] ; then
-	set +uxe
-	echo "ERROR: Specify compiler when running rt.sh on Ursa." 1>&2
-	echo "ERROR: Specify compiler: rt.sh [intel|intelllvm]" 1>&2
-	exit 1
+	usage FATAL ERROR: You must specify the compiler on Ursa: -C intel|intelllvm 1>&2
+	exit 2
     else
 	compiler=intel
     fi
