@@ -13,7 +13,55 @@ git_branch="develop"
 git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
 disable_ifi="no" # don't use libIFI, even if it is present
+print_full_help="no"
 
+usage() {
+  set +xue
+
+  if [[ "$#" -gt 0 ]] ; then
+    echo
+    echo "------------------------------------------------------------------------"
+    echo "$@"
+    echo "------------------------------------------------------------------------"
+  fi
+
+  cat<<EOF
+
+Synopsis: rt.sh -a account -r /path/to/scrub/space [-options] [compiler]
+Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
+
+Results are here:
+  ../tests/logs/MACHINE_compiler.log = report of regression tests for each machine and compiler.
+  changed_results.txt = A list of tests whose results have changed.
+
+Always set these:
+  -a account = accounting code for job submission. Default account is often overused. Always set this!
+  -r rundir = path to a scrub space. Default area is often over quota. Always set this!
+
+General options:
+  -d = disable ifi tests even if ifi is available
+  -h homedir = path to the regression test data
+  -w workdir = directory with per-job batch and log files.
+  -H = print full help message including special-use option flags.
+EOF
+
+  if [[ "$print_full_help" == YES ]] ; then
+cat<<EOF
+
+Special run mode: run rt.sh outside the repository. Automatically clones the repository.
+Syntax: rt.sh -a account -r /path/to/scrub/space -c -u url -b branch [options] [compiler]
+
+Additional options:
+  -c = Tells rt.sh it is running outside a repository.
+  -t test_v = Location to clone the repository. Default: Overwrite .. with the clone.
+  -u url = Mandatory: URL of a repository to clone. Not for general use.
+  -b branch = Mandatory: branch in the repository to clone
+EOF
+  fi
+}
+
+set +x
+export OPTERR=1
 while getopts a:w:h:r:t:b:u:cd opt; do
   case $opt in
     d) disable_ifi=yes
@@ -34,10 +82,27 @@ while getopts a:w:h:r:t:b:u:cd opt; do
         ;;
     c) clone_on="yes"
 	;;
+    H) print_full_help=YES ; usage ; exit 1
+        ;;
+    *)
+       usage FATAL ERROR: Invalid -option. See error message above. 1>&2
+       exit 2
+        ;;
   esac
 done
+set -x
 
-export compiler=${1:-MISSING}
+if [[ "$OPTIND" > "$#" ]] ; then
+  compiler=MISSING
+else
+  shift $(( OPTIND - 1 ))
+  if [[ "$#" -gt 1 ]] ; then
+    echo "ERROR: Expected at most 1 positional argument but found:" "$@" 1>&2
+    usage FATAL ERROR: too many arguments. See error message above. 1>&2
+    exit 2
+  fi
+  compiler="$1"
+fi
 
 #UPP working copy
 test_v=${test_v:-`pwd`/../}
@@ -143,7 +208,7 @@ else
 fi
 
 #set working directory
-export workdir=${workdir:-"`pwd`/work-upp-${machine}"}
+export workdir=${workdir:-"`pwd`/work-upp-${machine}-${compiler}"}
 rm -rf $workdir
 mkdir -p $workdir
 
