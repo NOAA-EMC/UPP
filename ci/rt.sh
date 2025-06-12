@@ -185,6 +185,8 @@ if [[ "$compiler" == MISSING ]] ; then
     fi
 fi
 
+export compiler
+
 if [[ "$machine" == URSA ]] ; then
     runtime_log=$homedir/scripts/runtime.log.${machine}_${compiler}
 else
