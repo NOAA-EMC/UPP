@@ -47,11 +47,11 @@ General options:
   -e = don't build the UPP executable
   -h homedir = path to the regression test data
   -w workdir = directory to store per-job batch and log files.
-  -H = print full help message and exit. Includes special-use options.
 EOF
 
   if [[ "$print_full_help" == YES ]] ; then
-cat<<EOF
+    cat<<EOF
+  -H = print this message and exit.
 
 Special run mode: run rt.sh outside the repository. Automatically clones the repository.
 Syntax: rt.sh -a account -r /path/to/scrub/space -c -u url -b branch [options] [compiler]
@@ -61,6 +61,10 @@ Additional options:
   -t test_v = Location to clone the repository. Default: Overwrite .. with the clone.
   -u url = Mandatory: URL of a repository to clone. Not for general use.
   -b branch = Mandatory: branch in the repository to clone
+EOF
+  else
+      cat<<EOF
+  -H = print full help message and exit. Includes special-use options.
 EOF
   fi
 }
