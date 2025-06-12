@@ -16,6 +16,7 @@ clone_on="no"
 disable_ifi="no" # don't use libIFI, even if it is present
 print_full_help="no"
 build_exe="yes" #build executable
+compiler="MISSING"
 
 usage() {
   set +xue
