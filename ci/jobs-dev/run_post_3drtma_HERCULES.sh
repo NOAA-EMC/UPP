@@ -27,10 +27,7 @@ date
 
 module use ${svndir}/modulefiles
 module load hercules_intel
-module load libpng/1.6.37
-module load jasper/2.0.32
 module load prod_util/2.1.1
-module load crtm/2.4.0.1
 module list
 
 ulimit -s unlimited
