@@ -198,7 +198,7 @@ mkdir -p $workdir
 
 if [[ "$machine" == URSA ]] ; then
   export cmp_grib2_grib2=$svndir/ci/cmp_grib2_grib2.sh
-else:
+else
   export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
 fi
 
