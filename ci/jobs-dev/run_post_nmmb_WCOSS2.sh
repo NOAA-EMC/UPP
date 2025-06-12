@@ -1,44 +1,42 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.post.nmmb_Grib2
-#SBATCH -e out.post.nmmb_Grib2
-#SBATCH -J nmmb_test
-#SBATCH -t 00:20:00
-##SBATCH -q debug
-#SBATCH -q batch
-#SBATCH -N 7 --ntasks-per-node=4
-#SBATCH -A ovp
-#SBATCH --exclusive
+#PBS -o out.post.nmmb
+#PBS -e out.post.nmmb
+#PBS -N nmmb.test
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l place=vscatter,select=2:ncpus=12
+#PBS -V
 
 set -x
 
 # specify computation resource
 export threads=1
-export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 24 -ppn 12" 
 
 echo "starting time" 
 date
 
-############################################
-# Loading module
-############################################
-module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
-module load wgrib2/3.6.0
-module load prod_util/2.1.1
-module load nccmp/1.9.1.0
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
+
 
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
-
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 # specify user's own post executable for testing
-#export svndir=/u/Wen.Meng/save/ncep_post/trunk
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 
@@ -47,7 +45,7 @@ export startdate=2014120818
 export fhr=03
 
 # specify your running and output directory
-export DATA=$rundir/post_nmmb_meso_${startdate}_Grib2
+export DATA=$rundir/nmmb_${startdate}
 
 # specify your home directory 
 #export homedir=`pwd`/..
@@ -66,7 +64,6 @@ export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
 
-
 cat > itag <<EOF
 &model_inputs
 fileName='$homedir/data_in/nmmb/nmmb_hst_01_nio_00${fhr}h_00m_00.00s'
@@ -77,23 +74,17 @@ MODELNAME='NMM'
 /
 EOF
 
-
 rm -f fort.*
 
-#cp /nwprod/nam.v3.1.22/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp $homedir/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
 export PARMnam=$homedir/parm
-#cp $PARMnam/nam_post_avblflds.xml post_avblflds.xml
-#cp $PARMnam/nam_cntrl_cmaq.xml postcntrl.xml
 
 # copy flat files instead
 cp ${svndir}/parm/postxconfig-NT-NMM.txt ./postxconfig-NT.txt
-#cp ${svndir}/parm/params_grib2_tbl_new_raphrrr params_grib2_tbl_new
-#cp /scratch2/NCEPDEV/nwprod/NCEPLIBS/src/g2tmpl_v1.6.0/src/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 
-$APRUN ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
 mv BGDAWP${fhr}.tm00 BGDAWP${fhr}.tm00.Grib2
 mv BGRD3D${fhr}.tm00 BGRD3D${fhr}.tm00.Grib2
@@ -113,19 +104,19 @@ if [ $err = "0" ] ; then
 
  # operational NMMB post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out_$compiler/nmmb/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out/nmmb/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/nmmb/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out/nmmb/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 

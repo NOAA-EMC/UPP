@@ -1,12 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.post.nmmb_Grib2
-#SBATCH -e out.post.nmmb_Grib2
+#SBATCH -o out.post.nmmb
+#SBATCH -e out.post.nmmb
 #SBATCH -J nmmb_test
 #SBATCH -t 00:20:00
-#SBATCH -q debug
-#SBATCH -N 2 --ntasks-per-node=8
-#SBATCH -A nems
+##SBATCH -q debug
+#SBATCH -q batch
+#SBATCH -N 4 --ntasks-per-node=4
+#SBATCH -A ovp
 
 set -x
 
@@ -22,26 +23,24 @@ date
 ############################################
 # Loading module
 ############################################
-module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
-module load stack-intel/2021.9.0
-module load stack-intel-oneapi-mpi/2021.9.0
+module purge
+module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
+module load stack-intel/2021.5.0
+module load stack-intel-oneapi-mpi/2021.5.1
 module load libpng/1.6.37
 module load jasper/2.0.32
 module load prod_util/2.1.1
 module load crtm/2.4.0.1
 module list
 
-ulimit -s unlimited
-#ulimit -s1900000000
-
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
+export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
 
 # specify user's own post executable for testing
-#export svndir=/u/Wen.Meng/save/ncep_post/trunk
-export POSTGPEXEC=${svndir}/exec/upp.x           
+#export svndir=/u/Wen.Meng/save/ncep_post/develop branch
+export POSTGPEXEC=${svndir}/exec/upp.x
 
 
 # specify forecast start time and hour for running your post job
@@ -49,7 +48,7 @@ export startdate=2014120818
 export fhr=03
 
 # specify your running and output directory
-export DATA=$rundir/post_nmmb_meso_${startdate}_Grib2
+export DATA=$rundir/nmmb_${startdate}
 
 # specify your home directory 
 #export homedir=`pwd`/..
@@ -82,12 +81,17 @@ EOF
 
 rm -f fort.*
 
+#cp /nwprod/nam.v3.1.22/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp $homedir/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
 export PARMnam=$homedir/parm
+#cp $PARMnam/nam_post_avblflds.xml post_avblflds.xml
+#cp $PARMnam/nam_cntrl_cmaq.xml postcntrl.xml
 
 # copy flat files instead
 cp ${svndir}/parm/postxconfig-NT-NMM.txt ./postxconfig-NT.txt
+#cp ${svndir}/parm/params_grib2_tbl_new_raphrrr params_grib2_tbl_new
+#cp /scratch2/NCEPDEV/nwprod/NCEPLIBS/src/g2tmpl_v1.6.0/src/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 
 $APRUN ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
@@ -115,10 +119,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="nmmb test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"

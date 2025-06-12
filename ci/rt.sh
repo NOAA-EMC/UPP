@@ -5,6 +5,7 @@
 # Fernando Andrade-Maldonado 5/2023 rework for CLI Options
 # Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
+# Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
 ######################################################################
 set -xue
 SECONDS=0
@@ -14,6 +15,7 @@ git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
 disable_ifi="no" # don't use libIFI, even if it is present
 print_full_help="no"
+build_exe="yes" #build executable
 
 usage() {
   set +xue
@@ -40,6 +42,7 @@ Always set these:
 
 General options:
   -d = disable ifi tests even if ifi is available
+  -e = don't build the UPP executable
   -h homedir = path to the regression test data
   -w workdir = directory with per-job batch and log files.
   -H = print full help message including special-use option flags.
@@ -62,7 +65,7 @@ EOF
 
 set +x
 export OPTERR=1
-while getopts a:w:h:r:t:b:u:cd opt; do
+while getopts a:w:h:r:t:b:u:cdHe opt; do
   case $opt in
     d) disable_ifi=yes
         ;;
@@ -82,6 +85,8 @@ while getopts a:w:h:r:t:b:u:cd opt; do
         ;;
     c) clone_on="yes"
 	;;
+    e) build_exe="no" # don't build executable
+        ;;
     H) print_full_help=YES ; usage ; exit 1
         ;;
     *)
@@ -105,7 +110,7 @@ else
 fi
 
 #UPP working copy
-test_v=${test_v:-`pwd`/../}
+export test_v=${test_v:-`pwd`/..}
 if [[ $clone_on == "yes" ]]; then
   rm -rf $test_v
   mkdir -p $test_v
@@ -114,39 +119,9 @@ fi
 export svndir=${test_v}
 
 if [[ -d $svndir/sorc/libIFI.fd/src/ ]] ; then
-    have_ifi=yes
+    export have_ifi=yes
 else
-    have_ifi=no
-fi
-
-#Assume a nems account to run with
-accnr=${accnr:-"rtrr"}
-
-#Build UPP executable
-build_exe=yes
-
-#Choose run specific model
-run_nmmb=yes
-run_gfs=yes
-run_gefs=yes
-run_fv3r=yes
-run_rap=yes
-run_hrrr=yes
-run_hafs=yes
-run_rtma=yes
-
-# Tests with IFI enabled only work if libIFI is present.
-if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-  run_hrrr_ifi=yes
-  run_ifi_standalone_hrrr=yes
-  run_fv3r_ifi=yes
-  run_ifi_standalone_fv3r=yes
-else
-  # Cannot run these without ifi
-  run_hrrr_ifi=no
-  run_ifi_standalone_hrrr=no
-  run_fv3r_ifi=no
-  run_ifi_standalone_fv3r=no
+    export have_ifi=no
 fi
 
 #find machine
@@ -157,6 +132,8 @@ if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
  export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
+ export accnr=${accnr:-"rtrr"}
+ module purge
  module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
  module load stack-intel/2021.5.0
  module load stack-intel-oneapi-mpi/2021.5.1
@@ -165,6 +142,7 @@ elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
  export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
  export rundir=${rundir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/scrub"}
+ export accnr=${accnr:-"rtrr"}
  module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
  module load stack-oneapi/2024.2.1
  module load stack-intel-oneapi-mpi/2021.13
@@ -174,6 +152,8 @@ elif [ $mac3 = orio ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
+ export accnr=${accnr:-"rtrr"}
+ module purge
  module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
  module load stack-intel/2021.9.0
  module load stack-intel-oneapi-mpi/2021.9.0
@@ -183,11 +163,25 @@ elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
+ export accnr=${accnr:-"rtrr"}
+ module purge
  module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
  module load stack-intel/2021.9.0
  module load stack-intel-oneapi-mpi/2021.9.0
  module load prod_util/2.1.1
  module load python/3.10.8
+elif [ $mac = d -o $mac = c ]; then #for WCOSS2
+ export machine=WCOSS2
+ export homedir=${homedir:-"/u/wen.meng/noscrub/ncep_post/post_regression_test_new"}
+ export rundir=${rundir:-"/lfs/h2/emc/ptmp/$USER"}
+ export accnr=${accnr:-"GFS-DEV"}
+ module reset
+ module load intel/19.1.3.304
+ module load PrgEnv-intel/8.1.0
+ module load craype/2.7.8
+ module load cray-mpich/8.1.7
+ module load prod_util/2.0.14
+ module load python/3.12.0
 fi
 
 if [[ "$compiler" == MISSING ]] ; then
@@ -214,7 +208,8 @@ mkdir -p $workdir
 
 #differentiates for orion and hercules
 export rundir="${rundir}/upp-${machine}"
-test -d "${rundir}" || mkdir -p "${rundir}"
+#test -d "${rundir}" || mkdir -p "${rundir}"
+rm -rf ${rundir}; mkdir -p ${rundir}
 
 #set log file
 export rt_log=rt.log.${machine}_${compiler}
@@ -222,9 +217,10 @@ export logfile=`pwd`/$rt_log
 if [ -f $logfile ] ; then
  rm -r $logfile
 fi
+export runtime_log=$svndir/ci/runtime.log.${machine}_${compiler}
 
 #build executable
-if [ "$build_exe" = "yes" ]; then
+if [ "$build_exe" == "yes" ]; then
   cd ${test_v}
   mkdir -p ${test_v}/exec
   cd ${test_v}/tests
@@ -238,10 +234,15 @@ if [ "$build_exe" = "yes" ]; then
     exit 2
   fi
 
-  if [[ "$have_ifi" == yes && "$disable_ifi" == no ]] ; then
-    ./compile_upp.sh -a -o upp_with_ifi.x -I -B -c "$compiler"
-    status=$?
-    if [ $status -eq 0 ]; then
+  if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
+    if [[ "${machine}" == "WCOSS2" ]]; then ##No ifi standalone executable
+      ./compile_upp.sh -a -o upp_with_ifi.x -I -c "$compiler"
+      status=$?
+    else
+      ./compile_upp.sh -a -o upp_with_ifi.x -I -B -c "$compiler"
+      status=$?
+    fi
+    if [ "$status" -eq 0 ]; then
       msg="Building UPP+IFI executables successfully"
     else
       msg="Building UPP+IFI executables with failure"
@@ -256,211 +257,24 @@ if [ "$build_exe" = "yes" ]; then
   postmsg "$logfile" "$msg"
 fi
 
-jobid_list=""
-set -xe
-#execute ifi tests           
-if [ "${run_hrrr_ifi:-no}" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_hrrr_ifi_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_ifi_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-dep_job_id=$job_id
-  if [ "$run_ifi_standalone_hrrr" = "yes" ]; then
-    cp $svndir/ci/jobs-dev/run_ifi_standalone_hrrr_${machine}.sh .
-    job_id=`sbatch --parsable -A ${accnr} --dependency=afterany:$dep_job_id run_ifi_standalone_hrrr_${machine}.sh`
-    jobid_list=$jobid_list" "${job_id}
-  fi
+#Setting tests
+export test_list="nmmb fv3gefs fv3r fv3r_ifi_missing hrrr rap fv3hafs 3drtma fv3gfs"
+
+#submit test jobs
+cd $svndir/ci
+if [ "${machine}" = "WCOSS2" ]; then
+  source "./submit_jobs_${machine}.sh"
+else  ##R&D machines
+  source "./submit_jobs.sh"
 fi
 
-if [ "$run_fv3r_ifi" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_ifi_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-dep_job_id=$job_id
-  if [ "$run_ifi_standalone_fv3r" = "yes" ]; then
-    cp $svndir/ci/jobs-dev/run_ifi_standalone_fv3r_${machine}.sh .
-    job_id=`sbatch --parsable -A ${accnr} --dependency=afterany:$dep_job_id run_ifi_standalone_fv3r_${machine}.sh`
-    jobid_list=$jobid_list" "${job_id}
-  fi
-fi
-
-#execute nmmb grib2 test
-if [ "$run_nmmb" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_${machine}.sh`
-jobid_list=$jobid_list" "$job_id
-cp $svndir/ci/jobs-dev/run_post_nmmb_Grib2_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_nmmb_Grib2_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute fv3gefs test
-if [ "$run_gefs" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_fv3gefs_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3gefs_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3gefs_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute rap test
-if [ "$run_rap" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_rap_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_rap_${machine}.sh`
-jobid_list=$jobid_list" "$job_id
-cp $svndir/ci/jobs-dev/run_post_rap_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_rap_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute hrrr test
-if [ "$run_hrrr" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_hrrr_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_${machine}.sh`
-jobid_list=$jobid_list" "$job_id
-cp $svndir/ci/jobs-dev/run_post_hrrr_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_hrrr_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute fv3gfs test
-if [ "$run_gfs" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_fv3gfs_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr}  run_post_fv3gfs_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3gfs_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3gfs_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute fv3r test
-if [ "$run_fv3r" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_fv3r_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3r_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3r_ifi_missing_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3r_ifi_missing_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute fv3hafs test
-if [ "$run_hafs" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_fv3hafs_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_fv3hafs_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_fv3hafs_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
-
-#execute rtma test
-if [ "$run_rtma" = "yes" ]; then
-cd $workdir
-cp $svndir/ci/jobs-dev/run_post_3drtma_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-cp $svndir/ci/jobs-dev/run_post_3drtma_pe_test_${machine}.sh .
-job_id=`sbatch --parsable -A ${accnr} run_post_3drtma_pe_test_${machine}.sh`
-jobid_list=$jobid_list" "${job_id}
-fi
 set +xe
 echo "Job cards submitted for enabled tests, waiting on timestamps for finished jobs..."
 
 #get run time for each test
-some_failed=NO
-sleep 30
-for job_id in $jobid_list; do
-  ic=1
-  sleep_loop_max=300
-  while [ $ic -le $sleep_loop_max ]; do
-     job_id=`echo $job_id | cut -d"." -f1`
-     status=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f4|awk 'FNR == 2'`
-     if [ "$status" = "COMPLETED" ]; then
-       break
-     elif ( echo "$status" | grep -E 'FAIL|TIMEOUT|CANCEL|DEAD|SIGNAL|SPECIAL' > /dev/null ) ; then
-       some_failed=YES
-       break
-     else
-      ic=`expr $ic + 1`
-      sleep 15
-     fi
-  done
-  if [ $ic -lt $sleep_loop_max ]; then
-     runtime=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f3|awk 'FNR == 2'`
-     jobname=`sacct --parsable -j $job_id --format=jobid,jobname,elapsed,state | cut -d"|" -f2|awk 'FNR == 2'`
-     runtime_b=`grep "^${jobname}" ${runtime_log} | awk '{print $2}'`
-     echo "$runtime   $jobname ${runtime_b}"
-     msg="Runtime: $jobname $runtime -- baseline ${runtime_b}"
-     postmsg "$logfile" "$msg"
-  fi
-done
-
-elapsed_time=$( printf '%02dh:%02dm:%02ds\n' $((SECONDS%86400/3600)) $((SECONDS%3600/60)) $((SECONDS%60)) )
-
-python ${test_v}/ci/rt-status.py
-test_results=$?
-
-if [ $some_failed = YES ] ; then
-  test_results=99
-  echo WARNING: some tests exited with non-zero status.
-fi
-
-# Cleanup rt log
-cd ${test_v}
-
-UPP_HASH=$(git rev-parse HEAD)
-SUBMODULE_HASHES=$(git submodule status --recursive)
-DATE="$(date '+%Y%m%d %T')"
-
-cd ${test_v}/ci
-
-cat << EOF > $rt_log.temp
-===== Start of UPP Regression Testing Log =====
-UPP Hash Tested:
-${UPP_HASH}
-
-Submodule hashes:
-${SUBMODULE_HASHES}
-
-Run directory: ${rundir}
-Baseline directory: ${homedir}
-
-Total runtime: ${elapsed_time}
-Test Date: ${DATE}
-Summary Results:
-
-EOF
-
-
-if [ $some_failed = YES ] ; then
-    echo "Warning: some tests exited with non-zero. status" >> $rt_log.temp
-    echo >> $rt_log.temp
-fi
-
-cat "$rt_log" | grep "test:" >> $rt_log.temp
-cat "$rt_log" | grep "baseline" >> $rt_log.temp
-python ${test_v}/ci/rt-status.py >> $rt_log.temp
-echo "===== End of UPP Regression Testing Log =====" >> $rt_log.temp
-mv $rt_log.temp $rt_log
-mv $rt_log ${test_v}/tests/logs
-
-# should indicate failure to Jenkins
-if [ $test_results -ne 0 ]; then
-   python ${test_v}/ci/rt-status.py > changed_results.txt
-   if [ $some_failed = YES ]; then
-     echo "Warning: some tests exited with non-zero status." >> changed_results.txt
-   fi
-   exit 1
+cd $svndir/ci
+if [ "${machine}" = "WCOSS2" ]; then
+  source "./check_runtime_${machine}.sh"
+else
+  source "./check_runtime.sh"
 fi

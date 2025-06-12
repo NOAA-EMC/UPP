@@ -1,53 +1,49 @@
-#!/bin/sh 
+#!/bin/bash 
  
-#SBATCH -o out.post.rap_pe_test
-#SBATCH -e out.post.rap_pe_test
-#SBATCH -J rap_pe_test
-#SBATCH -t 00:20:00
-##SBATCH -q debug
-#SBATCH -q batch
-#SBATCH -A ovp
-#SBATCH -N 5 --ntasks-per-node=8
+#PBS -o out.post.rap
+#PBS -e out.post.rap
+#PBS -N rap.test
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l place=vscatter,select=2:ncpus=24
+#PBS -V
 
 set -x
 
 # specify computation resource
-export MP_LABELIO=yes
 export threads=1
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 48 -ppn 24"
 
 echo "starting time"
 date
 
-######################################################################
-# Purpose: to run RAP post processing
-######################################################################
-
-# EXPORT list here
-
-module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
-module load libpng/1.6.37
-module load jasper/2.0.32
-module load prod_util/2.1.1
-module load crtm/2.4.0.1
+############################################
+# Loading module
+############################################
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load libjpeg/9c
+module load prod_util/2.0.8
 module list
 
-msg="Starting rap pe test"
+msg="Starting rap test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
 export POSTGPEXEC=${svndir}/exec/upp.x
-
-# CALL executable job script here
 
 # specify your running and output directory
 export startdate=2020072316
 export fhr=16
-export DATA=$rundir/rap_${startdate}_pe_test
+export DATA=$rundir/rap_${startdate}
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
 
@@ -74,8 +70,6 @@ EOF
 
 #copy fix data
 cp $homedir/fix/fix_2.3.0/*bin .
-
-#copy xml
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-rap.txt postxconfig-NT.txt
 cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
@@ -84,7 +78,8 @@ ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
 # operational rap post processing generates 3 files
 filelist="WRFPRS.GrbF16 \
-          WRFNAT.GrbF16" 
+          WRFNAT.GrbF16"
+#          WRFMSL.GrbF14"
 
 for file in $filelist; do
 export filein2=$file
@@ -100,29 +95,20 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="rap pe test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="rap test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  #msg="rap pe test: your new post executable did not generate bit-identical ${filein2} as the trunk"
-  #echo $msg
+  msg="rap test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out/rap/${filein2}.${machine} ${filein2} > ${filein2}.diff
-  cmp ${filein2}.diff $homedir/data_out/rap/${filein2}.diff
-  export err2=$?
-  if [ $err2 -eq 0 ] ; then
-   msg="rap pe test: your new post executable is fine in ${filein2}"
-   echo $msg
-  else
-   msg="rap pe test: your new post executable did generate changed results in ${filein2}"
-   echo $msg
-  fi
  fi
 
 
 else
 
- msg="rap pe test: post failed using your new post executable to generate ${filein2}"
+ msg="rap test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -130,7 +116,7 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending rap pe test"
+msg="Ending rap test"
 postmsg "$logfile" "$msg"
 
 
