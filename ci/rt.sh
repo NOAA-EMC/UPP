@@ -65,7 +65,7 @@ EOF
 
 set +x
 export OPTERR=1
-while getopts a:w:h:r:t:b:u:cdHe opt; do
+while getopts a:w:h:r:t:b:u:C:cdHe opt; do
   case $opt in
     d) disable_ifi=yes
         ;;
