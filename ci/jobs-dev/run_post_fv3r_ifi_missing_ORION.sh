@@ -39,7 +39,7 @@ ulimit -s unlimited
 msg="Starting fv3r_ifi_missing test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp_no_ifi.x
 
 # specify forecast start time and hour for running your post job

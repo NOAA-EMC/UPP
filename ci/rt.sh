@@ -47,12 +47,12 @@ General options:
   -d = disable ifi tests even if ifi is available
   -e = don't build the UPP executable
   -h homedir = path to the regression test data
-  -w workdir = directory with per-job batch and log files.
-  -H = print full help message including special-use option flags.
+  -w workdir = directory to store per-job batch and log files.
 EOF
 
   if [[ "$print_full_help" == YES ]] ; then
-cat<<EOF
+    cat<<EOF
+  -H = print this message and exit.
 
 Special run mode: run rt.sh outside the repository. Automatically clones the repository.
 Syntax: rt.sh -a account -r /path/to/scrub/space -c -u url -b branch [options] [compiler]
@@ -62,6 +62,10 @@ Additional options:
   -t test_v = Location to clone the repository. Default: Overwrite .. with the clone.
   -u url = Mandatory: URL of a repository to clone. Not for general use.
   -b branch = Mandatory: branch in the repository to clone
+EOF
+  else
+      cat<<EOF
+  -H = print full help message and exit. Includes special-use options.
 EOF
   fi
 }
@@ -188,16 +192,16 @@ fi
 
 export compiler
 
-if [[ "$machine" == URSA ]] ; then
-    runtime_log=$homedir/scripts/runtime.log.${machine}_${compiler}
-else
-    runtime_log=$homedir/scripts/runtime.log.$machine
-fi
-
 #set working directory
 export workdir=${workdir:-"`pwd`/work-upp-${machine}-${compiler}"}
 rm -rf $workdir
 mkdir -p $workdir
+
+if [[ "$machine" == URSA ]] ; then
+  export cmp_grib2_grib2=$svndir/ci/cmp_grib2_grib2.sh
+else:
+  export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+fi
 
 #differentiates for orion and hercules
 export rundir="${rundir}/upp-${machine}"

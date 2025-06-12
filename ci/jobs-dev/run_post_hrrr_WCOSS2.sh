@@ -37,7 +37,7 @@ module list
 msg="Starting hrrr test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify your running and output directory

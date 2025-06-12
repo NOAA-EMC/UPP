@@ -35,7 +35,7 @@ module list
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
+
 # specify user's own post executable for testing
 export POSTGPEXEC=${svndir}/exec/upp.x
 
