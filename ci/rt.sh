@@ -6,6 +6,7 @@
 # Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
 # Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
+# Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
 ######################################################################
 set -xue
 SECONDS=0
