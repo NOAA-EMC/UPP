@@ -187,12 +187,6 @@ fi
 
 export compiler
 
-if [[ "$machine" == URSA ]] ; then
-    runtime_log=$homedir/scripts/runtime.log.${machine}_${compiler}
-else
-    runtime_log=$homedir/scripts/runtime.log.$machine
-fi
-
 #set working directory
 export workdir=${workdir:-"`pwd`/work-upp-${machine}-${compiler}"}
 rm -rf $workdir
