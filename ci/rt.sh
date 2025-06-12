@@ -46,8 +46,8 @@ General options:
   -d = disable ifi tests even if ifi is available
   -e = don't build the UPP executable
   -h homedir = path to the regression test data
-  -w workdir = directory with per-job batch and log files.
-  -H = print full help message including special-use option flags.
+  -w workdir = directory to store per-job batch and log files.
+  -H = print full help message and exit. Includes special-use options.
 EOF
 
   if [[ "$print_full_help" == YES ]] ; then
