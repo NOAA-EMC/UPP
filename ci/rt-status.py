@@ -13,7 +13,7 @@ import sys
 test_list = os.environ["test_list"]
 print('Check tests:')
 print(test_list)
-tests = test_list
+tests = test_list.split()
 #tests = [
 #    'nmmb',
 #    'gfs',
