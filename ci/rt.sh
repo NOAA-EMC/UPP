@@ -33,7 +33,7 @@ Synopsis: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compi
 Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
 
 Results are here:
-  ../tests/logs/MACHINE[_compiler].log = report of regression tests for each machine and compiler.
+  ../tests/logs/MACHINE_compiler.log = report of regression tests for each machine and compiler.
   changed_results.txt = A list of tests whose results have changed.
 
 Always set these:
