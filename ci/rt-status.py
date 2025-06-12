@@ -4,6 +4,7 @@
 Updates
 Aug/29/2023 - Fernando Andrade-Maldonado: Script creation
 Feb/10/2025 - Sam Trahan: Detect if a test was unable to run.
+Jun/12/2025 - Sam Trahan: Fix parser errors in test name detection.
 '''
 
 import os
