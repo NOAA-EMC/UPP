@@ -178,7 +178,7 @@ fi
 
 if [[ "$compiler" == MISSING ]] ; then
     if [[ "$machine" == URSA ]] ; then
-	usage FATAL ERROR: You must specify the compiler on Ursa: -C intel|intelllvm 1>&2
+	usage FATAL ERROR: You must specify the compiler on Ursa: -C 'intel|intelllvm' 1>&2
 	exit 2
     else
 	compiler=intel
