@@ -10,7 +10,7 @@ import os
 import sys
 
 # files used in result comparison
-test_list = os.environ["test_list"]
+test_list = os.environ["test_list"].split()
 print('Check tests:')
 print(test_list)
 tests = test_list
