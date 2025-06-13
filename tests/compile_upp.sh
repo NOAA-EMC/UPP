@@ -115,7 +115,6 @@ if [[ $MACHINE_ID != "unknown" ]]; then
    elif [ $MACHINE_ID == "container" ]; then
       source /usr/lmod/lmod/init/bash
       module purge
-      unset MODULEPATH
    elif [[ "$MACHINE_ID" =~ gaea* ]] ; then
        module reset
        # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
