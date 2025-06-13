@@ -22,12 +22,8 @@ export APRUN_DWN="srun --export=ALL"
 ############################################
 
 module use ${svndir}/modulefiles
-module load stack-oneapi/2024.2.1
-module load stack-intel-oneapi-mpi/2021.13
-module load libpng/1.6.37
-module load jasper/2.0.32
+module load orion_intel
 module load prod_util/2.1.1
-module load crtm/2.4.0.1
 module list
 
 #export WGRIB2=wgrib2
