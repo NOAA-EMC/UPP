@@ -24,7 +24,7 @@ usage() {
 
   cat<<EOF
 
-Synopsis: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
+Usage: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
 Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
 
 Results are here:
