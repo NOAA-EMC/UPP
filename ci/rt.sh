@@ -70,27 +70,40 @@ EOF
   fi
 }
 
+check_for_dash() {
+  if [[ -z "${OPTARG}" ]] ; then
+    echo "Argument error: -$opt argument is the empty string"
+    usage FATAL ERROR: Script is exiting due to invalid argument. See error message above. 1>&2
+    exit 2
+  fi
+  if [[ "${OPTARG:0:1}" == '-' ]] ; then
+    echo "Argument error: -$opt requires an argument"
+    usage FATAL ERROR: Script is exiting due to a missing argument. See error message above 1>&2
+    exit 2
+  fi
+}
+
 set +x
 export OPTERR=1
 while getopts a:w:h:r:t:b:u:C:cdHe opt; do
   case $opt in
-    C) compiler=${OPTARG}
+    C) compiler=${OPTARG} ; check_for_dash
         ;;
     d) disable_ifi=yes
         ;;
-    a) accnr=${OPTARG}
+    a) accnr=${OPTARG} ; check_for_dash
         ;;
-    w) workdir=${OPTARG}
+    w) workdir=${OPTARG} ; check_for_dash
         ;;
-    h) homedir=${OPTARG}
+    h) homedir=${OPTARG} ; check_for_dash
         ;;
-    r) rundir=${OPTARG}
+    r) rundir=${OPTARG} ; check_for_dash
         ;;
-    t) test_v=${OPTARG}
+    t) test_v=${OPTARG} ; check_for_dash
         ;;
-    b) git_branch=${OPTARG}
+    b) git_branch=${OPTARG} ; check_for_dash
         ;;
-    u) git_url=${OPTARG}
+    u) git_url=${OPTARG} ; check_for_dash
         ;;
     c) clone_on="yes"
 	;;
