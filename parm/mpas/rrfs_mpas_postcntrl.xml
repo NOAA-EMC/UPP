@@ -319,12 +319,12 @@
            <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
            <scale>6.0</scale>
        </param>
-
+<!--
        <param>
            <shortname>BUCKET_HAIL_ON_SURFACE</shortname>
            <scale>3.0</scale>
        </param>
-
+-->
        <param>
            <shortname>GSD_CSNOW_ON_SURFACE</shortname>
            <scale>1.0</scale>
@@ -594,7 +594,12 @@
 
        <param>
            <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
-           <scale>4.0</scale>
+           <scale>6.0</scale>
+       </param>
+
+       <param>
+           <shortname>TCOLP_ON_ENTIRE_ATMOS</shortname>
+           <scale>6.0</scale>
        </param>
 
        <param>
