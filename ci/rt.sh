@@ -33,7 +33,7 @@ Results are here:
 
 Always set these:
   -a account = accounting code for job submission. Default account is often overused. Always set this!
-  -C = chosen compiler. Default: intel. Mandatory on Ursa!
+  -C = chosen compiler. (Capital C) Default: intel. Mandatory on Ursa!
   -r rundir = path to a scrub space. Default area is often over quota. Always set this!
 
 General options:
@@ -51,7 +51,7 @@ Special run mode: run rt.sh outside the repository. Automatically clones the rep
 Syntax: rt.sh -a account -r /path/to/scrub/space -c -u url -b branch [options] [compiler]
 
 Additional options:
-  -c = Tells rt.sh it is running outside a repository.
+  -c = Tells rt.sh it is running outside a repository. (Lower-case c)
   -t test_v = Location to clone the repository. Default: Overwrite .. with the clone.
   -u url = Mandatory: URL of a repository to clone. Not for general use.
   -b branch = Mandatory: branch in the repository to clone
