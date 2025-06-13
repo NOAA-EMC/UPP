@@ -5011,6 +5011,7 @@
 !> 2024-11-15 | Jesse Meng | Initial
 !> 2025-04-23 | Jesse Meng | Bug fix zmid calculation in very thin layers
 !> 2025-06-12 | Jesse Meng | Bug fix RH converted from decimal to percent
+!> 2025-06-12 | Jesse Meng | SLR masking procedure modified
 !>
 !> @author Jesse Meng @date 2024-11-15
 
@@ -5071,7 +5072,7 @@
 !
 !***************************************************************************
 !
-      allocate(twet(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+!      allocate(twet(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
       do ifd = 1,nfl
 !$omp parallel do private(i,j)      
@@ -5177,46 +5178,47 @@
       enddo
       enddo
 
+! 20250612 Jesse Meng, skip until UUtah updates SLR mask decision   
 !        compute wetbulb temperature and search for twet > 0.5c
-
-      karr = 1
-      call wetbulb(t,q,pmid,htm,karr,twet)
-
-!$omp parallel do private(i,j)      
-      do j=jsta,jend
-      do i=ista,iend
-         zwet(i,j)=zmid(i,j,lm)
-         twet05(i,j)=-1
-      enddo
-      enddo
-
-      do l=1,lm
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-      do i=ista,iend
-         if(twet05(i,j) < 0) then
-            if(twet(i,j,l) >= 273.15+0.5) then
-               zwet(i,j)=zmid(i,j,l)
-               twet05(i,j)=1
-            endif
-         endif
-      enddo
-      enddo
-      enddo
-
-!$omp parallel do private(i,j,htabh)      
-      do j=jsta,jend
-      do i=ista,iend
-         if(twet05(i,j) > 0 .and. slr(i,j)<spval) then
-            htabh=zwet(i,j)-zint(i,j,lm+1)
-            if(htabh<0.) htabh=0.
+!
+!      karr = 1
+!      call wetbulb(t,q,pmid,htm,karr,twet)
+!
+!!$omp parallel do private(i,j)      
+!      do j=jsta,jend
+!      do i=ista,iend
+!         zwet(i,j)=zmid(i,j,lm)
+!         twet05(i,j)=-1
+!      enddo
+!      enddo
+!
+!      do l=1,lm
+!!$omp parallel do private(i,j)
+!      do j=jsta,jend
+!      do i=ista,iend
+!         if(twet05(i,j) < 0) then
+!            if(twet(i,j,l) >= 273.15+0.5) then
+!               zwet(i,j)=zmid(i,j,l)
+!               twet05(i,j)=1
+!            endif
+!         endif
+!      enddo
+!      enddo
+!      enddo
+!
+!!$omp parallel do private(i,j,htabh)      
+!      do j=jsta,jend
+!      do i=ista,iend
+!         if(twet05(i,j) > 0 .and. slr(i,j)<spval) then
+!            htabh=zwet(i,j)-zint(i,j,lm+1)
+!            if(htabh<0.) htabh=0.
 !            slr(i,j)=slr(i,j)*(1.-htabh/200.)
-            if(slr(i,j)<0.) slr(i,j)=0.
-         endif
-      enddo
-      enddo
-
-      deallocate (twet)
+!            if(slr(i,j)<0.) slr(i,j)=0.
+!         endif
+!      enddo
+!      enddo
+!
+!      deallocate (twet)
 
       end subroutine calslr_uutah2
 !
