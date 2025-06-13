@@ -117,6 +117,19 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
   esac
 done
+
+# Fail if positional arguments are present:
+positional_count=$(( $# - OPTIND + 1 ))
+echo "$positional_count"
+if (( positional_count > 0)) ; then
+  if (( positional_count > 1)) ; then
+    arguments=arguments
+  else
+    arguments=argument
+  fi
+  usage FATAL ERROR: Positional $arguments found rt.sh: "$@" 2>&1
+  exit 2
+fi
 set -x
 
 #UPP working copy
