@@ -31,6 +31,9 @@ case $(hostname -f) in
   hfe1[01]) MACHINE_ID=hera ;;   ### hera10-11
   hecflow01) MACHINE_ID=hera ;;   ### heraecflow01
 
+  ufe[0-9][0-9]) MACHINE_ID=ursa ;;
+  uecflow*) MACHINE_ID=ursa ;;
+
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
 
   fe[1-8]) MACHINE_ID=jet ;; ### jet1-8
