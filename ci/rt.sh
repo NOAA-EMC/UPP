@@ -117,6 +117,16 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
   esac
 done
+
+# Fail if positional arguments are present:
+if [[ "$#" -gt 0 ]] ; then
+  plural=argument
+  if [[ "$#" -gt 1 ]] ; then
+    plural=arguments
+  fi
+  usage FATAL ERROR: Unexpected command-line ${plural} to rt.sh: "$@" 2>&1
+  exit 2
+fi
 set -x
 
 #UPP working copy
