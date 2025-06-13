@@ -14,7 +14,6 @@ load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 unload("gnu")
 
 load(pathJoin("cmake", cmake_ver))
--- {["zlib-ng"]         = "2.1.6"  },
 
 local ufs_modules = {
   {["jasper"]          = "2.0.32" },
@@ -39,6 +38,5 @@ for i = 1, #ufs_modules do
     load(pathJoin(name, os.getenv(env_version_name) or default_version))
   end
 end
-
 
 whatis("Description: UPP environment in container with Intel Compilers")
