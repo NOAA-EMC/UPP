@@ -120,7 +120,6 @@ done
 
 # Fail if positional arguments are present:
 positional_count=$(( $# - OPTIND + 1 ))
-echo "$positional_count"
 if (( positional_count > 0)) ; then
   if (( positional_count > 1)) ; then
     arguments=arguments
