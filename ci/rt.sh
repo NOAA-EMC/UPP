@@ -22,13 +22,6 @@ compiler="MISSING"
 usage() {
   set +xue
 
-  if [[ "$#" -gt 0 ]] ; then
-    echo
-    echo "------------------------------------------------------------------------"
-    echo "$@"
-    echo "------------------------------------------------------------------------"
-  fi
-
   cat<<EOF
 
 Synopsis: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
@@ -67,6 +60,13 @@ EOF
       cat<<EOF
   -H = print full help message and exit. Includes special-use options.
 EOF
+  fi
+
+  if [[ "$#" -gt 0 ]] ; then
+    echo
+    echo "------------------------------------------------------------------------"
+    echo "$@"
+    echo "------------------------------------------------------------------------"
   fi
 }
 
