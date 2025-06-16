@@ -117,6 +117,19 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
   esac
 done
+
+# Fail if positional arguments are present:
+positional_count=$(( $# - OPTIND + 1 ))
+if (( positional_count > 0)) ; then
+  if (( positional_count > 1)) ; then
+    arguments=arguments
+  else
+    arguments=argument
+  fi
+  shift $(( OPTIND - 1 ))
+  usage FATAL ERROR: Positional $arguments found rt.sh: "$@" 2>&1
+  exit 2
+fi
 set -x
 
 #UPP working copy
@@ -150,8 +163,13 @@ if [ $mac2 = hf ]; then # for HERA
  module load prod_util/2.1.1
 elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
+
+ # ===================================================================================
+ # FIXME: A code manager must copy $homedir to an EPIC area before merging to develop.
  export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
- export rundir=${rundir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/scrub"}
+ # ===================================================================================
+
+ export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
  export accnr=${accnr:-"rtrr"}
  module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
  module load stack-oneapi/2024.2.1
