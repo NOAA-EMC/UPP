@@ -5010,8 +5010,7 @@
 !> -----|------------|---------
 !> 2024-11-15 | Jesse Meng | Initial
 !> 2025-04-23 | Jesse Meng | Bug fix zmid calculation in very thin layers
-!> 2025-06-12 | Jesse Meng | Bug fix RH converted from decimal to percent
-!> 2025-06-12 | Jesse Meng | SLR masking procedure modified
+!> 2025-06-12 | Jesse Meng | Bug fix RH converted from decimal to percent. SLR masking procedure modified
 !>
 !> @author Jesse Meng @date 2024-11-15
 
