@@ -127,7 +127,7 @@ if (( positional_count > 0)) ; then
     arguments=argument
   fi
   shift $(( OPTIND - 1 ))
-  usage FATAL ERROR: Positional $arguments found rt.sh: "$@" 2>&1
+  usage FATAL ERROR: Script is aborting due to spurious $arguments: "$@" 2>&1
   exit 2
 fi
 set -x
