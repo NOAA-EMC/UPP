@@ -14,18 +14,9 @@ load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 cmake_ver=os.getenv("cmake_ver") or "3.27.9"
 load(pathJoin("cmake", cmake_ver))
 
-local ufs_modules = {
-  {["zlib"]            = "1.2.13" },
-}
-
-for i = 1, #ufs_modules do
-  for name, default_version in pairs(ufs_modules[i]) do
-    local env_version_name = string.gsub(name, "-", "_") .. "_ver"
-    load(pathJoin(name, os.getenv(env_version_name) or default_version))
-  end
-end
-
 load("upp_common")
+
+load(pathJoin("zlib","1.2.13"))
 
 setenv("CC", "mpiicx")
 setenv("CXX", "mpiicpx")
