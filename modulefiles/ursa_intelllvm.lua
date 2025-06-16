@@ -24,6 +24,8 @@ for i = 1, #ufs_modules do
   end
 end
 
+load("upp_common")
+
 setenv("CC", "mpiicx")
 setenv("CXX", "mpiicpx")
 setenv("FC", "mpiifx")
