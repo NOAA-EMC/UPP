@@ -22,16 +22,9 @@ compiler="MISSING"
 usage() {
   set +xue
 
-  if [[ "$#" -gt 0 ]] ; then
-    echo
-    echo "------------------------------------------------------------------------"
-    echo "$@"
-    echo "------------------------------------------------------------------------"
-  fi
-
   cat<<EOF
 
-Synopsis: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
+Usage: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
 Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
 
 Results are here:
@@ -40,7 +33,7 @@ Results are here:
 
 Always set these:
   -a account = accounting code for job submission. Default account is often overused. Always set this!
-  -C = chosen compiler. Default: intel. Mandatory on Ursa!
+  -C = chosen compiler. (Capital C) Default: intel. Mandatory on Ursa!
   -r rundir = path to a scrub space. Default area is often over quota. Always set this!
 
 General options:
@@ -58,7 +51,7 @@ Special run mode: run rt.sh outside the repository. Automatically clones the rep
 Syntax: rt.sh -a account -r /path/to/scrub/space -c -u url -b branch [options] [compiler]
 
 Additional options:
-  -c = Tells rt.sh it is running outside a repository.
+  -c = Tells rt.sh it is running outside a repository. (Lower-case c)
   -t test_v = Location to clone the repository. Default: Overwrite .. with the clone.
   -u url = Mandatory: URL of a repository to clone. Not for general use.
   -b branch = Mandatory: branch in the repository to clone
@@ -68,29 +61,49 @@ EOF
   -H = print full help message and exit. Includes special-use options.
 EOF
   fi
+
+  if [[ "$#" -gt 0 ]] ; then
+    echo
+    echo "------------------------------------------------------------------------"
+    echo "$@"
+    echo "------------------------------------------------------------------------"
+  fi
+}
+
+check_for_dash() {
+  if [[ -z "${OPTARG}" ]] ; then
+    echo "Argument error: -$opt argument is the empty string"
+    usage FATAL ERROR: Script is exiting due to invalid argument. See error message above. 1>&2
+    exit 2
+  fi
+  if [[ "${OPTARG:0:1}" == '-' ]] ; then
+    echo "Argument error: -$opt requires an argument"
+    usage FATAL ERROR: Script is exiting due to a missing argument. See error message above 1>&2
+    exit 2
+  fi
 }
 
 set +x
 export OPTERR=1
 while getopts a:w:h:r:t:b:u:C:cdHe opt; do
   case $opt in
-    C) compiler=${OPTARG}
+    C) compiler=${OPTARG} ; check_for_dash
         ;;
     d) disable_ifi=yes
         ;;
-    a) accnr=${OPTARG}
+    a) accnr=${OPTARG} ; check_for_dash
         ;;
-    w) workdir=${OPTARG}
+    w) workdir=${OPTARG} ; check_for_dash
         ;;
-    h) homedir=${OPTARG}
+    h) homedir=${OPTARG} ; check_for_dash
         ;;
-    r) rundir=${OPTARG}
+    r) rundir=${OPTARG} ; check_for_dash
         ;;
-    t) test_v=${OPTARG}
+    t) test_v=${OPTARG} ; check_for_dash
         ;;
-    b) git_branch=${OPTARG}
+    b) git_branch=${OPTARG} ; check_for_dash
         ;;
-    u) git_url=${OPTARG}
+    u) git_url=${OPTARG} ; check_for_dash
         ;;
     c) clone_on="yes"
 	;;
@@ -104,6 +117,19 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
   esac
 done
+
+# Fail if positional arguments are present:
+positional_count=$(( $# - OPTIND + 1 ))
+if (( positional_count > 0)) ; then
+  if (( positional_count > 1)) ; then
+    arguments=arguments
+  else
+    arguments=argument
+  fi
+  shift $(( OPTIND - 1 ))
+  usage FATAL ERROR: Script is aborting due to spurious $arguments: "$@" 2>&1
+  exit 2
+fi
 set -x
 
 #UPP working copy
@@ -137,8 +163,13 @@ if [ $mac2 = hf ]; then # for HERA
  module load prod_util/2.1.1
 elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
+
+ # ===================================================================================
+ # FIXME: A code manager must copy $homedir to an EPIC area before merging to develop.
  export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
- export rundir=${rundir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/scrub"}
+ # ===================================================================================
+
+ export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
  export accnr=${accnr:-"rtrr"}
  module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
  module load stack-oneapi/2024.2.1
@@ -197,11 +228,7 @@ export workdir=${workdir:-"`pwd`/work-upp-${machine}-${compiler}"}
 rm -rf $workdir
 mkdir -p $workdir
 
-if [[ "$machine" == URSA ]] ; then
-  export cmp_grib2_grib2=$svndir/ci/cmp_grib2_grib2.sh
-else
-  export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
-fi
+export cmp_grib2_grib2=$svndir/ci/cmp_grib2_grib2.sh
 
 #differentiates for orion and hercules
 export rundir="${rundir}/upp-${machine}"
