@@ -163,12 +163,7 @@ if [ $mac2 = hf ]; then # for HERA
  module load prod_util/2.1.1
 elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
-
- # ===================================================================================
- # FIXME: A code manager must copy $homedir to an EPIC area before merging to develop.
- export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
- # ===================================================================================
-
+ export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite"}
  export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
  export accnr=${accnr:-"rtrr"}
  module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
