@@ -24,6 +24,7 @@
 !                                    4.2-4-5,10 4.2-20-0,1,2,3
 !2024-07-17         A. BENJAMIN      GRIB2 v33.0 update, new parameters
 !2025-05-14         B. BLAKE         Added new parameters
+!2025-06-11         B. BLAKE         Added new parameters
 !
 !
 !GRIB2 parameter table for all disciplines and categories
@@ -323,6 +324,8 @@
    0   1   235   1 CLLMR
 !  Added new parameters on 5/14/2025
    0   1   236   1 HAILAC
+!  Added new parameters on 6/11/2025
+   0   1   237   1 TCOLP
    0   1   241   1 TSNOW
    0   1   242   1 RHPW
    0   1   245   1 MAXVIG
@@ -791,6 +794,8 @@
 !  Added more parameters in 8/26/2015
    0  15    15   0 HSR
    0  15    16   0 HSRHT
+!  Added new parameters on 6/11/2025
+   0  15   192   1 RADARVIL
 !
 ! GRIB2 - TABLE 4.2-0-16 PARAMETERS FOR DISCIPLINE 0 CATEGORY 16
 !
@@ -808,7 +813,6 @@
    0  16   196   1 REFC
    0  16   197   1 RETOP
    0  16   198   1 MAXREF
-   0  16   201   1 RADARVIL
 !
 ! GRIB2 - TABLE 4.2-0-17 PARAMETERS FOR DISCIPLINE 0 CATEGORY 17
 !
