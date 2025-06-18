@@ -1,26 +1,42 @@
 !> @file
-!> @brief Subroutine that computes PBL height based on bulk Richardson number.
+!> @brief Subroutine that computes PBL height based on bulk Richardson number or virtual potential temperature
 !>
-!> This routine computes the bulk Richardson number
-!> and PBL height above surface.
-!>     
-!> @param[inout] PBLRI real PBL height above ground.
+!> SUBROUTINE CALPBL
+!>
+!> This routine computes the PBL height above the surface, based on 
+!> either bulk Richardson number or virtual potential temperature
+!> considerations. 
+!>
+!> --- Note (J Kenyon, 16 Jun 2025) ---
+!> In some model applications, the PBL height calculated in this
+!> subroutine might only be used internally (within UPP) for use 
+!> in other diagnostics (e.g., 10-m wind gust). In such 
+!> applications, the PBL height that is supplied in the GRIB2 
+!> output will have been calculated within the model itself and 
+!> simply passed through UPP.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
-!> 2006-05-04 | M Tsidulko | Initial
+!> 2006-05-04 | M Tsidulko | Initial (Richardson number method only)
 !> 2021-09-02 | Bo Cui     | Decompose UPP in X direction          
+!> 2025-06-16 | J Kenyon   | Added option to calculate PBL height based
+!>                         | on virtual potential temperature (THV), as
+!>                         | implemented via "METHOD" logic. The THV-based 
+!>                         | formulation is essentially taken from the 
+!>                         | formulation of 'PBLHGUST' that exists/existed 
+!>                         | in INITPOST* subroutines. The intent is to 
+!>                         | combine various UPP diagnostics of PBL height 
+!>                         | within this subroutine.
 !>   
 !> @author M Tsidulko @date 2006-05-04
 !-----------------------------------------------------------------------
-!> @brief Subroutine that computes PBL height based on bulk Richardson number.
-!>
-!> @param[inout] PBLRI real PBL height above ground.
+!> @param[in] METHOD: 'RI' for Richardson number approach; 'THV' for virtual potential temperature approach
+!> @param[inout] PBLHGT: PBL height above ground
 !-----------------------------------------------------------------------
-      SUBROUTINE CALPBL(PBLRI)
 
-!
+      SUBROUTINE CALPBL(PBLHGT,METHOD)
+
       use vrbls3d, only: pmid, q, t, uh, vh, zmid
       use vrbls2d, only: fis
       use masks, only: vtm
@@ -33,7 +49,8 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: PBLRI
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) :: PBLHGT
+      character(*),intent(in) :: METHOD ! ('RI' or 'THV')
 
       REAL, ALLOCATABLE :: THV(:,:,:)
       INTEGER IFRSTLEV(ista_2l:iend_2u,jsta_2l:jend_2u),ICALPBL(ista_2l:iend_2u,jsta_2l:jend_2u)   &
@@ -44,10 +61,9 @@
              ,THVBOT1(ista_2l:iend_2u,jsta_2l:jend_2u)
       integer I,J,L,IE,IW
       real APE,BETTA,RICR,USTARR,WMIN,UHKL,ULKL,VHKL,VLKL,WNDSL,WNDSLP,  &
-           UBOT,VBOT,VTOP,UTOP,THVTOP,ZTOP,WDL2,RIB
+           UBOT,VBOT,VTOP,UTOP,THVTOP,ZTOP,WDL2,RIB,DELTA_THV,THV_SFC
 !     
 !*************************************************************************
-!     START CALRCHB HERE.
 !     
       ALLOCATE ( THV(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM) )
 
@@ -56,11 +72,11 @@
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
-            PBLRI(I,J) = SPVAL
+            PBLHGT(I,J) = SPVAL
           ENDDO
         ENDDO
-!
-!     COMPUTE VIRTUAL POTENTIAL TEMPERATURE.
+
+!     COMPUTE VIRTUAL POTENTIAL TEMPERATURE (THV; needed for RI- and THV-based methods)
 !
 !$omp  parallel do private(i,j,l,ape)
       DO L=LM,1,-1
@@ -73,7 +89,12 @@
           ENDDO
         ENDDO
       ENDDO
-!
+
+! --------------------------------------------------------------------
+! Begin RI-based method: Calculate PBLHGT using Richardson number  
+! --------------------------------------------------------------------
+    IF (METHOD=='RI') THEN
+
 !     COMPUTE BULK RICHARDSON NUMBER AS CODED IN GFS MODEL
 !     AND RAOBS FOR VERIFICATION
 !
@@ -191,13 +212,13 @@
 !  RICHARDSON NUMBERS. L IS BOUNDARY-LAYER TOP LEVEL NUMBER.
 ! --------------------------------------------------------------------
             IF (RIB>=RICR.AND.ICALPBL(I,J)==0) THEN
-              PBLRI(I,J) = ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))*      &
+              PBLHGT(I,J) = ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))*      &
                            (RICR-RIBP(I,J))/(RIB-RIBP(I,J))
               ICALPBL(I,J) = 1
 
 !-------- Extract surface height -----------------------------------
 
-              PBLRI(I,J) = PBLRI(I,J)-FIS(I,J)*GI
+              PBLHGT(I,J) = PBLHGT(I,J)-FIS(I,J)*GI
 
             ENDIF
             
@@ -208,13 +229,59 @@
 
             endif !spval
 
-          ENDDO
-        ENDDO
-      ENDDO
-!     
+          ENDDO ! I loop
+        ENDDO ! J loop
+      ENDDO ! L loop
+
+! -- End of RI-based method
+
+! ----------------------------------------------------------------------------
+! Begin THV-based method: Calculate PBLHGT using virtual potential temperature
+! ----------------------------------------------------------------------------
+    ELSE IF (METHOD=='THV') THEN
+
+      DELTA_THV  = 0.5
+      ! J. Kenyon (16 Jun 2025): DELTA_THV was taken from
+      ! "delta_theta4gust" in INITPOST and INITPOST_MPAS.
+      ! DELTA_THV is an arbitrary value (in K) that is added 
+      ! to the surface THV. In other words, DELTA_THV is a 
+      ! small "boost" applied to the surface THV.
+
+      DO J=JSTA,JEND
+        DO I=ISTA,IEND
+
+          ! Define the surface THV
+          THV_SFC = THV(I,J,LM) + DELTA_THV
+
+          ! Check for a surface-based mixed layer
+          IF (THV(I,J,LM-1) < THV_SFC) THEN 
+             ! Surface-based mixed layer exists; begin vertical loop
+             DO L=LM,2,-1
+               IF (THV(I,J,L-1) > THV_SFC) EXIT
+                 ! Found top of mixed layer (somewhere between L and L-1); 
+                 ! exit vertical loop
+             ENDDO
+             ! With the last value of L; obtain PBLHGT by interpolation
+             PBLHGT(I,J) = ZMID(I,J,L) +                        &
+                             (ZMID(I,J,L-1)-ZMID(I,J,L))        &
+                            *(THV_SFC-THV(I,J,L))               &
+                            /(THV(I,J,L-1)-THV(I,J,L)) 
+             ! Convert to AGL
+             PBLHGT(I,J) = PBLHGT(I,J)-FIS(I,J)*GI
+          ELSE 
+             ! Surface-based mixed layer does not exist
+             PBLHGT(I,J) = 0.
+          END IF ! Check for surface-based mixed layer
+
+        ENDDO ! I loop
+      ENDDO ! J loop
+ 
+! -- End of THV-based method
+
+    END IF ! METHOD branching
+
       DEALLOCATE (THV)
 !     END OF ROUTINE.
 !     
       RETURN
       END
-
