@@ -28,6 +28,7 @@
 !! -  23-08-16  Yali Mao - Add CIT (Convectively-Induced Turbulence) for GTG4
 !! -  23-08-16  Yali Mao - Make it optional to allocate GTG related fields only when gtg_on
 !! -  25-01-13  Jaymes Kenyon - Add graupel number concentration (QQNG)
+!! -  25-05-05  Jaymes Kenyon - Add HAIL_BUCKET
 
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -621,6 +622,7 @@
       allocate(snow_bucket1(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(graup_bucket(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(graup_bucket1(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(hail_bucket(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(frzrn_bucket(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(snow_acm(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(snow_bkt(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -653,6 +655,7 @@
           snow_bucket1(i,j)=spval
           graup_bucket(i,j)=spval
           graup_bucket1(i,j)=spval
+          hail_bucket(i,j)=spval
           frzrn_bucket(i,j)=spval
           snow_acm(i,j)=spval
           snow_bkt(i,j)=spval

@@ -6,6 +6,7 @@
 # 2016/03       Lin Gan : Add GEFS and new control section tag using GEFS ctrl and GFS avail file
 # 2023/09       Sam Trahan : Rewritten with simpler syntax and better readability
 # 2025/05       Jaymes Kenyon : Adding files for MPAS applications
+# 2025/05       Ben Blake : Updating files for RRFSv1
 
 SHELL=/bin/sh
 PERL=/usr/bin/perl
@@ -47,9 +48,12 @@ ALL_TXT= \
   ./rrfs/postxconfig-NT-rrfs_subh.txt \
   ./rrfs/postxconfig-NT-rrfs_f00.txt \
   ./rrfs/postxconfig-NT-rrfs_f01.txt \
-  ./rrfs/postxconfig-NT-rrfs_nosmokedust.txt \
-  ./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt \
-  ./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt \
+  ./rrfs/postxconfig-NT-refs.txt \
+  ./rrfs/postxconfig-NT-refs_f00.txt \
+  ./rrfs/postxconfig-NT-refs_f01.txt \
+  ./rrfs/postxconfig-NT-rrfs_firewx.txt \
+  ./rrfs/postxconfig-NT-rrfs_firewx_f00.txt \
+  ./rrfs/postxconfig-NT-rrfs_firewx_f01.txt \
   ./mpas/postxconfig-NT-rrfs_mpas.txt \
   ./mpas/postxconfig-NT-hfip_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas.txt \
@@ -91,9 +95,12 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./rrfs/postxconfig-NT-rrfs_subh.txt: ./rrfs/rrfs_postcntrl_subh.xml post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_f00.txt:  ./rrfs/rrfs_postcntrl_f00.xml  post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_f01.txt:  ./rrfs/rrfs_postcntrl_f01.xml  post_avblflds.xml
-./rrfs/postxconfig-NT-rrfs_nosmokedust.txt:     ./rrfs/rrfs_postcntrl_nosmokedust.xml     post_avblflds.xml
-./rrfs/postxconfig-NT-rrfs_nosmokedust_f00.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f00.xml post_avblflds.xml
-./rrfs/postxconfig-NT-rrfs_nosmokedust_f01.txt: ./rrfs/rrfs_postcntrl_nosmokedust_f01.xml post_avblflds.xml
+./rrfs/postxconfig-NT-refs.txt:      ./rrfs/refs_postcntrl.xml      post_avblflds.xml
+./rrfs/postxconfig-NT-refs_f00.txt:  ./rrfs/refs_postcntrl_f00.xml  post_avblflds.xml
+./rrfs/postxconfig-NT-refs_f01.txt:  ./rrfs/refs_postcntrl_f01.xml  post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_firewx.txt:     ./rrfs/rrfs_postcntrl_firewx.xml     post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_firewx_f00.txt: ./rrfs/rrfs_postcntrl_firewx_f00.xml post_avblflds.xml
+./rrfs/postxconfig-NT-rrfs_firewx_f01.txt: ./rrfs/rrfs_postcntrl_firewx_f01.xml post_avblflds.xml
 ./mpas/postxconfig-NT-rrfs_mpas.txt:   ./mpas/rrfs_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-hfip_mpas.txt:   ./mpas/hfip_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-global_mpas.txt: ./mpas/global_mpas_postcntrl.xml post_avblflds.xml
