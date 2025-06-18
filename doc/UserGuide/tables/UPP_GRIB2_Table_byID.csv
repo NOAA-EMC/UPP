@@ -863,6 +863,6 @@ Number concentration for cloud water drops on isobaric surfaces,NCCD_ON_ISOBARIC
 Number concentration for ice particles on isobaric surfaces,NCIP_ON_ISOBARIC_SFC,NCCICE,1019
 Number concentration for rain on isobaric surfaces,NCRAIN_ON_ISOBARIC_SFC,SPNCR,1020
 Velocity potential on isobaric surfaces,POISSION_VPOT_ON_ISOBARIC_SFC,VPOT,1021
-Stream on isobaric surface,POISSION_STRM_ON_ISOBARIC_SFC,STRM,1022
+Stream Function on isobaric surface,POISSION_STRM_ON_ISOBARIC_SFC,STRM,1022
 Number concentraion of graupel on native levels,NCGRAUP_ON_HYBRID_LVL,SPNCG,1023
 Number concentraion of graupel on isobaric levels,NCGRAUP_ON_ISOBARIC_SFC,SPNCG,1024
