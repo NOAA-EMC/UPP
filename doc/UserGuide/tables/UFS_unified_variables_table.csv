@@ -101,9 +101,9 @@ Plant canopy sfc water in m,cnwat,cmc,2d,phy,
 Frozen precip fraction,cpofp,sr,2d,phy,
 Sea ice skin temperature,tisfc,ti,2d,phy,
 Vegetation fraction,veg,vegfrc,2d,phy,
-Liquid volumetric soil moisture,soill1/.../soill9,sh2o,2d,phy,all soil levels read into 3d array
-Volumetric soil moisture,soilw1/.../soilw9,smc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
-Soil temperature,soilt1/.../soilt9,stc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
+Liquid volumetric soil moisture,soill,sh2o,3d,phy
+Volumetric soil moisture,soilw,smc,3d,phy
+Soil temperature,soilt,stc,3d,phy
 Time averaged incoming surface longwave,dlwrf_ave,alwin,2d,phy,
 Instantaneous incoming surface longwave,dlwrf,rlwin,2d,phy,
 Time averaged outgoing surface longwave,ulwrf_ave,alwout,2d,phy,
