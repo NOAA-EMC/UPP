@@ -509,8 +509,8 @@ Sublimation on surface,AVE_SBSNO_ON_SURFACE,SBSNO,516
 Potential evaporation rate on surface,AVE_PEVPR_ON_SURFACE,PEVPR,517
 Bucket density snowfall on surface,BUCKET1_ASNOW_ON_SURFACE,ASNOW,525
 Bucket total precipitation on surface,BUCKET1_APCP_ON_SURFACE,APCP,526
-Bucket freezing rain on surface,BUCKET1_FRZR_ON_SURFACE,ACPCP,527
-Bucket large scale precipitation on surface,BUCKET1_TSNOWP_ON_SURFACE,TSNOWP,528
+Bucket freezing rain on surface,BUCKET1_FRZR_ON_SURFACE,FRZR,527
+Bucket snowfall on surface,BUCKET1_TSNOWP_ON_SURFACE,TSNOWP,528
 Bucket water equivalent accumulated snow depth on surface,BUCKET1_WEASD_ON_SURFACE,WEASD,529
 Bucket graupel precipitation on surface,BUCKET1_GRAUPEL_ON_SURFACE,FROZR,530
 Simulated Brightness Temperature for ABI GOES-18 Band-7,SBTA187_ON_TOP_OF_ATMOS,SBTA187,531
