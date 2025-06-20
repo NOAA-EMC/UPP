@@ -95,7 +95,7 @@ U-wind on sigma level 0.98230,UGRD_ON_SIGMA_LVL_0.98230,UGRD,95
 V-wind on sigma level 0.98230,VGRD_ON_SIGMA_LVL_0.98230,VGRD,96
 Temperature on sigma level 0.89671,TMP_ON_SIGMA_LVL_0.89671,TMP,97
 Temperature on sigma level 0.78483,TMP_ON_SIGMA_LVL_0.78483,TMP,98
-Relative humidity on sigma layer (0.47_1.0* mean)RH_ON_SIGMA_LVL_0.47_1.0,RH,99
+Relative humidity on sigma layer (0.47_1.0* mean),RH_ON_SIGMA_LVL_0.47_1.0,RH,99
 Relative humidity on sigma layer (0.47_0.96 mean),RH_ON_SIGMA_LVL_0.47_0.96,RH,100
 Relative humidity on sigma layer (0.18_0.47 mean),RH_ON_SIGMA_LVL_0.18_0.47,RH,101
 Relative humidity on sigma layer (0.84_0.98 mean),RH_ON_SIGMA_LVL_0.84_0.98,RH,102
