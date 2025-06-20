@@ -33,6 +33,7 @@ module load netcdf/4.7.4
 module load libjpeg/9c
 module load prod_util/2.0.8
 module load crtm/2.4.0.1
+module load wgrib2/2.0.8
 module list
 
 msg="Starting hrrr_ifi test"
