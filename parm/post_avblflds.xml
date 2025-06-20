@@ -4922,14 +4922,18 @@
        <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
-
-    <param> <!-- 581: VIL derived from reflectivity -->
+   
+<!-- 581:
+     Configured below with pname "VIL", but also suitable as pname
+     "RADARVIL" (NCEP local use); refer to GRIB2 Table 4.2-0-15
+-->
+    <param>
        <post_avblfldidx>581</post_avblfldidx>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <longname>entire atmosphere Vertically Integrated Liquid (kg/m-2)</longname>
        <pname>VIL</pname>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -7067,12 +7071,17 @@
        <scale>3.0</scale>
     </param>
 
-    <param> <!-- 769: VIL derived from hydrometeor mass, rather than from reflectivity -->
-       <post_avblfldidx>769</post_avblfldidx>
-       <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
-       <pname>VIL</pname>
+<!-- 769:
+     Previously had shortname "GSD_VIL_ON_ENTIRE_ATMOS" and pname "VIL"; was sometimes referred
+     to as 'hydrometeor-based VIL'
+-->
+    <param>
+       <post_avblfldidx>769</post_avblfldidx>     
+       <shortname>TCOLP_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLP</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>

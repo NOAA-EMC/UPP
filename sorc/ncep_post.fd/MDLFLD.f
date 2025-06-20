@@ -57,7 +57,7 @@
 !!   23-08-16 | Y Mao  | For gtg_algo, add tke as an input and cit as an output
 !!   23-08-16 | Y Mao  | For GTG, replace iget(ID) with namelist option 'gtg_on'.
 !!   23-10-04 | W Meng | Read 3D radar reflectivity from model when GFS use Thmopson MP
-!!   23-10-17 | E James| Include hail hydrometeors in VIL computation when available
+!!   23-10-17 | E James| Include hail hydrometeors in parm 769 computation when available
 !!   24-01-07 | Y Mao  | Add EDPARM IDs to the condition to call gtg_algo()
 !!   24-01-24 | H Lin  | switching GTG max (gtg) to gtgx3 from gtgx2 per gtg_algo() call
 !!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
@@ -65,8 +65,10 @@
 !!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
 !!   25-01-13 | J Kenyon | Add graupel number concentration (QQNG)
 !!   25-04-22 | J Kenyon | Remove parameter 770 (GSL's reflectivity-derived VIL), since a functionally identical 
-!!            |          | calculation is available via paramater 581. Note that GSL's hydrometeor-derived VIL
-!!            |          | remains available (paramater 769).
+!!            |          | calculation is available via paramater 581.
+!!   25-06-10 | J Kenyon | Adding descriptive comments for parameter 769. This parameter previously had the
+!!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS" (hydrometeor-based VIL), but is now
+!!                       | "TCOLP_ON_ENTIRE_ATMOS".
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3230,8 +3232,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     COMPUTE VIL (radar derived vertically integrated liquid water in each column)
 !     Per Mei Xu, VIL is radar derived vertically integrated liquid water based
 !     on emprical conversion factors (0.00344).
-!     ...Note that an alternative VIL formulation (obtained from hydrometeor masses)
-!     is available via parameter 769.
       IF (IGET(581)>0) THEN
         DO J=JSTA,JEND
           DO I=ista,iend
@@ -3434,9 +3434,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          enddo
        endif
       ENDIF
-!
-! Vertically integrated liquid in kg/m^2
-!
+
+! -- Total column-integrated precip (rain, snow, graupel, and hail; kg m-2)
+! J. Kenyon / 10 Jun 2025: Parm 769 was previously associated with the shortname "GSD_VIL_ON_ENTIRE_ATMOS".
+! It is a 'VIL-like' quantity, obtained from integrating the mixing ratios of precip hydrometeors (i.e., 
+! it excludes cloud water, cloud ice, and water vapor).  To help distinguish this field from true 
+! "VIL" (as obtained from reflectivity columns via parm 581), parm 769 is now labeled as "TCOLP".
+
       IF (IGET(769)>0) THEN
          DO J=JSTA,JEND
             DO I=ista,iend

@@ -26,6 +26,7 @@ date
 module use ${svndir}/modulefiles
 module load hercules_intel
 module load prod_util/2.1.1
+module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
@@ -34,7 +35,7 @@ ulimit -s unlimited
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/wmeng/bin/cmp_grib2_grib2_new
+
 
 # specify user's own post executable for testing
 #export svndir=/u/Wen.Meng/save/ncep_post/develop branch

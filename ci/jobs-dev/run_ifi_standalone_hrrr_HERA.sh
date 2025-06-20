@@ -30,6 +30,7 @@ module load hera_intel
 module load prod_util/2.1.1
 module load nccmp
 module load netcdf-cxx4/4.3.1
+module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
@@ -38,7 +39,7 @@ ulimit
 msg="Starting ifi_standalone_hrrr test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 FIPEXEC=${svndir}/exec/fip2-lookalike.x
 
 # use the UPP run directory so we get the input files in the expected format

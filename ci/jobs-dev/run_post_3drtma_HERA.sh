@@ -31,12 +31,13 @@ module purge
 module use ${svndir}/modulefiles
 module load hera_intel
 module load prod_util/2.1.1
+module load wgrib2/3.6.0
 module list
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # CALL executable job script here
