@@ -63,7 +63,7 @@ DATE="$(date '+%Y%m%d %T')"
 
 cd ${test_v}/ci
 
-cat << EOF > rt.log.${machine}.temp
+cat << EOF > ${rt_log}.temp
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
 ${UPP_HASH}
@@ -81,16 +81,16 @@ Summary Results:
 EOF
 
 if [ $some_failed = YES ] ; then
-    echo "Warning: some tests exited with non-zero. status" >> rt.log.${machine}.temp
-    echo >> rt.log.${machine}.temp
+    echo "Warning: some tests exited with non-zero. status" >> ${rt_log}.temp
+    echo >> ${rt_log}.temp
 fi
 
-cat rt.log.${machine} | grep "test:" >> rt.log.${machine}.temp
-cat rt.log.${machine} | grep "baseline" >> rt.log.${machine}.temp
-python ${test_v}/ci/rt-status.py >> rt.log.${machine}.temp
-echo "===== End of UPP Regression Testing Log =====" >> rt.log.${machine}.temp
-mv rt.log.${machine}.temp rt.log.${machine}
-mv rt.log.${machine} ${test_v}/tests/logs
+cat ${rt_log} | grep "test:" >> ${rt_log}.temp
+cat ${rt_log} | grep "baseline" >> ${rt_log}.temp
+python ${test_v}/ci/rt-status.py >> ${rt_log}.temp
+echo "===== End of UPP Regression Testing Log =====" >> ${rt_log}.temp
+mv ${rt_log}.temp ${rt_log}
+mv ${rt_log} ${test_v}/tests/logs
   
 # should indicate failure to Jenkins
 if [ $test_results -ne 0 ]; then

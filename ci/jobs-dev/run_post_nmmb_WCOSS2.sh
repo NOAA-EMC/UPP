@@ -29,13 +29,14 @@ module load hdf5/1.10.6
 module load netcdf/4.7.4
 module load libjpeg/9c
 module load prod_util/2.0.8
+module load wgrib2/2.0.8
 module list
 
 
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/u/wen.meng/bin/cmp_grib2_grib2_new
+
 # specify user's own post executable for testing
 export POSTGPEXEC=${svndir}/exec/upp.x
 
