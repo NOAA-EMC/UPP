@@ -6,6 +6,7 @@
 # Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
 # Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
+# Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
 ######################################################################
 set -xue
 SECONDS=0
@@ -13,33 +14,123 @@ SECONDS=0
 git_branch="develop"
 git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
-export disable_ifi="no" # don't use libIFI, even if it is present
+disable_ifi="no" # don't use libIFI, even if it is present
+print_full_help="no"
 build_exe="yes" #build executable
+compiler="MISSING"
 
-while getopts a:w:h:r:t:b:u:cde opt; do
+usage() {
+  set +xue
+
+  cat<<EOF
+
+Usage: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
+Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
+
+Results are here:
+  ../tests/logs/MACHINE_compiler.log = report of regression tests for each machine and compiler.
+  changed_results.txt = A list of tests whose results have changed.
+
+Always set these:
+  -a account = accounting code for job submission. Default account is often overused. Always set this!
+  -C = chosen compiler. (Capital C) Default: intel. Mandatory on Ursa!
+  -r rundir = path to a scrub space. Default area is often over quota. Always set this!
+
+General options:
+  -d = disable ifi tests even if ifi is available
+  -e = don't build the UPP executable
+  -h homedir = path to the regression test data
+  -w workdir = directory to store per-job batch and log files.
+EOF
+
+  if [[ "$print_full_help" == YES ]] ; then
+    cat<<EOF
+  -H = print this message and exit.
+
+Special run mode: run rt.sh outside the repository. Automatically clones the repository.
+Syntax: rt.sh -a account -r /path/to/scrub/space -c -u url -b branch [options] [compiler]
+
+Additional options:
+  -c = Tells rt.sh it is running outside a repository. (Lower-case c)
+  -t test_v = Location to clone the repository. Default: Overwrite .. with the clone.
+  -u url = Mandatory: URL of a repository to clone. Not for general use.
+  -b branch = Mandatory: branch in the repository to clone
+EOF
+  else
+      cat<<EOF
+  -H = print full help message and exit. Includes special-use options.
+EOF
+  fi
+
+  if [[ "$#" -gt 0 ]] ; then
+    echo
+    echo "------------------------------------------------------------------------"
+    echo "$@"
+    echo "------------------------------------------------------------------------"
+  fi
+}
+
+check_for_dash() {
+  if [[ -z "${OPTARG}" ]] ; then
+    echo "Argument error: -$opt argument is the empty string"
+    usage FATAL ERROR: Script is exiting due to invalid argument. See error message above. 1>&2
+    exit 2
+  fi
+  if [[ "${OPTARG:0:1}" == '-' ]] ; then
+    echo "Argument error: -$opt requires an argument"
+    usage FATAL ERROR: Script is exiting due to a missing argument. See error message above 1>&2
+    exit 2
+  fi
+}
+
+set +x
+export OPTERR=1
+while getopts a:w:h:r:t:b:u:C:cdHe opt; do
   case $opt in
+    C) compiler=${OPTARG} ; check_for_dash
+        ;;
     d) disable_ifi=yes
         ;;
-    a) accnr=${OPTARG}
+    a) accnr=${OPTARG} ; check_for_dash
         ;;
-    w) workdir=${OPTARG}
+    w) workdir=${OPTARG} ; check_for_dash
         ;;
-    h) homedir=${OPTARG}
+    h) homedir=${OPTARG} ; check_for_dash
         ;;
-    r) rundir=${OPTARG}
+    r) rundir=${OPTARG} ; check_for_dash
         ;;
-    t) test_v=${OPTARG}
+    t) test_v=${OPTARG} ; check_for_dash
         ;;
-    b) git_branch=${OPTARG}
+    b) git_branch=${OPTARG} ; check_for_dash
         ;;
-    u) git_url=${OPTARG}
+    u) git_url=${OPTARG} ; check_for_dash
         ;;
     c) clone_on="yes"
 	;;
     e) build_exe="no" # don't build executable
         ;;
+    H) print_full_help=YES ; usage ; exit 1
+        ;;
+    *)
+       usage FATAL ERROR: Invalid -option. See error message above. 1>&2
+       exit 2
+        ;;
   esac
 done
+
+# Fail if positional arguments are present:
+positional_count=$(( $# - OPTIND + 1 ))
+if (( positional_count > 0)) ; then
+  if (( positional_count > 1)) ; then
+    arguments=arguments
+  else
+    arguments=argument
+  fi
+  shift $(( OPTIND - 1 ))
+  usage FATAL ERROR: Script is aborting due to spurious $arguments: "$@" 2>&1
+  exit 2
+fi
+set -x
 
 #UPP working copy
 export test_v=${test_v:-`pwd`/..}
@@ -70,6 +161,16 @@ if [ $mac2 = hf ]; then # for HERA
  module load stack-intel/2021.5.0
  module load stack-intel-oneapi-mpi/2021.5.1
  module load prod_util/2.1.1
+elif [ $mac2 = uf ]; then # for Ursa
+ export machine=URSA
+ export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite"}
+ export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
+ export accnr=${accnr:-"rtrr"}
+ module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module load stack-oneapi/2024.2.1
+ module load stack-intel-oneapi-mpi/2021.13
+ module load prod_util/2.1.1
+ module load python/3.11.7
 elif [ $mac3 = orio ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/UPP"}
@@ -106,10 +207,23 @@ elif [ $mac = d -o $mac = c ]; then #for WCOSS2
  module load python/3.12.0
 fi
 
+if [[ "$compiler" == MISSING ]] ; then
+    if [[ "$machine" == URSA ]] ; then
+	usage FATAL ERROR: You must specify the compiler on Ursa: -C 'intel|intelllvm' 1>&2
+	exit 2
+    else
+	compiler=intel
+    fi
+fi
+
+export compiler
+
 #set working directory
-export workdir=${workdir:-"`pwd`/work-upp-${machine}"}
+export workdir=${workdir:-"`pwd`/work-upp-${machine}-${compiler}"}
 rm -rf $workdir
 mkdir -p $workdir
+
+export cmp_grib2_grib2=$svndir/ci/cmp_grib2_grib2.sh
 
 #differentiates for orion and hercules
 export rundir="${rundir}/upp-${machine}"
@@ -117,18 +231,19 @@ export rundir="${rundir}/upp-${machine}"
 rm -rf ${rundir}; mkdir -p ${rundir}
 
 #set log file
-export logfile=`pwd`/rt.log.$machine
+export rt_log=rt.log.${machine}_${compiler}
+export logfile=`pwd`/$rt_log
 if [ -f $logfile ] ; then
  rm -r $logfile
 fi
-export runtime_log=$svndir/ci/runtime.log.$machine
+export runtime_log=$svndir/ci/runtime.log.${machine}_${compiler}
 
 #build executable
 if [ "$build_exe" == "yes" ]; then
   cd ${test_v}
   mkdir -p ${test_v}/exec
   cd ${test_v}/tests
-  ./compile_upp.sh -o upp_no_ifi.x
+  ./compile_upp.sh -o upp_no_ifi.x -c "$compiler"
   status=$?
   if [ $status -eq 0 ]; then
     msg="Building executable successfully"
@@ -140,10 +255,10 @@ if [ "$build_exe" == "yes" ]; then
 
   if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
     if [[ "${machine}" == "WCOSS2" ]]; then ##No ifi standalone executable
-      ./compile_upp.sh -a -o upp_with_ifi.x -I 
+      ./compile_upp.sh -a -o upp_with_ifi.x -I -c "$compiler"
       status=$?
     else
-      ./compile_upp.sh -a -o upp_with_ifi.x -I -B
+      ./compile_upp.sh -a -o upp_with_ifi.x -I -B -c "$compiler"
       status=$?
     fi
     if [ "$status" -eq 0 ]; then
