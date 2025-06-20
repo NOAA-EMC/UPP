@@ -30,7 +30,7 @@ module load hera_intel
 module load prod_util/2.1.1
 module load nccmp
 module load netcdf-cxx4/4.3.1
-module load wgrib2/3.1.1
+module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited

@@ -28,13 +28,3 @@ setenv("I_MPI_F77", "ifort")
 setenv("I_MPI_F90", "ifort")
 
 whatis("Description: UFS build environment")
-
-
-
-
-
-
-
-
-
-

@@ -31,7 +31,7 @@ the instructions in the :doc:`spack-stack User's Guide <spack-stack:index>`.
 Common Modules
 ----------------
 
-As of June 11, 2025, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`__ from spack-stack: 
+As of June 20, 2025, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`_ from spack-stack: 
 
 .. code-block:: console
 
