@@ -21,7 +21,7 @@ export APRUN="srun"
 # Loading module
 ############################################
 module use ${svndir}/modulefiles
-module load orion_intel
+module load orion_$compiler
 module load prod_util/2.1.1
 module load wgrib2/3.6.0
 module list

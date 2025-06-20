@@ -24,7 +24,7 @@ date
 ############################################
 
 module use ${svndir}/modulefiles
-module load hercules_intel
+module load hercules_$compiler
 module load prod_util/2.1.1
 module load wgrib2/3.6.0
 module list

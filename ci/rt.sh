@@ -7,6 +7,7 @@
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
 # Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
 # Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
+# Gillian Petro 06/2025 Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
 ######################################################################
 set -xue
 SECONDS=0
@@ -208,8 +209,8 @@ elif [ $mac = d -o $mac = c ]; then #for WCOSS2
 fi
 
 if [[ "$compiler" == MISSING ]] ; then
-    if [[ "$machine" == URSA ]] ; then
-	usage FATAL ERROR: You must specify the compiler on Ursa: -C 'intel|intelllvm' 1>&2
+    if [[ "$machine" != HERA -a "$machine" != WCOSS2]] ; then
+	usage FATAL ERROR: You must specify the compiler on Ursa, Orion, and Hercules: -C 'intel|intelllvm' 1>&2
 	exit 2
     else
 	compiler=intel
