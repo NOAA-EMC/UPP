@@ -1,5 +1,5 @@
 help([[
-Load environment to build UPP on hecules with LLVM compilers
+Load environment to build UPP on hercules with LLVM compilers
 ]])
 
 prepend_path("MODULEPATH", "/apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core")
