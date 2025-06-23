@@ -32,12 +32,13 @@ module load libpng/1.6.37
 module load jasper/2.0.32
 module load prod_util/2.1.1
 module load crtm/2.4.0.1
+module load wgrib2/3.1.1
 module list
 
 msg="Starting hrrr_ifi test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # CALL executable job script here
