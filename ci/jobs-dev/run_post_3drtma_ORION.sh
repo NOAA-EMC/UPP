@@ -118,7 +118,7 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out/3drtma/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/3drtma/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
@@ -128,7 +128,7 @@ if [ $err = "0" ] ; then
  else
   msg="3drtma test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
-  $cmp_grib2_grib2 $homedir/data_out/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 

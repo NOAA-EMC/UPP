@@ -106,7 +106,7 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out/gefs/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/gefs/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
@@ -118,7 +118,7 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out/gefs/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/gefs/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else
