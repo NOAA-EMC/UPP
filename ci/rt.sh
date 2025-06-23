@@ -209,7 +209,7 @@ elif [ $mac = d -o $mac = c ]; then #for WCOSS2
 fi
 
 if [[ "$compiler" == MISSING ]] ; then
-    if [[ "$machine" != HERA -a "$machine" != WCOSS2]] ; then
+   if [[ "$machine" == "URSA" || "$machine" == "ORION" || "$machine" == "HERCULES" ]]; then
 	usage FATAL ERROR: You must specify the compiler on Ursa, Orion, and Hercules: -C 'intel|intelllvm' 1>&2
 	exit 2
     else
