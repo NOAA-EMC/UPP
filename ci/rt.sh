@@ -174,7 +174,7 @@ elif [ $mac2 = uf ]; then # for Ursa
  module load python/3.11.7
 elif [ $mac3 = orio ] ; then
  export machine=ORION
- export homedir=${homedir:-"/work/noaa/epic/UPP"}
+ export homedir=${homedir:-"/work/noaa/epic/role-epic/orion/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
@@ -185,7 +185,7 @@ elif [ $mac3 = orio ] ; then
  module load python/3.10.8
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
- export homedir=${homedir:-"/work/noaa/epic/UPP"}
+ export homedir=${homedir:-"/work/noaa/epic/role-epic/hercules/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
