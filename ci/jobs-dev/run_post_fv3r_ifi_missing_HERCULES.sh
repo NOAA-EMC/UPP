@@ -40,7 +40,7 @@ ulimit -s unlimited
 msg="Starting fv3r_ifi_missing test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=${homedir}/scripts/cmp_grib2_grib2_new
+
 # specify user's own post working directory for testing
 export POSTGPEXEC=${svndir}/exec/upp_no_ifi.x
 
