@@ -118,6 +118,9 @@ cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}$
 if [[ $MACHINE_ID != "unknown" ]]; then
    if [ $MACHINE_ID == "wcoss2"  -o $MACHINE_ID == "wcoss2_a" ]; then
       module reset
+   elif [ $MACHINE_ID == "container" ]; then
+      source /usr/lmod/lmod/init/bash
+      module purge
    elif [[ "$MACHINE_ID" =~ gaea* ]] ; then
        module reset
        # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
