@@ -173,7 +173,7 @@ elif [ $mac2 = uf ]; then # for Ursa
  module load python/3.11.7
 elif [ $mac3 = orio ] ; then
  export machine=ORION
- export homedir=${homedir:-"/work/noaa/epic/UPP"}
+ export homedir=${homedir:-"/work2/noaa/wrfruc/strahan/upp/mpas-test-suite"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
