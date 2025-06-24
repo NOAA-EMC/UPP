@@ -18,7 +18,9 @@ python_ver=os.getenv("python_ver") or "3.10.8"
 load(pathJoin("python", python_ver))
 
 load("upp_common")
-
+setenv("I_MPI_CC", "icx")
+setenv("I_MPI_CXX", "icpx")
+setenv("I_MPI_F90", "ifx")
 setenv("CC","mpiicc")
 setenv("CXX","mpiicpc")
 setenv("FC","mpiifort")
