@@ -30,8 +30,7 @@ tests = test_list
 #    'rap',
 #    'hrrr',
 #    'fv3hafs',
-#    'rtma',
-#    'mpas'
+#    'rtma'
 #]
 
 # look for .diff files
