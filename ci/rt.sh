@@ -153,7 +153,12 @@ mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
 if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
- export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
+
+ # ===================================================================================
+ # FIXME: A code manager must copy $homedir/data_in/mpas to an EPIC area before merging to develop.
+ export homedir=${homedir:-"/scratch2/BMC/wrfruc/Samuel.Trahan/UPP/mpas_test_suite"}
+ # ===================================================================================
+
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
  export accnr=${accnr:-"rtrr"}
  module purge
@@ -165,7 +170,7 @@ elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
 
  # ===================================================================================
- # FIXME: A code manager must copy $homedir to an EPIC area before merging to develop.
+ # FIXME: A code manager must copy $homedir/data_in/mpas to an EPIC area before merging to develop.
  export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
  # ===================================================================================
 
