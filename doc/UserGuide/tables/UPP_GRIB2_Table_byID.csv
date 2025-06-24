@@ -722,7 +722,7 @@ Instantaneous clear-sky upwelling longwave at the surface,CSULF_ON_SURFACE,CSULF
 GSD water-friendly aerosol number concentration on model surface,NCWFA_ON_HYBRID_LVL,PMTF,766
 GSD ice-friendly aerosol number concentration on model surface,NCIFA_ON_HYBRID_LVL,PMTC,767
 Echo top height (Highest height in meters of the 18-dBZ reflectivity on a model level),GSD_ECHOTOP_ON_CLOUD_TOP,RETOP,768
-GSD Vertically integrated liquid in kg/m^2 dervied from hydrometer mass,GSD_VIL_ON_ENTIRE_ATMOS,VIL,769
+Total Column Integrated Precipitation,TCOLP_ON_ENTIRE_ATMOS,TCOLP,769
 Hourly averaged dust particulate matter 1.0 (PM) at 8m above ground,AVE_DUST_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,771
 Instantaneous shortwave surface downward direct normal irradiance,INST_SWDDNI_ON_SURFACE,VBDSF,772
 Instantaneous shortwave surface downward diffuse irradiance,INST_SWDDIF_ON_SURFACE,VDDSF,773
