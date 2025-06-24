@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#SBATCH -o out.post.mpas
-#SBATCH -e out.post.mpas
-#SBATCH -J mpas_test 
+#SBATCH -o out.post.mpas_hfip
+#SBATCH -e out.post.mpas_hfip
+#SBATCH -J mpas_hfip_test 
 #SBATCH -t 00:30:00
 #SBATCH --ntasks=256
 #SBATCH --cpus-per-task=4
@@ -32,30 +32,30 @@ module load prod_util/2.1.1
 module load nccmp/1.9.1.0
 module list
 
-msg="Starting mpas test"
+msg="Starting mpas_hfip test"
 postmsg "$logfile" "$msg"
 
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# forecast start time for the mpas output
+# forecast start time for the mpas_hfip output
 export startdate=2024-10-09_00
 
 # specify your running and output directory
-export DATA=$rundir/mpas_${startdate}
+export DATA=$rundir/mpas_hfip_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 
 cat > itag <<EOF
 &model_inputs
-    fileName='$homedir/data_in/mpas/MPAS-A_out.${startdate}.00.00.nc'
+    fileName='$homedir/data_in/mpas_hfip/MPAS-A_out.${startdate}.00.00.nc'
     ioform = 'netcdfpara'
     grib = 'grib2'
     datestr = '${startdate}:00:00'
     modelname = 'RAPR'
     submodelname = 'MPAS'
-    fileNameFlux='$homedir/data_in/mpas/MPAS-A_out.${startdate}.00.00.nc'
+    fileNameFlux='$homedir/data_in/mpas_hfip/MPAS-A_out.${startdate}.00.00.nc'
 /
 EOF
 
@@ -92,7 +92,7 @@ done
 
 
 export PGBOUT=pgbfile
-${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_${startdate}
+${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 
 fhr2=`printf "%02d" $fhr`
 
@@ -106,24 +106,24 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out_$compiler/mpas/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/mpas_hfip/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="mpas test: your new post executable generates bit-identical ${filein2} as the develop branch"
+  msg="mpas_hfip test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="mpas test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  msg="mpas_hfip test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/mpas/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/mpas_hfip/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else
 
- msg="mpas test: post failed using your new post executable to generate ${filein2}"
+ msg="mpas_hfip test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -131,5 +131,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending mpas test"
+msg="Ending mpas_hfip test"
 postmsg "$logfile" "$msg"
