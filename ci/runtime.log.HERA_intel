@@ -11,3 +11,4 @@ hrrr_ifi_test 00:04:00
 ifi_standalone_hrrr_test 00:04:00
 fv3r_ifi_test 00:04:00
 ifi_standalone_fv3r_test 00:04:00
+mpas_hfip_test 00:05:00
