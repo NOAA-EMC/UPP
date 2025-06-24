@@ -16,8 +16,6 @@ load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
 
-load(pathJoin("zlib","1.2.11"))
-
 setenv("CC","mpiicc")
 setenv("CXX","mpiicpc")
 setenv("FC","mpiifort")
