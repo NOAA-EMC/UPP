@@ -1,35 +1,36 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.post.mpas_hfip
-#SBATCH -e out.post.mpas_hfip
-#SBATCH -J mpas_hfip_test 
-#SBATCH -t 00:30:00
-#SBATCH --ntasks=256
-#SBATCH --cpus-per-task=4
-#SBATCH --time=00:30:00
-#SBATCH -q batch
-#SBATCH -A ovp
-#SBATCH --exclusive
-#SBATCH --mem=0
-
+#PBS -o out.post.mpas_hfip
+#PBS -e out.post.mpas_hfip
+#PBS -N mpas_hfip.test 
+#PBS -l walltime=00:30:00
+#PBS -q debug
+#PBS -A GFS-DEV
+#PBS -l place=vscatter,select=4:ncpus=48
+#PBS -V
 
 set -x
 
 # specify computation resource
-export threads=4
-export MP_LABELIO=yes
+export threads=1
 export OMP_NUM_THREADS=$threads
-export APRUN="srun"
+export APRUN="mpiexec -l -n 192 -ppn 48"
 
 ############################################
 # Loading module
 ############################################
-module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
-module load wgrib2/3.6.0
-module load prod_util/2.1.1
-module load nccmp/1.9.1.0
+module reset
+module load intel/19.1.3.304
+module load PrgEnv-intel/8.1.0
+module load craype/2.7.8
+module load cray-mpich/8.1.7
+module load cray-pals/1.0.12
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load libjpeg/9c
+module load prod_util/2.0.8
+module load crtm/2.4.0.1
+module load wgrib2/2.0.8
 module list
 
 msg="Starting mpas_hfip test"
@@ -106,7 +107,7 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out_$compiler/mpas_hfip/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out/mpas_hfip/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
@@ -118,7 +119,7 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/mpas_hfip/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out/mpas_hfip/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else
