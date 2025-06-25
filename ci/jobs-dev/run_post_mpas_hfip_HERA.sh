@@ -59,7 +59,6 @@ cat > itag <<EOF
     datestr = '${startdate}:00:00'
     modelname = 'RAPR'
     submodelname = 'MPAS'
-    fileNameFlux='$homedir/data_in/mpas_hfip/MPAS-A_out.${startdate}.00.00.nc'
 /
 EOF
 
