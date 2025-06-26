@@ -20,9 +20,9 @@ load("upp_common")
 
 setenv("I_MPI_CC", "icx")
 setenv("I_MPI_CXX", "icpx")
-setenv("I_MPI_F90", "ifx")
-setenv("CC","mpiicc")
-setenv("CXX","mpiicpc")
-setenv("FC","mpiifort")
+setenv("I_MPI_F90", "ifort")
+setenv("CC","mpiicx")
+setenv("CXX","mpiicpx")
+setenv("FC","mpiifx")
 
 whatis("Description: UPP build environment")
