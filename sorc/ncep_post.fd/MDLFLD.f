@@ -70,7 +70,8 @@
 !!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS" (hydrometeor-based VIL), but is now
 !!                       | "TCOLP_ON_ENTIRE_ATMOS".
 !!   25-06-16 | J Kenyon | Updated calls to CALPBL; these now specify the PBL height formulation to 
-!!                       | apply (RI or THV). Additionally, added several descriptive in-code comments.
+!!                       | apply (RI or THV). Restricted the smoothing of PBL height (for gust calculations) to
+!!                       | RAP/HRRR-era applications only. Additionally, added several descriptive in-code comments.
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -189,8 +190,6 @@
 ! for PBL smoothing used in GUST
       integer ks,nsmooth
       REAL SDUMMY(IM,2),dxm
-!! 'METHOD' is the PBL height diagnostic approach; used when calling CALPBL
-!      character(*),intent(in) :: METHOD ! ('RI' or 'THV')
 ! added to calculate cape and cin for icing
       real, dimension(ista:iend,jsta:jend) ::  dummy, cape, cin
       integer idummy(ista:iend,jsta:jend)
@@ -4102,7 +4101,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     PREPARE FOR OTHER CALCULATIONS THAT REQUIRE PBL HEIGHT (PBLRI or PBLTHV)
       IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
 
-        IF (MODELNAME=='RAPR') THEN !tgs - 24may17 - smooth PBLTHV
+        IF (MODELNAME=='RAPR' .AND. SUBMODELNAME/='MPAS') THEN
+        ! Early RAPR applications (e.g., RAP/HRRR): smooth PBLTHV prior to wind-gust calculation
            if(MAPTYPE == 6) then
              if(grib=='grib2') then
                 dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
@@ -4129,7 +4129,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                PBLTHV(i,j)=GRID1(i,j)
              enddo
            enddo
-        ENDIF ! end of smoothing of PBLTHV for RAPR
+        ENDIF ! end of smoothing of PBLTHV
 
        !--These J,I loops: prepare arguments for CALGUST call
        DO J=JSTA,JEND
