@@ -20,15 +20,11 @@ export APRUN_DWN="srun --export=ALL"
 ############################################
 # Loading module
 ############################################
-module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
-module load stack-intel/2021.9.0
-module load stack-intel-oneapi-mpi/2021.9.0
-module load libpng/1.6.37
-module load jasper/2.0.32
+module use ${svndir}/modulefiles
+module load hercules_$compiler
 module load prod_util/2.1.1
-module load crtm/2.4.0.1
-module load grib-util/1.3.0
-module load wgrib2/2.0.8
+module load grib-util/1.4.0
+module load wgrib2/3.6.0
 module list
 
 #export WGRIB2=wgrib2
@@ -103,7 +99,7 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out/fv3r_ifi_missing/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/fv3r_ifi_missing/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
@@ -115,7 +111,7 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out/fv3r_ifi_missing/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/fv3r_ifi_missing/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else
