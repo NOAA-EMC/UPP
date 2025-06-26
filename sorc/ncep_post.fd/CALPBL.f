@@ -40,7 +40,7 @@
       use vrbls3d, only: pmid, q, t, uh, vh, zmid
       use vrbls2d, only: fis
       use masks, only: vtm
-      use params_mod, only: h10e5, capa, d608, h1, g, gi
+      use params_mod, only: h10e5, capa, d608, h1, g, gi, small
       use ctlblk_mod, only: lm, im, jsta, jend, spval, jsta_m, jsta_2l, jend_2u, jend_m, &
                             ista, iend, ista_m, ista_2l, iend_2u, iend_m  
       use gridspec_mod, only: gridtype
@@ -61,7 +61,7 @@
              ,THVBOT1(ista_2l:iend_2u,jsta_2l:jend_2u)
       integer I,J,L,IE,IW
       real APE,BETTA,RICR,USTARR,WMIN,UHKL,ULKL,VHKL,VLKL,WNDSL,WNDSLP,  &
-           UBOT,VBOT,VTOP,UTOP,THVTOP,ZTOP,WDL2,RIB,DELTA_THV,THV_SFC
+           UBOT,VBOT,VTOP,UTOP,THVTOP,ZTOP,WDL2,RIB,THV_SFC
 !     
 !*************************************************************************
 !     
@@ -82,9 +82,11 @@
       DO L=LM,1,-1
         DO J=JSTA,JEND
           DO I=ISTA,IEND
-            if( PMID(I,J,L)<SPVAL) then
-            APE        = (H10E5/PMID(I,J,L))**CAPA
-            THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
+            if(PMID(I,J,L)<SPVAL) then
+             APE        = (H10E5/PMID(I,J,L))**CAPA
+             THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
+            else
+             THV(I,J,L) = SPVAL
             endif
           ENDDO
         ENDDO
@@ -238,40 +240,53 @@
 ! ----------------------------------------------------------------------------
 ! Begin THV-based method: Calculate PBLHGT using virtual potential temperature
 ! ----------------------------------------------------------------------------
-    ELSE IF (METHOD=='THV') THEN
 
-      DELTA_THV  = 0.5
-      ! J. Kenyon (16 Jun 2025): DELTA_THV was taken from
-      ! "delta_theta4gust" in INITPOST and INITPOST_MPAS.
-      ! DELTA_THV is an arbitrary value (in K) that is added 
-      ! to the surface THV. In other words, DELTA_THV is a 
-      ! small "boost" applied to the surface THV.
+! J. Kenyon (16 Jun 2025): This THV-based formulation of PBLHGT is essentially
+! reproduced from the formulation of 'PBLHGUST' that exists/existed in INITPOST*
+! subroutines for RAPR and FV3R applications. The 'PBLHGUST' formulation was
+! developed at GSL for use with the wind-gust diagnostic.
+
+    ELSE IF (METHOD=='THV') THEN
 
       DO J=JSTA,JEND
         DO I=ISTA,IEND
 
-          ! Define the surface THV
-          THV_SFC = THV(I,J,LM) + DELTA_THV
+          IF (THV(I,J,LM) < SPVAL) THEN
 
-          ! Check for a surface-based mixed layer
-          IF (THV(I,J,LM-1) < THV_SFC) THEN 
-             ! Surface-based mixed layer exists; begin vertical loop
-             DO L=LM,2,-1
-               IF (THV(I,J,L-1) > THV_SFC) EXIT
-                 ! Found top of mixed layer (somewhere between L and L-1); 
-                 ! exit vertical loop
-             ENDDO
-             ! With the last value of L; obtain PBLHGT by interpolation
-             PBLHGT(I,J) = ZMID(I,J,L) +                        &
-                             (ZMID(I,J,L-1)-ZMID(I,J,L))        &
-                            *(THV_SFC-THV(I,J,L))               &
-                            /(THV(I,J,L-1)-THV(I,J,L)) 
-             ! Convert to AGL
-             PBLHGT(I,J) = PBLHGT(I,J)-FIS(I,J)*GI
-          ELSE 
-             ! Surface-based mixed layer does not exist
-             PBLHGT(I,J) = 0.
-          END IF ! Check for surface-based mixed layer
+            ! First define the surface THV
+            THV_SFC = THV(I,J,LM) + 0.5
+            ! J. Kenyon (16 Jun 2025): The addition of 0.5 K is
+            ! arbitrary; this value was taken from the value of
+            ! "delta_theta4gust" in INITPOST* subroutines. It
+            ! represents a slight "boost" applied to the surface
+            ! THV.
+
+            ! Check for a surface-based mixed layer
+            IF (THV(I,J,LM-1) < THV_SFC) THEN
+               ! Surface-based mixed layer exists; begin vertical loop
+               DO L=LM,2,-1
+                 IF (THV(I,J,L-1) > THV_SFC) EXIT
+                   ! Found top of mixed layer (somewhere between L
+                   ! and L-1); exit vertical loop
+               ENDDO
+               ! With the last value of L, obtain PBLHGT by interpolation,
+               ! except when the denominator would be small
+               IF (ABS(THV(I,J,L-1)-THV(I,J,L)) > SMALL) THEN
+                 PBLHGT(I,J) = ZMID(I,J,L) +                        &
+                                 (ZMID(I,J,L-1)-ZMID(I,J,L))        &
+                                *(THV_SFC-THV(I,J,L))               &
+                                /(THV(I,J,L-1)-THV(I,J,L))
+               ELSE
+                 PBLHGT(I,J) = ZMID(I,J,L)
+               END IF
+               ! Convert to AGL
+               PBLHGT(I,J) = PBLHGT(I,J)-FIS(I,J)*GI
+            ELSE
+               ! Surface-based mixed layer does not exist
+               PBLHGT(I,J) = 0.
+            END IF ! Check for surface-based mixed layer
+
+          END IF ! Check for THV(I,J,LM)<SPVAL
 
         ENDDO ! I loop
       ENDDO ! J loop
