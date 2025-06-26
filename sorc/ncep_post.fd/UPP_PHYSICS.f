@@ -39,6 +39,7 @@
 !> 2023-03-22 | Sam Trahan | Fix out-of-bounds access by not calling BOUND
 !> 2024-11-21 | K. Asmar, J. Meng, G. Vandenberghe | CALCHIPSI
 !> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
+!> 2025-05-05 | Ben Blake  | Add sanity checks for RRFSv1 implementation
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -96,7 +97,7 @@
 !>
 !> This routine computes relative humidity given pressure, 
 !> temperature, specific humidity. an upper and lower bound
-!> of 100 and 1 percent relative humidity is enforced.  When
+!> of 100 and 1e-4 percent relative humidity is enforced.  When
 !> these bounds are applied the passed specific humidity 
 !> array is adjusted as necessary to produce the set relative
 !> humidity.
@@ -117,6 +118,7 @@
 !> 2000-01-04 | Jim Tuccillo  | MPI Version
 !> 2002-06-11 | Mike Baldwin  | WRF Version
 !> 2006-03-19 | Wen Meng      | Modify top pressure to 1 pa
+!> 2025-04-16 | Daniel Wesloh | Reduce minimum RH above 3 mbar/near stratopause
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
      SUBROUTINE CALRH_NAM(P1,T1,Q1,RH)
@@ -153,7 +155,11 @@
                 Q1(I,J) = RH(I,J)*QC
               ENDIF
               IF (RH(I,J) < RHmin) THEN  !use smaller RH limit for stratosphere
-                RH(I,J) = RHmin
+                IF (P1(I, J) >= 3e2) THEN
+                  RH(I,J) = RHmin
+                ELSE IF (RH(I, J) < (RHmin / 10.)) THEN
+                  RH(I, J) = RHmin / 10.
+                END IF
                 Q1(I,J) = RH(I,J)*QC
               ENDIF
 !
@@ -1268,7 +1274,11 @@
                 TTHBTK  =  TBTK*APEBTK
                 TTHK    = (TTHBTK-THL)*RDTH
                 QQ(I,J) = TTHK - AINT(TTHK)
-                ITTBK   = INT(TTHK) + 1
+                IF(AINT(TTHK) >= JTB) THEN
+                  ITTBK   = JTB
+                ELSE
+                  ITTBK   = INT(TTHK) + 1
+                ENDIF
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
                 IF(ITTBK < 1)   THEN
                   ITTBK   = 1
@@ -2678,7 +2688,8 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2022-07-11 | Jesse Meng | Initial
-!> 2023-01-06 | Jesse Meng ! Import Breadboard coefficients into module
+!> 2023-01-06 | Jesse Meng | Import Breadboard coefficients into module
+!> 2025-05-07 | Jesse Meng | Bug fix for variable type mismatch
 !>
 !> @author Jesse Meng @date 2022-07-11
 
@@ -2765,7 +2776,7 @@
          .0022, .0005, -.0016, -.0052, -.0024, .0008, .0037/)
 
       type(all_grids), dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_grids, rh_grids
-      integer,         dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_levels, rh_levels
+      real,            dimension(ista:iend,jsta:jend,0:lsm) :: tmpk_levels, rh_levels
 
       real,dimension(ista:iend,jsta:jend)    :: hprob,mprob,lprob
       real,dimension(ista:iend,jsta:jend)    :: slrgrid, slrgrid2
@@ -2783,6 +2794,11 @@
 !
 !***************************************************************************
 !
+      tmpk_grids%grid=spval
+      tmpk_levels=spval
+      rh_grids%grid=spval
+      rh_levels=spval
+
 ! day and month of the year
 
       imo = idat(1)
@@ -2814,9 +2830,13 @@
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=ISTA,IEND
-         PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
+         PSFC(I,J)=SPVAL
+         IF(PINT(I,J,NINT(LMH(I,J))+1)/=SPVAL) &
+           PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
          PRES(I,J)=PSFC(I,J)
-         QPF(I,J)=AVGPREC_CONT(I,J)*3600.*3.
+         QPF(I,J)=SPVAL
+         IF(AVGPREC_CONT(I,J)/=SPVAL) &
+           QPF(I,J)=AVGPREC_CONT(I,J)*3600.*3.
          SWND(I,J)=SPVAL
          IF(U10(I,J)/=SPVAL .AND. V10(I,J)/=SPVAL) &
            SWND(I,J)=SQRT(U10(I,J)*U10(I,J)+V10(I,J)*V10(I,J))
@@ -2856,10 +2876,12 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
       do i=ista,iend
+       if(T2M(I,J)/=spval .and. pres(i,j)/=spval .and. RH2M(I,J)/=spval)then
          tmpk_grids(i,j,0)%grid=T2M(I,J)-273.15
          tmpk_levels(i,j,0)=pres(i,j)
          rh_grids(i,j,0)%grid=RH2M(I,J)
          rh_levels(i,j,0)=pres(i,j)
+       endif
       end do
       end do
 
@@ -2870,10 +2892,12 @@
 !!!$omp parallel do private(i,j,ll)
       do j=jsta,jend
       do i=ista,iend
+       if(tprs(I,J,L)/=spval .and. SPL(L)/=spval .and. rhprs(I,J,L)/=spval)then
          tmpk_grids(i,j,LL)%grid=tprs(I,J,L)-273.15
          tmpk_levels(i,j,LL)=SPL(L)
          rh_grids(i,j,LL)%grid=rhprs(I,J,L)
          rh_levels(i,j,LL)=SPL(L)
+       endif
       end do
       end do
       END DO
@@ -4985,6 +5009,8 @@
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2024-11-15 | Jesse Meng | Initial
+!> 2025-04-23 | Jesse Meng | Bug fix zmid calculation in very thin layers
+!> 2025-06-12 | Jesse Meng | Bug fix RH converted from decimal to percent. SLR masking procedure modified
 !>
 !> @author Jesse Meng @date 2024-11-15
 
@@ -5005,7 +5031,8 @@
       real,dimension(ista:iend,jsta:jend,nfl) :: tfd,ufd,vfd,pfd,qfd,rhfd
       real,dimension(ista:iend,jsta:jend)     :: zsfc
 
-      real lhl(nfl),dzabh(nfl),swnd(nfl)
+      integer lhl(nfl)
+      real dzabh(nfl),swnd(nfl)
       real htsfc,htabh,dz,rdz,delt,delu,delv,delp,delq
 
       real, parameter :: s03 = 0.2113589753880838
@@ -5044,7 +5071,7 @@
 !
 !***************************************************************************
 !
-      allocate(twet(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+!      allocate(twet(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
       do ifd = 1,nfl
 !$omp parallel do private(i,j)      
@@ -5071,13 +5098,16 @@
          htsfc = zint(i,j,lm+1)
          llmh  = nint(lmh(i,j))
       ifd = 1
+      lhl=llmh
       do l = llmh,1,-1
+        if(zmid(i,j,l)<spval) then
          htabh = zmid(i,j,l)-htsfc
-         if(htabh>htfl(ifd)) then
+         if(htabh>=htfl(ifd)) then
             lhl(ifd) = l
             dzabh(ifd) = htabh-htfl(ifd)
             ifd = ifd + 1
          endif
+        endif
          if(ifd > nfl) exit
       enddo
 
@@ -5085,7 +5115,7 @@
 
       do ifd = 1,nfl 
          l = lhl(ifd)
-         if (l<lm .and. t(i,j,l)<spval .and. uh(i,j,l)<spval .and. vh(i,j,l)<spval) then
+         if (l<lm .and. t(i,j,l)<spval .and. uh(i,j,l)<spval .and. vh(i,j,l)<spval .and. zmid(i,j,l)<spval) then
            dz   = zmid(i,j,l)-zmid(i,j,l+1)
            rdz  = 1./dz
            delt = t(i,j,l)-t(i,j,l+1)
@@ -5112,6 +5142,7 @@
 
       do ifd = 1,nfl
          call calrh(pfd(:,:,ifd),tfd(:,:,ifd),qfd(:,:,ifd),rhfd(:,:,ifd))
+         rhfd(:,:,ifd)=rhfd(:,:,ifd)*100.
       enddo
 
 !        compute slr
@@ -5140,51 +5171,53 @@
                   + r15*rhfd(i,j,5)+r18*rhfd(i,j,6)+r21*rhfd(i,j,7)+r24*rhfd(i,j,8) &
                   + b
          slr(i,j) = max(slr(i,j),3.)
+         if(tfd(i,j,1) >= 273.15+5.0) slr(i,j)=0.
       endif
       endif
       enddo
       enddo
 
+! 20250612 Jesse Meng, skip until UUtah updates SLR mask decision   
 !        compute wetbulb temperature and search for twet > 0.5c
-
-      karr = 1
-      call wetbulb(t,q,pmid,htm,karr,twet)
-
-!$omp parallel do private(i,j)      
-      do j=jsta,jend
-      do i=ista,iend
-         zwet(i,j)=zmid(i,j,lm)
-         twet05(i,j)=-1
-      enddo
-      enddo
-
-      do l=1,lm
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-      do i=ista,iend
-         if(twet05(i,j) < 0) then
-            if(twet(i,j,l) >= 273.15+0.5) then
-               zwet(i,j)=zmid(i,j,l)
-               twet05(i,j)=1
-            endif
-         endif
-      enddo
-      enddo
-      enddo
-
-!$omp parallel do private(i,j,htabh)      
-      do j=jsta,jend
-      do i=ista,iend
-         if(twet05(i,j) > 0 .and. slr(i,j)<spval) then
-            htabh=zwet(i,j)-zint(i,j,lm+1)
-            if(htabh<0.) htabh=0.
-            slr(i,j)=slr(i,j)*(1.-htabh/200.)
-            if(slr(i,j)<0.) slr(i,j)=0.
-         endif
-      enddo
-      enddo
-
-      deallocate (twet)
+!
+!      karr = 1
+!      call wetbulb(t,q,pmid,htm,karr,twet)
+!
+!!$omp parallel do private(i,j)      
+!      do j=jsta,jend
+!      do i=ista,iend
+!         zwet(i,j)=zmid(i,j,lm)
+!         twet05(i,j)=-1
+!      enddo
+!      enddo
+!
+!      do l=1,lm
+!!$omp parallel do private(i,j)
+!      do j=jsta,jend
+!      do i=ista,iend
+!         if(twet05(i,j) < 0) then
+!            if(twet(i,j,l) >= 273.15+0.5) then
+!               zwet(i,j)=zmid(i,j,l)
+!               twet05(i,j)=1
+!            endif
+!         endif
+!      enddo
+!      enddo
+!      enddo
+!
+!!$omp parallel do private(i,j,htabh)      
+!      do j=jsta,jend
+!      do i=ista,iend
+!         if(twet05(i,j) > 0 .and. slr(i,j)<spval) then
+!            htabh=zwet(i,j)-zint(i,j,lm+1)
+!            if(htabh<0.) htabh=0.
+!            slr(i,j)=slr(i,j)*(1.-htabh/200.)
+!            if(slr(i,j)<0.) slr(i,j)=0.
+!         endif
+!      enddo
+!      enddo
+!
+!      deallocate (twet)
 
       end subroutine calslr_uutah2
 !

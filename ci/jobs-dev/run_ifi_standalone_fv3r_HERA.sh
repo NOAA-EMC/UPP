@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.ifi_standalone_fv3r
 #SBATCH -e out.post.ifi_standalone_fv3r
@@ -25,15 +25,12 @@ export APRUN="srun"
 # EXPORT list here
 
 module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
-module load libpng/1.6.37
-module load jasper/2.0.32
+module use ${svndir}/modulefiles
+module load hera_intel
 module load prod_util/2.1.1
-module load crtm/2.4.0.1
 module load nccmp
 module load netcdf-cxx4/4.3.1
+module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
@@ -42,7 +39,7 @@ ulimit
 msg="Starting ifi_standalone_fv3r test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 FIPEXEC=${svndir}/exec/fip2-lookalike.x
 
 # use the UPP run directory so we get the input files in the expected format

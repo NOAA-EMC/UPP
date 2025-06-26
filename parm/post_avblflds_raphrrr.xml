@@ -3535,15 +3535,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>406</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_TOP</shortname>
-       <longname>GSD_pressure on cloud top</longname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>407</post_avblfldidx>
        <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <longname>GSD_instant precipitation type on surface</longname>
@@ -3566,15 +3557,6 @@
        <longname>GSD_geopotential height on cloud base</longname>
        <pname>HGT</pname>
        <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>  
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>409</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_TOP</shortname>
-       <longname>GSD_geopotential height on cloud top</longname>
-       <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -4241,14 +4223,6 @@
        <pname>AMSRE12</pname>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>798</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
-       <scale>3.0</scale>
     </param>
 
     <param>
@@ -5756,14 +5730,6 @@
        <pname>RADARVIL</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>770</post_avblfldidx>
-       <shortname>GSD_RADARVIL_ON_ENTIRE_ATMOS</shortname>
-       <pname>VIL</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>3.0</scale>
     </param>
 
     <param>

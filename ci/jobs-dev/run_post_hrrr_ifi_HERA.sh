@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #SBATCH -o out.post.hrrr_ifi
 #SBATCH -e out.post.hrrr_ifi
@@ -25,19 +25,16 @@ date
 # EXPORT list here
 
 module purge
-module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
-module load stack-intel/2021.5.0
-module load stack-intel-oneapi-mpi/2021.5.1
-module load libpng/1.6.37
-module load jasper/2.0.32
+module use ${svndir}/modulefiles
+module load hera_intel
 module load prod_util/2.1.1
-module load crtm/2.4.0.1
+module load wgrib2/3.6.0
 module list
 
 msg="Starting hrrr_ifi test"
 postmsg "$logfile" "$msg"
 
-export cmp_grib2_grib2=/home/Wen.Meng/bin/cmp_grib2_grib2_new
+
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # CALL executable job script here
@@ -96,10 +93,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="hrrr_ifi test: your new post executable generates bit-identical ${filein2} as the trunk"
+  msg="hrrr_ifi test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="hrrr_ifi test: your new post executable did not generate bit-identical ${filein2} as the trunk"
+  msg="hrrr_ifi test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"

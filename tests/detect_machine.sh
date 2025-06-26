@@ -31,6 +31,9 @@ case $(hostname -f) in
   hfe1[01]) MACHINE_ID=hera ;;   ### hera10-11
   hecflow01) MACHINE_ID=hera ;;   ### heraecflow01
 
+  ufe[0-9][0-9]) MACHINE_ID=ursa ;;
+  uecflow*) MACHINE_ID=ursa ;;
+
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
 
   fe[1-8]) MACHINE_ID=jet ;; ### jet1-8
@@ -49,6 +52,14 @@ case $(hostname -f) in
   discover3[1-5].prv.cube) MACHINE_ID=discover ;; ### discover31-35
   *) MACHINE_ID=UNKNOWN ;;  # Unknown platform
 esac
+
+# overwrite MACHINE_ID, if use container
+if [[ -d /opt/spack-stack ]]; then
+  if [[ -v SINGULARITY_CONTAINER ]]; then
+    # We are in a container
+    MACHINE_ID=container
+  fi
+fi
 
 if [[ ${MACHINE_ID} == "UNKNOWN" ]]; then 
    case ${PW_CSP:-} in
@@ -93,6 +104,9 @@ elif [[ -d /gpfs && -d /ncrc ]]; then
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
+elif [[ -d /opt/spack-stack && -v SINGULARITY_CONTAINER ]]; then
+  # We are in a container
+  MACHINE_ID=container
 else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
