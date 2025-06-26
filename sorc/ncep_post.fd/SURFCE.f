@@ -57,6 +57,8 @@
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
 !> 2024-10-29 | W Meng     | Unify iSF_SURFACE_PHYSICS as:1 for NOHA,2 for NOAH MP,3 for RUC 
 !> 2025-02-27 | S Trahan   | Update comment to match new use of IFI_APCP in IFI.F
+!> 2025-05-05 | B Blake    | Add sanity checks for RRFSv1 implementation
+!> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -107,7 +109,7 @@
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
-                         frzrn_bucket, snow_acm, snow_bkt,                    &
+                         frzrn_bucket, snow_acm, snow_bkt, hail_bucket,       &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
                          tecan,tetran,tedir,twa,IFI_APCP,xlaixy,              &
                          smoke_ave,dust_ave,coarsepm_ave
@@ -1614,7 +1616,7 @@
 !
 !        SHELTER LEVEL POT TEMP
         IF (IGET(546)>0) THEN
-!          GRID1=spval
+           GRID1=spval
 !          DO J=JSTA,JEND
 !            DO I=ISTA,IEND
 !              GRID1(I,J)=TSHLTR(I,J)
@@ -4357,6 +4359,66 @@
             endif
          ENDIF
 
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     BUCKET HAIL (J. Kenyon, GSL / 8 May 2025)
+         IF (IGET(1025)>0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ISTA,IEND
+               GRID1(I,J) = HAIL_BUCKET(I,J)
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           ITPREC     = NINT(TPREC)
+
+           if (ITPREC /= 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+           else
+             IFINCR     = 0
+           endif
+
+           if(MODELNAME=='NCAR' .OR. MODELNAME=='RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+           ID(18)     = 0
+           ID(19)     = IFHR
+           IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+           ID(20)     = 4
+           IF (IFINCR==0) THEN
+             ID(18) = IFHR-ITPREC
+           ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+           ENDIF
+           IF (ID(18)<0) ID(18) = 0
+!           if(me==0)print*,'maxval BUCKET HAIL: ', maxval(GRID1)
+           if(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(1025))
+             if(ITPREC>0) then
+               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             else
+               fld_info(cfld)%ntrange=0
+             endif
+             fld_info(cfld)%tinvstat=ITPREC
+             if(fld_info(cfld)%ntrange==0) then
+               if (ifhr==0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,ii,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,iend-ista+1
+               ii = ista+i-1
+                 datapd(i,j,cfld) = GRID1(ii,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+
 !     'BUCKET FREEZING RAIN '
          IF (IGET(1003)>0.) THEN
 !$omp parallel do private(i,j)
@@ -5492,7 +5554,11 @@
 !-- rain/freezing rain
 !  ---------------------------------------------------------------
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
-               rainl = (1. - SR(i,j))*prec(i,j)/DT
+               if (prec(i,j) < spval) then
+                 rainl = (1. - SR(i,j))*prec(i,j)/DT
+               else
+                 rainl = spval
+               endif
 !-- in RUC RAIN is in cm/h and the limit is 1.e-3,
 !-- converted to m/s will be 2.8e-9
                if((rainl > 2.8e-9 .and. snowratio<0.60) .or.      &
@@ -6576,7 +6642,8 @@
          DO J=JSTA,JEND
            DO I=ISTA,IEND
              IF( (abs(SM(I,J)-0.)   < 1.0E-5) .AND.     &
-     &           (abs(SICE(I,J)-0.) < 1.0E-5) ) THEN
+     &           (abs(SICE(I,J)-0.) < 1.0E-5) .AND.     &
+     &           (IVGTYP(I,J) .NE. 17)) THEN
               IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS = CZEN(I,J)/CZMEAN(I,J)
               ELSE

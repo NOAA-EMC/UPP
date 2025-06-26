@@ -20,6 +20,7 @@
 !> 2022-09-12 | Wen Meng       | Added cloud fraction changes for crtm/2.4.0
 !> 2023-03-22 | WM Lewis       | Added support for using effective radius arrays from RRFS
 !> 2023-10-25 | Eric James     | Bug fix for invalid land category in CRTM
+!> 2025-03-10 | Hua Leighton   | Added channel 12 and 13 in ssmis-f17 
 !>
 !> @author Chuang @date 2007-01-17
 !---------------------------------------------------------------------------
@@ -1870,6 +1871,23 @@
                        endif
                     endif
                  enddo
+                 do ixchan=1,2
+                  ichan=11+ixchan
+                  igot=iget(828+ixchan)
+                    if(igot>0)then
+                     do j=jsta,jend
+                        do i=ista,iend
+                           grid1(i,j)=tb(i,j,ichan)
+                        enddo
+                     enddo
+                     if(grib=="grib2" )then
+                      cfld=cfld+1
+                      fld_info(cfld)%ifld=IAVBLFLD(igot)
+                      datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
+                     endif
+                  endif
+               enddo
+                                
               endif ! end of outputting ssmis f17
               if (isis=='ssmis_f18')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0

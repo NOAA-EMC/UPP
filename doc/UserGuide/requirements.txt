@@ -40,7 +40,7 @@ pygments==2.17.2
     # via sphinx
 pyyaml==6.0.1
     # via pybtex
-requests==2.32.2
+requests==2.32.4
     # via sphinx
 six==1.16.0
     # via
@@ -72,5 +72,5 @@ sphinxcontrib-qthelp==1.0.7
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
-urllib3==2.2.2
+urllib3==2.5.0
     # via requests

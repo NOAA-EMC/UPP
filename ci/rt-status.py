@@ -4,22 +4,34 @@
 Updates
 Aug/29/2023 - Fernando Andrade-Maldonado: Script creation
 Feb/10/2025 - Sam Trahan: Detect if a test was unable to run.
+Jun/12/2025 - Sam Trahan: Fix parser errors in test name detection.
 '''
 
 import os
 import sys
 
 # files used in result comparison
-tests = [
-    'nmmb',
-    'gfs',
-    'fv3gefs',
-    'fv3r',
-    'rap',
-    'hrrr',
-    'fv3hafs',
-    'rtma'
-]
+test_list = os.environ["test_list"].split()
+
+synonyms = { '3drtma': [ 'rtma' ] }
+for name,synonym_list in synonyms.items():
+    if name in test_list:
+        for synonym in synonym_list:
+            test_list.append(synonym)
+
+print('Check tests:')
+print(test_list)
+tests = test_list
+#tests = [
+#    'nmmb',
+#    'gfs',
+#    'fv3gefs',
+#    'fv3r',
+#    'rap',
+#    'hrrr',
+#    'fv3hafs',
+#    'rtma'
+#]
 
 # look for .diff files
 # every case has its own directory in rundir
@@ -35,10 +47,14 @@ def check_for_diff(tests):
         case_success = False
         diff_case = ''
         for file in os.listdir(full_case_dir):
-            if file.endswith('.diff'):
+            full_file = full_case_dir + '/' + file
+            if file.endswith('.diff') or ( file=="TEST_ERROR" and os.path.getsize(full_file) ):
                 for test in tests:
                     if test in case_dir:
                         diff_case = test
+                        break
+            if diff_case:
+                break
         for file in os.listdir(full_case_dir):
             full_file = full_case_dir + '/' + file
             if file == 'TEST_ERROR':
