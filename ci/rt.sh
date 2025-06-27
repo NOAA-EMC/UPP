@@ -7,6 +7,7 @@
 # Fernando Andrade-Maldonado 4/2024 Additional Log info
 # Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
 # Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
+# Gillian Petro 06/2025 Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
 ######################################################################
 set -xue
 SECONDS=0
@@ -157,9 +158,9 @@ if [ $mac2 = hf ]; then # for HERA
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
  export accnr=${accnr:-"rtrr"}
  module purge
- module use /contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.5.0/install/modulefiles/Core
- module load stack-intel/2021.5.0
- module load stack-intel-oneapi-mpi/2021.5.1
+ module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module load stack-oneapi/2024.2.1
+ module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
 elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
@@ -173,24 +174,24 @@ elif [ $mac2 = uf ]; then # for Ursa
  module load python/3.11.7
 elif [ $mac3 = orio ] ; then
  export machine=ORION
- export homedir=${homedir:-"/work/noaa/epic/UPP"}
+ export homedir=${homedir:-"/work/noaa/epic/role-epic/orion/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
- module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
- module load stack-intel/2021.9.0
- module load stack-intel-oneapi-mpi/2021.9.0
+ module use /apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core
+ module load stack-oneapi/2024.2.1
+ module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
  module load python/3.10.8
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
- export homedir=${homedir:-"/work/noaa/epic/UPP"}
+ export homedir=${homedir:-"/work/noaa/epic/role-epic/hercules/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
- module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
- module load stack-intel/2021.9.0
- module load stack-intel-oneapi-mpi/2021.9.0
+ module use /apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core
+ module load stack-oneapi/2024.2.1
+ module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
  module load python/3.10.8
 elif [ $mac = d -o $mac = c ]; then #for WCOSS2
@@ -208,8 +209,8 @@ elif [ $mac = d -o $mac = c ]; then #for WCOSS2
 fi
 
 if [[ "$compiler" == MISSING ]] ; then
-    if [[ "$machine" == URSA ]] ; then
-	usage FATAL ERROR: You must specify the compiler on Ursa: -C 'intel|intelllvm' 1>&2
+   if [[ "$machine" == "URSA" || "$machine" == "ORION" || "$machine" == "HERCULES" ]]; then
+	usage FATAL ERROR: You must specify the compiler on Ursa, Orion, and Hercules: -C 'intel|intelllvm' 1>&2
 	exit 2
     else
 	compiler=intel

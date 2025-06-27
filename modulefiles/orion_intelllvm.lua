@@ -1,9 +1,9 @@
 help([[
-Load environment to build UPP on hercules
+Load environment to build UPP on orion
 ]])
 
 prepend_path("MODULEPATH", "/apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core")
-prepend_path("MODULEPATH", "/work/noaa/epic/role-epic/spack-stack/hercules/modulefiles")
+prepend_path("MODULEPATH", "/work/noaa/epic/role-epic/spack-stack/orion/modulefiles")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2024.2.1"
 load(pathJoin("stack-oneapi", stack_intel_ver))
@@ -19,8 +19,11 @@ load(pathJoin("python", python_ver))
 
 load("upp_common")
 
-setenv("CC","mpiicc")
-setenv("CXX","mpiicpc")
-setenv("FC","mpiifort")
+setenv("I_MPI_CC", "icx")
+setenv("I_MPI_CXX", "icpx")
+setenv("I_MPI_F90", "ifort")
+setenv("CC","mpiicx")
+setenv("CXX","mpiicpx")
+setenv("FC","mpiifx")
 
 whatis("Description: UPP build environment")
