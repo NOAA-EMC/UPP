@@ -110,7 +110,7 @@
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust,  &
-              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -3084,6 +3084,25 @@
       VarName='ugrd10m'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,u10)
+            
+! 10 m v using gfsio
+      VarName='vgrd10m'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,v10)
+
+! Both v10 & u10 can be derived from f10m and surface wind in FV3 surface initialization files.
+! If we have f10m, and lack u10 and v10, we derive them here:
+      VarName='f10m'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,f10m)
+      do j=jsta,jend
+         do i=ista,iend
+            if(u10(i,j) == spval .or. v10(i,j) == spval) then
+               u10(i,j) = f10m(i,j) * uh(i,j,LM)
+               v10(i,j) = f10m(i,j) * vh(i,j,LM)
+            endif
+         enddo
+      enddo
 
       do j=jsta,jend
         do i=ista,iend
@@ -3091,11 +3110,6 @@
         end do
       end do
 !     if(debugprint)print*,'sample l',VarName,' = ',1,u10(isa,jsa)
-            
-! 10 m v using gfsio
-      VarName='vgrd10m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,v10)
 
       do j=jsta,jend
         do i=ista,iend
