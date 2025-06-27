@@ -23,14 +23,10 @@ export APRUN="srun"
 ############################################
 # Loading module
 ############################################
-module use /apps/contrib/spack-stack/spack-stack-1.8.0/envs/ue-intel-2021.9.0/install/modulefiles/Core
-module load stack-intel/2021.9.0
-module load stack-intel-oneapi-mpi/2021.9.0
-module load libpng/1.6.37
-module load jasper/2.0.32
+module use ${svndir}/modulefiles
+module load hercules_$compiler
 module load prod_util/2.1.1
-module load crtm/2.4.0.1
-module load wgrib2/3.1.1
+module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
