@@ -1,0 +1,46 @@
+===== Start of UPP Regression Testing Log =====
+UPP Hash Tested:
+42b6a373253837b2c9cf09da59f4b9ab77931480
+
+Submodule hashes:
+-179cae1dd84401cf25d250bd9102e66560a9d328 sorc/libIFI.fd
+-3d35332fe66e3e63a285cc8d96facdf255a33481 sorc/ncep_post.fd/post_gtg.fd
+
+Run directory: /work/noaa/epic/gpetro/orion/RTs/upp-rts/1242-llvm/ci/rundir/upp-ORION
+Baseline directory: /work/noaa/epic/role-epic/orion/UPP
+
+Total runtime: 00h:17m:24s
+Test Date: 20250626 09:05:58
+Summary Results:
+
+06/26 13:53:21Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the develop branch
+06/26 13:53:22Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the develop branch
+06/26 13:53:22Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the develop branch
+06/26 13:53:46Z -fv3r test: your new post executable generates bit-identical IFIFIP10.tm00 as the develop branch
+06/26 13:53:51Z -fv3gefs test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the develop branch
+06/26 13:54:08Z -fv3hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the develop branch
+06/26 13:55:06Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF16 as the develop branch
+06/26 13:55:07Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF16 as the develop branch
+06/26 13:55:46Z -fv3r test: your new post executable generates bit-identical PRSLEV10.tm00 as the develop branch
+06/26 13:55:51Z -fv3r test: your new post executable generates bit-identical NATLEV10.tm00 as the develop branch
+06/26 13:56:19Z -3drtma test: your new post executable generates bit-identical NATLEV00.tm00 as the develop branch
+06/26 13:56:22Z -3drtma test: your new post executable generates bit-identical PRSLEV00.tm00 as the develop branch
+06/26 14:01:24Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF04 as the develop branch
+06/26 14:01:24Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF04 as the develop branch
+06/26 14:01:26Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF04 as the develop branch
+06/26 14:05:51Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the develop branch
+06/26 14:05:52Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the develop branch
+06/26 14:05:52Z -fv3gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the develop branch
+06/26 13:53:26Z -Runtime: nmmb_test 00:01:42 -- baseline 00:03:00
+06/26 13:53:56Z -Runtime: fv3gefs_test 00:00:22 -- baseline 00:01:00
+06/26 13:55:56Z -Runtime: fv3r_test 00:02:22 -- baseline 00:03:00
+06/26 13:55:56Z -Runtime: fv3r_ifi_mis 00:00:17 -- baseline 00:01:00
+06/26 14:01:27Z -Runtime: hrrr_test 00:07:57 -- baseline 00:09:00
+06/26 14:01:27Z -Runtime: rap_test 00:01:38 -- baseline 00:02:00
+06/26 14:01:27Z -Runtime: fv3hafs_test 00:00:39 -- baseline 00:01:00
+06/26 14:01:27Z -Runtime: 3drtma_test 00:02:53 -- baseline 00:03:00
+06/26 14:05:57Z -Runtime: fv3gfs_test 00:12:23 -- baseline 00:13:00
+Check tests:
+['nmmb', 'fv3gefs', 'fv3r', 'fv3r_ifi_missing', 'hrrr', 'rap', 'fv3hafs', '3drtma', 'fv3gfs', 'rtma']
+No changes in test results detected.
+===== End of UPP Regression Testing Log =====
