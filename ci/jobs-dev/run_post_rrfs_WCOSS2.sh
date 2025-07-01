@@ -6,7 +6,7 @@
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV
-#PBS -l place=vscatter,select=4:ncpus=48
+#PBS -l place=vscatter,select=5:ncpus=48
 #PBS -V
 
 set -x
@@ -15,7 +15,7 @@ set -x
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
-export APRUN="mpiexec -l -n 192 -ppn 48"
+export APRUN="mpiexec -l -n 240 -ppn 48"
 
 ############################################
 # Loading modules
