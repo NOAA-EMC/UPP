@@ -8,6 +8,7 @@
 # Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
 # Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
 # Gillian Petro 06/2025 Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
+# Wen Meng and Ben Blake, 07/2025, Update test names, add RRFS, MPAS, DAFS, SFS tests
 ######################################################################
 set -xue
 SECONDS=0
@@ -278,7 +279,7 @@ if [ "$build_exe" == "yes" ]; then
 fi
 
 #Setting tests
-export test_list="nmmb fv3gefs fv3r fv3r_ifi_missing hrrr rap fv3hafs 3drtma fv3gfs"
+export test_list="nmmb fv3gefs rrfs rrfs_ifi_missing hrrr rap hafs 3drtma fv3gfs mpas"
 
 #submit test jobs
 cd $svndir/ci
