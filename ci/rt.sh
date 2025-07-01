@@ -154,12 +154,7 @@ mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
 if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
-
- # ===================================================================================
- # FIXME: A code manager must copy $homedir/data_in/mpas to an EPIC area before merging to develop.
- export homedir=${homedir:-"/scratch2/BMC/wrfruc/Samuel.Trahan/UPP/mpas_test_suite"}
- # ===================================================================================
-
+ export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
  export accnr=${accnr:-"rtrr"}
  module purge
@@ -169,12 +164,7 @@ if [ $mac2 = hf ]; then # for HERA
  module load prod_util/2.1.1
 elif [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
-
- # ===================================================================================
- # FIXME: A code manager must copy $homedir/data_in/mpas to an EPIC area before merging to develop.
- export homedir=${homedir:-"/scratch3/BMC/wrfruc/Samuel.Trahan/upp-ursa/test_suite"}
- # ===================================================================================
-
+ export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite"}
  export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
  export accnr=${accnr:-"rtrr"}
  module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
@@ -184,8 +174,7 @@ elif [ $mac2 = uf ]; then # for Ursa
  module load python/3.11.7
 elif [ $mac3 = orio ] ; then
  export machine=ORION
- export homedir=${homedir:-"/work2/noaa/wrfruc/strahan/upp/mpas-test-suite"}
-# export homedir=${homedir:-"/work/noaa/epic/role-epic/orion/UPP"}
+ export homedir=${homedir:-"/work/noaa/epic/role-epic/orion/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
@@ -196,8 +185,7 @@ elif [ $mac3 = orio ] ; then
  module load python/3.10.8
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
- export homedir=${homedir:-"/work2/noaa/wrfruc/strahan/upp/mpas-test-suite"}
-# export homedir=${homedir:-"/work/noaa/epic/role-epic/hercules/UPP"}
+ export homedir=${homedir:-"/work/noaa/epic/role-epic/hercules/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
