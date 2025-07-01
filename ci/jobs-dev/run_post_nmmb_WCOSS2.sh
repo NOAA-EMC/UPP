@@ -20,15 +20,11 @@ echo "starting time"
 date
 
 module reset
-module load intel/19.1.3.304
-module load PrgEnv-intel/8.1.0
-module load craype/2.7.8
-module load cray-mpich/8.1.7
+module use ${svndir}/modulefiles
+module load wcoss2_intel
 module load cray-pals/1.0.12
-module load hdf5/1.10.6
-module load netcdf/4.7.4
 module load libjpeg/9c
-module load prod_util/2.0.8
+module load prod_util/2.0.14
 module load wgrib2/2.0.8
 module list
 
