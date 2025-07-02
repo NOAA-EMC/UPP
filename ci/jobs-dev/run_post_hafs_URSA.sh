@@ -1,11 +1,11 @@
 #!/bin/sh
 
-#SBATCH -o out.fv3hafs
-#SBATCH -e out.fv3hafs
-#SBATCH -J fv3hafs_test 
+#SBATCH -o out.post.hafs
+#SBATCH -e out.post.hafs
+#SBATCH -J hafs_test 
 #SBATCH -t 00:20:00
-#SBATCH --ntasks 480
-#SBATCH --tasks-per-node 16
+#SBATCH --ntasks 72
+#SBATCH --tasks-per-node 24
 #SBATCH -q batch
 #SBATCH -A ovp
 #SBATCH --exclusive
@@ -19,7 +19,7 @@ export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module purge
 module use $svndir/modulefiles
@@ -29,7 +29,7 @@ module load prod_util/2.1.1
 module load nccmp/1.9.1.0
 module list
 
-msg="Starting fv3hafs test"
+msg="Starting hafs test"
 postmsg "$logfile" "$msg"
 
 
@@ -38,11 +38,11 @@ export POSTGPEXEC=${svndir}/exec/upp.x
 # specify forecast start time and hour for running your post job
 export startdate=2022092800
 export fhr=009
+export tmmark=tm00
 export CC=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
-export DATA=$rundir/fv3hafs_${startdate}
-export tmmark=tm00
+export DATA=$rundir/hafs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
@@ -68,18 +68,21 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-
 rm -f fort.*
 
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
-
-# copy flat files instead
 cp ${svndir}/parm/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
-
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
+# Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
+#############################################################
+
+################################################
+# Compare with baseline data
+################################################
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
@@ -98,10 +101,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="fv3hafs test: your new post executable generates bit-identical ${filein2} as the develop branch"
+  msg="hafs test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="fv3hafs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  msg="hafs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
@@ -110,7 +113,7 @@ if [ $err = "0" ] ; then
 
 else
 
- msg="fv3hafs test: post failed using your new post executable to generate ${filein2}"
+ msg="hafs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -118,5 +121,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending fv3hafs test"
+msg="Ending hafs test"
 postmsg "$logfile" "$msg"
