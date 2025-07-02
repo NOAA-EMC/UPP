@@ -2,7 +2,7 @@
 
 #PBS -o out.post.sfs
 #PBS -e out.post.sfs
-#PBS -N sfs.test
+#PBS -N sfs_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

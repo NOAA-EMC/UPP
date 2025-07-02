@@ -2,7 +2,7 @@
 
 #PBS -o out.post.mpas
 #PBS -e out.post.mpas
-#PBS -N mpas.test
+#PBS -N mpas_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

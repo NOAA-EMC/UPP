@@ -2,7 +2,7 @@
  
 #PBS -o out.post.3drtma
 #PBS -e out.post.3drtma
-#PBS -N 3drtma.test
+#PBS -N 3drtma_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

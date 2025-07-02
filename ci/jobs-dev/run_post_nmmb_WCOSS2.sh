@@ -2,7 +2,7 @@
 
 #PBS -o out.post.nmmb
 #PBS -e out.post.nmmb
-#PBS -N nmmb.test
+#PBS -N nmmb_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

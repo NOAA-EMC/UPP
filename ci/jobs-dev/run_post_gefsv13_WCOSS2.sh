@@ -2,7 +2,7 @@
 
 #PBS -o out.post.gefsv13
 #PBS -e out.post.gefsv13
-#PBS -N gefsv13.test
+#PBS -N gefsv13_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

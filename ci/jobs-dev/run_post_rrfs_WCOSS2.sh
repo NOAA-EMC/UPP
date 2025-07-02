@@ -2,7 +2,7 @@
 
 #PBS -o out.post.rrfs
 #PBS -e out.post.rrfs
-#PBS -N rrfs.test
+#PBS -N rrfs_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

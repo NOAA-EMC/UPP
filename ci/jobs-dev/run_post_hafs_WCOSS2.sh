@@ -2,7 +2,7 @@
 
 #PBS -o out.post.hafs
 #PBS -e out.post.hafs
-#PBS -N hafs.test
+#PBS -N hafs_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV

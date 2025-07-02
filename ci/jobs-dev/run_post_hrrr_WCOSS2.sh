@@ -2,7 +2,7 @@
  
 #PBS -o out.post.hrrr
 #PBS -e out.post.hrrr
-#PBS -N hrrr.test
+#PBS -N hrrr_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV
