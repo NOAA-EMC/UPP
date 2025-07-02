@@ -13,7 +13,7 @@ load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 cmake_ver=os.getenv("cmake_ver") or "3.27.9"
 load(pathJoin("cmake", cmake_ver))
 
-load("upp_common")
+load("upp_jet")
 
 setenv("CC","mpiicc")
 setenv("CXX","mpiicpc")
