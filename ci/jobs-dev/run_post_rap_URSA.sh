@@ -44,8 +44,8 @@ export POSTGPEXEC=${svndir}/exec/upp.x
 # CALL executable job script here
 
 # specify your running and output directory
-export startdate=2020072316
-export fhr=16
+export startdate=2025070115
+export fhr=06
 export DATA=$rundir/rap_${startdate}
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
