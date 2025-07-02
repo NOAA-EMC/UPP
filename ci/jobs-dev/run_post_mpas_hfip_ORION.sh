@@ -30,6 +30,9 @@ module load prod_util/2.1.1
 module load wgrib2/3.6.0
 module list
 
+ulimit -s unlimited
+export OMP_STACKSIZE=128M
+
 msg="Starting mpas_hfip test"
 postmsg "$logfile" "$msg"
 
