@@ -22,12 +22,8 @@ echo "starting time"
 date
 
 ######################################################################
-# Purpose: to run RAP post processing
+# Loading modules
 ######################################################################
-
-# EXPORT list here
-
-
 module purge
 module use $svndir/modulefiles
 module load ursa_$compiler
@@ -42,12 +38,14 @@ postmsg "$logfile" "$msg"
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# CALL executable job script here
-
-# specify your running and output directory
+# specify forecast start time and hour
 export startdate=2025063004
 export fhr=10
+
+# specify your running and output directory
 export DATA=$rundir/hrrr_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
 
@@ -55,9 +53,6 @@ export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
-
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
 
 cat > itag <<EOF
 &model_inputs
@@ -71,22 +66,28 @@ MODELNAME='RAPR'
 KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,275.,300.,325.,350.,375.,400.,425.,450.,475.,500.,525.,550.,575.,600.,625.,650.,675.,700.,725.,750.,775.,800.,825.,850.,875.,900.,925.,950.,975.,1000.,1013.2
 /
 EOF
-#FMIN
 
 #copy fix data
 cp $homedir/fix/fix_2.3.0/*bin .
-
-#copy xml
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-hrrr.txt postxconfig-NT.txt
 cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
+# Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
+#############################################################
+
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
 # operational hrrr post processing generates 3 files
-filelist="WRFTWO.GrbF04 \
-          WRFPRS.GrbF04 \
-          WRFNAT.GrbF04"
+filelist="WRFTWO.GrbF${fhr2} \
+          WRFPRS.GrbF${fhr2} \
+          WRFNAT.GrbF${fhr2}"
 
 for file in $filelist; do
 export filein2=$file
@@ -95,7 +96,6 @@ export err=$?
 
 if [ $err = "0" ] ; then
 
- # operational hrrr post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/hrrr/${filein2}.${machine}
 
@@ -125,5 +125,3 @@ done
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending hrrr test"
 postmsg "$logfile" "$msg"
-
-
