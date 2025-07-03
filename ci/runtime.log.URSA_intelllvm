@@ -18,3 +18,4 @@ fv3r_pe_test 00:03:00
 rtma_test 00:03:00
 rtma_pe_test 00:03:00
 fv3r_ifi_missing 00:03:00
+mpas_hfip_test 00:05:00
