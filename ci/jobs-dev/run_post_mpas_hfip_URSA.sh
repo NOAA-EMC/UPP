@@ -38,21 +38,27 @@ postmsg "$logfile" "$msg"
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# forecast start time for the mpas_hfip output
-export startdate=2024-10-09_00
+# specify forecast start time and hour
+export startdate=2024100700
+export fhr=048
 
 # specify your running and output directory
 export DATA=$rundir/mpas_hfip_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
+export NEWDATE=`${NDATE} +${fhr} $startdate`
+export YY=`echo $NEWDATE | cut -c1-4`
+export MM=`echo $NEWDATE | cut -c5-6`
+export DD=`echo $NEWDATE | cut -c7-8`
+export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-    fileName='$homedir/data_in/mpas_hfip/MPAS-A_out.${startdate}.00.00.nc'
+    fileName='$homedir/data_in/mpas_hfip/MPAS-A_out.${YY}-${MM}-${DD}_${HH}.00.00.nc'
     ioform = 'netcdfpara'
     grib = 'grib2'
-    datestr = '${startdate}:00:00'
+    datestr = '${YY}-${MM}-${DD}_${HH}:00:00'
     modelname = 'RAPR'
     submodelname = 'MPAS'
 /
