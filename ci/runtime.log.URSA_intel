@@ -7,7 +7,7 @@ hrrr_test 00:04:00
 hafs_test 00:00:30
 3drtma_test 00:01:00
 mpas_test 00:01:30
-mpas_hfip_test 00:05:00
+mpas_hfip_test 00:03:30
 rrfs_test 00:04:40
 rrfs_ifi_test 00:05:00
 rrfs_ifi_missing 00:03:00
