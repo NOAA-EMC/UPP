@@ -243,6 +243,35 @@
     </param>
 
     <param>
+       <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
+       <level>0. 10. 40. 100.</level>
+       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
+       <level2>10. 40. 100. 200.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <table_info>NCEP</table_info>
+       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
+       <level>0. 10. 40. 100.</level>
+       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
+       <level2>10. 40. 100. 200.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>SOILL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <table_info>NCEP</table_info>
+       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
+       <level>0. 10. 40. 100.</level>
+       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
+       <level2>10. 40. 100. 200.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
       <shortname>CNWAT_ON_SURFACE</shortname>
       <table_info>NCEP</table_info>
       <scale>3.0</scale>
