@@ -20,11 +20,8 @@ echo "starting time"
 date
 
 ######################################################################
-# Purpose: to run RAP post processing
+# Loading modules
 ######################################################################
-
-# EXPORT list here
-
 module use ${svndir}/modulefiles
 module load orion_$compiler
 module load prod_util/2.1.1
@@ -41,12 +38,14 @@ postmsg "$logfile" "$msg"
 
 export POSTGPEXEC=${svndir}/exec/upp.x     
 
-# CALL executable job script here
+# specify forecast start time and hour
+export startdate=2025070115
+export fhr=06
 
 # specify your running and output directory
-export startdate=2020072316
-export fhr=16
 export DATA=$rundir/rap_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
 
@@ -54,9 +53,6 @@ export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
-
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
 
 cat > itag <<EOF
 &model_inputs
@@ -73,18 +69,24 @@ EOF
 
 #copy fix data
 cp $homedir/fix/raphrrr_fix/* .
-
-#copy xml
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-rap.txt postxconfig-NT.txt
-
 cp $homedir/fix/eta_micro_lookup.dat .
 
+# Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-# operational rap post processing generates 3 files
-filelist="WRFPRS.GrbF16 \
-          WRFNAT.GrbF16"
+#############################################################
+
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
+# operational rap post processing generates 2 files
+filelist="WRFPRS.GrbF${fhr2} \
+          WRFNAT.GrbF${fhr2}"
 
 for file in $filelist; do
 export filein2=$file
@@ -93,7 +95,6 @@ export err=$?
 
 if [ $err = "0" ] ; then
 
- # operational rap post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/rap/${filein2}.${machine}
 
@@ -123,5 +124,3 @@ done
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending rap test"
 postmsg "$logfile" "$msg"
-
-

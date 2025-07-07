@@ -103,9 +103,12 @@ ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 ################################################
 # Compare with baseline data
 ################################################
-# operational rtma post processing generates 2 files
-filelist="NATLEV00.tm00 \
-          PRSLEV00.tm00"
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
+# operational 3drtma post processing generates 2 files
+filelist="NATLEV${fhr2}.tm00 \
+          PRSLEV${fhr2}.tm00"
 
 for file in $filelist; do
 export filein2=$file

@@ -22,7 +22,7 @@ echo "starting time"
 date
 
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module purge
 module use $svndir/modulefiles

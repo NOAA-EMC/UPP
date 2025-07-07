@@ -20,11 +20,8 @@ echo "starting time"
 date
 
 ######################################################################
-# Purpose: to run RAP post processing
+# Loading modules
 ######################################################################
-
-# EXPORT list here
-
 module use ${svndir}/modulefiles
 module load hercules_$compiler
 module load prod_util/2.1.1
@@ -34,7 +31,6 @@ module list
 ulimit -s unlimited
 export WGRIB2=wgrib2
 export COMROOT=$rundir
-#export CRTM_FIX=/apps/contrib/NCEPLIBS/orion/fix/crtm_v2.3.0
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
@@ -42,13 +38,15 @@ postmsg "$logfile" "$msg"
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# CALL executable job script here
-
-# specify your running and output directory
+# specify forecast start time and hour
 export startdate=2023040400
 export fhr=000
 export tmmark=tm00
+
+# specify your running and output directory
 export DATA=$rundir/3drtma_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=$startdate
 
@@ -57,9 +55,6 @@ export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
 export min=00
-
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
 
 cat > itag <<EOF
 &model_inputs
@@ -81,7 +76,7 @@ cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
-#get crtm fix file
+#get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -100,16 +95,20 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-#copy xml
-cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
-cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
-cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
-
+# Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
+#############################################################
+
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
 # operational 3drtma post processing generates 2 files
-filelist="NATLEV00.tm00 \
-          PRSLEV00.tm00"
+filelist="NATLEV${fhr2}.tm00 \
+          PRSLEV${fhr2}.tm00"
 
 for file in $filelist; do
 export filein2=$file
@@ -145,5 +144,3 @@ done
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending 3drtma test"
 postmsg "$logfile" "$msg"
-
-
