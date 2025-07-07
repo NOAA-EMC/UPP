@@ -3,7 +3,7 @@
 3
 IFIFIP
 4
-ncep_emc
+ncep_awc
 v2003
 local_tab_yes1
 fcst
@@ -12,7 +12,7 @@ fcst
 fcst
 hour
 nws_ncep
-rrfs
+hrrr
 complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
@@ -52,7 +52,7 @@ spec_alt_above_mean_sea_lvl
 0
 0.0
 1
-4.0
+2.0
 0
 0
 0
@@ -94,7 +94,7 @@ spec_alt_above_mean_sea_lvl
 0
 0.0
 1
-4.0
+2.0
 0
 0
 0
@@ -136,7 +136,7 @@ spec_alt_above_mean_sea_lvl
 0
 0.0
 1
-4.0
+1.0
 0
 0
 0
@@ -145,7 +145,7 @@ spec_alt_above_mean_sea_lvl
 ?
 AVIATION
 4
-ncep_emc
+ncep_awc
 v2003
 local_tab_yes1
 fcst
