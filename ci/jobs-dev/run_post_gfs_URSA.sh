@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.post.fv3gfs
-#SBATCH -e out.post.fv3gfs
-#SBATCH -J fv3gfs_test
+#SBATCH -o out.post.gfs
+#SBATCH -e out.post.gfs
+#SBATCH -J gfs_test
 #SBATCH -t 00:30:00
-#SBATCH --ntasks 360
-#SBATCH --tasks-per-node 20
+#SBATCH --ntasks 400
+#SBATCH --tasks-per-node 40
 ##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
@@ -23,15 +23,13 @@ export APRUN="srun"
 # Loading module
 ############################################
 module purge
-. $MODULESHOME/init/sh
 module use $svndir/modulefiles
 module load ursa_$compiler
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
-module load nccmp/1.9.1.0
 module list
 
-msg="Starting fv3gfs test"
+msg="Starting gfs test"
 postmsg "$logfile" "$msg"
 
 
@@ -39,13 +37,12 @@ export POSTGPEXEC=${svndir}/exec/upp.x
 
 
 # specify forecast start time and hour for running your post job
-export startdate=2019083000
+export startdate=2024120500
 export fhr=006
 export cyc=`echo $startdate |cut -c9-10`
 
 # specify your running and output directory
-export DATA=$rundir/fv3gfs_${startdate}
-export tmmark=tm00
+export DATA=$rundir/gfs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
@@ -123,10 +120,10 @@ if [ $err = "0" ] ; then
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="fv3gfs test: your new post executable generates bit-identical ${filein2} as the develop branch"
+  msg="gfs test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="fv3gfs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  msg="gfs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
@@ -135,7 +132,7 @@ if [ $err = "0" ] ; then
 
 else
 
- msg="fv3gfs test: post failed using your new post executable to generate ${filein2}"
+ msg="gfs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -143,5 +140,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending fv3gfs test"
+msg="Ending gfs test"
 postmsg "$logfile" "$msg"

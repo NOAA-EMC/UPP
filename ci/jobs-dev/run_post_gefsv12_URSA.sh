@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-#SBATCH -o out.fv3gefs
-#SBATCH -e out.fv3gefs
+#SBATCH -o out.gefsv12
+#SBATCH -e out.gefsv12
 #SBATCH -J fv3gefs_test 
 #SBATCH -t 00:30:00
-#SBATCH --ntasks 120
-#SBATCH --tasks-per-node 20
+#SBATCH --ntasks 48
+#SBATCH --tasks-per-node 24
 ##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
@@ -30,7 +30,7 @@ module load prod_util/2.1.1
 module load nccmp/1.9.1.0
 module list
 
-msg="Starting fv3gefs test"
+msg="Starting gefsv12 test"
 postmsg "$logfile" "$msg"
 
 
@@ -42,7 +42,7 @@ export fhr=060
 export CC=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
-export DATA=$rundir/fv3gefs_${startdate}
+export DATA=$rundir/gefsv12_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
@@ -56,12 +56,12 @@ export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/gefs/geaer.t${CC}z.atmf${fhr}.nemsio'
+fileName='$homedir/data_in/gefsv12/geaer.t${CC}z.atmf${fhr}.nemsio'
 IOFORM='binarynemsiompiio'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='GFS'
-fileNameFlux='$homedir/data_in/gefs/geaer.t${CC}z.sfcf${fhr}.nemsio'
+fileNameFlux='$homedir/data_in/gefsv12/geaer.t${CC}z.sfcf${fhr}.nemsio'
 /
  &NAMPGB
  KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,0.4,gocart_on=.true.,
@@ -109,24 +109,24 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out_$compiler/gefs/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/gefsv12/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="fv3gefs test: your new post executable generates bit-identical ${filein2} as the develop branch"
+  msg="gefsv12 test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="fv3gefs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  msg="gefsv12 test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/gefs/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/gefsv12/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else
 
- msg="fv3gefs test: post failed using your new post executable to generate ${filein2}"
+ msg="gefsv12 test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
@@ -134,5 +134,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending fv3gefs test"
+msg="Ending gefsv12 test"
 postmsg "$logfile" "$msg"

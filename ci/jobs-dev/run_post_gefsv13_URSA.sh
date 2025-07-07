@@ -1,43 +1,44 @@
 #!/bin/bash
 
-#PBS -o out.post.gefsv13
-#PBS -e out.post.gefsv13
-#PBS -N gefsv13_test
-#PBS -l walltime=00:30:00
-#PBS -q debug
-#PBS -A GFS-DEV
-#PBS -l place=vscatter,select=2:ncpus=48
-#PBS -V
+#SBATCH -o out.post.gefsv13
+#SBATCH -e out.post.gefsv13
+#SBATCH -J gefsv13_test 
+#SBATCH -t 00:30:00
+#SBATCH --ntasks 48
+#SBATCH --tasks-per-node 24
+#SBATCH -q batch
+#SBATCH -A ovp
+#SBATCH --exclusive
 
 set -x
 
 # specify computation resource
 export threads=1
+export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
-export APRUN="mpiexec -l -n 96 -ppn 48"
+export APRUN="srun"
 
 ############################################
-# Loading module
+# Loading modules
 ############################################
-module reset
-module use ${svndir}/modulefiles
-module load wcoss2_intel
-module load cray-pals/1.0.12
-module load libjpeg/9c
-module load prod_util/2.0.14
-module load wgrib2/2.0.8
+module purge
+module use $svndir/modulefiles
+module load ursa_$compiler
+module load wgrib2/3.6.0
+module load prod_util/2.1.1
+module load nccmp/1.9.1.0
 module list
 
 msg="Starting gefsv13 test"
 postmsg "$logfile" "$msg"
 
 
-export POSTGPEXEC=$svndir/exec/upp.x
+export POSTGPEXEC=${svndir}/exec/upp.x
 
-# specify forecast start time and hour
+# specify forecast start time and hour for running your post job
 export startdate=2023080300
 export fhr=009
-export cyc=`echo $startdate |cut -c9-10`
+export cyc=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
 export DATA=$rundir/gefsv13_${startdate}
@@ -45,10 +46,12 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
+                                                                                       
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
+
 
 cat > itag <<EOF
 &model_inputs
@@ -56,7 +59,7 @@ fileName='$homedir/data_in/gefsv13/gefs.t${cyc}z.atmf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
-MODELNAME='GFS'
+MODELNAME='FV3R'
 fileNameFlux='$homedir/data_in/gefsv13/gefs.t${cyc}z.sfcf${fhr}.nc'
 /
 &NAMPGB
@@ -69,12 +72,14 @@ export e1=3
 export e2=01
 export e3=30
 
-#copy fix data
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#Generate master files
+# Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_gefsv13_${NEWDATE}
+
+#############################################################
 
 ################################################
 # Compare with baseline data
@@ -88,7 +93,6 @@ mv GFSPRS.GrbF${FH2} gefs.t${cyc}z.master.grb2f${FH3}
 filelist="gefs.t${cyc}z.master.grb2f${FH3} "
 
 for file in $filelist; do
-
 export filein2=$file
 ls -l ${filein2}
 export err=$?
@@ -96,10 +100,9 @@ export err=$?
 if [ $err = "0" ] ; then
 
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out/gefsv13/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/gefsv13/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
-
  export err1=$?
  if [ $err1 -eq 0 ] ; then
   msg="gefsv13 test: your new post executable generates bit-identical ${filein2} as the develop branch"
@@ -109,9 +112,7 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-
-  # compare grib message via cmp_grib2_grib2
-  $cmp_grib2_grib2 $homedir/data_out/gefsv13/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/gefsv13/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else
@@ -123,7 +124,6 @@ fi
 postmsg "$logfile" "$msg"
 done
 
-echo $?
-echo "PROGRAM IS COMPLETE!!!!!!" 2>&1 | tee SUCCESS
+echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending gefsv13 test"
 postmsg "$logfile" "$msg"
