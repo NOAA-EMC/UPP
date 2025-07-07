@@ -9,3 +9,4 @@ fv3r_ifi_missing 00:02:00
 3drtma_test 00:03:40
 hrrr_ifi_test 00:02:00
 fv3r_ifi_test 00:02:00
+mpas_hfip_test 00:05:00

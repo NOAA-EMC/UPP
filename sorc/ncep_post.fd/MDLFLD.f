@@ -3706,7 +3706,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             GRID1(I,J)=spval
 ! dong handle missing value
             if (slp(i,j) < spval) then
-             GRID1(I,J)=REF_10CM(I,J,Zm10c(I,J))
+             GRID1(I,J)=REF_10CM(I,J,NINT(Zm10c(I,J)))
             end if ! spval
            ENDDO
            ENDDO
@@ -3717,7 +3717,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             GRID1(I,J)=spval
 ! dong handle missing value
             if (slp(i,j) < spval) then
-             GRID1(I,J)=DBZ(I,J,Zm10c(I,J))
+             GRID1(I,J)=DBZ(I,J,NINT(Zm10c(I,J)))
             end if ! spval
            ENDDO
            ENDDO

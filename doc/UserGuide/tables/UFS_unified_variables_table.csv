@@ -30,7 +30,10 @@ Max 0-2km relative vorticity max,maxvort02,rel_vort_max,2d,dyn,regional FV3
 Max hybrid level 1 relative vorticity max,maxvorthy1,rel_vort_maxhy1,2d,dyn,regional FV3
 HAILCAST maximum hail diameter (mm) since last output,hailcast_dhail,hail_maxhailcast,2d,dyn,regional FV3
 Biomass burning emissions,ebb_smoke_hr,ebb,2d,phy,regional FV3
-Hourly wildfire potential,hwp,hwp,2d,phy,regional FV3
+Hourly wildfire potential,hwp_ave,hwp,2d,phy,regional FV3
+Hourly averaged smoke,smoke_ave,smoke_ave,2d,phy,regional FV3
+Hourly averaged dust,dust_ave,dust_ave,2d,phy,regional FV3
+Hourly averaged coarsepm,coarsepm_ave,coarsepm_ave,2d,phy,regional FV3
 Lightning threat index 1,ltg1_max,ltg1_max,2d,phy,regional FV3
 Lightning threat index 2,ltg2_max,ltg2_max,2d,phy,regional FV3
 Lightning threat index 3,ltg3_max,ltg3_max,2d,phy,regional FV3
@@ -63,6 +66,7 @@ Time step snow (in m),snow,snownc,2d,phy,
 Time step graupel (in m),graupel,graupelnc,2d,phy,
 Aerodynamic conductance,acond,acond,2d,phy,
 Mid day avg albedo,albdo_ave,avgalbedo,2d,phy,
+Surface albedo,sfalb,albedo,2d,phy,
 Surface potential temperature,tmpsfc,ths,2d,phy,
 Foundation temperature,tref,fdnsst,2d,phy,
 Convective precip in m per physics time step,cpratb_ave,avgcprate,2d,phy,
@@ -77,6 +81,9 @@ Max hourly -10C reflectivity,refdmax263k,refdm10c_max,2d,phy,
 Max hourly u comp of 10m agl wind,u10max,u10max,2d,phy,
 Max hourly v comp of 10m agl wind,v10max,v10max,2d,phy,
 Max hourly 10m agl wind speed,spd10max,wspd10max,2d,phy,
+Max  time-varying 10m agl wind speed,spd10max,wind10m_max,2d,phy,
+Max time-varying 10m agl wind speed in U component,u10m_max,wspd10umax,2d,phy,
+Max time-varying 10m agl wind speed in V component,v10m_max,wspd10vmax,2d,phy,
 Instantaneous snow water equivalent,weasd,sno,2d,phy,
 Average snow cover,snowc_ave,snoavg,2d,phy,
 Snow depth in mm,snod,si,2d,phy,
@@ -94,9 +101,9 @@ Plant canopy sfc water in m,cnwat,cmc,2d,phy,
 Frozen precip fraction,cpofp,sr,2d,phy,
 Sea ice skin temperature,tisfc,ti,2d,phy,
 Vegetation fraction,veg,vegfrc,2d,phy,
-Liquid volumetric soil moisture,soill1/.../soill9,sh2o,2d,phy,all soil levels read into 3d array
-Volumetric soil moisture,soilw1/.../soilw9,smc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
-Soil temperature,soilt1/.../soilt9,stc,2d,phy,"all soil levels read into 3d array, L5-9 RUC only"
+Liquid volumetric soil moisture,soill,sh2o,3d,phy
+Volumetric soil moisture,soilw,smc,3d,phy
+Soil temperature,soilt,stc,3d,phy
 Time averaged incoming surface longwave,dlwrf_ave,alwin,2d,phy,
 Instantaneous incoming surface longwave,dlwrf,rlwin,2d,phy,
 Time averaged outgoing surface longwave,ulwrf_ave,alwout,2d,phy,
@@ -105,6 +112,10 @@ Time average outgoing model top longwave,ulwrf_avetoa,alwtoa,2d,phy,
 Instantaneous outgoing model top longwave,ulwrf_toa,rlwtoa,2d,phy,
 Time averaged incoming surface shortwave,dswrf_ave,aswin,2d,phy,
 Instantaneous incoming surface shortwave,dswrf,rswin,2d,phy,
+Instananeous incoming clear sky surface shortwave,dswrf_clr,rswinc,2d,phy,
+Instananeous incoming direct beam surface shortwave,visbmdi,swddni,2d,phy,
+Instananeous incoming diffused surface shortwave,visdfdi,swddif,2d,phy,
+Leaf area index,xlaixy,xlaixy,2d,phy,
 Time averaged incoming sfc uv-b,duvb_ave,auvbin,2d,phy,
 Time averaged incoming sfc clear sky uv-b,cduvb_ave,auvbinc,2d,phy,
 Time averaged outgoing sfc shortwave,uswrf_ave,aswout,2d,phy,
@@ -132,6 +143,8 @@ Soil type,sotyp,isltyp,2d,phy,
 Soil moisture availability,wetness,smstav,2d,phy,not GFS
 Accumulated snow depth over land,snacc_land,for computing *sndepac*,2d,phy,
 Accumulated snow depth over ice,snacc_ice,for computing *sndepac*,2d,phy,
+Snow melt over land,snom_land,buf,2d,phy,
+Snow melt over ice,snom_ice,buf2,2d,phy,
 Instantaneous convective cloud top pressure,prescnvclt,ptop,2d,phy,
 Instantaneous convective cloud bottom pressure,prescnvclb,pbot,2d,phy,
 Time averaged low cloud top pressure,pres_avelct,ptopl,2d,phy,
