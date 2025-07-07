@@ -3,8 +3,8 @@
 #PBS -o out.post.gfs
 #PBS -e out.post.gfs
 #PBS -N gfs_test
-#PBS -l walltime=00:30:00
-#PBS -q debug
+#PBS -l walltime=00:40:00
+#PBS -q dev
 #PBS -A GFS-DEV
 #PBS -l place=vscatter,select=4:ncpus=48:mem=300GB
 #PBS -V

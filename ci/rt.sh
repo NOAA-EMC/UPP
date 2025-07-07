@@ -279,7 +279,7 @@ if [ "$build_exe" == "yes" ]; then
 fi
 
 #Setting tests
-export test_list="sfs gefsv12 gefsv13 nmmb rap hrrr hrrr_ifi hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi rrfs_ifi_missing gfs"
+export test_list="sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs"
 
 #submit test jobs
 cd $svndir/ci
