@@ -1,7 +1,9 @@
+sfs_test 00:01:20
 hrrr_ifi_test 00:05:00
 ifi_standalone_fv3r_test 00:05:00
 nmmb_test 00:01:00
-fv3gefs_test 00:02:00
+gefs12_test 00:02:00
+gefs13_test 00:02:00
 rap_test 00:02:00
 hrrr_test 00:04:00
 hafs_test 00:00:30
@@ -11,4 +13,4 @@ mpas_hfip_test 00:03:30
 rrfs_test 00:04:40
 rrfs_ifi_test 00:05:00
 rrfs_ifi_missing 00:03:00
-fv3gfs_test 00:15:00
+gfs_test 00:15:00
