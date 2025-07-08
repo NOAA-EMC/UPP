@@ -2,7 +2,7 @@
 
 #SBATCH -o out.gefsv12
 #SBATCH -e out.gefsv12
-#SBATCH -J fv3gefs_test 
+#SBATCH -J gefsv12_test 
 #SBATCH -t 00:30:00
 #SBATCH --ntasks 48
 #SBATCH --tasks-per-node 24
