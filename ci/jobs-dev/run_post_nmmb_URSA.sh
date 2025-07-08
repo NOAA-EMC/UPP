@@ -29,7 +29,6 @@ module use $svndir/modulefiles
 module load ursa_$compiler
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
-module load nccmp/1.9.1.0
 module list
 
 msg="Starting nmmb test"
@@ -68,8 +67,6 @@ DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='NMM'
 /
 EOF
-
-rm -f fort.*
 
 # copy fix data
 cp $homedir/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat

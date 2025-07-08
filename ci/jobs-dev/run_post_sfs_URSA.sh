@@ -26,7 +26,6 @@ module use $svndir/modulefiles
 module load ursa_$compiler
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
-module load nccmp/1.9.1.0
 module list
 
 msg="Starting sfs test"
