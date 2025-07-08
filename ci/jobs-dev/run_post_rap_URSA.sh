@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #SBATCH -o out.post.rap
 #SBATCH -e out.post.rap

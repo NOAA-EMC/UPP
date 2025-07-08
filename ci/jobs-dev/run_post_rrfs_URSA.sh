@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.rrfs
 #SBATCH -e out.post.rrfs

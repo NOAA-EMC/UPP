@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.hafs
 #SBATCH -e out.post.hafs

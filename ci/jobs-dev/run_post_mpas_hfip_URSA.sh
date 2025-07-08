@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.mpas_hfip
 #SBATCH -e out.post.mpas_hfip

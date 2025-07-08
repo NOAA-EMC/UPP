@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #SBATCH -o out.post.3drtma
 #SBATCH -e out.post.3drtma
