@@ -158,7 +158,8 @@ if [ $mac2 = hf ]; then # for HERA
  export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
  export accnr=${accnr:-"rtrr"}
  module purge
- module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/intel-oneapi-mpi/2021.13-sbi3u54/gcc/13.3.0
  module load stack-oneapi/2024.2.1
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
@@ -167,7 +168,8 @@ elif [ $mac2 = uf ]; then # for Ursa
  export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite"}
  export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
  export accnr=${accnr:-"rtrr"}
- module use /contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+ module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/intel-oneapi-mpi/2021.13-haww6b3/gcc/12.4.0
  module load stack-oneapi/2024.2.1
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
@@ -178,22 +180,25 @@ elif [ $mac3 = orio ] ; then
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
- module use /apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core
+ module use /apps/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.1.0/install/modulefiles/Core
+ module use /apps/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.1.0/install/modulefiles/intel-oneapi-mpi/2021.13-li242lf/gcc/12.2.0
+
  module load stack-oneapi/2024.2.1
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
- module load python/3.10.8
+ module load python/3.11.7
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/role-epic/hercules/UPP"}
  export rundir=${rundir:-"/work2/noaa/stmp/$USER"}
  export accnr=${accnr:-"rtrr"}
  module purge
- module use /apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core
+ module use /apps/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.1.0/install/modulefiles/Core
+ module use /apps/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.1.0/install/modulefiles/intel-oneapi-mpi/2021.13-sqiixt7/gcc/13.3.0
  module load stack-oneapi/2024.2.1
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
- module load python/3.10.8
+ module load python/3.11.7
 elif [ $mac = d -o $mac = c ]; then #for WCOSS2
  export machine=WCOSS2
  export homedir=${homedir:-"/u/wen.meng/noscrub/ncep_post/post_regression_test_new"}
