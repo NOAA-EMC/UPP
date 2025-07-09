@@ -1,5 +1,5 @@
 help([[
-Load environment to build UPP on NOAA Cloud
+Load environment to build UPP on NOAA Cloud with LLVM compilers
 ]])
 
 prepend_path("MODULEPATH", "/contrib/spack-stack-rocky8/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
@@ -18,8 +18,11 @@ load(pathJoin("cmake", cmake_ver))
 
 load("upp_common")
 
-setenv("CC","/apps/oneapi/mpi/latest/bin/mpiicc")
-setenv("CXX","/apps/oneapi/mpi/latest/bin/mpiicpc")
-setenv("FC","/apps/oneapi/mpi/latest/bin/mpiifort")
+setenv("I_MPI_CC", "/apps/oneapi/compiler/2024.2/bin/icx")
+setenv("I_MPI_CXX", "/apps/oneapi/compiler/2024.2/bin/icpx")
+setenv("I_MPI_F90", "/apps/oneapi/compiler/2024.2/bin/ifort")
+setenv("CC","/apps/oneapi/mpi/latest/bin/mpiicx")
+setenv("CXX","/apps/oneapi/mpi/latest/bin/mpiicpx")
+setenv("FC","/apps/oneapi/mpi/latest/bin/mpiifx")
 
 whatis("Description: UPP build environment")
