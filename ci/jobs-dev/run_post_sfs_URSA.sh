@@ -82,7 +82,7 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_sfs_${NEWDATE}
 ################################################
 fhr=$((10#$fhr))
 FH3=$(printf "%03d" "$fhr")
-FH2=$(printf "%2d" "$fhr")
+FH2=$(printf "%02d" "$fhr")
 mv GFSPRS.GrbF${FH2} sfs.t${cyc}z.master.grb2f${FH3}
 
 # compare master file

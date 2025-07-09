@@ -98,8 +98,9 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_goes_${NEWDATE}
 ################################################
 # Compare with baseline data
 ################################################
-FH3=$(printf %03i $fhr)
-FH2=$(printf %02i $fhr)
+fhr=$((10#$fhr))
+FH3=$(printf "%03d" "$fhr")
+FH2=$(printf "%02d" "$fhr")
 mv GFSPRS.GrbF${FH2} gfs.t${cyc}z.master.grb2f${FH3}
 mv GFSFLX.GrbF${FH2} gfs.t${cyc}z.sfluxgrbf${FH3}.grib2
 mv GFSGOES.GrbF${FH2} gfs.t${cyc}z.special.grb2f${FH3}
