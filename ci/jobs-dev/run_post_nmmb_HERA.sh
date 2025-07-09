@@ -75,9 +75,6 @@ MODELNAME='NMM'
 /
 EOF
 
-
-rm -f fort.*
-
 #cp /nwprod/nam.v3.1.22/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp $homedir/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 

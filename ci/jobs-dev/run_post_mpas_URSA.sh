@@ -64,8 +64,6 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-rm -f fort.*
-
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/mpas/postxconfig-NT-rrfs_mpas.txt ./postxconfig-NT.txt

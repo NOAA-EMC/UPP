@@ -65,8 +65,6 @@ write_ifi_debug_files=.true.
 /
 EOF
 
-rm -f fort.*
-
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/postxconfig-NT-ifi.txt ./postxconfig-NT.txt

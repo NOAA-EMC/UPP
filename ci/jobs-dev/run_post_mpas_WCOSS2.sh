@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #PBS -o out.post.mpas
 #PBS -e out.post.mpas

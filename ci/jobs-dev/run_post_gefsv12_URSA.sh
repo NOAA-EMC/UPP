@@ -67,9 +67,6 @@ fileNameFlux='$homedir/data_in/gefsv12/geaer.t${CC}z.sfcf${fhr}.nemsio'
 /
 EOF
 
-
-rm -f fort.*
-
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp $homedir/fix/postxconfig-NT-GEFS-CHEM.txt ./postxconfig-NT.txt
 

@@ -65,9 +65,6 @@ cat > itag <<EOF
 /
 EOF
 
-
-rm -f fort.*
-
 cp ${svndir}/fix/rap_micro_lookup.dat .
 cp ${svndir}/fix/nam_micro_lookup.dat .
 cp ${svndir}/parm/mpas/postxconfig-NT-hfip_mpas.txt ./postxconfig-NT.txt

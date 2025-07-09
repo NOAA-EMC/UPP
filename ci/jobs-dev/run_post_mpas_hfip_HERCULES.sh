@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.mpas_hfip
 #SBATCH -e out.post.mpas_hfip
@@ -61,9 +61,6 @@ cat > itag <<EOF
     submodelname = 'MPAS'
 /
 EOF
-
-
-rm -f fort.*
 
 cp ${svndir}/fix/rap_micro_lookup.dat .
 cp ${svndir}/fix/nam_micro_lookup.dat .

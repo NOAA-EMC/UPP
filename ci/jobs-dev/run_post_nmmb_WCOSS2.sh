@@ -71,8 +71,6 @@ MODELNAME='NMM'
 /
 EOF
 
-rm -f fort.*
-
 cp $homedir/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
 export PARMnam=$homedir/parm
