@@ -3878,15 +3878,16 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               
               !-- Additionally, for RAPR and FV3 only, assign PBLTHV (PBL height based on 
               !   virtual potential temperature). For these models, PBLTHV is used for the
-              !   wind-gust diagnostic.
-              IF(((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME /= 'MPAS'))  &
-                                         .OR. (MODELNAME  ==  'FV3R')) THEN
-                ! For older RAPR applications (with WRF-ARW) and FV3 applications: 
+              !   wind-gust diagnostic. PBLTHV is assigned as follows:
+              IF((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME /= 'MPAS')) THEN
+                ! For older RAPR applications (with WRF-ARW):
                 ! PBLHGUST is calculated in the associated INITPOST* routine;
                 ! simply pass PBLHGUST to PBLTHV
                 PBLTHV=PBLHGUST
-              ELSE IF ((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME == 'MPAS')) THEN
-                ! For RAPR applications with MPAS: calculate PBLTHV by calling CALPBL
+              ELSE IF ((MODELNAME  ==  'FV3R').OR. &
+                      ((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME == 'MPAS'))) THEN
+                ! For FV3R and newer RAPR applications (with MPAS):
+                ! calculate PBLTHV by calling CALPBL
                 CALL CALPBL(PBLTHV,'THV')
               END IF
 
