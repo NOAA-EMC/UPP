@@ -154,8 +154,8 @@ mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
 if [ $mac2 = hf ]; then # for HERA
  export machine=HERA
- export homedir=${homedir:-"/scratch2/NAGAPE/epic/UPP/test_suite"}
- export rundir=${rundir:-"/scratch1/NCEPDEV/stmp2/${USER}"}
+ export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/hera/UPP_test_suite"}
+ export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/${USER}"}
  export accnr=${accnr:-"rtrr"}
  module purge
  module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
