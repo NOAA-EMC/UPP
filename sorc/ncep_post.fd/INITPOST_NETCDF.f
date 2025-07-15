@@ -61,6 +61,10 @@
 !> 2025-02-25 | Wen Meng      | Remove duplicated declaraion for tshltr 
 !> 2024-03-25 | Biju Thomas   | Bug fix float overlow in hafs_upp debug build run
 !> 2025-04-23 ! Jesse Meng    | Bug fix zmid calculation in very thin layers
+!> 2025-06-16 | Jaymes Kenyon | Removing the calculation of PBLHGUST (i.e., reverting the update from 2024-02-20).
+!>                            | PBLHGUST represented a PBL height obtained from the profile of virtual potential
+!>                            | temperature (THV).  In turn, PBLHGUST was used for the wind-gust diagnostic in FV3R.
+!>                            | Calculation of a THV-based PBL height has now been ported into CALPBL.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -109,7 +113,7 @@
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
-              pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, pblhgust,  &
+              pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, &
               smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
@@ -197,11 +201,11 @@
       REAL DUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
-              I,J,L,ll,k,k1,kf,irtn,igdout,n,Index,nframe,                &
+              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
               nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
       integer ncid3d,ncid2d,varid,nhcas,varid_bl,iret_bl
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
-              tvll,pmll,tv, tx1, tx2, zpbltop
+              tvll,pmll,tv, tx1, tx2
 
       character*20,allocatable :: recname(:)
       integer,     allocatable :: reclev(:), kmsk(:,:)
@@ -231,7 +235,6 @@
 
       integer, parameter    :: npass2=5, npass3=30
       real, parameter       :: third=1.0/3.0
-      real, parameter       :: delta_theta4gust=0.5
       INTEGER, DIMENSION(2) :: ij4min, ij4max
       REAL                  :: omgmin, omgmax
       real, allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
@@ -239,11 +242,10 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
-      real, allocatable :: ext550(:,:,:),thv(:,:,:)
+      real, allocatable :: ext550(:,:,:)
 
       if (modelname == 'FV3R') then
          allocate(ext550(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
-         allocate(thv(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       endif
 
 !***********************************************************************
@@ -2693,60 +2695,11 @@
            dz
           if(debugprint.and.i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
            i,j,l,aextc55 ( i, j, l )
-
-          ! J. Kenyon - 14 Feb 2024: Obtain the virtual potential
-          ! temperature (thv) from temperature and specific humidity.
-          thv(i,j,l) = ( t(i,j,l) * (p1000/pint(i,j,l))**CAPA ) & ! line 1: convert temp to theta
-                      * ( 1. + 0.61*q(i,j,l)/(1.-q(i,j,l)) )      ! line 2: convert theta to theta-v;
-                                                                  !  note that the factor q/(1-q) converts
-                                                                  !  specific humidity (q) to mixing ratio 
-
          end do
         end do
        end do
 
-       do j = jsta_2l, jend_2u
-        do i = ista_2l, iend_2u
-         ! J. Kenyon - 14 Feb 2024: From the vertical profile of theta-v,
-         ! determine an effective PBL height. This ad-hoc PBL height will 
-         ! be used solely for the 10-m wind-gust diagnostic. The approach 
-         ! that follows is essentially reproduced from INITPOST.F.
-
-         !--Check for a surface-based mixed layer, but give a
-         !  0.5 K "boost" to the surface theta-v.
-          if (thv(i,j,lm-1) < (thv(i,j,lm) + delta_theta4gust)) then 
-          
-            !--A mixed layer exists, so proceed. Let the PBL top
-            !--be defined as the lowest level where theta-v is 
-            !--greater than (theta-v_sfc + 0.5 K).
-            do k = 3, lm
-              k1 = k
-              if (thv(i,j,lm-k+1) > (thv(i,j,lm) + delta_theta4gust)) &
-                !--PBL top found, so exit from the do-loop.  The most recent 
-                !--k1 value is the first level above the PBL top.
-                exit
-            end do
-
-            !--Find the height of k1 by linear interpolation, then
-            !--assign as zpbltop
-            zpbltop = zmid(i,j,lm-k1+1) + &
-                    ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1)) &
-                    * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))           &
-                    / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
-            !--Subtract surface elevation to yield PBLHGUST in AGL
-            PBLHGUST ( i, j ) = max(zpbltop - zint(i,j,lp1), 0.)
-
-          else 
-          !--Mixed layer does not exist
-            PBLHGUST ( i, j ) = 0. 
-
-          endif
-
-        end do
-       end do
-
        deallocate(ext550)
-       deallocate(thv)
 
       end if ! (modelname == 'FV3R')
 
