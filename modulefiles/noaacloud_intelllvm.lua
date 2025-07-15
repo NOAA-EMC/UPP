@@ -2,7 +2,7 @@ help([[
 Load environment to build UPP on NOAA Cloud with LLVM compilers
 ]])
 
-prepend_path("MODULEPATH", "/contrib/spack-stack-rocky8/spack-stack-1.9.1/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/contrib/spack-stack-rocky8/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
 prepend_path("MODULEPATH", "/apps/modules/modulefiles")
 
 local gcc_ver=os.getenv("gcc_ver") or "13.2.0"
