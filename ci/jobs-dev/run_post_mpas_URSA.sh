@@ -40,7 +40,7 @@ export fhr=002
 export tmmark=tm00
 
 # specify your running and output directory
-export DATA=$rundir/mpas_rrfs_${startdate}
+export DATA=$rundir/mpas_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
