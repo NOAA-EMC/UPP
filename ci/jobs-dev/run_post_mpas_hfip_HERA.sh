@@ -95,9 +95,10 @@ done
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 
-fhr2=`printf "%02d" $fhr`
+fhr=$((10#$fhr))
+fhr2=$(printf "%02d" "$fhr")
 
-filelist="NATLEV.GrbF48 PRSLEV.GrbF48 2DFLD.GrbF48"
+filelist="NATLEV.GrbF$fhr2 PRSLEV.GrbF$fhr2 2DFLD.GrbF$fhr2"
 
 for file in $filelist; do
 export filein2=$file

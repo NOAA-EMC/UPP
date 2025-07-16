@@ -99,7 +99,8 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_${NEWDATE}
 ################################################
 # Compare with baseline data
 ################################################
-fhr2=`printf "%02d" $fhr`
+fhr=$((10#$fhr))
+fhr2=$(printf "%02d" "$fhr")
 
 filelist="POSTNAT${fhr2}.${tmmark} \
           POSTPRS${fhr2}.${tmmark} \
