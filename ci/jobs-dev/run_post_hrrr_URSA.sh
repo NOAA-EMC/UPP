@@ -21,9 +21,9 @@ export APRUN="srun"
 echo "starting time"
 date
 
-######################################################################
+############################################
 # Loading modules
-######################################################################
+############################################
 module purge
 module use $svndir/modulefiles
 module load ursa_$compiler
@@ -33,7 +33,6 @@ module list
 
 msg="Starting hrrr test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -75,8 +74,6 @@ cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-#############################################################
-
 ################################################
 # Compare with baseline data
 ################################################
@@ -110,7 +107,6 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/hrrr/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 
 else
 

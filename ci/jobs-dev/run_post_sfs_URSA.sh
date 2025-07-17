@@ -18,6 +18,9 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
 # Loading modules
 ############################################
@@ -31,7 +34,6 @@ module list
 msg="Starting sfs test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
@@ -44,13 +46,11 @@ export DATA=$rundir/sfs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`${NDATE} +${fhr} $startdate`
-                                                                                       
+export NEWDATE=`${NDATE} +${fhr} $startdate` 
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
-
 
 cat > itag <<EOF
 &model_inputs
@@ -66,7 +66,6 @@ KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/sfs/postxconfig-NT-sfs.txt ./postxconfig-NT.txt
@@ -74,8 +73,6 @@ cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_sfs_${NEWDATE}
-
-#############################################################
 
 ################################################
 # Compare with baseline data

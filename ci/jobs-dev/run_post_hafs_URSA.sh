@@ -18,6 +18,9 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
 # Loading modules
 ############################################
@@ -31,27 +34,23 @@ module list
 msg="Starting hafs test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
 export startdate=2022092800
 export fhr=009
 export tmmark=tm00
-export CC=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
 export DATA=$rundir/hafs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`${NDATE} +${fhr} $startdate`
-                                                                                       
+export NEWDATE=`${NDATE} +${fhr} $startdate` 
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
-
 
 cat > itag <<EOF
 &model_inputs
@@ -75,15 +74,13 @@ cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-#############################################################
-
 ################################################
 # Compare with baseline data
 ################################################
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-filelist="HURPRS${fhr2}.tm00"
+filelist="HURPRS${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file

@@ -19,9 +19,9 @@ export APRUN="srun"
 echo "starting time"
 date
 
-######################################################################
+############################################
 # Loading modules
-######################################################################
+############################################
 module use ${svndir}/modulefiles
 module load hercules_$compiler
 module load prod_util/2.1.1
@@ -34,7 +34,6 @@ export COMROOT=$rundir
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -49,7 +48,6 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=$startdate
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
@@ -98,8 +96,6 @@ done
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-#############################################################
-
 ################################################
 # Compare with baseline data
 ################################################
@@ -107,8 +103,8 @@ fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
 # operational 3drtma post processing generates 2 files
-filelist="NATLEV${fhr2}.tm00 \
-          PRSLEV${fhr2}.tm00"
+filelist="NATLEV${fhr2}.${tmmark} \
+          PRSLEV${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file
@@ -130,7 +126,6 @@ if [ $err = "0" ] ; then
   echo $msg
   $cmp_grib2_grib2 $homedir/data_out_$compiler/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 
 else
 

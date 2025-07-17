@@ -16,8 +16,11 @@ export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 192 -ppn 48"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module reset
 module use ${svndir}/modulefiles
@@ -30,7 +33,6 @@ module list
 
 msg="Starting gfs test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=$svndir/exec/upp.x
 
@@ -68,7 +70,7 @@ EOF
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix file
+#get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -92,8 +94,6 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_master_${NEWDATE}
 #Generate goes file
 cp ${svndir}/parm/gfs/postxconfig-NT-gfs-goes.txt ./postxconfig-NT.txt
 ${APRUN} ${POSTGPEXEC} < itag > outpost_goes_${NEWDATE}
-
-#############################################################
 
 ################################################
 # Compare with baseline data

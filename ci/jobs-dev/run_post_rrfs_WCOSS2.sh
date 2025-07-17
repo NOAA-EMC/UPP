@@ -17,6 +17,9 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 240 -ppn 48"
 
+echo "starting time"
+date
+
 ############################################
 # Loading modules
 ############################################
@@ -45,7 +48,6 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-                                                                                       
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
@@ -92,16 +94,14 @@ done
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-#############################################################
-
 ################################################
 # Compare with baseline data
 ################################################
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-filelist="PRSLEV${fhr2}.tm00 \
-          NATLEV${fhr2}.tm00"
+filelist="PRSLEV${fhr2}.${tmmark} \
+          NATLEV${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file

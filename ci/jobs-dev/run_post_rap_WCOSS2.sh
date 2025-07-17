@@ -34,7 +34,6 @@ module list
 msg="Starting rap test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour
@@ -47,7 +46,6 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
@@ -74,8 +72,6 @@ cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
-
-#############################################################
 
 ################################################
 # Compare with baseline data
@@ -111,7 +107,6 @@ if [ $err = "0" ] ; then
   $cmp_grib2_grib2 $homedir/data_out/rap/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
-
 else
 
  msg="rap test: post failed using your new post executable to generate ${filein2}"
@@ -124,5 +119,3 @@ done
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending rap test"
 postmsg "$logfile" "$msg"
-
-

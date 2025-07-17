@@ -6,7 +6,6 @@
 #SBATCH -t 00:30:00
 #SBATCH --ntasks 48
 #SBATCH --tasks-per-node 24
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
 #SBATCH --exclusive
@@ -19,8 +18,11 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module purge
 module use $svndir/modulefiles
@@ -31,7 +33,6 @@ module list
 
 msg="Starting gefsv12 test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -45,13 +46,11 @@ export DATA=$rundir/gefsv12_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`${NDATE} +${fhr} $startdate`
-                                                                                       
+export NEWDATE=`${NDATE} +${fhr} $startdate` 
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
-
 
 cat > itag <<EOF
 &model_inputs
@@ -67,13 +66,9 @@ fileNameFlux='$homedir/data_in/gefsv12/geaer.t${CC}z.sfcf${fhr}.nemsio'
 /
 EOF
 
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp $homedir/fix/postxconfig-NT-GEFS-CHEM.txt ./postxconfig-NT.txt
-
-# copy flat files instead
-#ens_pert_type=pos_pert_fcst
-#sed < ${svndir}/parm/postxconfig-NT-GEFS.txt -e "s#negatively_pert_fcst#${ens_pert_type}#" > ./postxconfig-NT.txt
-
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 cp ${svndir}/fix/chem/optics_luts_DUST.dat ./optics_luts_DUST.dat
@@ -82,17 +77,14 @@ cp ${svndir}/fix/chem/optics_luts_SOOT.dat ./optics_luts_SOOT.dat
 cp ${svndir}/fix/chem/optics_luts_SUSO.dat ./optics_luts_SUSO.dat
 cp ${svndir}/fix/chem/optics_luts_WASO.dat ./optics_luts_WASO.dat
 
-
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-#$COPYGB2 -x -i'4,0,80' -k'1 3 0 7*-9999 101 0 0' $PGBOUT tfile
-#$WGRIB2 tfile -set_byte 4 11 1 -grib prmsl
-#$COPYGB2 -x -i'4,1,5' -k'1 3 5 7*-9999 100 0 50000' $PGBOUT tfile
-#$WGRIB2 tfile -set_byte 4 11 193 -grib h5wav
-#cat  prmsl h5wav >> $PGBOUT
 mv $PGBOUT geaer.t${CC}z.master.grb2f${fhr}
 
+################################################
+# Compare with baseline data
+################################################
 fhr2=`printf "%02d" $fhr`
 
 filelist="geaer.t${CC}z.master.grb2f${fhr}"

@@ -16,8 +16,11 @@ export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 48 -ppn 48"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module reset
 module use ${svndir}/modulefiles
@@ -30,7 +33,6 @@ module list
 
 msg="Starting sfs test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=$svndir/exec/upp.x
 

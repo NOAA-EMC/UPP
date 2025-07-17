@@ -17,8 +17,11 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module use $svndir/modulefiles
 module load hercules_$compiler
@@ -32,7 +35,6 @@ export COMROOT=$rundir
 
 msg="Starting mpas test"
 postmsg "$logfile" "$msg"
-
 
 # specify user's own post executable for testing
 export POSTGPEXEC=${svndir}/exec/upp.x
@@ -93,8 +95,6 @@ done
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_${NEWDATE}
-
-#############################################################
 
 ################################################
 # Compare with baseline data

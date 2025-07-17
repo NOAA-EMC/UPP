@@ -17,6 +17,9 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 192 -ppn 48"
 
+echo "starting time"
+date
+
 ############################################
 # Loading modules
 ############################################
@@ -31,7 +34,6 @@ module list
 
 msg="Starting mpas test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -91,8 +93,6 @@ done
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_${NEWDATE}
-
-#############################################################
 
 ################################################
 # Compare with baseline data

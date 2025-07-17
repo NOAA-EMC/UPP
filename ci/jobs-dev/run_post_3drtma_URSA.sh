@@ -22,9 +22,9 @@ export APRUN="srun"
 echo "starting time"
 date
 
-######################################################################
+############################################
 # Loading modules
-######################################################################
+############################################
 module purge
 module use $svndir/modulefiles
 module load ursa_$compiler
@@ -34,7 +34,6 @@ module list
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -49,18 +48,18 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=$startdate
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
+export min=00
 
 cat > itag <<EOF
 &model_inputs
 fileName='$homedir/data_in/3drtma/dynf000.nc'
 IOFORM='netcdf'
 grib='grib2'
-DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+DateStr='${YY}-${MM}-${DD}_${HH}:${min}:00'
 MODELNAME='FV3R'
 SUBMODELNAME='RTMA'
 fileNameFlux='$homedir/data_in/3drtma/phyf${fhr}.nc'
@@ -97,8 +96,6 @@ done
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 
-#############################################################
-
 ################################################
 # Compare with baseline data
 ################################################
@@ -106,8 +103,8 @@ fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
 # operational 3drtma post processing generates 2 files
-filelist="NATLEV${fhr2}.tm00 \
-          PRSLEV${fhr2}.tm00"
+filelist="NATLEV${fhr2}.${tmmark} \
+          PRSLEV${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file
@@ -131,7 +128,6 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 
 else
 

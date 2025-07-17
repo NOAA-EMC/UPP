@@ -19,9 +19,9 @@ export APRUN="mpiexec -l -n 48 -ppn 24"
 echo "starting time"
 date
 
-######################################################################
+############################################
 # Loading modules
-######################################################################
+############################################
 module reset
 module use ${svndir}/modulefiles
 module load wcoss2_intel
@@ -33,7 +33,6 @@ module list
 
 msg="Starting hrrr_ifi test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -47,7 +46,6 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
@@ -74,8 +72,6 @@ cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
-
-#############################################################
 
 ################################################
 # Compare with baseline data
@@ -107,7 +103,6 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out/hrrr_ifi/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 
 else
 

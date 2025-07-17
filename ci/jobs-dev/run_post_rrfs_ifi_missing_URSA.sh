@@ -11,14 +11,19 @@
 #SBATCH -A ovp
 #SBATCH --exclusive
 
+set -x
+
 # specify computation resource
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module purge
 module use $svndir/modulefiles
@@ -29,7 +34,6 @@ module list
 
 msg="Starting rrfs_ifi_missing test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp_no_ifi.x
 
@@ -44,12 +48,10 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-                                                                                       
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
-
 
 cat > itag <<EOF
 &model_inputs
@@ -66,17 +68,20 @@ write_ifi_debug_files=.true.
 /
 EOF
 
-#cp /nwprod/nam.v3.1.16/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
+#copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/postxconfig-NT-ifi.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
+################################################
+# Compare with baseline data
+################################################
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-filelist="IFIFIP${fhr2}.tm00"
+filelist="IFIFIP${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file

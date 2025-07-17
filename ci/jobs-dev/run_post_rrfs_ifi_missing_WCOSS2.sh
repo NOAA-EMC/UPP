@@ -16,6 +16,9 @@ export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 96 -ppn 48"
 
+echo "starting time"
+date
+
 ############################################
 # Loading modules
 ############################################
@@ -43,8 +46,7 @@ export DATA=$rundir/rrfs_ifi_missing_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`${NDATE} +${fhr} $startdate`
-                                                                                       
+export NEWDATE=`${NDATE} +${fhr} $startdate` 
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
@@ -73,15 +75,13 @@ cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-#############################################################
-
 ################################################
 # Compare with baseline data
 ################################################
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-filelist="IFIFIP${fhr2}.tm00"
+filelist="IFIFIP${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file

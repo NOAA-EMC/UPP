@@ -33,7 +33,6 @@ ulimit -s unlimited
 msg="Starting nmmb test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x           
 
 # specify forecast start time and hour
@@ -46,10 +45,7 @@ export DATA=$rundir/nmmb_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-echo $homedir
-echo $NDATE
-export NEWDATE=`$NDATE +${fhr} $startdate`
-                                                                                       
+export NEWDATE=`$NDATE +${fhr} $startdate` 
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
@@ -73,20 +69,18 @@ cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 # Run the UPP
 $APRUN ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-mv BGDAWP${fhr}.tm00 BGDAWP${fhr}.tm00.Grib2
-mv BGRD3D${fhr}.tm00 BGRD3D${fhr}.tm00.Grib2
-mv BGRDSF${fhr}.tm00 BGRDSF${fhr}.tm00.Grib2
-
-#############################################################
+mv BGDAWP${fhr}.${tmmark} BGDAWP${fhr}.${tmmark}.Grib2
+mv BGRD3D${fhr}.${tmmark} BGRD3D${fhr}.${tmmark}.Grib2
+mv BGRDSF${fhr}.${tmmark} BGRDSF${fhr}.${tmmark}.Grib2
 
 ################################################
 # Compare with baseline data
 ################################################
 
 # operational NMMB post processing generates 3 files
-filelist="BGDAWP${fhr}.tm00.Grib2 \
-          BGRD3D${fhr}.tm00.Grib2 \
-          BGRDSF${fhr}.tm00.Grib2"
+filelist="BGDAWP${fhr}.${tmmark}.Grib2 \
+          BGRD3D${fhr}.${tmmark}.Grib2 \
+          BGRDSF${fhr}.${tmmark}.Grib2"
 
 for file in $filelist; do
 export filein2=$file
@@ -111,7 +105,6 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/nmmb/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 
 else
  msg="nmmb test: post failed using your new post executable to generate ${filein2}"

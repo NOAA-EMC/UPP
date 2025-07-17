@@ -34,7 +34,6 @@ module list
 msg="Starting hrrr test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour
@@ -47,7 +46,6 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
@@ -65,7 +63,6 @@ MODELNAME='RAPR'
 KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,275.,300.,325.,350.,375.,400.,425.,450.,475.,500.,525.,550.,575.,600.,625.,650.,675.,700.,725.,750.,775.,800.,825.,850.,875.,900.,925.,950.,975.,1000.,1013.2
 /
 EOF
-#FMIN
 
 #copy fix data
 cp $homedir/fix/fix_2.3.0/*bin .
@@ -75,8 +72,6 @@ cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
-
-#############################################################
 
 ################################################
 # Compare with baseline data
@@ -113,7 +108,6 @@ if [ $err = "0" ] ; then
   $cmp_grib2_grib2 $homedir/data_out/hrrr/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
-
 else
 
  msg="hrrr test: post failed using your new post executable to generate ${filein2}"
@@ -126,5 +120,3 @@ done
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending hrrr test"
 postmsg "$logfile" "$msg"
-
-

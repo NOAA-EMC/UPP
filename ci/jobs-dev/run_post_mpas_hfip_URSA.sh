@@ -12,7 +12,6 @@
 #SBATCH --exclusive
 #SBATCH --mem=0
 
-
 set -x
 
 # specify computation resource
@@ -21,8 +20,11 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module purge
 module use $svndir/modulefiles
@@ -33,7 +35,6 @@ module list
 
 msg="Starting mpas_hfip test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -63,12 +64,13 @@ cat > itag <<EOF
 /
 EOF
 
+#copy fix data
 cp ${svndir}/fix/rap_micro_lookup.dat .
 cp ${svndir}/fix/nam_micro_lookup.dat .
 cp ${svndir}/parm/mpas/postxconfig-NT-hfip_mpas.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix file
+#get crtm fix files
 for what in \
     "FASTEM4.MWwater" "FASTEM5.MWwater" "FASTEM6.MWwater" "NPOESS.IRice" "NPOESS.IRland" \
     "NPOESS.IRsnow" "Nalli.IRwater" "abi_gr" "ahi_himawari8" "amsre_aqua" \
@@ -91,10 +93,12 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 
+################################################
+# Compare with baseline data
+################################################
 fhr=$((10#$fhr))
 fhr2=$(printf "%02d" "$fhr")
 

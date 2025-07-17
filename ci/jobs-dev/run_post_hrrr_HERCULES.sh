@@ -19,9 +19,9 @@ export APRUN="srun"
 echo "starting time"
 date
 
-######################################################################
+############################################
 # Loading modules
-######################################################################
+############################################
 module use ${svndir}/modulefiles
 module load hercules_$compiler
 module load prod_util/2.1.1
@@ -35,7 +35,6 @@ export COMROOT=$rundir
 msg="Starting hrrr test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x     
 
 # specify forecast start time and hour
@@ -48,7 +47,6 @@ rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
@@ -74,8 +72,6 @@ cp ${svndir}/parm/postxconfig-NT-hrrr.txt postxconfig-NT.txt
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
-
-#############################################################
 
 ################################################
 # Compare with baseline data
@@ -110,7 +106,6 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/hrrr/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 
 else
 

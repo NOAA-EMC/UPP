@@ -6,7 +6,6 @@
 #SBATCH -t 00:30:00
 #SBATCH --ntasks 400
 #SBATCH --tasks-per-node 40
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
 #SBATCH --exclusive
@@ -19,8 +18,11 @@ export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
+echo "starting time"
+date
+
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module purge
 module use $svndir/modulefiles
@@ -32,9 +34,7 @@ module list
 msg="Starting gfs test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
-
 
 # specify forecast start time and hour for running your post job
 export startdate=2024120500
@@ -52,7 +52,6 @@ export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
 export HH=`echo $NEWDATE | cut -c9-10`
 
-
 cat > itag <<EOF
 &model_inputs
 fileName='$homedir/data_in/gfs/gfs.t${cyc}z.atmf${fhr}.nc'
@@ -67,10 +66,11 @@ KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
+#copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix file
+#get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
