@@ -53,6 +53,14 @@ case $(hostname -f) in
   *) MACHINE_ID=UNKNOWN ;;  # Unknown platform
 esac
 
+# overwrite MACHINE_ID, if use container
+if [[ -d /opt/spack-stack ]]; then
+  if [[ -v SINGULARITY_CONTAINER ]]; then
+    # We are in a container
+    MACHINE_ID=container
+  fi
+fi
+
 if [[ ${MACHINE_ID} == "UNKNOWN" ]]; then 
    case ${PW_CSP:-} in
       "aws" | "google" | "azure") MACHINE_ID=noaacloud ;;
@@ -96,6 +104,9 @@ elif [[ -d /gpfs && -d /ncrc ]]; then
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
+elif [[ -d /opt/spack-stack && -v SINGULARITY_CONTAINER ]]; then
+  # We are in a container
+  MACHINE_ID=container
 else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
