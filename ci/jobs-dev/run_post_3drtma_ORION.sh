@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export MP_LABELIO=yes
@@ -29,8 +29,6 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"

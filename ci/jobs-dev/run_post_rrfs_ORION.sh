@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -29,8 +29,6 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
 
 msg="Starting rrfs test"
 postmsg "$logfile" "$msg"
@@ -60,7 +58,7 @@ IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='FV3R'
-fileNameFlux='$homedir/data_in/fv3r/phyf${fhr}.nc'
+fileNameFlux='$homedir/data_in/rrfs/phyf${fhr}.nc'
 /
 &NAMPGB
 KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,slrutah_on=.true.,

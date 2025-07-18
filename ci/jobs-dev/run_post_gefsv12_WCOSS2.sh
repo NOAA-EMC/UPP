@@ -11,7 +11,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 48 -ppn 12"
@@ -39,7 +39,7 @@ export POSTGPEXEC=${svndir}/exec/upp.x
 # specify forecast start time and hour for running your post job
 export startdate=2022042400
 export fhr=060
-export CC=`echo $startdate | cut -c9-10`
+export cyc=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
 export DATA=$rundir/gefsv12_${startdate}
@@ -54,12 +54,12 @@ export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/gefsv12/geaer.t${CC}z.atmf${fhr}.nemsio'
+fileName='$homedir/data_in/gefsv12/geaer.t${cyc}z.atmf${fhr}.nemsio'
 IOFORM='binarynemsiompiio'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='GFS'
-fileNameFlux='$homedir/data_in/gefsv12/geaer.t${CC}z.sfcf${fhr}.nemsio'
+fileNameFlux='$homedir/data_in/gefsv12/geaer.t${cyc}z.sfcf${fhr}.nemsio'
 /
  &NAMPGB
  KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,0.4,gocart_on=.true.,
@@ -77,17 +77,18 @@ cp ${svndir}/fix/chem/optics_luts_SOOT.dat ./optics_luts_SOOT.dat
 cp ${svndir}/fix/chem/optics_luts_SUSO.dat ./optics_luts_SUSO.dat
 cp ${svndir}/fix/chem/optics_luts_WASO.dat ./optics_luts_WASO.dat
 
+# Run the UPP
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 
-mv $PGBOUT geaer.t${CC}z.master.grb2f${fhr}
+mv $PGBOUT geaer.t${cyc}z.master.grb2f${fhr}
 
 ################################################
 # Compare with baseline data
 ################################################
 fhr2=`printf "%02d" $fhr`
 
-filelist="geaer.t${CC}z.master.grb2f${fhr}"
+filelist="geaer.t${cyc}z.master.grb2f${fhr}"
 
 for file in $filelist; do
 export filein2=$file

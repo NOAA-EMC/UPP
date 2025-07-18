@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export MP_LABELIO=yes
@@ -29,8 +29,6 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
@@ -129,8 +127,8 @@ if [ $err = "0" ] ; then
 
 else
 
-    msg="3drtma test: post failed using your new post executable to generate ${filein2}"
-    echo $msg 2>&1 | tee -a TEST_ERROR
+ msg="3drtma test: post failed using your new post executable to generate ${filein2}"
+ echo $msg 2>&1 | tee -a TEST_ERROR
 
 fi
 postmsg "$logfile" "$msg"

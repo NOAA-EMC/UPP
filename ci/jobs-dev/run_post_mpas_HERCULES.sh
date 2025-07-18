@@ -11,7 +11,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -30,13 +30,10 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
 
 msg="Starting mpas test"
 postmsg "$logfile" "$msg"
 
-# specify user's own post executable for testing
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour

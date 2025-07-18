@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -46,7 +46,7 @@ export DATA=$rundir/rrfs_ifi_missing_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`${NDATE} +${fhr} $startdate` 
+export NEWDATE=`${NDATE} +${fhr} $startdate`
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
@@ -103,7 +103,7 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/fv3r_ifi_missing/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/rrfs_ifi_missing/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 
 else

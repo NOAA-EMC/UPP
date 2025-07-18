@@ -11,7 +11,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 48 -ppn 24"

@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -45,7 +45,7 @@ export DATA=$rundir/nmmb_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`$NDATE +${fhr} $startdate` 
+export NEWDATE=`$NDATE +${fhr} $startdate`
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`

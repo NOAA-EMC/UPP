@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -26,11 +26,8 @@ date
 module use ${svndir}/modulefiles
 module load hercules_$compiler
 module load prod_util/2.1.1
-module load grib-util/1.4.0
 module load wgrib2/3.6.0
 module list
-
-export COMROOT=$rundir
 
 ulimit -s unlimited
 
@@ -40,8 +37,8 @@ postmsg "$logfile" "$msg"
 export POSTGPEXEC=${svndir}/exec/upp_no_ifi.x
 
 # specify forecast start time and hour for running your post job
-export startdate=2023062800
-export fhr=010
+export startdate=2025040112
+export fhr=018
 export tmmark=tm00
 
 # specify your running and output directory
@@ -70,7 +67,7 @@ write_ifi_debug_files=.true.
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/postxconfig-NT-ifi.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new

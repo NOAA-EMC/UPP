@@ -14,7 +14,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=4
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads

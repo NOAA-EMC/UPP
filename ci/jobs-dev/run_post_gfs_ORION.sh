@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -26,11 +26,8 @@ date
 module use ${svndir}/modulefiles
 module load orion_$compiler
 module load prod_util/2.1.1
-module load grib-util/1.4.0
 module load wgrib2/3.6.0
 module list
-
-export COMROOT=$rundir
 
 ulimit -s unlimited
 

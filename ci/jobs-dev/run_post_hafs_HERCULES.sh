@@ -11,9 +11,9 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
-#export MP_LABELIO=yes
+export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 

@@ -10,7 +10,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export MP_LABELIO=yes
 export threads=3
 export OMP_NUM_THREADS=$threads
@@ -29,8 +29,6 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
 
 msg="Starting hrrr test"
 postmsg "$logfile" "$msg"
