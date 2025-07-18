@@ -4,7 +4,7 @@
 #PBS -e out.post.rrfs
 #PBS -N rrfs_test
 #PBS -l walltime=00:30:00
-#PBS -q debug
+#PBS -q dev
 #PBS -A GFS-DEV
 #PBS -l place=vscatter,select=5:ncpus=48
 #PBS -V
@@ -67,12 +67,12 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix files
+# get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -100,6 +100,7 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
+# RRFS post processing generates 2 files
 filelist="PRSLEV${fhr2}.${tmmark} \
           NATLEV${fhr2}.${tmmark}"
 
@@ -125,13 +126,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out/rrfs/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="rrfs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

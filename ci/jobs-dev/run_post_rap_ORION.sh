@@ -63,7 +63,7 @@ KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,27
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp $homedir/fix/raphrrr_fix/* .
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-rap.txt postxconfig-NT.txt
@@ -78,7 +78,7 @@ ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-# operational rap post processing generates 2 files
+# RAP post processing generates 2 files
 filelist="WRFPRS.GrbF${fhr2} \
           WRFNAT.GrbF${fhr2}"
 
@@ -104,13 +104,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/rap/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="rap test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

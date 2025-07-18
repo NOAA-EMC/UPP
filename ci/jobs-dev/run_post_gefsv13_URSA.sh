@@ -66,13 +66,13 @@ KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-cp ${svndir}/parm/gefs/postxconfig-NT-gefs.txt ./postxconfig-NT.txt
 export e1=3
 export e2=01
 export e3=30
 
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp ${svndir}/parm/gefs/postxconfig-NT-gefs.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 # Run the UPP
@@ -86,8 +86,8 @@ FH3=$(printf "%03d" "$fhr")
 FH2=$(printf "%02d" "$fhr")
 mv GFSPRS.GrbF${FH2} gefs.t${cyc}z.master.grb2f${FH3}
 
-# compare master file
-filelist="gefs.t${cyc}z.master.grb2f${FH3} "
+# GEFSv13 post processing generates 1 file
+filelist="gefs.t${cyc}z.master.grb2f${FH3}"
 
 for file in $filelist; do
 export filein2=$file
@@ -95,7 +95,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/gefsv13/${filein2}.${machine}
 
@@ -111,13 +110,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/gefsv13/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="gefsv13 test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

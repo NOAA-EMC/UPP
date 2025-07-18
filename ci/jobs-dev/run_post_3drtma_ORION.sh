@@ -67,12 +67,12 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
-#get crtm fix files
+# get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -100,7 +100,7 @@ ${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-# operational 3drtma post processing generates 2 files
+# 3DRTMA post processing generates 2 files
 filelist="NATLEV${fhr2}.${tmmark} \
           PRSLEV${fhr2}.${tmmark}"
 
@@ -110,7 +110,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/3drtma/${filein2}.${machine}
 
@@ -124,13 +123,11 @@ if [ $err = "0" ] ; then
   echo $msg
   $cmp_grib2_grib2 $homedir/data_out_$compiler/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="3drtma test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

@@ -66,11 +66,11 @@ KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix files
+# get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -87,11 +87,11 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-#Generate master and flux files
+# Generate master and flux files
 cp ${svndir}/parm/gfs/postxconfig-NT-gfs-two.txt ./postxconfig-NT.txt
 ${APRUN} ${POSTGPEXEC} < itag > outpost_master_${NEWDATE}
 
-#Generate goes file
+# Generate goes file
 cp ${svndir}/parm/gfs/postxconfig-NT-gfs-goes.txt ./postxconfig-NT.txt
 ${APRUN} ${POSTGPEXEC} < itag > outpost_goes_${NEWDATE}
 
@@ -105,7 +105,7 @@ mv GFSPRS.GrbF${FH2} gfs.t${cyc}z.master.grb2f${FH3}
 mv GFSFLX.GrbF${FH2} gfs.t${cyc}z.sfluxgrbf${FH3}.grib2
 mv GFSGOES.GrbF${FH2} gfs.t${cyc}z.special.grb2f${FH3}
 
-# compare master, flux, simulated goes and wafs files
+# GFS post processing generates 3 files
 filelist="gfs.t${cyc}z.master.grb2f${FH3} \
           gfs.t${cyc}z.sfluxgrbf${FH3}.grib2 \
           gfs.t${cyc}z.special.grb2f${FH3} "
@@ -117,7 +117,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/gfs/${filein2}.${machine}
 
@@ -132,17 +131,13 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-
-  # compare grib message via cmp_grib2_grib2
   $cmp_grib2_grib2 $homedir/data_out/gfs/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="gfs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

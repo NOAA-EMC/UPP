@@ -66,16 +66,16 @@ KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-cp ${svndir}/parm/gefs/postxconfig-NT-gefs.txt ./postxconfig-NT.txt
 export e1=3
 export e2=01
 export e3=30
 
-#copy fix data
+# copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp ${svndir}/parm/gefs/postxconfig-NT-gefs.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#Generate master files
+# Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_gefsv13_${NEWDATE}
 
 ################################################
@@ -86,8 +86,8 @@ FH3=$(printf "%03d" "$fhr")
 FH2=$(printf "%02d" "$fhr")
 mv GFSPRS.GrbF${FH2} gefs.t${cyc}z.master.grb2f${FH3}
 
-# compare master file
-filelist="gefs.t${cyc}z.master.grb2f${FH3} "
+# GEFSv13 post processing generates 1 file
+filelist="gefs.t${cyc}z.master.grb2f${FH3}"
 
 for file in $filelist; do
 
@@ -96,12 +96,10 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/gefsv13/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
-
  export err1=$?
  if [ $err1 -eq 0 ] ; then
   msg="gefsv13 test: your new post executable generates bit-identical ${filein2} as the develop branch"
@@ -111,21 +109,16 @@ if [ $err = "0" ] ; then
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-
-  # compare grib message via cmp_grib2_grib2
   $cmp_grib2_grib2 $homedir/data_out/gefsv13/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="gefsv13 test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 
-echo $?
 echo "PROGRAM IS COMPLETE!!!!!!" 2>&1 | tee SUCCESS
 msg="Ending gefsv13 test"
 postmsg "$logfile" "$msg"

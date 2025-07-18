@@ -81,6 +81,7 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
+# RRFS_IFI_missing post processing generates 1 file
 filelist="IFIFIP${fhr2}.${tmmark}"
 
 for file in $filelist; do
@@ -105,13 +106,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/rrfs_ifi_missing/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="rrfs_ifi_missing test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

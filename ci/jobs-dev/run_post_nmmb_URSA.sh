@@ -77,7 +77,7 @@ mv BGRDSF${fhr}.${tmmark} BGRDSF${fhr}.${tmmark}.Grib2
 # Compare with baseline data
 ################################################
 
-# operational NMMB post processing generates 3 files
+# NMMB post processing generates 3 files
 filelist="BGDAWP${fhr}.${tmmark}.Grib2 \
           BGRD3D${fhr}.${tmmark}.Grib2 \
           BGRDSF${fhr}.${tmmark}.Grib2"
@@ -88,8 +88,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
- # operational NMMB post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/nmmb/${filein2}.${machine}
 
@@ -105,12 +103,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/nmmb/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
  msg="nmmb test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

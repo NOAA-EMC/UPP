@@ -62,13 +62,13 @@ cat > itag <<EOF
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/fix/rap_micro_lookup.dat .
 cp ${svndir}/fix/nam_micro_lookup.dat .
 cp ${svndir}/parm/mpas/postxconfig-NT-hfip_mpas.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix files
+# get crtm fix files
 for what in \
     "FASTEM4.MWwater" "FASTEM5.MWwater" "FASTEM6.MWwater" "NPOESS.IRice" "NPOESS.IRland" \
     "NPOESS.IRsnow" "Nalli.IRwater" "abi_gr" "ahi_himawari8" "amsre_aqua" \
@@ -91,6 +91,7 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
+# Run the UPP
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 
@@ -100,7 +101,10 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-filelist="NATLEV.GrbF${fhr2} PRSLEV.GrbF${fhr2} 2DFLD.GrbF${fhr2}"
+# MPAS_HFIP post processing generates 3 files
+filelist="NATLEV.GrbF${fhr2} \
+          PRSLEV.GrbF${fhr2} \
+          2DFLD.GrbF${fhr2}"
 
 for file in $filelist; do
 export filein2=$file
@@ -108,7 +112,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/mpas_hfip/${filein2}.${machine}
 
@@ -124,13 +127,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out/mpas_hfip/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="mpas_hfip test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 

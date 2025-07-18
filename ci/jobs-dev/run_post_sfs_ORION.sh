@@ -80,8 +80,8 @@ FH3=$(printf "%03d" "$fhr")
 FH2=$(printf "%02d" "$fhr")
 mv GFSPRS.GrbF${FH2} sfs.t${cyc}z.master.grb2f${FH3}
 
-# compare master file
-filelist="sfs.t${cyc}z.master.grb2f${FH3} "
+# SFS post processing generates 1 file
+filelist="sfs.t${cyc}z.master.grb2f${FH3}"
 
 for file in $filelist; do
 export filein2=$file
@@ -105,13 +105,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/sfs/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="sfs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 
