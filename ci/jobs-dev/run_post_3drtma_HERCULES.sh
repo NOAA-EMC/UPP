@@ -4,7 +4,7 @@
 #SBATCH -e out.post.3drtma
 #SBATCH -J 3drtma_test
 #SBATCH -t 00:30:00
-#SBATCH -N 5 --ntasks-per-node=12
+#SBATCH -N 8 --ntasks-per-node=12
 #SBATCH -q batch
 #SBATCH -A nems
 

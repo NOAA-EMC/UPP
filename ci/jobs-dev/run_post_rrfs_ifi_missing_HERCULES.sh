@@ -4,7 +4,7 @@
 #SBATCH -e out.post.rrfs_ifi_missing
 #SBATCH -J rrfs_ifi_mis
 #SBATCH -t 00:30:00
-#SBATCH -N 5 --ntasks-per-node=12
+#SBATCH -N 8 --ntasks-per-node=12
 #SBATCH -q batch
 #SBATCH -A nems
 

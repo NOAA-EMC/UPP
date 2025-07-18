@@ -6,7 +6,6 @@
 #SBATCH -t 00:30:00
 #SBATCH --ntasks 240
 #SBATCH --tasks-per-node 48
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
 #SBATCH --exclusive

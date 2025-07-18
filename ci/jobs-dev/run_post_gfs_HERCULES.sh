@@ -4,7 +4,7 @@
 #SBATCH -e out.post.gfs
 #SBATCH -J gfs_test
 #SBATCH -t 00:30:00
-#SBATCH -N 5 --ntasks-per-node=12
+#SBATCH -N 6 --ntasks-per-node=40
 #SBATCH -q batch
 #SBATCH -A nems
 
