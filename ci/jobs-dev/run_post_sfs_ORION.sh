@@ -29,6 +29,9 @@ module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list
 
+ulimit -s unlimited
+export OMP_STACKSIZE=128M
+
 msg="Starting sfs test"
 postmsg "$logfile" "$msg"
 
