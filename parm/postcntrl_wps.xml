@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
-  <!--  Lin Gan:  20150427 validated -->
+  <!-- Contains the minimal set of variables needed to initialize the MPAS WPS off of UPP output. -->
+  <!-- Designed to be run on GFS output, but based on HAFS control files. -->
   <paramset>
     <datset>HURPRS</datset>
     <grid_num>32769</grid_num>
