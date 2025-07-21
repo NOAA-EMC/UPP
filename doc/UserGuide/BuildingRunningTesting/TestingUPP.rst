@@ -33,13 +33,30 @@ To run the full regression test (RT) suite in preparation for opening a pull req
         
         The time it takes for tests to run is queue-dependent. RTs can take as little as half an hour to run, but on machines with long queue times, it can take several hours to complete the full set of tests. 
 
-   #. Check ``rt.log.<machine>/nohup.out`` for a short summary of any changes in results. The tests are finished when there are 16 timestamps and a final results summary (e.g., "No changes in test results detected."). 
+   #. Check ``rt.log.<machine>/nohup.out`` for a short summary of any changes in results. The tests are finished when there are 17 timestamps and a final results summary (e.g., "No changes in test results detected."). 
 
       * The ``/work`` directory generated in ``UPP/ci`` contains ``out.post.<test_name>`` files, which list output from each test, including any unexpected errors during runtime. 
       * The ``/rundir`` directory generated within ``UPP/ci`` will include test case results, and ``.diff`` files located within each test's directory will outline changes in fields with the current baselines.
       * Confirm expected changes within the run directory ``.diff`` files if any are present.
       
          * Changes in the ``rap_pe_test`` case only consisting of field 708 Convective Cloud Layer may be ignored; this is a known bug and will always be present within the ``WRFPRS.diff`` file.
+   
+   #. Check for errors in the RT output directory (e.g., ``work-upp-<machine>``) using the following commands:
+
+      .. code-block:: console
+
+         cd work-upp-<machine>
+         grep -ir "error" .
+         grep -ir "fatal" .
+   
+   #. Push the test log into your local branch:
+
+      .. code-block:: console
+
+         cd /path/to/UPP/tests/logs
+         git add rt.log.<machine>
+         git commit -m "<machine> rt log"
+         git push origin <branch>
 
 Additional Configuration
 =========================

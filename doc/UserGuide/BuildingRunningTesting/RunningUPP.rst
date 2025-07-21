@@ -9,7 +9,7 @@
 Running UPP Stand-Alone
 ***********************
 
-A script (``run_upp``) for running the UPP package is included in the ``/scripts`` directory. 
+A script (``run_upp``) for running the UPP package is now fetched via ``wget``
 
 :underline:`Before running the script, perform the following instructions:`
 
@@ -45,7 +45,14 @@ A script (``run_upp``) for running the UPP package is included in the ``/scripts
      ``postxconfig-NT-GFS.txt`` (all other lead times).
    | **LAM text file**: ``postxconfig-NT-fv3lam.txt``
 
-6. Copy the ``/scripts/run_upp`` script to the ``/postprd`` directory.
+6. Navigate to the ``/postprd`` directory and retrieve the ``./run_upp`` script via ``wget``:
+
+   .. code-block:: console
+
+      cd /postprd
+      wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/run_upp
+      chmod 755 run_upp
+
 
 7. Edit the run script as outlined in the :ref:`"Run Script Overview" <run-script-overview>` section below. Once these directories are set
    up and the edits outlined below are complete, the script can be run interactively from the

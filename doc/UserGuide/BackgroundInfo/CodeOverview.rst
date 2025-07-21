@@ -82,9 +82,6 @@ Under the main **UPP** directory reside the following relevant subdirectories
      | **modulefiles**: Contains modulefiles for specific platforms and compilers for building on preconfigured machines.
 
      | **parm**: Contains parameter files, which can be modified by the user to control how the post processing is performed.
-
-     | **scripts**: Contains a sample run script to process fv3 history files.
-     |   - ``run_upp``: Script that runs the standalone UPP package (``upp.x``)
      
      | **sorc**: Contains source code for:
      |   - ``ncep_post.fd``: Source code for the UPP
@@ -111,8 +108,6 @@ When the ``develop`` branch of the UPP repository is cloned, the basic directory
     │    ├── post_avblflds.xml      -------- List of all fields available in UPP
     │    ├── postcntrl*.xml         -------- User-editable control files that list the variables to be output
     │    └── postxconfig-NT-*.txt   -------- Text file of requested output that UPP reads (processed from postcntrl)
-    ├── scripts
-    │    └── run_upp                -------- Script that runs the stand-alone UPP package (upp.x)
     ├── sorc
     │    ├── libIFI.fd              -------- Private repository (submodule) for in-flight icing
     │    └── ncep_post.fd           -------- Main post-processing routines
