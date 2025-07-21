@@ -89,11 +89,11 @@ done
 
 # Generate master and flux files
 cp ${svndir}/parm/gfs/postxconfig-NT-gfs-two.txt ./postxconfig-NT.txt
-${APRUN} ${POSTGPEXEC} < itag > outpost_master_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_gfs_master_${NEWDATE}
 
 # Generate goes file
 cp ${svndir}/parm/gfs/postxconfig-NT-gfs-goes.txt ./postxconfig-NT.txt
-${APRUN} ${POSTGPEXEC} < itag > outpost_goes_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_gfs_goes_${NEWDATE}
 
 ################################################
 # Compare with baseline data

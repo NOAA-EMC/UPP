@@ -72,7 +72,7 @@ cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/postxconfig-NT-ifi.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_rrfs_ifi_missing_${NEWDATE}
 
 ################################################
 # Compare with baseline data

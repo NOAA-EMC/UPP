@@ -69,7 +69,7 @@ cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-hrrr.txt postxconfig-NT.txt
 
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+${APRUN} ${POSTGPEXEC} < itag > outpost_hrrr_${NEWDATE}
 
 ################################################
 # Compare with baseline data

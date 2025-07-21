@@ -70,7 +70,7 @@ cp ${svndir}/parm/postxconfig-NT-rap.txt postxconfig-NT.txt
 cp $homedir/fix/eta_micro_lookup.dat .
 
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+${APRUN} ${POSTGPEXEC} < itag > outpost_rap_${NEWDATE}
 
 ################################################
 # Compare with baseline data

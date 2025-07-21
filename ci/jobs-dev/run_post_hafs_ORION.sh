@@ -72,7 +72,7 @@ cp ${svndir}/parm/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_hafs_${NEWDATE}
 
 ################################################
 # Compare with baseline data

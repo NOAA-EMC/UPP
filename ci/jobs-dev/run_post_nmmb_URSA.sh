@@ -67,7 +67,7 @@ cp ${svndir}/parm/postxconfig-NT-NMM.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 
 # Run the UPP
-$APRUN ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
+$APRUN ${POSTGPEXEC} < itag > outpost_nmmb_${NEWDATE}
 
 mv BGDAWP${fhr}.${tmmark} BGDAWP${fhr}.${tmmark}.Grib2
 mv BGRD3D${fhr}.${tmmark} BGRD3D${fhr}.${tmmark}.Grib2

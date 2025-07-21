@@ -92,7 +92,7 @@ for what in  ${CRTM_FIX}/*Emis* ; do
 done
 
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > outpost_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_${NEWDATE}
 
 ################################################
 # Compare with baseline data

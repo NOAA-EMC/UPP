@@ -71,7 +71,7 @@ cp ${svndir}/parm/postxconfig-NT-hrrr.txt postxconfig-NT.txt
 cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+${APRUN} ${POSTGPEXEC} < itag > outpost_hrrr_${NEWDATE}
 
 ################################################
 # Compare with baseline data

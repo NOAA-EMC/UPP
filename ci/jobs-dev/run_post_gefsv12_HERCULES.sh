@@ -78,7 +78,7 @@ cp ${svndir}/fix/chem/optics_luts_WASO.dat ./optics_luts_WASO.dat
 
 # Run the UPP
 export PGBOUT=pgbfile
-${APRUN} ${POSTGPEXEC} < itag > outpost_nems_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_gefsv12_${NEWDATE}
 
 mv $PGBOUT geaer.t${cyc}z.master.grb2f${fhr}
 
