@@ -65,6 +65,7 @@
 !>                            | PBLHGUST represented a PBL height obtained from the profile of virtual potential
 !>                            | temperature (THV).  In turn, PBLHGUST was used for the wind-gust diagnostic in FV3R.
 !>                            | Calculation of a THV-based PBL height has now been ported into CALPBL.
+!> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
