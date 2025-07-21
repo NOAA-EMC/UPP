@@ -3061,16 +3061,10 @@
       do j=jsta,jend
         do i=ista,iend
           u10h(i,j)=u10(i,j)
-        end do
-      end do
-!     if(debugprint)print*,'sample l',VarName,' = ',1,u10(isa,jsa)
-
-      do j=jsta,jend
-        do i=ista,iend
           v10h(i,j)=v10(i,j)
         end do
       end do
-!     if(debugprint)print*,'sample l',VarName,' = ',1,v10(isa,jsa)
+!     if(debugprint)print*,'sample l,u10,v10 = ',1,u10(isa,jsa),v10(isa,jsa)
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
       VarName='vtype'
