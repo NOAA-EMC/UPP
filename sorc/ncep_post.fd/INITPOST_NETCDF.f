@@ -3050,7 +3050,8 @@
       spval,VarName,f10m)
       do j=jsta,jend
          do i=ista,iend
-            if(u10(i,j) == spval .or. v10(i,j) == spval) then
+            if(u10(i,j) == spval .and. v10(i,j) == spval  &
+                f10m(i,j) /=spavl .and. uh(i,j,lm)/=spval) then
                u10(i,j) = f10m(i,j) * uh(i,j,LM)
                v10(i,j) = f10m(i,j) * vh(i,j,LM)
             endif
