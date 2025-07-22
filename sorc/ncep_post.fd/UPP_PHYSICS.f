@@ -568,12 +568,13 @@
 !> 2015-??-?? | S Moorthi     | Optimization and threading
 !> 2021-07-28 | W Meng        | Restrict computation from undefined grids
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
+!> 2025-07-22 | K Halbert / E Colon | CAPE/CINH use shelter fields
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
                          CINS,PPARC,ZEQL,THUND)
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: teql,ieql
+      use vrbls2d,    only: teql,ieql,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
@@ -651,6 +652,14 @@
           THUNDER(I,J) = .TRUE.
         ENDDO
       ENDDO
+
+!T2M
+!$omp  parallel do 
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND 
+          T2M(I,J) = TSHLTR(I,J)*(PSHLTR(I,J)*1E-5)**CAPA
+      ENDDO 
+      ENDDO
 !
 !$omp  parallel do
       DO L=1,LM
@@ -694,8 +703,13 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  TBTK   = T(I,J,KB)
-                  QBTK   = max(0.0, Q(I,J,KB))
+                  IF (KB == LM) THEN 
+                      TBTK = T2M(I,J)
+                      QBTK = max(0.0, QSHLTR(I,J))
+                  ELSE 
+                      TBTK   = T(I,J,KB)
+                      QBTK   = max(0.0, Q(I,J,KB))
+                  ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
                   PKL    = P1D(I,J)

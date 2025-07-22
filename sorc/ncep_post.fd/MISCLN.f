@@ -49,6 +49,7 @@
 !!   2024-01-07 | H LIN | Add CIT output in NCAR GTG turbulence calculation
 !!   2024-01-09 | Y Mao | Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
 !!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
+!!   2025-07-22 | K Halbert / E Colon | Updated mixed-layer CAPE/CINH to include 2m fielfd
 !> 
 !> @author RUSS TREADON 
 !> @date 1992-12-20
@@ -61,10 +62,10 @@
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg, cit
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700,&
-                            teql,ieql, cape,cin
+                            teql,ieql, cape,cin,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog, tfrz, small, g
+                            rhmin, rgamog, tfrz, small, g, capa
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, &
@@ -138,7 +139,7 @@
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
               ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2),work1,work2,work3, &
               SCINtmp,MUCAPEtmp,MUCINtmp,MLLCLtmp,ESHRtmp,MLCAPEtmp,STP,&
-              FSHRtmp,MLCINtmp,SLCLtmp,LAPSE,SHIP
+              FSHRtmp,MLCINtmp,SLCLtmp,LAPSE,SHIP,t2m,q2m
 
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
       integer ISTART,ISTOP,JSTART,JSTOP
@@ -3093,11 +3094,13 @@
              DO I=ISTA,IEND
                EGRID1(I,J) = -H99999
                EGRID2(I,J) = -H99999
+               t2m = TSHLTR(I,J)*(PSHLTR(I,J)*1E-5)**CAPA
+               q2m = max(0.0, QSHLTR(I,J))
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + t2m)/4
+               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + q2m)/4
              ENDDO
            ENDDO
 !
