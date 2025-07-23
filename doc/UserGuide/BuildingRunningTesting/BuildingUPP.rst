@@ -31,7 +31,7 @@ As of June 20, 2025, the UPP uses the following `common modules <https://github.
 
 .. code-block:: console
 
-   hdf5/1.14.3
+   hdf5 1.14.3
    netcdf-c 4.9.2
    netcdf-fortran 4.6.1
    jasper 2.0.32
