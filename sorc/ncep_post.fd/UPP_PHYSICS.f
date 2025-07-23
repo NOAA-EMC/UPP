@@ -653,14 +653,6 @@
         ENDDO
       ENDDO
 
-!T2M
-!$omp  parallel do 
-      DO J=JSTA,JEND
-      DO I=ISTA,IEND 
-          T2M(I,J) = TSHLTR(I,J)*(PSHLTR(I,J)*1E-5)**CAPA
-      ENDDO 
-      ENDDO
-!
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
@@ -704,7 +696,8 @@
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
                   IF (KB == LM) THEN 
-                      TBTK = T2M(I,J)
+                      PKL = PSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)
                       QBTK = max(0.0, QSHLTR(I,J))
                   ELSE 
                       TBTK   = T(I,J,KB)
@@ -1066,7 +1059,7 @@
                           CAPE,CINS,LFC,ESRHL,ESRHH,      &
                           DCAPE,DGLD,ESP)
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: fis,ieql
+      use vrbls2d,    only: fis,ieql,pshltr,tshltr,qshltr
       use gridspec_mod, only: gridtype
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
@@ -1268,8 +1261,14 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  TBTK   = T(I,J,KB)
-                  QBTK   = max(0.0, Q(I,J,KB))
+                  IF (KB == LM) THEN 
+                      PKL = PSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)
+                      QBTK = max(0.0, QSHLTR(I,J))
+                  ELSE 
+                      TBTK   = T(I,J,KB)
+                      QBTK   = max(0.0, Q(I,J,KB))
+                  ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
                   PKL    = P1D(I,J)
