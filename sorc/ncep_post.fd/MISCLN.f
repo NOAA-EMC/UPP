@@ -4282,11 +4282,14 @@
                EGRID8(I,J) = -H99999
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
+                            PSHLTR(I, J))/4
                T1D(I,J)  = (TVIRTUAL(TBND(I,J,1),QBND(I,J,1)) +       &
                             TVIRTUAL(TBND(I,J,2),QBND(I,J,2)) +       &
-                            TVIRTUAL(TBND(I,J,3),QBND(I,J,3)))/3
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+                            TVIRTUAL(TBND(I,J,3),QBND(I,J,3)) +       &
+                            TVIRTUAL(TSHLTR(I,J), QSHLTR(I,J))/4
+               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
+                            QSHLTR(I,J))/4
              ENDDO
            ENDDO
 
