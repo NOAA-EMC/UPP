@@ -160,6 +160,7 @@
 !
       deallocate(u10)
       deallocate(v10)
+      deallocate(f10m)
       deallocate(tshltr)
       deallocate(qshltr)
       deallocate(mrshltr)
