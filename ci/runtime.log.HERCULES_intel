@@ -3,11 +3,11 @@ nmmb_test 00:03:00
 gefsv12_test 00:01:00
 gefsv13_test 00:02:00
 rap_test 00:02:00
-hrrr_test 00:05:00
+hrrr_test 00:06:00
 hafs_test 00:01:00
 3drtma_test 00:03:00
 mpas_test 00:02:30
 mpas_hfip_test 00:05:00
-rrfs_test 00:07:00
-rrfs_ifi_missing 00:03:00
-gfs_test 00:15:00
+rrfs_test 00:12:00
+rrfs_ifi_missing 00:04:00
+gfs_test 00:25:00
