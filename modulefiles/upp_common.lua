@@ -4,7 +4,7 @@ help([[Load UFS Model common libraries]])
 
 local ufs_modules = {
   {["jasper"]          = "2.0.32" },
-  {["zlib-ng"]         = "2.1.6"  },
+  {["zlib"]            = "1.2.13"  },
   {["libpng"]          = "1.6.37" },
   {["hdf5"]            = "1.14.3" },
   {["netcdf-c"]        = "4.9.2"  },
@@ -13,10 +13,10 @@ local ufs_modules = {
   {["crtm"]            = "2.4.0.1"},
   {["g2"]              = "3.5.1"  },
   {["g2tmpl"]          = "1.13.0" },
-  {["ip"]              = "5.0.0"  },
+  {["ip"]              = "5.1.0"  },
   {["w3emc"]           = "2.10.0" },
   {["nemsio"]          = "2.5.4"  },
-  {["sigio"]           = "2.3.2"  },
+  {["sigio"]           = "2.3.3"  },
   {["wrf-io"]          = "1.2.0"  },
 }
 

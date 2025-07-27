@@ -31,27 +31,24 @@ the instructions in the :doc:`spack-stack User's Guide <spack-stack:index>`.
 Common Modules
 ----------------
 
-As of October 2024, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`__ from spack-stack: 
+As of June 20, 2025, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`_ from spack-stack: 
 
 .. code-block:: console
 
-   cmake 3.16.1+
-   hdf5/1.14.0
+   hdf5/1.14.3
    netcdf-c 4.9.2
    netcdf-fortran 4.6.1
    jasper 2.0.32
-   libpng 1.6.37 / png 1.6.35
-   zlib 1.2.13
-   g2 3.4.5
-   g2tmpl 1.10.2
-   parallelio 2.5.10
+   libpng 1.6.37
+   zlib 1.2.11
+   g2 3.5.1
+   g2tmpl 1.13.0
    bacio 2.4.1
-   ip 5.0.0
+   ip 5.1.0
    crtm 2.4.0.1
    w3emc 2.10.0
    nemsio 2.5.4
-   sigio 2.3.2
-   sfcio 1.4.1
+   sigio 2.3.3
    wrf_io 1.2.0
 
 Individual machines may subsequently load slightly different versions. The most updated list of modules for a given machine can be viewed `in each machine's modulefile <https://github.com/NOAA-EMC/UPP/tree/develop/modulefiles>`__. 

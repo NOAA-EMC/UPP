@@ -5,7 +5,8 @@
        implicit none
 !
       real, allocatable :: &
-      U10   (:,:) &        !< 10m u-wind component
+      U10   (:,:) &             !< 10m u-wind component
+      ,F10M(:,:) &          !< 10-meter wind speed divided by lowest model wind speed (FV3 initialization variable)
       ,AKMS  (:,:) &       !< Surface exchange coefficient of momentum
       ,AKHS  (:,:) &       !< Surface exchange coefficient of heat/moisture
       ,THS   (:,:) &       !< Surface potential temperature
