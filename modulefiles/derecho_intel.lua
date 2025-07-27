@@ -1,5 +1,5 @@
 help([[
-Load environment to build UPP on ursa
+Load environment to build UPP on derecho
 ]])
 
 prepend_path("MODULEPATH", "/glade/work/epicufsrt/contrib/spack-stack/derecho/modulefiles")
