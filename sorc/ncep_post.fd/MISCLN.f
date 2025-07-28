@@ -4291,7 +4291,7 @@
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
                             PSHLTR(I, J))/4
                T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +               &
-                            TBND(I,J,3) + TSHLTR(I,J)/4
+                            TBND(I,J,3) + TSHLTR(I,J))/4
                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
                             QSHLTR(I,J))/4
              ENDDO
