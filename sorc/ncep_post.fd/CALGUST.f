@@ -16,8 +16,10 @@
 !> 2005-07-07 | Binbin Zhou   | Add RSM   
 !> 2015-03-11 | S Moorthi     | Set sfcwind to spval if u10 and v10 are spvals for A grid and set gust to just wind (in GSM with nemsio, it appears u10 & v10 have spval)
 !> 2021-09-02 | Bo Cui        | Decompose UPP in X direction
-!> 2023-02-24 | Weizhong Zheng|  Revised calculation of wind gust for UFS applications
+!> 2023-02-24 | Weizhong Zheng| Revised calculation of wind gust for UFS applications
 !> 2024-07-02 | Wen Meng      | Restrict undefined grids in calculations
+!> 2025-06-30 | J Kenyon      | Edits to improve code readability (indentations, etc); adding
+!>                            | descriptive comments; no change to functionality
 !>   
 !> @author Geoff Manikin W/NP2 @date 1997-03-04
 
@@ -90,43 +92,47 @@
       DO J=JSTART,JSTOP
         DO I=ISTART,ISTOP
            L=LPBL(I,J) 
+
            IF(gridtype == 'E') THEN
+
              IE = I + MOD(J+1,2) 
              IW = I + MOD(J+1,2)-1
 
-           if(U10H(I,J)<spval.and.UH(I,J+1,L)<spval.and.UH(IE,J,L)<spval.and.UH(IW,J,L)<spval.and.UH(I,J-1,L)<spval) then
+             if(U10H(I,J)<spval.and.UH(I,J+1,L)<spval.and.UH(IE,J,L)<spval.and.UH(IW,J,L)<spval.and.UH(I,J-1,L)<spval) then
 
-!        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
-!        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
-             USFC = U10H(I,J)
-             VSFC = V10H(I,J)
-             SFCWIND = SQRT(USFC*USFC + VSFC*VSFC)
-             U0   = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(I,J+1,L))
-             V0   = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(I,J+1,L))
-             WIND = SQRT(U0*U0 + V0*V0)
+               !USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
+               !VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
+               USFC = U10H(I,J)
+               VSFC = V10H(I,J)
+               SFCWIND = SQRT(USFC*USFC + VSFC*VSFC)
+               U0   = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(I,J+1,L))
+               V0   = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(I,J+1,L))
+               WIND = SQRT(U0*U0 + V0*V0)
 
              else
-             WIND = spval
+               WIND = spval
              endif
 
            ELSE IF(gridtype == 'B') THEN
+
              IE = I 
              IW = I-1
 
-!        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
-!        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
+             !USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
+             !VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
 
              if(U10H(I,J)<spval.and.UH(IW,J-1,L)<spval) then
 
-             USFC = U10H(I,J)
-             VSFC = V10H(I,J)
-             SFCWIND = SQRT(USFC*USFC + VSFC*VSFC)
-             U0 = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(IW,J-1,L))
-             V0 = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(IW,J-1,L))
-             WIND = SQRT(U0*U0 + V0*V0) 
+               USFC = U10H(I,J)
+               VSFC = V10H(I,J)
+               SFCWIND = SQRT(USFC*USFC + VSFC*VSFC)
+               U0 = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(IW,J-1,L))
+               V0 = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(IW,J-1,L))
+               WIND = SQRT(U0*U0 + V0*V0) 
              else
-             WIND = spval
+               WIND = spval
              endif
+
            ELSE IF(gridtype == 'A') THEN
 
              USFC    = U10(I,J)
@@ -136,40 +142,48 @@
              else
                sfcwind = spval
              endif
+
              if(MODELNAME == 'RAPR' .OR. MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
                ZSFC = ZINT(I,J,LM+1)
                L = LPBL(I,J)
-! in RUC do 342 k=2,k1-1, where k1 - first level above PBLH
                GUST(I,J) = SFCWIND
                do K=LM-1,L-1,-1
-
                  if(UH(I,J,L)<spval) then
-                 U0   = UH(I,J,K)
-                 V0   = VH(I,J,K)
-                 WIND = SQRT(U0*U0 + V0*V0)
-                 DELWIND = WIND - SFCWIND
-                 DZ = ZMID(I,J,K)-ZSFC
-                 DELWIND  = DELWIND*(1.0-MIN(0.5,DZ/2000.))
-                 GUST(I,J) = MAX(GUST(I,J),SFCWIND+DELWIND)
+                   U0   = UH(I,J,K)
+                   V0   = VH(I,J,K)
+                   WIND = SQRT(U0*U0 + V0*V0)
+                   DELWIND = WIND - SFCWIND
+                   DZ = ZMID(I,J,K)-ZSFC
+                   DELWIND  = DELWIND*(1.0-MIN(0.5,DZ/2000.))
+                     ! Here, DELWIND is scaled by a factor (the
+                     ! quantity in parentheses) that varies 
+                     ! linearly with height in the 0-1 km AGL 
+                     ! layer.  Briefly:
+                     !   at >= 1.0 km:  factor is 0.5
+                     !   at    0.5 km:  factor is 0.75
+                     !   at    0.0 km:  factor is 1.0
+                     ! (J Kenyon: description added 30 Jun 2025; no change to functionality)
+                   GUST(I,J) = MAX(GUST(I,J),SFCWIND+DELWIND)
+                 else
+                   GUST(I,J) = spval
+                   WIND = spval
+                 endif
+               enddo
+             else ! MODELNAME
+               if(UH(I,J,L)<spval) then
+                 U0   = UH(I,J,L)
+                 V0   = VH(I,J,L)
+                 WIND = SQRT(U0*U0 + V0*V0 )
                else
-                 GUST(I,J) = spval
                  WIND = spval
                endif
-               enddo
-             else
-               if(UH(I,J,L)<spval) then
-               U0   = UH(I,J,L)
-               V0   = VH(I,J,L)
-               WIND = SQRT(U0*U0 + V0*V0 )
-               else
-               WIND = spval
-               endif
-             endif ! endif RAPR
+             endif ! MODELNAME
 
-           ELSE
-!            print*,'unknown grid type, not computing wind gust'
+           ELSE ! GRIDTYPE
+             !print*,'unknown grid type, not computing wind gust'
              return
-           END IF
+
+           END IF ! GRIDTYPE
 
            if(MODELNAME /= 'RAPR' .AND. MODELNAME /= 'GFS' .AND. MODELNAME /= 'FV3R')then
              if (sfcwind < spval .AND. ZPBL(I,J) < spval ) then
@@ -181,8 +195,9 @@
                GUST(I,J) = wind
              endif
            endif
-        enddo
-      enddo
+
+        enddo ! I loop
+      enddo ! J loop
 
 !     END OF ROUTINE.
 !     

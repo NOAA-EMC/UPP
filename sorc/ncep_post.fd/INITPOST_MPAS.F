@@ -27,6 +27,10 @@
 !> 2025-03-20 | Jaymes Kenyon| Remove some unused code carried over from INITPOST, 
 !>                             add/clarify comments, and modify several print/write statements
 !> 2025-05-08 | Jaymes Kenyon| Add HAIL_BUCKET accumulation; remove old/unused blocks of code
+!> 2025-06-16 | Jaymes Kenyon| Removing the calculation of PBLHGUST.  This array represented a PBL height 
+!>                           | obtained from the profile of virtual potential temperature (THV).  In turn, 
+!>                           | PBLHGUST was used for the wind-gust diagnostic in RAPR.  Calculation of a
+!>                           | THV-based PBL height has now been ported into CALPBL 
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -58,7 +62,7 @@
               sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout, alwtoa, aswtoa, &
               tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx, snopcx,       &
               sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc, tsnow,       &
-              ivgtyp, isltyp, pblh, pblhgust, f,                                   &
+              ivgtyp, isltyp, pblh, f,                                             &
               QVl1,REFC_10CM,REF1KM_10CM,REF4KM_10CM,                              &
               SWRADmean,U10mean,V10mean,SPDUV10mean,SWNORMmean,SNFDEN,SNDEPAC,     &
               hbotd,hbots,rainc_bucket1,rainnc_bucket1,pcp_bucket1,snow_bucket1,   &
@@ -114,25 +118,21 @@
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
         real, allocatable::  pvapor(:,:)
         real, allocatable::  pvapor_orig(:,:)      
-      REAL, ALLOCATABLE :: THV(:,:,:)
  
       integer js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,          &
               ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,         &
-              idxvald,NSRFC , lflip, k, k1
-      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO,ZSF,ZPBLTOP
+              idxvald,NSRFC , lflip, k
+      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO
       real t2,th2,x2m,p2m,tsk, fact, temp
       real LAT
 
       integer jdn, numr, ic, jc, ierr
       integer, external :: iw3jdn
       real sun_zenith,sun_azimuth, ptop_low, ptop_mid, ptop_high
-      real delta_theta4gust
-!
-!
+
 !***********************************************************************
 !     START INIT HERE.
 !
-      ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
       ALLOCATE ( DUM3D ( IM+1, JM+1, LM+1 ) )
       if (me==0) WRITE(6,*)'ENTER INITPOST_MPAS'
 !     
@@ -371,7 +371,6 @@
            if(dum3d(i,j,l)<spval) then
 !            PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
             PMID(I,J,L)=DUM3D(I,J,L)
-            thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
 ! now that I have P, convert theta to t
             t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
 ! now that I have T,q,P  compute omega from wh
@@ -380,7 +379,6 @@
                               (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
            else
             PMID(I,J,L) = spval
-            thv(i,j,l) = spval
             t(i,j,l) = spval
             omga(i,j,l) = spval
            endif
@@ -2589,36 +2587,6 @@ endif  ! 1==2
             PBLH ( i, j ) = dummy ( i, j )
         end do
        end do
-      IF(MODELNAME == 'RAPR')THEN
-! PBL depth from GSD
-       delta_theta4gust=0.5
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-!!   Is there any mixed layer at all?
-          if (thv(i,j,lm-1) < (thv(i,j,lm) + delta_theta4gust)) then
-            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
-!!   Calculate k1 level as first above PBL top
-            do 34 k=3,LM
-              k1 = k
-!! - give theta-v at the sfc a 0.5K boost in
-!!         the PBL height definition
-              if (thv(i,j,lm-k+1)>(thv(i,j,lm) + delta_theta4gust))  &
-!                     go to 341
-                      exit     
- 34         continue
-            continue
- !341        continue
-              zpbltop = zmid(i,j,lm-k1+1) +                             &
-                   ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1))    &
-                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
-                 / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
-            PBLHGUST ( i, j ) = zpbltop - zsf
-          else
-            PBLHGUST ( i, j ) = 0.
-          endif
-        end do
-       end do
-      ENDIF
 
       VarName='XLAT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2906,7 +2874,6 @@ endif  ! 1==2
          ALSL(L) = ALOG(SPL(L))
       END DO
 
-      DEALLOCATE (THV)
       deallocate (msft)
 
 ! convert dxval, dyval from meters to millimeters 
