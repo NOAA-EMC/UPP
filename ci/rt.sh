@@ -8,6 +8,7 @@
 # Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
 # Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
 # Gillian Petro 06/2025 Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
+# Wen Meng and Ben Blake, 07/2025, Update test names, add RRFS, MPAS, DAFS, SFS tests
 ######################################################################
 set -xue
 SECONDS=0
@@ -201,7 +202,7 @@ elif [ $mac3 = herc ] ; then
  module load python/3.11.7
 elif [ $mac = d -o $mac = c ]; then #for WCOSS2
  export machine=WCOSS2
- export homedir=${homedir:-"/u/wen.meng/noscrub/ncep_post/post_regression_test_new"}
+ export homedir=${homedir:-"/u/wen.meng/noscrub/test_suite"}
  export rundir=${rundir:-"/lfs/h2/emc/ptmp/$USER"}
  export accnr=${accnr:-"GFS-DEV"}
  module reset
@@ -283,7 +284,7 @@ if [ "$build_exe" == "yes" ]; then
 fi
 
 #Setting tests
-export test_list="nmmb fv3gefs fv3r fv3r_ifi_missing hrrr rap fv3hafs 3drtma fv3gfs mpas_hfip"
+export test_list="sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs"
 
 #submit test jobs
 cd $svndir/ci

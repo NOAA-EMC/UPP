@@ -16,7 +16,7 @@ done
 
 #Run additional ifi tests
 if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
-  for model in hrrr fv3r; do
+  for model in hrrr rrfs; do
     cp "$svndir/ci/jobs-dev/run_post_${model}_ifi_${machine}.sh" .
     job_id=$(sbatch --parsable -A "$accnr" "run_post_${model}_ifi_${machine}.sh")
     jobid_list="${jobid_list} $job_id" 

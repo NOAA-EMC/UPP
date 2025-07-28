@@ -4,13 +4,13 @@
 #SBATCH -e out.post.3drtma
 #SBATCH -J 3drtma_test
 #SBATCH -t 00:30:00
-#SBATCH -N 5 --ntasks-per-node=12
+#SBATCH -N 8 --ntasks-per-node=12
 #SBATCH -q batch
 #SBATCH -A nems
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export MP_LABELIO=yes
@@ -19,12 +19,9 @@ export APRUN="srun"
 echo "starting time"
 date
 
-######################################################################
-# Purpose: to run RAP post processing
-######################################################################
-
-# EXPORT list here
-
+############################################
+# Loading modules
+############################################
 module use ${svndir}/modulefiles
 module load hercules_$compiler
 module load prod_util/2.1.1
@@ -32,34 +29,28 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export WGRIB2=wgrib2
-export COMROOT=$rundir
-#export CRTM_FIX=/apps/contrib/NCEPLIBS/orion/fix/crtm_v2.3.0
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# CALL executable job script here
-
-# specify your running and output directory
+# specify forecast start time and hour
 export startdate=2023040400
 export fhr=000
 export tmmark=tm00
+
+# specify your running and output directory
 export DATA=$rundir/3drtma_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=$startdate
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
 export min=00
-
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
 
 cat > itag <<EOF
 &model_inputs
@@ -76,12 +67,12 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
-#get crtm fix file
+# get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -100,16 +91,18 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-#copy xml
-cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
-cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
-cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
+# Run the UPP
+${APRUN} ${POSTGPEXEC} < itag > outpost_3drtma_${NEWDATE}
 
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
 
-# operational 3drtma post processing generates 2 files
-filelist="NATLEV00.tm00 \
-          PRSLEV00.tm00"
+# 3DRTMA post processing generates 2 files
+filelist="NATLEV${fhr2}.${tmmark} \
+          PRSLEV${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file
@@ -117,7 +110,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/3drtma/${filein2}.${machine}
 
@@ -131,19 +123,14 @@ if [ $err = "0" ] ; then
   echo $msg
   $cmp_grib2_grib2 $homedir/data_out_$compiler/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
-
 else
-
-    msg="3drtma test: post failed using your new post executable to generate ${filein2}"
-    echo $msg 2>&1 | tee -a TEST_ERROR
-
+ msg="3drtma test: post failed using your new post executable to generate ${filein2}"
+ echo $msg 2>&1 | tee -a TEST_ERROR
 fi
+
 postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending 3drtma test"
 postmsg "$logfile" "$msg"
-
-

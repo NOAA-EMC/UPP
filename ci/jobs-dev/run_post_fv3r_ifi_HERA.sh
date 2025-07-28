@@ -64,9 +64,6 @@ write_ifi_debug_files=.true.
 /
 EOF
 
-
-rm -f fort.*
-
 #cp /nwprod/nam.v3.1.16/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
