@@ -2,7 +2,7 @@
  
 #PBS -o out.post.3drtma
 #PBS -e out.post.3drtma
-#PBS -N 3drtma.test
+#PBS -N 3drtma_test
 #PBS -l walltime=00:30:00
 #PBS -q debug
 #PBS -A GFS-DEV
@@ -11,7 +11,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 128 -ppn 32 --cpu-bind core --depth 1"
@@ -20,51 +20,45 @@ echo "starting time"
 date
 
 ############################################
-# Loading module
+# Loading modules
 ############################################
 module reset
-module load intel/19.1.3.304
-module load PrgEnv-intel/8.1.0
-module load craype/2.7.8
-module load cray-mpich/8.1.7
+module use ${svndir}/modulefiles
+module load wcoss2_intel
 module load cray-pals/1.0.12
-module load hdf5/1.10.6
-module load netcdf/4.7.4
-module load crtm/2.4.0.1
 module load libjpeg/9c
-module load prod_util/2.0.8
+module load prod_util/2.0.14
 module load wgrib2/2.0.8
 module list
 
 msg="Starting 3drtma test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# specify your running and output directory
+# specify forecast start time and hour
 export startdate=2023040400
 export fhr=000
 export tmmark=tm00
+
+# specify your running and output directory
 export DATA=$rundir/3drtma_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=$startdate
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
 export min=00
 
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
-
 cat > itag <<EOF
 &model_inputs
 fileName='$homedir/data_in/3drtma/dynf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
-DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+DateStr='${YY}-${MM}-${DD}_${HH}:${min}:00'
 MODELNAME='FV3R'
 SUBMODELNAME='RTMA'
 fileNameFlux='$homedir/data_in/3drtma/phyf${fhr}.nc'
@@ -74,12 +68,12 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 
-#get crtm fix file
+# get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -98,11 +92,18 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+# Run the UPP
+${APRUN} ${POSTGPEXEC} < itag > outpost_3drtma_${NEWDATE}
 
-# operational 3drtma post processing generates 3 files
-filelist="NATLEV00.tm00 \
-          PRSLEV00.tm00"
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
+# 3DRTMA post processing generates 2 files
+filelist="NATLEV${fhr2}.${tmmark} \
+          PRSLEV${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file
@@ -110,7 +111,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/3drtma/${filein2}.${machine}
 
@@ -124,19 +124,14 @@ if [ $err = "0" ] ; then
   echo $msg
   $cmp_grib2_grib2 $homedir/data_out/3drtma/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
-
 else
-
  msg="3drtma test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending 3drtma test"
 postmsg "$logfile" "$msg"
-
-

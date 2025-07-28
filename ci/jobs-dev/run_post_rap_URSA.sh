@@ -1,18 +1,17 @@
-#!/bin/sh 
+#!/bin/bash 
  
 #SBATCH -o out.post.rap
 #SBATCH -e out.post.rap
 #SBATCH -J rap_test
 #SBATCH -t 00:20:00
 #SBATCH -N 4 --ntasks-per-node=12
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
 #SBATCH --exclusive
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export MP_LABELIO=yes
 export threads=1
 export OMP_NUM_THREADS=$threads
@@ -21,42 +20,35 @@ export APRUN="srun"
 echo "starting time"
 date
 
-######################################################################
-# Purpose: to run RAP post processing
-######################################################################
-
-# EXPORT list here
-
+############################################
+# Loading modules
+############################################
 module purge
 module use $svndir/modulefiles
 module load ursa_$compiler
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
-module load nccmp/1.9.1.0
 module list
 
 msg="Starting rap test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# CALL executable job script here
+# specify forecast start time and hour
+export startdate=2025070115
+export fhr=06
 
 # specify your running and output directory
-export startdate=2020072316
-export fhr=16
 export DATA=$rundir/rap_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
-
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
 
 cat > itag <<EOF
 &model_inputs
@@ -71,19 +63,24 @@ KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,27
 /
 EOF
 
-#copy fix data
+# copy fix data
 cp $homedir/fix/fix_2.3.0/*bin .
-
-#copy xml
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-rap.txt postxconfig-NT.txt
 cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+# Run the UPP
+${APRUN} ${POSTGPEXEC} < itag > outpost_rap_${NEWDATE}
 
-# operational rap post processing generates 3 files
-filelist="WRFPRS.GrbF16 \
-          WRFNAT.GrbF16" 
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
+# RAP post processing generates 2 files
+filelist="WRFPRS.GrbF${fhr2} \
+          WRFNAT.GrbF${fhr2}" 
 
 for file in $filelist; do
 export filein2=$file
@@ -92,7 +89,6 @@ export err=$?
 
 if [ $err = "0" ] ; then
 
- # operational rap post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/rap/${filein2}.${machine}
 
@@ -108,19 +104,14 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/rap/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
-
 else
-
  msg="rap test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
 msg="Ending rap test"
 postmsg "$logfile" "$msg"
-
-
