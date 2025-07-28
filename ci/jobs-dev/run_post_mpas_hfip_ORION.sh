@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.mpas_hfip
 #SBATCH -e out.post.mpas_hfip
@@ -11,19 +11,20 @@
 #SBATCH -A nems
 #SBATCH --exclusive
 
-
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=4
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
 
-############################################
-# Loading module
-############################################
+echo "starting time"
+date
 
+############################################
+# Loading modules
+############################################
 module use ${svndir}/modulefiles
 module load orion_$compiler
 module load prod_util/2.1.1
@@ -31,11 +32,9 @@ module load wgrib2/3.6.0
 module list
 
 ulimit -s unlimited
-export OMP_STACKSIZE=128M
 
 msg="Starting mpas_hfip test"
 postmsg "$logfile" "$msg"
-
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
@@ -65,15 +64,13 @@ cat > itag <<EOF
 /
 EOF
 
-
-rm -f fort.*
-
+# copy fix data
 cp ${svndir}/fix/rap_micro_lookup.dat .
 cp ${svndir}/fix/nam_micro_lookup.dat .
 cp ${svndir}/parm/mpas/postxconfig-NT-hfip_mpas.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
-#get crtm fix file
+# get crtm fix files
 for what in \
     "FASTEM4.MWwater" "FASTEM5.MWwater" "FASTEM6.MWwater" "NPOESS.IRice" "NPOESS.IRland" \
     "NPOESS.IRsnow" "Nalli.IRwater" "abi_gr" "ahi_himawari8" "amsre_aqua" \
@@ -96,13 +93,20 @@ for what in  ${CRTM_FIX}/*Emis* ; do
    ln -s $what .
 done
 
-
+# Run the UPP
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 
-fhr2=`printf "%02d" $fhr`
+################################################
+# Compare with baseline data
+################################################
+fhr=$((10#$fhr))
+fhr2=$(printf "%02d" "$fhr")
 
-filelist="NATLEV.GrbF48 PRSLEV.GrbF48 2DFLD.GrbF48"
+# MPAS_HFIP post processing generates 3 files
+filelist="NATLEV.GrbF$fhr2 \
+          PRSLEV.GrbF$fhr2 \
+          2DFLD.GrbF$fhr2"
 
 for file in $filelist; do
 export filein2=$file
@@ -110,7 +114,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out_$compiler/mpas_hfip/${filein2}.${machine}
 
@@ -126,13 +129,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out_$compiler/mpas_hfip/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
 else
-
  msg="mpas_hfip test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 
