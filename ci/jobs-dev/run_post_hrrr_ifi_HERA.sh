@@ -9,7 +9,7 @@
 #SBATCH -A ovp
 #SBATCH -N 2 --ntasks-per-node=24
 
-# specify computation resource
+# specify computation resources
 export MP_LABELIO=yes
 export threads=1
 export OMP_NUM_THREADS=$threads
