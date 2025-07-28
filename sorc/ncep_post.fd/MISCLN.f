@@ -73,7 +73,7 @@
                             ifi_flight_levels, gtg_on
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
+      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -3097,9 +3097,12 @@
                q2m = max(0.0, QSHLTR(I,J))
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + PSHLTR(I,J))/4
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + TSHLTR(I,J))/4
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + q2m)/4
+               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
+                            PSHLTR(I,J))/4
+               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
+                            TSHLTR(I,J))/4
+               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
+                            q2m)/4
              ENDDO
            ENDDO
 !
@@ -3592,9 +3595,12 @@
 !          DO I=ISTA,IEND
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
+                            PSHLTR(I,J))/4
+               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
+                            TSHLTR(I, J))/4
+               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
+                            QSHLTR(I, J))/4
              ENDDO
            ENDDO
 
@@ -4223,7 +4229,7 @@
              endif
            ENDIF
 
-!Effective Layer Supercell Parameter
+!Effective Layer Significant Tornado Parameter
             IF (IGET(991)>0) THEN
             DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -4284,10 +4290,8 @@
                             LVLBND(I,J,3))/3
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
                             PSHLTR(I, J))/4
-               T1D(I,J)  = (TVIRTUAL(TBND(I,J,1),QBND(I,J,1)) +       &
-                            TVIRTUAL(TBND(I,J,2),QBND(I,J,2)) +       &
-                            TVIRTUAL(TBND(I,J,3),QBND(I,J,3)) +       &
-                            TVIRTUAL(TSHLTR(I,J), QSHLTR(I,J))/4
+               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +               &
+                            TBND(I,J,3) + TSHLTR(I,J)/4
                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
                             QSHLTR(I,J))/4
              ENDDO
