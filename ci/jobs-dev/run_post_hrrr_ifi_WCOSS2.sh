@@ -11,7 +11,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export OMP_NUM_THREADS=$threads
 export APRUN="mpiexec -l -n 48 -ppn 24"
@@ -19,45 +19,37 @@ export APRUN="mpiexec -l -n 48 -ppn 24"
 echo "starting time"
 date
 
-######################################################################
-# Purpose: to run RAP post processing
-######################################################################
+############################################
+# Loading modules
+############################################
 module reset
-module load intel/19.1.3.304
-module load PrgEnv-intel/8.1.0
-module load craype/2.7.8
-module load cray-mpich/8.1.7
+module use ${svndir}/modulefiles
+module load wcoss2_intel
 module load cray-pals/1.0.12
-module load hdf5/1.10.6
-module load netcdf/4.7.4
 module load libjpeg/9c
-module load prod_util/2.0.8
-module load crtm/2.4.0.1
+module load prod_util/2.0.14
 module load wgrib2/2.0.8
 module list
 
 msg="Starting hrrr_ifi test"
 postmsg "$logfile" "$msg"
 
-
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# CALL executable job script here
+# specify forecast start time and hour for running your post job
+export startdate=2025063004
+export fhr=10
 
 # specify your running and output directory
-export startdate=2020060118
-export fhr=04
 export DATA=$rundir/hrrr_ifi_${startdate}
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
 
 export NEWDATE=`${NDATE} +${fhr} $startdate`
-
 export YY=`echo ${NEWDATE} | cut -c1-4`
 export MM=`echo ${NEWDATE} | cut -c5-6`
 export DD=`echo ${NEWDATE} | cut -c7-8`
 export HH=`echo ${NEWDATE} | cut -c9-10`
-
-rm -rf $DATA; mkdir -p $DATA
-cd $DATA
 
 cat > itag <<EOF
 &model_inputs
@@ -72,17 +64,23 @@ KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,27
 write_ifi_debug_files=.false.
 /
 EOF
-#FMIN
 
-#copy xml
+# copy fix data
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-ifi.txt postxconfig-NT.txt
 cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
-${APRUN} ${POSTGPEXEC} < itag > wrfpost2.out
+# Run the UPP
+${APRUN} ${POSTGPEXEC} < itag > outpost_hrrr_ifi_${NEWDATE}
 
-# operational hrrr post processing generates 3 files
-filelist="IFIFIP.GrbF04"
+################################################
+# Compare with baseline data
+################################################
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
+
+# HRRR_IFI post processing generates 1 file
+filelist="IFIFIP.GrbF${fhr2}"
 
 for file in $filelist; do
 export filein2=$file
@@ -90,8 +88,6 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
-
- # operational hrrr post processing generates 3 files, start with BGDAWP first
  # use cmp to see if new pgb files are identical to the control one
  cmp ${filein2} $homedir/data_out/hrrr_ifi/${filein2}.${machine}
 
@@ -107,14 +103,11 @@ if [ $err = "0" ] ; then
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
   $cmp_grib2_grib2 $homedir/data_out/hrrr_ifi/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
-
-
 else
-
  msg="hrrr_ifi test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
-
 fi
+
 postmsg "$logfile" "$msg"
 done
 
