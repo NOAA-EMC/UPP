@@ -120,7 +120,7 @@
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
-      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa,pi, small
+      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa, pi, small, rtd
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe,    &
                             ttblq, rdpq, rdtheq, stheq, the0q, the0
       use ctlblk_mod, only: me, mpi_comm_comp, icnt, idsp, jsta, jend, ihrst, idat, sdat, ifhr, &
@@ -233,6 +233,10 @@
 
       real LAT
       integer isa, jsa, latghf, jtem, idvc, idsl, nvcoord, ip1, nn, npass
+
+      integer jdn
+      integer, external :: iw3jdn
+      real sun_zenith, sun_azimuth, temp
 
       integer, parameter    :: npass2=5, npass3=30
       real, parameter       :: third=1.0/3.0
@@ -2111,14 +2115,18 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(isa,jsa)
 
-! GFS probably does not use zenith angle
+! Calculate cosine of solar zenith angle for GFS
 !$omp parallel do private(i,j)
+      jdn=iw3jdn(idat(3),idat(1),idat(2))
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
-          Czen(i,j)   = spval
-          CZMEAN(i,j) = SPVAL      
+          call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j),pi,sun_zenith,sun_azimuth)
+          temp = sun_zenith/rtd
+          czen(i,j)   = cos(temp)
+          CZMEAN(i,j) = CZEN(i,j)
         enddo
       enddo
+      if(debugprint)print*,'sample zenith angle = ',acos(czen(ii,jj))*rtd
 
 ! maximum snow albedo in fraction using nemsio
       VarName='snoalb'
