@@ -2116,8 +2116,8 @@
      if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(isa,jsa)
 
 ! Calculate cosine of solar zenith angle for GFS
-!$omp parallel do private(i,j)
       jdn=iw3jdn(idat(3),idat(1),idat(2))
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
           call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j),pi,sun_zenith,sun_azimuth)
