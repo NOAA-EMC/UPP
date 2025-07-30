@@ -1,0 +1,12 @@
+nmmb_test 00:02:20
+fv3gefs_test 00:01:20
+rap_test 00:02:00
+hrrr_test 00:03:40
+fv3hafs_test 00:02:00
+fv3gfs_test 00:12:00
+fv3r_test 00:06:00
+fv3r_ifi_missing 00:02:00
+3drtma_test 00:03:40
+hrrr_ifi_test 00:02:00
+fv3r_ifi_test 00:02:00
+mpas_hfip_test 00:05:00
