@@ -67,9 +67,7 @@ Building and running UPP v11.0.0 has been tested and is supported on the followi
 
 To install the UPP, navigate to the directory where you want to install UPP and clone the repository.
 
-.. code-block:: console
-
-    git clone -b branch-or-tag-name https://github.com/NOAA-EMC/UPP
+.. include:: ../../doc-snippets/clone.rst
 
 where, ``branch-or-tag-name`` is the release branch or tag you wish to clone (e.g., ``upp_v11.0.0``). (Leaving off the ``-b`` argument will clone all branches of the repository.)
 
