@@ -13,6 +13,7 @@
 !> June  2024   | Sam Trahan | Bug fix for g2tmpl error messages
 !> August 2024  | Li Pan     | Enable template 4-49 to obtain aerosol ensemble information
 !> April 2025   | Eric James | Use PDT 4.1 for encoding REFS grib2 output
+!> July 2025    | J Kenyon   | Add "earth_radius" namelist option
 !-------------------------------------------------------------------------
   module grib2_module
 !
@@ -1746,7 +1747,7 @@
 !> @brief getgds() Set up Grid Description Section (GDS) kpds (Product Definition Section?) to call Boi's code ?
       subroutine getgds(ldfgrd,len3,ifield3len,igds,ifield3)
 
-      use CTLBLK_mod,  only : im,jm,gdsdegr,modelname
+      use CTLBLK_mod,  only : im,jm,gdsdegr,modelname,earth_radius
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &
                               cenlonv,TRUELAT1,TRUELAT2,LATSTART_R,LONSTART_R,         &
@@ -1976,7 +1977,28 @@
         ifield3(19) = 0       !for NS scan
        endif
 
-     ENDIF
+     ENDIF ! MAPTYPE branching
+
+     IF (earth_radius > 0.) THEN
+
+       ! J Kenyon (25 Jul 2025): earth_radius > 0 indicates that a namelist-specified earth radius is
+       ! present. Accordingly, the GRIB2 files will be generated to reflect this radius. This is
+       ! accomplished by updating elements 1-3 of the "ifield3()" array.  These three elements correspond 
+       ! to the first three rows of 
+       !    https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-0.shtml 
+       ! (also applies to other projections besides lat-lon). Specifically:
+ 
+       !   For element 1: the "Shape of the Earth"
+           ifield3(1) = 1 ! 1 indicates "Earth assumed spherical with radius specified (in m) by data producer";
+                          ! see https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-2.shtml
+ 
+       !   For element 2: the "Scale Factor of radius of spherical Earth" 
+           ifield3(2) = 0 ! 0 indicates that no scale factor is applied 
+ 
+       !   For element 3: the "Scale value of radius of spherical Earth" 
+           ifield3(3) = earth_radius ! assign the value (meters) from the namelist
+
+     ENDIF ! namelist-specified earth_radius
 
 !    write(*,*)'igds=',igds,'igdstempl=',ifield3(1:ifield3len)
      end subroutine getgds
