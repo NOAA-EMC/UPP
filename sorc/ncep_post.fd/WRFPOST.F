@@ -39,6 +39,7 @@
 !> 2023-11-29 | Eric James                | Add method_blsn logical option
 !> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
 !> 2024-10-29 | Wen Meng                  | Set iSF_SURFACE_PHYSICS: 1 for NOAH; 2 for NOAH MP; 3 for RUC
+!> 2025-07-25 | Jaymes Kenyon             | Add "earth_radius" namelist option
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -123,7 +124,8 @@
 #endif
       use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
-              spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,   &
+              spldef, modelname, ihrst, lsmdef,vtimeunits, earth_radius,                             &
+              tprec, pthresh, datahandle, im, jm, lm,                                                &
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global, imp_physics,          &
               ista, iend, ista_m, iend_m, ista_2l, iend_2u,                                          &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
@@ -162,7 +164,7 @@
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,gtg_on,method_blsn,popascal &
                      ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files
       integer      :: itag_ierr
-      namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
+      namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME,earth_radius &
                      ,fileNameFlux,fileNameFlat
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
@@ -203,8 +205,9 @@
 !
 !**************************************************************************
 !KaYee: Read itag in Fortran Namelist format
-!Set default 
+!Set defaults
        SUBMODELNAME='NONE'
+       earth_radius=0.
 !Set control file name
        fileNameFlat='postxconfig-NT.txt'
        numx=1
@@ -317,6 +320,12 @@
           numx=1
           if(me == 0) print*,'2D decomposition only supports GFS and FV3R.'
           if(me == 0) print*,'Reset numx= ',numx
+        ENDIF
+
+        IF (earth_radius > 0.) THEN
+          if(me == 0) print*,'Found earth_radius in namelist: using this value according to GRIB2 Table 3.2, Code Figure 1'
+        ELSE
+          if(me == 0) print*,'No earth_radius found in namelist: encoding a standard value from GRIB2 Table 3.2'
         ENDIF
 
 ! set up pressure level from POSTGPVARS or DEFAULT
