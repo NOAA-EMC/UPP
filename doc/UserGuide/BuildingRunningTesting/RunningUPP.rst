@@ -86,7 +86,7 @@ UPP Procedures
       git clone git clone https://github.com/NOAA-EMC/UPP.git
       cd UPP/parm
 
-2. Modifying the postcntrl*.xml file.
+2. Modifying the postcntrl*.xml file (optional):
 
 Select a ``postcntrl*.xml`` file that is most relevant to your experiment. In this example, for a GFS experiment, navigate to to GFS and choose an XML from that directory to modify. 
 
@@ -96,31 +96,31 @@ If the user wishes to generate model output at user-defined sigma levels for tem
    .. code-block:: console
 
       <param>
-      <post_avblfldidx>206</post_avblfldidx>
-      <shortname>TMP_ON_SIGMA_LVLS</shortname>
-      <pname>TMP</pname>
-      <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-      <scale>4.0</scale>
-      <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
-   </param>
+         <post_avblfldidx>206</post_avblfldidx>
+         <shortname>TMP_ON_SIGMA_LVLS</shortname>
+         <pname>TMP</pname>
+         <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
+         <scale>4.0</scale>
+         <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
+      </param>
 
-   <param>
-      <post_avblfldidx>208</post_avblfldidx>
-      <shortname>UGRD_ON_SIGMA_LVLS</shortname>
-      <pname>UGRD</pname>
-      <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-      <scale>4.0</scale>
-      <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
-   </param>
+      <param>
+         <post_avblfldidx>208</post_avblfldidx>
+         <shortname>UGRD_ON_SIGMA_LVLS</shortname>
+         <pname>UGRD</pname>
+         <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
+         <scale>4.0</scale>
+         <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
+      </param>
 
-   <param>
-      <post_avblfldidx>209</post_avblfldidx>
-      <shortname>VGRD_ON_SIGMA_LVLS</shortname>
-      <pname>VGRD</pname>
-      <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-      <scale>4.0</scale>
-      <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
-   </param>
+      <param>
+         <post_avblfldidx>209</post_avblfldidx>
+         <shortname>VGRD_ON_SIGMA_LVLS</shortname>
+         <pname>VGRD</pname>
+         <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
+         <scale>4.0</scale>
+         <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
+      </param>
 
 3. Generate the flat text file:
 
@@ -133,59 +133,99 @@ If the user wishes to generate model output at user-defined sigma levels for tem
 .. note::
    ``PostXMLPreprocessor.pl`` must be run from the ``parm`` directory or it will produce an error. 
 
+4. Modify source code
 
+By default, only certain sigma levels are outputted. These levels are defined in `SET_LVLSXML.f <https://github.com/NOAA-EMC/UPP/blob/develop/sorc/ncep_post.fd/SET_LVLSXML.f>`_ using the ASIGO1 array. Users must review these levels to confirm comatibility with their requirements. If deafult sigma levels are insufficient users must modify ``SET_LVLSXML.f`` to include your desired sigma levels.
 
-
-A script (``run_upp``) for running the UPP package is now fetched via ``wget``
-
-:underline:`Before running the script, perform the following instructions:`
-
-1. Create a working directory. This directory will be reffered to as ``TOP_DIR``.
-
-
-
-2. Make a directory to put the UPP results in.
+For example in ``UPP/sorc/ncep_post.fd/SET_LVLSXML.f`` set:
 
    .. code-block:: console
 
-       mkdir postprd
+      ELSE  ! SPECIFY SIGO
+         ASIGO1( 1)=   0.0000
+         ASIGO1( 2)=   0.0500
+         ASIGO1( 3)=   0.1000
+         ASIGO1( 4)=   0.1500
+         ASIGO1( 5)=   0.2000
+         ASIGO1( 6)=   0.2500
+         ASIGO1( 7)=   0.3000
+         ASIGO1( 8)=   0.3500
+         ASIGO1( 9)=   0.4000
+         ASIGO1(10)=   0.4500
+         ASIGO1(11)=   0.5000
+         ASIGO1(12)=   0.5500
+         ASIGO1(13)=   0.6000
+         ASIGO1(14)=   0.6500
+         ASIGO1(15)=   0.7000
+         ASIGO1(16)=   0.7500
+         ASIGO1(17)=   0.8000
+         ASIGO1(18)=   0.8500
+         ASIGO1(19)=   0.9000
+         ASIGO1(20)=   0.9500
+         ASIGO1(21)=   1.0000
 
-3. Make a directory for staging a copy of the desired control file.
-
-   .. code-block:: console
-
-       mkdir parm
-
-4. Optional: If desired, edit the control XML file(s) in ``/UPP/parm`` to reflect the fields
-   and levels you want UPP to output. It is recommended that you make copies of the original
-   beforehand.
-
-   | **GFS XMLs**: ``postcntrl_gfs_f00.xml`` (0-hour lead time) and
-     ``postcntrl_gfs.xml`` (all other lead times)
-   | **LAM (Limited Area Model) XML**: ``fv3lam.xml``
-
-   Remake the flat text file(s) following the steps in the "Control File: Creating the Flat Text File"
-   section.
-
-5. Copy the flat text file(s) to the ``/parm`` directory in your ``DOMAINPATH``. These are the files
-   that UPP reads directly.
-
-   | **GFS text files**: ``postxconfig-NT-GFS-F00.txt`` (0-hour lead time) and
-     ``postxconfig-NT-GFS.txt`` (all other lead times).
-   | **LAM text file**: ``postxconfig-NT-fv3lam.txt``
-
-6. Navigate to the ``/postprd`` directory and retrieve the ``./run_upp`` script via ``wget``:
+5. Build/Compile the UPP:
 
    .. code-block:: console
 
-      cd /postprd
+      cd UPP/tests
+      ./compile_upp.sh
+
+This will generate the UPP executable in the ``UPP/exec`` directory
+
+6. Create a post-processing output directory:
+
+   .. code-block:: console
+
+      cd $TOP_DIR
+      mkdir postprd
+
+.. note::
+   This directory can be created anywhere but default settings assume that is named postprd and created inside $TOP_DIR
+
+7. Download the UPP utility script for running standalone UPP and change the permissions:
+
+   .. code-block:: console
+
+      cd postprd
       wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/run_upp
       chmod 755 run_upp
 
+8. Modifying the script
 
-7. Edit the run script as outlined in the :ref:`"Run Script Overview" <run-script-overview>` section below. Once these directories are set
-   up and the edits outlined below are complete, the script can be run interactively from the
-   ``/postprd`` directory by simply typing the script name on the command line.
+Users will need to edit directory paths and start date for the experiment. It may also be necessary to modify the run command, model type, and I/O file formats. For example:
+
+   .. code-block:: console
+
+      ...
+      export TOP_DIR=/work2/noaa/epic/jsmith/hercules/test-sigma/
+      export POSTPRD_DIR=${TOP_DIR}/postprd
+      export UPP_HOME=${TOP_DIR}/UPP
+      export POSTEXEC=${UPP_HOME}/exec
+      export modelDataPath=${TOP_DIR}/control_p8_intel
+      export txtCntrlFile=${UPP_HOME}/parm/gfs/postxconfig-NT-gfs-f00-two.txt
+      export CRTMDIR=${UPP_HOME}/crtm/fix
+      # Set date/time information
+      export startdate=2021032206
+      export fhr=00
+      export lastfhr=06
+      export incrementhr=03
+      # Specify model ("GFS" or "LAM" in upper case)
+      export model="GFS"
+      # Set input format from model and ouput format from UPP
+      export inFormat="netcdfpara"
+      export outFormat="grib2"
+      # Set run command: 
+      # Single processor command example
+      export RUN_COMMAND="${POSTEXEC}/upp.x "
+
+      #MPI sample command
+      # "-n 4" can be changed to a different number of tasks. 
+      export RUN_COMMAND="srun -A epic -n 4 ${POSTEXEC}/upp.x "
+
+      # The number of subdomains in the x-direction (set to >=2 for 2d decomposition)
+      export numx=1
+      ...
 
 .. _run-script-overview:
 
