@@ -7,6 +7,7 @@
 # 2023/09       Sam Trahan : Rewritten with simpler syntax and better readability
 # 2025/05       Jaymes Kenyon : Adding files for MPAS applications
 # 2025/05       Ben Blake : Updating files for RRFSv1
+# 2025/07       Wen Meng : Add GCAFS
 
 SHELL=/bin/sh
 PERL=/usr/bin/perl
@@ -26,7 +27,6 @@ ALL_TXT= \
   ./gfs/postxconfig-NT-gfs-f00-two.txt \
   ./gefs/postxconfig-NT-gefs.txt \
   ./gefs/postxconfig-NT-gefs-f00.txt \
-  ./gefs/postxconfig-NT-gefs-gcafs.txt \
   ./gefs/postxconfig-NT-gefs-aerosol.txt \
   ./gefs/postxconfig-NT-gefs-f00-aerosol.txt \
   ./wafs/postxconfig-NT-gfs-wafs-anl.txt \
@@ -61,7 +61,8 @@ ALL_TXT= \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-AQM.txt \
   ./dafs/postxconfig-NT-hrrr_dafs.txt \
-  postxconfig-NT-wps.txt
+  postxconfig-NT-wps.txt \
+  ./gcafs/postxconfig-NT-gcafs.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
@@ -74,7 +75,6 @@ clean:
 ./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
 ./gefs/postxconfig-NT-gefs.txt:             ./gefs/postcntrl_gefs.xml             post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00.txt:         ./gefs/postcntrl_gefs_f00.xml         post_avblflds.xml
-./gefs/postxconfig-NT-gefs-gcafs.txt:       ./gefs/postcntrl_gefs_gcafs.xml       post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00-aerosol.txt: ./gefs/postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
 ./wafs/postxconfig-NT-gfs-wafs-anl.txt:      ./wafs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
@@ -110,6 +110,7 @@ postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblfld
 postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
 ./dafs/postxconfig-NT-hrrr_dafs.txt: ./dafs/hrrr_postcntrl_dafs.xml post_avblflds.xml
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
+./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
