@@ -180,7 +180,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
       "-g -traceback -fp-model source -free -convert big_endian")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -check all -check noarg_temp_created")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -check all -shared-intel -diag-disable=10444 -check noarg_temp_created")
   set_source_files_properties(INITPOST_GFS_NEMS_MPIIO.f INITPOST_NETCDF.f INITPOST_NEMS.f PROPERTIES COMPILE_FLAGS -qoverride-limits)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(IntelLLVM)$")
   set(CMAKE_Fortran_FLAGS
