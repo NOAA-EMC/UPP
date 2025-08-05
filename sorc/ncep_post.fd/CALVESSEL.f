@@ -1,8 +1,9 @@
       SUBROUTINE CALVESSEL(ICEG)
 ! Algorithm for calculating ice growth rate
-      use vrbls2d, only: sst, u10h, v10h, tshltr
+      use vrbls2d, only: sst, u10h, v10h, tshltr, pshltr
       use masks, only: sm, sice
       use ctlblk_mod, only: jsta, jend, im, spval
+      use params_mod, only: capa
 !-------------------------------------------
       implicit none
       integer I, J
@@ -28,11 +29,13 @@
             ICEG(i,j)=0.
             CYCLE
           endif
+! Covert to shelter level T
+          TSHLTR_C=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 
 !!! CHANGE TEMP to FROM K to C
 !!! TEMPERATURE CHECK
           SST_C=SST(I,J)-C2K  
-          TSHLTR_C=TSHLTR(I,J)-C2K
+          TSHLTR_C=TSHLTR_C-C2K
           if((SST_C.lt.-1.7).OR. &
              (SST_C.gt.12.0)) then
             ICEG(I,j)=0.
