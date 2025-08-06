@@ -31,7 +31,7 @@ As of June 20, 2025, the UPP uses the following `common modules <https://github.
 
 .. code-block:: console
 
-   hdf5/1.14.3
+   hdf5 1.14.3
    netcdf-c 4.9.2
    netcdf-fortran 4.6.1
    jasper 2.0.32
@@ -67,9 +67,7 @@ Building and running UPP v11.0.0 has been tested and is supported on the followi
 
 To install the UPP, navigate to the directory where you want to install UPP and clone the repository.
 
-.. code-block:: console
-
-    git clone -b branch-or-tag-name https://github.com/NOAA-EMC/UPP
+.. include:: ../../doc-snippets/clone.rst
 
 where, ``branch-or-tag-name`` is the release branch or tag you wish to clone (e.g., ``upp_v11.0.0``). (Leaving off the ``-b`` argument will clone all branches of the repository.)
 

@@ -7,6 +7,7 @@
 # 2023/09       Sam Trahan : Rewritten with simpler syntax and better readability
 # 2025/05       Jaymes Kenyon : Adding files for MPAS applications
 # 2025/05       Ben Blake : Updating files for RRFSv1
+# 2025/07       Wen Meng : Add GCAFS
 
 SHELL=/bin/sh
 PERL=/usr/bin/perl
@@ -61,7 +62,8 @@ ALL_TXT= \
   postxconfig-NT-UFS-aerosol-F00.txt \
   postxconfig-NT-AQM.txt \
   ./dafs/postxconfig-NT-hrrr_dafs.txt \
-  postxconfig-NT-wps.txt
+  postxconfig-NT-wps.txt \
+  ./gcafs/postxconfig-NT-gcafs.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
@@ -110,6 +112,7 @@ postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblfld
 postxconfig-NT-AQM.txt:              aqm.xml                        post_avblflds.xml
 ./dafs/postxconfig-NT-hrrr_dafs.txt: ./dafs/hrrr_postcntrl_dafs.xml post_avblflds.xml
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
+./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@

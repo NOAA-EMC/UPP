@@ -98,11 +98,10 @@ When the ``develop`` branch of the UPP repository is cloned, the basic directory
    UPP      
     ├── ci                          -------- Automated testing files
     ├── cmake                       -------- CMake build files
-    ├── docs                        -------- User's Guide files
+    ├── doc                         -------- User's Guide files
     │   └── Doxyfile.in             -------- Doxygen configuration file
     ├── exec*
     ├── fix
-    ├── jobs                        -------- Scripts that set up the environment and call ex-scripts from the scripts directory
     ├── modulefiles
     ├── parm
     │    ├── post_avblflds.xml      -------- List of all fields available in UPP
@@ -115,7 +114,6 @@ When the ``develop`` branch of the UPP repository is cloned, the basic directory
     │    ├── build*
     │    ├── install*
     │    └── compile_upp.sh         -------- UPP build script
-    ├── ush                         -------- Utility scripts (referenced & run in /scripts)
     ├── CMakeLists.txt
     ├── LICENSE.md
     ├── README.md
