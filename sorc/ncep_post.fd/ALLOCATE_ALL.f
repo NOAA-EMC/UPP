@@ -486,6 +486,7 @@
         enddo
       enddo
 ! CRA
+      allocate(f10m(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(u10(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(v10(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(tshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -518,6 +519,7 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
+          f10m(i,j)=spval
           u10(i,j)=spval
           v10(i,j)=spval
           tshltr(i,j)=spval

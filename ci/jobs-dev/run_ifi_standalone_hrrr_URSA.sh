@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.ifi_standalone_hrrr
 #SBATCH -e out.post.ifi_standalone_hrrr
