@@ -76,8 +76,8 @@
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,         &
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib,           &
               prec_acc_dt1, submodelname
-      use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,            &
-              p1000, pi, rtd, lheat, dtr, erad, h1m5, d001
+      use params_mod, only: capa, g, rd, rog, d608, tfrz, ad05, cft0, stbol,       &
+              p1000, pi, rtd, lheat, dtr, erad, h1m5, d01, d001
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
               qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
@@ -737,15 +737,25 @@
          ENDDO
 
 
+! Geopotential height of model surface
       VarName='HGT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            FIS ( i, j ) = dummy ( i, j ) * G
+            FIS ( i, j ) = dummy ( i, j ) * G ! convert z to phi
         end do
        end do
-!
+
+! Geopotential height of model interfacial levels
+!  (J Kenyon, 6 Aug 2025):
+!  Here, "PHB" and "PH" represent base-state and perturbation
+!  arrays, respectively. Note that in INITPOST.F (used for WRF-ARW),
+!  the PHB/PH arrays represented geopotential (units of m2 s-2). As
+!  of this writing, these arrays in MPAS applications now represent
+!  geopotential height (units of m). Note also that for some
+!  applications (e.g., RAPR), the resulting ZINT array is adjusted
+!  using the hypsometric equation (further below).
       VarName='PHB'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
@@ -759,16 +769,14 @@
       VarName='PH'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
-
-      !print*,'finish reading geopotential'
-! ph/phb are geopotential z=(ph+phb)/9.801
       DO L=1,LM+1
         DO I=1,IM
          DO J=JS,JE
-          ZINT(I,J,L)=(ZINT(I,J,L)+DUM3D(I,J,L))/G
+          ZINT(I,J,L)=ZINT(I,J,L)+DUM3D(I,J,L)
          ENDDO
         ENDDO
       ENDDO
+! Done with geopotential height of model interfacial levels
 
       IF(MODELNAME == 'RAPR')THEN
 
@@ -891,48 +899,70 @@
 
       ENDIF  !  IF(MODELNAME == 'RAPR')THEN
 
-!!!!!!!!!!!!!
+!-- Derive / assign geopotential heights using the hysometric equation
       IF(MODELNAME == 'RAPR')THEN
-!integrate heights hydrostatically
-       do j = js, je
-        do i = 1, im
-            ZINT(I,J,LM+1)=FIS(I,J)/G
-            DUMMY(I,J)=FIS(I,J)
-         !if(i==im/2.and.j==(jsta+jend)/2)                            &
-         !  print*,'i,j,L,ZINT from unipost= ',i,j,LM+1,ZINT(I,J,LM+1)&
-         !     ,ALPINT(I,J,LM+1),ALPINT(I,J,LM)  
+
+        if (me==0) print*,'Assigning geopotential heights using hypsometric equation...'
+
+       ! Integrate heights hydrostatically; i.e., use the hypsometric equation
+       ! (which is the vertically integrated hydrostatic equation) to assign
+       ! geopotential heights based on the profile of virtual temperature.
+       ! See (for example) "An Introduction to Dynamic Meteorology" (Holton,
+       ! 4th edition), section 1.6.1 ("The Hydrostatic Equation"), particularly
+       ! Eqs. 1.20 and 1.21, or "Mid-Latitude Atmospheric Dynamics" (Martin,
+       ! 2006), section 3.1.1 ("The Hypsometric Equation").
+       ! --J Kenyon (description added 6 Aug 2025 and slightly modified)
+
+        do j = js, je
+         do i = 1, im
+          ! Begin DUMMY with the height of the lowest interfacial level
+          DUMMY(I,J)=ZINT(I,J,LM+1)
+         end do
         end do
-       end do
-      DO L=LM,1,-1
-       do j = js, je
-        do i = 1, im
-         DUMMY2(I,J)=HTM(I,J,L)*T(I,J,L)*(Q(I,J,L)*D608+1.0)*RD*          &
-                   (ALPINT(I,J,L+1)-ALPINT(I,J,L))+DUMMY(I,J)
-! compute difference between model and unipost heights:
-         DUM3D(I,J,L)=ZINT(I,J,L)-DUMMY2(I,J)/g
-! now replace model heights with unipost heights
-         ZINT(I,J,L)=DUMMY2(I,J)/G
-         !if(i==im/2.and.j==(jsta+jend)/2) &
-         !  print*,'i,j,L,ZINT from unipost= ',i,j,l,ZINT(I,J,L)
-         DUMMY(I,J)=DUMMY2(I,J)
-        ENDDO
-       ENDDO
-      END DO
-      !DO L=LM,1,-1
-      ! do j = js, je
-      !  do i = 1, im
-      !   if(i==im/2.and.j==(jsta+jend)/2) then
-      !  print*,'DIFF heights model-unipost= ',         &
-      !   i,j,l,DUM3D(I,J,L)
-      !   endif
-      !  ENDDO
-      ! ENDDO
-      !END DO
 
-      if (me==0) print*,'Finished deriving geopotential in RAPR application'
+        do L = LM, 1, -1 ! Loop upward
+         do j = js, je
+          do i = 1, im
 
-      ENDIF  ! IF(MODELNAME == 'RAPR')THEN
+           ! The essential step of the hypsometric calculation occurs here,
+           ! where thickness is calculated for each model layer. This
+           ! thickness is then added to the height of the underlying
+           ! interfacial level. Note that DUMMY2 and DUMMY correspond to
+           ! z_upper and z_lower, respectively. Symbolically, this procedure
+           ! is:
+           !
+           !  z_upper = z_lower + Rd * Tv * (1/g) * [ln(p_lower) - ln(p_upper)]
+           !
+           DUMMY2(I,J)=DUMMY(I,J)+HTM(I,J,L)*ROG*T(I,J,L)*(Q(I,J,L)*D608+1.0)* &
+                       (ALPINT(I,J,L+1)-ALPINT(I,J,L))
 
+           ! Compute/store the difference between model-state and
+           ! hypsometric-derived heights (for printing below)
+           DUM3D(I,J,L)=DUMMY2(I,J)-ZINT(I,J,L)
+
+           ! Now replace model-state heights with hypsometric heights
+           ZINT(I,J,L)=DUMMY2(I,J)
+
+           ! Lastly, update DUMMY with the value of DUMMY2, then repeat
+           ! (i.e., proceed upward to next level)
+           DUMMY(I,J)=DUMMY2(I,J)
+
+          enddo
+         enddo
+        enddo
+
+        if (me==0) then
+          print*,'  Height adjustments in sampled column (top down):'
+          i=im/2
+          j=(jend+jsta)/2
+          do L=1,LM
+           print*,'   ',nint(DUM3D(I,J,L)),'m at L=',L,', p=',nint(PMID(I,J,L)*D01),'hPa'
+          enddo
+          print*,'...Finished adjusting geopotential heights.'
+        endif
+
+      ENDIF ! MODELNAME == 'RAPR'
+!-- Done assigning heights using the hypsometric equation
 
       IF(MODELNAME == 'RAPR')THEN
 
