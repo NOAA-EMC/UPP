@@ -80,6 +80,20 @@ example in :numref:`Section %s <add-var-example>` below.
 
          This flat file (instead of the xml file) is read in by the UPP because it is much faster to read a text file than an XML file.
 
+         .. note:: 
+
+            On ``Ursa`` the usual process for generating a new/updated ``postxconfig.txt`` file is slighlty different due to a missing XML module. The following workaround has been developed:
+
+            .. code-block:: console
+
+               wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/perl_venv_create.sh
+               chmod 755 perl_venv_create.sh
+               ./perl_venv_create.sh perl_venv
+               source perl_venv/bin/activate
+               cpanm XML::LibXML
+               cd /path/to/UPP
+               cd parm
+
 #. Allocate and initialize the field in ``sorc/ncep_post.fd/ALLOCATE_ALL.f``.
 
    This file contains the instantiation or allocation of each variable. Note that the variables are defined
