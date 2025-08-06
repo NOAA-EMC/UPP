@@ -11,7 +11,7 @@ Running UPP Stand-Alone
 
 This section describes how to prepare model output, clone and build UPP, generate control files, and run UPP in a standalone environment using the provided ``run_upp`` script.
 
-Create a Working directory
+Create a Working Directory
 ===========================
 
 Create and enter a top-level working directory. This directory will be referred to as ``TOP_DIR``.
@@ -24,7 +24,7 @@ Create and enter a top-level working directory. This directory will be referred 
 Prepare Forecast Output
 ========================
 
-1. The UPP needs to use forecast output as input to the UPP. In this example we will use output from a UFS WM forecast run:
+1. The UPP requires forecast output as its input. In this example we will use output from a UFS WM forecast run:
 
    .. code-block:: console
 
@@ -62,7 +62,7 @@ Prepare Forecast Output
 
       export OUTPUT_FH= `3 -1`
  
-6. If you do not have access to the ``stmp`` disk space, you made need to alter the ``dprefix`` path for the machine youre running on in ``rt.sh``. For example:
+6. If you do not have access to the ``stmp`` disk space, you may need to alter the ``dprefix`` path for the machine you're running on in ``rt.sh``. For example:
 
    .. code-block:: console
 
@@ -83,15 +83,15 @@ UPP Procedures
    .. code-block:: console
 
       cd wrk_dir
-      git clone git clone https://github.com/NOAA-EMC/UPP.git
+      git clone https://github.com/NOAA-EMC/UPP.git
       cd UPP/parm
 
 2. Modifying the postcntrl*.xml file (optional):
 
-Select a ``postcntrl*.xml`` file that is most relevant to your experiment. In this example, for a GFS experiment, navigate to to GFS and choose an XML from that directory to modify. 
+   Select a ``postcntrl*.xml`` file that is most relevant to your experiment. In this example, for a GFS experiment, navigate to ``GFS`` and choose an XML from that directory to modify. 
 
-If the user wishes to generate model output at user-defined sigma levels for temperature, U, and V values on sigma surfaces, copy the entries from ``post_avblflds.xml``
-(206, 208, and 209) and add them to, e.g., ``postcntrl_gfs_f00_two.xml``. Then, add the desired levels to the entries using a <level></level> tag. Users may choose to remove extraneous information, including ``post_avblfldidx`` and ``pname``. For example:
+   If the user wishes to generate model output at user-defined sigma levels for temperature, U, and V values on sigma surfaces, copy the entries from ``post_avblflds.xml``
+   (206, 208, and 209) and add them to, e.g., ``postcntrl_gfs_f00_two.xml``. Then, add the desired levels to the entries using a <level></level> tag. Users may choose to remove extraneous information, including ``post_avblfldidx`` and ``pname``. For example:
 
    .. code-block:: console
 
@@ -127,17 +127,22 @@ If the user wishes to generate model output at user-defined sigma levels for tem
    .. code-block:: console
 
       cd UPP/parm
+      # Global/GFS
       /usr/bin/perl PostXMLPreprocessor.pl gfs/postcntrl_gfs_f00_two.xml
       post_avblflds.xml gfs/postxconfig-NT-gfs-f00-two.txt
+      # OR Regional/RRFS
+      /usr/bin/perl PostXMLPreprocessor.pl rrfs/rrfs_postcntrl.xml post_avblflds.xml 
+      rrfs/postxconfig-NT-rrfs.txt
+
 
 .. note::
    ``PostXMLPreprocessor.pl`` must be run from the ``parm`` directory or it will produce an error. 
 
 4. Modify source code
 
-By default, only certain sigma levels are outputted. These levels are defined in `SET_LVLSXML.f <https://github.com/NOAA-EMC/UPP/blob/develop/sorc/ncep_post.fd/SET_LVLSXML.f>`_ using the ASIGO1 array. Users must review these levels to confirm comatibility with their requirements. If deafult sigma levels are insufficient users must modify ``SET_LVLSXML.f`` to include your desired sigma levels.
+   By default, only certain sigma levels are outputted. These levels are defined in `SET_LVLSXML.f <https://github.com/NOAA-EMC/UPP/blob/develop/sorc/ncep_post.fd/SET_LVLSXML.f>`_ using the ASIGO1 array. Users must review these levels to confirm compatibility with their requirements. If default sigma levels are insufficient, users must modify ``SET_LVLSXML.f`` to include your desired sigma levels.
 
-For example in ``UPP/sorc/ncep_post.fd/SET_LVLSXML.f`` set:
+   For example in ``UPP/sorc/ncep_post.fd/SET_LVLSXML.f`` set:
 
    .. code-block:: console
 
@@ -171,7 +176,7 @@ For example in ``UPP/sorc/ncep_post.fd/SET_LVLSXML.f`` set:
       cd UPP/tests
       ./compile_upp.sh
 
-This will generate the UPP executable in the ``UPP/exec`` directory
+   This will generate the UPP executable in the ``UPP/exec`` directory
 
 6. Create a post-processing output directory:
 
@@ -193,7 +198,7 @@ This will generate the UPP executable in the ``UPP/exec`` directory
 
 8. Modifying the script
 
-Users will need to edit directory paths and start date for the experiment. It may also be necessary to modify the run command, model type, and I/O file formats. For example:
+   Users will need to edit directory paths and start date for the experiment. It may also be necessary to modify the run command, model type, and I/O file formats. For example:
 
    .. code-block:: console
 
@@ -226,6 +231,53 @@ Users will need to edit directory paths and start date for the experiment. It ma
       # The number of subdomains in the x-direction (set to >=2 for 2d decomposition)
       export numx=1
       ...
+
+.. note::
+   The UPP expects ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files for the GFS model, and it expects ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files for the LAM model. 
+
+9. For regional (LAM) post-processing only
+   
+   Regional/LAM post-processing requires satellite files, which can be downloaded from the UPP repository:
+
+   .. code-block:: console
+
+      mkdir crtm && cd crtm
+      wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v11.0.0/fix.tar.gz
+      tar -xzf fix.tar.gz
+
+   Make sure to adjust the CRTMDIR path in run_upp to point to the location of these files.
+
+10. Run the script:
+
+   .. code-block:: console
+
+      ./run_upp -c <compiler> -m <hercules>
+
+   Users can add the ``-v`` option to see more output
+   Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
+
+11. Checking output:
+   
+   To view information about a file, use the wgrib2 utility. Users may need to load the wgrib2 module first (e.g., via ``module load wgrib2``) For example, to see summary information from ``GFSPRS.000``, run: 
+
+   .. code-block:: console
+
+      wgrib2 -s GFSPRS.000
+
+   For more detailed information, use the ``-v`` flag instead, but note that this is computationally intensive and may require allocating and using a compute node on some systems.
+
+   To see information about a specific variable, run:
+
+   .. code-block:: console
+
+      wgrib2 GFSPRS.000 -match ":0.995 sigma level:"
+   
+   To obtain statistics for a specific variable, use the ``-stats`` flag. To print the values of the variables, use the ``-text`` flag along with the name of a file where the values can be printed:
+
+   .. code-block:: console
+
+      wgrib2 GFSPRS.000 -match ":UGRD:0.995 sigma level:" -stats
+      wgrib2 GFSPRS.000 -match ":UGRD:0.995 sigma level:" -text gfsprs.000.txt
 
 .. _run-script-overview:
 
