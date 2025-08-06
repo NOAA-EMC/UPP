@@ -375,6 +375,9 @@
       allocate(w_mean(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(refd_max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(prate_max(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(max_prate_1min(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(max_prate_5min(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(max_prate_10min(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(fprate_max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(up_heli_max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(up_heli_max16(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -396,6 +399,9 @@
           w_dn_max(i,j)=spval
           w_mean(i,j)=spval
           refd_max(i,j)=spval
+          max_prate_1min(i,j)=spval
+          max_prate_5min(i,j)=spval
+          max_prate_10min(i,j)=spval
           prate_max(i,j)=spval
           fprate_max(i,j)=spval
           up_heli_max(i,j)=spval
@@ -468,6 +474,7 @@
           enddo
         enddo
       enddo
+      allocate(MAX_COMPREF(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(REFC_10CM(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(REF1KM_10CM(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(REF4KM_10CM(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -475,6 +482,7 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
+          MAX_COMPREF(i,j)=spval
           REFC_10CM(i,j)=spval
           REF1KM_10CM(i,j)=spval
           REF4KM_10CM(i,j)=spval
