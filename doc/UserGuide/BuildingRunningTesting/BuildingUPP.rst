@@ -87,8 +87,11 @@ Move to the directory with the build script and build the UPP.
    ``-DCMAKE_BUILD_TYPE=RELWITHDEBINFO``, which gives the ``-g``, but keeps the ``-O2`` optimization
    for the Fortran compilation.
 
+Post-processing CRTM Files (optional)
+=======================================
+
 Move back to the top-level UPP directory and create a directory where the CRTM fix files will be unpacked. Download the fix files from the GitHub `release page
-<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v11.0.0>`__ or use the ``wget`` command. Unpack the tar file.
+<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v11.0.0>`_ or use the ``wget`` command. Unpack the tar file.
 
 .. code-block:: console
 
@@ -96,6 +99,8 @@ Move back to the top-level UPP directory and create a directory where the CRTM f
     mkdir crtm && cd crtm
     wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v11.0.0/fix.tar.gz
     tar -xzf fix.tar.gz
+
+.. COMMENT: Not sure this works anymore. Need to verify. 
 
 .. note::
    To make a clean build, simply remove both the ``tests/build`` and ``tests/install`` directories and the

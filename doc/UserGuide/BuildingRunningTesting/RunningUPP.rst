@@ -9,25 +9,19 @@
 Running UPP Stand-Alone
 ***********************
 
-A script (``run_upp``) for running the UPP package is now fetched via ``wget``
+A script (``run_upp``) for running the UPP can be fetched via ``wget``: 
 
 :underline:`Before running the script, perform the following instructions:`
 
-1. ``cd`` to your ``DOMAINPATH`` directory. This is the top working directory for the forecast run.
+#. ``cd`` to your ``TOP_DIR`` directory. This is the top-level working directory for your experiment.
 
-2. Make a directory to put the UPP results in.
+#. Create a directory to store the UPP results.
 
    .. code-block:: console
 
        mkdir postprd
 
-3. Make a directory for staging a copy of the desired control file.
-
-   .. code-block:: console
-
-       mkdir parm
-
-4. Optional: If desired, edit the control XML file(s) in ``/UPP/parm`` to reflect the fields
+#. Optional: If desired, edit an appropriate control XML file in ``/UPP/parm`` to reflect the fields
    and levels you want UPP to output. It is recommended that you make copies of the original
    beforehand.
 
@@ -38,7 +32,7 @@ A script (``run_upp``) for running the UPP package is now fetched via ``wget``
    Remake the flat text file(s) following the steps in the "Control File: Creating the Flat Text File"
    section.
 
-5. Copy the flat text file(s) to the ``/parm`` directory in your ``DOMAINPATH``. These are the files
+#. Copy the flat text file(s) to the ``/parm`` directory in your ``DOMAINPATH``. These are the files
    that UPP reads directly.
 
    | **GFS text files**: ``postxconfig-NT-GFS-F00.txt`` (0-hour lead time) and
