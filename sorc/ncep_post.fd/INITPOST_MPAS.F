@@ -77,7 +77,7 @@
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib,           &
               prec_acc_dt1, submodelname
       use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,            &
-              p1000, pi, rtd, lheat, dtr, erad
+              p1000, pi, rtd, lheat, dtr, erad, h1m5, d001
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
               qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
@@ -256,9 +256,9 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
          if(dum3d(i,j,l)<spval) then
-            t ( i, j, l ) = dum3d ( i, j, l ) + 300.
+            T ( i, j, l ) = dum3d ( i, j, l ) + 300.
          else
-            t ( i, j, l ) = spval
+            T ( i, j, l ) = spval
          endif
 ! JSK (2 Aug 2024): The VarName 'T' is the perturbation potential
 ! temperature; the addition of 300 K yields the full potential
@@ -354,37 +354,42 @@
       !print*,'finish reading mixing ratio'
 !      if(jj>= jsta .and. jj<=jend)print*,'sample Q= ',Q(ii,jj,ll)
 
-! DCD 4/3/13
-! previously initialized PMID from sum of base-state (PB) and
-! perturbation (P) pressure now initializing PMID from
-! hydrostatic pressure (P_HYD), motivated particularly by 0h HRRR
-!      VarName='PB'
+! Use the model-state hydrostatic pressure (P_HYD) to assign the
+! mid-layer pressure array (PMID). Prior to Apr 2013 (in INITPOST),
+! PMID was obtained from the sum of base-state pressure (PB) and
+! perturbation pressure (P). Experience with 0-h HRRR fields motivated
+! the use of hydrostatic pressure.
+! --J Kenyon (6 Aug 2025): revising comments inherited from INITPOST.F
       VarName='P_HYD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-!      VarName='P'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D2,        &
-!        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-           if(dum3d(i,j,l)<spval) then
-!            PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
-            PMID(I,J,L)=DUM3D(I,J,L)
-! now that I have P, convert theta to t
-            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
-! now that I have T,q,P  compute omega from wh
-             if(abs(t( i, j, l ))>1.0e-3)                              &
-              omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/                     &
-                              (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
+      do L = 1, lm
+       do J = jsta_2l, jend_2u
+        do I = 1, im
+           if(DUM3D(I,J,L)<spval) then
+            PMID(I,J,L) = DUM3D(I,J,L)
+            ! Also, within these loops, use PMID to:
+            ! 1) Transform the "T" array from potential temperature (theta)
+            !    to ordinary temperature
+            T(I,J,L) = T(I,J,L)*(PMID(I,J,L)*H1M5)**CAPA
+            ! 2) Obtain omega from w (where omega ~= -rho * g * w);
+            !    see (for example) "An Introduction to Dynamic
+            !    Meteorology" (Holton, 4th edition),
+            !    section 3.5 ("Vertical Motion"), particularly
+            !    Eq. 3.38
+            if(abs(T(I,J,L))>D001) &
+              OMGA(I,J,L) = -WH(I,J,L)*PMID(I,J,L)*G/ &
+                            (RD*T(I,J,L)*(1.+D608*Q(I,J,L)))
+            !  --J Kenyon (description added 6 Aug 2025)
            else
             PMID(I,J,L) = spval
-            t(i,j,l) = spval
-            omga(i,j,l) = spval
+            T(I,J,L) = spval
+            OMGA(I,J,L) = spval
            endif
         end do
        end do
       end do
+
 !tgs - 6 June 2012 - added check on monotonic PMID
       do l = 2, lm-1
         ll=lm-l+1
