@@ -76,7 +76,7 @@
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,         &
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib,           &
               prec_acc_dt1, submodelname
-      use params_mod, only: capa, g, rd, rog, d608, tfrz, ad05, cft0, stbol,       &
+      use params_mod, only: capa, g, rd, rog, d608, tfrz, stbol,                   &
               p1000, pi, rtd, lheat, dtr, erad, h1m5, d01, d001
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
               qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
@@ -116,13 +116,11 @@
       INTEGER IDUMMY ( IM, JM )
       REAL,allocatable ::  DUM3D ( :, :, : )
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
-        real, allocatable::  pvapor(:,:)
-        real, allocatable::  pvapor_orig(:,:)      
  
       integer js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,          &
               ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,         &
               idxvald,NSRFC , lflip, k
-      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO
+      real DZ,TSPH,TMP,DUMCST,TLMH
       real t2,th2,x2m,p2m,tsk, fact, temp
       real LAT
 
@@ -778,8 +776,6 @@
       ENDDO
 ! Done with geopotential height of model interfacial levels
 
-      IF(MODELNAME == 'RAPR')THEN
-
       VarName='PSFC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -796,108 +792,6 @@
         ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
       ENDDO
       ENDDO
-
-      ELSE
-!!!!!!!!!!!!!
-! Pyle's and Chuang's fixes for ARW SLP
-
-        allocate(pvapor(IM,jsta_2l:jend_2u))
-        allocate(pvapor_orig(IM,jsta_2l:jend_2u))
-        DO J=jsta,jend
-        DO I=1,IM
-
-
-        pvapor(I,J)=0.
-       do L=1,LM
-       dz=ZINT(I,J,L)-ZINT(I,J,L+1)
-       rho=PMID(I,J,L)/(RD*T(I,J,L))
-
-
-        if (L <= LM-1) then
-        QMEAN=0.5*(Q(I,J,L)+Q(I,J,L+1))
-        else
-        QMEAN=Q(I,J,L)
-        endif
-
-
-       pvapor(I,J)=pvapor(I,J)+G*rho*dz*QMEAN
-       enddo
-
-! test elim
-!       pvapor(I,J)=0.
-
-
-        pvapor_orig(I,J)=pvapor(I,J)
-
-
-      ENDDO
-      ENDDO
-
-      do L=1,405
-        call exch(pvapor(1,jsta_2l))
-        do J=JSTA_M,JEND_M
-        do I=2,IM-1
-
-        pvapornew=AD05*(4.*(pvapor(I-1,J)+pvapor(I+1,J)                  &  
-                        +pvapor(I,J-1)+pvapor(I,J+1))                    &
-                        +pvapor(I-1,J-1)+pvapor(I+1,J-1)                 &
-                        +pvapor(I-1,J+1)+pvapor(I+1,J+1))                &
-                        -CFT0*pvapor(I,J)
-
-        pvapor(I,J)=pvapornew
-
-        enddo
-        enddo
-        enddo   ! iteration loop
-
-! southern boundary
-        if (JS == 1) then
-        J=1
-        do I=2,IM-1
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I,J+1)-pvapor_orig(I,J+1))
-        enddo
-        endif
-
-! northern boundary
-
-        if (JE == JM) then
-        J=JM
-        do I=2,IM-1
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I,J-1)-pvapor_orig(I,J-1))
-        enddo
-        endif
-
-! western boundary
-        I=1
-        do J=JS,JE
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I+1,J)-pvapor_orig(I+1,J))
-        enddo
-
-! eastern boundary
-        I=IM
-        do J=JS,JE
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I-1,J)-pvapor_orig(I-1,J))
-        enddo
-
-      DO J=Jsta,jend
-      DO I=1,IM
-              PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
-! KRF - check surface pressure for monotonic correctness
-
-         if((PINT(I,J,lm) - PINT(I,J,LM+1))>=0. ) then
-            ! write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
-            ! write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM), PINT(I,J,LM+1), PMID(I,J,LM)
-            PINT(I,J,LM+1) = PINT(I,J,LM)*1.001
-            ! write(*,*) 'after adjustment-i,j,lm+1 PINT ', i,j,lm+1, PINT(I,J,LM+1)
-         endif
-         ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
-      ENDDO
-      ENDDO
-
-        deallocate(pvapor)
-        deallocate(pvapor_orig)
-
-      ENDIF  !  IF(MODELNAME == 'RAPR')THEN
 
 !-- Derive / assign geopotential heights using the hysometric equation
       IF(MODELNAME == 'RAPR')THEN
