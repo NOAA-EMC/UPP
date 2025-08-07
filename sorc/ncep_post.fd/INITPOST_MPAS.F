@@ -830,11 +830,11 @@
            DUMMY2(I,J)=DUMMY(I,J)+HTM(I,J,L)*ROG*T(I,J,L)*(Q(I,J,L)*D608+1.0)* &
                        (ALPINT(I,J,L+1)-ALPINT(I,J,L))
 
-           ! Compute/store the difference between model-state and
-           ! hypsometric-derived heights (for printing below)
+           ! Compute/store the difference between the hypsometric-derived
+           ! heights and the model-state heights (for printing below)
            DUM3D(I,J,L)=DUMMY2(I,J)-ZINT(I,J,L)
 
-           ! Now replace model-state heights with hypsometric heights
+           ! Now replace (overwrite) the model-state heights with the hypsometric heights
            ZINT(I,J,L)=DUMMY2(I,J)
 
            ! Lastly, update DUMMY with the value of DUMMY2, then repeat
