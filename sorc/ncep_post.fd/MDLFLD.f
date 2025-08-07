@@ -63,6 +63,7 @@
 !!   24-02-20 | J Kenyon | Apply the PBLHGUST-related calculations to RRFS
 !!   24-04-23 | E James| Adding smoke emissions (ebb) from RRFS
 !!   24-10-07 | H Lin  | Change inputs for gtg_algo from averaged (sfcshx, sfclhx) to instantaenous (twbs, qwbs)
+!!   25-07-15 | J Duda | Read/process hourly-maximum composite reflectivity
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:

@@ -55,6 +55,7 @@
 !> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
 !> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
 !> 2024-08-26 | K Asmar    | Modify max winds at 10m agl for UFS time buckets
+!> 2025-07-15 | J Duda     | Read/process sub-hourly average precip rates from MPAS(SIT) - also turned off IGET(244) entry because it is not used and duplicates MAXREFC in MDLFLD.f
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
