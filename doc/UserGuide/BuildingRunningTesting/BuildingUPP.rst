@@ -6,7 +6,7 @@
 .. _building-upp:
 
 *************************
-Building UPP Stand-Alone
+Building UPP Standalone
 *************************
 
 The UPP uses a CMake-based build system to integrate all the required components for building the UPP.
@@ -85,8 +85,9 @@ Move to the directory with the build script and build the UPP.
    ``-DCMAKE_BUILD_TYPE=RELWITHDEBINFO``, which gives the ``-g``, but keeps the ``-O2`` optimization
    for the Fortran compilation.
 
+---------------------------------------
 Post-processing CRTM Files (optional)
-=======================================
+---------------------------------------
 
 Move back to the top-level UPP directory and create a directory where the CRTM fix files will be unpacked. Download the fix files from the GitHub `release page
 <https://github.com/NOAA-EMC/UPP/releases/tag/upp_v11.0.0>`_ or use the ``wget`` command. Unpack the tar file.
