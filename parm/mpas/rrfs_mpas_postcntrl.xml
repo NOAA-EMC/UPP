@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <postxml>
     <paramset>
-    <datset>POSTTWO</datset>
+    <datset>MPASTWO</datset>
     <grid_num>4</grid_num>
     <sub_center>ncep_emc</sub_center>
     <version_no>v2003</version_no>
@@ -348,6 +348,26 @@
        <param>
            <shortname>INST_PRATE_ON_SURFACE</shortname>
            <scale>3.0</scale>
+       </param>
+
+       <param>
+           <shortname>MAX_PRATE_ON_SURFACE</shortname>
+           <scale>3.0</scale>
+       </param>
+          
+       <param>
+          <shortname>MAX_PRATE_1MIN_ON_SURFACE</shortname>
+          <scale>3.0</scale>
+       </param>
+       
+       <param>
+          <shortname>MAX_PRATE_5MIN_ON_SURFACE</shortname>
+          <scale>3.0</scale>
+       </param>
+
+       <param>
+          <shortname>MAX_PRATE_10MIN_ON_SURFACE</shortname>
+          <scale>3.0</scale>
        </param>
 
        <param>
@@ -849,10 +869,17 @@
            <scale>6.0</scale>
        </param>
 
+       <param>
+           <shortname>MAX_REFC_ON_ENTIRE_ATMOS</shortname>
+           <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+           <table_info>NCEP</table_info>
+           <scale>-4.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
-    <datset>POSTPRS</datset>
+    <datset>MPASPRS</datset>
     <grid_num>4</grid_num>
     <sub_center>ncep_emc</sub_center>
     <version_no>v2003</version_no>
@@ -1003,7 +1030,7 @@
     </paramset>
 
     <paramset>
-    <datset>POSTNAT</datset>
+    <datset>MPASNAT</datset>
     <grid_num>4</grid_num>
     <sub_center>ncep_emc</sub_center>
     <version_no>v2003</version_no>
