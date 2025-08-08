@@ -12,7 +12,7 @@ This documentation describes the steps required to generate UPP output for tempe
 Create a Working Directory
 ===========================
 
-Create and navigate into a top-level working directory. This directory will be referred to as ``${TOP_DIR}`` throughout the documentation.
+Create and navigate into a top-level working directory. This directory will be referred to as ``${TOP_DIR}`` throughout the tutorial.
 
 .. code-block:: console
 
@@ -59,20 +59,19 @@ Prepare Forecast Output
       RUN | control_p8                                        | - noaacloud                          | baseline |
       RUN | regional_control                                  |                                      | baseline |
 
-#. Save and exit:
-
-   .. code-block:: console
-
-      <ESC>
-      :wq
+#. Save and exit: Type ``esc`` and ``:wq``. Then hit ``Enter``/``Return``.
 
 #. Edit each test's output frequency by modifying the test files under ``ufs-weather-model/tests/tests``. For example, to output every three hours for 24 hours:
 
    .. code-block:: console
 
       export OUTPUT_FH='3 -1'
- 
-6. If you are not running on NOAA RDHPCS or do not have access to the ``stmp*`` disk space on those systems, alter the ``dprefix`` path in ``rt.sh`` to point to a directory (such as ``$TOP_DIR``) where you have write permissions. For example:
+
+   .. note:: 
+
+      ``'3 -1'`` means every 3 hours. The ``-1`` indicates that it is not a list of hours. For example, someone could choose to output an arbitrary list of hours like ``export OUTPUT_FH='0 4 5 7 12 16 19'``. 
+
+6. If you are not running on NOAA RDHPCS or do not have access to the ``stmp*`` disk space on those systems, alter the ``dprefix`` path for the machine you are running on in ``rt.sh`` to point to a directory (such as ``$TOP_DIR``) where you have write permissions. For example:
 
    .. code-block:: console
 
@@ -83,6 +82,8 @@ Prepare Forecast Output
    .. code-block:: console
 
       nohup ./rt.sh -e -k -a epic -l mytests.conf &
+   
+   See the UFS WM documentation for ``rt.sh`` :ref:`optional arguments <ufs-wm:cmd-line-opts>`. 
 
 
 UPP Procedures
@@ -93,27 +94,25 @@ UPP Procedures
 Clone the UPP
 --------------
 
-#. Clone the ``UPP`` into ``${TOP_DIR}``:
+Clone the ``UPP`` into ``${TOP_DIR}``:
 
-   .. code-block:: console
+.. code-block:: console
 
-      cd ${TOP_DIR}
-      git clone https://github.com/NOAA-EMC/UPP.git
-      cd UPP/parm
+   cd ${TOP_DIR}
+   git clone https://github.com/NOAA-EMC/UPP.git
+   cd UPP/parm
 
 .. _modify-xml:
 
 Modify ``postcntrl*.xml``
 --------------------------
 
-Modify the ``postcntrl*.xml`` file (optional):
-
-An XML :ref:`control file <control-file>` determines what fields and levels UPP will output. Control files for various operational models are located in the ``UPP/parm`` directory. The ``post_avblflds.xml`` file contains all fields that the UPP can output.
+An XML :ref:`control file <control-file>` determines what fields and levels the UPP will output. Control files for various operational models are located in the ``UPP/parm`` directory. The ``post_avblflds.xml`` file contains all fields that the UPP can currently output.
    
 Select a ``postcntrl*.xml`` file that is most relevant to your experiment. In this example, for a GFS experiment, navigate to ``UPP/parm/gfs`` and choose an XML from that directory to modify. 
 
 If the user wishes to generate model output at user-defined sigma levels for temperature, U, and V values on sigma surfaces, copy the entries from ``post_avblflds.xml``
-   (206, 208, and 209) from ``post_avblflds.xml``, and add them to, e.g., ``postcntrl_gfs_f00_two.xml``. Then, add the desired levels to the entries using a ``<level></level>`` tag. Users may choose to remove extraneous information, including ``post_avblfldidx`` and ``pname``. For example:
+(206, 208, and 209), and add them to, e.g., ``postcntrl_gfs_f00_two.xml``. Then, add the desired levels to the entries using a ``<level></level>`` tag. Users may choose to remove extraneous information, including ``post_avblfldidx`` and ``pname``. For example:
 
 .. code-block:: console
 
@@ -149,6 +148,8 @@ If the user wishes to generate model output at user-defined sigma levels for tem
 Generate the flat text file
 ----------------------------
 
+If the control file requires any modifications, the user must convert the modified XML file to a flat text file. The command below will run the Perl program ``parm/PostXMLPreprocessor.pl`` to generate the ``postxconfig*`` flat file:
+
    .. code-block:: console
 
       cd UPP/parm
@@ -161,6 +162,22 @@ Generate the flat text file
 
 .. note::
    ``PostXMLPreprocessor.pl`` must be run from the ``parm`` directory or it will produce an error. 
+
+.. attention:: 
+
+   On Ursa, the usual process for generating a new/updated ``postxconfig*.txt`` file is slightly different due to a missing XML module (see `Issue #1250 <https://github.com/NOAA-EMC/UPP/issues/1250>`_). The following workaround has been developed:
+
+   .. code-block:: console
+
+      wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/perl_venv_create.sh
+      chmod 755 perl_venv_create.sh
+      ./perl_venv_create.sh perl_venv
+      source perl_venv/bin/activate
+      cpanm XML::LibXML
+      cd /path/to/UPP
+      cd parm
+   
+   Then, run ``PostXMLPreprocessor.pl`` as described above. 
 
 .. _modify-sorc:
 
@@ -224,8 +241,8 @@ Prepare the post-processing working directory
       cd $TOP_DIR
       mkdir postprd
 
-.. note::
-   This directory can be created anywhere, but default settings assume that is named ``postprd`` and created inside ``${TOP_DIR}``.
+   .. note::
+      This directory can be created anywhere, but default settings assume that is named ``postprd`` and created inside ``${TOP_DIR}``.
 
 #. Download the UPP utility script for running standalone UPP and change the permissions:
 
@@ -274,9 +291,7 @@ Prepare the post-processing working directory
    .. note::
       The UPP expects ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files for the GFS model, and it expects ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files for the LAM model. 
 
-.. _lam-only:
-
-#. For regional (LAM) post-processing only
+#. For regional (LAM) post-processing only:
    
    Regional/LAM post-processing requires satellite files, which can be downloaded from the UPP repository:
 
@@ -301,8 +316,6 @@ Run UPP
 
    Users can add the ``-v`` option to see more output
    Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
-
-.. _check:
 
 #. Checking output:
    
