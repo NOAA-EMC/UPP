@@ -117,6 +117,9 @@ Glossary
    offline UPP
       Refers to cases where UPP is built standalone and run separately from the model.
 
+   PBL
+      Planetary Boundary Layer
+
    RAP
       `Rapid Refresh <https://rapidrefresh.noaa.gov/>`__. The continental-scale NOAA hourly-updated assimilation/modeling system operational at :term:`NCEP`. RAP covers North America and is comprised primarily of a numerical forecast model and an analysis/assimilation system to initialize that model. RAP is complemented by the higher-resolution 3km High-Resolution Rapid Refresh (:term:`HRRR`) model.
 
@@ -128,6 +131,9 @@ Glossary
 
    SDF
       Suite Definition File. An external file containing information about the construction of a physics suite. It describes the schemes that are called, in which order they are called, whether they are subcycled, and whether they are assembled into groups to be called together.
+
+   SLP
+      Sea-Level Pressure
 
    SRW
    Short-Range Weather Application
