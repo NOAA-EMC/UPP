@@ -161,6 +161,15 @@
     </param>
 
     <param>
+       <shortname>GFS_CISOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>200.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <scale_fact_fixed_sfc1>2 2 2 2 </scale_fact_fixed_sfc1>
        <level>0. 10. 40. 100.</level>
@@ -329,6 +338,36 @@
 
     <param>
        <shortname>AVE_DUVB_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_NDDSF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_VDDSF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_CSDLF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_CSDSF_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_CSUSF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
@@ -651,6 +690,12 @@
 
     <param>
        <shortname>APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>TMP_ON_HYBRID_LVL</shortname>
+       <level>1.</level>
        <scale>4.0</scale>
     </param>
 
