@@ -143,6 +143,27 @@ If the user wishes to generate model output at user-defined sigma levels for tem
       <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
    </param>
 
+.. _validate-xml:
+
+Validate the XML postcontrol file
+-----------------------------------
+
+After modifying the XML postcontrol file, users must validate the file to ensure it was formatted successfully:
+
+.. code-block:: console
+
+   cd UPP/parm
+   # For GFS/Global
+   xmllint --noout --schema EMC_POST_CTRL_Schema.xsd gfs/postcntrl_gfs_f00_two.xml
+   # For LAM/regional
+   xmllint --noout --schema EMC_POST_CTRL_Schema.xsd rrfs/rrfs_postcntrl.xml
+
+If the XML file is formatted correctly, it will print a message like:
+
+.. code-block:: console
+
+   gfs/postcntrl_gfs_f00_two.xml validates
+
 .. _gen-text:
 
 Generate the flat text file
