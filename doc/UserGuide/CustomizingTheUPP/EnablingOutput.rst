@@ -122,7 +122,7 @@ If the user wishes to generate model output at user-defined sigma levels for tem
       <pname>TMP</pname>
       <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
       <scale>4.0</scale>
-      <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
+      <level>0. 500. 1000. 1500. 2000. 2500. 3000. 3500. 4000. 4500. 5000. 5500. 6000. 6500. 7000. 7500. 8000. 8500. 9000. 9500. 10000.</level>
    </param>
 
    <param>
@@ -131,7 +131,7 @@ If the user wishes to generate model output at user-defined sigma levels for tem
       <pname>UGRD</pname>
       <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
       <scale>4.0</scale>
-      <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
+      <level>0. 500. 1000. 1500. 2000. 2500. 3000. 3500. 4000. 4500. 5000. 5500. 6000. 6500. 7000. 7500. 8000. 8500. 9000. 9500. 10000.</level>
    </param>
 
    <param>
@@ -140,7 +140,7 @@ If the user wishes to generate model output at user-defined sigma levels for tem
       <pname>VGRD</pname>
       <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
       <scale>4.0</scale>
-      <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
+      <level>0. 500. 1000. 1500. 2000. 2500. 3000. 3500. 4000. 4500. 5000. 5500. 6000. 6500. 7000. 7500. 8000. 8500. 9000. 9500. 10000.</level>
    </param>
 
 .. _validate-xml:
