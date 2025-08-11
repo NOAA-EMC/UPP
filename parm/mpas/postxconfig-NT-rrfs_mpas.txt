@@ -2,7 +2,7 @@
 23
 16
 155
-MPASTWO
+POSTTWO
 4
 ncep_emc
 v2003
@@ -6528,7 +6528,7 @@ entire_atmos_single_lyr
 ?
 ?
 ?
-MPASPRS
+POSTPRS
 4
 ncep_emc
 v2003
@@ -7216,7 +7216,7 @@ depth_bel_land_sfc
 ?
 ?
 ?
-MPASNAT
+POSTNAT
 4
 ncep_emc
 v2003
