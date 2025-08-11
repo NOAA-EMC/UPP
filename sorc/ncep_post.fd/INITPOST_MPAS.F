@@ -1655,7 +1655,8 @@ endif  ! 1==2
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
-        do i = 1, im             MAX_COMPREF( i, j ) = dummy ( i, j )
+        do i = 1, im
+            MAX_COMPREF( i, j ) = dummy ( i, j )
         end do
        end do
 
