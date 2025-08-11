@@ -81,13 +81,6 @@ It is recommended that the user refer to the ``run_upp`` script while reading th
    .. note::
       Forecast output should include ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files when running with ``model=GFS``, and it should include ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files when ``model=LAM``. 
 
-#. Specify the format for the input model files and output UPP files:
-
-   * ``inFormat``: Format of the model data ("netcdfpara")
-   * ``outFormat``: Format of output from UPP ("grib2")
-
-   .. COMMENT: Maybe we shouldn't list this, since it's set, and the user can't/shouldn't change it? ^
-
 #. Specify the forecast cycles to be post-processed:
 
    * ``startdate``: Forecast start date (YYYYMMDDHH)
