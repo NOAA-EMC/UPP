@@ -137,12 +137,11 @@
       ,V10MAX(:,:) &       !< Maximum hourly meridional (v-) wind speed at 10 meters above ground level
       ,u10h(:,:) &         !< Hourly zonal (u-) wind speed at 10 meters above ground level
       ,v10h(:,:) &         !< Hourly meridional (v-) wind speed at 10 meters above ground level
-      ,MAX_PRATE_1MIN(:,:) & !< history-interval maximum 1-minute average precipitation ra
-te    
-      ,MAX_PRATE_5MIN(:,:) & !< ditto for 5 minutes
+      ,MAX_PRATE_1MIN(:,:) &  !< history-interval maximum 1-minute average precipitation rate    
+      ,MAX_PRATE_5MIN(:,:) &  !< ditto for 5 minutes
       ,MAX_PRATE_10MIN(:,:) & !< ditto for 10 minutes
-      ,PRATE_MAX(:,:) &    !< Maximum precipitation rate in mm/h
-      ,FPRATE_MAX(:,:) &   !< Maximum frozen precipitation rate in mm/h
+      ,PRATE_MAX(:,:) &       !< Maximum precipitation rate in mm/h
+      ,FPRATE_MAX(:,:) &      !< Maximum frozen precipitation rate in mm/h
 ! GSD addition
       ,WSPD10MAX(:,:) &       !< Maximum hourly wind speed at 10 meters above ground level
       ,W_UP_MAX(:,:) &        !< Maximum hourly updraft velocity
