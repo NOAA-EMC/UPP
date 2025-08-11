@@ -175,11 +175,9 @@ If the control file requires any modifications, the user must convert the modifi
 
       cd UPP/parm
       # Global/GFS
-      /usr/bin/perl PostXMLPreprocessor.pl gfs/postcntrl_gfs_f00_two.xml
-      post_avblflds.xml gfs/postxconfig-NT-gfs-f00-two.txt
+      /usr/bin/perl PostXMLPreprocessor.pl gfs/postcntrl_gfs_f00_two.xml post_avblflds.xml gfs/postxconfig-NT-gfs-f00-two.txt
       # OR Regional/RRFS
-      /usr/bin/perl PostXMLPreprocessor.pl rrfs/rrfs_postcntrl.xml post_avblflds.xml 
-      rrfs/postxconfig-NT-rrfs.txt
+      /usr/bin/perl PostXMLPreprocessor.pl rrfs/rrfs_postcntrl.xml post_avblflds.xml rrfs/postxconfig-NT-rrfs.txt
 
 .. note::
    ``PostXMLPreprocessor.pl`` must be run from the ``parm`` directory or it will produce an error. 
