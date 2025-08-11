@@ -6,189 +6,31 @@
 .. _running-upp:
 
 ***********************
-Running UPP Stand-Alone
+Running UPP Standalone
 ***********************
 
-This section describes how to prepare model output, clone and build UPP, generate control files, and run UPP in a standalone environment using the provided ``run_upp`` script.
+This section describes how to run UPP in a standalone environment using the ``run_upp`` script. It assumes that users already have forecast model output available and that they have already :ref:`cloned and built the UPP <building-upp>`. For an example of how to generate forecast model output from the UFS WM, see :numref:`Section %s <prepare-forecast>` of the UPP tutorial, or refer to the :doc:`authoritative UFS WM documentation <ufs-wm:index>`. 
 
-Create a Working Directory
-===========================
+#. **Optional:** If desired, users may edit the control XML file(s) in ``UPP/parm`` to reflect the fields
+   and levels they want UPP to output. For an example of how to do this, see :numref:`Section %s <modify-xml>`. It is recommended that users make copies of the original XML file beforehand.
 
-Create and enter a top-level working directory. This directory will be referred to as ``TOP_DIR``.
+   * :term:`GFS` text files are located in ``UPP/parm/gfs`` and include ``postxconfig-NT-gfs-f00-two.txt`` (0-hour lead time) and ``postxconfig-NT-gfs-two.txt`` (all other lead times).
+   * :term:`LAM` text files are located in ``UPP/parm/rrfs`` and include ``postxconfig-NT-rrfs.txt``. 
 
-   .. code-block:: console
+   After modifying an XML, remake the corresponding flat text file(s) following the steps in :numref:`Section %s: Control File: Creating the Flat Text File <create_txt_file>` or :numref:`Section %s <modify-xml>`. 
 
-      mkdir wrk_dir
-      cd wrk_dir
+#. Navigate to your top-level working directory, which is referred to as ``${TOP_DIR}`` throughout the documentation. 
 
-Prepare Forecast Output
-========================
-
-1. The UPP requires forecast output as its input. In this example we will use output from a UFS WM forecast run:
+#. Create a directory to place the UPP results in: 
 
    .. code-block:: console
 
-      git clone --recursive https://github.com/ufs-community/ufs-weather-model.git
-      cd ufs-weather-model/tests
-
-2. Create a custom configuration file with the test or tests you want to run. 
-
-   .. code-block:: console
-
-      vi mytests.configuration
-      i
-
-.. note::
-   Users can check `rt.conf <https://github.com/ufs-community/ufs-weather-model/blob/develop/tests/rt.conf>`_ for a full lists of tests and select the ones they want to run.
-
-3. Paste the following lines, which compile and run two sample cases (``control_c48`` and ``control_p8``)
-
-   .. code-block:: console
-
-      COMPILE | atm_dyn32 | intel | -DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1,FV3_GFS_v16_gfdlmpv3,FV3_GFS_v17_p8_ugwpv1_tempo -D32BIT=ON | | fv3 |
-       RUN     | control_c48               |                                      | baseline |
-       RUN     | control_p8                | - noaacloud                          | baseline |
-
-4. Save and exit:
-
-   .. code-block:: console
-
-      <ESC>
-      :wq
-
-5. Edit each test's output frequency by modifying the test files under ``ufs-weather-model/tests/tests``. For example, to output every three hours for 24 hours:
-
-   .. code-block:: console
-
-      export OUTPUT_FH= `3 -1`
- 
-6. If you do not have access to the ``stmp`` disk space, you may need to alter the ``dprefix`` path for the machine you're running on in ``rt.sh``. For example:
-
-   .. code-block:: console
-
-      dprefix=${dprefix:-"/work2/noaa/epic/gpetro/orion/test-sigma/stmp"}.
-
-
-7. Run the forecasts tests:
-
-   .. code-block:: console
-
-      nohup ./rt.sh -e -k -a epic -l mytests.conf &
-
-UPP Procedures
-================
-
-1. Clone the ``UPP`` into the ``wrk_dir``:
-
-   .. code-block:: console
-
-      cd wrk_dir
-      git clone https://github.com/NOAA-EMC/UPP.git
-      cd UPP/parm
-
-2. Modifying the postcntrl*.xml file (optional):
-
-   Select a ``postcntrl*.xml`` file that is most relevant to your experiment. In this example, for a GFS experiment, navigate to ``GFS`` and choose an XML from that directory to modify. 
-
-   If the user wishes to generate model output at user-defined sigma levels for temperature, U, and V values on sigma surfaces, copy the entries from ``post_avblflds.xml``
-   (206, 208, and 209) and add them to, e.g., ``postcntrl_gfs_f00_two.xml``. Then, add the desired levels to the entries using a <level></level> tag. Users may choose to remove extraneous information, including ``post_avblfldidx`` and ``pname``. For example:
-
-   .. code-block:: console
-
-      <param>
-         <post_avblfldidx>206</post_avblfldidx>
-         <shortname>TMP_ON_SIGMA_LVLS</shortname>
-         <pname>TMP</pname>
-         <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-         <scale>4.0</scale>
-         <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
-      </param>
-
-      <param>
-         <post_avblfldidx>208</post_avblfldidx>
-         <shortname>UGRD_ON_SIGMA_LVLS</shortname>
-         <pname>UGRD</pname>
-         <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-         <scale>4.0</scale>
-         <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
-      </param>
-
-      <param>
-         <post_avblfldidx>209</post_avblfldidx>
-         <shortname>VGRD_ON_SIGMA_LVLS</shortname>
-         <pname>VGRD</pname>
-         <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-         <scale>4.0</scale>
-         <level>0.0000 0.0500 0.1000 0.1500 0.2000 0.2500 0.3000 0.3500 0.4000 0.4500 0.5000 0.5500 0.6000 0.6500 0.7000 0.7500 0.8000 0.8500 0.9000 0.9500 1.0000</level>
-      </param>
-
-3. Generate the flat text file:
-
-   .. code-block:: console
-
-      cd UPP/parm
-      # Global/GFS
-      /usr/bin/perl PostXMLPreprocessor.pl gfs/postcntrl_gfs_f00_two.xml
-      post_avblflds.xml gfs/postxconfig-NT-gfs-f00-two.txt
-      # OR Regional/RRFS
-      /usr/bin/perl PostXMLPreprocessor.pl rrfs/rrfs_postcntrl.xml post_avblflds.xml 
-      rrfs/postxconfig-NT-rrfs.txt
-
-
-.. note::
-   ``PostXMLPreprocessor.pl`` must be run from the ``parm`` directory or it will produce an error. 
-
-4. Modify source code
-
-   By default, only certain sigma levels are outputted. These levels are defined in `SET_LVLSXML.f <https://github.com/NOAA-EMC/UPP/blob/develop/sorc/ncep_post.fd/SET_LVLSXML.f>`_ using the ASIGO1 array. Users must review these levels to confirm compatibility with their requirements. If default sigma levels are insufficient, users must modify ``SET_LVLSXML.f`` to include your desired sigma levels.
-
-   For example in ``UPP/sorc/ncep_post.fd/SET_LVLSXML.f`` set:
-
-   .. code-block:: console
-
-      ELSE  ! SPECIFY SIGO
-         ASIGO1( 1)=   0.0000
-         ASIGO1( 2)=   0.0500
-         ASIGO1( 3)=   0.1000
-         ASIGO1( 4)=   0.1500
-         ASIGO1( 5)=   0.2000
-         ASIGO1( 6)=   0.2500
-         ASIGO1( 7)=   0.3000
-         ASIGO1( 8)=   0.3500
-         ASIGO1( 9)=   0.4000
-         ASIGO1(10)=   0.4500
-         ASIGO1(11)=   0.5000
-         ASIGO1(12)=   0.5500
-         ASIGO1(13)=   0.6000
-         ASIGO1(14)=   0.6500
-         ASIGO1(15)=   0.7000
-         ASIGO1(16)=   0.7500
-         ASIGO1(17)=   0.8000
-         ASIGO1(18)=   0.8500
-         ASIGO1(19)=   0.9000
-         ASIGO1(20)=   0.9500
-         ASIGO1(21)=   1.0000
-
-5. Build/Compile the UPP:
-
-   .. code-block:: console
-
-      cd UPP/tests
-      ./compile_upp.sh
-
-   This will generate the UPP executable in the ``UPP/exec`` directory
-
-6. Create a post-processing output directory:
-
-   .. code-block:: console
-
-      cd $TOP_DIR
+      cd ${TOP_DIR}
       mkdir postprd
 
-.. note::
-   This directory can be created anywhere but default settings assume that is named postprd and created inside $TOP_DIR
+   The UPP typically assumes that this directory will be named ``postprd``. 
 
-7. Download the UPP utility script for running standalone UPP and change the permissions:
+#. Download the UPP utility script for running standalone UPP, and change the permissions:
 
    .. code-block:: console
 
@@ -196,88 +38,15 @@ UPP Procedures
       wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/run_upp
       chmod 755 run_upp
 
-8. Modifying the script
-
-   Users will need to edit directory paths and start date for the experiment. It may also be necessary to modify the run command, model type, and I/O file formats. For example:
-
-   .. code-block:: console
-
-      ...
-      export TOP_DIR=/work2/noaa/epic/jsmith/hercules/test-sigma/
-      export POSTPRD_DIR=${TOP_DIR}/postprd
-      export UPP_HOME=${TOP_DIR}/UPP
-      export POSTEXEC=${UPP_HOME}/exec
-      export modelDataPath=${TOP_DIR}/control_p8_intel
-      export txtCntrlFile=${UPP_HOME}/parm/gfs/postxconfig-NT-gfs-f00-two.txt
-      export CRTMDIR=${UPP_HOME}/crtm/fix
-      # Set date/time information
-      export startdate=2021032206
-      export fhr=00
-      export lastfhr=06
-      export incrementhr=03
-      # Specify model ("GFS" or "LAM" in upper case)
-      export model="GFS"
-      # Set input format from model and ouput format from UPP
-      export inFormat="netcdfpara"
-      export outFormat="grib2"
-      # Set run command: 
-      # Single processor command example
-      export RUN_COMMAND="${POSTEXEC}/upp.x "
-
-      #MPI sample command
-      # "-n 4" can be changed to a different number of tasks. 
-      export RUN_COMMAND="srun -A epic -n 4 ${POSTEXEC}/upp.x "
-
-      # The number of subdomains in the x-direction (set to >=2 for 2d decomposition)
-      export numx=1
-      ...
-
-.. note::
-   The UPP expects ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files for the GFS model, and it expects ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files for the LAM model. 
-
-9. For regional (LAM) post-processing only
-   
-   Regional/LAM post-processing requires satellite files, which can be downloaded from the UPP repository:
+#. Edit the run script as outlined below in :numref:`Section %s: Run Script Overview <run-script-overview>`. Once these directories are set
+   up, and the edits outlined below are complete, the script can be run from the ``postprd`` directory: 
 
    .. code-block:: console
 
-      mkdir crtm && cd crtm
-      wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v11.0.0/fix.tar.gz
-      tar -xzf fix.tar.gz
+      ./run_upp -c <compiler> -m <machine>
 
-   Make sure to adjust the CRTMDIR path in run_upp to point to the location of these files.
-
-10. Run the script:
-
-   .. code-block:: console
-
-      ./run_upp -c <compiler> -m <hercules>
-
-   Users can add the ``-v`` option to see more output
-   Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
-
-11. Checking output:
-   
-   To view information about a file, use the wgrib2 utility. Users may need to load the wgrib2 module first (e.g., via ``module load wgrib2``) For example, to see summary information from ``GFSPRS.000``, run: 
-
-   .. code-block:: console
-
-      wgrib2 -s GFSPRS.000
-
-   For more detailed information, use the ``-v`` flag instead, but note that this is computationally intensive and may require allocating and using a compute node on some systems.
-
-   To see information about a specific variable, run:
-
-   .. code-block:: console
-
-      wgrib2 GFSPRS.000 -match ":0.995 sigma level:"
-   
-   To obtain statistics for a specific variable, use the ``-stats`` flag. To print the values of the variables, use the ``-text`` flag along with the name of a file where the values can be printed:
-
-   .. code-block:: console
-
-      wgrib2 GFSPRS.000 -match ":UGRD:0.995 sigma level:" -stats
-      wgrib2 GFSPRS.000 -match ":UGRD:0.995 sigma level:" -text gfsprs.000.txt
+   .. note::
+      The UPP is supported on Ursa, Orion, and Hercules NOAA :term:`RDHPCS`. It will likely run on other machines, but users may have to create a modulefile for their machine and/or modify the ``run_upp`` script if loading the ``upp_common`` module doesn't work.
 
 .. _run-script-overview:
 
@@ -285,71 +54,66 @@ UPP Procedures
 Run Script Overview
 ===================
 
-.. note::
-   It is recommended that the user refer to the ``run_upp`` script while reading this overview. All user-modified variables are contained at the top of the ``run_upp`` script in the user-edit section, along with a brief description. Descriptions below follow the ``run_upp`` script.
+It is recommended that the user refer to the ``run_upp`` script while reading this overview. All user-modified variables are contained at the top of the ``run_upp`` script in the user-edit section, along with a brief description. Descriptions below follow the ``run_upp`` script.
 
-1. Set up basic path variables:
+#. Set up basic path variables:
 
    * ``TOP_DIR``: Top level directory for building and running UPP
-   * ``DOMAINPATH``: Working directory for this run
+   * ``POSTPRD_DIR``: Working directory for this run
    * ``UPP_HOME``: Location of the **UPP** directory
    * ``POSTEXEC``: Location of the **UPP** executable
-   * ``modelDataPath``: Location of the model output data files to be processed by the UPP
-   * ``txtCntrlFile``: Name and location of the flat text file that lists desired fields for output.
+   * ``modelDataPath``: Location of the model output files to be processed by the UPP
+   * ``txtCntrlFile``: Full path to the flat text file that lists desired fields for output. 
+      
+      * :term:`GFS` text files are located in ``UPP/parm/gfs`` and include ``postxconfig-NT-gfs-f00-two.txt`` (0-hour lead time) and ``postxconfig-NT-gfs-two.txt`` (all other lead times).
+      * :term:`LAM` text files are located in ``UPP/parm/rrfs`` and include ``postxconfig-NT-rrfs.txt``. 
+
+   * ``CRTMDIR``: Path to simulated synthetic satellite files (required for the LAM implementation)
 
    .. note::
-      For FV3, the scripts are configured such that UPP expects the flat text file to be in ``/parm``,
-      and the postprocessor working directory to be called ``/postprd``, all under ``DOMAINPATH``.
+      For FV3, the scripts are configured such that UPP expects the flat text file to be in ``parm``,
+      and the postprocessor working directory to be called ``postprd``.
       This setup is for user convenience to have a script ready to run; paths may be modified, but be
       sure to check the run script to make sure settings are correct.
 
-2. Specify dynamical core being run:
+#. Specify model configuration being run in the ``model`` field. Valid options: Global Forecast System (``GFS``) or Limited Area Model (``LAM``). 
 
-   * ``model``: Which model is used? ("GFS" or "LAM" - Limited Area Model)
+   .. note::
+      Forecast output should include ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files when running with ``model=GFS``, and it should include ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files when ``model=LAM``. 
 
-3. Specify the format for the input model files and output UPP files:
+#. Specify the format for the input model files and output UPP files:
 
    * ``inFormat``: Format of the model data ("netcdfpara")
    * ``outFormat``: Format of output from UPP ("grib2")
 
-4. Specify the forecast cycles to be post-processed:
+   .. COMMENT: Maybe we shouldn't list this, since it's set, and the user can't/shouldn't change it? ^
+
+#. Specify the forecast cycles to be post-processed:
 
    * ``startdate``: Forecast start date (YYYYMMDDHH)
    * ``fhr``: First forecast hour to be post-processed
    * ``lastfhr``: Last forecast hour to be post-processed
-   * ``incrementhr``: Increment (in hours) between forecast files
-       
-   .. attention::
-         
-      Do not set ``incrementhr`` to 0 or the script will loop continuously! 
+   * ``incrementhr``: Increment (in hours) between forecast files (cannot be set to zero)
 
-5. Set/uncomment the run command for your system (e.g., ``mpirun``).
+#. Set/uncomment the run command (``RUN_COMMAND``) for your system:
 
-   * ``RUN_COMMAND``: System run commands
+   * The default execution command in the distributed scripts is for a single processor: ``./upp.x > upp.${fhr}.out 2>&1``
 
-       |     - The default execution command in the distributed scripts is for a single processor:
-       |       ``./upp.x > upp.${fhr}.out 2>&1``
+   * To run UPP using :term:`MPI` (dmpar compilation), the command line should be:
 
-       |     - To run UPP using :term:`MPI` (dmpar compilation), the command line should be:
-       |       >> LINUX-MPI systems: ``mpirun -np N upp.x > outpost 2>&1``
-       |          (Note: On some systems a host file also needs to be specified:
-                  ``-machinefile "host"``)
-       |       >> IBM: ``mpirun.lsf upp.x < itag > outpost``
-       |       >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
+      | >> NOAA :term:`RDHPCS` with Slurm-based job scheduler: ``srun -A <account> -n 4 ${POSTEXEC}/upp.x``
+      |    (Note: ``<account>`` should be replaced with the actual name of an account where the user can charge computational resources.)
+      | >> LINUX-MPI systems: ``mpirun -np N upp.x > outpost 2>&1``
+      |    (Note: On some systems a host file also needs to be specified: ``-machinefile "host"``)
+      | >> IBM: ``mpirun.lsf upp.x < itag > outpost``
+      | >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
 
-6. Set the value for ``numx``.
+#. Set the value for ``numx``, which is the number of subdomains in the x-direction used for decomposition.
 
-   * ``numx``: The number of subdomains in the x-direction used for decomposition.
+   * For 1D decomposition, set numx=1 (default)
+   * For 2D decomposition, set numx>1
 
-       |     - For 1D decomposition, set numx=1 (default)
-       |     - For 2D decomposition, set numx>1
-
-7. Set naming convention for prefix and extension of output file name.
-   
-   * ``comsp`` is the initial string of the output file name. By default, it is not set, and the prefix of the output file will be the string set in the ``postcntrl.xml`` file ``DATSET`` parameter. If set, it will concatenate the setting to the front of the string specified in the XML file ``DATSET`` parameter.
-   * ``tmmark`` is used for the file extension (in ``run_upp``, ``tmmark=tm00``; if not set, it is set to ``.GrbF``)
-
-Upon a successful run, UPP will generate output files for each forecast hour in the ``/postprd`` directory.
+Upon a successful run, UPP will generate output files for each forecast hour in ``${POSTPRD_DIR}``.
 
 When executed with the provided run script, UPP provides log files in the post-processor working directory named
 ``upp.fHHH.out``, where ``HHH`` is the forecast hour. These log files may be consulted for further runtime information in the event of an error.
