@@ -94,7 +94,7 @@ It is recommended that the user refer to the ``run_upp`` script while reading th
 
    * The default execution command in the distributed scripts is for a single processor: ``./upp.x > upp.${fhr}.out 2>&1``
 
-   * To run UPP using :term:`MPI` (dmpar compilation), the command line should be:
+   * To run UPP using :term:`MPI` (*dmpar* compilation), the command line should be:
 
       | >> NOAA :term:`RDHPCS` with Slurm-based job scheduler: ``srun -A <account> -n 4 ${POSTEXEC}/upp.x``
       |    (Note: ``<account>`` should be replaced with the actual name of an account where the user can charge computational resources.)
