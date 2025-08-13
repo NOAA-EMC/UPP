@@ -44,6 +44,8 @@ This section describes how to run UPP in a standalone environment using the ``ru
    .. code-block:: console
 
       ./run_upp -c <compiler> -m <machine>
+      
+   where ``<compiler>`` is "intel" or "intelllvm" and ``<machine>`` is a supported machine (e.g., "hercules", "orion", or "ursa". 
 
    .. note::
       The UPP is supported on Ursa, Orion, and Hercules NOAA :term:`RDHPCS`. It will likely run on other machines, but users may have to create a modulefile for their machine and/or modify the ``run_upp`` script if loading the ``upp_common`` module doesn't work.
