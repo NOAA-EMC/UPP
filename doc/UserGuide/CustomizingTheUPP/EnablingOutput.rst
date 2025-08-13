@@ -77,7 +77,7 @@ Prepare Forecast Output
 
    .. note::
 
-      For users not running on NOAA :term:`RDHPCS`, see the UFS WM documentation for :ref:`building the Weather Model on other systems <ufs-wm:build-wm>`.
+      Users not running on NOAA :term:`RDHPCS` will need to modify some additional files. See the :ref:`UFS WM regression testing documentation <ufs-wm:build-wm>` for more on how to do this.
 
 #. Run the forecast tests:
 
