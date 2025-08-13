@@ -9,7 +9,7 @@
 Running UPP Standalone
 ***********************
 
-This section describes how to run UPP in a standalone environment using the ``run_upp`` script. It assumes that users already have forecast model output available and that they have already :ref:`cloned and built the UPP <building-upp>`. For an example of how to generate forecast model output from the UFS WM, see :numref:`Section %s <prepare-forecast>` of the UPP tutorial, or refer to the :doc:`authoritative UFS WM documentation <ufs-wm:index>`. 
+This section describes how to run UPP in a standalone environment using the ``run_upp`` script. It assumes that users already have forecast model output available and that they have already :ref:`cloned and built the UPP <building-upp>`. For an example of how to generate forecast model output from the UFS WM, see :numref:`Section %s <prepare-forecast>` of the UPP tutorial, or refer to the :doc:`authoritative UFS WM documentation <ufs-wm:index>`. Before running the script, perform the following instructions: 
 
 #. **Optional:** If desired, users may edit the control XML file(s) in ``UPP/parm`` to reflect the fields
    and levels they want UPP to output. For an example of how to do this, see :numref:`Section %s <modify-xml>`. It is recommended that users make copies of the original XML file beforehand.
