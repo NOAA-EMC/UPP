@@ -309,7 +309,7 @@ Prepare the post-processing working directory
       export numx=1
       ...
 
-.. include:: ../../doc-snippets/ExpectedFiles.rst
+.. include:: ../doc-snippets/ExpectedFiles.rst
 
 #. For regional (LAM) post-processing only:
    
