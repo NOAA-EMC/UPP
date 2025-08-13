@@ -269,7 +269,7 @@ Prepare the post-processing working directory
       wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/run_upp
       chmod 755 run_upp
 
-#. Modifying the script
+#. Modify the script:
 
    Users will need to edit directory paths and start date for the experiment. It may also be necessary to modify the run command, model type, and I/O file formats. For example:
 
