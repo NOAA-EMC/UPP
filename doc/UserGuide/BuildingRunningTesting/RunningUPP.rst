@@ -41,7 +41,7 @@ This section describes how to run UPP in a standalone environment using the ``ru
 #. Edit the run script as outlined below in :numref:`Section %s: Run Script Overview <run-script-overview>`. Once these directories are set
    up, and the edits outlined below are complete, the script can be run from the ``postprd`` directory: 
 
-         .. include:: ../doc-snippets/run-upp.rst
+   .. include:: ../doc-snippets/run-upp.rst
 
    .. note::
       The UPP is supported on Ursa, Orion, and Hercules NOAA :term:`RDHPCS`. It will likely run on other machines, but users may have to create a modulefile for their machine and/or modify the ``run_upp`` script if loading the ``upp_common`` module doesn't work.
@@ -76,7 +76,7 @@ It is recommended that the user refer to the ``run_upp`` script while reading th
 
 #. Specify model configuration being run in the ``model`` field. Valid options: Global Forecast System (``GFS``) or Limited Area Model (``LAM``). 
 
-         .. include:: ../doc-snippets/expected-files.rst 
+   .. include:: ../doc-snippets/expected-files.rst 
 
 #. Specify the forecast cycles to be post-processed:
 
