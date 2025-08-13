@@ -41,11 +41,7 @@ This section describes how to run UPP in a standalone environment using the ``ru
 #. Edit the run script as outlined below in :numref:`Section %s: Run Script Overview <run-script-overview>`. Once these directories are set
    up, and the edits outlined below are complete, the script can be run from the ``postprd`` directory: 
 
-   .. code-block:: console
-
-      ./run_upp -c <compiler> -m <machine>
-      
-   where ``<compiler>`` is "intel" or "intelllvm" and ``<machine>`` is a supported machine (e.g., "hercules", "orion", or "ursa". 
+.. include:: ../../doc-snippets/runUPP.rst
 
    .. note::
       The UPP is supported on Ursa, Orion, and Hercules NOAA :term:`RDHPCS`. It will likely run on other machines, but users may have to create a modulefile for their machine and/or modify the ``run_upp`` script if loading the ``upp_common`` module doesn't work.
@@ -80,8 +76,7 @@ It is recommended that the user refer to the ``run_upp`` script while reading th
 
 #. Specify model configuration being run in the ``model`` field. Valid options: Global Forecast System (``GFS``) or Limited Area Model (``LAM``). 
 
-   .. note::
-      Forecast output should include ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files when running with ``model="GFS"``, and it should include ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files when ``model="LAM"``. 
+.. include:: ../../doc-snippets/ExpectedFiles.rst 
 
 #. Specify the forecast cycles to be post-processed:
 
@@ -94,7 +89,7 @@ It is recommended that the user refer to the ``run_upp`` script while reading th
 
    * The default execution command in the distributed scripts is for a single processor: ``./upp.x > upp.${fhr}.out 2>&1``
 
-   * To run UPP using :term:`MPI` (*dmpar* compilation), the command line should be:
+   * To run UPP using :term:`MPI` (dmpar compilation), the command line should be:
 
       | >> NOAA :term:`RDHPCS` with Slurm-based job scheduler: ``srun -A <account> -n 4 ${POSTEXEC}/upp.x``
       |    (Note: ``<account>`` should be replaced with the actual name of an account where the user can charge computational resources.)

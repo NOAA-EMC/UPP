@@ -58,11 +58,13 @@ To run the full regression test (RT) suite in preparation for opening a pull req
 
 Additional Configuration
 =========================
-For repeated regression test runs, users can edit the ``rt.sh`` file and disable the specified test cases by changing their respective values to “no.” Users can disable the build step as well with the same value for the build variable above the tests. Please be sure to enable all test cases and build settings and conduct a full RT run in preparation for a pull request so that code managers (CMs) can confirm all changes in results are expected and consistent with the developer's results.
+For repeated regression test runs, users can edit the ``rt.sh`` file and remove any tests that should not be run from ``test_list``. However, please be sure to enable all test cases and build settings and conduct a full RT run in preparation for a pull request so that code managers (CMs) can confirm all changes in results are expected and consistent with the developer's results.
 
 ``rt.sh`` will allow for changing the configuration of the regression tests if users desire to do so with the following available options:
 
 * ``w`` -- specify the work directory for test case job output
 * ``r`` -- specify the run directory containing baselines and ``.diff`` files for comparison of changes in results
+* ``d`` -- disable IFI tests even if IFI is available
+* ``e`` -- do not build the UPP executable
 
 The following are legacy options from before ``rt.sh`` was included within the UPP repository; they may be ignored by developers: ``-b``, ``-u``, ``-c``, ``-t``.

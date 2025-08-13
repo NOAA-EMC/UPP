@@ -75,6 +75,10 @@ Prepare Forecast Output
 
       dprefix=${dprefix:-"path/to/${TOP_DIR}"}
 
+   .. note::
+
+      For users not running on NOAA :term:`RDHPCS`, see the UFS WM documentation for :ref:`Building the Weather Model on other systems <ufs-wm:build-wm>`.
+
 #. Run the forecast tests:
 
    .. code-block:: console
@@ -305,8 +309,7 @@ Prepare the post-processing working directory
       export numx=1
       ...
 
-   .. note::
-      The UPP expects ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files for the GFS model, and it expects ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files for the LAM model. 
+.. include:: ../../doc-snippets/ExpectedFiles.rst
 
 #. For regional (LAM) post-processing only:
    
@@ -327,9 +330,7 @@ Run UPP
 
 #. Run the script:
 
-   .. code-block:: console
-
-      ./run_upp -c <compiler> -m <hercules>
+.. include:: ../../doc-snippets/runUPP.rst
 
    Users can add the ``-v`` option to see more output.
    Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
