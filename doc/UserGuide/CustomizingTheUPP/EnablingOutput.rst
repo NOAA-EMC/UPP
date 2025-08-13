@@ -77,7 +77,7 @@ Prepare Forecast Output
 
    .. note::
 
-      Users not running on NOAA :term:`RDHPCS` will need to modify some additional files. See the :ref:`UFS WM regression testing documentation <ufs-wm:build-wm>` for more on how to do this.
+      For users not running on NOAA :term:`RDHPCS`, see the UFS WM documentation for :ref:`building the Weather Model on other systems <ufs-wm:build-wm>`.
 
 #. Run the forecast tests:
 
@@ -183,7 +183,7 @@ If the control file requires any modifications, the user must convert the modifi
 
 .. include:: ../doc-snippets/run-parm.rst  
 
-.. include:: ../doc-snippets/ursa-module.rst
+.. include:: ../doc-snippets/ursa-workaround.rst
 
 .. _modify-sorc:
 

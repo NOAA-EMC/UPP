@@ -253,7 +253,7 @@ where ``your_user_defined_xml`` is your modified XML and ``your_user_defined_fla
 
 .. include:: ../doc-snippets/run-parm.rst 
 
-.. include:: ../doc-snippets/ursa-module.rst
+.. include:: ../doc-snippets/ursa-workaround.rst
 
 .. _output-files:
 
