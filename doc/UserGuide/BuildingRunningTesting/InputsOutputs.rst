@@ -251,6 +251,10 @@ Once the XMLs are validated, the user will need to generate the flat file. The c
 
 where ``your_user_defined_xml`` is your modified XML and ``your_user_defined_flat`` is the output text file.
 
+.. include:: ../doc-snippets/run-parm.rst 
+
+.. include:: ../doc-snippets/ursa-module.rst
+
 .. _output-files:
 
 ============
