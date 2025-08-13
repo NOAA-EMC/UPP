@@ -259,7 +259,7 @@ Prepare the post-processing working directory
       mkdir postprd
 
    .. note::
-      This directory can be created anywhere, but default settings assume that is named ``postprd`` and created inside ``${TOP_DIR}``.
+      This directory can be created anywhere, but default settings assume that it is named ``postprd`` and created inside ``${TOP_DIR}``.
 
 #. Download the UPP utility script for running standalone UPP and change the permissions:
 
