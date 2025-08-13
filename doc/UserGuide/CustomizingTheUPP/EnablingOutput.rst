@@ -336,13 +336,13 @@ Run UPP
 
 #. Checking output:
    
-   To view information about a file, use the wgrib2 utility. Users may need to load the wgrib2 module first (e.g., via ``module load wgrib2``) For example, to see summary information from ``GFSPRS.000``, run: 
+   To view information about a file, use the *wgrib2* utility. Users may need to load the *wgrib2* module first (e.g., via ``module load wgrib2``). For example, to see summary information from ``GFSPRS.000``, run: 
 
    .. code-block:: console
 
       wgrib2 -s GFSPRS.000
 
-   For more detailed information, use the ``-v`` flag instead, but note that this is computationally intensive and may require allocating and using a compute node on some systems.
+   For more detailed information, use the ``-V`` flag instead, but note that this is computationally intensive and may require allocating and using a compute node on some systems.
 
    To see information about a specific variable, run:
 
