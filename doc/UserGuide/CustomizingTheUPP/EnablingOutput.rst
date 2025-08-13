@@ -47,9 +47,7 @@ Prepare Forecast Output
       i
 
    .. note::
-      Users can check `rt.conf <https://github.com/ufs-community/ufs-weather-model/blob/develop/tests/rt.conf>`_ for a full list of tests and select the ones they want to run.
-
-   .. COMMENT: Add info about files UPP expects? 
+      Users can check `rt.conf <https://github.com/ufs-community/ufs-weather-model/blob/develop/tests/rt.conf>`_ for a full list of tests and select the ones they want to run. The UPP expects ``atmf*``, ``sfcf*``, and ``GFSPRS*`` files for the GFS model, and it expects ``phyf*``, ``dynf*``, ``NATLEV*``, and ``PRSLEV*`` files for the LAM model, so users should run and/or adapt tests with these expected outputs.
 
 #. Paste the following lines, which compile and run two sample cases (``control_p8`` and ``regional_control``), into ``mytests.conf``:
 
