@@ -255,7 +255,7 @@ Prepare the post-processing working directory
 
    .. code-block:: console
 
-      cd $TOP_DIR
+      cd ${TOP_DIR}
       mkdir postprd
 
    .. note::
