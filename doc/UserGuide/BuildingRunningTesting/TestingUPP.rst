@@ -19,7 +19,7 @@ To run the full regression test (RT) suite in preparation for opening a pull req
       .. code-block:: console
 
          cd /path/to/UPP/ci
-         nohup ./rt.sh -a <my_account> -r $PWD/rundir -t $PWD/../ &
+         nohup ./rt.sh -a epic -C intel -r $PWD/rundir &
 
       where ``<my_account>`` is the name of an account where you have permissions to run jobs. The terminal will print a message like:
 
