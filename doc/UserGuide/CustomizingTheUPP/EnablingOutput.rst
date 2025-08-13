@@ -331,7 +331,7 @@ Run UPP
 
       ./run_upp -c <compiler> -m <hercules>
 
-   Users can add the ``-v`` option to see more output
+   Users can add the ``-v`` option to see more output.
    Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
 
 #. Checking output:
