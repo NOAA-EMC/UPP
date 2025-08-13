@@ -69,7 +69,7 @@ Prepare Forecast Output
 
       ``'3 -1'`` means every 3 hours. The ``-1`` indicates that it is not a list of hours. For example, someone could choose to output an arbitrary list of hours like ``export OUTPUT_FH='0 4 5 7 12 16 19'``. 
 
-6. If you are not running on NOAA RDHPCS or do not have access to the ``stmp*`` disk space on those systems, alter the ``dprefix`` path for the machine you are running on in ``rt.sh`` to point to a directory (such as ``$TOP_DIR``) where you have write permissions. For example:
+6. If you are not running on NOAA :term:`RDHPCS` or do not have access to the ``stmp*`` disk space on those systems, alter the ``dprefix`` path for the machine you are running on in ``rt.sh`` to point to a directory (such as ``$TOP_DIR``) where you have write permissions. For example:
 
    .. code-block:: console
 
