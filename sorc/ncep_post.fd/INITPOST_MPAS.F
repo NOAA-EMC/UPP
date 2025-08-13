@@ -714,26 +714,16 @@
       ENDIF
 
 
-!  get sfc pressure
-      VarName='MU'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-        IM,1,JM,1,IM,JS,JE,1)
-      VarName='MUB'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY2,       &
-        IM,1,JM,1,IM,JS,JE,1)
+! Pressure at model top
       VarName='P_TOP'
       call getVariable(fileName,DateStr,DataHandle,VarName,PT,           & 
         1,1,1,1,1,1,1,1)
-
-         DO I=1,IM
-            DO J=JS,JE
-                 PINT (I,J,LM+1) = DUMMY(I,J)+DUMMY2(I,J)+PT
-                 PINT (I,J,1) = PT
-                 ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
-                 ALPINT(I,J,1)=ALOG(PINT(I,J,1))
-            ENDDO
-         ENDDO
-
+       DO I=1,IM
+        DO J=JS,JE
+          PINT (I,J,1)  = PT
+          ALPINT(I,J,1) = ALOG(PINT(I,J,1))
+        ENDDO
+       ENDDO
 
 ! Geopotential height of model surface
       VarName='HGT'
@@ -776,6 +766,7 @@
       ENDDO
 ! Done with geopotential height of model interfacial levels
 
+! Pressure at the model surface
       VarName='PSFC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
