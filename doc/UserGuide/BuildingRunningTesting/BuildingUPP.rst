@@ -67,7 +67,7 @@ Building and running UPP v11.0.0 has been tested and is supported on the followi
 
 To install the UPP, navigate to the directory where you want to install UPP and clone the repository. This directory will be referred to as ``${TOP_DIR}`` throughout the documentation.
 
-.. include:: /doc-snippets/clone.rst
+.. include:: ../../doc-snippets/clone.rst
 
 where, ``branch-or-tag-name`` is the release branch or tag you wish to clone (e.g., ``upp_v11.0.0``). (Leaving off the ``-b`` argument will clone the default ``develop`` branch of the repository.)
 
