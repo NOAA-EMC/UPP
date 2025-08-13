@@ -309,7 +309,7 @@ Prepare the post-processing working directory
       export numx=1
       ...
 
-.. include:: ../doc-snippets/expected-files.rst
+   .. include:: ../doc-snippets/expected-files.rst
 
 #. For regional (LAM) post-processing only:
    
@@ -330,7 +330,7 @@ Run UPP
 
 #. Run the script:
 
-.. include:: ../doc-snippets/run-upp.rst
+   .. include:: ../doc-snippets/run-upp.rst
 
    Users can add the ``-v`` option to see more output.
    Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
