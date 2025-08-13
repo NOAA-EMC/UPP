@@ -77,7 +77,7 @@ Prepare Forecast Output
 
    .. note::
 
-      For users not running on NOAA :term:`RDHPCS`, see the UFS WM documentation for :ref:`Building the Weather Model on other systems <ufs-wm:build-wm>`.
+      For users not running on NOAA :term:`RDHPCS`, see the UFS WM documentation for :ref:`building the Weather Model on other systems <ufs-wm:build-wm>`.
 
 #. Run the forecast tests:
 
@@ -330,7 +330,7 @@ Run UPP
 
 #. Run the script:
 
-.. include:: ../../doc-snippets/runUPP.rst
+.. include:: ../doc-snippets/RunUPP.rst
 
    Users can add the ``-v`` option to see more output.
    Check the ``upp.f{fhr}.out`` files to see if there were any errors when the script ran. 
