@@ -871,8 +871,6 @@
 
        <param>
            <shortname>MAX_REFC_ON_ENTIRE_ATMOS</shortname>
-           <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
-           <table_info>NCEP</table_info>
            <scale>-4.0</scale>
        </param>
 

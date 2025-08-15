@@ -6493,7 +6493,7 @@ time-maximum composite reflectivity
 tmpl4_8
 MAXREFC
 NCEP
-?
+MAX
 entire_atmos_single_lyr
 0
 ?

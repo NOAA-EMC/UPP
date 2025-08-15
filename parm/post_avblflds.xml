@@ -2098,6 +2098,7 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXREFC</pname>
        <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>

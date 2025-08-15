@@ -3358,6 +3358,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(244))
+           if (IFHR > 0) then
+               fld_info(cfld)%tinvstat=1
+           else
+               fld_info(cfld)%tinvstat=0
+           endif
+           fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
