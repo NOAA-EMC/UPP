@@ -43,6 +43,7 @@ General options:
   -e = don't build the UPP executable
   -h homedir = path to the regression test data
   -w workdir = directory to store per-job batch and log files.
+  -l test_list = list of RTs to run in a string (e.g., "sfs gefsv12 rap" )
 EOF
 
   if [[ "$print_full_help" == YES ]] ; then
@@ -101,6 +102,24 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
     r) rundir=${OPTARG} ; check_for_dash
         ;;
+    l) export valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
+       if [[ -n ${OPTARG} ]]; then
+         test_list=''
+         read -a tests_to_run <<< ${OPTARG}
+         for t in ${tests_to_run[@]}
+         do
+            if [[ ${valid_tests} =~ ${t} ]]; then
+               test_list+="${t} "
+            else
+               echo "${t} is not a valid test"
+            fi
+         done
+         export test_list=${test_list}
+       else
+         export test_list=${valid_tests}
+       fi
+       echo "rt.sh will run ${test_list}"
+       ;;
     t) test_v=${OPTARG} ; check_for_dash
         ;;
     b) git_branch=${OPTARG} ; check_for_dash
@@ -108,11 +127,15 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
     u) git_url=${OPTARG} ; check_for_dash
         ;;
     c) clone_on="yes"
-	;;
+        ;;
     e) build_exe="no" # don't build executable
         ;;
     H) print_full_help=YES ; usage ; exit 1
         ;;
+    :) echo "Error: Required argument not provided." 
+       help 
+       exit 2 
+       ;;
     *)
        usage FATAL ERROR: Invalid -option. See error message above. 1>&2
        exit 2
@@ -287,9 +310,6 @@ if [ "$build_exe" == "yes" ]; then
 
   postmsg "$logfile" "$msg"
 fi
-
-#Setting tests
-export test_list="sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs"
 
 #submit test jobs
 cd $svndir/ci
