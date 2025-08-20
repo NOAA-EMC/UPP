@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
+  <!-- Contains the minimal set of variables needed to initialize the MPAS WPS off of UPP output. -->
+  <!-- Designed to be run on GFS output, but based on HAFS control files. -->
+  <paramset>
+    <datset>HURPRS</datset>
+    <grid_num>32769</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>hafs</gen_proc>
+    <packing_method>complex_packing_spatial_diff</packing_method>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+    <param>
+      <shortname>HGT_ON_ISOBARIC_SFC</shortname>
+      <pname>HGT</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>TMP_ON_ISOBARIC_SFC</shortname>
+      <pname>TMP</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>SPFH_ON_ISOBARIC_SFC</shortname>
+      <pname>SPFH</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>7.0</scale>
+    </param>
+
+    <param>
+      <shortname>UGRD_ON_ISOBARIC_SFC</shortname>
+      <pname>UGRD</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>VGRD_ON_ISOBARIC_SFC</shortname>
+      <pname>VGRD</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>DZDT_ON_ISOBARIC_SFC</shortname>
+      <pname>DZDT</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>5.0</scale>
+    </param>
+
+    <param>
+      <shortname>VVEL_ON_ISOBARIC_SFC</shortname>
+      <pname>VVEL</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>5.0</scale>
+    </param>
+
+    <param>
+      <shortname>CLMR_ON_ISOBARIC_SFC</shortname>
+      <pname>CLMR</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>ICMR_ON_ISOBARIC_SFC</shortname>
+      <pname>ICMR</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>RWMR_ON_ISOBARIC_SFC</shortname>
+      <pname>RWMR</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>SNMR_ON_ISOBARIC_SFC</shortname>
+      <pname>SNMR</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>GRLE_ON_ISOBARIC_SFC</shortname>
+      <pname>GRLE</pname>
+      <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+      47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
+      <pname>MSLET</pname>
+      <table_info>NCEP</table_info>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>PRES_ON_MEAN_SEA_LVL</shortname>
+      <pname>PRMSL</pname>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+      <pname>TMP</pname>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+      <pname>SPFH</pname>
+      <scale>7.0</scale>
+    </param>
+
+    <param>
+      <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+      <pname>UGRD</pname>
+      <level>10.</level>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+      <pname>VGRD</pname>
+      <level>10.</level>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>PRES_ON_SURFACE</shortname>
+      <pname>PRES</pname>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>HGT_ON_SURFACE</shortname>
+      <pname>HGT</pname>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>TMP_ON_SURFACE</shortname>
+      <pname>TMP</pname>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>NLAT_ON_SURFACE</shortname>
+      <pname>NLAT</pname>
+      <table_info>NCEP</table_info>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>ELON_ON_SURFACE</shortname>
+      <pname>ELON</pname>
+      <table_info>NCEP</table_info>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>LAND_ON_SURFACE</shortname>
+      <pname>LAND</pname>
+      <scale>1.0</scale>
+    </param>
+
+    <param>
+      <shortname>WTMP_ON_SURFACE</shortname>
+      <pname>WTMP</pname>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
+       <level>0. 10. 40. 100.</level>
+       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
+       <level2>10. 40. 100. 200.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <table_info>NCEP</table_info>
+       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
+       <level>0. 10. 40. 100.</level>
+       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
+       <level2>10. 40. 100. 200.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>SOILL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <table_info>NCEP</table_info>
+       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
+       <level>0. 10. 40. 100.</level>
+       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
+       <level2>10. 40. 100. 200.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+      <shortname>CNWAT_ON_SURFACE</shortname>
+      <table_info>NCEP</table_info>
+      <scale>3.0</scale>
+    </param>
+
+    <param>
+      <shortname>WEASD_ON_SURFACE</shortname>
+      <scale>6.0</scale>
+    </param>
+
+    <param>
+      <shortname>ICEC_ON_SURFACE</shortname>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>SOTYP_ON_SURFACE</shortname>
+      <scale>4.0</scale>
+    </param>
+
+    <param>
+      <shortname>VEG_ON_SURFACE</shortname>
+      <scale>3.0</scale>
+    </param>
+
+    <param>
+      <shortname>ICETMP_ON_SURFACE</shortname>
+      <scale>5.0</scale>
+    </param>
+
+    <param>
+      <shortname>ICETK_ON_SURFACE</shortname>
+      <scale>3.0</scale>
+    </param>
+
+    <param>
+      <shortname>SNOD_ON_SURFACE</shortname>
+      <scale>6.0</scale>
+      <bit_map_flag>yes</bit_map_flag>
+    </param>
+
+  </paramset>
+
+</postxml>

@@ -69,6 +69,9 @@
 !!   25-06-10 | J Kenyon | Adding descriptive comments for parameter 769. This parameter previously had the
 !!                       | shortname "GSD_VIL_ON_ENTIRE_ATMOS" (hydrometeor-based VIL), but is now
 !!                       | "TCOLP_ON_ENTIRE_ATMOS".
+!!   25-06-16 | J Kenyon | Updated calls to CALPBL; these now specify the PBL height formulation to 
+!!                       | apply (RI or THV). Restricted the smoothing of PBL height (for gust calculations) to
+!!                       | RAP/HRRR-era applications only. Additionally, added several descriptive in-code comments.
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -123,7 +126,7 @@
       use pmicrph_mod, only: r1, const1r, qr0, delqr0, const2r, ron, topr, son,&
               tops, dsnow, drain,const_ng1, const_ng2, gon, topg, dgraupel
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
-              fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
+              fld_info, modelname, submodelname, imp_physics, dtq2, spval, icount_calmict,&
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
       ista, iend, ista_2l, iend_2u, aqf_on, gocart_on, gccpp_on, nasa_on, gtg_on
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
@@ -168,8 +171,7 @@
                                              QG1,    refl1km, refl4km, RH, GUST, NRAIN1,Zm10c, &
                                              USTORE, VSTORE
 !                                            T700,   TH700   
-!
-      REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
+      REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:),PBLRI(:,:),PBLTHV(:,:),PBLREGIME(:,:)
 !
       integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD,LLL  &
              ,iz1km,iz4km, LCOUNT, HCOUNT, ITYPE, item
@@ -234,10 +236,12 @@
       ENDDO check_ref
       if(debugprint .and. me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
         'MODELNAME=',trim(MODELNAME),' imp_physics=',imp_physics 
+
       ALLOCATE(EL     (ista_2l:iend_2u,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (ista_2l:iend_2u,JSTA_2L:JEND_2U,LM))
-      ALLOCATE(PBLRI  (ista_2l:iend_2u,JSTA_2L:JEND_2U))    
-!     
+      ALLOCATE(PBLRI  (ista_2l:iend_2u,JSTA_2L:JEND_2U))
+      ALLOCATE(PBLTHV (ista_2l:iend_2u,JSTA_2L:JEND_2U))
+ 
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
       IF (IGET(023) > 0 .OR. IGET(105) > 0 .OR. IGET(445) > 0) THEN
         CALL NGMSLP   ! this value is used in some later calculation.
@@ -3850,21 +3854,44 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
          ENDIF
       ENDIF
-!     
-!           COMPUTE PBL HEIGHT BASED ON RICHARDSON NUMBER
-!     
+     
+!     -- COMPUTE/ASSIGN PBL HEIGHT ARRAY(S) --
+!
+!        J Kenyon (16 Jun 2025):
+!        Note that the PBL heights assigned below are subsequently used for
+!        other diagnostic calculations (e.g., 10-m wind gust, GTG fields).
+!        In some models (e.g., RAPR, FV3R), these PBL heights are only used
+!        internally within UPP, since a separate PBL height (calculated in
+!        the model) is provided in the GRIB2 output. Refer also to comments
+!        in CALPBL.f
+     
             IF ( (IGET(289)>0) .OR. (IGET(389)>0) .OR. (IGET(454)>0)   &
             .OR. (IGET(245)>0)  .or. IGET(464)>0 .or. IGET(467)>0  &
             .or. IGET(470)>0 .or. IGET(476)>0) THEN
-! should only compute pblri if pblh from model is not computed based on Ri 
-! post does not yet read pbl scheme used by model.  Will do this soon
-! For now, compute PBLRI for non GFS models.
+
+              !-- Regardless of model, assign / calculate PBLRI (PBL height based on Richardson number)
               IF(MODELNAME  ==  'GFS')THEN
                 PBLRI=PBLH
               ELSE
-               CALL CALPBL(PBLRI)
+                CALL CALPBL(PBLRI,'RI')
               END IF
-            END IF  
+              
+              !-- Additionally, for RAPR and FV3 only, assign PBLTHV (PBL height based on 
+              !   virtual potential temperature). For these models, PBLTHV is used for the
+              !   wind-gust diagnostic. PBLTHV is assigned as follows:
+              IF((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME /= 'MPAS')) THEN
+                ! For older RAPR applications (with WRF-ARW):
+                ! PBLHGUST is calculated in the associated INITPOST* routine;
+                ! simply pass PBLHGUST to PBLTHV
+                PBLTHV=PBLHGUST
+              ELSE IF ((MODELNAME  ==  'FV3R').OR. &
+                      ((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME == 'MPAS'))) THEN
+                ! For FV3R and newer RAPR applications (with MPAS):
+                ! calculate PBLTHV by calling CALPBL
+                CALL CALPBL(PBLTHV,'THV')
+              END IF
+
+            END IF
 
             IF (IGET(289) > 0) THEN
 !$omp parallel do private(i,j)
@@ -4071,11 +4098,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 
             ENDIF
-!	    
-! Calculate 10-m wind gust based on PBL height (as diagnosed from either Ri or theta-v) 
+
+!     PREPARE FOR OTHER CALCULATIONS THAT REQUIRE PBL HEIGHT (PBLRI or PBLTHV)
       IF (IGET(245)>0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0 .or. IGET(476)>0) THEN
-        IF (MODELNAME=='RAPR') THEN
-!tgs - 24may17 - smooth PBLHGUST 
+
+        IF (MODELNAME=='RAPR' .AND. SUBMODELNAME/='MPAS') THEN
+        ! Early RAPR applications (e.g., RAP/HRRR): smooth PBLTHV prior to wind-gust calculation
            if(MAPTYPE == 6) then
              if(grib=='grib2') then
                 dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
@@ -4090,7 +4118,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            NSMOOTH = nint(5.*(13500./dxm))
            do j = jsta_2l, jend_2u
              do i = ista_2l, iend_2u
-               GRID1(i,j)=PBLHGUST(i,j)
+               GRID1(i,j)=PBLTHV(i,j)
              enddo
            enddo
            call AllGETHERV(GRID1)
@@ -4099,11 +4127,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            end do
            do j = jsta_2l, jend_2u
              do i = ista_2l, iend_2u
-               PBLHGUST(i,j)=GRID1(i,j)
+               PBLTHV(i,j)=GRID1(i,j)
              enddo
            enddo
-        ENDIF
+        ENDIF ! end of smoothing of PBLTHV
 
+       !--These J,I loops: prepare arguments for CALGUST call
        DO J=JSTA,JEND
         DO I=ista,iend
          LPBL(I,J)=LM
@@ -4112,17 +4141,19 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          loopL:DO L=NINT(LMH(I,J)),1,-1
+
           IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
            HGT=ZMID(I,J,L)
-           PBLHOLD=PBLHGUST(I,J)
+           PBLHOLD=PBLTHV(I,J) ! RAPR and FV3R: use PBLTHV
            IF(PBLHOLD == spval) THEN
              LPBL(I,J) = LM
              EXIT loopL
            ENDIF
           ELSE
            HGT=ZINT(I,J,L)
-           PBLHOLD=PBLRI(I,J)
+           PBLHOLD=PBLRI(I,J)  ! All other models: use PBLRI
           ENDIF
+
           IF(HGT >  PBLHOLD+ZSFC)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J)>=LP1) LPBL(I,J) = LM
@@ -4133,11 +4164,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          else
            LPBL(I,J) = LM
          endif
-         if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
+         if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),pblthv(:,:),lpbl(i,j)
         ENDDO
        ENDDO
+       !--Done preparing arguments for CALGUST call
+
+       !--Now call CALGUST
        IF (MODELNAME=='RAPR' .OR. MODELNAME=='FV3R') THEN
-        CALL CALGUST(LPBL,PBLHGUST,GUST)
+        CALL CALGUST(LPBL,PBLTHV,GUST)
        ELSE
         CALL CALGUST(LPBL,PBLRI,GUST)
        END IF
@@ -4391,7 +4425,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !	end do  
       ENDIF
 
-      DEALLOCATE(EL, RICHNO, PBLRI)
+      DEALLOCATE(EL, RICHNO, PBLRI, PBLTHV)
       if (allocated(rh3d)) deallocate(rh3d)
 !     
 !     END OF ROUTINE.

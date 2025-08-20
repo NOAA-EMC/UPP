@@ -186,7 +186,7 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(IntelLLVM)$")
   set(CMAKE_Fortran_FLAGS
       "-g -traceback -fp-model precise -free -convert big_endian")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check bounds -check pointers -check shape -check stack -check uninit")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check all -shared-intel -diag-disable=10444 -check noarg_temp_created -ftrapuv")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
       "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #SBATCH -o out.post.mpas_hfip
 #SBATCH -e out.post.mpas_hfip
@@ -15,7 +15,7 @@
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -63,9 +63,6 @@ cat > itag <<EOF
 /
 EOF
 
-
-rm -f fort.*
-
 cp ${svndir}/fix/rap_micro_lookup.dat .
 cp ${svndir}/fix/nam_micro_lookup.dat .
 cp ${svndir}/parm/mpas/postxconfig-NT-hfip_mpas.txt ./postxconfig-NT.txt
@@ -98,9 +95,10 @@ done
 export PGBOUT=pgbfile
 ${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_hfip_${startdate}
 
-fhr2=`printf "%02d" $fhr`
+fhr=$((10#$fhr))
+fhr2=$(printf "%02d" "$fhr")
 
-filelist="NATLEV.GrbF48 PRSLEV.GrbF48 2DFLD.GrbF48"
+filelist="NATLEV.GrbF$fhr2 PRSLEV.GrbF$fhr2 2DFLD.GrbF$fhr2"
 
 for file in $filelist; do
 export filein2=$file
