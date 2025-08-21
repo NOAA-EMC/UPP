@@ -88,7 +88,7 @@ elif [[ -d /mnt/lfs1 ]]; then
   MACHINE_ID=jet
 elif [[ -d /scratch3 ]]; then
   # We are on NOAA Hera or Ursa
-  mount=$(findmnt -n -o SOURCE /home)
+  mount=$(findmnt -n -o SOURCE /apps)
   if [[ ${mount} =~ "ursa" ]]; then
     # We are on Ursa
     MACHINE_ID=ursa
