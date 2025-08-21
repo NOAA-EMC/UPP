@@ -12,7 +12,6 @@ load(pathJoin("stack-oneapi", stack_oneapi_ver))
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 load(pathJoin("cmake", cmake_ver))
 
-setenv("zlib_ng_ver", "unused")
 load("upp_common")
 
 setenv("CC", "mpiicx")
