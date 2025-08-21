@@ -3,11 +3,11 @@
 #SBATCH -o out.post.hrrr
 #SBATCH -e out.post.hrrr
 #SBATCH -J hrrr_test
-#SBATCH -t 00:20:00
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH -N {{ nodes }} --ntasks-per-node={{ ntasks-per-node }}
-#SBATCH {{ exclusive }}
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 

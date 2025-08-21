@@ -3,12 +3,25 @@
 #SBATCH -o out.post.rrfs_ifi_missing
 #SBATCH -e out.post.rrfs_ifi_missing
 #SBATCH -J rrfs_ifi_missing
-#SBATCH -t 00:30:00
-#SBATCH --ntasks {{ ntasks }}
-#SBATCH --tasks-per-node {{ tasks-per-node }}
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH {{ exclusive }}
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --tasks-per-node @[TASKS_PER_NODE]
+#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
+
+case $machine in
+      orion|hercules)
+         export NODES=8
+         export N_TASKS_PER_NODE=12
+      ;;
+      ursa)
+         export NTASKS=240
+         export TASKS_PER_NODE=48
+      ;;
+   esac
+
 
 set -x
 

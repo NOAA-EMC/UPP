@@ -3,12 +3,12 @@
 #SBATCH -o out.post.mpas
 #SBATCH -e out.post.mpas
 #SBATCH -J mpas_test
-#SBATCH -t 00:20:00
-#SBATCH --ntasks {{ ntasks }}
-#SBATCH --tasks-per-node {{ tasks-per-node }}
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH {{ exclusive }}
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --tasks-per-node @[TASKS_PER_NODE]
 
 set -x
 

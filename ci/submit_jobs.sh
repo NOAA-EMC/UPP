@@ -6,19 +6,11 @@
 
 export jobid_list=""
 
-if [[ ${machine} != "wcoss2" ]]; then
-   cd $svndir/ci/jobs-dev
-   for test in ${test_list}
-   do
-      uw template render --input-file run_post_${test}_template.sh --values-file machine.yaml --output-file run_post_${test}_${machine}2.sh
-   done
-fi
-
 cd $workdir
 for test in ${test_list}
 do
-  cp $svndir/ci/jobs-dev/run_post_${test}_${machine}.sh .
-  job_id=$(sbatch --parsable -A "${accnr}" run_post_${test}_${machine}.sh)
+  cp $svndir/ci/jobs-dev/run_post_${test}_${machine}2.sh .
+  job_id=$(sbatch --parsable -A "${accnr}" run_post_${test}_${machine}2.sh)
   jobid_list="${jobid_list} ${job_id}"
 done
 

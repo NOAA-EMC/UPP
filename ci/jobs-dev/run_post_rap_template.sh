@@ -3,11 +3,11 @@
 #SBATCH -o out.post.rap
 #SBATCH -e out.post.rap
 #SBATCH -J rap_test
-#SBATCH -t 00:20:00
-#SBATCH -N {{ nodes }} --ntasks-per-node={{ ntaskspernode }}
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH --exclusive
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 

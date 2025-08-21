@@ -3,17 +3,13 @@
 #SBATCH -o out.post.gefsv12
 #SBATCH -e out.post.gefsv12
 #SBATCH -J gefsv12_test 
-#SBATCH -t 00:30:00
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH {{ exclusive }}
-{%- if ${machine} == "ursa" %}
-#SBATCH --ntasks {{ ntasks }}
-#SBATCH --tasks-per-node {{ tasks-per-node }}
-{%- else %}
-#SBATCH -N {{ nodes }} --ntasks-per-node={{ ntaskspernode }}
-{%- endif %}
-
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --tasks-per-node @[TASKS_PER_NODE]
+#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 

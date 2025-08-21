@@ -3,12 +3,13 @@
 #SBATCH -o out.post.gefsv13
 #SBATCH -e out.post.gefsv13
 #SBATCH -J gefsv13_test 
-#SBATCH -t 00:30:00
-#SBATCH --ntasks {{ ntasks}}
-#SBATCH --tasks-per-node {{ tasks-per-node }}
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH --exclusive
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --tasks-per-node @[TASKS_PER_NODE]
+#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 

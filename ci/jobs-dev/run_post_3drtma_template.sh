@@ -3,15 +3,13 @@
 #SBATCH -o out.post.3drtma
 #SBATCH -e out.post.3drtma
 #SBATCH -J 3drtma_test
-#SBATCH -t {{ wtime }}
-#SBATCH -q {{ queue }}
-#SBATCH {{ exclusive }}
-{%- if ${machine} == "ursa" %}
-#SBATCH --ntasks {{ ntasks }}
-#SBATCH --tasks-per-node {{ tasks-per-node }}
-{%- else %}
-#SBATCH -N {{ nodes }} --ntasks-per-node={{ ntaskspernode }}
-{%- endif %}
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --tasks-per-node @[TASKS_PER_NODE]
+#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 
 set -x

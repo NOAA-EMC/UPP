@@ -86,6 +86,27 @@ check_for_dash() {
   fi
 }
 
+check_valid_tests() {
+   local tests=${1}
+   local valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
+   if [[ -n ${tests} ]]; then
+      test_list=''
+      read -a tests_to_run <<< ${tests}
+      for t in ${tests_to_run[@]}
+      do
+         if [[ ${valid_tests} =~ ${t} ]]; then
+            test_list+="${t} "
+         else
+            echo "${t} is not a valid test"
+         fi
+      done
+      export test_list=${test_list}
+   else
+      export test_list=${valid_tests}
+   fi
+   echo "rt.sh will run ${test_list}"
+}
+
 set +x
 export OPTERR=1
 while getopts a:w:h:r:t:b:u:C:cdHe opt; do
@@ -102,23 +123,7 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
     r) rundir=${OPTARG} ; check_for_dash
         ;;
-    l) export valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
-       if [[ -n ${OPTARG} ]]; then
-         test_list=''
-         read -a tests_to_run <<< ${OPTARG}
-         for t in ${tests_to_run[@]}
-         do
-            if [[ ${valid_tests} =~ ${t} ]]; then
-               test_list+="${t} "
-            else
-               echo "${t} is not a valid test"
-            fi
-         done
-         export test_list=${test_list}
-       else
-         export test_list=${valid_tests}
-       fi
-       echo "rt.sh will run ${test_list}"
+    l) check_valid_tests() ${OPTARG}
        ;;
     t) test_v=${OPTARG} ; check_for_dash
         ;;
@@ -309,6 +314,23 @@ if [ "$build_exe" == "yes" ]; then
   fi
 
   postmsg "$logfile" "$msg"
+fi
+
+# Create job cards from template for RDHPCS
+if [[ ${machine} != "wcoss2" ]]; then
+   
+   cd $svndir/ci/jobs-dev
+
+   source test.bash
+   source atparse.bash
+
+   for test in ${test_list}
+   do
+      set_global()
+      ${test}()
+      atparse < run_post_${test}_template.sh > run_post_${test}_${machine}2.sh
+   done
+
 fi
 
 #submit test jobs

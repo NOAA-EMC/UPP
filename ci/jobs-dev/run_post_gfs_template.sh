@@ -5,8 +5,8 @@
 #SBATCH -J gfs_test
 #SBATCH -t 00:30:00
 #SBATCH -N 6 --ntasks-per-node=40
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[ACCOUNT]
 #SBATCH --ntasks {{ ntasks }}
 #SBATCH --tasks-per-node {{ tasks-per-node }}
 #SBATCH {{ exclusive }}

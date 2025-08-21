@@ -3,13 +3,13 @@
 #SBATCH -o out.post.mpas_hfip
 #SBATCH -e out.post.mpas_hfip
 #SBATCH -J mpas_hfip_test 
-#SBATCH -t 00:30:00
-#SBATCH --ntasks={{ ntasks }}
-#SBATCH --cpus-per-task={{ cpus-per-task }}
-#SBATCH -q {{ queue }}
-#SBATCH -A {{ account }}
-#SBATCH {{ exclusive }}
-#SBATCH {{ other }}
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --cpus-per-task=@[CPUS_PER_TASK]
+#SBATCH @[MEM]
 
 set -x
 
