@@ -73,8 +73,12 @@ cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 # get crtm fix files
-for what in "amsre_aqua" "ssmis_f17" "ssmis_f18" \
-    "tmi_trmm" "abi_gr" "ahi_himawari8" ; do
+for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
+    "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
+    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
+    "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" \
+    "ahi_himawari8" ; do
     ln -s "${CRTM_FIX}/${what}.TauCoeff.bin" .
     ln -s "${CRTM_FIX}/${what}.SpcCoeff.bin" .
 done
