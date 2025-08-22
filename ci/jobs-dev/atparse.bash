@@ -29,7 +29,6 @@ function atparse {
     fi
     if [[ -o nounset ]] ; then
         __set_u="set -u"
-        __abort_on_undefined=YES
     fi
     set +eux
 
