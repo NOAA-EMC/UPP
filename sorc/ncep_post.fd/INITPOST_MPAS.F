@@ -20,6 +20,7 @@
 !> 2024-08-30 | Jaymes Kenyon| Add processing for lat-lon projection
 !> 2024-09-09 | Eric James   | Add checks for missing values before entering some computations
 !> 2024-10-16 | Jaymes Kenyon| Missing-value checks for wind interp, fix to LH flux 
+!> 2024-10-24 | Eric James   | Reinstate reading of prec_acc_dt from MPASSIT output
 !> 2024-10-28 | Jaymes Kenyon| Removing outdated processing for various "imp_physics" cases
 !> 2024-12-05 | Jaymes Kenyon| Temporary hard coding of imp_physics=8 for RRFS-MPAS (required for 
 !>                           | brightness-temperature calculations in subroutine CALRAD_WCLOUD)
@@ -28,9 +29,10 @@
 !>                             add/clarify comments, and modify several print/write statements
 !> 2025-05-08 | Jaymes Kenyon| Add HAIL_BUCKET accumulation; remove old/unused blocks of code
 !> 2025-06-16 | Jaymes Kenyon| Removing the calculation of PBLHGUST.  This array represented a PBL height 
-!>                           | obtained from the profile of virtual potential temperature (THV).  In turn, 
-!>                           | PBLHGUST was used for the wind-gust diagnostic in RAPR.  Calculation of a
+!>                           | obtained from the profile of virtual potential temperature (THV).  In turn, 
+!>                           | PBLHGUST was used for the wind-gust diagnostic in RAPR.  Calculation of a
 !>                           | THV-based PBL height has now been ported into CALPBL 
+!> 2025-07-15 | Jeff Duda    | Add max_compref, max_prate_1min, max_prate_1min, max_prate_5min, and max_prate_10min
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -46,10 +48,11 @@
               up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16,            &
               up_heli_min,up_heli_min16,up_heli_max02,up_heli_min02,               &
               up_heli_max03,up_heli_min03,rel_vort_max,rel_vort_max01,             &
-              wspd10umax,wspd10vmax,refdm10c_max,                                  &
+              wspd10umax,wspd10vmax,refdm10c_max,max_compref,                      &
               hail_max2d,hail_maxk1,hail_maxhailcast,ltg1_max,                     &
               ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,      &
               u10, v10, th10, q10, tshltr, mrshltr,                                &
+              prate_max,max_prate_1min,max_prate_5min,max_prate_10min,             &
               nca_refd, qv2m, qshltr, smstav, ssroff, bgroff,                      &
               vegfrc, acsnow, cmc, sst, thz0, qs, qvg,                             &
               z0, ustar, radot, ths, acsnom, cuprec, ancprc, acprec,               &
@@ -1648,6 +1651,15 @@ endif  ! 1==2
         end do
        end do
 
+      VarName='MAX_COMPOSITE_REFL'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            MAX_COMPREF( i, j ) = dummy ( i, j )
+        end do
+       end do
+
       VarName='REFL_10CM_1KM'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1941,7 +1953,6 @@ endif  ! 1==2
 !C RAINC is "ACCUMULATED TOTAL CUMULUS PRECIPITATION" 
 !C RAINNC is "ACCUMULATED TOTAL GRID SCALE PRECIPITATION"
 
-      if (me==0) write(6,*) 'getting RAINC'
       VarName='RAINC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
@@ -1951,7 +1962,6 @@ endif  ! 1==2
         end do
        end do
 !       print*,'CUPREC at ',ii,jj,' = ',CUPREC(ii,jj)
-      if (me==0) write(6,*) 'getting RAINNC'
       VarName='RAINNC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1961,7 +1971,6 @@ endif  ! 1==2
         end do
        end do
 !       print*,'ANCPRC at ',ii,jj,' = ',ANCPRC(ii,jj)
-      if (me==0) write(6,*) 'past getting RAINNC'
 
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -2023,6 +2032,50 @@ endif  ! 1==2
         do i = 1, im
             PCP_BUCKET(I,J)=rainc_bucket(I,J)+rainnc_bucket(I,J)
             PCP_BUCKET1(I,J)=rainc_bucket1(I,J)+rainnc_bucket1(I,J)
+        end do
+       end do
+
+      VarName='PRATE_MAX'
+      DUMMY=0.0
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            ! Units are direct from MPAS model output, which is mm/s
+            PRATE_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='MAX_1MIN_PRATE'
+      DUMMY=0.0
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            ! Units are direct from MPAS model output, which is mm/s
+            MAX_PRATE_1MIN( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='MAX_5MIN_PRATE'
+      DUMMY=0.0
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            ! Units are direct from MPAS model output, which is mm/s
+            MAX_PRATE_5MIN( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='MAX_10MIN_PRATE'
+      DUMMY=0.0
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            ! Units are direct from MPAS model output, which is mm/s
+            MAX_PRATE_10MIN( i, j ) = dummy ( i, j )
         end do
        end do
 
