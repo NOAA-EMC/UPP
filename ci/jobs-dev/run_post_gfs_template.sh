@@ -3,13 +3,13 @@
 #SBATCH -o out.post.gfs
 #SBATCH -e out.post.gfs
 #SBATCH -J gfs_test
-#SBATCH -t 00:30:00
-#SBATCH -N 6 --ntasks-per-node=40
+#SBATCH -t @[WTIME]
 #SBATCH -q @[QUEUE]
-#SBATCH -A @[ACCOUNT]
-#SBATCH --ntasks {{ ntasks }}
-#SBATCH --tasks-per-node {{ tasks-per-node }}
-#SBATCH {{ exclusive }}
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks @[N_TASKS]
+#SBATCH --tasks-per-node @[TASKS_PER_NODE]
+#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 
