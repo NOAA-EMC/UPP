@@ -17,13 +17,13 @@ set_global() {
 
    case $machine in
       ORION|HERCULES)
-         export NODES=8
-         export N_TASKS_PER_NODE=12
+         export NODES='-N 8'
+         export N_TASKS_PER_NODE='--ntasks-per-node=12'
       ;;
       URSA)
          export WTIME=00:20:00
-         export N_TASKS=128
-         export TASKS_PER_NODE=32
+         export N_TASKS='--ntasks 128'
+         export TASKS_PER_NODE='--tasks-per-node 32'
       ;;
    esac
 }
@@ -31,12 +31,12 @@ set_global() {
 gefs() {
    case $machine in
       ORION|HERCULES)
-         export NODES=3
-         export N_TASKS_PER_NODE=12
+         export NODES='-N 3'
+         export N_TASKS_PER_NODE='--ntasks-per-node=12'
       ;;
       URSA)
-         export N_TASKS=48
-         export TASKS_PER_NODE=24
+         export N_TASKS='--ntasks 48'
+         export TASKS_PER_NODE='--tasks-per-node 24'
       ;;
    esac
 
@@ -45,12 +45,12 @@ gefs() {
 gfs() {
    case $machine in
       ORION|HERCULES)
-         export NODES=6
-         export N_TASKS_PER_NODE=40
+         export NODES='-N 6'
+         export N_TASKS_PER_NODE='--ntasks-per-node=40'
       ;;
       URSA)
-         export N_TASKS=400
-         export TASKS_PER_NODE=40
+         export N_TASKS='--ntasks 400'
+         export TASKS_PER_NODE='--tasks-per-node 40'
       ;;
    esac
 
@@ -62,12 +62,12 @@ hafs() {
 
    case $machine in
       ORION|HERCULES)
-         export NODES=5
-         export N_TASKS_PER_NODE=12
+         export NODES='-N 5'
+         export N_TASKS_PER_NODE='--ntasks-per-node=12'
       ;;
       URSA)
-         export N_TASKS=72
-         export TASKS_PER_NODE=24
+         export N_TASKS='--ntasks 72'
+         export TASKS_PER_NODE='--tasks-per-node 24'
          export EXCLUSIVE=''
       ;;
    esac
@@ -103,7 +103,7 @@ mpas() {
 mpas_hfip() {
 
    export EXCLUSIVE='--exclusive'
-   export N_TASKS=256
+   export N_TASKS='--ntasks 256'
    export CPUS_PER_TASK=4
    
    if [[ $machine = URSA ]]; then
@@ -150,12 +150,12 @@ rrfs() {
 
    case $machine in
       ORION|HERCULES)
-         export NODES=6
-         export N_TASKS_PER_NODE=40
+         export NODES='-N 6'
+         export N_TASKS_PER_NODE='--ntasks-per-node=40'
       ;;
       URSA)
-         export N_TASKS=240
-         export TASKS_PER_NODE=48
+         export N_TASKS='--ntasks 240'
+         export TASKS_PER_NODE='--tasks-per-node 48'
       ;;
    esac
 
@@ -165,12 +165,12 @@ rrfs_ifi_missing() {
 
    case $machine in
       ORION|HERCULES)
-         export NODES=8
-         export N_TASKS_PER_NODE=12
+         export NODES='-N 8'
+         export N_TASKS_PER_NODE='--ntasks-per-node=12'
       ;;
       URSA)
-         export N_TASKS=240
-         export TASKS_PER_NODE=48
+         export N_TASKS='--ntasks 240'
+         export TASKS_PER_NODE='--tasks-per-node 48'
       ;;
    esac
 
@@ -180,12 +180,12 @@ sfs() {
 
    case $machine in
       ORION|HERCULES)
-         export NODES=3
-         export N_TASKS_PER_NODE=12
+         export NODES='-N 3'
+         export N_TASKS_PER_NODE='--ntasks-per-node=12'
       ;;
       URSA)
-         export N_TASKS=48
-         export TASKS_PER_NODE=24
+         export N_TASKS='--ntasks 48'
+         export TASKS_PER_NODE='--tasks-per-node 24'
       ;;
    esac
 

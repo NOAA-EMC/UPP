@@ -7,9 +7,9 @@
 #SBATCH -q @[QUEUE]
 #SBATCH -A @[accnr]
 #SBATCH @[EXCLUSIVE]
-#SBATCH --ntasks @[N_TASKS]
-#SBATCH --tasks-per-node @[TASKS_PER_NODE]
-#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
+#SBATCH @[N_TASKS]
+#SBATCH @[TASKS_PER_NODE]
+#SBATCH @[NODES] @[N_TASKS_PER_NODE]
 
 set -x
 
