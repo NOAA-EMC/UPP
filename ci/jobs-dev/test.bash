@@ -181,6 +181,7 @@ sfs() {
       ORION|HERCULES)
          export NODES='-N 3'
          export N_TASKS_PER_NODE='--ntasks-per-node=12'
+         export STACK_SIZE='export OMP_STACKSIZE=128M'
       ;;
       URSA)
          export N_TASKS='--ntasks 48'

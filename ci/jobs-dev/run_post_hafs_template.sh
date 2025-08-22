@@ -32,8 +32,6 @@ module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list
 
-@[STACK_SIZE]
-
 msg="Starting hafs test"
 postmsg "$logfile" "$msg"
 

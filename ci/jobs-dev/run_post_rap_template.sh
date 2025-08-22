@@ -34,8 +34,6 @@ module load prod_util/2.1.1
 module load nccmp/1.9.1.0
 module list
 
-@[STACK_SIZE]
-
 msg="Starting rap test"
 postmsg "$logfile" "$msg"
 
