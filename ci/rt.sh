@@ -86,9 +86,10 @@ check_for_dash() {
   fi
 }
 
+valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
+
 check_valid_tests() {
    local tests=${@}
-   local valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
    if [[ -n ${tests} ]]; then
       test_list=''
       read -a tests_to_run <<< ${tests}
@@ -100,9 +101,11 @@ check_valid_tests() {
             echo "${t} is not a valid test"
          fi
       done
+      if [[ -z ${test_list} ]]; then
+         echo "No valid tests provided. Exiting..."
+	 exit 1
+      fi
       export test_list=${test_list}
-   else
-      export test_list=${valid_tests}
    fi
    echo "rt.sh will run ${test_list}"
 }
@@ -161,6 +164,10 @@ if (( positional_count > 0)) ; then
   exit 2
 fi
 set -x
+
+# Set test list if not set
+
+test_list=${test_list:-${valid_tests}}
 
 #UPP working copy
 export test_v=${test_v:-`pwd`/..}
