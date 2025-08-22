@@ -27,12 +27,14 @@ date
 # EXPORT list here
 
 module purge
-module use $svndir/modulefiles
-module load {{ machine }}_$compiler #Could use $machine, which is already set in rt.sh?
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module load nccmp/1.9.1.0
 module list
+
+@[STACK_SIZE]
 
 msg="Starting rap test"
 postmsg "$logfile" "$msg"

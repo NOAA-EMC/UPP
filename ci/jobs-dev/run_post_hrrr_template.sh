@@ -24,11 +24,13 @@ date
 # Loading modules
 ############################################
 module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list
+
+@[STACK_SIZE]
 
 msg="Starting hrrr test"
 postmsg "$logfile" "$msg"
