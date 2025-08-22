@@ -87,7 +87,7 @@ check_for_dash() {
 }
 
 check_valid_tests() {
-   local tests=${1}
+   local tests=${@}
    local valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
    if [[ -n ${tests} ]]; then
       test_list=''
