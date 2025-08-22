@@ -5,6 +5,11 @@ set_global() {
    export WTIME=00:30:00
    export QUEUE=batch
 
+   export NODES=''
+   export N_TASKS_PER_NODE=''
+   export N_TASKS=''
+   export TASKS_PER_NODE=''
+
 }
 
 3drtma() {
@@ -97,7 +102,7 @@ mpas() {
 mpas_hfip() {
 
    export EXCLUSIVE='--exclusive'
-   export N_TASKS='--ntasks 256'
+   export N_TASKS=256
    export CPUS_PER_TASK=4
    
    if [[ $machine = URSA ]]; then

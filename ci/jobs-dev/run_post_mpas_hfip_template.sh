@@ -7,7 +7,7 @@
 #SBATCH -q @[QUEUE]
 #SBATCH -A @[accnr]
 #SBATCH @[EXCLUSIVE]
-#SBATCH --ntasks @[N_TASKS]
+#SBATCH --ntasks=@[N_TASKS]
 #SBATCH --cpus-per-task=@[CPUS_PER_TASK]
 #SBATCH @[MEM]
 
