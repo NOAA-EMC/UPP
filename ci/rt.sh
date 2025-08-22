@@ -109,7 +109,7 @@ check_valid_tests() {
 
 set +x
 export OPTERR=1
-while getopts a:w:h:r:t:b:u:C:cdHe opt; do
+while getopts a:w:h:r:l:t:b:u:C:cdHe opt; do
   case $opt in
     C) compiler=${OPTARG} ; check_for_dash
         ;;
@@ -123,7 +123,7 @@ while getopts a:w:h:r:t:b:u:C:cdHe opt; do
         ;;
     r) rundir=${OPTARG} ; check_for_dash
         ;;
-    l) check_valid_tests() ${OPTARG}
+    l) check_valid_tests ${OPTARG}
        ;;
     t) test_v=${OPTARG} ; check_for_dash
         ;;
@@ -231,8 +231,6 @@ elif [ $mac3 = herc ] ; then
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
  module load python/3.11.7
- module load spack-user
- eval "$(spack load --sh uwtools@2.7.2)"
 elif [ $mac = d -o $mac = c ]; then #for WCOSS2
  export machine=WCOSS2
  export homedir=${homedir:-"/u/wen.meng/noscrub/test_suite"}
@@ -324,10 +322,14 @@ if [[ ${machine} != "wcoss2" ]]; then
    source test.bash
    source atparse.bash
 
+   echo "Machine: ${machine}"
+
    for test in ${test_list}
    do
-      set_global()
-      ${test}()
+      echo "Running test: ${test}"
+      set_global
+      echo "Call test: ${test}()"
+      ${test}
       atparse < run_post_${test}_template.sh > run_post_${test}_${machine}2.sh
    done
 

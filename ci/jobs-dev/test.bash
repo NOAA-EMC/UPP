@@ -5,7 +5,7 @@ set_global() {
    export WTIME=00:30:00
    export QUEUE=batch
 
-   if [[ ${machine} = "ursa" ]]; then
+   if [[ ${machine} = "URSA" ]]; then
       export EXCLUSIVE='--exclusive'
    else
       export EXCLUSIVE=''
@@ -16,11 +16,11 @@ set_global() {
 3drtma() {
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=8
          export N_TASKS_PER_NODE=12
       ;;
-      ursa)
+      URSA)
          export WTIME=00:20:00
          export N_TASKS=128
          export TASKS_PER_NODE=32
@@ -30,11 +30,11 @@ set_global() {
 
 gefs() {
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=3
          export N_TASKS_PER_NODE=12
       ;;
-      ursa)
+      URSA)
          export N_TASKS=48
          export TASKS_PER_NODE=24
       ;;
@@ -44,11 +44,11 @@ gefs() {
 
 gfs() {
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=6
          export N_TASKS_PER_NODE=40
       ;;
-      ursa)
+      URSA)
          export N_TASKS=400
          export TASKS_PER_NODE=40
       ;;
@@ -61,11 +61,11 @@ hafs() {
    export WTIME=00:20:00
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=5
          export N_TASKS_PER_NODE=12
       ;;
-      ursa)
+      URSA)
          export N_TASKS=72
          export TASKS_PER_NODE=24
          export EXCLUSIVE=''
@@ -88,11 +88,11 @@ mpas() {
    export WTIME=00:20:00
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export N_TASKS=200
          export TASKS_PER_NODE=40
       ;;
-      ursa)
+      URSA)
          export N_TASKS=192
          export TASKS_PER_NODE=48
       ;;
@@ -106,7 +106,7 @@ mpas_hfip() {
    export N_TASKS=256
    export CPUS_PER_TASK=4
    
-   if [[ $machine = ursa ]]; then
+   if [[ $machine = URSA ]]; then
       export MEM='--mem=0'
    fi
 
@@ -117,11 +117,11 @@ nmmb() {
    export WTIME=00:20:00
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=2
          export N_TASKS_PER_NODE=8
       ;;
-      ursa)
+      URSA)
          export NODES=7
          export N_TASKS_PER_NODE=4
       ;;
@@ -134,11 +134,11 @@ rap() {
    export WTIME=00:20:00
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=2
          export N_TASKS_PER_NODE=24
       ;;
-      ursa)
+      URSA)
          export NODES=4
          export N_TASKS_PER_NODE=12
       ;;
@@ -149,11 +149,11 @@ rap() {
 rrfs() {
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=6
          export N_TASKS_PER_NODE=40
       ;;
-      ursa)
+      URSA)
          export N_TASKS=240
          export TASKS_PER_NODE=48
       ;;
@@ -164,11 +164,11 @@ rrfs() {
 rrfs_ifi_missing() {
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=8
          export N_TASKS_PER_NODE=12
       ;;
-      ursa)
+      URSA)
          export N_TASKS=240
          export TASKS_PER_NODE=48
       ;;
@@ -179,11 +179,11 @@ rrfs_ifi_missing() {
 sfs() {
 
    case $machine in
-      orion|hercules)
+      ORION|HERCULES)
          export NODES=3
          export N_TASKS_PER_NODE=12
       ;;
-      ursa)
+      URSA)
          export N_TASKS=48
          export TASKS_PER_NODE=24
       ;;

@@ -9,7 +9,7 @@
 #SBATCH @[EXCLUSIVE]
 #SBATCH --ntasks @[N_TASKS]
 #SBATCH --tasks-per-node @[TASKS_PER_NODE]
-#SBATCH -N @[nodes] --ntasks-per-node=@[N_TASKS_PER_NODE]
+#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 case $machine in
       orion|hercules)
