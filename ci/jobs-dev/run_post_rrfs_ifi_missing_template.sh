@@ -11,18 +11,6 @@
 #SBATCH @[TASKS_PER_NODE]
 #SBATCH @[NODES] @[N_TASKS_PER_NODE]
 
-case $machine in
-      orion|hercules)
-         export NODES=8
-         export N_TASKS_PER_NODE=12
-      ;;
-      ursa)
-         export NTASKS=240
-         export TASKS_PER_NODE=48
-      ;;
-   esac
-
-
 set -x
 
 # specify computation resources
@@ -38,11 +26,13 @@ date
 # Loading modules
 ############################################
 module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list
+
+@[STACK_SIZE]
 
 msg="Starting rrfs_ifi_missing test"
 postmsg "$logfile" "$msg"
