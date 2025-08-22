@@ -5,12 +5,6 @@ set_global() {
    export WTIME=00:30:00
    export QUEUE=batch
 
-   if [[ ${machine} = "URSA" ]]; then
-      export EXCLUSIVE='--exclusive'
-   else
-      export EXCLUSIVE=''
-   fi
-   
 }
 
 3drtma() {

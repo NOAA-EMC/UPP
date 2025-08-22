@@ -319,16 +319,13 @@ if [[ ${machine} != "wcoss2" ]]; then
    
    cd $svndir/ci/jobs-dev
 
+   source machine.bash
    source test.bash
    source atparse.bash
 
-   echo "Machine: ${machine}"
-
    for test in ${test_list}
    do
-      echo "Running test: ${test}"
       set_global
-      echo "Call test: ${test}()"
       ${test}
       atparse < run_post_${test}_template.sh > run_post_${test}_${machine}2.sh
    done
