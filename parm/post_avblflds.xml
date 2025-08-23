@@ -2092,6 +2092,18 @@
     </param>
 
     <param>
+       <post_avblfldidx>244</post_avblfldidx>
+       <shortname>MAX_REFC_ON_ENTIRE_ATMOS</shortname>
+       <longname>time-maximum composite reflectivity</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>MAXREFC</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>245</post_avblfldidx>
        <shortname>GUST_ON_SURFACE</shortname>
        <pname>GUST</pname>
@@ -4486,6 +4498,42 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>PEVPR</pname>
        <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>518</post_avblfldidx>
+       <shortname>MAX_PRATE_1MIN_ON_SURFACE</shortname>
+       <longname>Maximum 1-minute average precipitation rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE1MIN</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>519</post_avblfldidx>
+       <shortname>MAX_PRATE_5MIN_ON_SURFACE</shortname>
+       <longname>Maximum 5-minute average precipitation rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE5MIN</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>520</post_avblfldidx>
+       <shortname>MAX_PRATE_10MIN_ON_SURFACE</shortname>
+       <longname>Maximum 10-minute average precipitation rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE10MIN</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
