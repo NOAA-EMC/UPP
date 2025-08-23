@@ -210,8 +210,6 @@ elif [ $mac2 = uf ]; then # for Ursa
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
  module load python/3.11.7
- module load spack-user
- eval "$(spack load --sh uwtools@2.7.2)"
 elif [ $mac3 = orio ] ; then
  export machine=ORION
  export homedir=${homedir:-"/work/noaa/epic/role-epic/orion/UPP"}
@@ -224,8 +222,6 @@ elif [ $mac3 = orio ] ; then
  module load stack-intel-oneapi-mpi/2021.13
  module load prod_util/2.1.1
  module load python/3.11.7
- module load spack-user
- eval "$(spack load --sh uwtools@2.7.2)"
 elif [ $mac3 = herc ] ; then
  export machine=HERCULES
  export homedir=${homedir:-"/work/noaa/epic/role-epic/hercules/UPP"}
