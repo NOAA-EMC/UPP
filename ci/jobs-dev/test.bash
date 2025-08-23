@@ -136,6 +136,7 @@ rap() {
       ORION|HERCULES)
          export NODES=2
          export N_TASKS_PER_NODE=24
+         export NUMX=',numx=4'
       ;;
       URSA)
          export NODES=4
