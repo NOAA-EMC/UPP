@@ -331,6 +331,8 @@ if [[ ${machine} != "wcoss2" ]]; then
       set_global
       if [[ ${test} =~ "gefs" ]]; then
          gefs
+      elif [[ ${test} =~ "rtma" ]]; then
+         rtma
       else
 	 ${test}
       fi
