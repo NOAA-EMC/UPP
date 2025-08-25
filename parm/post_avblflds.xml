@@ -3514,15 +3514,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>406</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_TOP</shortname>
-       <longname>GSD_pressure on cloud top</longname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>407</post_avblfldidx>
        <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <longname>GSD_instant precipitation type on surface</longname>
@@ -3537,15 +3528,6 @@
        <longname>GSD_geopotential height on cloud ceiling</longname>
        <pname>HGT</pname>
        <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>409</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_TOP</shortname>
-       <longname>GSD_geopotential height on cloud top</longname>
-       <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -4940,14 +4922,18 @@
        <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
-
+   
+<!-- 581:
+     Configured below with pname "VIL", but also suitable as pname
+     "RADARVIL" (NCEP local use); refer to GRIB2 Table 4.2-0-15
+-->
     <param>
        <post_avblfldidx>581</post_avblfldidx>
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <longname>entire atmosphere Vertically Integrated Liquid (kg/m-2)</longname>
        <pname>VIL</pname>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -7085,20 +7071,17 @@
        <scale>3.0</scale>
     </param>
 
+<!-- 769:
+     Previously had shortname "GSD_VIL_ON_ENTIRE_ATMOS" and pname "VIL"; was sometimes referred
+     to as 'hydrometeor-based VIL'
+-->
     <param>
-       <post_avblfldidx>769</post_avblfldidx>
-       <shortname>GSD_VIL_ON_ENTIRE_ATMOS</shortname>
-       <pname>VIL</pname>
+       <post_avblfldidx>769</post_avblfldidx>     
+       <shortname>TCOLP_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLP</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>770</post_avblfldidx>
-       <shortname>GSD_RADARVIL_ON_ENTIRE_ATMOS</shortname>
-       <pname>RADARVIL</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -7369,7 +7352,7 @@
 
     <param>
        <post_avblfldidx>794</post_avblfldidx>
-       <shortname>GSD_MAX_COLMAX_GRAUPEL_HAIL_DIAMETER</shortname>
+       <shortname>MAX_GRAUPEL_HAIL_DIAMETER_IN_COLUMN</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>HAIL</pname>
        <stats_proc>MAX</stats_proc>
@@ -7379,22 +7362,30 @@
 
     <param>
        <post_avblfldidx>795</post_avblfldidx>
-       <shortname>GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER</shortname>
+       <shortname>MAX_GRAUPEL_HAIL_DIAMETER_AT_LOWEST_LVL</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>HAIL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
-       <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
        <level>1.</level>
        <scale>4.0</scale>
     </param>
 
     <param>
-       <post_avblfldidx>798</post_avblfldidx>
-       <shortname>GSD_PRES1_ON_CLOUD_BASE</shortname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <post_avblfldidx>796</post_avblfldidx>
+       <shortname>INST_CLRSKY_SWDDNI_ON_SURFACE</shortname>
+       <pname>DSWRFLXCS</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>797</post_avblfldidx>
+       <shortname>INST_CLRSKY_SWDDIF_ON_SURFACE</shortname>
+       <pname>DFSWRFLXCS</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
     </param>
 
     <param>
@@ -8526,6 +8517,18 @@
        <shortname>NCGRAUP_ON_ISOBARIC_SFC</shortname>
        <pname>SPNCG</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1025</post_avblfldidx>
+       <shortname>BUCKET_HAIL_ON_SURFACE</shortname>
+       <longname>bucket hail on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>HAILAC</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 

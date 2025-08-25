@@ -10,6 +10,7 @@
 !> March, 2015 | Lin Gan   | Initial Code
 !> July,  2016 | J. Carley | Clean up prints 
 !> July, 2024  | Wen Meng  | Increase datset length
+!> May, 2025   | Ben Blake | Remove hardcoded value for tprec
 !>
 !------------------------------------------------------------------------
 !> @defgroup xml_perl_data_mod xml_perl_data
@@ -238,7 +239,6 @@
           if(paramset(i)%gen_proc_type=='ens_fcst')then
             read(22,*)paramset(i)%type_ens_fcst
             call filter_char_inp(paramset(i)%type_ens_fcst)
-            tprec   = 6  ! always 6 hr bucket for gefs
             tclod   = tprec
             trdlw   = tprec
             trdsw   = tprec

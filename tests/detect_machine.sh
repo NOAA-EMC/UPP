@@ -24,14 +24,15 @@ case $(hostname -f) in
   gaea5[1-8])          MACHINE_ID=gaea ;; ### gaea51-58
   gaea5[1-8].ncrc.gov) MACHINE_ID=gaea ;; ### gaea51-58
 
-  gaea6[1-8])          MACHINE_ID=gaeac6 ;; ### gaea61-68
-  gaea6[1-8].ncrc.gov) MACHINE_ID=gaeac6 ;; ### gaea61-68
+  gaea6[1-8])          MACHINE_ID=gaea ;; ### gaea61-68
+  gaea6[1-8].ncrc.gov) MACHINE_ID=gaea ;; ### gaea61-68
 
   hfe0[1-9]) MACHINE_ID=hera ;;   ### hera01-09
   hfe1[01]) MACHINE_ID=hera ;;   ### hera10-11
   hecflow01) MACHINE_ID=hera ;;   ### heraecflow01
 
-  ufe0[1-4]) MACHINE_ID=ursa ;; ###  ofe01-02
+  ufe[0-9][0-9]) MACHINE_ID=ursa ;;
+  uecflow*) MACHINE_ID=ursa ;;
 
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
 
@@ -51,6 +52,14 @@ case $(hostname -f) in
   discover3[1-5].prv.cube) MACHINE_ID=discover ;; ### discover31-35
   *) MACHINE_ID=UNKNOWN ;;  # Unknown platform
 esac
+
+# overwrite MACHINE_ID, if use container
+if [[ -d /opt/spack-stack ]]; then
+  if [[ -v SINGULARITY_CONTAINER ]]; then
+    # We are in a container
+    MACHINE_ID=container
+  fi
+fi
 
 if [[ ${MACHINE_ID} == "UNKNOWN" ]]; then 
    case ${PW_CSP:-} in
@@ -80,9 +89,6 @@ elif [[ -d /mnt/lfs1 ]]; then
 elif [[ -d /scratch1 ]]; then
   # We are on NOAA Hera
   MACHINE_ID=hera
-elif [[ -d /scratch3 ]]; then
-  # We are on NOAA Ursa
-  MACHINE_ID=ursa
 elif [[ -d /work ]]; then
   # We are on MSU Orion or Hercules, check the home mount
   mount=$(findmnt -n -o SOURCE /home)
@@ -98,6 +104,9 @@ elif [[ -d /gpfs && -d /ncrc ]]; then
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
+elif [[ -d /opt/spack-stack && -v SINGULARITY_CONTAINER ]]; then
+  # We are in a container
+  MACHINE_ID=container
 else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi

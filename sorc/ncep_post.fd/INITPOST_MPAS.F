@@ -26,6 +26,11 @@
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
 !> 2025-03-20 | Jaymes Kenyon| Remove some unused code carried over from INITPOST, 
 !>                             add/clarify comments, and modify several print/write statements
+!> 2025-05-08 | Jaymes Kenyon| Add HAIL_BUCKET accumulation; remove old/unused blocks of code
+!> 2025-06-16 | Jaymes Kenyon| Removing the calculation of PBLHGUST.  This array represented a PBL height 
+!>                           | obtained from the profile of virtual potential temperature (THV).  In turn, 
+!>                           | PBLHGUST was used for the wind-gust diagnostic in RAPR.  Calculation of a
+!>                           | THV-based PBL height has now been ported into CALPBL 
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -34,7 +39,7 @@
       use vrbls4d, only: dust, smoke
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
               qqr, qqs, qqi, qqg, qqnw, qqni, qqnr, qqng, cwm, qqw, qqi, qqr, qqs, extcof55,&
-              f_ice, f_rain, f_rimef, q2, zint, zmid, ttnd, cfr, cfr_raw, qc_bl, REF_10CM,  &
+              q2, zint, zmid, ttnd, cfr, cfr_raw, qc_bl, REF_10CM,                 &
               qqnwfa,qqnifa,taod5503d,aextc55
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,      &
               sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max, w_mean, refd_max, &
@@ -45,18 +50,19 @@
               hail_max2d,hail_maxk1,hail_maxhailcast,ltg1_max,                     &
               ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,      &
               u10, v10, th10, q10, tshltr, mrshltr,                                &
-              nca_refd, qv2m, qshltr, smstav, smstot, ssroff, bgroff, sfcevp,      &
-              sfcexc, vegfrc, acsnow, cmc, sst, thz0, qz0, uz0, vz0, qs, qvg,      &
-              z0, ustar, akhs, akms, radot, ths, acsnom, cuprec, ancprc, acprec,   &
+              nca_refd, qv2m, qshltr, smstav, ssroff, bgroff,                      &
+              vegfrc, acsnow, cmc, sst, thz0, qs, qvg,                             &
+              z0, ustar, radot, ths, acsnom, cuprec, ancprc, acprec,               &
               rainc_bucket, pcp_bucket, cprate, prec, snownc, snow_bucket,         &
-              graup_bucket, swddni, swddif, mean_frp, acgraup, acfrain,            &
+              graup_bucket, hail_bucket, swddni, swddif, mean_frp,                 &
+              acgraup, acfrain,                                                    &
               graupelnc, albedo, rswin, rswout, swdnbc, swddnic,                   &
               swddifc, swupbc, swupt, czen, czmean, rlwin, lwdnbc, lwupbc,         &
               rainnc_bucket, taod5502d, aerasy2d, aerssa2d, lwp, iwp,              &
               sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout, alwtoa, aswtoa, &
               tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx, snopcx,       &
               sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc, tsnow,       &
-              ivgtyp, isltyp, islope, pblh, pblhgust, f,                           &
+              ivgtyp, isltyp, pblh, f,                                             &
               QVl1,REFC_10CM,REF1KM_10CM,REF4KM_10CM,                              &
               SWRADmean,U10mean,V10mean,SPDUV10mean,SWNORMmean,SNFDEN,SNDEPAC,     &
               hbotd,hbots,rainc_bucket1,rainnc_bucket1,pcp_bucket1,snow_bucket1,   &
@@ -112,25 +118,21 @@
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
         real, allocatable::  pvapor(:,:)
         real, allocatable::  pvapor_orig(:,:)      
-      REAL, ALLOCATABLE :: THV(:,:,:)
  
       integer js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,          &
               ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,         &
-              idxvald,NSRFC , lflip, k, k1
-      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO,ZSF,ZPBLTOP
+              idxvald,NSRFC , lflip, k
+      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO
       real t2,th2,x2m,p2m,tsk, fact, temp
       real LAT
 
       integer jdn, numr, ic, jc, ierr
       integer, external :: iw3jdn
       real sun_zenith,sun_azimuth, ptop_low, ptop_mid, ptop_high
-      real delta_theta4gust
-!
-!
+
 !***********************************************************************
 !     START INIT HERE.
 !
-      ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
       ALLOCATE ( DUM3D ( IM+1, JM+1, LM+1 ) )
       if (me==0) WRITE(6,*)'ENTER INITPOST_MPAS'
 !     
@@ -369,7 +371,6 @@
            if(dum3d(i,j,l)<spval) then
 !            PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
             PMID(I,J,L)=DUM3D(I,J,L)
-            thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
 ! now that I have P, convert theta to t
             t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
 ! now that I have T,q,P  compute omega from wh
@@ -378,7 +379,6 @@
                               (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
            else
             PMID(I,J,L) = spval
-            thv(i,j,l) = spval
             t(i,j,l) = spval
             omga(i,j,l) = spval
            endif
@@ -1484,23 +1484,22 @@ endif  ! 1==2
        end do
 !       print*,'GRPL_MAX at ',ii,jj,' = ',GRPL_MAX(ii,jj)
 
-
-      VarName='HAIL_MAXK1'
+      VarName='HAIL_MAXK1' ! maximum hail diameter at the surface (over diagnostic interval)
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            HAIL_MAXK1 ( i, j ) = dummy ( i, j )
+            HAIL_MAXK1 ( i, j ) = dummy ( i, j ) * 0.001 ! convert mm to m
         end do
        end do
 !       print*,'HAIL_MAXK1 at ',ii,jj,' = ',HAIL_MAXK1(ii,jj)
 
-      VarName='HAIL_MAX2D'
+      VarName='HAIL_MAX2D' ! maximum hail diameter in the column (over diagnostic interval)
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            HAIL_MAX2D ( i, j ) = dummy ( i, j )
+            HAIL_MAX2D ( i, j ) = dummy ( i, j ) * 0.001 ! convert mm to m
         end do
        end do
 !       print*,'HAIL_MAX2D at ',ii,jj,' = ',HAIL_MAX2D(ii,jj)
@@ -1783,16 +1782,6 @@ endif  ! 1==2
         end do
        end do
        
-!      VarName='SMSTOT'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            SMSTOT ( i, j ) = dummy ( i, j )
-!        end do
-!       end do       
-             
-!mhu      VarName='SSROFF' 
       VarName='SFROFF' 
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        & 
         IM,1,JM,1,IM,JS,JE,1)
@@ -1810,25 +1799,6 @@ endif  ! 1==2
         end do
        end do
 
-!      VarName='SFCEVP'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            SFCEVP( i, j ) = dummy ( i, j )
-!        end do
-!       end do
-!       print*,'SFCEVP at ',ii,jj,' = ',SFCEVP(ii,jj) 
-      
-!      VarName='SFCEXC'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            SFCEXC ( i, j ) = dummy ( i, j )
-!        end do
-!       end do       
-       
       VarName='VEGFRA'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1911,44 +1881,6 @@ endif  ! 1==2
             THZ0 ( i, j ) = dummy ( i, j )
         end do
        end do
-!       print*,'THZ0 at ',ii,jj,' = ',THZ0(ii,jj)
-!      VarName='QZ0'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            QZ0 ( i, j ) = dummy ( i, j )
-!        end do
-!       end do
-!       print*,'QZ0 at ',ii,jj,' = ',QZ0(ii,jj)
-!      VarName='UZ0'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &   
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            UZ0 ( i, j ) = dummy ( i, j )
-!        end do
-!       end do
-!       print*,'UZ0 at ',ii,jj,' = ',UZ0(ii,jj)
-!      VarName='VZ0'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            VZ0 ( i, j ) = dummy ( i, j )
-!        end do
-!       end do
-!       print*,'VZ0 at ',ii,jj,' = ',VZ0(ii,jj)
-!      VarName='QSFC'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            QS ( i, j ) = dummy ( i, j )
-!            QVG ( i, j ) = dummy ( i, j )/(1.-dummy ( i, j ))
-!        end do
-!       end do
-!       print*,'QS at ',ii,jj,' = ',QS(ii,jj)
 
       IF(MODELNAME == 'RAPR')THEN
          VarName='ZNT'
@@ -1970,7 +1902,6 @@ endif  ! 1==2
           end do
       END IF
 
-!      VarName='USTAR'
       VarName='UST'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1981,40 +1912,14 @@ endif  ! 1==2
        end do
 !       print*,'USTAR at ',ii,jj,' = ',USTAR(ii,jj)
 
-!      IF(MODELNAME == 'RAPR')THEN
-!        VarName='FLHC'
-!      ELSE
-!        VarName='AKHS'
-!      ENDIF
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            AKHS ( i, j ) = dummy ( i, j )
-!        end do
-!       end do
-!      VarName='AKMS'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            AKMS ( i, j ) = dummy ( i, j )
-!        end do
-!       end do
-
-!
-!	In my version, variable is TSK (skin temp, not skin pot temp)
-!
-!mp      call getVariable(fileName,DateStr,DataHandle,'THSK',DUMMY,
       VarName='TSK'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-!HC            THS ( i, j ) = dummy ( i, j ) ! this is WRONG (should be theta)
-!HC CONVERT SKIN TEMPERATURE TO SKIN POTENTIAL TEMPERATURE
 ! CHC: deriving outgoing longwave fluxes by assuming emmissitivity=1
            RADOT ( i, j ) = DUMMY(i,j)**4.0/STBOL
+! HC: CONVERT SKIN TEMPERATURE TO SKIN POTENTIAL TEMPERATURE
            THS ( i, j ) = dummy ( i, j )                                 &
                   *(P1000/PINT(I,J,NINT(LMH(I,J))+1))**CAPA
         end do
@@ -2033,9 +1938,6 @@ endif  ! 1==2
          end do
       END IF
 
-!C
-!CMP
-!C
 !C RAINC is "ACCUMULATED TOTAL CUMULUS PRECIPITATION" 
 !C RAINNC is "ACCUMULATED TOTAL GRID SCALE PRECIPITATION"
 
@@ -2160,7 +2062,6 @@ endif  ! 1==2
 !-- SNOW_bucket  is "ACCUMULATED GRID SCALE SNOW OVER BUCKET_DT PERIODS OF TIME"
 
       if (me==0) write(6,*) 'getting SNOW_ACC_NC, [mm] '
-!      VarName='SNOW_BUCKET'
       VarName='SNOW_ACC_NC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2206,6 +2107,23 @@ endif  ! 1==2
         end do
        end do
 
+!-- HAIL_BUCKET is "Maximum hail diameter at the surface accumulated over diagnostic output" 
+
+! The reset interval (set in MPAS) for this array is not strictly equal to the interval used 
+! for other bucket accumulations (PREC_ACC_DT). However, it is functionally "like" a bucket 
+! accumulation, and a 60-min reset interval is anticipated. Therefore, "HAIL_ACC" is 
+! introcuded into UPP as another bucket accumulation. (J. Kenyon / GSL, 8 May 2025)
+
+      if (me==0) write(6,*) 'getting HAIL_ACC, [mm] '
+      VarName='HAIL_ACC'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            hail_bucket ( i, j ) = dummy ( i, j ) * 0.001 ! convert mm to m
+        end do
+       end do
+
       VarName='ACGRAUP'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &   
         IM,1,JM,1,IM,JS,JE,1)
@@ -2234,7 +2152,6 @@ endif  ! 1==2
         end do
        end do
 
-
       VarName='ALBSOL'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2243,19 +2160,6 @@ endif  ! 1==2
             ALBEDO ( i, j ) = dummy ( i, j )
         end do
        end do
-!
-!  GSD trunk as 2014.4.14
-!      VarName='GSW'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,&
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            RSWIN ( i, j ) = dummy ( i, j )
-! HCHUANG: GSW is actually net downward shortwave in ncar wrf
-!             RSWIN ( i, j ) = dummy ( i, j )/(1.0-albedo(i,j))
-!             RSWOUT ( i, j ) = RSWIN ( i, j ) - dummy ( i, j )
-!        end do
-!       end do
 
       VarName='SWDOWN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2476,7 +2380,6 @@ endif  ! 1==2
 ! NCAR WRF does not output accumulated fluxes so set the bitmap of these fluxes to 0
       do j = jsta_2l, jend_2u
         do i = 1, im
-!	   RLWTOA(I,J)=SPVAL
 	   RSWINC(I,J)=SPVAL
            ASWIN(I,J)=SPVAL  
 	   ASWOUT(I,J)=SPVAL
@@ -2665,16 +2568,6 @@ endif  ! 1==2
        end do
 !       if (me==0) print*,'MAX ISLTYP=', maxval(dummy)
 
-!      VarName='ISLOPE'
-!      call getIVariableN(fileName,DateStr,DataHandle,VarName,IDUMMY,     &
-!        IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            ISLOPE( i, j ) = idummy ( i, j )
-!        end do
-!       end do
-       
-
 ! XLAND 1 land 2 sea
       VarName='XLAND'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2694,36 +2587,6 @@ endif  ! 1==2
             PBLH ( i, j ) = dummy ( i, j )
         end do
        end do
-      IF(MODELNAME == 'RAPR')THEN
-! PBL depth from GSD
-       delta_theta4gust=0.5
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-!!   Is there any mixed layer at all?
-          if (thv(i,j,lm-1) < (thv(i,j,lm) + delta_theta4gust)) then
-            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
-!!   Calculate k1 level as first above PBL top
-            do 34 k=3,LM
-              k1 = k
-!! - give theta-v at the sfc a 0.5K boost in
-!!         the PBL height definition
-              if (thv(i,j,lm-k+1)>(thv(i,j,lm) + delta_theta4gust))  &
-!                     go to 341
-                      exit     
- 34         continue
-            continue
- !341        continue
-              zpbltop = zmid(i,j,lm-k1+1) +                             &
-                   ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1))    &
-                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
-                 / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
-            PBLHGUST ( i, j ) = zpbltop - zsf
-          else
-            PBLHGUST ( i, j ) = 0.
-          endif
-        end do
-       end do
-      ENDIF
 
       VarName='XLAT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -3004,50 +2867,13 @@ endif  ! 1==2
       IF(NPREC==0)TPREC=float(ifhr)  !in case buket does not get emptied
       if (me==0) print*,'NPREC,TPREC = ',NPREC,TPREC
 
-!tgs      TPREC=float(ifhr)  ! WRF EM does not empty precip buket at all
-
-!      TSRFC=float(NSRFC)/TSPH
-!      TRDLW=float(NRDLW)/TSPH
-!      TRDSW=float(NRDSW)/TSPH
-!      THEAT=float(NHEAT)/TSPH
-!      TCLOD=float(NCLOD)/TSPH
-!      TPREC=float(NPREC)/TSPH
       if (me==0) print*,'TSRFC TRDLW TRDSW= ',TSRFC, TRDLW, TRDSW
-!MEB need to get DT
-
-!how am i going to get this information?
-!      NPREC  = INT(TPREC *TSPH+D50)
-!      NHEAT  = INT(THEAT *TSPH+D50)
-!      NCLOD  = INT(TCLOD *TSPH+D50)
-!      NRDSW  = INT(TRDSW *TSPH+D50)
-!      NRDLW  = INT(TRDLW *TSPH+D50)
-!      NSRFC  = INT(TSRFC *TSPH+D50)
-!how am i going to get this information?
-!     
-!     IF(ME==0)THEN
-!       WRITE(6,*)' '
-!       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
-!       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
-!       WRITE(6,*)' NCLOD,NRDSW,NRDLW :  ',NCLOD,NRDSW,NRDLW
-!     ENDIF
-!
-
-!      VarName='RAINCV'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,
-!     &  IM,1,JM,1,IM,JS,JE,1)
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            CUPPT ( i, j ) = dummy ( i, j )* 0.001*(TRDLW*3600.)	    
-!        end do
-!       end do
-
 
 !     COMPUTE DERIVED MAP OUTPUT CONSTANTS.
       DO L = 1,LSM
          ALSL(L) = ALOG(SPL(L))
       END DO
 
-      DEALLOCATE (THV)
       deallocate (msft)
 
 ! convert dxval, dyval from meters to millimeters 
