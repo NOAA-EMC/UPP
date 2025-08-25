@@ -86,9 +86,15 @@ elif [[ -d /lfs/h1 && ! -d /lfs/h3 ]]; then
 elif [[ -d /mnt/lfs1 ]]; then
   # We are on NOAA Jet
   MACHINE_ID=jet
-elif [[ -d /scratch1 ]]; then
-  # We are on NOAA Hera
-  MACHINE_ID=hera
+elif [[ -d /scratch3 ]]; then
+  # We are on NOAA Hera or Ursa
+  mount=$(findmnt -n -o SOURCE /apps)
+  if [[ ${mount} =~ "ursa" ]]; then
+    # We are on Ursa
+    MACHINE_ID=ursa
+  elif [[ ${mount} =~ "hera" ]]; then
+    MACHINE_ID=hera
+  fi
 elif [[ -d /glade ]]; then
   # We are on NCAR derecho
   MACHINE_ID=derecho

@@ -25,6 +25,7 @@
 !2024-07-17         A. BENJAMIN      GRIB2 v33.0 update, new parameters
 !2025-05-14         B. BLAKE         Added new parameters
 !2025-06-11         B. BLAKE         Added new parameters
+!2025-08-04         B. BLAKE         Added new parameters
 !
 !
 !GRIB2 parameter table for all disciplines and categories
@@ -326,6 +327,10 @@
    0   1   236   1 HAILAC
 !  Added new parameters on 6/11/2025
    0   1   237   1 TCOLP
+!  Added new parameters on 8/4/2025
+   0   1   238   1 PRATE1MIN
+   0   1   239   1 PRATE5MIN
+   0   1   240   1 PRATE10MIN
    0   1   241   1 TSNOW
    0   1   242   1 RHPW
    0   1   245   1 MAXVIG
@@ -813,6 +818,8 @@
    0  16   196   1 REFC
    0  16   197   1 RETOP
    0  16   198   1 MAXREF
+!  Added new parameters on 8/4/2025
+   0  16   199   1 MAXREFC
 !
 ! GRIB2 - TABLE 4.2-0-17 PARAMETERS FOR DISCIPLINE 0 CATEGORY 17
 !
