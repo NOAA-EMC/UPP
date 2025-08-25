@@ -322,9 +322,9 @@ if [[ ${machine} != "wcoss2" ]]; then
    
    cd $svndir/ci/jobs-dev
 
-   source machine.bash
-   source test.bash
-   source atparse.bash
+   source machine.sh
+   source test.sh
+   source atparse.sh
 
    for test in ${test_list}
    do
@@ -336,7 +336,7 @@ if [[ ${machine} != "wcoss2" ]]; then
       else
 	 ${test}
       fi
-      atparse < run_post_${test}_template.sh > run_post_${test}_${machine}2.sh
+      atparse < run_post_${test}_template.sh > run_post_${test}_${machine}.sh
    done
 
 fi

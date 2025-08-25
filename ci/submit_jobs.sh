@@ -9,8 +9,8 @@ export jobid_list=""
 cd $workdir
 for test in ${test_list}
 do
-  cp $svndir/ci/jobs-dev/run_post_${test}_${machine}2.sh .
-  job_id=$(sbatch --parsable -A "${accnr}" run_post_${test}_${machine}2.sh)
+  cp $svndir/ci/jobs-dev/run_post_${test}_${machine}.sh .
+  job_id=$(sbatch --parsable -A "${accnr}" run_post_${test}_${machine}.sh)
   jobid_list="${jobid_list} ${job_id}"
 done
 
