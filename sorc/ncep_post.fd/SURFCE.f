@@ -59,7 +59,8 @@
 !> 2025-02-27 | S Trahan   | Update comment to match new use of IFI_APCP in IFI.F
 !> 2025-05-05 | B Blake    | Add sanity checks for RRFSv1 implementation
 !> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
-!>     
+!> 2025-07-15 | J Duda     | Read/process sub-hourly average precip rates from MPAS(SIT) - also turned off IGET(244) entry because it is not used and duplicates MAXREFC in MDLFLD.f
+!>
 !> @note
 !> USAGE:    CALL SURFCE
 !> @note
@@ -94,6 +95,7 @@
                          maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max,   &
                          v10max, th10, t10m, q10, wspd10max,                  &
                          wspd10umax, wspd10vmax, prec, sr,                    &
+                         max_prate_1min,max_prate_5min,max_prate_10min,       &
                          cprate, avgcprate, avgprec, acprec, cuprec, ancprc,  &
                          lspa, acsnow, acsnom, snowfall,ssroff, bgroff,       &
                          runoff, pcp_bucket, rainnc_bucket, snow_bucket,      &
@@ -121,7 +123,8 @@
                             elocp, g, xlai, tfrz, rd
       use ctlblk_mod, only: jsta, jend, lm, spval, grib, cfld, fld_info,     &
                             datapd, nsoil, isf_surface_physics, tprec, ifmin,&
-                            modelname, tmaxmin, pthresh, dtq2, dt, nphs,     &
+                            modelname, submodelname,                         &
+                            tmaxmin, pthresh, dtq2, dt, nphs,                &
                             ifhr, prec_acc_dt, sdat, ihrst, jsta_2l, jend_2u,&
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
                             mpi_comm_comp, im, jm, prec_acc_dt1,             &
@@ -937,7 +940,7 @@
       ENDIF
 !
 !     ACM GRID SCALE SNOW AND ICE
-      IF ( IGET(244)>0 ) THEN
+      IF ( IGET(244)>0 .and. .false. ) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
@@ -2920,11 +2923,16 @@
          ELSE
            ID(18) = IFHR - 1
          ENDIF
-!-- PRATE_MAX in units of mm/h from NMMB history files
+!-- PRATE_MAX in units of [mm/h] from NMMB history files
+!-- PRATE_MAX is in units of [mm/s] from MPAS/MPASSIT history files
          GRID1=SPVAL
          DO J=JSTA,JEND
            DO I=ISTA,IEND
-            if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
+            IF (submodelname == "MPAS") THEN
+               if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)
+            ELSE 
+               if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
+            ENDIF
            ENDDO
          ENDDO
          ITSRFC = NINT(TSRFC)
@@ -2978,7 +2986,121 @@
            enddo
          endif
       ENDIF
-!
+
+! MAXIMUM 1-minute average precipitation rate
+      IF (IGET(518)>0) THEN
+         IF (IFHR==0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         ID(19)     = IFHR
+         IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 1
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+            if(MAX_PRATE_1MIN(I,J)/=spval) GRID1(I,J)=MAX_PRATE_1MIN(I,J)
+           ENDDO
+         ENDDO
+         ITSRFC = NINT(TSRFC)
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(518))
+           fld_info(cfld)%lvl=LVLSXML(1,IGET(518))
+           if(ITSRFC>0) then
+             fld_info(cfld)%ntrange=1
+           else
+             fld_info(cfld)%ntrange=0
+           endif
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,ii,jj)
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,iend-ista+1
+             ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
+             enddo
+           enddo
+         endif
+      ENDIF
+
+!! MAXIMUM 5-minute average precipitation rate
+      IF (IGET(519)>0) THEN
+         IF (IFHR==0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         ID(19)     = IFHR
+         IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 5
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+            if(MAX_PRATE_5MIN(I,J)/=spval) GRID1(I,J)=MAX_PRATE_5MIN(I,J)
+           ENDDO
+         ENDDO
+         ITSRFC = NINT(TSRFC)
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(519))
+           fld_info(cfld)%lvl=LVLSXML(1,IGET(519))
+           if(ITSRFC>0) then
+             fld_info(cfld)%ntrange=1
+           else
+             fld_info(cfld)%ntrange=0
+           endif
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,ii,jj)
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,iend-ista+1
+             ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
+             enddo
+           enddo
+         endif
+      ENDIF
+
+!! MAXIMUM 10-minute average precipitation rate
+      IF (IGET(520)>0) THEN
+         IF (IFHR==0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         ID(19)     = IFHR
+         IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 10
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+            if(MAX_PRATE_10MIN(I,J)/=spval) GRID1(I,J)=MAX_PRATE_10MIN(I,J)
+           ENDDO
+         ENDDO
+         ITSRFC = NINT(TSRFC)
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(520))
+           fld_info(cfld)%lvl=LVLSXML(1,IGET(520))
+           if(ITSRFC>0) then
+             fld_info(cfld)%ntrange=1
+           else
+             fld_info(cfld)%ntrange=0
+           endif
+           fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,ii,jj)
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,iend-ista+1
+             ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
+             enddo
+           enddo
+         endif
+      ENDIF
+
 !     TIME-AVERAGED CONVECTIVE PRECIPITATION RATE.
       IF (IGET(272)>0) THEN
          RDTPHS=1000./DTQ2     !--- 1000 kg/m**3, density of liquid water
