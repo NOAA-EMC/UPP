@@ -2130,6 +2130,16 @@
     </param>
 
     <param>
+       <post_avblfldidx>248</post_avblfldidx>
+       <shortname>ACM_SNOL_ON_SURFACE</shortname>
+       <pname>SNOL</pname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>249</post_avblfldidx>
        <shortname>CPRAT_ON_SURFACE</shortname>
        <pname>CPRAT</pname>
