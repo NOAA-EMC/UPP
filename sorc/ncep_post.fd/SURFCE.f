@@ -60,6 +60,7 @@
 !> 2025-05-05 | B Blake    | Add sanity checks for RRFSv1 implementation
 !> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
 !> 2025-07-15 | J Duda     | Read/process sub-hourly average precip rates from MPAS(SIT) - also turned off IGET(244) entry because it is not used and duplicates MAXREFC in MDLFLD.f
+!> 2025-08-25 | B Blake    | Change UPP ID for accumulated grid-scale snow/ice to 248
 !>
 !> @note
 !> USAGE:    CALL SURFCE
@@ -940,7 +941,7 @@
       ENDIF
 !
 !     ACM GRID SCALE SNOW AND ICE
-      IF ( IGET(244)>0 .and. .false. ) THEN
+      IF ( IGET(248)>0 ) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
@@ -971,7 +972,7 @@
 
          if(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(244))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(248))
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
