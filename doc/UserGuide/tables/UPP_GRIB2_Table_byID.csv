@@ -241,6 +241,7 @@ Canopy conductance - soil component,RCSOL_ON_SURFACE,RCSOL,241
 Potential evaporation,PEVPR_ON_SURFACE,PEVPR,242
 Heat diffusivity on sigma surface,VEDH_ON_SIGMA_LVLS,VEDH,243
 Accumulated large scale snow,Not currently available for grib2,NA,244
+Time-maximum composite reflectivity,MAX_REFC_ON_ENTIRE_ATMOS,MAXREFC,244
 Surface wind gust,GUST_ON_SURFACE,GUST,245
 LCL level pressure,PLPL_ON_SPEC_PRES_ABOVE_GRND,PLPL,246
 Lowest wet bulb zero height,HGT_ON_LWST_LVL_OF_WET_BULB_ZERO,HGT,247
@@ -507,6 +508,9 @@ Direct evaporation from bare soil on surface,AVE_EVBS_ON_SURFACE,EVBS,514
 Transpiration on surface,AVE_TRANS_ON_SURFACE,TRANS,515
 Sublimation on surface,AVE_SBSNO_ON_SURFACE,SBSNO,516
 Potential evaporation rate on surface,AVE_PEVPR_ON_SURFACE,PEVPR,517
+Maximum 1-minute average precipitation rate on surface,MAX_PRATE_1MIN_ON_SURFACE,PRATE1MIN,518
+Maximum 5-minute average precipitation rate on surface,MAX_PRATE_5MIN_ON_SURFACE,PRATE5MIN,519
+Maximum 10-minute average precipitation rate on surface,MAX_PRATE_10MIN_ON_SURFACE,PRATE10MIN,520
 Bucket density snowfall on surface,BUCKET1_ASNOW_ON_SURFACE,ASNOW,525
 Bucket total precipitation on surface,BUCKET1_APCP_ON_SURFACE,APCP,526
 Bucket freezing rain on surface,BUCKET1_FRZR_ON_SURFACE,FRZR,527
