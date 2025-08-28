@@ -33,8 +33,7 @@
 !>                           | PBLHGUST was used for the wind-gust diagnostic in RAPR.  Calculation of a
 !>                           | THV-based PBL height has now been ported into CALPBL 
 !> 2025-07-15 | Jeff Duda    | Add max_compref, max_prate_1min, max_prate_1min, max_prate_5min, and max_prate_10min
-!> 2025-08-25 | Jaymes Kenyon| Remove the initialization of MRSHLTR;
-!>                           | remove the read-in of the MU and MUB arrays;
+!> 2025-08-25 | Jaymes Kenyon| Remove the read-in of the MU and MUB arrays;
 !>                           | remove an unused procedure for adjusting surface pressure;
 !>                           | correct the initial assignment of ZINT;
 !>                           | simplify/refactor the re-assignment of ZINT using the hypsometric equation;
