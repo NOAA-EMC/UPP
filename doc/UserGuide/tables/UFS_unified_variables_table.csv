@@ -138,6 +138,7 @@ Time averaged accumulated potential evaporation,pevpr_ave,avgpotevp,2d,phy,
 Instantaneous potential evaporation,pevpr,potevp,2d,phy,
 10 m u-wind component,ugrd10m,u10,2d,phy,
 10 m v-wind component,vgrd10m,v10,2d,phy,
+10-meter wind speed divided by lowest model wind speed (FV3 initialization variable),f10m,2d,phy,
 Vegetation type,vtype,ivgtyp,2d,phy,
 Soil type,sotyp,isltyp,2d,phy,
 Soil moisture availability,wetness,smstav,2d,phy,not GFS
