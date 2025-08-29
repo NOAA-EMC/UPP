@@ -86,7 +86,8 @@ check_for_dash() {
   fi
 }
 
-valid_tests='sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs'
+# Space required at start and and of string for pattern matching in check_valid_tests
+valid_tests=' sfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip rrfs rrfs_ifi_missing gfs '
 
 check_valid_tests() {
    local tests=${@}
@@ -95,7 +96,7 @@ check_valid_tests() {
       read -a tests_to_run <<< ${tests}
       for t in ${tests_to_run[@]}
       do
-         if [[ ${valid_tests} =~ ${t} ]]; then
+         if [[ ${valid_tests} =~ " ${t} " ]]; then
             test_list+="${t} "
          else
             echo "${t} is not a valid test"
