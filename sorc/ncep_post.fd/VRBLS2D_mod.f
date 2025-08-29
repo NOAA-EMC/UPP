@@ -18,7 +18,6 @@
       ,SNO   (:,:) &       !< Instantaneous snow water equivalent
       ,TSHLTR   (:,:) &    !< 2m temperature
       ,QSHLTR(:,:) &       !< 2m specific humidity
-      ,MRSHLTR(:,:) &      !< Shelter mixing ratio
       ,V10(:,:) &          !< 10 m v-wind component
       ,ACPREC(:,:) &       !< Accumulated total precipitation
       ,CUPREC(:,:) &       !< Accumulated total convective precipitation

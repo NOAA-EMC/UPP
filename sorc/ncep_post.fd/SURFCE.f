@@ -61,6 +61,8 @@
 !> 2025-05-08 | J Kenyon   | Add HAIL_BUCKET accumulation
 !> 2025-07-15 | J Duda     | Read/process sub-hourly average precip rates from MPAS(SIT) - also turned off IGET(244) entry because it is not used and duplicates MAXREFC in MDLFLD.f
 !> 2025-08-25 | B Blake    | Change UPP ID for accumulated grid-scale snow/ice to 248
+!> 2025-08-28 | J Kenyon   | Remove outdated MRSHLTR array and the associated functionality for
+!>                         | ID 414; the QV2M array (ID 760) can be used instead
 !>
 !> @note
 !> USAGE:    CALL SURFCE
@@ -92,7 +94,7 @@
       use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,       &
                          cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,    &
                          si, potevp, dzice, qwbs, vegfrc, isltyp, pshltr,     &
-                         tshltr, qshltr, mrshltr, maxtshltr, mintshltr,       &
+                         tshltr, qshltr, maxtshltr, mintshltr,                &
                          maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max,   &
                          v10max, th10, t10m, q10, wspd10max,                  &
                          wspd10umax, wspd10vmax, prec, sr,                    &
@@ -1573,7 +1575,7 @@
 !     
       IF ( (IGET(106)>0).OR.(IGET(112)>0).OR.     &
            (IGET(113)>0).OR.(IGET(114)>0).OR.     &
-           (IGET(138)>0).OR.(IGET(414)>0).OR.     &
+           (IGET(138)>0).OR.                      &
            (IGET(546)>0).OR.(IGET(547)>0).OR.     &
            (IGET(548)>0).OR.(IGET(558)>0).OR.     &
            (IGET(739)>0).OR.(IGET(744)>0)) THEN
@@ -1647,21 +1649,7 @@
              datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
            endif
         ENDIF
-!     GRID1
-!        SHELTER MIXING RATIO.
-        IF (IGET(414)>0) THEN
-           DO J=JSTA,JEND
-             DO I=ISTA,IEND
-               GRID1(I,J) = MRSHLTR(I,J)
-             ENDDO
-           ENDDO
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(414))
-            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-         endif
-        ENDIF
-!
+
 !        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
            allocate(p1d(ista:iend,jsta:jend), t1d(ista:iend,jsta:jend))
         IF ((IGET(113)>0) .OR.(IGET(547)>0).OR.(IGET(548)>0)) THEN

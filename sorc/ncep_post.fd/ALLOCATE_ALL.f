@@ -500,7 +500,6 @@
       allocate(v10(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(tshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(qshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(mrshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(smstav(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(ssroff(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(bgroff(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -533,7 +532,6 @@
           v10(i,j)=spval
           tshltr(i,j)=spval
           qshltr(i,j)=spval
-          mrshltr(i,j)=spval
           smstav(i,j)=spval
           ssroff(i,j)=spval
           bgroff(i,j)=spval
