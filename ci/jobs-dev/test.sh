@@ -12,7 +12,7 @@ set_global() {
 
 }
 
-rtma() {
+3drtma() {
 
    case $machine in
       ORION|HERCULES)
