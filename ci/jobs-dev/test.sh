@@ -5,10 +5,14 @@ set_global() {
    export WTIME=00:30:00
    export QUEUE=batch
 
+   # Reset variables between tests
    export NODES=''
    export N_TASKS_PER_NODE=''
    export N_TASKS=''
    export TASKS_PER_NODE=''
+   export CPUS_PER_TASK=''
+   export NUMX=''
+   export MEM=''
 
 }
 
@@ -27,7 +31,21 @@ set_global() {
    esac
 }
 
-gefs() {
+gefsv12() {
+   case $machine in
+      ORION|HERCULES)
+         export NODES='-N 3'
+         export N_TASKS_PER_NODE='--ntasks-per-node=12'
+      ;;
+      URSA)
+         export N_TASKS='--ntasks 48'
+         export TASKS_PER_NODE='--tasks-per-node 24'
+      ;;
+   esac
+
+}
+
+gefsv13() {
    case $machine in
       ORION|HERCULES)
          export NODES='-N 3'

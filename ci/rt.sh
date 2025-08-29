@@ -330,11 +330,7 @@ if [[ ${machine} != "wcoss2" ]]; then
    for test in ${test_list}
    do
       set_global
-      if [[ ${test} =~ "gefs" ]]; then
-         gefs
-      else
-         ${test}
-      fi
+      ${test}
       atparse < run_post_${test}_template.sh > run_post_${test}_${machine}.sh
    done
 
