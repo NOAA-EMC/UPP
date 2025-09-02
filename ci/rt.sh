@@ -319,7 +319,7 @@ if [ "$build_exe" == "yes" ]; then
 fi
 
 # Create job cards from template for RDHPCS
-if [[ ${machine} != "wcoss2" ]]; then
+if [[ ${machine} != "WCOSS2" ]]; then
    
    cd $svndir/ci/jobs-dev
 
