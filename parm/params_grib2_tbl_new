@@ -717,6 +717,7 @@
    0   1    28   0 MAXAH
    0   2   221   1 MAXDVV
    0   2    21   0 MAXGUST
+   0  16   199   1 MAXREFC
    0  16   198   1 MAXREF
    0   1    27   0 MAXRH
    4   2    10   0 MAXUFZ
@@ -931,6 +932,9 @@
    0   1   231   1 PPINDX
    1   1     1   0 PPOSP
   10   3     3   0 PRACTSAL
+   0   1   240   1 PRATE10MIN
+   0   1   238   1 PRATE1MIN
+   0   1   239   1 PRATE5MIN
    0   1     7   0 PRATE
    4   0     4   0 PRATMP
    0  15     5   0 PREC
