@@ -3,14 +3,13 @@
 #SBATCH -o out.post.mpas_hfip
 #SBATCH -e out.post.mpas_hfip
 #SBATCH -J mpas_hfip_test 
-#SBATCH -t 00:30:00
-#SBATCH --ntasks=256
-#SBATCH --cpus-per-task=4
-#SBATCH --time=00:30:00
-#SBATCH -q batch
-#SBATCH -A ovp
-#SBATCH --exclusive
-#SBATCH --mem=0
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH --ntasks=@[N_TASKS]
+#SBATCH --cpus-per-task=@[CPUS_PER_TASK]
+#SBATCH @[MEM]
 
 set -x
 
@@ -27,8 +26,8 @@ date
 # Loading modules
 ############################################
 module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list
@@ -74,9 +73,7 @@ cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 for what in \
     "FASTEM4.MWwater" "FASTEM5.MWwater" "FASTEM6.MWwater" "NPOESS.IRice" "NPOESS.IRland" \
     "NPOESS.IRsnow" "Nalli.IRwater" "abi_gr" "ahi_himawari8" "amsre_aqua" \
-    "imgr_g11" "imgr_g12" "imgr_g13" "imgr_g15" "imgr_insat3d" "imgr_mt1r" "imgr_mt2" \
-    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
-    "seviri_m10" "tmi_trmm" "v.seviri_m10" ; do
+    "ssmis_f17" "ssmis_f18" "tmi_trmm" ; do
   for coef in Spc Tau ; do
     file="${CRTM_FIX}/${what}.${coef}Coeff.bin"
     if [[ -s "$file" ]] ; then

@@ -4,7 +4,6 @@
 #SBATCH -e out.post.nmmb
 #SBATCH -J nmmb_test
 #SBATCH -t 00:20:00
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -N 4 --ntasks-per-node=4
 #SBATCH -A ovp

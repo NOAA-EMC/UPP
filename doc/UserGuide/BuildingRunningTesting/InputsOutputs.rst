@@ -18,7 +18,7 @@ Input Files
 ===========
 
 The UPP requires the following input files:
- - The model forecast file
+ - Forecast model output files
  - The ``itag`` namelist file
  - The :term:`GRIB2` control file (e.g., ``postxconfig-NT.txt``)
  - Additional data files (e.g., lookup tables, coefficient files for satellites)
@@ -29,7 +29,7 @@ The UPP requires the following input files:
 Model Forecast
 --------------
 
-The UPP ingests FV3 :term:`write component` files in parallel :term:`netCDF` format.
+The UPP ingests FV3 :term:`write component` files in parallel :term:`netCDF` ("netcdfpara") format.
 
 The table below is a list of the unified model variables available from the :term:`FV3` model core. Whether a specific variable is able to be read by the UPP relies on dependencies such as physics options and choice of model. This table does not include variables that are diagnosed when running the UPP.
 
@@ -250,6 +250,10 @@ Once the XMLs are validated, the user will need to generate the flat file. The c
     /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
 where ``your_user_defined_xml`` is your modified XML and ``your_user_defined_flat`` is the output text file.
+
+.. include:: ../doc-snippets/run-parm.rst 
+
+.. include:: ../doc-snippets/ursa-workaround.rst
 
 .. _output-files:
 

@@ -3,11 +3,11 @@
 #SBATCH -o out.post.nmmb
 #SBATCH -e out.post.nmmb
 #SBATCH -J nmmb_test
-#SBATCH -t 00:20:00
-#SBATCH -q batch
-#SBATCH -N 7 --ntasks-per-node=4
-#SBATCH -A ovp
-#SBATCH --exclusive
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 
@@ -24,8 +24,8 @@ date
 # Loading modules
 ############################################
 module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list

@@ -3,12 +3,11 @@
 #SBATCH -o out.post.hrrr
 #SBATCH -e out.post.hrrr
 #SBATCH -J hrrr_test
-#SBATCH -t 00:20:00
-##SBATCH -q debug
-#SBATCH -q batch
-#SBATCH -A ovp
-#SBATCH --exclusive
-#SBATCH -N 2 --ntasks-per-node=24
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 
@@ -25,8 +24,8 @@ date
 # Loading modules
 ############################################
 module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list

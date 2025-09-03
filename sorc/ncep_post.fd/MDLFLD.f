@@ -72,6 +72,7 @@
 !!   25-06-16 | J Kenyon | Updated calls to CALPBL; these now specify the PBL height formulation to 
 !!                       | apply (RI or THV). Restricted the smoothing of PBL height (for gust calculations) to
 !!                       | RAP/HRRR-era applications only. Additionally, added several descriptive in-code comments.
+!!   25-07-15 | J Duda | Read/process hourly-maximum composite reflectivity
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -119,7 +120,7 @@
 
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, twbs, qwbs,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
-              REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
+              REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX,max_compref
       use masks, only: lmh, gdlat, gdlon,sm,sice,dx,dy
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
               h100, h1m12, h99999,pi,ERAD
@@ -3332,6 +3333,37 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(278))
+!$omp parallel do private(i,j,ii,jj)
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,iend-ista+1
+               ii = ista+i-1
+               datapd(i,j,cfld) = GRID1(ii,jj)
+             enddo
+           enddo
+         endif
+      ENDIF
+
+!
+!--   MAXIMUM COMPOSITE REFLECTIVITY SINCE LAST OUTPUT TIME
+!
+      IF (IGET(244)>0) THEN
+         if (me==0) write(6,*) "Processing time-maximum composite reflectivity"
+         DO J=JSTA,JEND
+            DO I=ista,iend
+              ! GRID1(I,J)=DBZmin
+               GRID1(I,J)=MAX_COMPREF(I,J)
+            ENDDO
+         ENDDO
+         if(grib=="grib2") then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(244))
+           if (IFHR > 0) then
+               fld_info(cfld)%tinvstat=1
+           else
+               fld_info(cfld)%tinvstat=0
+           endif
+           fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
