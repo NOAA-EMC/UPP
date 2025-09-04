@@ -240,11 +240,11 @@ Canopy conductance - humidity component,RCQ_ON_SURFACE,RCQ,240
 Canopy conductance - soil component,RCSOL_ON_SURFACE,RCSOL,241
 Potential evaporation,PEVPR_ON_SURFACE,PEVPR,242
 Heat diffusivity on sigma surface,VEDH_ON_SIGMA_LVLS,VEDH,243
-Accumulated large scale snow,Not currently available for grib2,NA,244
 Time-maximum composite reflectivity,MAX_REFC_ON_ENTIRE_ATMOS,MAXREFC,244
 Surface wind gust,GUST_ON_SURFACE,GUST,245
 LCL level pressure,PLPL_ON_SPEC_PRES_ABOVE_GRND,PLPL,246
 Lowest wet bulb zero height,HGT_ON_LWST_LVL_OF_WET_BULB_ZERO,HGT,247
+Accumulated large scale snow,ACM_SNOL_ON_SURFACE,SNOL,248
 Convective precipitation rate,CPRAT_ON_SURFACE,CPRAT,249
 Radar reflectivity on model surface,REFD_ON_HYBRID_LVL,REFD,250
 Radar reflectivity on pressure surface,REFD_ON_ISOBARIC_SFC,REFD,251
