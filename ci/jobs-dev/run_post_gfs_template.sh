@@ -3,10 +3,13 @@
 #SBATCH -o out.post.gfs
 #SBATCH -e out.post.gfs
 #SBATCH -J gfs_test
-#SBATCH -t 00:30:00
-#SBATCH -N 6 --ntasks-per-node=40
-#SBATCH -q batch
-#SBATCH -A nems
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH @[N_TASKS]
+#SBATCH @[TASKS_PER_NODE]
+#SBATCH @[NODES] @[N_TASKS_PER_NODE]
 
 set -x
 
@@ -15,7 +18,6 @@ export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
-export APRUN_DWN="srun --export=ALL"
 
 echo "starting time"
 date
@@ -23,18 +25,17 @@ date
 ############################################
 # Loading modules
 ############################################
+module purge
 module use ${svndir}/modulefiles
-module load hercules_$compiler
-module load prod_util/2.1.1
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
+module load prod_util/2.1.1
 module list
-
-ulimit -s unlimited
 
 msg="Starting gfs test"
 postmsg "$logfile" "$msg"
 
-export POSTGPEXEC=${svndir}/exec/upp.x     
+export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
 export startdate=2024120500
@@ -101,8 +102,8 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_gfs_goes_${NEWDATE}
 # Compare with baseline data
 ################################################
 fhr=$((10#$fhr))
-FH3=$(printf %03i $fhr)
-FH2=$(printf %02i $fhr)
+FH3=$(printf "%03d" "$fhr")
+FH2=$(printf "%02d" "$fhr")
 mv GFSPRS.GrbF${FH2} gfs.t${cyc}z.master.grb2f${FH3}
 mv GFSFLX.GrbF${FH2} gfs.t${cyc}z.sfluxgrbf${FH3}.grib2
 mv GFSGOES.GrbF${FH2} gfs.t${cyc}z.special.grb2f${FH3}

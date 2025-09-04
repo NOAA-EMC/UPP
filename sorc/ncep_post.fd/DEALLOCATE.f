@@ -163,7 +163,6 @@
       deallocate(f10m)
       deallocate(tshltr)
       deallocate(qshltr)
-      deallocate(mrshltr)
       deallocate(smstav)
       deallocate(ssroff)
       deallocate(bgroff)

@@ -33,6 +33,11 @@
 !>                           | PBLHGUST was used for the wind-gust diagnostic in RAPR.  Calculation of a
 !>                           | THV-based PBL height has now been ported into CALPBL 
 !> 2025-07-15 | Jeff Duda    | Add max_compref, max_prate_1min, max_prate_1min, max_prate_5min, and max_prate_10min
+!> 2025-08-25 | Jaymes Kenyon| Remove the read-in of the MU and MUB arrays;
+!>                           | remove an unused procedure for adjusting surface pressure;
+!>                           | correct the initial assignment of ZINT;
+!>                           | simplify/refactor the re-assignment of ZINT using the hypsometric equation;
+!>                           | add numerous descriptive comments.
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
@@ -51,7 +56,7 @@
               wspd10umax,wspd10vmax,refdm10c_max,max_compref,                      &
               hail_max2d,hail_maxk1,hail_maxhailcast,ltg1_max,                     &
               ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,      &
-              u10, v10, th10, q10, tshltr, mrshltr,                                &
+              u10, v10, th10, q10, tshltr,                                         &
               prate_max,max_prate_1min,max_prate_5min,max_prate_10min,             &
               nca_refd, qv2m, qshltr, smstav, ssroff, bgroff,                      &
               vegfrc, acsnow, cmc, sst, thz0, qs, qvg,                             &
@@ -79,8 +84,8 @@
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,         &
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib,           &
               prec_acc_dt1, submodelname
-      use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,            &
-              p1000, pi, rtd, lheat, dtr, erad
+      use params_mod, only: capa, g, rd, rog, d608, tfrz, stbol,                   &
+              p1000, pi, rtd, lheat, dtr, erad, h1m5, d01, d001
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
               qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
@@ -119,13 +124,11 @@
       INTEGER IDUMMY ( IM, JM )
       REAL,allocatable ::  DUM3D ( :, :, : )
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
-        real, allocatable::  pvapor(:,:)
-        real, allocatable::  pvapor_orig(:,:)      
  
       integer js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,          &
               ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,         &
               idxvald,NSRFC , lflip, k
-      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO
+      real DZ,TSPH,TMP,DUMCST,TLMH
       real t2,th2,x2m,p2m,tsk, fact, temp
       real LAT
 
@@ -259,9 +262,9 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
          if(dum3d(i,j,l)<spval) then
-            t ( i, j, l ) = dum3d ( i, j, l ) + 300.
+            T ( i, j, l ) = dum3d ( i, j, l ) + 300.
          else
-            t ( i, j, l ) = spval
+            T ( i, j, l ) = spval
          endif
 ! JSK (2 Aug 2024): The VarName 'T' is the perturbation potential
 ! temperature; the addition of 300 K yields the full potential
@@ -357,37 +360,42 @@
       !print*,'finish reading mixing ratio'
 !      if(jj>= jsta .and. jj<=jend)print*,'sample Q= ',Q(ii,jj,ll)
 
-! DCD 4/3/13
-! previously initialized PMID from sum of base-state (PB) and
-! perturbation (P) pressure now initializing PMID from
-! hydrostatic pressure (P_HYD), motivated particularly by 0h HRRR
-!      VarName='PB'
+! Use the model-state hydrostatic pressure (P_HYD) to assign the
+! mid-layer pressure array (PMID). Prior to Apr 2013 (in INITPOST),
+! PMID was obtained from the sum of base-state pressure (PB) and
+! perturbation pressure (P). Experience with 0-h HRRR fields motivated
+! the use of hydrostatic pressure.
+! --J Kenyon (6 Aug 2025): revising comments inherited from INITPOST.F
       VarName='P_HYD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-!      VarName='P'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D2,        &
-!        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-           if(dum3d(i,j,l)<spval) then
-!            PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
-            PMID(I,J,L)=DUM3D(I,J,L)
-! now that I have P, convert theta to t
-            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
-! now that I have T,q,P  compute omega from wh
-             if(abs(t( i, j, l ))>1.0e-3)                              &
-              omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/                     &
-                              (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
+      do L = 1, lm
+       do J = jsta_2l, jend_2u
+        do I = 1, im
+           if(DUM3D(I,J,L)<spval) then
+            PMID(I,J,L) = DUM3D(I,J,L)
+            ! Also, within these loops, use PMID to:
+            ! 1) Transform the "T" array from potential temperature (theta)
+            !    to ordinary temperature
+            T(I,J,L) = T(I,J,L)*(PMID(I,J,L)*H1M5)**CAPA
+            ! 2) Obtain omega from w (where omega ~= -rho * g * w);
+            !    see (for example) "An Introduction to Dynamic
+            !    Meteorology" (Holton, 4th edition),
+            !    section 3.5 ("Vertical Motion"), particularly
+            !    Eq. 3.38
+            if(abs(T(I,J,L))>D001) &
+              OMGA(I,J,L) = -WH(I,J,L)*PMID(I,J,L)*G/ &
+                            (RD*T(I,J,L)*(1.+D608*Q(I,J,L)))
+            !  --J Kenyon (description added 6 Aug 2025)
            else
             PMID(I,J,L) = spval
-            t(i,j,l) = spval
-            omga(i,j,l) = spval
+            T(I,J,L) = spval
+            OMGA(I,J,L) = spval
            endif
         end do
        end do
       end do
+
 !tgs - 6 June 2012 - added check on monotonic PMID
       do l = 2, lm-1
         ll=lm-l+1
@@ -714,36 +722,36 @@
       ENDIF
 
 
-!  get sfc pressure
-      VarName='MU'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-        IM,1,JM,1,IM,JS,JE,1)
-      VarName='MUB'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY2,       &
-        IM,1,JM,1,IM,JS,JE,1)
+! Pressure at model top
       VarName='P_TOP'
       call getVariable(fileName,DateStr,DataHandle,VarName,PT,           & 
         1,1,1,1,1,1,1,1)
+       DO I=1,IM
+        DO J=JS,JE
+          PINT (I,J,1)  = PT
+          ALPINT(I,J,1) = ALOG(PINT(I,J,1))
+        ENDDO
+       ENDDO
 
-         DO I=1,IM
-            DO J=JS,JE
-                 PINT (I,J,LM+1) = DUMMY(I,J)+DUMMY2(I,J)+PT
-                 PINT (I,J,1) = PT
-                 ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
-                 ALPINT(I,J,1)=ALOG(PINT(I,J,1))
-            ENDDO
-         ENDDO
-
-
+! Geopotential height of model surface
       VarName='HGT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            FIS ( i, j ) = dummy ( i, j ) * G
+            FIS ( i, j ) = dummy ( i, j ) * G ! convert z to phi
         end do
        end do
-!
+
+! Geopotential height of model interfacial levels
+!  (J Kenyon, 6 Aug 2025):
+!  Here, "PHB" and "PH" represent base-state and perturbation
+!  arrays, respectively. Note that in INITPOST.F (used for WRF-ARW),
+!  the PHB/PH arrays represented geopotential (units of m2 s-2). As
+!  of this writing, these arrays in MPAS applications now represent
+!  geopotential height (units of m). Note also that for some
+!  applications (e.g., RAPR), the resulting ZINT array is adjusted
+!  using the hypsometric equation (further below).
       VarName='PHB'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
@@ -757,19 +765,16 @@
       VarName='PH'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
-
-      !print*,'finish reading geopotential'
-! ph/phb are geopotential z=(ph+phb)/9.801
       DO L=1,LM+1
         DO I=1,IM
          DO J=JS,JE
-          ZINT(I,J,L)=(ZINT(I,J,L)+DUM3D(I,J,L))/G
+          ZINT(I,J,L)=ZINT(I,J,L)+DUM3D(I,J,L)
          ENDDO
         ENDDO
       ENDDO
+! Done with geopotential height of model interfacial levels
 
-      IF(MODELNAME == 'RAPR')THEN
-
+! Pressure at the model surface
       VarName='PSFC'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -787,150 +792,70 @@
       ENDDO
       ENDDO
 
-      ELSE
-!!!!!!!!!!!!!
-! Pyle's and Chuang's fixes for ARW SLP
-
-        allocate(pvapor(IM,jsta_2l:jend_2u))
-        allocate(pvapor_orig(IM,jsta_2l:jend_2u))
-        DO J=jsta,jend
-        DO I=1,IM
-
-
-        pvapor(I,J)=0.
-       do L=1,LM
-       dz=ZINT(I,J,L)-ZINT(I,J,L+1)
-       rho=PMID(I,J,L)/(RD*T(I,J,L))
-
-
-        if (L <= LM-1) then
-        QMEAN=0.5*(Q(I,J,L)+Q(I,J,L+1))
-        else
-        QMEAN=Q(I,J,L)
-        endif
-
-
-       pvapor(I,J)=pvapor(I,J)+G*rho*dz*QMEAN
-       enddo
-
-! test elim
-!       pvapor(I,J)=0.
-
-
-        pvapor_orig(I,J)=pvapor(I,J)
-
-
-      ENDDO
-      ENDDO
-
-      do L=1,405
-        call exch(pvapor(1,jsta_2l))
-        do J=JSTA_M,JEND_M
-        do I=2,IM-1
-
-        pvapornew=AD05*(4.*(pvapor(I-1,J)+pvapor(I+1,J)                  &  
-                        +pvapor(I,J-1)+pvapor(I,J+1))                    &
-                        +pvapor(I-1,J-1)+pvapor(I+1,J-1)                 &
-                        +pvapor(I-1,J+1)+pvapor(I+1,J+1))                &
-                        -CFT0*pvapor(I,J)
-
-        pvapor(I,J)=pvapornew
-
-        enddo
-        enddo
-        enddo   ! iteration loop
-
-! southern boundary
-        if (JS == 1) then
-        J=1
-        do I=2,IM-1
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I,J+1)-pvapor_orig(I,J+1))
-        enddo
-        endif
-
-! northern boundary
-
-        if (JE == JM) then
-        J=JM
-        do I=2,IM-1
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I,J-1)-pvapor_orig(I,J-1))
-        enddo
-        endif
-
-! western boundary
-        I=1
-        do J=JS,JE
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I+1,J)-pvapor_orig(I+1,J))
-        enddo
-
-! eastern boundary
-        I=IM
-        do J=JS,JE
-        pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I-1,J)-pvapor_orig(I-1,J))
-        enddo
-
-      DO J=Jsta,jend
-      DO I=1,IM
-              PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
-! KRF - check surface pressure for monotonic correctness
-
-         if((PINT(I,J,lm) - PINT(I,J,LM+1))>=0. ) then
-            ! write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
-            ! write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM), PINT(I,J,LM+1), PMID(I,J,LM)
-            PINT(I,J,LM+1) = PINT(I,J,LM)*1.001
-            ! write(*,*) 'after adjustment-i,j,lm+1 PINT ', i,j,lm+1, PINT(I,J,LM+1)
-         endif
-         ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
-      ENDDO
-      ENDDO
-
-        deallocate(pvapor)
-        deallocate(pvapor_orig)
-
-      ENDIF  !  IF(MODELNAME == 'RAPR')THEN
-
-!!!!!!!!!!!!!
+!-- Derive / assign geopotential heights using the hysometric equation
       IF(MODELNAME == 'RAPR')THEN
-!integrate heights hydrostatically
-       do j = js, je
-        do i = 1, im
-            ZINT(I,J,LM+1)=FIS(I,J)/G
-            DUMMY(I,J)=FIS(I,J)
-         !if(i==im/2.and.j==(jsta+jend)/2)                            &
-         !  print*,'i,j,L,ZINT from unipost= ',i,j,LM+1,ZINT(I,J,LM+1)&
-         !     ,ALPINT(I,J,LM+1),ALPINT(I,J,LM)  
+
+        if (me==0) print*,'Assigning geopotential heights using hypsometric equation...'
+
+       ! Integrate heights hydrostatically; i.e., use the hypsometric equation
+       ! (which is the vertically integrated hydrostatic equation) to assign
+       ! geopotential heights based on the profile of virtual temperature.
+       ! See (for example) "An Introduction to Dynamic Meteorology" (Holton,
+       ! 4th edition), section 1.6.1 ("The Hydrostatic Equation"), particularly
+       ! Eqs. 1.20 and 1.21, or "Mid-Latitude Atmospheric Dynamics" (Martin,
+       ! 2006), section 3.1.1 ("The Hypsometric Equation").
+       ! --J Kenyon (description added 6 Aug 2025 and slightly modified)
+
+        do j = js, je
+         do i = 1, im
+          ! Begin DUMMY with the height of the lowest interfacial level
+          DUMMY(I,J)=ZINT(I,J,LM+1)
+         end do
         end do
-       end do
-      DO L=LM,1,-1
-       do j = js, je
-        do i = 1, im
-         DUMMY2(I,J)=HTM(I,J,L)*T(I,J,L)*(Q(I,J,L)*D608+1.0)*RD*          &
-                   (ALPINT(I,J,L+1)-ALPINT(I,J,L))+DUMMY(I,J)
-! compute difference between model and unipost heights:
-         DUM3D(I,J,L)=ZINT(I,J,L)-DUMMY2(I,J)/g
-! now replace model heights with unipost heights
-         ZINT(I,J,L)=DUMMY2(I,J)/G
-         !if(i==im/2.and.j==(jsta+jend)/2) &
-         !  print*,'i,j,L,ZINT from unipost= ',i,j,l,ZINT(I,J,L)
-         DUMMY(I,J)=DUMMY2(I,J)
-        ENDDO
-       ENDDO
-      END DO
-      !DO L=LM,1,-1
-      ! do j = js, je
-      !  do i = 1, im
-      !   if(i==im/2.and.j==(jsta+jend)/2) then
-      !  print*,'DIFF heights model-unipost= ',         &
-      !   i,j,l,DUM3D(I,J,L)
-      !   endif
-      !  ENDDO
-      ! ENDDO
-      !END DO
 
-      if (me==0) print*,'Finished deriving geopotential in RAPR application'
+        do L = LM, 1, -1 ! Loop upward
+         do j = js, je
+          do i = 1, im
 
-      ENDIF  ! IF(MODELNAME == 'RAPR')THEN
+           ! The essential step of the hypsometric calculation occurs here,
+           ! where thickness is calculated for each model layer. This
+           ! thickness is then added to the height of the underlying
+           ! interfacial level. Note that DUMMY2 and DUMMY correspond to
+           ! z_upper and z_lower, respectively. Symbolically, this procedure
+           ! is:
+           !
+           !  z_upper = z_lower + Rd * Tv * (1/g) * [ln(p_lower) - ln(p_upper)]
+           !
+           DUMMY2(I,J)=DUMMY(I,J)+HTM(I,J,L)*ROG*T(I,J,L)*(Q(I,J,L)*D608+1.0)* &
+                       (ALPINT(I,J,L+1)-ALPINT(I,J,L))
 
+           ! Compute/store the difference between the hypsometric-derived
+           ! heights and the model-state heights (for printing below)
+           DUM3D(I,J,L)=DUMMY2(I,J)-ZINT(I,J,L)
+
+           ! Now replace (overwrite) the model-state heights with the hypsometric heights
+           ZINT(I,J,L)=DUMMY2(I,J)
+
+           ! Lastly, update DUMMY with the value of DUMMY2, then repeat
+           ! (i.e., proceed upward to next level)
+           DUMMY(I,J)=DUMMY2(I,J)
+
+          enddo
+         enddo
+        enddo
+
+        if (me==0) then
+          print*,'  Height adjustments in sampled column (top down):'
+          i=im/2
+          j=(jend+jsta)/2
+          do L=1,LM
+           print*,'   ',nint(DUM3D(I,J,L)),'m at L=',L,', p=',nint(PMID(I,J,L)*D01),'hPa'
+          enddo
+          print*,'...Finished adjusting geopotential heights.'
+        endif
+
+      ENDIF ! MODELNAME == 'RAPR'
+!-- Done assigning heights using the hypsometric equation
 
       IF(MODELNAME == 'RAPR')THEN
 
@@ -1761,7 +1686,6 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-          MRSHLTR ( i, j ) = dummy (i, j )  ! Shelter Mixing ratio
           IF(MODELNAME == 'RAPR')THEN
 ! QV2M = first level QV
 !           QV2M ( i, j )   =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio 

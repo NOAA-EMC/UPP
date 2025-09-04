@@ -1,13 +1,15 @@
 #!/bin/bash
 
-#SBATCH -o out.post.mpas
-#SBATCH -e out.post.mpas
-#SBATCH -J mpas_test
-#SBATCH -t 00:20:00
-#SBATCH --ntasks 200
-#SBATCH --tasks-per-node 40
-#SBATCH -q batch
-#SBATCH -A nems
+#SBATCH -o out.post.rrfs
+#SBATCH -e out.post.rrfs
+#SBATCH -J rrfs_test
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH @[N_TASKS]
+#SBATCH @[TASKS_PER_NODE]
+#SBATCH @[NODES] @[N_TASKS_PER_NODE]
 
 set -x
 
@@ -23,30 +25,29 @@ date
 ############################################
 # Loading modules
 ############################################
-module use $svndir/modulefiles
-module load hercules_$compiler
-module load prod_util/2.1.1
+module purge
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
+module load prod_util/2.1.1
 module list
 
-ulimit -s unlimited
-
-msg="Starting mpas test"
+msg="Starting rrfs test"
 postmsg "$logfile" "$msg"
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
-# specify forecast start time and hour
-export startdate=2025071400
+# specify forecast start time and hour for running your post job
+export startdate=2025040112
 export fhr=018
 export tmmark=tm00
 
 # specify your running and output directory
-export DATA=$rundir/mpas_${startdate}
+export DATA=$rundir/rrfs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
-export NEWDATE=`${NDATE} +${fhr} $startdate`
+export NEWDATE=`${NDATE} +${fhr} $startdate` 
 export YY=`echo $NEWDATE | cut -c1-4`
 export MM=`echo $NEWDATE | cut -c5-6`
 export DD=`echo $NEWDATE | cut -c7-8`
@@ -54,21 +55,21 @@ export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/mpas/MPAS-A_out.${YY}-${MM}-${DD}_${HH}.00.00.nc'
+fileName='$homedir/data_in/rrfs/dynf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
-MODELNAME='RAPR'
-SUBMODELNAME='MPAS'
+MODELNAME='FV3R'
+fileNameFlux='$homedir/data_in/rrfs/phyf${fhr}.nc'
 /
 &NAMPGB
-KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
+KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,slrutah_on=.true.,
 /
 EOF
 
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
-cp ${svndir}/parm/mpas/postxconfig-NT-rrfs_mpas.txt ./postxconfig-NT.txt
+cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
 # get crtm fix files
@@ -91,18 +92,17 @@ for what in  ${CRTM_FIX}/*Emis* ; do
 done
 
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > outpost_mpas_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_rrfs_${NEWDATE}
 
 ################################################
 # Compare with baseline data
 ################################################
-fhr=$((10#$fhr))
-fhr2=$(printf "%02d" "$fhr")
+fhr=`expr $fhr + 0`
+fhr2=`printf "%02d" $fhr`
 
-# MPAS post processing generates 3 files
-filelist="POSTNAT${fhr2}.${tmmark} \
-          POSTPRS${fhr2}.${tmmark} \
-          POSTTWO${fhr2}.${tmmark}"
+# RRFS post processing generates 2 files
+filelist="PRSLEV${fhr2}.${tmmark} \
+          NATLEV${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file
@@ -110,22 +110,24 @@ ls -l ${filein2}
 export err=$?
 
 if [ $err = "0" ] ; then
+
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out_$compiler/mpas/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/rrfs/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
- if [ $err1 -eq 0 ] ; then  msg="mpas test: your new post executable generates bit-identical ${filein2} as the develop branch"
+ if [ $err1 -eq 0 ] ; then
+  msg="rrfs test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="mpas test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  msg="rrfs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/mpas/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/rrfs/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 else
- msg="mpas test: post failed using your new post executable to generate ${filein2}"
+ msg="rrfs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 fi
 
@@ -133,5 +135,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending mpas test"
+msg="Ending rrfs test"
 postmsg "$logfile" "$msg"

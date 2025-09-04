@@ -3,12 +3,13 @@
 #SBATCH -o out.post.gefsv12
 #SBATCH -e out.post.gefsv12
 #SBATCH -J gefsv12_test 
-#SBATCH -t 00:30:00
-#SBATCH --ntasks 48
-#SBATCH --tasks-per-node 24
-#SBATCH -q batch
-#SBATCH -A ovp
-#SBATCH --exclusive
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH @[N_TASKS]
+#SBATCH @[TASKS_PER_NODE]
+#SBATCH @[NODES] @[N_TASKS_PER_NODE]
 
 set -x
 
@@ -25,8 +26,8 @@ date
 # Loading modules
 ############################################
 module purge
-module use $svndir/modulefiles
-module load ursa_$compiler
+module use ${svndir}/modulefiles
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list

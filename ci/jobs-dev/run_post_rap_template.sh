@@ -1,12 +1,13 @@
-#!/bin/bash 
+#!/bin/sh 
  
 #SBATCH -o out.post.rap
 #SBATCH -e out.post.rap
 #SBATCH -J rap_test
-#SBATCH -t 00:20:00
-#SBATCH -N 2 --ntasks-per-node=24
-#SBATCH -q batch
-#SBATCH -A nems
+#SBATCH -t @[WTIME]
+#SBATCH -q @[QUEUE]
+#SBATCH -A @[accnr]
+#SBATCH @[EXCLUSIVE]
+#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 
@@ -22,18 +23,17 @@ date
 ############################################
 # Loading modules
 ############################################
+module purge
 module use ${svndir}/modulefiles
-module load orion_$compiler
-module load prod_util/2.1.1
+module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
 module load wgrib2/3.6.0
+module load prod_util/2.1.1
 module list
-
-ulimit -s unlimited
 
 msg="Starting rap test"
 postmsg "$logfile" "$msg"
 
-export POSTGPEXEC=${svndir}/exec/upp.x     
+export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour
 export startdate=2025070115
@@ -59,15 +59,15 @@ DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='RAPR'
 /
 &NAMPGB
-KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,275.,300.,325.,350.,375.,400.,425.,450.,475.,500.,525.,550.,575.,600.,625.,650.,675.,700.,725.,750.,775.,800.,825.,850.,875.,900.,925.,950.,975.,1000.,1013.2,numx=4
+KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,275.,300.,325.,350.,375.,400.,425.,450.,475.,500.,525.,550.,575.,600.,625.,650.,675.,700.,725.,750.,775.,800.,825.,850.,875.,900.,925.,950.,975.,1000.,1013.2@[NUMX]
 /
 EOF
 
 # copy fix data
-cp $homedir/fix/raphrrr_fix/* .
+cp ${homedir}/fix/raphrrr_fix/* .
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
 cp ${svndir}/parm/postxconfig-NT-rap.txt postxconfig-NT.txt
-cp $homedir/fix/eta_micro_lookup.dat .
+cp ${svndir}/fix/rap_micro_lookup.dat eta_micro_lookup.dat
 
 # Run the UPP
 ${APRUN} ${POSTGPEXEC} < itag > outpost_rap_${NEWDATE}
@@ -80,7 +80,7 @@ fhr2=`printf "%02d" $fhr`
 
 # RAP post processing generates 2 files
 filelist="WRFPRS.GrbF${fhr2} \
-          WRFNAT.GrbF${fhr2}"
+          WRFNAT.GrbF${fhr2}" 
 
 for file in $filelist; do
 export filein2=$file
