@@ -280,6 +280,13 @@ if [ -f $logfile ] ; then
 fi
 export runtime_log=$svndir/ci/runtime.log.${machine}_${compiler}
 
+# Validate post_avblflds.xml against schema
+cd ${test_v}/parm
+if [[ ${machine} != "URSA" ]]; then
+  xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds.xml
+  # If an error results from running xmllint, rt.sh will terminate execution and report that the XML fails to validate. 
+fi
+
 #build executable
 if [ "$build_exe" == "yes" ]; then
   cd ${test_v}
