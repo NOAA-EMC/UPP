@@ -240,10 +240,11 @@ Canopy conductance - humidity component,RCQ_ON_SURFACE,RCQ,240
 Canopy conductance - soil component,RCSOL_ON_SURFACE,RCSOL,241
 Potential evaporation,PEVPR_ON_SURFACE,PEVPR,242
 Heat diffusivity on sigma surface,VEDH_ON_SIGMA_LVLS,VEDH,243
-Accumulated large scale snow,Not currently available for grib2,NA,244
+Time-maximum composite reflectivity,MAX_REFC_ON_ENTIRE_ATMOS,MAXREFC,244
 Surface wind gust,GUST_ON_SURFACE,GUST,245
 LCL level pressure,PLPL_ON_SPEC_PRES_ABOVE_GRND,PLPL,246
 Lowest wet bulb zero height,HGT_ON_LWST_LVL_OF_WET_BULB_ZERO,HGT,247
+Accumulated large scale snow,ACM_SNOL_ON_SURFACE,SNOL,248
 Convective precipitation rate,CPRAT_ON_SURFACE,CPRAT,249
 Radar reflectivity on model surface,REFD_ON_HYBRID_LVL,REFD,250
 Radar reflectivity on pressure surface,REFD_ON_ISOBARIC_SFC,REFD,251
@@ -473,23 +474,7 @@ Maximum of Eddy Dissipation Parameter in Layer, MXEDPRM_ON_ENTIRE_ATMOS,MXEDPRM,
 G2G Convectively-induced turbulence (CIT) eddy dissipation rate (EDR) at specific altitude above mean sea level (for regional model),CIT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,CITEDR,477
 GFIP in-flight icing severity on pressure surface,ICESEV_ON_ISOBARIC_SFC,ICESEV,480
 Pressure at flight levels,PRES_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,PRES,482
-Simulated AMSR-E channel 9 brightness temperature,AMSRE9_ON_TOP_OF_ATMOS,AMSRE9,483
-Simulated AMSR-E channel 10 brightness temperature,AMSRE10_ON_TOP_OF_ATMOS,AMSRE10,484
-Simulated AMSR-E channel 11 brightness temperature,AMSRE11_ON_TOP_OF_ATMOS,AMSRE11,485
-Simulated AMSR-E channel 12 brightness temperature,AMSRE12_ON_TOP_OF_ATMOS,AMSRE12,486
 GSD experimental ceiling diagnostic,GSD_EXP_CEILING,CEIL,487
-Simulated Brightness Temperature for TMI TRMM channel 6 on top of atmosphere,TMITB6_ON_TOP_OF_ATMOS,AMSRE9,488
-Simulated Brightness Temperature for TMI TRMM channel 7 on top of atmosphere,TMITB7_ON_TOP_OF_ATMOS,AMSRE10,489
-Simulated Brightness Temperature for TMI TRMM channel 8 on top of atmosphere,TMITB8_ON_TOP_OF_ATMOS,AMSRE11,490
-Simulated Brightness Temperature for TMI TRMM channel 9 on top of atmosphere,TMITB9_ON_TOP_OF_ATMOS,AMSRE12,491
-Simulated Brightness Temperature for SSMI TB channel 4 on top of atmosphere,SSMITB4_ON_TOP_OF_ATMOS,AMSRE9,492
-Simulated Brightness Temperature for SSMI TB channel 5 on top of atmosphere,SSMITB5_ON_TOP_OF_ATMOS,AMSRE10,493
-Simulated Brightness Temperature for SSMI TB channel 6 on top of atmosphere,SSMITB6_ON_TOP_OF_ATMOS,AMSRE11,494
-Simulated Brightness Temperature for SSMI TB channel 7 on top of atmosphere,SSMITB7_ON_TOP_OF_ATMOS,AMSRE12,495
-Simulated Brightness Temperature for SSMIS TB channel 15 on top of atmosphere,SSMISTB15_ON_TOP_OF_ATMOS,AMSRE9,496
-Simulated Brightness Temperature for SSMIS TB channel 16 on top of atmosphere,SSMISTB16_ON_TOP_OF_ATMOS,AMSRE10,497
-Simulated Brightness Temperature for SSMIS TB channel 17 on top of atmosphere,SSMISTB17_ON_TOP_OF_ATMOS,AMSRE11,498
-Simulated Brightness Temperature for SSMIS TB channel 18 on top of atmosphere,SSMISTB18_ON_TOP_OF_ATMOS,AMSRE12,499
 Time-averaged percentage snow cover,AVE_SNOWC_ON_SURFACE,SNOWC,500
 Time-averaged surface pressure,AVE_PRES_ON_SURFACE,PRES,501
 Time-averaged 10m temperature,AVE_TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m,TMP,502
@@ -507,6 +492,9 @@ Direct evaporation from bare soil on surface,AVE_EVBS_ON_SURFACE,EVBS,514
 Transpiration on surface,AVE_TRANS_ON_SURFACE,TRANS,515
 Sublimation on surface,AVE_SBSNO_ON_SURFACE,SBSNO,516
 Potential evaporation rate on surface,AVE_PEVPR_ON_SURFACE,PEVPR,517
+Maximum 1-minute average precipitation rate on surface,MAX_PRATE_1MIN_ON_SURFACE,PRATE1MIN,518
+Maximum 5-minute average precipitation rate on surface,MAX_PRATE_5MIN_ON_SURFACE,PRATE5MIN,519
+Maximum 10-minute average precipitation rate on surface,MAX_PRATE_10MIN_ON_SURFACE,PRATE10MIN,520
 Bucket density snowfall on surface,BUCKET1_ASNOW_ON_SURFACE,ASNOW,525
 Bucket total precipitation on surface,BUCKET1_APCP_ON_SURFACE,APCP,526
 Bucket freezing rain on surface,BUCKET1_FRZR_ON_SURFACE,FRZR,527
