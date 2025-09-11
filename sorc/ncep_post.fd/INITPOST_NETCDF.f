@@ -66,6 +66,7 @@
 !>                            | temperature (THV).  In turn, PBLHGUST was used for the wind-gust diagnostic in FV3R.
 !>                            | Calculation of a THV-based PBL height has now been ported into CALPBL.
 !> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
+!> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
