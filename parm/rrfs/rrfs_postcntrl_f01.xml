@@ -83,13 +83,6 @@
        </param>
 
        <param>
-       <shortname>VVEL_ON_HYBRID_LVL</shortname>
-       <pname>VVEL</pname>
-       <level>1.</level>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
        <shortname>DZDT_ON_HYBRID_LVL</shortname>
        <pname>DZDT</pname>
        <level>1.</level>
@@ -451,13 +444,6 @@
        <param>
        <shortname>MXSALB_ON_SURFACE</shortname>
        <pname>MXSALB</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>CCOND_ON_SURFACE</shortname>
-       <pname>CCOND</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
@@ -3076,13 +3062,6 @@
        <param>
        <shortname>SOTYP_ON_SURFACE</shortname>
        <pname>SOTYP</pname>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>CCOND_ON_SURFACE</shortname>
-       <pname>CCOND</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
