@@ -235,8 +235,8 @@
              QSFC(I,J) = spval
              RHSFC(I,J) = spval
              EVP(I,J) = spval
-             IF(TSFC(I,J) < spval) then
-             IF(QS(I,J)<spval) QSFC(I,J)  = MAX(H1M12,QS(I,J))
+             IF(TSFC(I,J) < spval .AND. QS(I,J) < spval) then
+             QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
              IF(MODELNAME == 'RAPR') THEN
