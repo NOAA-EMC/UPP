@@ -114,6 +114,27 @@
        </param>
 
        <param>
+	  <shortname>MAX_TMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+          <scale>4.0</scale>
+       </param>
+
+       <param>
+	  <shortname>MIN_TMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+          <scale>4.0</scale>
+       </param>
+
+       <param>
+          <shortname>MAX_MAXRH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+          <scale>-2.0</scale>
+       </param>
+
+       <param>
+          <shortname>MIN_MINRH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+          <table_info>NCEP</table_info>
+          <scale>-2.0</scale>
+       </param>
+
+       <param>
           <shortname>PRES_ON_SURFACE</shortname>
           <scale>4.0</scale>
        </param>
