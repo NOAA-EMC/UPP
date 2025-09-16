@@ -237,7 +237,7 @@ elif [ $mac3 = herc ] ; then
  module load python/3.11.7
 elif [ $mac = d -o $mac = c ]; then #for WCOSS2
  export machine=WCOSS2
- export homedir=${homedir:-"/u/wen.meng/noscrub/test_suite"}
+ export homedir=${homedir:-"/lfs/h2/emc/vpppg/noscrub/wen.meng/test_suite"}
  export rundir=${rundir:-"/lfs/h2/emc/ptmp/$USER"}
  export accnr=${accnr:-"GFS-DEV"}
  module reset
