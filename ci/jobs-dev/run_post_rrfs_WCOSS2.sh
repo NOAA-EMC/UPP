@@ -3,7 +3,7 @@
 #PBS -o out.post.rrfs
 #PBS -e out.post.rrfs
 #PBS -N rrfs_test
-#PBS -l walltime=00:30:00
+#PBS -l walltime=00:40:00
 #PBS -q dev
 #PBS -A GFS-DEV
 #PBS -l place=vscatter,select=5:ncpus=48

@@ -63,6 +63,7 @@
 !> 2025-08-25 | B Blake    | Change UPP ID for accumulated grid-scale snow/ice to 248
 !> 2025-08-28 | J Kenyon   | Remove outdated MRSHLTR array and the associated functionality for
 !>                         | ID 414; the QV2M array (ID 760) can be used instead
+!> 2025-09-11 | W Meng     | Set surface spfh to missing when not available
 !>
 !> @note
 !> USAGE:    CALL SURFCE
@@ -235,8 +236,8 @@
              QSFC(I,J) = spval
              RHSFC(I,J) = spval
              EVP(I,J) = spval
-             IF(TSFC(I,J) < spval) then
-             IF(QS(I,J)<spval) QSFC(I,J)  = MAX(H1M12,QS(I,J))
+             IF(TSFC(I,J) < spval .AND. QS(I,J) < spval) then
+             QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
              IF(MODELNAME == 'RAPR') THEN
