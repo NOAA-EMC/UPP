@@ -66,6 +66,7 @@
 !>                            | temperature (THV).  In turn, PBLHGUST was used for the wind-gust diagnostic in FV3R.
 !>                            | Calculation of a THV-based PBL height has now been ported into CALPBL.
 !> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
+!> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -1861,7 +1862,8 @@
 !    write(*,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
             ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
           endif
-          QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
+! certain UFS application may have QS available in history files
+!          QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
           twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
 !assign sst
@@ -1877,6 +1879,12 @@
         enddo
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
+
+
+! surface specific humidity
+      VarName='qs'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,qs)
 
 ! foundation temperature
       VarName='tref'
