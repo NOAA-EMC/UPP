@@ -55,6 +55,7 @@
 !> 2024-05-24 | E James    | Modify the run total acc precip fields for 15-min output
 !> 2024-06-11 | E James    | Modifying RRFS hourly average smoke/dust fields to be PM2.5 and PM20
 !> 2025-05-05 | B Blake    | Add sanity checks for RRFSv1 implementation
+!> 2025-09-11 | W Meng     | Set surface spfh to missing when not available
 !>     
 !> @note
 !> USAGE:    CALL SURFCE
@@ -225,8 +226,8 @@
              QSFC(I,J) = spval
              RHSFC(I,J) = spval
              EVP(I,J) = spval
-             IF(TSFC(I,J) < spval) then
-             IF(QS(I,J)<spval) QSFC(I,J)  = MAX(H1M12,QS(I,J))
+             IF(TSFC(I,J) < spval .AND. QS(I,J) < spval) then
+             QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
              IF(MODELNAME == 'RAPR') THEN
