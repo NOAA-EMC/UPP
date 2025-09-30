@@ -2627,7 +2627,7 @@ RLYRS_ON_SURFACE
 1
 tmpl4_0
 RLYRS
-NCEP
+?
 ?
 surface
 0
@@ -2669,7 +2669,7 @@ RSMIN_ON_SURFACE
 1
 tmpl4_0
 RSMIN
-NCEP
+?
 ?
 surface
 0
@@ -19527,7 +19527,7 @@ RSMIN_ON_SURFACE
 1
 tmpl4_0
 RSMIN
-NCEP
+?
 ?
 surface
 0
@@ -19569,7 +19569,7 @@ RLYRS_ON_SURFACE
 1
 tmpl4_0
 RLYRS
-NCEP
+?
 ?
 surface
 0
