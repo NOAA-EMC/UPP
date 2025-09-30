@@ -91,7 +91,7 @@
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
               dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp,ocwt,ocsv,  &
               wh, ref_10cm, qqnifa, qqnwfa, avgpmtf, avgozcon, aextc55, taod5503d,              &
-              effri, effrl, effrs
+              effri, effrl, effrs, extcof55
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, sndepac, si, cldefi, th10, q10, tshltr, pshltr, &
@@ -523,6 +523,8 @@
       if(me==0)print*,'idrt MAPTYPE= ',idrt,MAPTYPE
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
+! initializing aerosol extinction coefficient for CALVIS_GSD
+      aextc55=0.
 !
 !***
 !
@@ -2123,7 +2125,7 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(isa,jsa)
 
-! Calculate cosine of solar zenith angle for GFS
+! Calculate the cosine of the solar zenith angle
       jdn=iw3jdn(idat(3),idat(1),idat(2))
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u

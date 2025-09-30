@@ -220,7 +220,7 @@
   xx=sin(t1)*sin(p1-p0)
   yy=sin(t0)*cos(t1)-cos(t0)*sin(t1)*cos(p1-p0)
 
-  sun_zenith=90-acos(zz)/(pi/180)
+  sun_zenith=acos(zz)/(pi/180)
   sun_azimuth=atan2(xx,yy)/(pi/180)
 
   return
