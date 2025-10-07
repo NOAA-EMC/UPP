@@ -46,7 +46,8 @@
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
-!> 2005-10-21 | kazumori | Reformatted for GSI 
+!> 2005-10-21 | kazumori | Reformatted for GSI
+!> 2025-09-30 | C.Hill   | Corrected final calculation of sun_zenith.
 !>
 !> @author Paul Ricchiazzi Earth Space Research Group,UCSB @date 1992-10-23
 !-------------------------------------------------------------------------------------

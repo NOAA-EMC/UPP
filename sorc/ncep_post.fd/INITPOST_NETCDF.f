@@ -67,6 +67,7 @@
 !>                            | Calculation of a THV-based PBL height has now been ported into CALPBL.
 !> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
 !> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
+!> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -2125,11 +2126,11 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(isa,jsa)
 
-! Calculate the cosine of the solar zenith angle
-      jdn=iw3jdn(idat(3),idat(1),idat(2))
+! Calculate (or otherwise retrieve??) the cosine of the solar zenith angle
+      call w3fs13(idat(3),idat(1),idat(2),jdn)
 !$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
+      do j=jsta,jend
+        do i=ista,iend
           call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j),pi,sun_zenith,sun_azimuth)
           temp = sun_zenith/rtd
           czen(i,j)   = cos(temp)
