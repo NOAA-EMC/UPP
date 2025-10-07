@@ -465,14 +465,12 @@
        <param>
        <shortname>RLYRS_ON_SURFACE</shortname>
        <pname>RLYRS</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>RSMIN_ON_SURFACE</shortname>
        <pname>RSMIN</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -3101,14 +3099,12 @@
        <param>
        <shortname>RSMIN_ON_SURFACE</shortname>
        <pname>RSMIN</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>RLYRS_ON_SURFACE</shortname>
        <pname>RLYRS</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
