@@ -2128,7 +2128,7 @@
 
 ! Calculate (or otherwise retrieve??) the cosine of the solar zenith angle
       call w3fs13(idat(3),idat(1),idat(2),jdn)
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,jdn,sun_zenith,sun_azimuth,temp)
       do j=jsta,jend
         do i=ista,iend
           call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j),pi,sun_zenith,sun_azimuth)
