@@ -12,4 +12,4 @@ mpas_hfip_test 00:05:00
 rrfs_test 00:10:00
 rrfs_ifi_test 00:08:10
 rrfs_ifi_missing 00:08:00
-gfs_test 00:29:30
+gfs_test 00:15:00
