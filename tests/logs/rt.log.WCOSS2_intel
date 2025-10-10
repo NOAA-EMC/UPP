@@ -1,6 +1,6 @@
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
-c5c4dd12e3a36146e9fa2fd96bc3018616d0fa1c
+2a022cd8515549745329ce5c4a1dbf9ed101e0c7
 
 Submodule hashes:
  179cae1dd84401cf25d250bd9102e66560a9d328 sorc/libIFI.fd (before-3km-fixes-45-g179cae1)
@@ -9,66 +9,57 @@ Submodule hashes:
 Run directory: /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2
 Baseline directory: /lfs/h2/emc/vpppg/noscrub/wen.meng/test_suite
 
-Total runtime: 00h:45m:07s
-Test Date: 20251008 12:53:54
+Total runtime: 00h:19m:15s
+Test Date: 20251010 13:31:15
 Summary Results:
 
-10/08 12:14:53Z -sfs test: your new post executable generates bit-identical sfs.t00z.master.grb2f048 as the develop branch
-10/08 12:15:06Z -gefsv12 test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the develop branch
-10/08 12:15:36Z -hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the develop branch
-10/08 12:15:47Z -hrrr_ifi test: your new post executable generates bit-identical IFIFIP.GrbF10 as the develop branch
-10/08 12:15:49Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the develop branch
-10/08 12:15:50Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the develop branch
-10/08 12:15:51Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the develop branch
-10/08 12:15:55Z -gefsv13 test: your new post executable generates bit-identical gefs.t00z.master.grb2f009 as the develop branch
-10/08 12:16:03Z -rap test: your new post executable did not generate bit-identical WRFPRS.GrbF06 as the develop branch
-10/08 12:16:17Z -rap test: your new post executable did not generate bit-identical WRFNAT.GrbF06 as the develop branch
-10/08 12:16:24Z -mpas test: your new post executable generates bit-identical POSTNAT18.tm00 as the develop branch
-10/08 12:16:28Z -mpas test: your new post executable generates bit-identical POSTPRS18.tm00 as the develop branch
-10/08 12:16:46Z -mpas test: your new post executable did not generate bit-identical POSTTWO18.tm00 as the develop branch
-10/08 12:17:37Z -hrrr test: your new post executable did not generate bit-identical WRFTWO.GrbF10 as the develop branch
-10/08 12:17:39Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF10 as the develop branch
-10/08 12:17:41Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF10 as the develop branch
-10/08 12:18:40Z -3drtma test: your new post executable did not generate bit-identical NATLEV00.tm00 as the develop branch
-10/08 12:18:51Z -mpas_hfip test: your new post executable generates bit-identical NATLEV.GrbF48 as the develop branch
-10/08 12:18:58Z -mpas_hfip test: your new post executable generates bit-identical PRSLEV.GrbF48 as the develop branch
-10/08 12:19:41Z -mpas_hfip test: your new post executable did not generate bit-identical 2DFLD.GrbF48 as the develop branch
-10/08 12:19:46Z -rrfs_ifi_missing test: your new post executable generates bit-identical IFIFIP18.tm00 as the develop branch
-10/08 12:20:17Z -3drtma test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the develop branch
-10/08 12:21:09Z -rrfs_ifi test: your new post executable generates bit-identical IFIFIP18.tm00 as the develop branch
-10/08 12:34:01Z -rrfs test: your new post executable did not generate bit-identical PRSLEV18.tm00 as the develop branch
-10/08 12:46:15Z -gfs test: your new post executable did not generate bit-identical gfs.t00z.master.grb2f006 as the develop branch
-10/08 12:46:43Z -gfs test: your new post executable did not generate bit-identical gfs.t00z.sfluxgrbf006.grib2 as the develop branch
-10/08 12:46:44Z -gfs test: your new post executable did not generate bit-identical gfs.t00z.special.grb2f006 as the develop branch
-10/08 12:52:59Z -rrfs test: your new post executable did not generate bit-identical NATLEV18.tm00 as the develop branch
-10/08 12:15:14Z -Runtime: sfs_test 00:00:50 -- baseline 00:00:50
-10/08 12:15:40Z -Runtime: gefsv12_test 00:01:08 -- baseline 00:01:20
-10/08 12:16:22Z -Runtime: gefsv13_test 00:01:57 -- baseline 00:02:00
-10/08 12:16:26Z -Runtime: nmmb_test 00:01:53 -- baseline 00:02:20
-10/08 12:16:46Z -Runtime: rap_test 00:02:20 -- baseline 00:02:00
-10/08 12:18:11Z -Runtime: hrrr_test 00:03:43 -- baseline 00:03:40
-10/08 12:18:15Z -Runtime: hafs_test 00:01:36 -- baseline 00:02:00
-10/08 12:20:44Z -Runtime: 3drtma_test 00:06:19 -- baseline 00:04:40
-10/08 12:20:49Z -Runtime: mpas_test 00:02:48 -- baseline 00:02:40
-10/08 12:20:53Z -Runtime: mpas_hfip.test 00:05:49 -- baseline 00:05:00
-10/08 12:53:36Z -Runtime: rrfs_test 00:39:07 -- baseline 00:10:00
-10/08 12:53:41Z -Runtime: rrfs_ifi_mis 00:05:46 -- baseline 00:08:00
-10/08 12:53:45Z -Runtime: gfs_test 00:32:53 -- baseline 00:29:30
-10/08 12:53:50Z -Runtime: hrrr_ifi_test 00:01:48 -- baseline 00:02:00
-10/08 12:53:54Z -Runtime: rrfs_ifi_test 00:07:10 -- baseline 00:08:10
+10/10 13:17:52Z -sfs test: your new post executable did not generate bit-identical sfs.t00z.master.grb2f048 as the develop branch
+10/10 13:18:24Z -gefsv12 test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the develop branch
+10/10 13:18:49Z -hrrr_ifi test: your new post executable generates bit-identical IFIFIP.GrbF10 as the develop branch
+10/10 13:18:51Z -hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the develop branch
+10/10 13:19:02Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF06 as the develop branch
+10/10 13:19:03Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF06 as the develop branch
+10/10 13:19:14Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the develop branch
+10/10 13:19:18Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the develop branch
+10/10 13:19:19Z -3drtma test: your new post executable generates bit-identical NATLEV00.tm00 as the develop branch
+10/10 13:19:20Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the develop branch
+10/10 13:19:22Z -3drtma test: your new post executable generates bit-identical PRSLEV00.tm00 as the develop branch
+10/10 13:19:29Z -gefsv13 test: your new post executable did not generate bit-identical gefs.t00z.master.grb2f009 as the develop branch
+10/10 13:19:30Z -mpas test: your new post executable generates bit-identical POSTNAT18.tm00 as the develop branch
+10/10 13:19:32Z -mpas test: your new post executable generates bit-identical POSTPRS18.tm00 as the develop branch
+10/10 13:19:35Z -mpas test: your new post executable generates bit-identical POSTTWO18.tm00 as the develop branch
+10/10 13:20:37Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF10 as the develop branch
+10/10 13:20:39Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF10 as the develop branch
+10/10 13:20:40Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF10 as the develop branch
+10/10 13:21:52Z -mpas_hfip test: your new post executable generates bit-identical NATLEV.GrbF48 as the develop branch
+10/10 13:21:58Z -mpas_hfip test: your new post executable generates bit-identical PRSLEV.GrbF48 as the develop branch
+10/10 13:22:00Z -mpas_hfip test: your new post executable generates bit-identical 2DFLD.GrbF48 as the develop branch
+10/10 13:23:01Z -rrfs_ifi_missing test: your new post executable generates bit-identical IFIFIP18.tm00 as the develop branch
+10/10 13:24:04Z -rrfs_ifi test: your new post executable generates bit-identical IFIFIP18.tm00 as the develop branch
+10/10 13:26:28Z -rrfs test: your new post executable generates bit-identical PRSLEV18.tm00 as the develop branch
+10/10 13:26:50Z -rrfs test: your new post executable generates bit-identical NATLEV18.tm00 as the develop branch
+10/10 13:30:29Z -gfs test: your new post executable did not generate bit-identical gfs.t00z.master.grb2f006 as the develop branch
+10/10 13:30:32Z -gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the develop branch
+10/10 13:30:32Z -gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the develop branch
+10/10 13:18:09Z -Runtime: sfs_test 00:00:39 -- baseline 00:00:50
+10/10 13:18:46Z -Runtime: gefsv12_test 00:01:14 -- baseline 00:01:20
+10/10 13:19:55Z -Runtime: gefsv13_test 00:02:18 -- baseline 00:02:00
+10/10 13:19:59Z -Runtime: nmmb_test 00:02:10 -- baseline 00:02:20
+10/10 13:20:03Z -Runtime: rap_test 00:01:53 -- baseline 00:02:00
+10/10 13:21:12Z -Runtime: hrrr_test 00:03:32 -- baseline 00:03:40
+10/10 13:21:16Z -Runtime: hafs_test 00:01:41 -- baseline 00:02:00
+10/10 13:21:20Z -Runtime: 3drtma_test 00:02:14 -- baseline 00:04:40
+10/10 13:21:25Z -Runtime: mpas_test 00:02:27 -- baseline 00:02:40
+10/10 13:22:17Z -Runtime: mpas_hfip.test 00:04:51 -- baseline 00:05:00
+10/10 13:27:28Z -Runtime: rrfs_test 00:09:48 -- baseline 00:10:00
+10/10 13:27:33Z -Runtime: rrfs_ifi_mis 00:05:50 -- baseline 00:08:00
+10/10 13:31:06Z -Runtime: gfs_test 00:13:28 -- baseline 00:15:00
+10/10 13:31:10Z -Runtime: hrrr_ifi_test 00:01:40 -- baseline 00:02:00
+10/10 13:31:14Z -Runtime: rrfs_ifi_test 00:06:54 -- baseline 00:08:10
 Check tests:
 ['sfs', 'gefsv12', 'gefsv13', 'nmmb', 'rap', 'hrrr', 'hafs', '3drtma', 'mpas', 'mpas_hfip', 'rrfs', 'rrfs_ifi_missing', 'gfs', 'hrrr_ifi', 'rrfs_ifi']
-There are changes in results for case mpas in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/mpas_hfip_2024100700/2DFLD.GrbF48
-There are changes in results for case mpas in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/mpas_2025071400/POSTTWO18.tm00
-There are changes in results for case 3drtma in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/3drtma_2023040400/NATLEV00.tm00
-There are changes in results for case 3drtma in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/3drtma_2023040400/PRSLEV00.tm00
-There are changes in results for case gfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/gfs_2024120500/gfs.t00z.master.grb2f006
-There are changes in results for case gfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/gfs_2024120500/gfs.t00z.special.grb2f006
-There are changes in results for case gfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/gfs_2024120500/gfs.t00z.sfluxgrbf006.grib2
-There are changes in results for case hrrr in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/hrrr_2025063004/WRFTWO.GrbF10
-There are changes in results for case rrfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/rrfs_2025040112/PRSLEV18.tm00
-There are changes in results for case rrfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/rrfs_2025040112/NATLEV18.tm00
-There are changes in results for case rap in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/rap_2025070115/WRFPRS.GrbF06
-There are changes in results for case rap in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/rap_2025070115/WRFNAT.GrbF06
+There are changes in results for case sfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/sfs_2017050100/sfs.t00z.master.grb2f048
+There are changes in results for case gefsv13 in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/gefsv13_2023080300/gefs.t00z.master.grb2f009
+There are changes in results for case gfs in /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2/gfs_2025012600/gfs.t00z.master.grb2f006
 Refer to .diff files in rundir: /lfs/h2/emc/ptmp/Benjamin.Blake/upp-WCOSS2 for details on differences in results for each case.
 ===== End of UPP Regression Testing Log =====
