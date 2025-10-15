@@ -62,11 +62,11 @@ gefsv13() {
 gfs() {
    case $machine in
       ORION|HERCULES)
-         export NODES='-N 6'
+         export NODES='-N 3'
          export N_TASKS_PER_NODE='--ntasks-per-node=40'
       ;;
       URSA)
-         export N_TASKS='--ntasks 400'
+         export N_TASKS='--ntasks 120'
          export TASKS_PER_NODE='--tasks-per-node 40'
       ;;
    esac

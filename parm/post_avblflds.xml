@@ -2363,7 +2363,7 @@
     <param>
        <post_avblfldidx>275</post_avblfldidx>
        <shortname>BRTMP_ON_TOP_OF_ATMOS</shortname>
-       <pname>BRTMP</pname>
+       <pname>BRTEMP</pname>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
