@@ -46,7 +46,8 @@
 !> ### Program history log:
 !> Date | Programmer | Comments
 !> -----|------------|---------
-!> 2005-10-21 | kazumori | Reformatted for GSI 
+!> 2005-10-21 | kazumori | Reformatted for GSI
+!> 2025-09-30 | C.Hill   | Corrected final calculation of sun_zenith.
 !>
 !> @author Paul Ricchiazzi Earth Space Research Group,UCSB @date 1992-10-23
 !-------------------------------------------------------------------------------------
@@ -220,7 +221,7 @@
   xx=sin(t1)*sin(p1-p0)
   yy=sin(t0)*cos(t1)-cos(t0)*sin(t1)*cos(p1-p0)
 
-  sun_zenith=90-acos(zz)/(pi/180)
+  sun_zenith=acos(zz)/(pi/180)
   sun_azimuth=atan2(xx,yy)/(pi/180)
 
   return

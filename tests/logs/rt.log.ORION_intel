@@ -1,62 +1,62 @@
 ===== Start of UPP Regression Testing Log =====
 UPP Hash Tested:
-25e13674b0a7f61d1d1c3588e1de0eafc6cdd77b
+3a393f40a074bb339552c8446acdba65f1f2ffdf
 
 Submodule hashes:
 -179cae1dd84401cf25d250bd9102e66560a9d328 sorc/libIFI.fd
 -3d35332fe66e3e63a285cc8d96facdf255a33481 sorc/ncep_post.fd/post_gtg.fd
 
-Run directory: /work2/noaa/epic/clyden/regression-tests/upp/orion/1325_orion_intel/ci/rundir/upp-ORION
+Run directory: /work2/noaa/epic/clyden/regression-tests/upp/orion/1340_orion_intel/ci/rundir/upp-ORION
 Baseline directory: /work/noaa/epic/role-epic/orion/UPP
 
-Total runtime: 01h:01m:32s
-Test Date: 20250917 17:34:26
+Total runtime: 01h:03m:00s
+Test Date: 20251015 23:39:23
 Summary Results:
 
-09/17 21:36:33Z -sfs test: your new post executable generates bit-identical sfs.t00z.master.grb2f048 as the develop branch
-09/17 21:36:45Z -gefsv12 test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the develop branch
-09/17 21:36:59Z -hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the develop branch
-09/17 21:37:19Z -gefsv13 test: your new post executable generates bit-identical gefs.t00z.master.grb2f009 as the develop branch
-09/17 21:37:50Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the develop branch
-09/17 21:37:50Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the develop branch
-09/17 21:37:51Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the develop branch
-09/17 21:38:03Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF06 as the develop branch
-09/17 21:38:04Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF06 as the develop branch
-09/17 21:38:20Z -mpas test: your new post executable generates bit-identical POSTNAT18.tm00 as the develop branch
-09/17 21:38:20Z -mpas test: your new post executable generates bit-identical POSTPRS18.tm00 as the develop branch
-09/17 21:38:21Z -mpas test: your new post executable generates bit-identical POSTTWO18.tm00 as the develop branch
-09/17 21:38:58Z -rrfs_ifi_missing test: your new post executable generates bit-identical IFIFIP18.tm00 as the develop branch
-09/17 21:39:28Z -mpas_hfip test: your new post executable generates bit-identical NATLEV.GrbF48 as the develop branch
-09/17 21:39:30Z -mpas_hfip test: your new post executable generates bit-identical PRSLEV.GrbF48 as the develop branch
-09/17 21:39:30Z -mpas_hfip test: your new post executable generates bit-identical 2DFLD.GrbF48 as the develop branch
-09/17 21:40:07Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF10 as the develop branch
-09/17 21:40:08Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF10 as the develop branch
-09/17 21:40:09Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF10 as the develop branch
-09/17 21:43:04Z -3drtma test: your new post executable did not generate bit-identical NATLEV00.tm00 as the develop branch
-09/17 21:45:38Z -3drtma test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the develop branch
-09/17 22:00:04Z -gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the develop branch
-09/17 22:00:07Z -gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the develop branch
-09/17 22:00:07Z -gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the develop branch
-09/17 22:04:03Z -rrfs test: your new post executable did not generate bit-identical PRSLEV18.tm00 as the develop branch
-09/17 22:34:16Z -rrfs test: your new post executable did not generate bit-identical NATLEV18.tm00 as the develop branch
-09/17 21:36:35Z -Runtime: sfs_test 00:00:28 -- baseline 00:01:20
-09/17 21:36:50Z -Runtime: gefsv12_test 00:00:40 -- baseline 00:01:00
-09/17 21:37:20Z -Runtime: gefsv13_test 00:01:14 -- baseline 00:02:00
-09/17 21:38:05Z -Runtime: nmmb_test 00:01:46 -- baseline 00:03:00
-09/17 21:38:06Z -Runtime: rap_test 00:01:59 -- baseline 00:02:00
-09/17 21:40:21Z -Runtime: hrrr_test 00:04:04 -- baseline 00:08:00
-09/17 21:40:21Z -Runtime: hafs_test 00:00:54 -- baseline 00:01:00
-09/17 21:45:51Z -Runtime: 3drtma_test 00:09:33 -- baseline 00:03:00
-09/17 21:45:51Z -Runtime: mpas_test 00:02:16 -- baseline 00:02:30
-09/17 21:45:51Z -Runtime: mpas_hfip_test 00:03:25 -- baseline 00:05:00
-09/17 22:34:26Z -Runtime: rrfs_test 00:58:11 -- baseline 00:12:00
-09/17 22:34:26Z -Runtime: rrfs_ifi_missing 00:02:53 -- baseline 00:04:00
-09/17 22:34:26Z -Runtime: gfs_test 00:24:02 -- baseline 00:26:00
+10/16 03:39:48Z -sfs test: your new post executable generates bit-identical sfs.t00z.master.grb2f048 as the develop branch
+10/16 03:40:00Z -gefsv12 test: your new post executable generates bit-identical geaer.t00z.master.grb2f060 as the develop branch
+10/16 03:40:16Z -hafs test: your new post executable generates bit-identical HURPRS09.tm00 as the develop branch
+10/16 03:40:35Z -gefsv13 test: your new post executable generates bit-identical gefs.t00z.master.grb2f009 as the develop branch
+10/16 03:41:07Z -nmmb test: your new post executable generates bit-identical BGDAWP03.tm00.Grib2 as the develop branch
+10/16 03:41:08Z -nmmb test: your new post executable generates bit-identical BGRD3D03.tm00.Grib2 as the develop branch
+10/16 03:41:08Z -nmmb test: your new post executable generates bit-identical BGRDSF03.tm00.Grib2 as the develop branch
+10/16 03:42:56Z -mpas test: your new post executable generates bit-identical POSTNAT18.tm00 as the develop branch
+10/16 03:42:56Z -mpas test: your new post executable generates bit-identical POSTPRS18.tm00 as the develop branch
+10/16 03:42:57Z -mpas test: your new post executable generates bit-identical POSTTWO18.tm00 as the develop branch
+10/16 03:43:02Z -mpas_hfip test: your new post executable generates bit-identical NATLEV.GrbF48 as the develop branch
+10/16 03:43:04Z -mpas_hfip test: your new post executable generates bit-identical PRSLEV.GrbF48 as the develop branch
+10/16 03:43:04Z -mpas_hfip test: your new post executable generates bit-identical 2DFLD.GrbF48 as the develop branch
+10/16 03:44:52Z -rap test: your new post executable generates bit-identical WRFPRS.GrbF06 as the develop branch
+10/16 03:44:53Z -rap test: your new post executable generates bit-identical WRFNAT.GrbF06 as the develop branch
+10/16 03:45:38Z -rrfs_ifi_missing test: your new post executable generates bit-identical IFIFIP18.tm00 as the develop branch
+10/16 03:46:18Z -3drtma test: your new post executable did not generate bit-identical NATLEV00.tm00 as the develop branch
+10/16 03:46:51Z -hrrr test: your new post executable generates bit-identical WRFTWO.GrbF10 as the develop branch
+10/16 03:46:51Z -hrrr test: your new post executable generates bit-identical WRFPRS.GrbF10 as the develop branch
+10/16 03:46:52Z -hrrr test: your new post executable generates bit-identical WRFNAT.GrbF10 as the develop branch
+10/16 03:48:53Z -3drtma test: your new post executable did not generate bit-identical PRSLEV00.tm00 as the develop branch
+10/16 03:52:33Z -gfs test: your new post executable generates bit-identical gfs.t00z.master.grb2f006 as the develop branch
+10/16 03:52:35Z -gfs test: your new post executable generates bit-identical gfs.t00z.sfluxgrbf006.grib2 as the develop branch
+10/16 03:52:35Z -gfs test: your new post executable generates bit-identical gfs.t00z.special.grb2f006 as the develop branch
+10/16 04:08:43Z -rrfs test: your new post executable did not generate bit-identical PRSLEV18.tm00 as the develop branch
+10/16 04:39:08Z -rrfs test: your new post executable did not generate bit-identical NATLEV18.tm00 as the develop branch
+10/16 03:40:02Z -Runtime: sfs_test 00:00:08 -- baseline 00:01:20
+10/16 03:40:02Z -Runtime: gefsv12_test 00:00:20 -- baseline 00:01:00
+10/16 03:40:47Z -Runtime: gefsv13_test 00:00:55 -- baseline 00:02:00
+10/16 03:41:17Z -Runtime: nmmb_test 00:01:28 -- baseline 00:03:00
+10/16 03:45:02Z -Runtime: rap_test 00:01:48 -- baseline 00:02:00
+10/16 03:47:03Z -Runtime: hrrr_test 00:03:47 -- baseline 00:08:00
+10/16 03:47:03Z -Runtime: hafs_test 00:00:36 -- baseline 00:01:00
+10/16 03:49:03Z -Runtime: 3drtma_test 00:09:13 -- baseline 00:03:00
+10/16 03:49:03Z -Runtime: mpas_test 00:01:55 -- baseline 00:02:30
+10/16 03:49:03Z -Runtime: mpas_hfip_test 00:03:34 -- baseline 00:05:00
+10/16 04:39:23Z -Runtime: rrfs_test 00:58:06 -- baseline 00:12:00
+10/16 04:39:23Z -Runtime: rrfs_ifi_missing 00:02:33 -- baseline 00:04:00
+10/16 04:39:23Z -Runtime: gfs_test 00:11:33 -- baseline 00:26:00
 Check tests:
 ['sfs', 'gefsv12', 'gefsv13', 'nmmb', 'rap', 'hrrr', 'hafs', '3drtma', 'mpas', 'mpas_hfip', 'rrfs', 'rrfs_ifi_missing', 'gfs']
-There are changes in results for case 3drtma in /work2/noaa/epic/clyden/regression-tests/upp/orion/1325_orion_intel/ci/rundir/upp-ORION/3drtma_2023040400/NATLEV00.tm00
-There are changes in results for case 3drtma in /work2/noaa/epic/clyden/regression-tests/upp/orion/1325_orion_intel/ci/rundir/upp-ORION/3drtma_2023040400/PRSLEV00.tm00
-There are changes in results for case rrfs in /work2/noaa/epic/clyden/regression-tests/upp/orion/1325_orion_intel/ci/rundir/upp-ORION/rrfs_2025040112/PRSLEV18.tm00
-There are changes in results for case rrfs in /work2/noaa/epic/clyden/regression-tests/upp/orion/1325_orion_intel/ci/rundir/upp-ORION/rrfs_2025040112/NATLEV18.tm00
-Refer to .diff files in rundir: /work2/noaa/epic/clyden/regression-tests/upp/orion/1325_orion_intel/ci/rundir/upp-ORION for details on differences in results for each case.
+There are changes in results for case 3drtma in /work2/noaa/epic/clyden/regression-tests/upp/orion/1340_orion_intel/ci/rundir/upp-ORION/3drtma_2023040400/NATLEV00.tm00
+There are changes in results for case 3drtma in /work2/noaa/epic/clyden/regression-tests/upp/orion/1340_orion_intel/ci/rundir/upp-ORION/3drtma_2023040400/PRSLEV00.tm00
+There are changes in results for case rrfs in /work2/noaa/epic/clyden/regression-tests/upp/orion/1340_orion_intel/ci/rundir/upp-ORION/rrfs_2025040112/PRSLEV18.tm00
+There are changes in results for case rrfs in /work2/noaa/epic/clyden/regression-tests/upp/orion/1340_orion_intel/ci/rundir/upp-ORION/rrfs_2025040112/NATLEV18.tm00
+Refer to .diff files in rundir: /work2/noaa/epic/clyden/regression-tests/upp/orion/1340_orion_intel/ci/rundir/upp-ORION for details on differences in results for each case.
 ===== End of UPP Regression Testing Log =====
