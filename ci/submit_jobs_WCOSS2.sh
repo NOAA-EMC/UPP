@@ -25,7 +25,7 @@ if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
 fi
 
 # Run additional GTG tests
-if [[ "$have_gtg" == "yes" && "$disable_gtg" == "no" ]] ; then
+if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" && "$have_gtg" == "yes" && "$disable_gtg" == "no" ]] ; then
   for gtg_test in dafs; do
     cp $svndir/ci/jobs-dev/run_post_${gtg_test}_${machine}.sh .
     job_id=$(qsub -A "${accnr}" run_post_${gtg_test}_${machine}.sh)
