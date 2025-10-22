@@ -35,7 +35,7 @@ module list
 msg="Starting rrfs_ifi_missing test"
 postmsg "$logfile" "$msg"
 
-export POSTGPEXEC=${svndir}/exec/upp_no_ifi.x
+export POSTGPEXEC=${svndir}/exec/upp_no_ifi_gtg.x
 
 # specify forecast start time and hour for running your post job
 export startdate=2025040112
