@@ -2,6 +2,7 @@ sfs_test 00:00:50
 gefsv12_test 00:01:20
 gefsv13_test 00:02:00
 nmmb_test 00:02:20
+dafs_test 00:02:00
 rap_test 00:02:00
 hrrr_test 00:03:40
 hrrr_ifi_test 00:02:00

@@ -17,6 +17,7 @@ git_branch="develop"
 git_url="https://github.com/NOAA-EMC/UPP.git"
 clone_on="no"
 disable_ifi="no" # don't use libIFI, even if it is present
+disable_gtg="no" # don't use post_gtg, even if it is present
 print_full_help="no"
 build_exe="yes" #build executable
 compiler="MISSING"
@@ -28,6 +29,7 @@ usage() {
 
 Usage: rt.sh -a account -C compiler -r /path/to/scrub/space [-options] [compiler]
 Executes UPP regression tests. Includes IFI tests if ../sorc/libIFI.fd exists.
+Includes GTG tests if ../sorc/ncep_post.fd/post_gtg.fd exists.
 
 Results are here:
   ../tests/logs/MACHINE_compiler.log = report of regression tests for each machine and compiler.
@@ -40,6 +42,7 @@ Always set these:
 
 General options:
   -d = disable ifi tests even if ifi is available
+  -g = disable gtg tests even if gtg is available
   -e = don't build the UPP executable
   -h homedir = path to the regression test data
   -w workdir = directory to store per-job batch and log files.
@@ -113,11 +116,13 @@ check_valid_tests() {
 
 set +x
 export OPTERR=1
-while getopts a:w:h:r:l:t:b:u:C:cdHe opt; do
+while getopts a:w:h:r:l:t:b:u:C:cdgHe opt; do
   case $opt in
     C) compiler=${OPTARG} ; check_for_dash
         ;;
     d) disable_ifi=yes
+        ;;
+    g) disable_gtg=yes
         ;;
     a) accnr=${OPTARG} ; check_for_dash
         ;;
@@ -183,6 +188,12 @@ if [[ -d $svndir/sorc/libIFI.fd/src/ ]] ; then
     export have_ifi=yes
 else
     export have_ifi=no
+fi
+
+if [[ -f $svndir/sorc/ncep_post.fd/post_gtg.fd/gtg.config.hrrr ]] ; then
+    export have_gtg=yes
+else
+    export have_gtg=no
 fi
 
 #find machine
@@ -292,7 +303,7 @@ if [ "$build_exe" == "yes" ]; then
   cd ${test_v}
   mkdir -p ${test_v}/exec
   cd ${test_v}/tests
-  ./compile_upp.sh -o upp_no_ifi.x -c "$compiler"
+  ./compile_upp.sh -o upp_no_ifi_gtg.x -c "$compiler"
   status=$?
   if [ $status -eq 0 ]; then
     msg="Building executable successfully"
@@ -302,7 +313,24 @@ if [ "$build_exe" == "yes" ]; then
     exit 2
   fi
 
-  if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
+  if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" && "$have_gtg" == "yes" && "$disable_gtg" == "no" ]] ; then
+    if [[ "${machine}" == "WCOSS2" ]]; then ##GTG tests only supported on WCOSS2
+      ./compile_upp.sh -a -o upp_with_ifi_gtg.x -I -g -c "$compiler"
+      status=$?
+    else
+      msg="GTG tests are not currently supported on machines other than WCOSS2, exiting"
+      postmsg "$logfile" "$msg"
+      exit 2
+    fi
+    if [ "$status" -eq 0 ]; then
+      msg="Built UPP+IFI+GTG executables successfully"
+    else
+      msg="Built UPP+IFI+GTG executables with failure"
+      postmsg "$logfile" "$msg"
+      exit 2
+    fi
+    ln -s upp_with_ifi_gtg.x $svndir/exec/upp.x
+  elif [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" && "$have_gtg" == "no" ]] ; then
     if [[ "${machine}" == "WCOSS2" ]]; then ##No ifi standalone executable
       ./compile_upp.sh -a -o upp_with_ifi.x -I -c "$compiler"
       status=$?
@@ -318,8 +346,25 @@ if [ "$build_exe" == "yes" ]; then
       exit 2
     fi
     ln -s upp_with_ifi.x $svndir/exec/upp.x
+  elif [[ "$have_gtg" == "yes" && "$disable_gtg" == "no" && "$have_ifi" == "no" ]] ; then
+    if [[ "${machine}" == "WCOSS2" ]]; then ##GTG tests only supported on WCOSS2
+      ./compile_upp.sh -a -o upp_with_gtg.x -g -c "$compiler"
+      status=$?
+    else
+      msg="GTG tests are not currently supported on machines other than WCOSS2, exiting"
+      postmsg "$logfile" "$msg"
+      exit 2
+    fi
+    if [ "$status" -eq 0 ]; then
+      msg="Built UPP+GTG executables successfully"
+    else
+      msg="Built UPP+GTG executables with failure"
+      postmsg "$logfile" "$msg"
+      exit 2
+    fi
+    ln -s upp_with_gtg.x $svndir/exec/upp.x
   else
-    ln -s upp_no_ifi.x $svndir/exec/upp.x
+    ln -s upp_no_ifi_gtg.x $svndir/exec/upp.x
   fi
 
   postmsg "$logfile" "$msg"
