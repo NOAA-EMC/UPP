@@ -8,7 +8,7 @@ gefsv13_test 00:02:00
 rap_test 00:02:00
 hrrr_test 00:03:00
 hafs_test 00:01:30
-3drtma_test 00:02:00
+3drtma_test 00:01:30
 mpas_test 00:02:30
 mpas_hfip_test 00:05:00
 rrfs_test 00:07:00

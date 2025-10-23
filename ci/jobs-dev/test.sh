@@ -25,8 +25,8 @@ set_global() {
       ;;
       URSA)
          export WTIME=00:20:00
-         export N_TASKS='--ntasks 128'
-         export TASKS_PER_NODE='--tasks-per-node 32'
+         export N_TASKS='--ntasks 96'
+         export TASKS_PER_NODE='--tasks-per-node 48'
       ;;
    esac
 }
