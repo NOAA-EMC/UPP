@@ -1,4 +1,10 @@
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+      MODULE TABLEQ_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
       SUBROUTINE TABLEQ(TTBLQ,RDP,RDTHE,PL,THL,STHE,THE0)
 !     ******************************************************************
 !     *                                                                *
@@ -89,3 +95,4 @@
 !
       RETURN
       END
+      END MODULE TABLEQ_UPP_MOD

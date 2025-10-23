@@ -266,6 +266,7 @@
       use ctlblk_mod, only: spval, jsta_2l, jend_2u, jsta_m, jend_m, &
               im, jm, ista_2l, iend_2u, ista_m, iend_m, ista, iend
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -273,7 +274,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),INTENT(IN)    :: U,V,H, &
+      REAL,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),INTENT(INOUT) :: U,V,H, &
                                                 U_OLD,V_OLD,H_OLD
 !      INTEGER,INTENT(IN)                      :: L
       REAL,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),INTENT(INOUT) :: CAT

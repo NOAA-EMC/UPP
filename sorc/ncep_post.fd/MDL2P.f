@@ -80,6 +80,7 @@
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
       use upp_physics, only: FPVSNEW, CALRH, CALVOR, CALSLR_ROEBBER, CALSLR_UUTAH, &
                              CALSLR_UUTAH2, CALCHIPSI
+      use exch_upp_mod, only: exch
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !

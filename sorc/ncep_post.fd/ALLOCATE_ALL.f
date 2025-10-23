@@ -38,6 +38,12 @@
 !!   LIBRARY:
 !!     - COMMON - CTLBLK.comm
 !!
+      MODULE ALLOCATE_ALL_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
       SUBROUTINE ALLOCATE_ALL()
 !
       use upp_ifi_mod, only: set_ifi_dims
@@ -1462,3 +1468,5 @@
       endif
 !
       end
+
+      END MODULE ALLOCATE_ALL_UPP_MOD

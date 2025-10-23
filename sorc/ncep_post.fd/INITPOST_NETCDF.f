@@ -136,6 +136,7 @@
               latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
               latse,lonse,latnw,lonnw
       use upp_physics, only: fpvsnew
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

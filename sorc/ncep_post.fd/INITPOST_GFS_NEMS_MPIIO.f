@@ -86,6 +86,7 @@
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use nemsio_module_mpi
       use upp_physics, only: fpvsnew, caldiv, calgradps
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

@@ -59,6 +59,7 @@
               lonlastv, cenlonv
       use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_close, nemsio_getheadvar
       use upp_math, only: h2u
+      use exch_upp_mod, only: exch
 !
 !     INCLUDE/SET PARAMETERS.
       implicit none

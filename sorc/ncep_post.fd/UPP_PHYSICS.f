@@ -1062,6 +1062,7 @@
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval,&
                             ista_2l, iend_2u,     ista, iend,             ista_m, iend_m
+      use exch_upp_mod, only: exch
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1768,12 +1769,13 @@
                               ista, iend, ista_m, iend_m, ista_2l, iend_2u, me, num_procs
       use gridspec_mod, only: gridtype, dyval
       use upp_math,     only: DVDXDUDY, DDVDX, DDUDY, UUAVG
+      use exch_upp_mod, only: exch
 
       implicit none
 !
 !     DECLARE VARIABLES.
 !     
-      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: UWND, VWND
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: UWND, VWND
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: ABSV
       REAL, dimension(IM,2) :: GLATPOLES, COSLPOLES, UPOLES, AVPOLES
       REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, AVTEMP
@@ -2185,12 +2187,13 @@
                               jsta, jend, im, jm, jsta_m, jend_m, lm,     &
                               ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
 
       implicit none
 !
 !     DECLARE VARIABLES.
 !     
-      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm), intent(in)    :: UWND,VWND
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm), intent(inout) :: UWND,VWND
       REAL, dimension(ista:iend,jsta:jend,lm),       intent(inout) :: DIV
       REAL, dimension(IM,2)         :: GLATPOLES, COSLPOLES, UPOLES, VPOLES, DIVPOLES
       REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, DIVTEMP
@@ -2465,12 +2468,13 @@
                               ista, iend, ista_m, iend_m, ista_2l, iend_2u
 
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
 
       implicit none
 !
 !     DECLARE VARIABLES.
 !     
-      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: PS
+      REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: PS
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: PSX,PSY 
 !
       real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
@@ -4558,13 +4562,14 @@
 			       me, num_procs, mpi_comm_comp
       use gridspec_mod, only: gridtype, dyval
       use upp_math,     only: dvdxdudy, ddvdx, ddudy, uuavg
+      use exch_upp_mod, only: exch
       use mpi
 !
       implicit none
 !
 !     declare variables.
 !     
-      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: uwnd, vwnd
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: uwnd, vwnd
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: absv, div
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: chi, psi
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)                :: ptmp, atmp, dtmp

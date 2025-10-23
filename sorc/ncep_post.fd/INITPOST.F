@@ -70,6 +70,7 @@
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
               lonlast, dyval, cenlat, cenlon, maptype, truelat1, truelat2,         &
               standlon, psmapf
+      use exch_upp_mod, only: exch
       use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - -
       implicit none
