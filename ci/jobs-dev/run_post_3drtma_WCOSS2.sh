@@ -99,7 +99,7 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_3drtma_${NEWDATE}
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-# 3DRTMA post processing generates 2 files
+# 3DRTMA post processing generates 3 files
 filelist="WRFNAT.GrbF${fhr2} \
 	  WRFTWO.GrbF${fhr2} \
           WRFPRS.GrbF${fhr2}"

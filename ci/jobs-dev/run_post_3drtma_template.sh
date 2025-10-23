@@ -39,9 +39,8 @@ postmsg "$logfile" "$msg"
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
-export startdate=2023040400
+export startdate=2025091010
 export fhr=000
-export tmmark=tm00
 
 # specify your running and output directory
 export DATA=$rundir/3drtma_${startdate}
@@ -57,23 +56,22 @@ export min=00
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/3drtma/dynf000.nc'
+fileName='$homedir/data_in/3drtma/rtma3d.t${HH}z.wrf_inout.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:${min}:00'
-MODELNAME='FV3R'
+MODELNAME='RAPR'
 SUBMODELNAME='RTMA'
-fileNameFlux='$homedir/data_in/3drtma/phyf${fhr}.nc'
 /
 &NAMPGB
-KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
+KPO=47,PO=2.,5.,7.,10.,20.,30.,50.,70.,75.,100.,125.,150.,175.,200.,225.,250.,275.,300.,325.,350.,375.,400.,425.,450.,475.,500.,525.,550.,575.,600.,625.,650.,675.,700.,725.,750.,775.,800.,825.,850.,875.,900.,925.,950.,975.,1000.,1013.2,
 /
 EOF
 
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat eta_micro_lookup.dat
 cp ${svndir}/parm/params_grib2_tbl_new params_grib2_tbl_new
-cp ${svndir}/parm/rrfs/postxconfig-NT-rrfs.txt postxconfig-NT.txt
+cp ${svndir}/parm/3drtma/postxconfig-NT-3drtma.txt postxconfig-NT.txt
 
 # get crtm fix files
 for what in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
@@ -103,9 +101,10 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_3drtma_${NEWDATE}
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-# 3DRTMA post processing generates 2 files
-filelist="NATLEV${fhr2}.${tmmark} \
-          PRSLEV${fhr2}.${tmmark}"
+# 3DRTMA post processing generates 3 files
+filelist="WRFNAT.GrbF${fhr2} \
+          WRFTWO.GrbF${fhr2} \
+          WRFPRS.GrbF${fhr2}"
 
 for file in $filelist; do
 export filein2=$file

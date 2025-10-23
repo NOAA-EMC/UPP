@@ -7,7 +7,7 @@ rap_test 00:02:00
 hrrr_test 00:03:40
 hrrr_ifi_test 00:02:00
 hafs_test 00:02:00
-3drtma_test 00:04:40
+3drtma_test 00:03:00
 mpas_test 00:02:40
 mpas_hfip_test 00:05:00
 rrfs_test 00:10:00
