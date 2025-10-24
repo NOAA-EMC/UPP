@@ -37,7 +37,7 @@ postmsg "$logfile" "$msg"
 export POSTGPEXEC=$svndir/exec/upp.x
 
 # specify forecast start time and hour
-export startdate=2024120500
+export startdate=2025012600
 export fhr=006
 export cyc=`echo $startdate |cut -c9-10`
 
