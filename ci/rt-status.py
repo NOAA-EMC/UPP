@@ -13,25 +13,9 @@ import sys
 # files used in result comparison
 test_list = os.environ["test_list"].split()
 
-synonyms = { '3drtma': [ 'rtma' ] }
-for name,synonym_list in synonyms.items():
-    if name in test_list:
-        for synonym in synonym_list:
-            test_list.append(synonym)
-
 print('Check tests:')
 print(test_list)
 tests = test_list
-#tests = [
-#    'nmmb',
-#    'gfs',
-#    'fv3gefs',
-#    'fv3r',
-#    'rap',
-#    'hrrr',
-#    'fv3hafs',
-#    'rtma'
-#]
 
 # look for .diff files
 # every case has its own directory in rundir

@@ -124,5 +124,5 @@ the variable.
     -new_grid "latlon 0:1440:0.25 90:721:-0.25" outfile
 
 .. note::
-   *wgrib2* is not distributed as part of the :term:`UFS`, but it can be installed via :term:`spack-stack` or :term:`HPC-Stack` along with other UFS prerequisite software. 
+   *wgrib2* is not distributed as part of the :term:`UFS`, but it can be installed via :term:`spack-stack` along with other UFS prerequisite software. 
    Users may also download and install it directly from https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/. 

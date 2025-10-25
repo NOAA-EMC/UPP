@@ -29,6 +29,7 @@
 !! -  23-08-16  Yali Mao - Make it optional to allocate GTG related fields only when gtg_on
 !! -  25-01-13  Jaymes Kenyon - Add graupel number concentration (QQNG)
 !! -  25-05-05  Jaymes Kenyon - Add HAIL_BUCKET
+!! -  25-07-15  Jeff Duda - Add max_compref, max_prate_1min, max_prate_5min, and max_prate_10min
 
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -386,6 +387,9 @@
       allocate(w_mean(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(refd_max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(prate_max(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(max_prate_1min(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(max_prate_5min(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(max_prate_10min(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(fprate_max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(up_heli_max(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(up_heli_max16(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -407,6 +411,9 @@
           w_dn_max(i,j)=spval
           w_mean(i,j)=spval
           refd_max(i,j)=spval
+          max_prate_1min(i,j)=spval
+          max_prate_5min(i,j)=spval
+          max_prate_10min(i,j)=spval
           prate_max(i,j)=spval
           fprate_max(i,j)=spval
           up_heli_max(i,j)=spval
@@ -479,6 +486,7 @@
           enddo
         enddo
       enddo
+      allocate(MAX_COMPREF(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(REFC_10CM(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(REF1KM_10CM(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(REF4KM_10CM(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -486,17 +494,18 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
+          MAX_COMPREF(i,j)=spval
           REFC_10CM(i,j)=spval
           REF1KM_10CM(i,j)=spval
           REF4KM_10CM(i,j)=spval
         enddo
       enddo
 ! CRA
+      allocate(f10m(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(u10(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(v10(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(tshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(qshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
-      allocate(mrshltr(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(smstav(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(ssroff(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(bgroff(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -524,11 +533,11 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=ista_2l,iend_2u
+          f10m(i,j)=spval
           u10(i,j)=spval
           v10(i,j)=spval
           tshltr(i,j)=spval
           qshltr(i,j)=spval
-          mrshltr(i,j)=spval
           smstav(i,j)=spval
           ssroff(i,j)=spval
           bgroff(i,j)=spval

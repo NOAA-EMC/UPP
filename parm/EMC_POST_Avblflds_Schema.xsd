@@ -24,8 +24,11 @@
                     <xs:element type="no_space_string" name="pname" maxOccurs="1" minOccurs="0" />
                     <xs:element type="no_space_string" name="table_info" maxOccurs="1" minOccurs="0" />
                     <xs:element type="no_space_string" name="stats_proc" maxOccurs="1" minOccurs="0" />
+                    <xs:element type="no_space_string" name="prob_type" maxOccurs="1" minOccurs="0" />
                     <xs:element type="no_space_string" name="fixed_sfc1_type" maxOccurs="1" minOccurs="0" />
                     <xs:element type="array_of_int_number" name="scale_fact_fixed_sfc1" maxOccurs="1" minOccurs="0" />
+                    <xs:element type="array_of_int_number" name="scale_fact_lower_limit" maxOccurs="1" minOccurs="0" />
+                    <xs:element type="scale_array_of_real_number" name="scale_val_lower_limit" maxOccurs="1" minOccurs="0" />
                     <xs:element type="level_array_of_real_number" name="level" maxOccurs="1" minOccurs="0" />
                     <xs:element type="no_space_string" name="fixed_sfc2_type" maxOccurs="1" minOccurs="0" />
                     <xs:element type="array_of_int_number" name="scale_fact_fixed_sfc2" maxOccurs="1" minOccurs="0" />

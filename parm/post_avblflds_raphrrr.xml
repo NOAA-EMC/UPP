@@ -5609,8 +5609,8 @@
        <shortname>SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>COLMD</pname>
-       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <scale>5.0</scale>
     </param>
 
@@ -5619,8 +5619,8 @@
        <shortname>SMOKE_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
-       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <scale>6.0</scale>
     </param>
 
@@ -5629,8 +5629,8 @@
        <shortname>SMOKE_ON_ISOBARIC_SFC</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
-       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <scale>6.0</scale>
     </param>
 
@@ -5639,9 +5639,9 @@
        <shortname>SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>MASSDEN</pname>
-       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>8.</level>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <scale>6.0</scale>
     </param>
 

@@ -4,14 +4,13 @@
 #SBATCH -e out.post.3drtma
 #SBATCH -J 3drtma_test
 #SBATCH -t 00:20:00
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -A ovp
 #SBATCH -N 8 --ntasks-per-node=12
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export MP_LABELIO=yes
 export threads=1
 export OMP_NUM_THREADS=$threads

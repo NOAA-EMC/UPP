@@ -16,7 +16,7 @@ NOAA UPP developers who wish to add new variables to the UPP will need to:
 
 2.  Submit your pull request with small incremental changes. Advantages of doing this include avoiding conflicts with other UPP developers in terms of using the UPP internal index and variables.
 
-3.  Please do not modify existing algorithms without coordinating with UPP code managers (Wen Meng and Hui-Ya Chuang). UPP supports many NOAA operational models, and we cannot change operational products without coordination and advanced notice.
+3.  Please do not modify existing algorithms without coordinating with UPP code managers (Wen Meng). UPP supports many NOAA operational models, and we cannot change operational products without coordination and advanced notice.
 
 We encourage non-NOAA UPP developers to contact EPIC via
 `GitHub Discussions <https://github.com/NOAA-EMC/UPP/discussions>`_ to make them aware of modifications you
@@ -79,6 +79,20 @@ example in :numref:`Section %s <add-var-example>` below.
             /usr/bin/perl PostXMLPreprocessor.pl your_user_defined_xml post_avblflds.xml your_user_defined_flat
 
          This flat file (instead of the xml file) is read in by the UPP because it is much faster to read a text file than an XML file.
+
+         .. note:: 
+
+            On ``Ursa`` the usual process for generating a new/updated ``postxconfig.txt`` file is slighlty different due to a missing XML module. The following workaround has been developed:
+
+            .. code-block:: console
+
+               wget https://raw.githubusercontent.com/wiki/NOAA-EMC/UPP/perl_venv_create.sh
+               chmod 755 perl_venv_create.sh
+               ./perl_venv_create.sh perl_venv
+               source perl_venv/bin/activate
+               cpanm XML::LibXML
+               cd /path/to/UPP
+               cd parm
 
 #. Allocate and initialize the field in ``sorc/ncep_post.fd/ALLOCATE_ALL.f``.
 
