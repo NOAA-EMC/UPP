@@ -62,7 +62,8 @@ ALL_TXT= \
   postxconfig-NT-AQM.txt \
   ./dafs/postxconfig-NT-hrrr_dafs.txt \
   postxconfig-NT-wps.txt \
-  ./gcafs/postxconfig-NT-gcafs.txt
+  ./gcafs/postxconfig-NT-gcafs.txt \
+  ./3drtma/postxconfig-NT-3drtma.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
@@ -111,6 +112,7 @@ postxconfig-NT-AQM.txt:              aqm.xml                        post_avblfld
 ./dafs/postxconfig-NT-hrrr_dafs.txt: ./dafs/hrrr_postcntrl_dafs.xml post_avblflds.xml
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
+./3drtma/postxconfig-NT-3drtma.txt: ./3drtma/3drtma_postcntrl.xml post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
