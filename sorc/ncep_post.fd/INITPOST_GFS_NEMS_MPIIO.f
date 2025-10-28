@@ -87,6 +87,8 @@
       use nemsio_module_mpi
       use upp_physics, only: fpvsnew, caldiv, calgradps
       use exch_upp_mod, only: exch
+      use table_upp_mod, only : table
+      use tableq_upp_mod, only : tableq
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
