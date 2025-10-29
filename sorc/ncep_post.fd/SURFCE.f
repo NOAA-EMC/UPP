@@ -64,6 +64,8 @@
 !> 2025-08-28 | J Kenyon   | Remove outdated MRSHLTR array and the associated functionality for
 !>                         | ID 414; the QV2M array (ID 760) can be used instead
 !> 2025-09-11 | W Meng     | Set surface spfh to missing when not available
+!> 2025-10-21 | J Kenyon   | For ID 434 (BUCKET_APCP_ON_SURFACE), remove the assumption (and the hard coding)
+!>                         | of a 1-h accumulation interval
 !>
 !> @note
 !> USAGE:    CALL SURFCE
@@ -4202,7 +4204,7 @@
                if (ifhr==0) then
                  fld_info(cfld)%tinvstat=0
                else
-                 fld_info(cfld)%tinvstat=1
+                 fld_info(cfld)%tinvstat=IFINCR
                endif
                fld_info(cfld)%ntrange=1
              end if
