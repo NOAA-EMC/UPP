@@ -1,5 +1,5 @@
 help([[
-Load environment to build UPP on ursa
+Load environment to build UPP on derecho
 ]])
 
 setenv("LMOD_TMOD_FIND_FIRST","yes")
