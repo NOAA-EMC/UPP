@@ -213,7 +213,6 @@
 !KaYee: Read itag in Fortran Namelist format
 !Set defaults
        SUBMODELNAME='NONE'
-       earth_radius=0.
 !Set control file name
        fileNameFlat='postxconfig-NT.txt'
        numx=1
