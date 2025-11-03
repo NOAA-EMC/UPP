@@ -54,7 +54,7 @@
   character(len=8)   :: FULLMODELNAME              !< No longer used/supported.
   character(len=20)  :: IOFORM                     !< Input file format.
   character(len=4)   :: VTIMEUNITS                 !< Valid time units.
-  real :: earth_radius                             !< Radius of the earth (meters), as optionally specified in the namelist
+  real :: earth_radius = 0.                        !< Radius of the earth (meters), as optionally specified in the namelist
 ! 
   character(5) :: grib                          !< Grib type (Note that UPP only supports Grib2 currently).
   type(field_info),allocatable :: fld_info(:)   !< _____?
