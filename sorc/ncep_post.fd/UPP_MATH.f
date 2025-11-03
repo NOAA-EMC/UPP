@@ -138,7 +138,7 @@
 !
 !> H2U() interpolates from H points onto U points
 !>
-!> @param[in] ingrid Input grid on H points
+!> @param[inout] ingrid Input grid on H points
 !> @param[out] outgrid Output grid on U points
 !> 
 !> Author: CHUANG, EMC, Dec. 2010
@@ -147,12 +147,13 @@
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, me, num_procs, jm,&
               im, jsta_2l, jend_2u, ista, iend, ista_m, iend_m, ista_2l, iend_2u 
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only : exch
 
       implicit none
 
       INCLUDE "mpif.h"
       integer:: i,j,ie,iw
-      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(in)::ingrid
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(inout)::ingrid
       real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(out)::outgrid
       outgrid=spval
       if(GRIDTYPE == 'A')THEN
@@ -203,7 +204,7 @@
 ! 
 !> H2V() interpolates from H points onto V points
 !>
-!> @param[in] ingrid Input grid on H points.
+!> @param[inout] ingrid Input grid on H points.
 !> @param[out] outgrid Output grid on V points.
 !> 
 !> Author: CHUANG, EMC, Dec. 2010
@@ -211,10 +212,11 @@
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, im, jsta_2l, jend_2u,&
                                    ista, iend, ista_m, iend_m,     ista_2l, iend_2u
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only : exch
       implicit none
       INCLUDE "mpif.h"
       integer:: i,j,ie,iw
-      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(in)::ingrid
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(inout)::ingrid
       real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(out)::outgrid
       outgrid=spval
       if(GRIDTYPE == 'A')THEN
@@ -256,7 +258,7 @@
 ! 
 !> U2H() interpolates from U points onto H points
 !>
-!> @param[in] ingrid Input grid on U points.
+!> @param[inout] ingrid Input grid on U points.
 !> @param[out] outgrid Output grid on H points.
 !> 
 !> Author: CHUANG, EMC, Dec. 2010
@@ -264,10 +266,11 @@
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, im, jsta_2l, jend_2u,&
                                    ista, iend, ista_m, iend_m,     ista_2l, iend_2u
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
       implicit none
       INCLUDE "mpif.h"
       integer:: i,j,ie,iw
-      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(in)::ingrid
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(inout)::ingrid
       real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(out)::outgrid
       outgrid=spval
       if(GRIDTYPE == 'A')THEN
@@ -309,7 +312,7 @@
 ! 
 !> V2H() interpolates from V points onto H points
 !>
-!> @param[in] ingrid Input grid on V points.
+!> @param[inout] ingrid Input grid on V points.
 !> @param[out] outgrid Output grid on H points. 
 !> 
 !> Author: CHUANG, EMC, Dec. 2010
@@ -317,10 +320,11 @@
       use ctlblk_mod, only: spval, jsta, jend, jsta_m, jend_m, im, jsta_2l, jend_2u,&
                                    ista, iend, ista_m, iend_m,     ista_2l, iend_2u
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only : exch
       implicit none
       INCLUDE "mpif.h"
       integer:: i,j,ie,iw
-      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(in)::ingrid
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(inout)::ingrid
       real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(out)::outgrid
       outgrid=spval
       if(GRIDTYPE == 'A')THEN

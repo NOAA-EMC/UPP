@@ -91,6 +91,8 @@
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
               lonlast, dyval, cenlat, cenlon, maptype, truelat1, truelat2,         &
               standlon, psmapf
+      use table_upp_mod, only : table
+      use tableq_upp_mod, only : tableq
       use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - -
       implicit none

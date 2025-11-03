@@ -17,6 +17,12 @@
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
 !> 2025-01-13 | Jaymes Kenyon| Add HAIL_BUCKET
 
+      MODULE DE_ALLOCATE_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 
@@ -597,3 +603,5 @@
       endif
 
       end
+
+      END MODULE DE_ALLOCATE_UPP_MOD

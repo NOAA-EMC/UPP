@@ -43,6 +43,7 @@
       use gridspec_mod, only: gridtype,dyval
       use upp_physics, only: FPVSNEW
       use upp_math, only: DVDXDUDY, DDVDX, DDUDY, UUAVG, h2u
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

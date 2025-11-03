@@ -1,3 +1,9 @@
+      MODULE get_postfilename_mod
+
+      implicit none
+
+      contains
+
       subroutine get_postfilename(fname)
 !
 ! ABSTRACT: THIS SUBROUTINE GENERATE POST FILE NAME FROM THE DATSET IN
@@ -156,4 +162,6 @@
 !
       ENDIF
 
-      end subroutine get_postfilename 
+      end subroutine get_postfilename
+
+      END MODULE get_postfilename_mod
