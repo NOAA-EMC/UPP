@@ -80,7 +80,7 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_aqm_${NEWDATE}
 fhr=`expr $fhr + 0`
 fhr2=`printf "%02d" $fhr`
 
-# HAFS post processing generates 1 file
+# AQM post processing generates 1 file
 filelist="CMAQ${fhr2}.${tmmark}"
 
 for file in $filelist; do
