@@ -1,4 +1,5 @@
 sfs_test 00:01:20
+aqm_test 00:00:30
 hrrr_ifi_test 00:05:00
 rrfs_ifi_test 00:05:00
 ifi_standalone_fv3r_test 00:05:00

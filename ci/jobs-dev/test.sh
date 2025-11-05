@@ -209,3 +209,11 @@ sfs() {
    esac
 
 }
+
+aqm() {
+
+   export WTIME=00:05:00
+   export NODES=1
+   export N_TASKS_PER_NODE=30
+
+}
