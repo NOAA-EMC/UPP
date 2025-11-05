@@ -67,6 +67,7 @@
                                jm, im_jm, ista, iend, ista_2l, iend_2u, ista_m, iend_m
       use rqstfld_mod,   only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod,  only :gridtype
+      use exch_upp_mod,  only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     

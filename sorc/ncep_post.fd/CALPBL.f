@@ -44,6 +44,7 @@
       use ctlblk_mod, only: lm, im, jsta, jend, spval, jsta_m, jsta_2l, jend_2u, jend_m, &
                             ista, iend, ista_m, ista_2l, iend_2u, iend_m  
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

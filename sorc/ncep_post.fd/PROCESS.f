@@ -26,6 +26,12 @@
 !> 2023-01-24 | Sam Trahan   | run IFI and compute its runtime
 !> 2023-08-24 | Yali Mao     | Remove running MDL2STD_P
 !>
+      MODULE PROCESS_UPP_MOD
+
+      implicit none
+
+      contains
+
 !> @author Russ Treadon W/NP2 @date 1992-12-21
 !----------------------------------------------------------------------------
 !> process() is a driver for major post routines.
@@ -144,3 +150,5 @@
 !
       RETURN
       END
+
+      END MODULE PROCESS_UPP_MOD

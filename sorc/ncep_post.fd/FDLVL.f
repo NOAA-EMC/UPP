@@ -69,6 +69,7 @@
                             JEND_M, HTFD, NFD, IM, JM, NBIN_DU,    &
                             MODELNAME, ISTA, IEND, ISTA_2L, IEND_2U, ISTA_M, IEND_M
       use gridspec_mod, only: GRIDTYPE
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -491,6 +492,7 @@
                             JEND_M, IM, JM, MODELNAME, &
                             ISTA, IEND, ISTA_2L, IEND_2U, ISTA_M, IEND_M
       use gridspec_mod, only: GRIDTYPE
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

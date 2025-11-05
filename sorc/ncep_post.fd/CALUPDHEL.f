@@ -34,6 +34,7 @@
                               ista_2l, iend_2u, ista_m, iend_m
       use gridspec_mod, only: gridtype
       use upp_math,     only: DVDXDUDY, DDVDX, DDUDY
+      use exch_upp_mod, only: exch
 
       implicit none
 

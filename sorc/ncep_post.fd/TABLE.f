@@ -1,4 +1,10 @@
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+      MODULE TABLE_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
       SUBROUTINE TABLE(PTBL,TTBL,PT                                  &
      &,                RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
 !     ******************************************************************
@@ -162,3 +168,4 @@
 !
       RETURN
       END
+      END MODULE TABLE_UPP_MOD

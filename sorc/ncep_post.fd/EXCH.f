@@ -16,6 +16,12 @@
 !> during compilation, even if it's specified as a compiler option in the
 !> makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !>
+      MODULE EXCH_UPP_MOD
+
+      implicit none
+
+      contains
+
 !> @author Jim Tuccillo IBM @date 2000-01-06
 !----------------------------------------------------------------------
 !> @brief exch() Subroutine that exchanges one halo row. 
@@ -459,4 +465,6 @@
       end if
 !
       end
+
+      END MODULE EXCH_UPP_MOD
 

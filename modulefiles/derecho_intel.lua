@@ -2,42 +2,24 @@ help([[
 Load environment to build UPP on derecho
 ]])
 
-prepend_path("MODULEPATH", "/glade/work/epicufsrt/contrib/spack-stack/derecho/modulefiles")
-prepend_path("MODULEPATH", "/glade/work/epicufsrt/contrib/spack-stack/derecho/spack-stack-1.8.0/envs/ue-intel-2021.10.0/install/modulefiles/Core")
+setenv("LMOD_TMOD_FIND_FIRST","yes")
+prepend_path("MODULEPATH", "/lustre/desc1/scratch/epicufsrt/contrib/modulefiles_extra")
+prepend_path("MODULEPATH", "/glade/work/epicufsrt/contrib/spack-stack/derecho/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
 
-load("stack-intel/2021.10.0")
-load("stack-cray-mpich/8.1.25")
+stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
+load(pathJoin("stack-oneapi", stack_oneapi_ver))
+
+stack_impi_ver=os.getenv("stack_cray_mpich_ver") or "8.1.29"
+load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
 cmake_ver=os.getenv("cmake_ver") or "3.27.9"
 load(pathJoin("cmake", cmake_ver))
 
-local ufs_modules = {
-  {["jasper"]          = "2.0.32" },
-  {["zlib-ng"]         = "2.1.6" },
-  {["libpng"]          = "1.6.37" },
-  {["hdf5"]            = "1.14.3" },
-  {["netcdf-c"]        = "4.9.2"  },
-  {["netcdf-fortran"]  = "4.6.1"  },
-  {["bacio"]           = "2.4.1"  },
-  {["crtm"]            = "2.4.0.1"},
-  {["g2"]              = "3.5.1"  },
-  {["g2tmpl"]          = "1.13.0" },
-  {["ip"]              = "5.0.0"  },
-  {["w3emc"]           = "2.10.0" },
-  {["nemsio"]          = "2.5.4"  },
-  {["sigio"]           = "2.3.2"  },
-  {["wrf-io"]          = "1.2.0"  },
-}
-
-for i = 1, #ufs_modules do
-  for name, default_version in pairs(ufs_modules[i]) do
-    local env_version_name = string.gsub(name, "-", "_") .. "_ver"
-    load(pathJoin(name, os.getenv(env_version_name) or default_version))
-  end
-end
+load("upp_common")
 
 setenv("CC", "mpicc")
 setenv("CXX", "mpic++")
 setenv("FC", "mpifort")
+setenv("F90", "mpifort")
 
-whatis("Description: UFS build environment")
+whatis("Description: UPP build environment")

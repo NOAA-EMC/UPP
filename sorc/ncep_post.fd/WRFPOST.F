@@ -136,6 +136,12 @@
               run_ifi_tim, slrutah_on, d2d_chem, gtg_on, method_blsn
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use upp_ifi_mod, only: write_ifi_debug_files
+      use allocate_all_upp_mod, only: allocate_all
+      use de_allocate_upp_mod , only : de_allocate
+      use read_xml_upp_mod, only: read_xml
+      use set_outflds_upp_mod, only: set_outflds
+      use get_postfilename_mod, only: get_postfilename
+      use process_upp_mod, only: process
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

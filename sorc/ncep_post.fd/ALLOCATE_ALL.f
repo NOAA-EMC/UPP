@@ -1,7 +1,6 @@
 !> @file
-!
-!> SET UP MESSGAE PASSING INFO
-!! @author TUCCILLO ORG: IBM
+!> @brief allocate_all() allocates variables and sets up message passing info
+!> @author TUCCILLO @date 2000-01-06
 !!
 !! PROGRAM HISTORY LOG:
 !! -  00-01-06  TUCCILLO - ORIGINAL
@@ -39,6 +38,14 @@
 !!   LIBRARY:
 !!     - COMMON - CTLBLK.comm
 !!
+      MODULE ALLOCATE_ALL_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+! -----------------------------------------------------------
+!> \brief Allocates necessary data structures for run
+! -----------------------------------------------------------
       SUBROUTINE ALLOCATE_ALL()
 !
       use upp_ifi_mod, only: set_ifi_dims
@@ -1471,3 +1478,5 @@
       endif
 !
       end
+
+      END MODULE ALLOCATE_ALL_UPP_MOD
