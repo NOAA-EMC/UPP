@@ -19,6 +19,7 @@
 !>  2023-08-16 | Yali Mao   | Add gtg_on logical option
 !>  2023-11-24 | Eric James | Add method_blsn logical option
 !>  2025-07-25 | Jaymes Kenyon | Add "earth_radius" namelist option
+!>  2025-11-03 | Nick Szapiro | Initialize earth_radius=0. namelist option
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK CTLBLK
 !> Sets default parameters that are used throughout the UPP code
@@ -54,7 +55,7 @@
   character(len=8)   :: FULLMODELNAME              !< No longer used/supported.
   character(len=20)  :: IOFORM                     !< Input file format.
   character(len=4)   :: VTIMEUNITS                 !< Valid time units.
-  real :: earth_radius                             !< Radius of the earth (meters), as optionally specified in the namelist
+  real :: earth_radius = 0.                        !< Radius of the earth (meters), as optionally specified in the namelist
 ! 
   character(5) :: grib                          !< Grib type (Note that UPP only supports Grib2 currently).
   type(field_info),allocatable :: fld_info(:)   !< _____?
