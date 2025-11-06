@@ -53,7 +53,8 @@
 
 !
 !
-      use vrbls4d, only: DUST, SMOKE, FV3DUST, COARSEPM, EBB
+      use vrbls4d, only: DUST, SALT, SOOT, WASO, SUSO, SMOKE, FV3DUST,         &
+                         COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
                          QQNW, QQNI, QQNR, QQNG, RLWTT, RSWTT, VDIFFTT, TCUCN, &
@@ -72,8 +73,9 @@
                             H99999, GAMMA, TFRZ
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
-                            TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, ioform, NBIN_SM,  &
+                            TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, NBIN_SS,       &
+			    NBIN_BC, NBIN_OC, NBIN_SU, JSTA_2L, JEND_2U,       &
+                            LSM, d3d_on, nasa_on, ioform, NBIN_SM,             &
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L,  &
                             IEND_2U, slrutah_on, gtg_on
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
@@ -105,7 +107,9 @@
      &,                                      OSL_OLD, OSL995                   &
      &,                                      ICINGFSL, ICINGVSL
       REAL, allocatable  ::  D3DSL(:,:,:),  SMOKESL(:,:,:),  FV3DUSTSL(:,:,:)      &
-     &,                                      COARSEPMSL(:,:,:),  EBBSL(:,:,:)
+     &,                      COARSEPMSL(:,:,:),  EBBSL(:,:,:), DUSTSL(:,:,:)       &
+     &,                      SALTSL(:,:,:), SOOTSL(:,:,:), WASOSL(:,:,:)           &
+     &,                      SUSOSL(:,:,:)
       REAL, allocatable :: GTGSL(:,:),CATSL(:,:),MWTSL(:,:)
 !
       integer,intent(in) :: iostatusD3D
@@ -199,7 +203,54 @@
           enddo
         enddo
       enddo
-
+      if (nasa_on) then
+        if (.not. allocated(dustsl)) allocate(dustsl(im,jm,nbin_du))
+!$omp parallel do private(i,j,l)
+        do l=1,nbin_du
+          do j=1,jm
+            do i=1,im
+               DUSTSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo
+        if (.not. allocated(saltsl)) allocate(saltsl(im,jm,nbin_ss))
+!$omp parallel do private(i,j,l)
+        do l=1,nbin_ss
+          do j=1,jm
+            do i=1,im
+               SALTSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo
+        if (.not. allocated(sootsl)) allocate(sootsl(im,jm,nbin_bc))
+!$omp parallel do private(i,j,l)
+        do l=1,nbin_bc
+          do j=1,jm
+            do i=1,im
+               SOOTSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo
+        if (.not. allocated(wasosl)) allocate(wasosl(im,jm,nbin_oc))
+!$omp parallel do private(i,j,l)
+        do l=1,nbin_oc
+          do j=1,jm
+            do i=1,im
+               WASOSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo
+        if (.not. allocated(susosl)) allocate(susosl(im,jm,nbin_su))
+!$omp parallel do private(i,j,l)
+        do l=1,nbin_su
+          do j=1,jm
+            do i=1,im
+               SUSOSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo				
+      endif
+      
 ! For GTG, should run MDL2P interpolation?
       gtg_interpolation = .false.
       if (gtg_on .and. (IGET(464) > 0 .OR. IGET(465) > 0 .OR.      &
@@ -254,6 +305,15 @@
          IGET(1020) > 0  .OR.                           &
 ! ADD DUST FIELDS
          (IGET(455) > 0) .OR.      &
+! ADD NASA FIELDS
+	 (IGET(438) > 0) .OR. (IGET(439) > 0) .OR.      &
+	 (IGET(440) > 0) .OR. (IGET(441) > 0) .OR.      &
+         (IGET(442) > 0) .OR. (IGET(589) > 0) .OR.      &
+	 (IGET(590) > 0) .OR. (IGET(591) > 0) .OR.      &
+	 (IGET(592) > 0) .OR. (IGET(593) > 0) .OR.      &
+         (IGET(594) > 0) .OR. (IGET(595) > 0) .OR.      &
+	 (IGET(596) > 0) .OR. (IGET(597) > 0) .OR.      &
+	 (IGET(598) > 0) .OR.      &	 	 		 
 ! Add WAFS hazard fields: Icing and GTG turbulence
          (IGET(450) > 0) .OR. (IGET(480) > 0) .OR.      &
          gtg_interpolation .OR.                         &
@@ -431,6 +491,23 @@
                    IF(COARSEPM(I,J,1,K) < SPVAL) COARSEPMSL(I,J,K)=COARSEPM(I,J,1,K)
                    IF(EBB(I,J,1,K) < SPVAL) EBBSL(I,J,K)=EBB(I,J,1,K)
                  ENDDO
+                 if (nasa_on) then
+                   DO K = 1, NBIN_DU
+                     IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K) = DUST(I,J,1,K)
+                   ENDDO
+                   DO K = 1, NBIN_SS
+                     IF(SALT(I,J,1,K) < SPVAL) SALTSL(I,J,K) = SALT(I,J,1,K)
+                   ENDDO
+                   DO K = 1, NBIN_BC
+                     IF(SOOT(I,J,1,K) < SPVAL) SOOTSL(I,J,K) = SOOT(I,J,1,K)
+                   ENDDO
+                   DO K = 1, NBIN_OC
+                     IF(WASO(I,J,1,K) < SPVAL) WASOSL(I,J,K) = WASO(I,J,1,K)
+                   ENDDO		   
+                   DO K = 1, NBIN_SU
+                     IF(SUSO(I,J,1,K) < SPVAL) SUSOSL(I,J,K) = SUSO(I,J,1,K)
+                   ENDDO		   		   
+                 endif
 
 ! only interpolate GFS d3d fields when  reqested
 !          if(iostatusD3D ==0 .and. d3d_on)then
@@ -716,6 +793,29 @@
                    IF(EBB(I,J,LL,K) < SPVAL .AND. EBB(I,J,LL-1,K) < SPVAL)  &
                    EBBSL(I,J,K)=EBB(I,J,LL,K)+(EBB(I,J,LL,K)-EBB(I,J,LL-1,K))*FACT
                  ENDDO
+                 if (nasa_on) then
+                   DO K = 1, NBIN_DU
+                     IF(DUST(I,J,LL,K) < SPVAL .AND. DUST(I,J,LL-1,K) < SPVAL)   &
+                     DUSTSL(I,J,K) = DUST(I,J,LL,K) + (DUST(I,J,LL,K)-DUST(I,J,LL-1,K))*FACT
+                   ENDDO
+                   DO K = 1, NBIN_SS
+                     IF(SALT(I,J,LL,K) < SPVAL .AND. SALT(I,J,LL-1,K) < SPVAL)   &
+                     SALTSL(I,J,K) = SALT(I,J,LL,K) + (SALT(I,J,LL,K)-SALT(I,J,LL-1,K))*FACT
+                   ENDDO
+                   DO K = 1, NBIN_BC
+                     IF(SOOT(I,J,LL,K) < SPVAL .AND. SOOT(I,J,LL-1,K) < SPVAL)   &
+                     SOOTSL(I,J,K) = SOOT(I,J,LL,K) + (SOOT(I,J,LL,K)-SOOT(I,J,LL-1,K))*FACT
+                   ENDDO
+                   DO K = 1, NBIN_OC
+                     IF(WASO(I,J,LL,K) < SPVAL .AND. WASO(I,J,LL-1,K) < SPVAL)   &
+                     WASOSL(I,J,K) = WASO(I,J,LL,K) + (WASO(I,J,LL,K)-WASO(I,J,LL-1,K))*FACT
+                   ENDDO
+                   DO K = 1, NBIN_SU
+                     IF(SUSO(I,J,LL,K) < SPVAL .AND. SUSO(I,J,LL-1,K) < SPVAL)   &
+                     SUSOSL(I,J,K) = SUSO(I,J,LL,K) + (SUSO(I,J,LL,K)-SUSO(I,J,LL-1,K))*FACT
+                   ENDDO		   		   		   		   
+                 endif
+		 
 
 ! only interpolate GFS d3d fields when  == ested
 !          if(iostatusD3D==0)then
@@ -827,6 +927,25 @@
                    QSAT = CON_EPS*ES/(SPL(LP)+CON_EPSM1*ES)
 ! Q at isobaric level is computed by maintaining constant RH	  
                    QSL(I,J) = RHL*QSAT
+
+!when extracting concentration at locations where pressure is greater than surface pressure		   
+		   if (nasa_on) then
+                    DO K = 1, NBIN_DU
+                     DUSTSL(I,J,K) = SPVAL 
+                    ENDDO
+                    DO K = 1, NBIN_SS
+                     SALTSL(I,J,K) = SPVAL 
+                    ENDDO
+                    DO K = 1, NBIN_OC
+                     SOOTSL(I,J,K) = SPVAL 
+                    ENDDO
+                    DO K = 1, NBIN_BC
+                     WASOSL(I,J,K) = SPVAL 
+                    ENDDO
+                    DO K = 1, NBIN_SU
+                     SUSOSL(I,J,K) = SPVAL 
+                    ENDDO		    		    		    		    		   		   
+		   endif
   
                  ELSE
                    PL = PINT(I,J,LM-1)
@@ -2617,6 +2736,430 @@
              endif
           ENDIF
          ENDIF
+
+         if (nasa_on) then
+!--- DUST 
+         IF (IGET(438) > 0) THEN
+          IF (LVLS(LP,IGET(438)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(DUSTSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*DUSTSL(I,J,1)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(438))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(438))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+
+         IF (IGET(439) > 0) THEN
+          IF (LVLS(LP,IGET(439)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(DUSTSL(I,J,2)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*DUSTSL(I,J,2)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(439))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(439))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+
+         IF (IGET(440) > 0) THEN
+          IF (LVLS(LP,IGET(440)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(DUSTSL(I,J,3)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*DUSTSL(I,J,3)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(440))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(440))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+
+         IF (IGET(441) > 0) THEN
+          IF (LVLS(LP,IGET(441)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(DUSTSL(I,J,4)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*DUSTSL(I,J,4)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(441))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(441))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+
+         IF (IGET(442) > 0) THEN
+          IF (LVLS(LP,IGET(442)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(DUSTSL(I,J,5)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*DUSTSL(I,J,5)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(442))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(442))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+	 
+         IF (IGET(589) > 0) THEN
+          IF (LVLS(LP,IGET(589)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SALTSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SALTSL(I,J,1)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(589))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(589))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+	 
+         IF (IGET(590) > 0) THEN
+          IF (LVLS(LP,IGET(590)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SALTSL(I,J,2)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SALTSL(I,J,2)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(590))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(590))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	 	 
+	 
+         IF (IGET(591) > 0) THEN
+          IF (LVLS(LP,IGET(591)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SALTSL(I,J,3)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SALTSL(I,J,3)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(591))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(591))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+	 
+         IF (IGET(592) > 0) THEN
+          IF (LVLS(LP,IGET(592)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SALTSL(I,J,4)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SALTSL(I,J,4)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(592))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(592))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	 	 	 
+
+         IF (IGET(593) > 0) THEN
+          IF (LVLS(LP,IGET(593)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SALTSL(I,J,5)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SALTSL(I,J,5)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(593))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(593))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	
+	 
+         IF (IGET(594) > 0) THEN
+          IF (LVLS(LP,IGET(594)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SUSOSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SUSOSL(I,J,1)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(594))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(594))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	
+	 
+         IF (IGET(595) > 0) THEN
+          IF (LVLS(LP,IGET(595)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(WASOSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*WASOSL(I,J,1)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(595))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(595))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	
+	   	 	 
+         IF (IGET(596) > 0) THEN
+          IF (LVLS(LP,IGET(596)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(WASOSL(I,J,2)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*WASOSL(I,J,2)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(596))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(596))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	
+	 
+         IF (IGET(597) > 0) THEN
+          IF (LVLS(LP,IGET(597)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SOOTSL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SOOTSL(I,J,1)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(597))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(597))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	
+	 
+         IF (IGET(598) > 0) THEN
+          IF (LVLS(LP,IGET(598)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+	       IF(SOOTSL(I,J,2)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
+                 GRID1(I,J) = (1./RD)*SOOTSL(I,J,2)*(SPL(LP)/(TSL(I,J))) !ug/m3
+	       ELSE
+	         GRID1(I,J) = SPVAL
+	       ENDIF
+               ENDDO
+             ENDDO
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(598))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(598))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+		  ii=ista+i-1
+                   datapd(i,j,cfld) = GRID1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF	
+	 
+         endif  ! if nasa_on
          
          if(iostatusD3D==0 .and. d3d_on) then
 !---  longwave tendency
@@ -4414,6 +4957,11 @@ if(allocated(smokesl)) deallocate(smokesl)
 if(allocated(fv3dustsl)) deallocate(fv3dustsl)
 if(allocated(coarsepmsl)) deallocate(coarsepmsl)
 if(allocated(ebbsl)) deallocate(ebbsl)
+if(allocated(dustsl))  deallocate(dustsl)
+if(allocated(saltsl))  deallocate(saltsl)
+if(allocated(sootsl))  deallocate(sootsl)
+if(allocated(wasosl))  deallocate(wasosl)
+if(allocated(susosl))  deallocate(susosl)
 ! GTG
 if(allocated(GTGSL)) deallocate(GTGSL)
 if(allocated(CATSL)) deallocate(CATSL)
