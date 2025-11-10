@@ -40,6 +40,7 @@
 !> 2024-08-19 | Jaymes Kenyon             | Adding a call to INITPOST_MPAS
 !> 2024-10-29 | Wen Meng                  | Set iSF_SURFACE_PHYSICS: 1 for NOAH; 2 for NOAH MP; 3 for RUC
 !> 2025-07-25 | Jaymes Kenyon             | Add "earth_radius" namelist option
+!> 2025-11-03 | Nick Szapiro              | earth_radius namelist option initialized in CTLBLK instead
 !> @author Mike Bladwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -213,7 +214,6 @@
 !KaYee: Read itag in Fortran Namelist format
 !Set defaults
        SUBMODELNAME='NONE'
-       earth_radius=0.
 !Set control file name
        fileNameFlat='postxconfig-NT.txt'
        numx=1
