@@ -4,12 +4,10 @@
 #SBATCH -e out.post.ifi_standalone_fv3r
 #SBATCH -J ifi_standalone_fv3r_test
 #SBATCH -t 00:30:00
+#SBATCH -q batch
+#SBATCH -A rtrr
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=40
-#SBATCH --exclusive
-#SBATCH --partition bigmem
-#SBATCH -q batch
-#SBATCH -A ovp
 #SBATCH --exclusive
 
 # specify computation resource
@@ -28,6 +26,7 @@ export APRUN="srun"
 module purge
 module use $svndir/modulefiles
 module load ursa_$compiler
+module load ursa_${compiler}_ifi_test_prereqs
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module load nccmp/1.9.1.0

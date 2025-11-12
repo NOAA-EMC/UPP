@@ -32,7 +32,7 @@ module list
 msg="Starting hrrr_ifi test"
 postmsg "$logfile" "$msg"
 
-export POSTGPEXEC=${svndir}/exec/upp.x
+export POSTGPEXEC=${svndir}/exec/upp_with_ifi.x
 
 # specify forecast start time and hour for running your post job
 export startdate=2025063004

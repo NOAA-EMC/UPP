@@ -6,7 +6,7 @@
 #SBATCH -t 00:30:00
 ##SBATCH -q debug
 #SBATCH -q batch
-#SBATCH -A ovp
+#SBATCH -A rtrr
 #SBATCH -N 2 --ntasks-per-node=24
 
 # specify computation resources
