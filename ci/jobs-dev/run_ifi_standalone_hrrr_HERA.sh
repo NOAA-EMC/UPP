@@ -43,7 +43,7 @@ postmsg "$logfile" "$msg"
 FIPEXEC=${svndir}/exec/fip2-lookalike.x
 
 # use the UPP run directory so we get the input files in the expected format
-export startdate=2025040112
+export startdate=2020060118
 export DATA=$rundir/hrrr_ifi_${startdate}
 cd $DATA
 
