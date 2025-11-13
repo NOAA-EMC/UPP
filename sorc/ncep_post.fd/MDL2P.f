@@ -42,6 +42,7 @@
 !> 2024-09-23 | K Asmar		| Add velocity potential and streamfunction from wind vectors
 !> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
 !> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
+!> 2025-11-13 | L Pan           | enable aerosols to be output on isobaric surfaces
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
