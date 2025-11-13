@@ -574,7 +574,7 @@
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
                          CINS,PPARC,ZEQL,THUND)
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: teql,ieql
+      use vrbls2d,    only: teql,ieql,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
