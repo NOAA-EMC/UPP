@@ -43,6 +43,7 @@
 !> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
 !> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
 !> 2025-11-13 | L Pan           | enable aerosols to be output on isobaric surfaces
+!> 2025-11-17 | W Meng          | Correct variable allocation
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -158,94 +159,94 @@
         zero = h1m12
        endif
       if (d3d_on) then
-        if (.not. allocated(d3dsl)) allocate(d3dsl(im,jm,27))
+        if (.not. allocated(d3dsl)) allocate(d3dsl(ista_2l:iend_2u,jsta_2l:jend_2u,27))
 !$omp parallel do private(i,j,l)
         do l=1,27
-          do j=1,jm
-            do i=1,im
+          do j=jsta_2l,jend_2u
+            do i=ista_2l,iend_2u
               D3DSL(i,j,l)  = SPVAL
             enddo
           enddo
         enddo
       endif
-      if (.not. allocated(smokesl)) allocate(smokesl(im,jm,nbin_sm))
+      if (.not. allocated(smokesl)) allocate(smokesl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_sm))
 !$omp parallel do private(i,j,l)
       do l=1,nbin_sm
-        do j=1,jm
-          do i=1,im
+        do j=jsta_2l,jend_2u
+          do i=ista_2l,iend_2u
              SMOKESL(i,j,l)  = SPVAL
           enddo
         enddo
       enddo
-      if (.not. allocated(fv3dustsl)) allocate(fv3dustsl(im,jm,nbin_sm))
+      if (.not. allocated(fv3dustsl)) allocate(fv3dustsl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_sm))
 !$omp parallel do private(i,j,l)
       do l=1,nbin_sm
-        do j=1,jm
-          do i=1,im
+        do j=jsta_2l,jend_2u
+          do i=ista_2l,iend_2u
              FV3DUSTSL(i,j,l)  = SPVAL
           enddo
         enddo
       enddo
-      if (.not. allocated(coarsepmsl)) allocate(coarsepmsl(im,jm,nbin_sm))
+      if (.not. allocated(coarsepmsl)) allocate(coarsepmsl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_sm))
 !$omp parallel do private(i,j,l)
       do l=1,nbin_sm
-        do j=1,jm
-          do i=1,im
+        do j=jsta_2l,jend_2u
+          do i=ista_2l,iend_2u
              COARSEPMSL(i,j,l)  = SPVAL
           enddo
         enddo
       enddo
-      if (.not. allocated(ebbsl)) allocate(ebbsl(im,jm,nbin_sm))
+      if (.not. allocated(ebbsl)) allocate(ebbsl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_sm))
 !$omp parallel do private(i,j,l)
       do l=1,nbin_sm
-        do j=1,jm
-          do i=1,im
+        do j=jsta_2l,jend_2u
+          do i=ista_2l,iend_2u
              EBBSL(i,j,l)  = SPVAL
           enddo
         enddo
       enddo
       if (nasa_on) then
-        if (.not. allocated(dustsl)) allocate(dustsl(im,jm,nbin_du))
+        if (.not. allocated(dustsl)) allocate(dustsl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_du))
 !$omp parallel do private(i,j,l)
         do l=1,nbin_du
-          do j=1,jm
-            do i=1,im
+          do j=jsta_2l,jend_2u
+            do i=ista_2l,iend_2u
                DUSTSL(i,j,l)  = SPVAL
             enddo
           enddo
         enddo
-        if (.not. allocated(saltsl)) allocate(saltsl(im,jm,nbin_ss))
+        if (.not. allocated(saltsl)) allocate(saltsl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_ss))
 !$omp parallel do private(i,j,l)
         do l=1,nbin_ss
-          do j=1,jm
-            do i=1,im
+          do j=jsta_2l,jend_2u
+            do i=ista_2l,iend_2u
                SALTSL(i,j,l)  = SPVAL
             enddo
           enddo
         enddo
-        if (.not. allocated(sootsl)) allocate(sootsl(im,jm,nbin_bc))
+        if (.not. allocated(sootsl)) allocate(sootsl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_bc))
 !$omp parallel do private(i,j,l)
         do l=1,nbin_bc
-          do j=1,jm
-            do i=1,im
+          do j=jsta_2l,jend_2u
+            do i=ista_2l,iend_2u
                SOOTSL(i,j,l)  = SPVAL
             enddo
           enddo
         enddo
-        if (.not. allocated(wasosl)) allocate(wasosl(im,jm,nbin_oc))
+        if (.not. allocated(wasosl)) allocate(wasosl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_oc))
 !$omp parallel do private(i,j,l)
         do l=1,nbin_oc
-          do j=1,jm
-            do i=1,im
+          do j=jsta_2l,jend_2u
+            do i=ista_2l,iend_2u
                WASOSL(i,j,l)  = SPVAL
             enddo
           enddo
         enddo
-        if (.not. allocated(susosl)) allocate(susosl(im,jm,nbin_su))
+        if (.not. allocated(susosl)) allocate(susosl(ista_2l:iend_2u,jsta_2l:jend_2u,nbin_su))
 !$omp parallel do private(i,j,l)
         do l=1,nbin_su
-          do j=1,jm
-            do i=1,im
+          do j=jsta_2l,jend_2u
+            do i=ista_2l,iend_2u
                SUSOSL(i,j,l)  = SPVAL
             enddo
           enddo
