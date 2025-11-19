@@ -44,6 +44,7 @@
 !> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
 !> 2025-11-13 | L Pan           | enable aerosols to be output on isobaric surfaces
 !> 2025-11-17 | W Meng          | Correct variable allocation
+!> 2025-11-19 | W Meng          | Relocate dxm calculation
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -158,6 +159,19 @@
        else
         zero = h1m12
        endif
+
+! Calculate dxm which will be used in smoothing
+      if(MAPTYPE == 6) then
+        if(grib=='grib2') then
+          dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+        endif
+      else
+        dxm = dxval
+      endif
+      if(grib == 'grib2')then
+        dxm=dxm/1000.0
+      endif
+
       if (d3d_on) then
         if (.not. allocated(d3dsl)) allocate(d3dsl(ista_2l:iend_2u,jsta_2l:jend_2u,27))
 !$omp parallel do private(i,j,l)
@@ -1417,16 +1431,16 @@
 
                   IF (SMFLAG) THEN
 !tgs - smoothing of geopotential heights
-                    if(MAPTYPE == 6) then
-                      if(grib=='grib2') then
-                        dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
-                      endif
-                    else
-                      dxm = dxval
-                    endif
-                    if(grib == 'grib2')then
-                      dxm=dxm/1000.0
-                    endif
+!                    if(MAPTYPE == 6) then
+!                      if(grib=='grib2') then
+!                        dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+!                      endif
+!                    else
+!                      dxm = dxval
+!                    endif
+!                    if(grib == 'grib2')then
+!                      dxm=dxm/1000.0
+!                    endif
 !                    print *,'dxm=',dxm
                     NSMOOTH = nint(5.*(13500./dxm))
                     call AllGETHERV(GRID1)
