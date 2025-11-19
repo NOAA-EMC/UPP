@@ -96,6 +96,7 @@
 !                               calculation (extcof55 is all zeroes)
 !   2024-04        Eric James - correcting bug in BLSN effect (missing factor of
 !                               ustar_t) and removing BLSN effect for z0>0.7 (forests)
+!   2025-11        Wen Meng   Set the upper bound for GFS to 24.135 km
 !                           
 !------------------------------------------------------------------
 !
@@ -366,6 +367,7 @@
 
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
         VIS(I,J)=MIN(90.,CONST1/BETAV)      ! max of 90km
+        if (modelname=='GFS') VIS(I,J)=MIN(24.135,CONST1/BETAV)
 
         if (vis(i,j)<vis_min) vis_min = vis(i,j)
         if (visrh<visrh_min) visrh_min = visrh
