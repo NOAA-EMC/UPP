@@ -51,12 +51,13 @@
                               jsta_m2, jend_m2, im, jm,                      &
                               ista_2l, iend_2u, ista_m, iend_m, ista_m2, iend_m2 
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(in)    ::  Q1D, U1D, V1D
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) ::  Q1D, U1D, V1D
       REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) ::  QCNVG
 
       REAL R2DY, R2DX

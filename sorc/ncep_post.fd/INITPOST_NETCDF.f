@@ -65,6 +65,9 @@
 !>                            | PBLHGUST represented a PBL height obtained from the profile of virtual potential
 !>                            | temperature (THV).  In turn, PBLHGUST was used for the wind-gust diagnostic in FV3R.
 !>                            | Calculation of a THV-based PBL height has now been ported into CALPBL.
+!> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
+!> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
+!> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -114,12 +117,12 @@
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, &
-              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
-      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa,pi, small
+      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa, pi, small, rtd
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe,    &
                             ttblq, rdpq, rdtheq, stheq, the0q, the0
       use ctlblk_mod, only: me, mpi_comm_comp, icnt, idsp, jsta, jend, ihrst, idat, sdat, ifhr, &
@@ -136,6 +139,9 @@
               latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
               latse,lonse,latnw,lonnw
       use upp_physics, only: fpvsnew
+      use exch_upp_mod, only: exch
+      use table_upp_mod, only : table
+      use tableq_upp_mod, only : tableq
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -232,6 +238,10 @@
 
       real LAT
       integer isa, jsa, latghf, jtem, idvc, idsl, nvcoord, ip1, nn, npass
+
+      integer jdn
+      integer, external :: iw3jdn
+      real sun_zenith, sun_azimuth, temp
 
       integer, parameter    :: npass2=5, npass3=30
       real, parameter       :: third=1.0/3.0
@@ -1860,7 +1870,8 @@
 !    write(*,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
             ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
           endif
-          QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
+! certain UFS application may have QS available in history files
+!          QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
           twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
 !assign sst
@@ -1876,6 +1887,12 @@
         enddo
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
+
+
+! surface specific humidity
+      VarName='qs'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,qs)
 
 ! foundation temperature
       VarName='tref'
@@ -2110,14 +2127,18 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(isa,jsa)
 
-! GFS probably does not use zenith angle
-!$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
-          Czen(i,j)   = spval
-          CZMEAN(i,j) = SPVAL      
+! Calculate (or otherwise retrieve??) the cosine of the solar zenith angle
+      call w3fs13(idat(3),idat(1),idat(2),jdn)
+!$omp parallel do private(i,j,sun_zenith,sun_azimuth,temp)
+      do j=jsta,jend
+        do i=ista,iend
+          call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j),pi,sun_zenith,sun_azimuth)
+          temp = sun_zenith/rtd
+          czen(i,j)   = cos(temp)
+          CZMEAN(i,j) = CZEN(i,j)
         enddo
       enddo
+      if(debugprint)print*,'sample zenith angle = ',acos(czen(ii,jj))*rtd
 
 ! maximum snow albedo in fraction using nemsio
       VarName='snoalb'
@@ -3037,25 +3058,34 @@
       VarName='ugrd10m'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,u10)
-
-      do j=jsta,jend
-        do i=ista,iend
-          u10h(i,j)=u10(i,j)
-        end do
-      end do
-!     if(debugprint)print*,'sample l',VarName,' = ',1,u10(isa,jsa)
             
 ! 10 m v using gfsio
       VarName='vgrd10m'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,v10)
 
+! Both v10 & u10 can be derived from f10m and surface wind in FV3 surface initialization files.
+! If we have f10m, and lack u10 and v10, we derive them here:
+      VarName='f10m'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,f10m)
+      do j=jsta,jend
+         do i=ista,iend
+            if(u10(i,j) == spval .and. v10(i,j) == spval .and. &
+                f10m(i,j) /=spval .and. uh(i,j,lm)/=spval) then
+               u10(i,j) = f10m(i,j) * uh(i,j,LM)
+               v10(i,j) = f10m(i,j) * vh(i,j,LM)
+            endif
+         enddo
+      enddo
+
       do j=jsta,jend
         do i=ista,iend
+          u10h(i,j)=u10(i,j)
           v10h(i,j)=v10(i,j)
         end do
       end do
-!     if(debugprint)print*,'sample l',VarName,' = ',1,v10(isa,jsa)
+!     if(debugprint)print*,'sample l,u10,v10 = ',1,u10(isa,jsa),v10(isa,jsa)
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
       VarName='vtype'

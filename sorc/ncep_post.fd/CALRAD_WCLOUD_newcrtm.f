@@ -21,6 +21,7 @@
 !> 2023-03-22 | WM Lewis       | Added support for using effective radius arrays from RRFS
 !> 2023-10-25 | Eric James     | Bug fix for invalid land category in CRTM
 !> 2025-03-10 | Hua Leighton   | Added channel 12 and 13 in ssmis-f17 
+!> 2025-09-05 | Gillian Petro  | Remove legacy satellite products: amsre (483-86), tim (488-91), and ssmi(s) TB (492-499)
 !>
 !> @author Chuang @date 2007-01-17
 !---------------------------------------------------------------------------
@@ -116,14 +117,12 @@
   !      integer,parameter::  n_clouds = 4 
   integer,parameter::  n_aerosols = 0
   ! Add your sensors here
-  integer(i_kind),parameter:: n_sensors=23
+  integer(i_kind),parameter:: n_sensors=21
   character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
       (/'imgr_g15            ', &
         'imgr_g13            ', &
         'imgr_g12            ', &
         'imgr_g11            ', &
-        'amsre_aqua          ', &
-        'tmi_trmm            ', &
         'ssmi_f13            ', &
         'ssmi_f14            ', &
         'ssmi_f15            ', &
@@ -146,8 +145,6 @@
         'goes_img     ', &
         'goes_img     ', &
         'goes_img     ', &
-        'amsre        ', &
-        'tmi          ', &
         'ssmi         ', &
         'ssmi         ', &
         'ssmi         ', &
@@ -312,12 +309,7 @@
        .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(456) > 0  &
        .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
        .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
-       .or. iget(463) > 0 .or. iget(483) > 0 .or. iget(484) > 0  &
-       .or. iget(485) > 0 .or. iget(486) > 0 .or. iget(488) > 0  &
-       .or. iget(489) > 0 .or. iget(490) > 0 .or. iget(491) > 0  &
-       .or. iget(492) > 0 .or. iget(493) > 0 .or. iget(494) > 0  &
-       .or. iget(495) > 0 .or. iget(496) > 0 .or. iget(497) > 0  &
-       .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
+       .or. iget(463) > 0 .or. iget(800) > 0  &
        .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
        .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
        .or. iget(807) > 0 .or. iget(809) > 0                     &
@@ -554,10 +546,6 @@
              (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0 &
              .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(460) > 0   &
              .or. iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0)) .OR. &
-             (isis=='amsre_aqua' .and. (iget(483) > 0 .or. iget(484) > 0  &
-             .or. iget(485) > 0 .or. iget(486) > 0)) .OR. &
-             (isis=='tmi_trmm' .and. (iget(488) > 0 .or. iget(489) > 0  &
-             .or. iget(490) > 0 .or. iget(491) > 0)) .OR. &
              (isis=='ssmi_f13' .and. iget(800) > 0 ) .OR. &
              (isis=='ssmi_f14' .and. iget(806) > 0 ) .OR. &
              (isis=='ssmi_f15' .and. iget(812) > 0 ) .OR. &
@@ -734,11 +722,7 @@
                        iget(328)>0 .or. iget(329)>0 .or. iget(330)>0)) .or. &
                        (isis=='imgr_g11' .and. (iget(446)>0 .or. &
                        iget(447)>0 .or. iget(448)>0 .or. iget(449)>0)) .or. &
-                       (isis=='amsre_aqua' .and. (iget(483) > 0 .or. iget(484) > 0  &
-                       .or. iget(485) > 0 .or. iget(486) > 0)) .OR. &
-                       (isis=='tmi_trmm' .and. (iget(488) > 0 .or. iget(489) > 0  &
-                       .or. iget(490) > 0 .or. iget(491) > 0)) .OR. &
-                        (isis=='abi_gr'  .and. post_abigr) )then
+                       (isis=='abi_gr'  .and. post_abigr) )then
 
               do j=jsta,jend
                  loopi1:do i=ista,iend
@@ -1173,43 +1157,6 @@
               !      error_status = crtm_destroy(channelinfo)
               !      if (error_status /= success) &
               !     &   print*,'ERROR*** crtm_destroy error_status=',error_status
-
-              if (isis=='amsre_aqua')then  ! writing amsre to grib (37 & 89 GHz)
-                 do ixchan=1,4
-                    ichan=8+ixchan
-                    igot=iget(482+ixchan)
-                    if(igot>0) then
-                       do j=jsta,jend
-                          do i=ista,iend
-                             grid1(i,j)=tb(i,j,ichan)
-                          enddo
-                       enddo
-                       if (grib=="grib2") then
-                          cfld=cfld+1
-                          fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
-                       endif
-                    endif
-                 enddo
-              end if  ! end of outputting amsre
-              if (isis=='tmi_trmm')then  ! writing trmm to grib (37 & 85.5 GHz)
-                 do ixchan=1,4
-                    ichan=5+ixchan
-                    igot=iget(487+ixchan)
-                    if(igot>0) then
-                       do j=jsta,jend
-                          do i=ista,iend
-                             grid1(i,j) = tb(i,j,ichan)
-                          enddo
-                       enddo
-                       if (grib=="grib2") then
-                          cfld=cfld+1
-                          fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
-                       endif
-                    endif
-                 enddo
-              end if  ! end of outputting trmm
 
               if (isis=='imgr_g11')then  ! writing goes 11 to grib
                  do ixchan=1,4

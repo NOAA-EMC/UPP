@@ -56,6 +56,7 @@
       use ctlblk_mod, only: jend, jsta, spval, spl, num_procs, mpi_comm_comp, lsmp1, &
                             jsta_m, jend_m, lm, im, jsta_2l, jend_2u, lsm, jm,&
                             im_jm, iend, ista, ista_m, iend_m, ista_2l, iend_2u
+      use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !      

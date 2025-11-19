@@ -5,7 +5,8 @@
        implicit none
 !
       real, allocatable :: &
-      U10   (:,:) &        !< 10m u-wind component
+      U10   (:,:) &             !< 10m u-wind component
+      ,F10M(:,:) &          !< 10-meter wind speed divided by lowest model wind speed (FV3 initialization variable)
       ,AKMS  (:,:) &       !< Surface exchange coefficient of momentum
       ,AKHS  (:,:) &       !< Surface exchange coefficient of heat/moisture
       ,THS   (:,:) &       !< Surface potential temperature
@@ -17,7 +18,6 @@
       ,SNO   (:,:) &       !< Instantaneous snow water equivalent
       ,TSHLTR   (:,:) &    !< 2m temperature
       ,QSHLTR(:,:) &       !< 2m specific humidity
-      ,MRSHLTR(:,:) &      !< Shelter mixing ratio
       ,V10(:,:) &          !< 10 m v-wind component
       ,ACPREC(:,:) &       !< Accumulated total precipitation
       ,CUPREC(:,:) &       !< Accumulated total convective precipitation
@@ -136,8 +136,11 @@
       ,V10MAX(:,:) &       !< Maximum hourly meridional (v-) wind speed at 10 meters above ground level
       ,u10h(:,:) &         !< Hourly zonal (u-) wind speed at 10 meters above ground level
       ,v10h(:,:) &         !< Hourly meridional (v-) wind speed at 10 meters above ground level
-      ,PRATE_MAX(:,:) &    !< Maximum precipitation rate in mm/h
-      ,FPRATE_MAX(:,:) &   !< Maximum frozen precipitation rate in mm/h
+      ,MAX_PRATE_1MIN(:,:) &  !< history-interval maximum 1-minute average precipitation rate    
+      ,MAX_PRATE_5MIN(:,:) &  !< ditto for 5 minutes
+      ,MAX_PRATE_10MIN(:,:) & !< ditto for 10 minutes
+      ,PRATE_MAX(:,:) &       !< Maximum precipitation rate in mm/h
+      ,FPRATE_MAX(:,:) &      !< Maximum frozen precipitation rate in mm/h
 ! GSD addition
       ,WSPD10MAX(:,:) &       !< Maximum hourly wind speed at 10 meters above ground level
       ,W_UP_MAX(:,:) &        !< Maximum hourly updraft velocity
@@ -197,6 +200,7 @@
       ,QVG(:,:) &             !< Water vapor mixing ratio at the surface
       ,QV2m(:,:) &            !< Water vapor mixing ratio at 2 meters above ground level
       ,QVl1(:,:) &            !< Water vapor mixing ratio at level 1
+      ,MAX_COMPREF(:,:) &     !< History interval-maximum composite reflectivity
       ,REFC_10CM(:,:) &       !< Composite (10cm) radar reflectivity
       ,REF1KM_10CM(:,:) &     !< (10cm) radar reflectivity at 1 km
       ,REF4KM_10CM(:,:) &     !< (10cm) radar reflectivity at 4 km

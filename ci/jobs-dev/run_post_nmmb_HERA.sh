@@ -4,14 +4,13 @@
 #SBATCH -e out.post.nmmb
 #SBATCH -J nmmb_test
 #SBATCH -t 00:20:00
-##SBATCH -q debug
 #SBATCH -q batch
 #SBATCH -N 4 --ntasks-per-node=4
 #SBATCH -A ovp
 
 set -x
 
-# specify computation resource
+# specify computation resources
 export threads=1
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
@@ -74,9 +73,6 @@ DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='NMM'
 /
 EOF
-
-
-rm -f fort.*
 
 #cp /nwprod/nam.v3.1.22/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp $homedir/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat

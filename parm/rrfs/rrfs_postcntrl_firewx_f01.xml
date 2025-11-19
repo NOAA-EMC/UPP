@@ -83,13 +83,6 @@
        </param>
 
        <param>
-       <shortname>VVEL_ON_HYBRID_LVL</shortname>
-       <pname>VVEL</pname>
-       <level>1.</level>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
        <shortname>DZDT_ON_HYBRID_LVL</shortname>
        <pname>DZDT</pname>
        <level>1.</level>
@@ -456,13 +449,6 @@
        </param>
 
        <param>
-       <shortname>CCOND_ON_SURFACE</shortname>
-       <pname>CCOND</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>SMREF_ON_SURFACE</shortname>
        <pname>SMREF</pname>
        <table_info>NCEP</table_info>
@@ -479,14 +465,12 @@
        <param>
        <shortname>RLYRS_ON_SURFACE</shortname>
        <pname>RLYRS</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>RSMIN_ON_SURFACE</shortname>
        <pname>RSMIN</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
@@ -2994,13 +2978,6 @@
        </param>
 
        <param>
-       <shortname>CCOND_ON_SURFACE</shortname>
-       <pname>CCOND</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>HPBL_ON_SURFACE</shortname>
        <pname>HPBL</pname>
        <scale>6.0</scale>
@@ -3036,14 +3013,12 @@
        <param>
        <shortname>RSMIN_ON_SURFACE</shortname>
        <pname>RSMIN</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>RLYRS_ON_SURFACE</shortname>
        <pname>RLYRS</pname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
 

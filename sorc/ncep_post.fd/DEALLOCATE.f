@@ -17,6 +17,12 @@
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
 !> 2025-01-13 | Jaymes Kenyon| Add HAIL_BUCKET
 
+      MODULE DE_ALLOCATE_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
 !> @author Jim Tuccillo IBM @date 2000-01-06
       SUBROUTINE DE_ALLOCATE
 
@@ -160,9 +166,9 @@
 !
       deallocate(u10)
       deallocate(v10)
+      deallocate(f10m)
       deallocate(tshltr)
       deallocate(qshltr)
-      deallocate(mrshltr)
       deallocate(smstav)
       deallocate(ssroff)
       deallocate(bgroff)
@@ -417,6 +423,10 @@
       deallocate(w_dn_max)
       deallocate(w_mean)
       deallocate(refd_max)
+      deallocate(max_compref)
+      deallocate(max_prate_1min) 
+      deallocate(max_prate_5min)
+      deallocate(max_prate_10min)
       deallocate(prate_max)
       deallocate(fprate_max)
       deallocate(up_heli_max)
@@ -593,3 +603,5 @@
       endif
 
       end
+
+      END MODULE DE_ALLOCATE_UPP_MOD

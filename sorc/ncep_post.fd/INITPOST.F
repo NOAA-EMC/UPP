@@ -37,7 +37,7 @@
               wspd10umax,wspd10vmax,refdm10c_max,                                  &
               hail_max2d,hail_maxk1,hail_maxhailcast,ltg1_max,                     &
               ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,      &
-              u10, v10, th10, q10, tshltr, mrshltr,                                &
+              u10, v10, th10, q10, tshltr,                                         &
               nca_refd, qv2m, qshltr, smstav, smstot, ssroff, bgroff, sfcevp,      &
               sfcexc, vegfrc, acsnow, cmc, sst, thz0, qz0, uz0, vz0, qs, qvg,      &
               z0, ustar, akhs, akms, radot, ths, acsnom, cuprec, ancprc, acprec,   &
@@ -70,6 +70,9 @@
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
               lonlast, dyval, cenlat, cenlon, maptype, truelat1, truelat2,         &
               standlon, psmapf
+      use exch_upp_mod, only: exch
+      use table_upp_mod, only : table
+      use tableq_upp_mod, only : tableq
       use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - -
       implicit none
@@ -1838,7 +1841,6 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-          MRSHLTR ( i, j ) = dummy (i, j )  ! Shelter Mixing ratio
           IF(MODELNAME == 'RAPR')THEN
 ! QV2M = first level QV
 !           QV2M ( i, j )   =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio 

@@ -14,6 +14,12 @@
 !> 2015-03-10 | Lin Gan  | Replace XML file with flat file implementation
 !> 2019-10-30 | Bo Cui   | Removw "GOTO" Statement
 !---------------------------------------------------------------------------
+      MODULE SET_OUTFLDS_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
 !> @brief Reads post XML control file.
 !>
 !> @param[in] KTH total number of isentropic levels
@@ -172,3 +178,5 @@
 
       RETURN
       END
+
+      END MODULE SET_OUTFLDS_UPP_MOD

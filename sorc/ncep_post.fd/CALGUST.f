@@ -33,6 +33,7 @@
       use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, num_procs, mpi_comm_comp, lm,&
               modelname, im, jm, jsta_2l, jend_2u, ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
+      use exch_upp_mod, only: exch
 
       implicit none
 

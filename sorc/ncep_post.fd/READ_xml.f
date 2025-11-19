@@ -10,6 +10,12 @@
 !>   2015-03-10 | Lin Gan  | Replace XML file with flat file implementation with parameter marshalling
 !>   2016-07-08 | J. Carley | Clean up prints 
 
+      MODULE READ_XML_UPP_MOD
+
+      IMPLICIT NONE
+
+      CONTAINS
+
       SUBROUTINE READ_xml()
 
        use xml_perl_data,only: post_avblflds,paramset,read_postxconfig
@@ -50,4 +56,6 @@
 
       RETURN
       end subroutine read_xml
+
+      END MODULE READ_XML_UPP_MOD
 
