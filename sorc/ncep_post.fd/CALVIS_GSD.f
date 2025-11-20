@@ -367,7 +367,6 @@
 
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
         VIS(I,J)=MIN(90.,CONST1/BETAV)      ! max of 90km
-        if (modelname=='GFS') VIS(I,J)=MIN(24.135,CONST1/BETAV)
 
         if (vis(i,j)<vis_min) vis_min = vis(i,j)
         if (visrh<visrh_min) visrh_min = visrh
@@ -389,6 +388,8 @@
         if (vis(i,j)<1.) vis1km_cnt = vis1km_cnt + 1
         if (vis(i,j)<3.) vis3km_cnt = vis3km_cnt + 1
         if (vis(i,j)<5.) vis5km_cnt = vis5km_cnt + 1
+! Modify upper bound for GFS
+        if (modelname=='GFS') VIS(I,J)=MIN(24.135,VIS(I,J))
 ! convert vis from km to [m]
         vis(i,j) = vis(i,j) * 1000.
 
