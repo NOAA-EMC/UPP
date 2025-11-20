@@ -57,6 +57,7 @@ ALL_TXT= \
   ./mpas/postxconfig-NT-rrfs_mpas.txt \
   ./mpas/postxconfig-NT-hfip_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas.txt \
+  ./mpas/postxconfig-NT-global_mpas_noah.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   ./aqm/postxconfig-NT-AQM.txt \
@@ -106,6 +107,7 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./mpas/postxconfig-NT-rrfs_mpas.txt:   ./mpas/rrfs_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-hfip_mpas.txt:   ./mpas/hfip_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-global_mpas.txt: ./mpas/global_mpas_postcntrl.xml post_avblflds.xml
+./mpas/postxconfig-NT-global_mpas_noah.txt: ./mpas/global_mpas_postcntrl_noah.xml post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 ./aqm/postxconfig-NT-AQM.txt:        ./aqm/aqm.xml                  post_avblflds.xml
