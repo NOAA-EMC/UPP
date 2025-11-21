@@ -64,6 +64,7 @@ ALL_TXT= \
   ./dafs/postxconfig-NT-hrrr_dafs.txt \
   postxconfig-NT-wps.txt \
   ./gcafs/postxconfig-NT-gcafs.txt \
+  ./gcafs/postxconfig-NT-gcafs-f00.txt \
   ./3drtma/postxconfig-NT-3drtma.txt
 
 .PHONY: all clean
@@ -114,6 +115,7 @@ postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblfld
 ./dafs/postxconfig-NT-hrrr_dafs.txt: ./dafs/hrrr_postcntrl_dafs.xml post_avblflds.xml
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
+./gcafs/postxconfig-NT-gcafs-f00.txt: ./gcafs/postcntrl_gcafs_f00.xml post_avblflds.xml
 ./3drtma/postxconfig-NT-3drtma.txt: ./3drtma/3drtma_postcntrl.xml post_avblflds.xml
 
 %.txt:

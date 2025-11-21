@@ -470,7 +470,7 @@
        	45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>5.0</scale>
     </param>
-    
+
     <param>
     	<shortname>NCCD_ON_HYBRID_LVL</shortname>
         <level>1. </level>
@@ -500,7 +500,7 @@
         <level>1. </level>
         <scale>3.0</scale>    
     </param>
-        
+    
     <param>
        <shortname>VIS_ON_SURFACE</shortname>
        <scale>3.0</scale>
@@ -597,49 +597,10 @@
     </param>   
 
     <param>
-       <shortname>ACM_APCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CSNOW_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CICEP_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CFRZR_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CRAIN_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_LHTFL_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_SHTFL_ON_SURFACE</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
        <shortname>CAPE_ON_SURFACE</shortname>
        <scale>4.0</scale>
     </param>
-    
+
     <param>
        <shortname>MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <level>18000.</level>
@@ -666,50 +627,9 @@
     </param>
 
     <param>
-       <shortname>AVE_TCDC_ON_ENTIRE_ATMOS</shortname>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
        <shortname>HGT_ON_CLOUD_CEILING</shortname>
        <pname>HGT</pname>
        <scale>6.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_DSWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_DLWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_USWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_ULWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
     </param>
 
     <param>
@@ -718,7 +638,7 @@
        <level2>0.</level2>
        <scale>4.0</scale>
     </param>
-    
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>

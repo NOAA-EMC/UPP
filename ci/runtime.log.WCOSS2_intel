@@ -11,6 +11,7 @@ hafs_test 00:02:00
 3drtma_test 00:03:00
 mpas_test 00:02:40
 mpas_hfip_test 00:05:00
+gcafs_test 00:05:30
 rrfs_test 00:10:00
 rrfs_ifi_test 00:08:10
 rrfs_ifi_missing 00:08:00
