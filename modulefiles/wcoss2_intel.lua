@@ -27,7 +27,7 @@ load(pathJoin("libpng", libpng_ver))
 load(pathJoin("zlib", zlib_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.5.1"
-g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.16.0"
+g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.17.0"
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 ip_ver=os.getenv("ip_ver") or "4.0.0"
 sp_ver=os.getenv("sp_ver") or "2.3.3"

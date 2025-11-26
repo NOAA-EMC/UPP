@@ -36,11 +36,11 @@ ALL_TXT= \
   ./sfs/postxconfig-NT-sfs.txt \
   postxconfig-NT-NMM.txt \
   postxconfig-NT-NGAC.txt \
-  postxconfig-NT-hafs_ar_nosat.txt \
-  postxconfig-NT-hafs_ar_nosat_l65.txt \
-  postxconfig-NT-hafs_sat.txt \
-  postxconfig-NT-hafs_nosat.txt \
-  postxconfig-NT-hafs.txt \
+  ./hafs/postxconfig-NT-hafs_ar_nosat.txt \
+  ./hafs/postxconfig-NT-hafs_ar_nosat_l65.txt \
+  ./hafs/postxconfig-NT-hafs_sat.txt \
+  ./hafs/postxconfig-NT-hafs_nosat.txt \
+  ./hafs/postxconfig-NT-hafs.txt \
   postxconfig-NT-hrrr.txt \
   postxconfig-NT-ifi.txt \
   postxconfig-NT-rap.txt \
@@ -87,11 +87,11 @@ clean:
 ./sfs/postxconfig-NT-sfs.txt:		    ./sfs/postcntrl_sfs.xml	          post_avblflds.xml
 postxconfig-NT-NMM.txt:              nam_cntrl_cmaq.xml             nam_post_avblflds.xml
 postxconfig-NT-NGAC.txt:             ngac_postcntrl.xml             ngac_post_avblflds.xml
-postxconfig-NT-hafs_sat.txt:         postcntrl_hafs_sat.xml         post_avblflds.xml
-postxconfig-NT-hafs_nosat.txt:       postcntrl_hafs_nosat.xml       post_avblflds.xml
-postxconfig-NT-hafs_ar_nosat.txt:    postcntrl_hafs_ar_nosat.xml    post_avblflds.xml
-postxconfig-NT-hafs_ar_nosat_l65.txt: postcntrl_hafs_ar_nosat_l65.xml post_avblflds.xml
-postxconfig-NT-hafs.txt:             postcntrl_hafs.xml             post_avblflds.xml
+./hafs/postxconfig-NT-hafs_sat.txt:          ./hafs/postcntrl_hafs_sat.xml          post_avblflds.xml
+./hafs/postxconfig-NT-hafs_nosat.txt:        ./hafs/postcntrl_hafs_nosat.xml        post_avblflds.xml
+./hafs/postxconfig-NT-hafs_ar_nosat.txt:     ./hafs/postcntrl_hafs_ar_nosat.xml     post_avblflds.xml
+./hafs/postxconfig-NT-hafs_ar_nosat_l65.txt: ./hafs/postcntrl_hafs_ar_nosat_l65.xml post_avblflds.xml
+./hafs/postxconfig-NT-hafs.txt:              ./hafs/postcntrl_hafs.xml              post_avblflds.xml
 postxconfig-NT-hrrr.txt:             hrrr_postcntrl.xml             post_avblflds_raphrrr.xml
 postxconfig-NT-ifi.txt:              ifi_postcntrl.xml              post_avblflds.xml
 postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblflds_raphrrr.xml
