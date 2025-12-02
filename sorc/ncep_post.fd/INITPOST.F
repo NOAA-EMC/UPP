@@ -1176,7 +1176,10 @@
          ! It essentially replicates previous code that was used for 
          ! earlier RAP/HRRR versions.
 
-          radius = 30000. ! Use a 30-km horizontal neighborhood search (arbitrary)
+          radius = 16100. ! Use a horizontal neighborhood search of 16.1 km / 10 mi (arbitrary)
+          call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp, &
+            1,ioutcount,istatus)
+          dxval= nint(tmp)
           numr = nint(radius/dxval)
 
           do k = 1,lm
