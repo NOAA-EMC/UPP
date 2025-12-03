@@ -37,7 +37,7 @@ program test_dewpoint
             end if
         end do
     end do
-    if (res) stop 10
+    if (res .ne. 0) stop 10
 
     print *, "Testing DEWPOINT subroutine with spval greater than max vapor pressure."
 
@@ -54,7 +54,7 @@ program test_dewpoint
         end do
     end do
 
-    if (res) stop 11
+    if (res .ne. 0) stop 11
 
     print *, "SUCCESS!"
 end program test_dewpoint

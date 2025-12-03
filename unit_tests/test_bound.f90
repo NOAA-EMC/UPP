@@ -37,7 +37,7 @@ program test_bound
         end do
     end do
 
-    if (res) stop 10
+    if (res .ne. 0) stop 10
 
     print *, "SUCCESS!"
 end program test_bound

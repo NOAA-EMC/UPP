@@ -115,7 +115,7 @@ program test_caldrg
         end do
     end do
 
-    if (res) stop 10
+    if (res .ne. 0) stop 10
 
     print *, "Testing with gridtype = 'E'."
     gridtype = 'E'
@@ -132,7 +132,7 @@ program test_caldrg
         end do
     end do
 
-    if (res) stop 20
+    if (res .ne. 0) stop 20
 
     print *, "Testing with gridtype = 'B'."
 
@@ -150,7 +150,7 @@ program test_caldrg
         end do
     end do
 
-    if (res) stop 30
+    if (res .ne. 0) stop 30
 
     print *, "Testing with gridtype = 'B' and modelname = 'NMM'."
 
@@ -168,7 +168,7 @@ program test_caldrg
         end do
     end do
 
-    if (res) stop 40
+    if (res .ne. 0) stop 40
 
     print *, "Testing with invalid grid type. Expect DRAGCO = spval."
     gridtype = 'X'
@@ -185,7 +185,7 @@ program test_caldrg
         end do
     end do
 
-    if (res) stop 50
+    if (res .ne. 0) stop 50
     
     print *, "SUCCESS!"
 end program test_caldrg
