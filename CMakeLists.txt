@@ -49,6 +49,9 @@ if(APPLE)
 endif()
 
 find_package(bacio REQUIRED)
+if(bacio_VERSION LESS 2.5.0)
+  add_library(bacio::bacio ALIAS bacio::bacio_4)
+endif()
 find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)
 find_package(g2tmpl REQUIRED)
@@ -126,6 +129,12 @@ if(IFI_FOUND OR INTERNAL_IFI)
 endif()
 
 add_subdirectory(sorc)
+
+# Run unit tests.
+include(CTest)
+if(BUILD_TESTING)
+  add_subdirectory(unit_tests)
+endif()
 
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)

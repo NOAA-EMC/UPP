@@ -1,15 +1,13 @@
 #!/bin/bash
 
-#SBATCH -o out.post.hafs
-#SBATCH -e out.post.hafs
-#SBATCH -J hafs_test 
+#SBATCH -o out.post.gcafs
+#SBATCH -e out.post.gcafs
+#SBATCH -J gcafs_test 
 #SBATCH -t @[WTIME]
 #SBATCH -q @[QUEUE]
 #SBATCH -A @[accnr]
 #SBATCH @[EXCLUSIVE]
-#SBATCH @[N_TASKS]
-#SBATCH @[TASKS_PER_NODE]
-#SBATCH @[NODES] @[N_TASKS_PER_NODE]
+#SBATCH -N @[NODES] --ntasks-per-node=@[N_TASKS_PER_NODE]
 
 set -x
 
@@ -32,18 +30,18 @@ module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module list
 
-msg="Starting hafs test"
+msg="Starting gcafs test"
 postmsg "$logfile" "$msg"
 
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour for running your post job
-export startdate=2022092800
-export fhr=009
-export tmmark=tm00
+export startdate=2025110500
+export fhr=060
+export cyc=`echo $startdate | cut -c9-10`
 
 # specify your running and output directory
-export DATA=$rundir/hafs_${startdate}
+export DATA=$rundir/gcafs_${startdate}
 rm -rf $DATA; mkdir -p $DATA
 cd $DATA
 
@@ -55,34 +53,44 @@ export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/hafs/atmf${fhr}.nc'
+fileName='$homedir/data_in/gcafs/gcafs.t${cyc}z.atmf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='FV3R'
-fileNameFlux='$homedir/data_in/hafs/sfcf${fhr}.nc'
+fileNameFlux='$homedir/data_in/gcafs/gcafs.t${cyc}z.sfcf${fhr}.nc'
 /
 &NAMPGB
-KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
+KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,nasa_on=.true.,
 /
 EOF
 
+
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
-cp ${svndir}/parm/hafs/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+cp ${svndir}/parm/gcafs/postxconfig-NT-gcafs.txt ./postxconfig-NT.txt
 cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 
+cp ${svndir}/fix/chem/optics_luts_DUST_nasa.dat .
+cp ${svndir}/fix/chem/optics_luts_SALT_nasa.dat .
+cp ${svndir}/fix/chem/optics_luts_SOOT_nasa.dat .
+cp ${svndir}/fix/chem/optics_luts_SUSO_nasa.dat .
+cp ${svndir}/fix/chem/optics_luts_WASO_nasa.dat .
+cp ${svndir}/fix/chem/optics_luts_NITR_nasa.dat .
+
 # Run the UPP
-${APRUN} ${POSTGPEXEC} < itag > outpost_hafs_${NEWDATE}
+${APRUN} ${POSTGPEXEC} < itag > outpost_gcafs_${NEWDATE}
 
 ################################################
 # Compare with baseline data
 ################################################
-fhr=`expr $fhr + 0`
-fhr2=`printf "%02d" $fhr`
+fhr=$((10#$fhr))
+FH3=$(printf "%03d" "$fhr")
+FH2=$(printf "%02d" "$fhr")
 
-# HAFS post processing generates 1 file
-filelist="HURPRS${fhr2}.${tmmark}"
+# GCAFS post processing generates 2 file
+filelist="GFSPRS.GrbF${FH2} \
+          GFSFLX.GrbF${FH2}"
 
 for file in $filelist; do
 export filein2=$file
@@ -91,22 +99,22 @@ export err=$?
 
 if [ $err = "0" ] ; then
  # use cmp to see if new pgb files are identical to the control one
- cmp ${filein2} $homedir/data_out_$compiler/hafs/${filein2}.${machine}
+ cmp ${filein2} $homedir/data_out_$compiler/gcafs/${filein2}.${machine}
 
  # if not bit-identical, use cmp_grib2_grib2 to compare each grib record
  export err1=$?
  if [ $err1 -eq 0 ] ; then
-  msg="hafs test: your new post executable generates bit-identical ${filein2} as the develop branch"
+  msg="gcafs test: your new post executable generates bit-identical ${filein2} as the develop branch"
   echo $msg
  else
-  msg="hafs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
+  msg="gcafs test: your new post executable did not generate bit-identical ${filein2} as the develop branch"
   echo $msg
   echo " start comparing each grib record and write the comparison result to *diff files"
   echo " check these *diff files to make sure your new post only change variables which you intend to change"
-  $cmp_grib2_grib2 $homedir/data_out_$compiler/hafs/${filein2}.${machine} ${filein2} > ${filein2}.diff
+  $cmp_grib2_grib2 $homedir/data_out_$compiler/gcafs/${filein2}.${machine} ${filein2} > ${filein2}.diff
  fi
 else
- msg="hafs test: post failed using your new post executable to generate ${filein2}"
+ msg="gcafs test: post failed using your new post executable to generate ${filein2}"
  echo $msg 2>&1 | tee -a TEST_ERROR
 fi
 
@@ -114,5 +122,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending hafs test"
+msg="Ending gcafs test"
 postmsg "$logfile" "$msg"

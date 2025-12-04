@@ -178,18 +178,18 @@ endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
-      "-g -traceback -fp-model source -free -convert big_endian")
+      "-g -traceback -fp-model source -free -convert big_endian ${CMAKE_Fortran_FLAGS}")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -check all -check noarg_temp_created")
   set_source_files_properties(INITPOST_GFS_NEMS_MPIIO.f INITPOST_NETCDF.f INITPOST_NEMS.f PROPERTIES COMPILE_FLAGS -qoverride-limits)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(IntelLLVM)$")
   set(CMAKE_Fortran_FLAGS
-      "-g -traceback -fp-model precise -free -convert big_endian")
+      "-g -traceback -fp-model precise -free -convert big_endian ${CMAKE_Fortran_FLAGS}")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check all -shared-intel -diag-disable=10444 -check noarg_temp_created -ftrapuv")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
-      "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
+      "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian ${CMAKE_Fortran_FLAGS}")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ggdb -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -ffpe-trap=invalid,zero,overflow -fbounds-check")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
@@ -213,7 +213,7 @@ target_include_directories(${LIBNAME} PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${LIBNAME} PUBLIC
-  bacio::bacio_4
+  bacio::bacio
   crtm::crtm
   g2::g2_4
   g2tmpl::g2tmpl
@@ -261,7 +261,7 @@ if(BUILD_POSTEXEC)
   endif()
   if(BUILD_WITH_NEMSIO)
     set_target_properties(nemsio::nemsio PROPERTIES
-      INTERFACE_LINK_LIBRARIES "w3emc::w3emc_4;bacio::bacio_4")
+      INTERFACE_LINK_LIBRARIES "w3emc::w3emc_4;bacio::bacio")
     target_link_libraries(${EXENAME} PRIVATE
       nemsio::nemsio sigio::sigio)
     target_compile_definitions(${EXENAME} PRIVATE BUILD_WITH_NEMSIO)
