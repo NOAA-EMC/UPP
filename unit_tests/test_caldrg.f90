@@ -12,7 +12,7 @@ program test_caldrg
     use gridspec_mod, only: gridtype
     implicit none
 
-    real, parameter :: tol = 1.0e-4
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 5
     integer, parameter :: nlevs = 60 ! arbitrarily larger than lmh for buffer
     integer :: i, j, res
