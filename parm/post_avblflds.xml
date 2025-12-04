@@ -3859,6 +3859,82 @@
     </param>
 
 <!--438-442-->
+    <!-- dust fields on P sfc-->
+
+    <param>
+       <post_avblfldidx>438</post_avblfldidx>
+       <shortname>DUST1_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>	   
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>2</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>20</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>439</post_avblfldidx>
+       <shortname>DUST2_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>	   
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>36</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>440</post_avblfldidx>
+       <shortname>DUST3_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>	   
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>36</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>60</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>441</post_avblfldidx>
+       <shortname>DUST4_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>	   
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>60</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>120</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>442</post_avblfldidx>
+       <shortname>DUST5_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>	   
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>120</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>200</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
 
 <!--443-->
     <param>
@@ -4915,6 +4991,146 @@
        <pname>ICEG</pname>
        <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>589</post_avblfldidx>
+       <shortname>SEASALT1_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>6</scale_val_1st_size>
+       <scale_fact_2nd_size>8</scale_fact_2nd_size>
+       <scale_val_2nd_size>20</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>590</post_avblfldidx>
+       <shortname>SEASALT2_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>2</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>10</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>591</post_avblfldidx>
+       <shortname>SEASALT3_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>30</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>592</post_avblfldidx>
+       <shortname>SEASALT4_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>30</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>593</post_avblfldidx>
+       <shortname>SEASALT5_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>100</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>200</scale_val_2nd_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>594</post_avblfldidx>
+       <shortname>SO4_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>9</scale_fact_1st_size>
+       <scale_val_1st_size>139</scale_val_1st_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>595</post_avblfldidx>
+       <shortname>OCPHOBIC_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_hydrophobic</aerosol_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>424</scale_val_1st_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>596</post_avblfldidx>
+       <shortname>OCPHILIC_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_hydrophilic</aerosol_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>424</scale_val_1st_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>597</post_avblfldidx>
+       <shortname>BCPHOBIC_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>black_carbon_hydrophobic</aerosol_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>236</scale_val_1st_size>
+       <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>598</post_avblfldidx>
+       <shortname>BCPHILIC_ON_ISOBARIC_SFC</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <aerosol_type>black_carbon_hydrophilic</aerosol_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>236</scale_val_1st_size>
+       <scale>11.0</scale>
     </param>
 
 <!-- 600-605 (GFS aerosol AOD) -->

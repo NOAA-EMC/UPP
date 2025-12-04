@@ -217,3 +217,11 @@ aqm() {
    export N_TASKS_PER_NODE=30
 
 }
+
+gcafs() {
+
+   export WTIME=00:05:00
+   export NODES=3
+   export N_TASKS_PER_NODE=30
+         
+}

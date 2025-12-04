@@ -96,6 +96,7 @@
 !                               calculation (extcof55 is all zeroes)
 !   2024-04        Eric James - correcting bug in BLSN effect (missing factor of
 !                               ustar_t) and removing BLSN effect for z0>0.7 (forests)
+!   2025-11        Wen Meng   Set the upper bound for GFS to 24.135 km
 !                           
 !------------------------------------------------------------------
 !
@@ -387,6 +388,8 @@
         if (vis(i,j)<1.) vis1km_cnt = vis1km_cnt + 1
         if (vis(i,j)<3.) vis3km_cnt = vis3km_cnt + 1
         if (vis(i,j)<5.) vis5km_cnt = vis5km_cnt + 1
+! Modify upper bound for GFS
+        if (modelname=='GFS') VIS(I,J)=MIN(24.135,VIS(I,J))
 ! convert vis from km to [m]
         vis(i,j) = vis(i,j) * 1000.
 
