@@ -2420,7 +2420,7 @@ tmpl4_0
 HGT
 ?
 ?
-cloud_ceilng
+cloud_base
 0
 ?
 0
@@ -2462,7 +2462,7 @@ tmpl4_0
 HGT
 ?
 ?
-cloud_base
+cloud_ceilng
 0
 ?
 0
