@@ -93,6 +93,7 @@ module params_mod
 #else
     real, parameter :: QCLDmin=1.E-5            !< Minimum cloud mixing ratio - was 1.E-6  
 #endif
+    real, parameter :: CLOUD_DEF_P=1.E-7        !< Cloud water + ice mixing ratio (qc + qi) threshold used by some GSL diagnostics
     real, parameter :: CFRmin_BASE_TOP=0.02     !< Minimum cloud fraction for cloud base and top (used by GSL starting in 2023)
     real, parameter :: NLImin=1.E3              !< Minimum number concentrations (m**-3) of large ice (snow/graupel/sleet) 
 ! move definition of NLImax and T_ICE to MICROINIT 2012012018
