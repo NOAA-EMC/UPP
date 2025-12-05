@@ -35,7 +35,7 @@ jobs:
         with:
           package-name: EMC_crtm
           package-org: NOAA-EMC
-          git-ref: v2.3.0
+          git-ref: v2.4.1
 
       - name: build-g2tmpl
         uses: NOAA-EMC/ci-build-cmake-code@develop
