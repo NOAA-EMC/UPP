@@ -73,5 +73,5 @@ fi
 postmsg "$logfile" "$msg"
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending ifi_standalone_hrrr test"
+msg="Ending ifi_standalone_rrfs test"
 postmsg "$logfile" "$msg"
