@@ -36,7 +36,7 @@ module list
 ulimit -s unlimited
 ulimit
 
-msg="Starting rrfs_ifi test"
+msg="Starting ifi_standalone_rrfs test"
 postmsg "$logfile" "$msg"
 
 
