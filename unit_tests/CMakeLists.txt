@@ -13,3 +13,5 @@ function(create_test name)
 endfunction()
 
 create_test(test_dewpoint)
+create_test(test_bound)
+create_test(test_caldrg)
