@@ -4,16 +4,16 @@
 #SBATCH -e out.post.rrfs_ifi
 #SBATCH -J rrfs_ifi
 #SBATCH -t 00:30:00
-#SBATCH --ntasks 240
-#SBATCH --tasks-per-node 48
+#SBATCH --ntasks 384
+#SBATCH --tasks-per-node 96
 #SBATCH -q batch
-#SBATCH -A ovp
+#SBATCH -A rtrr
 #SBATCH --exclusive
 
 set -x
 
 # specify computation resources
-export threads=1
+export threads=2
 export MP_LABELIO=yes
 export OMP_NUM_THREADS=$threads
 export APRUN="srun"
@@ -34,7 +34,7 @@ module list
 msg="Starting rrfs_ifi test"
 postmsg "$logfile" "$msg"
 
-export POSTGPEXEC=${svndir}/exec/upp_no_ifi.x
+export POSTGPEXEC=${svndir}/exec/upp_with_ifi.x
 
 # specify forecast start time and hour for running your post job
 export startdate=2025040112
@@ -63,7 +63,7 @@ fileNameFlux='$homedir/data_in/rrfs/phyf${fhr}.nc'
 /
 &NAMPGB
 KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
-write_ifi_debug_files=.true.
+! write_ifi_debug_files=.true.
 /
 EOF
 

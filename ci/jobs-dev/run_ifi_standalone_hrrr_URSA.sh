@@ -4,12 +4,10 @@
 #SBATCH -e out.post.ifi_standalone_hrrr
 #SBATCH -J ifi_standalone_hrrr_test
 #SBATCH -t 00:30:00
+#SBATCH -q batch
+#SBATCH -A rtrr
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=40
-#SBATCH --exclusive
-#SBATCH --partition bigmem
-#SBATCH -q batch
-#SBATCH -A ovp
 #SBATCH --exclusive
 
 # specify computation resource
@@ -28,6 +26,7 @@ export APRUN="srun"
 module purge
 module use $svndir/modulefiles
 module load ursa_$compiler
+module load ursa_${compiler}_ifi_test_prereqs
 module load wgrib2/3.6.0
 module load prod_util/2.1.1
 module load nccmp/1.9.1.0
@@ -43,7 +42,7 @@ postmsg "$logfile" "$msg"
 FIPEXEC=${svndir}/exec/fip2-lookalike.x
 
 # use the UPP run directory so we get the input files in the expected format
-export startdate=2020060118
+export startdate=2025063004
 export DATA=$rundir/hrrr_ifi_${startdate}
 cd $DATA
 
@@ -54,7 +53,7 @@ diff_file=cat_vars_0.nc.diff
 $APRUN --cpus-per-task=$OMP_NUM_THREADS --nodes=1 --ntasks=1 --exclusive \
      "$FIPEXEC" -u hybr_vars_0.nc hybr_vars_0.nc .
 
-nccmp -n 20 -dfc1 -v ICE_PROB,ICE_SEV_CAT,SLD,WMO_ICE_SEV_CAT "$upp_output" "$ifi_standalone_output" 2>&1 | tee "$diff_file"
+nccmp -dfc1 -v ICE_PROB,ICE_SEV_CAT,SLD,WMO_ICE_SEV_CAT "$upp_output" "$ifi_standalone_output" 2>&1 | tee "$diff_file"
 export err1=$?
 
 if [ -s "$ifi_standalone_output" ] ; then
