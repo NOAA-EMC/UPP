@@ -67,15 +67,15 @@ pipeline {
 					if (CHOICE_NODE == 'orion') {
 						echo "Starting up orion ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
 					} 
-					else if (CHOICE_NODE == 'jet') {
-						echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					}
+					//else if (CHOICE_NODE == 'jet') {
+					//	echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+					//}
 					else if (CHOICE_NODE == 'hercules') {
-						echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+						echo "Starting up hercules ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
 					}
-					else if (CHOICE_NODE == 'hera') {
-						echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					}
+					//else if (CHOICE_NODE == 'hera') {
+					//echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+					//}
 					else {
 						echo "${CHOICE_NODE} is NOT a platform, moving on..."
 					}
@@ -88,6 +88,7 @@ pipeline {
 			}
 			environment {
 				ACCNR = 'epic'
+				UPP_COMPILER = 'intel'
 				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
 			}
 			steps {
@@ -100,7 +101,7 @@ pipeline {
                                         echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
                                         cd ../tests/logs
 					git remote -v
                                         git fetch --no-recurse-submodules origin
@@ -110,8 +111,8 @@ pipeline {
 					git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
-					git add rt.log.ORION
-                                        git commit -m "Orion Jobs Completed."
+					git add rt.log.ORION_${UPP_COMPILER}
+                                        git commit -m "Jenkins RT log for Orion using ${UPP_COMPILER} compiler."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
@@ -172,6 +173,7 @@ pipeline {
 			}
 			environment {
 				ACCNR = 'epic'
+				UPP_COMPILER = 'intel'
 				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
 			}
 			steps {
@@ -184,7 +186,7 @@ pipeline {
                                         echo $CHANGE_ID
                                         export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
                                         export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir
+                                        ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
                                         cd ../tests/logs
 					git remote -v
                                         git fetch --no-recurse-submodules origin
@@ -194,8 +196,8 @@ pipeline {
                                         git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
                                         git pull sshorigin $FORK_BRANCH
-					git add rt.log.HERCULES
-                                        git commit -m "Hercules Jobs Completed."
+                                        git add rt.log.HERCULES_${UPP_COMPILER}
+                                        git commit -m "Jenkins RT log for Hercules using ${UPP_COMPILER} compiler."
                                         git push sshorigin HEAD:$FORK_BRANCH
 					'''
 				}
