@@ -25,14 +25,23 @@ program test_calthte
     P1D = reshape([100000.0, spval, 99500.0, 99000.0], [npts, npts])
     T1D = reshape([292.0, 293.0, 293.0, 294.0], [npts, npts])
     Q1D = reshape([0.01, 0.011, 0.011, 0.012], [npts, npts])
+    EXP_THTE = reshape([320.884246826171875, 0.0, 325.338592529296875, 329.84857177734375], [npts, npts])
 
     call CALTHTE(P1D, T1D, Q1D, THTE)
 
+    res = 0
     do j = jsta, jend
         do i = ista, iend
-            write(*,'(A,I0,A,I0,A,E30.20)') 'THTE(', i, ',', j, ') = ', THTE(i,j)
+            if (abs(THTE(i,j) - EXP_THTE(i,j)) > tol) then
+                print *, 'THTE Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_THTE(i,j), &
+                         ' but got ', THTE(i,j)
+                res = 1
+            end if
         end do
     end do
 
+    if (res .ne. 0) stop 10
 
+    print *, 'SUCCESS!'
 end program test_calthte
