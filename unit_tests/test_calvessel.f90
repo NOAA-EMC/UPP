@@ -61,13 +61,26 @@ program test_calvessel
 
     pshltr(3,1) = 1.05e5
 
+    EXP_ICEG = reshape([0.0, 0.0, 0.43042678044002968818E-05, 
+                        0.0, 0.0, 0.12278148631139629288E-06, 
+                        0.0, 0.60870952722780202748E-07, 0.12278148631139629288E-06], 
+                        [npts, npts])
+
     call CALVESSEL(ICEG)
 
+    res = 0
     do j = jsta, jend
         do i = ista, iend
-            write(*,'(A,I0,A,I0,A,E30.20)') 'ICEG(', i, ',', j, ') = ', ICEG(i,j)
+            if (abs(ICEG(i,j) - EXP_ICEG(i,j)) > tol) then
+                print *, 'ICEG Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_ICEG(i,j), &
+                         ' but got ', ICEG(i,j)
+                res = 1
+            end if
         end do
     end do
 
+    if (res .ne. 0) stop 10
 
+    print *, 'SUCCESS!'
 end program test_calvessel
