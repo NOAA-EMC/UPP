@@ -30,7 +30,7 @@ program test_calthte
 
     do j = jsta, jend
         do i = ista, iend
-            print *, 'THTE(', i, ',', j, ') = ', THTE(i,j)
+            write(*,'(A,I0,A,I0,A,E30.20)') 'THTE(', i, ',', j, ') = ', THTE(i,j)
         end do
     end do
 
