@@ -9,7 +9,7 @@ program test_calvessel
     use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-6
+    real, parameter :: tol = 1.0e-8
     integer, parameter :: npts = 3
     integer :: i, j, res
     real :: ICEG(1:npts,1:npts), EXP_ICEG(1:npts,1:npts)
@@ -54,6 +54,12 @@ program test_calvessel
 
     ! Test Case: ICEG goes below 0
     tshltr(2,2) = 265.0 
+
+    ! Some more values for variety
+    u10h(2,3) = 10.0
+    v10h(2,3) = 15.0
+
+    pshltr(3,1) = 1.05e5
 
     call CALVESSEL(ICEG)
 
