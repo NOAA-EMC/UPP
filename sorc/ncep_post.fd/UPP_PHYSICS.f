@@ -40,6 +40,7 @@
 !> 2024-11-21 | K. Asmar, J. Meng, G. Vandenberghe | CALCHIPSI
 !> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
 !> 2025-05-05 | Ben Blake  | Add sanity checks for RRFSv1 implementation
+!> 2025-12-16 | Ben Blake  | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -582,7 +583,7 @@
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval, &
-                            ista_2l, iend_2u, ista, iend
+                            ista_2l, iend_2u, ista, iend, capecin_2m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -695,13 +696,18 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  IF (KB == LM) THEN
-                      PKL = PSHLTR(I,J)
-                      TBTK = TSHLTR(I,J)
-                      QBTK = max(0.0, QSHLTR(I,J))
+                  IF (capecin_2m) THEN
+                    IF (KB == LM) THEN
+                        PKL = PSHLTR(I,J)
+                        TBTK = TSHLTR(I,J)
+                        QBTK = max(0.0, QSHLTR(I,J))
+                    ELSE
+                        TBTK   = T(I,J,KB)
+                        QBTK   = max(0.0, Q(I,J,KB))
+                    ENDIF
                   ELSE
-                      TBTK   = T(I,J,KB)
-                      QBTK   = max(0.0, Q(I,J,KB))
+                    TBTK   = T(I,J,KB)
+                    QBTK   = max(0.0, Q(I,J,KB))
                   ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
@@ -1068,7 +1074,7 @@
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval,&
-                            ista_2l, iend_2u,     ista, iend,             ista_m, iend_m
+                            ista_2l, iend_2u, ista, iend, ista_m, iend_m, capecin_2m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1261,13 +1267,18 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  IF (KB == LM) THEN 
-                      PKL = PSHLTR(I,J)
-                      TBTK = TSHLTR(I,J)
-                      QBTK = max(0.0, QSHLTR(I,J))
-                  ELSE 
-                      TBTK   = T(I,J,KB)
-                      QBTK   = max(0.0, Q(I,J,KB))
+                  IF (capecin_2m) THEN
+                    IF (KB == LM) THEN 
+                        PKL = PSHLTR(I,J)
+                        TBTK = TSHLTR(I,J)
+                        QBTK = max(0.0, QSHLTR(I,J))
+                    ELSE 
+                        TBTK   = T(I,J,KB)
+                        QBTK   = max(0.0, Q(I,J,KB))
+                    ENDIF
+                  ELSE
+                    TBTK   = T(I,J,KB)
+                    QBTK   = max(0.0, Q(I,J,KB))
                   ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE

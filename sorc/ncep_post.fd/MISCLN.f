@@ -50,6 +50,7 @@
 !!   2024-01-09 | Y Mao | Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
 !!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
 !!   2025-07-22 | K Halbert / E Colon | Updated mixed-layer CAPE/CINH to include 2m field
+!!   2025-12-16 | Ben Blake | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !> 
 !> @author RUSS TREADON 
 !> @date 1992-12-20
@@ -70,10 +71,10 @@
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, &
                             ista, iend, ista_m, iend_M, ista_2l, iend_2u, &
-                            ifi_flight_levels, gtg_on
+                            ifi_flight_levels, gtg_on, capecin_2m
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2
+      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -3094,15 +3095,21 @@
              DO I=ISTA,IEND
                EGRID1(I,J) = -H99999
                EGRID2(I,J) = -H99999
-               q2m = max(0.0, QSHLTR(I,J))
-               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +             &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
-                            PSHLTR(I,J))/4
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
-                            TSHLTR(I,J))/4
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
-                            q2m)/4
+               IF (capecin_2m) THEN
+                 q2m = max(0.0, QSHLTR(I,J))
+                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +               &
+                              PBND(I,J,3) + PSHLTR(I,J))/4
+                 T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +               &
+                              TBND(I,J,3) + TSHLTR(I,J))/4
+                 Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +               &
+                              QBND(I,J,3) + q2m)/4
+               ELSE
+                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                 T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                 Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               ENDIF
              ENDDO
            ENDDO
 !
@@ -3593,14 +3600,20 @@
 !          ENDDO
 !          DO J=JSTA,JEND
 !          DO I=ISTA,IEND
-               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +             &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
-                            PSHLTR(I,J))/4
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
-                            TSHLTR(I, J))/4
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
-                            QSHLTR(I, J))/4
+               IF (capecin_2m) THEN
+                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +               &
+                              PBND(I,J,3) + PSHLTR(I,J))/4
+                 T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +               &
+                              TBND(I,J,3) + TSHLTR(I, J))/4
+                 Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +               &
+                              QBND(I,J,3) + QSHLTR(I, J))/4
+               ELSE
+                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                 T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                 Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               ENDIF
              ENDDO
            ENDDO
 
@@ -4286,14 +4299,22 @@
                EGRID6(I,J) = -H99999
                EGRID7(I,J) = -H99999
                EGRID8(I,J) = -H99999
-               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +             &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
-                            PSHLTR(I, J))/4
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +               &
-                            TBND(I,J,3) + TSHLTR(I,J))/4
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
-                            QSHLTR(I,J))/4
+               IF (capecin_2m) THEN
+                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +               &
+                              PBND(I,J,3) + PSHLTR(I, J))/4
+                 T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +               &
+                              TBND(I,J,3) + TSHLTR(I,J))/4
+                 Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +               &
+                              QBND(I,J,3) + QSHLTR(I,J))/4
+               ELSE
+                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                 T1D(I,J)  = (TVIRTUAL(TBND(I,J,1),QBND(I,J,1)) +       &
+                              TVIRTUAL(TBND(I,J,2),QBND(I,J,2)) +       &
+                              TVIRTUAL(TBND(I,J,3),QBND(I,J,3)))/3
+                 Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               ENDIF
              ENDDO
            ENDDO
 
