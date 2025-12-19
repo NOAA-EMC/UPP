@@ -60,6 +60,7 @@ program test_calwxt_explicit
                 print *, 'IWX Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_IWX(i,j), &
                          ' but got ', IWX(i,j)
+                res = 1
             end if
         end do
     end do
