@@ -52,7 +52,7 @@ program test_calvis
     TT(2,3) = 280.0
     PP(2,3) = 101325.0
 
-    EXP_VIS = reshape([spval, spval, spval, spval, spval, spval, spval, 24135, 22.361997604], [npts, npts])
+    EXP_VIS = reshape([spval, spval, spval, spval, spval, spval, spval, 24135.0, 22.361997604], [npts, npts])
     
     call CALVIS(QV, QC, QR, QI, QS, TT, PP, VIS)
 
