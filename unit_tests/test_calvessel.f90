@@ -12,7 +12,7 @@ program test_calvessel
     real, parameter :: tol = 1.0e-8
     integer, parameter :: npts = 3
     integer :: i, j, res
-    real :: ICEG(1:npts,1:npts), EXP_ICEG(1:npts,1:npts)
+    real, dimension(1:npts,1:npts) :: ICEG, EXP_ICEG
 
     ! Grid parameters
     jsta = 1
@@ -79,6 +79,14 @@ program test_calvessel
             end if
         end do
     end do
+
+    deallocate(sm)
+    deallocate(sice)
+    deallocate(sst)
+    deallocate(u10h)
+    deallocate(v10h)
+    deallocate(tshltr)
+    deallocate(pshltr)
 
     if (res .ne. 0) stop 10
 

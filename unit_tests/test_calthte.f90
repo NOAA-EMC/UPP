@@ -10,8 +10,8 @@ program test_calthte
     real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 2
     integer :: i, j, res
-    real :: P1D(1:npts,1:npts), T1D(1:npts,1:npts), Q1D(1:npts,1:npts)
-    real :: THTE(1:npts,1:npts), EXP_THTE(1:npts,1:npts)
+    real, dimension(1:npts,1:npts) :: P1D, T1D, Q1D
+    real, dimension(1:npts,1:npts) :: THTE, EXP_THTE
 
     ! Grid parameters
     jsta = 1
