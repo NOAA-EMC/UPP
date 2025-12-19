@@ -103,7 +103,7 @@ program test_calwxt_dominant
     EXP_DOMZR(2,3) = 1.0
     EXP_DOMR(3,3) = 1.0
 
-    call CALWXT_DOMINANT_POST(PREC, RAIN, FREEZR, SLEET, SNOW, DOMS, DOMR, DOMZR, DOMIP)
+    call CALWXT_DOMINANT_POST(PREC, RAIN, FREEZR, SLEET, SNOW, DOMR, DOMZR, DOMIP, DOMS)
 
     res = 0
     do j = jsta, jend
