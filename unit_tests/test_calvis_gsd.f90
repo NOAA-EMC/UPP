@@ -113,9 +113,7 @@ program test_calvis_gsd
 
     ! (2,2): Strong low-level shear between levels 1 and 4
     u(2,2,1) = 0.0; v(2,2,1) = 0.0
-    if (nlevs >= 4) then
-        u(2,2,4) = 12.0; v(2,2,4) = 8.0
-    end if
+    u(2,2,4) = 12.0; v(2,2,4) = 8.0
     CZEN(2,2) = 0.20
 
     ! (2,3): High RH clear-air (warm and moist), hydrometeors zero, no aerosols
