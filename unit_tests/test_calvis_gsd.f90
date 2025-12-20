@@ -145,8 +145,8 @@ program test_calvis_gsd
     call CALVIS_GSD(CZEN, VIS)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do j = jsta_2l, jend_2u
+        do i = ista_2l, iend_2u
             if (abs(VIS(i,j) - EXP_VIS(i,j)) > tol) then
                 print *, 'VIS Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_VIS(i,j), &
