@@ -11,7 +11,7 @@ program test_calvis_gsd
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: npts = 3, nlevs = 5
+    integer, parameter :: npts = 4, nlevs = 5
     integer :: i, j, k, res
     real, dimension(1:npts,1:npts) :: CZEN, VIS, EXP_VIS
 
@@ -68,12 +68,6 @@ program test_calvis_gsd
     end do
 
     CZEN = 0.5  ! daytime default
-
-    ! Set some array values to spval to test the handling of spval
-    t(1,1,lm) = spval
-    u(1,2,lm)    = spval
-    v(2,1,lm)    = spval
-    pmid(3,3,lm) = spval
 
     ! (1,1): Clear-air case, no hydrometeors or aerosols; low humidity for large vis
     do k = 1, 3
@@ -134,8 +128,14 @@ program test_calvis_gsd
     end do
     CZEN(2,3) = 0.50
 
-    ! (3,2): Very low sun angle (night-like)
-    CZEN(3,2) = 0.001
+    ! (3,1): Very low sun angle (night-like)
+    CZEN(3,1) = 0.001
+
+    ! Set some array values to spval to test the handling of spval
+    t(4,1,lm) = spval
+    u(4,2,lm)    = spval
+    v(4,3,lm)    = spval
+    pmid(4,4,lm) = spval
 
     ! TODO: Replace the ??? with the actual result. 
     !EXP_VIS = reshape([???], [npts, npts])
