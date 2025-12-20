@@ -138,7 +138,7 @@ program test_calvis_gsd
     CZEN(3,2) = 0.001
 
     ! TODO: Replace the ??? with the actual result. 
-    EXP_VIS = reshape([???], [npts, npts])
+    !EXP_VIS = reshape([???], [npts, npts])
 
     call CALVIS_GSD(CZEN, VIS)
 
