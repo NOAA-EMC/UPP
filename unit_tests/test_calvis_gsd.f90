@@ -144,6 +144,23 @@ program test_calvis_gsd
 
     call CALVIS_GSD(CZEN, VIS)
 
+    ! Deallocate all allocated arrays
+    deallocate(sno)
+    deallocate(si)
+    deallocate(ustar)
+    deallocate(z0)
+    deallocate(qqw)
+    deallocate(qqi)
+    deallocate(qqs)
+    deallocate(qqr)
+    deallocate(qqg)
+    deallocate(t)
+    deallocate(pmid)
+    deallocate(q)
+    deallocate(u)
+    deallocate(v)
+    deallocate(aextc55)
+    
     res = 0
     do j = jsta_2l, jend_2u
         do i = ista_2l, iend_2u
