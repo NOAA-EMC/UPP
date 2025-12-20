@@ -44,7 +44,7 @@ program test_calvis_gsd
     allocate(v(1:npts,1:npts,1:nlevs))
     allocate(aextc55(1:npts,1:npts,1:nlevs))
 
-    ! Initialize arrays with realistic base values (all < spval)
+    ! Initialize arrays with realistic base values
     sno = 0.05         ! m SWE
     si  = 50.0         ! mm snow depth
     ustar = 0.30       ! m s^-1
@@ -70,13 +70,11 @@ program test_calvis_gsd
     CZEN = 0.5  ! daytime default
 
     ! Set some array values to spval to test the handling of spval
-    t(1,1,1) = spval
-    ! Additional spval cases
-    u(1,2,1)    = spval
-    v(2,1,1)    = spval
-    pmid(3,3,1) = spval
+    t(1,1,lm) = spval
+    u(1,2,lm)    = spval
+    v(2,1,lm)    = spval
+    pmid(3,3,lm) = spval
 
-    ! Per-grid-point scenarios to exercise branches
     ! (1,1): Clear-air case, no hydrometeors or aerosols; low humidity for large vis
     do k = 1, 3
         qqw(1,1,k) = 0.0; qqi(1,1,k) = 0.0; qqs(1,1,k) = 0.0
@@ -138,6 +136,9 @@ program test_calvis_gsd
 
     ! (3,2): Very low sun angle (night-like)
     CZEN(3,2) = 0.001
+
+    ! TODO: Replace the ??? with the actual result. 
+    EXP_VIS = reshape([???], [npts, npts])
 
     call CALVIS_GSD(CZEN, VIS)
 
