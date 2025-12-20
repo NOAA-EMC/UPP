@@ -135,17 +135,28 @@ program test_calvis_gsd
     v(4,3,lm)    = spval
     pmid(4,4,lm) = spval
 
-    ! TODO: Replace the ??? with the actual result. 
-    !EXP_VIS = reshape([???], [npts, npts])
+    EXP_VIS = reshape([ &
+        204.72335815, 204.72335815, 459.18145752, spval, &
+        147.99403381, 204.72335815, 204.72335815, spval, &
+        163.81585693, 204.72335815, 204.72335815, spval, &
+        204.72335815, 204.72335815, 204.72335815, spval  &
+    ], [npts, npts])
 
     call CALVIS_GSD(CZEN, VIS)
 
-    do j = jsta_2l, jend_2u
-        do i = ista_2l, iend_2u
-            ! TODO: Insert print statement printing VIS(i,j) at highest precision possible. 
-            ! I need to see the result so I can construct EXP_VIS later.
-            print '("VIS(",I1,",",I1,") = ",ES24.16)', i, j, VIS(i,j)
+    res = 0
+    do j = jsta, jend
+        do i = ista, iend
+            if (abs(VIS(i,j) - EXP_VIS(i,j)) > tol) then
+                print *, 'VIS Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_VIS(i,j), &
+                         ' but got ', VIS(i,j)
+                res = 1
+            end if
         end do
     end do
-    print *, "SUCCESS!"
+
+    if (res .ne. 0) stop 10
+
+    print *, 'SUCCESS!'
 end program test_calvis_gsd
