@@ -3950,8 +3950,8 @@
              endif
             ENDIF
 
-!U inflow based to 50% EL shear vector
-
+! U component of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
             IF (IGET(983)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
@@ -3977,7 +3977,8 @@
              endif
             ENDIF
 
-!V inflow based to 50% EL shear vector
+! V component of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
             IF (IGET(984)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
