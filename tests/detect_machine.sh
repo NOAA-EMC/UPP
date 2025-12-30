@@ -24,10 +24,6 @@ case $(hostname -f) in
   gaea6[1-8])          MACHINE_ID=gaeac6 ;; ### gaea61-68
   gaea6[1-8].ncrc.gov) MACHINE_ID=gaeac6 ;; ### gaea61-68
 
-  hfe0[1-9]) MACHINE_ID=hera ;;   ### hera01-09
-  hfe1[01]) MACHINE_ID=hera ;;   ### hera10-11
-  hecflow01) MACHINE_ID=hera ;;   ### heraecflow01
-
   ufe[0-9][0-9]) MACHINE_ID=ursa ;;
   uecflow*) MACHINE_ID=ursa ;;
 
@@ -84,14 +80,8 @@ elif [[ -d /mnt/lfs1 ]]; then
   # We are on NOAA Jet
   MACHINE_ID=jet
 elif [[ -d /scratch3 ]]; then
-  # We are on NOAA Hera or Ursa
-  mount=$(findmnt -n -o SOURCE /apps)
-  if [[ ${mount} =~ "ursa" ]]; then
-    # We are on Ursa
-    MACHINE_ID=ursa
-  elif [[ ${mount} =~ "hera" ]]; then
-    MACHINE_ID=hera
-  fi
+  # We are on NOAA Ursa
+  MACHINE_ID=ursa
 elif [[ -d /glade ]]; then
   # We are on NCAR derecho
   MACHINE_ID=derecho

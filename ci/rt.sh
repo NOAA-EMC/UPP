@@ -9,6 +9,7 @@
 # Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
 # Gillian Petro 06/2025 Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
 # Wen Meng and Ben Blake, 07/2025, Update test names, add RRFS, MPAS, DAFS, SFS tests
+# Ben Blake, 12/2025, Remove Hera support
 ######################################################################
 set -xue
 SECONDS=0
@@ -200,18 +201,7 @@ fi
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 mac3=$(hostname | cut -c1-4)
-if [ $mac2 = hf ]; then # for HERA
- export machine=HERA
- export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/hera/UPP_test_suite"}
- export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/${USER}"}
- export accnr=${accnr:-"rtrr"}
- module purge
- module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
- module use /contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/intel-oneapi-mpi/2021.13-sbi3u54/gcc/13.3.0
- module load stack-oneapi/2024.2.1
- module load stack-intel-oneapi-mpi/2021.13
- module load prod_util/2.1.1
-elif [ $mac2 = uf ]; then # for Ursa
+if [ $mac2 = uf ]; then # for Ursa
  export machine=URSA
  export homedir=${homedir:-"/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite"}
  export rundir=${rundir:-"/scratch3/NCEPDEV/stmp/$USER/scrub"}
