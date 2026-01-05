@@ -696,18 +696,13 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  IF (capecin_2m) THEN
-                    IF (KB == LM) THEN
-                        PKL = PSHLTR(I,J)
-                        TBTK = TSHLTR(I,J)
-                        QBTK = max(0.0, QSHLTR(I,J))
-                    ELSE
-                        TBTK   = T(I,J,KB)
-                        QBTK   = max(0.0, Q(I,J,KB))
-                    ENDIF
+                  IF (capecin_2m .AND. KB == LM) THEN
+                      PKL = PSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)
+                      QBTK = max(0.0, QSHLTR(I,J))
                   ELSE
-                    TBTK   = T(I,J,KB)
-                    QBTK   = max(0.0, Q(I,J,KB))
+                      TBTK   = T(I,J,KB)
+                      QBTK   = max(0.0, Q(I,J,KB))
                   ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
@@ -1267,18 +1262,13 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  IF (capecin_2m) THEN
-                    IF (KB == LM) THEN 
-                        PKL = PSHLTR(I,J)
-                        TBTK = TSHLTR(I,J)
-                        QBTK = max(0.0, QSHLTR(I,J))
-                    ELSE 
-                        TBTK   = T(I,J,KB)
-                        QBTK   = max(0.0, Q(I,J,KB))
-                    ENDIF
-                  ELSE
-                    TBTK   = T(I,J,KB)
-                    QBTK   = max(0.0, Q(I,J,KB))
+                  IF (capecin_2m .AND. KB == LM) THEN
+                      PKL = PSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)
+                      QBTK = max(0.0, QSHLTR(I,J))
+                  ELSE 
+                      TBTK   = T(I,J,KB)
+                      QBTK   = max(0.0, Q(I,J,KB))
                   ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
