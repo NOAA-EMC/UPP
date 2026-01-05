@@ -4004,7 +4004,8 @@
              endif
             ENDIF
 
-!Inflow based (ESFC) to (50%) EL shear magnitude
+! Magnitude of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
             IF (IGET(985)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
