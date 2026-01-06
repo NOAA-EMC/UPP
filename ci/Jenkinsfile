@@ -36,15 +36,12 @@ def postGitHubComment(commentMessage) {
 	}
 }
 
+def ORION_RTS = 'false'
+def HERCULES_RTS = 'false'
+def URSA_RTS = 'false'
 
 pipeline {
 	agent none
-
-  environment {
-    ORION_RTS = 'false'
-    HERCULES_RTS = 'false'
-    URSA_RTS = 'false'
-  }
 
 	stages {
 		stage('UPP Regression Tests') {
@@ -57,7 +54,7 @@ pipeline {
 						if ((label.matches("hercules-RT"))) {
               echo "Inside Hercules Branch"
               echo "HERCULES_RTS: ${HERCULES_RTS}"
-              HERCULES_RTS = 'true'
+              env.HERCULES_RTS = 'true'
               echo "HERCULES_RTS: ${HERCULES_RTS}"
 						}  
 				  }    
@@ -69,7 +66,7 @@ pipeline {
 				label "hercules"
 			}
       when {
-        environment name: 'HERCULES_RTS', value: 'true'
+        expression { HERCULES_RTS == 'true' }
       }
 			environment {
 				ACCNR = 'epic'
