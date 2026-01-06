@@ -56,7 +56,7 @@ pipeline {
 					for (label in pullRequest.labels) {
 						if ((label.matches("hercules-RT"))) {
               echo "Inside Hercules Branch"
-              env.HERCULES_RTS = 'false'
+              env.HERCULES_RTS = 'true'
 						}  
 				  }    
 			  }
