@@ -39,6 +39,13 @@ def postGitHubComment(commentMessage) {
 
 pipeline {
 	agent none
+
+  environment {
+    ORION_RTS = 'false'
+    HERCULES_RTS = 'false'
+    URSA_RTS = 'false'
+  }
+
 	stages {
 		stage('UPP Regression Tests') {
 			agent {
@@ -47,7 +54,6 @@ pipeline {
 			steps {
 				script {
 					for (label in pullRequest.labels) {
-              echo "Current Label: $label"
 //						if ((label.matches("orion"))) {
 //							env.CHOICE_NODE='orion'
 //						}  
@@ -55,33 +61,34 @@ pipeline {
 //							env.CHOICE_NODE='hera'
 //						}  
 //						else if ((label.matches("hercules"))) {
-						if ((label.matches("hercules"))) {
-              echo "Labels: " pullRequest.labels
-							env.CHOICE_NODE='hercules'
+						if ((label.matches("hercules-RT"))) {
+              echo "Inside Hercules Branch"
+              env.HERCULES_RTS = 'false'
+							//env.CHOICE_NODE='hercules'
 						}  
 //						else if ((label.matches("jet"))) {
 //							env.CHOICE_NODE='jet'
 //						} 
-						else { 
-							env.CHOICE_NODE='none'
-						}
-					}
-					// Why do I need another if..block, because it just works this way.
-					if (CHOICE_NODE == 'orion') {
-						echo "Starting up orion ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					} 
-					//else if (CHOICE_NODE == 'jet') {
-					//	echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					//}
-					else if (CHOICE_NODE == 'hercules') {
-						echo "Starting up hercules ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					}
-					//else if (CHOICE_NODE == 'hera') {
-					//echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					//}
-					else {
-						echo "${CHOICE_NODE} is NOT a platform, moving on..."
-					}
+//						else { 
+//							env.CHOICE_NODE='none'
+//						}
+//					}
+//					// Why do I need another if..block, because it just works this way.
+//					if (CHOICE_NODE == 'orion') {
+//						echo "Starting up orion ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+//					} 
+//					//else if (CHOICE_NODE == 'jet') {
+//					//	echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+//					//}
+//					else if (CHOICE_NODE == 'hercules') {
+//						echo "Starting up hercules ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+//					}
+//					//else if (CHOICE_NODE == 'hera') {
+//					//echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
+//					//}
+//					else {
+//						echo "${CHOICE_NODE} is NOT a platform, moving on..."
+//					}
 				}    
 			}
 		} 
@@ -174,6 +181,9 @@ pipeline {
 			agent {
 				label "hercules"
 			}
+      when {
+        environment name: 'HERCULES_RTS', value: 'true'
+      }
 			environment {
 				ACCNR = 'epic'
 				UPP_COMPILER = 'intel'
