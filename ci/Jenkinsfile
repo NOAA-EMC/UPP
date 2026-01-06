@@ -57,7 +57,7 @@ pipeline {
 						if ((label.matches("hercules-RT"))) {
               echo "Inside Hercules Branch"
               echo "HERCULES_RTS: ${HERCULES_RTS}"
-              env.HERCULES_RTS = 'true'
+              HERCULES_RTS = 'true'
               echo "HERCULES_RTS: ${HERCULES_RTS}"
 						}  
 				  }    
