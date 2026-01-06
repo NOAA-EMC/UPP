@@ -54,7 +54,8 @@ pipeline {
 //						else if ((label.matches("hera"))) {
 //							env.CHOICE_NODE='hera'
 //						}  
-						else if ((label.matches("hercules"))) {
+//						else if ((label.matches("hercules"))) {
+						if ((label.matches("hercules"))) {
               echo "Labels: " pullRequest.labels
               echo "
 							env.CHOICE_NODE='hercules'
