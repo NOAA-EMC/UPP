@@ -29,6 +29,7 @@
 !! -  25-01-13  Jaymes Kenyon - Add graupel number concentration (QQNG)
 !! -  25-05-05  Jaymes Kenyon - Add HAIL_BUCKET
 !! -  25-07-15  Jeff Duda - Add max_compref, max_prate_1min, max_prate_5min, and max_prate_10min
+!! -  26-01-02  Eric James - Correcting range for allocation of u
 
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -66,7 +67,7 @@
       integer ierr,jsx,jex
       integer i,j,l,k
 ! Allocate arrays
-      allocate(u(ista_2l:iend_2u+1,jsta_2l:jend_2u,lm))
+      allocate(u(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       allocate(v(ista_2l:iend_2u,jsta_2l:jvend_2u,lm))
       allocate(t(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 ! CHUANG ADD POTENTIAL TEMP BECAUSE WRF OUTPUT THETA
@@ -101,7 +102,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=ista_2l,iend_2u+1
+          do i=ista_2l,iend_2u
             u(i,j,l)=0.
           enddo
         enddo
