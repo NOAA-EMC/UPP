@@ -1,5 +1,5 @@
 help([[
-Load external libIFI for UPP on hera
+Load external libIFI for UPP on jet
 ]])
 
 prepend_path("MODULEPATH", "/lfs5/BMC/ifi/modulefiles")
