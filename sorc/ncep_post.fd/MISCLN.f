@@ -4470,7 +4470,7 @@
             IF (MODELNAME == 'FV3R') THEN
               ITYPE = 1
               DO J=JSTA,JEND
-              DO I=ISTA,IEND
+                DO I=ISTA,IEND
                   LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                                LVLBND(I,J,3))/3
                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
