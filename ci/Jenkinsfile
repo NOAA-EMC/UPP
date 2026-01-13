@@ -36,21 +36,21 @@ def postGitHubComment(commentMessage) {
 	}
 }
 
-def removeGitHubLabel(labelName) {
-  script {
-		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
-			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
-			def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github+json\" -H \"Authorization: token " + ACCESS_TOKEN + "\" ${apiUrl}"
-
-			def response = sh(script: curlCommand, returnStatus: true)
-			if (response == 0) {
-				echo "Label: ${labelName} successfully removed from PR #${env.CHANGE_ID}"
-			} else {
-				error "Failed to remove the label: ${labelName} from PR #${env.CHANGE_ID}"
-			}
-    }
-  }
-}
+//def removeGitHubLabel(labelName) {
+//  script {
+//		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+//			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
+//			def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token " + ACCESS_TOKEN + "\" ${apiUrl}"
+//
+//			def response = sh(script: curlCommand, returnStatus: true)
+//			if (response == 0) {
+//				echo "Label: ${labelName} successfully removed from PR #${env.CHANGE_ID}"
+//			} else {
+//				error "Failed to remove the label: ${labelName} from PR #${env.CHANGE_ID}"
+//			}
+//    }
+//  }
+//}
 
 def ORION_RTS = 'false'
 def HERCULES_RTS = 'false'
