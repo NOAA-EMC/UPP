@@ -36,6 +36,22 @@ def postGitHubComment(commentMessage) {
 	}
 }
 
+def removeGitHubLabel(labelName) {
+  script {
+		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
+			def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github+json\" -H \"Authorization: token " + ACCESS_TOKEN + "\" ${apiUrl}"
+
+			def response = sh(script: curlCommand, returnStatus: true)
+			if (response == 0) {
+				echo "Label: ${labelName} successfully removed from PR #${env.CHANGE_ID}"
+			} else {
+				error "Failed to remove the label: ${labelName} from PR #${env.CHANGE_ID}"
+			}
+    }
+  }
+}
+
 def ORION_RTS = 'false'
 def HERCULES_RTS = 'false'
 def URSA_RTS = 'false'
@@ -54,20 +70,26 @@ pipeline {
 						if ((label.matches("hercules-RT"))) {
               echo "Inside Hercules Branch"
               echo "HERCULES_RTS: ${HERCULES_RTS}"
-              HERCULES_RTS = 'true'
+//              HERCULES_RTS = 'true'
               echo "HERCULES_RTS: ${HERCULES_RTS}"
 						}  
 						if ((label.matches("orion-RT"))) {
               echo "Inside Orion Branch"
               echo "ORION: ${ORION_RTS}"
-              ORION_RTS = 'true'
+//              ORION_RTS = 'true'
               echo "ORION_RTS: ${ORION_RTS}"
             }
 						if ((label.matches("ursa-RT"))) {
               echo "Inside Ursa Branch"
               echo "URSA: ${URSA_RTS}"
-              URSA_RTS = 'true'
+//              URSA_RTS = 'true'
               echo "URSA_RTS: ${URSA_RTS}"
+            }
+						if ((label.matches("hera-RT"))) {
+              echo "Inside Hera Branch"
+              echo "Remove label hera-RT"
+              removeGitHubLabel("hera-RT")
+              echo "Label Removed"
             }
 				  }    
 			  }
@@ -176,6 +198,52 @@ pipeline {
  			environment {
  				ACCNR = 'epic'
  				UPP_COMPILER = 'intel'
+ 				NODE_PATH = '/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite'
+ 			}
+ 			steps {
+ 		 		catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+ 					cleanWs()
+ 					checkout scm
+ 					sh '''
+ 					   echo $(pwd)
+ 					   cd ci/
+             echo $CHANGE_ID
+             export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+             export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+             ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
+             cd ../tests/logs
+ 					   git remote -v
+             git fetch --no-recurse-submodules origin
+             git config user.email "ecc.platform@noaa.gov"
+             git config user.name "epic-cicd-jenkins"
+             echo "Ursa testing concluded..."
+ 					   git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+ 					   git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+             git pull sshorigin $FORK_BRANCH
+ 					   git add rt.log.URSA_${UPP_COMPILER}
+             git commit -m "Jenkins RT log for URSA using ${UPP_COMPILER} compiler."
+             git push sshorigin HEAD:$FORK_BRANCH
+ 					'''
+ 				}
+ 			}
+ 			post {
+ 				always {
+ 					script {
+ 						formatComment("Ursa")
+ 					}
+ 				}
+ 			}
+ 		} 
+ 		stage('Run UPP RTs on Ursa') {
+ 			agent {
+ 				label "ursa"
+ 			}
+      when {
+        expression { URSA_RTS == 'true' }
+      }
+ 			environment {
+ 				ACCNR = 'epic'
+ 				UPP_COMPILER = 'intelllvm'
  				NODE_PATH = '/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite'
  			}
  			steps {
