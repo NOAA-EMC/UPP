@@ -234,7 +234,7 @@ pipeline {
  				}
  			}
  		} 
- 		stage('Run UPP RTs on Ursa') {
+ 		stage('Run UPP RTs on Ursa2') {
  			agent {
  				label "ursa"
  			}
