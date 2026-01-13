@@ -88,7 +88,7 @@ pipeline {
 						if ((label.matches("hera-RT"))) {
               echo "Inside Hera Branch"
               echo "Remove label hera-RT"
-              removeGitHubLabel("hera-RT")
+              //removeGitHubLabel("hera-RT")
               echo "Label Removed"
             }
 				  }    
