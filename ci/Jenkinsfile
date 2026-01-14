@@ -37,15 +37,11 @@ def postGitHubComment(commentMessage) {
 }
 
 def removeGitHubLabel(labelName) {
-  //curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/${labelName}
   script {
     echo "inside label removal"
 		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
-			//def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
-			//def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token ${ACCESS_TOKEN}\"  ${apiUrl}"
-      echo "inside if"
-      echo "API URL: ${apiUrl}"
-      echo "CurlCommand: ${curlCommand}"
+			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
+			def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" + "\"" + apiUrl + "\""
 			def response = sh(script: curlCommand, returnStatus: true)
 			if (response == 0) {
 				echo "Label: ${labelName} successfully removed from PR #${env.CHANGE_ID}"
@@ -92,7 +88,12 @@ pipeline {
 						if ((label.matches("hera-RT"))) {
               echo "Inside Hera Branch"
               echo "Remove label hera-RT"
-              removeGitHubLabel("hera-RT")
+              curl -s -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${ACCESS_TOKEN} https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT"
+              //removeGitHubLabel("hera-RT")
+
+  //curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/${labelName}
+			//def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
+			//def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token ${ACCESS_TOKEN}\"  ${apiUrl}"
               echo "Label Removed"
             }
 				  }    
