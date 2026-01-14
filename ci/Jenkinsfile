@@ -41,8 +41,8 @@ def removeGitHubLabel(labelName) {
   script {
     echo "inside label removal"
 		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
-			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
-			def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token ${ACCESS_TOKEN}\"  ${apiUrl}"
+			//def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
+			//def curlCommand = "curl -s -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token ${ACCESS_TOKEN}\"  ${apiUrl}"
       echo "inside if"
       echo "API URL: ${apiUrl}"
       echo "CurlCommand: ${curlCommand}"
