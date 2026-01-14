@@ -42,7 +42,7 @@ def removeGitHubLabel(labelName) {
     export GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
     echo "Testing concluded...removing labels for $machine from $GIT_URL"
     echo "https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/jenkins-ort"
-   curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/hera-RT
+    curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: GithubJenkinsNew ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/hera-RT
   '''
   //script {
 	//	withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
