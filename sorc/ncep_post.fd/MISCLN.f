@@ -3110,12 +3110,8 @@
                                 PBND(I,J,3) + PSHLTR(I,J))/4
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
                                 TBND(I,J,3) + TSHLTR(I,J))/4
-                   IF (max(0.0,QSHLTR(I,J)) == 0) THEN
-                     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-                   ELSE
-                     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +           &
-                                  QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
-                   ENDIF
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
+                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
                  ELSE
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
@@ -3626,13 +3622,9 @@
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
                                 PBND(I,J,3) + PSHLTR(I,J))/4
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
-                                TBND(I,J,3) + TSHLTR(I, J))/4
-                   IF (max(0.0,QSHLTR(I,J)) == 0) THEN
-                     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-                   ELSE
-                     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +           &
-                                  QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
-                   ENDIF
+                                TBND(I,J,3) + TSHLTR(I,J))/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
+                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
                  ELSE
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
@@ -4338,15 +4330,11 @@
                    QBND(I,J,3) < spval) THEN
                  IF (capecin_2m) THEN
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
-                                PBND(I,J,3) + PSHLTR(I, J))/4
+                                PBND(I,J,3) + PSHLTR(I,J))/4
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
                                 TBND(I,J,3) + TSHLTR(I,J))/4
-                   IF (max(0.0,QSHLTR(I,J)) == 0) THEN
-                     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-                   ELSE
-                     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +           &
-                                  QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
-                   ENDIF
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
+                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
                  ELSE
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
