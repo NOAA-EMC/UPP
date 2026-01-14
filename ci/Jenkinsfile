@@ -37,13 +37,16 @@ def postGitHubComment(commentMessage) {
 }
 
 def removeGitHubLabel(labelName) {
-  sh '''
-    export GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
-    export GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
-    echo "Testing concluded...removing labels for $machine from $GIT_URL"
-    echo "https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/jenkins-ort"
-    curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: GithubJenkinsNew ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/hera-RT
-  '''
+  script {
+		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+      sh '''
+        export GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
+        export GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
+        echo "Testing concluded...removing labels for $machine from $GIT_URL"
+        echo "https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/jenkins-ort"
+        curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${ACCESS_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/hera-RT
+      '''
+    }
   //script {
 	//	withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
 	//		def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
@@ -56,6 +59,7 @@ def removeGitHubLabel(labelName) {
 	//		}
   //  }
   //}
+  }
 }
 
 def ORION_RTS = 'false'
