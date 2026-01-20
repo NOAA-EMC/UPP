@@ -40,6 +40,7 @@
 !> 2024-11-21 | K. Asmar, J. Meng, G. Vandenberghe | CALCHIPSI
 !> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
 !> 2025-05-05 | Ben Blake  | Add sanity checks for RRFSv1 implementation
+!> 2025-12-16 | Ben Blake  | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -568,12 +569,13 @@
 !> 2015-??-?? | S Moorthi     | Optimization and threading
 !> 2021-07-28 | W Meng        | Restrict computation from undefined grids
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
+!> 2025-07-22 | K Halbert / E Colon | CAPE/CINH use shelter fields
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
                          CINS,PPARC,ZEQL,THUND)
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: teql,ieql
+      use vrbls2d,    only: teql,ieql,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
@@ -581,7 +583,7 @@
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval, &
-                            ista_2l, iend_2u, ista, iend
+                            ista_2l, iend_2u, ista, iend, capecin_2m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -651,7 +653,7 @@
           THUNDER(I,J) = .TRUE.
         ENDDO
       ENDDO
-!
+
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
@@ -694,8 +696,14 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  TBTK   = T(I,J,KB)
-                  QBTK   = max(0.0, Q(I,J,KB))
+                  IF (capecin_2m .AND. KB == LM) THEN
+                      PKL = PSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)
+                      QBTK = max(0.0, QSHLTR(I,J))
+                  ELSE
+                      TBTK   = T(I,J,KB)
+                      QBTK   = max(0.0, Q(I,J,KB))
+                  ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
                   PKL    = P1D(I,J)
@@ -1052,7 +1060,7 @@
                           CAPE,CINS,LFC,ESRHL,ESRHH,      &
                           DCAPE,DGLD,ESP)
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: fis,ieql
+      use vrbls2d,    only: fis,ieql,pshltr,tshltr,qshltr
       use gridspec_mod, only: gridtype
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
@@ -1061,7 +1069,7 @@
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval,&
-                            ista_2l, iend_2u,     ista, iend,             ista_m, iend_m
+                            ista_2l, iend_2u, ista, iend, ista_m, iend_m, capecin_2m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1254,8 +1262,14 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  TBTK   = T(I,J,KB)
-                  QBTK   = max(0.0, Q(I,J,KB))
+                  IF (capecin_2m .AND. KB == LM) THEN
+                      PKL = PSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)
+                      QBTK = max(0.0, QSHLTR(I,J))
+                  ELSE 
+                      TBTK   = T(I,J,KB)
+                      QBTK   = max(0.0, Q(I,J,KB))
+                  ENDIF
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
                   PKL    = P1D(I,J)

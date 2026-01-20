@@ -49,6 +49,8 @@
 !!   2024-01-07 | H LIN | Add CIT output in NCAR GTG turbulence calculation
 !!   2024-01-09 | Y Mao | Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
 !!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
+!!   2025-07-22 | K Halbert / E Colon | Updated mixed-layer CAPE/CINH to include 2m field
+!!   2025-12-16 | Ben Blake | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !> 
 !> @author RUSS TREADON 
 !> @date 1992-12-20
@@ -61,15 +63,15 @@
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg, cit
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700,&
-                            teql,ieql, cape,cin
+                            teql,ieql, cape,cin,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog, tfrz, small, g
+                            rhmin, rgamog, tfrz, small, g, capa
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, &
                             ista, iend, ista_m, iend_M, ista_2l, iend_2u, &
-                            ifi_flight_levels, gtg_on
+                            ifi_flight_levels, gtg_on, capecin_2m
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
@@ -138,7 +140,7 @@
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
               ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2),work1,work2,work3, &
               SCINtmp,MUCAPEtmp,MUCINtmp,MLLCLtmp,ESHRtmp,MLCAPEtmp,STP,&
-              FSHRtmp,MLCINtmp,SLCLtmp,LAPSE,SHIP
+              FSHRtmp,MLCINtmp,SLCLtmp,LAPSE,SHIP,t2m,q2m
 
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
       integer ISTART,ISTOP,JSTART,JSTOP
@@ -3093,11 +3095,29 @@
              DO I=ISTA,IEND
                EGRID1(I,J) = -H99999
                EGRID2(I,J) = -H99999
-               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +             &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               P1D(I,J) = spval
+               T1D(I,J) = spval
+               Q1D(I,J) = spval
+               IF (PBND(I,J,1) < spval .and. PBND(I,J,2) < spval .and.  &
+                   PBND(I,J,3) < spval .and. TBND(I,J,1) < spval .and.  &
+                   TBND(I,J,2) < spval .and. TBND(I,J,3) < spval .and.  &
+                   QBND(I,J,1) < spval .and. QBND(I,J,2) < spval .and.  &
+                   QBND(I,J,3) < spval) THEN
+                 IF (capecin_2m) THEN
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
+                                PBND(I,J,3) + PSHLTR(I,J))/4
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
+                                TBND(I,J,3) + TSHLTR(I,J))/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
+                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
+                 ELSE
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+                 ENDIF
+               ENDIF
              ENDDO
            ENDDO
 !
@@ -3588,11 +3608,29 @@
 !          ENDDO
 !          DO J=JSTA,JEND
 !          DO I=ISTA,IEND
-               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +             &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               P1D(I,J) = spval
+               T1D(I,J) = spval
+               Q1D(I,J) = spval
+               IF (PBND(I,J,1) < spval .and. PBND(I,J,2) < spval .and.  &
+                   PBND(I,J,3) < spval .and. TBND(I,J,1) < spval .and.  &
+                   TBND(I,J,2) < spval .and. TBND(I,J,3) < spval .and.  &
+                   QBND(I,J,1) < spval .and. QBND(I,J,2) < spval .and.  &
+                   QBND(I,J,3) < spval) THEN
+                 IF (capecin_2m) THEN
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
+                                PBND(I,J,3) + PSHLTR(I,J))/4
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
+                                TBND(I,J,3) + TSHLTR(I,J))/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
+                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
+                 ELSE
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+                 ENDIF
+               ENDIF
              ENDDO
            ENDDO
 
@@ -3929,8 +3967,8 @@
              endif
             ENDIF
 
-!U inflow based to 50% EL shear vector
-
+! U component of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
             IF (IGET(983)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
@@ -3956,7 +3994,8 @@
              endif
             ENDIF
 
-!V inflow based to 50% EL shear vector
+! V component of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
             IF (IGET(984)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
@@ -3982,7 +4021,8 @@
              endif
             ENDIF
 
-!Inflow based (ESFC) to (50%) EL shear magnitude
+! Magnitude of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
             IF (IGET(985)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
@@ -4221,7 +4261,7 @@
              endif
            ENDIF
 
-!Effective Layer Supercell Parameter
+!Effective Layer Significant Tornado Parameter
             IF (IGET(991)>0) THEN
             DO J=JSTA,JEND
                DO I=ISTA,IEND
@@ -4278,13 +4318,29 @@
                EGRID6(I,J) = -H99999
                EGRID7(I,J) = -H99999
                EGRID8(I,J) = -H99999
-               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +             &
                             LVLBND(I,J,3))/3
-               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-               T1D(I,J)  = (TVIRTUAL(TBND(I,J,1),QBND(I,J,1)) +       &
-                            TVIRTUAL(TBND(I,J,2),QBND(I,J,2)) +       &
-                            TVIRTUAL(TBND(I,J,3),QBND(I,J,3)))/3
-               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+               P1D(I,J) = spval
+               T1D(I,J) = spval
+               Q1D(I,J) = spval
+               IF (PBND(I,J,1) < spval .and. PBND(I,J,2) < spval .and.  &
+                   PBND(I,J,3) < spval .and. TBND(I,J,1) < spval .and.  &
+                   TBND(I,J,2) < spval .and. TBND(I,J,3) < spval .and.  &
+                   QBND(I,J,1) < spval .and. QBND(I,J,2) < spval .and.  &
+                   QBND(I,J,3) < spval) THEN
+                 IF (capecin_2m) THEN
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
+                                PBND(I,J,3) + PSHLTR(I,J))/4
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
+                                TBND(I,J,3) + TSHLTR(I,J))/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
+                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
+                 ELSE
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+                 ENDIF
+               ENDIF
              ENDDO
            ENDDO
 
