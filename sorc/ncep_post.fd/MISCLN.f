@@ -4382,7 +4382,7 @@
              endif
            ENDIF
 
-        ENDIF   !END FV3R/RTMA BLOCK
+        ENDIF   !END RTMA BLOCK
 
 
 !    Critical Angle
