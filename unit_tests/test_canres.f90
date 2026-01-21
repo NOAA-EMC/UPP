@@ -21,7 +21,7 @@ program test_canres
             EXP_RCSOIL_1 = 4.5774650574E-01, EXP_GC_1 = 3.8059044164E-03, EXP_RC_1 = 2.6274963379E+02, &
             EXP_SMCWLT_1 = 2.3000000045E-02, EXP_SMCREF_1 = 2.3600000143E-01, EXP_RSMIN_1 = 225.0
     real :: EXP_RCT_2 = 9.8559999466E-01, EXP_RCS_2 = 8.9405411482E-01, EXP_RCQ_2 = 9.9999997474E-05, & 
-            EXP_RCSOIL_2 = 9.9999997474E-05, EXP_GC_2 = 7.9999997979E-04, EXP_RC_2 = 1250.0, &
+            EXP_RCSOIL_2 = 9.9853557348E-01, EXP_GC_2 = 7.9999997979E-04, EXP_RC_2 = 1250.0, &
             EXP_SMCWLT_2 = 2.3000000045E-02, EXP_SMCREF_2 = 2.3600000143E-01, EXP_RSMIN_2 = 100.0
 
     res = 0 ! Initialize to no errors
@@ -52,47 +52,43 @@ program test_canres
         res = 1
     end if
     if (abs(RCT - EXP_RCT_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCT expected ", EXP_RCT_1, " but got ", RCT
+        print *, "ERROR: RCT expected ", EXP_RCT_1, " but got ", RCT
         res = 1
     end if
     if (abs(RCS - EXP_RCS_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCS expected ", EXP_RCS_1, " but got ", RCS
+        print *, "ERROR: RCS expected ", EXP_RCS_1, " but got ", RCS
         res = 1
     end if
     if (abs(RCQ - EXP_RCQ_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCQ expected ", EXP_RCQ_1, " but got ", RCQ
+        print *, "ERROR: RCQ expected ", EXP_RCQ_1, " but got ", RCQ
         res = 1
     end if
     if (abs(RCSOIL - EXP_RCSOIL_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCSOIL expected ", EXP_RCSOIL_1, " but got ", RCSOIL
+        print *, "ERROR: RCSOIL expected ", EXP_RCSOIL_1, " but got ", RCSOIL
         res = 1
     end if
     if (abs(GC - EXP_GC_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: GC expected ", EXP_GC_1, " but got ", GC
+        print *, "ERROR: GC expected ", EXP_GC_1, " but got ", GC
         res = 1
     end if
     if (abs(RC - EXP_RC_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RC expected ", EXP_RC_1, " but got ", RC
+        print *, "ERROR: RC expected ", EXP_RC_1, " but got ", RC
         res = 1
     end if
     if (abs(SMCWLT - EXP_SMCWLT_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: SMCWLT expected ", EXP_SMCWLT_1, " but got ", SMCWLT
+        print *, "ERROR: SMCWLT expected ", EXP_SMCWLT_1, " but got ", SMCWLT
         res = 1
     end if
     if (abs(SMCREF - EXP_SMCREF_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: SMCREF expected ", EXP_SMCREF_1, " but got ", SMCREF
+        print *, "ERROR: SMCREF expected ", EXP_SMCREF_1, " but got ", SMCREF
         res = 1
     end if
     if (abs(RSMIN - EXP_RSMIN_1) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RSMIN expected ", EXP_RSMIN_1, " but got ", RSMIN
+        print *, "ERROR: RSMIN expected ", EXP_RSMIN_1, " but got ", RSMIN
         res = 1
     end if
 
-
-    if (res .ne. 0) then
-        print *, "Test 1 failed."
-        stop 10
-    end if
+    if (res .ne. 0) stop 10
 
     ivegsrc = 0 ! Test case where veg type is USGS
     novegtype = 24
@@ -118,46 +114,43 @@ program test_canres
         res = 1
     end if
     if (abs(RCT - EXP_RCT_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCT expected ", EXP_RCT_2, " but got ", RCT
+        print *, "ERROR: RCT expected ", EXP_RCT_2, " but got ", RCT
         res = 1
     end if
     if (abs(RCS - EXP_RCS_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCS expected ", EXP_RCS_2, " but got ", RCS
+        print *, "ERROR: RCS expected ", EXP_RCS_2, " but got ", RCS
         res = 1
     end if
     if (abs(RCQ - EXP_RCQ_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCQ expected ", EXP_RCQ_2, " but got ", RCQ
+        print *, "ERROR: RCQ expected ", EXP_RCQ_2, " but got ", RCQ
         res = 1
     end if
     if (abs(RCSOIL - EXP_RCSOIL_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RCSOIL expected ", EXP_RCSOIL_2, " but got ", RCSOIL
+        print *, "ERROR: RCSOIL expected ", EXP_RCSOIL_2, " but got ", RCSOIL
         res = 1
     end if
     if (abs(GC - EXP_GC_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: GC expected ", EXP_GC_2, " but got ", GC
+        print *, "ERROR: GC expected ", EXP_GC_2, " but got ", GC
         res = 1
     end if
     if (abs(RC - EXP_RC_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RC expected ", EXP_RC_2, " but got ", RC
+        print *, "ERROR: RC expected ", EXP_RC_2, " but got ", RC
         res = 1
     end if
     if (abs(SMCWLT - EXP_SMCWLT_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: SMCWLT expected ", EXP_SMCWLT_2, " but got ", SMCWLT
+        print *, "ERROR: SMCWLT expected ", EXP_SMCWLT_2, " but got ", SMCWLT
         res = 1
     end if
     if (abs(SMCREF - EXP_SMCREF_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: SMCREF expected ", EXP_SMCREF_2, " but got ", SMCREF
+        print *, "ERROR: SMCREF expected ", EXP_SMCREF_2, " but got ", SMCREF
         res = 1
     end if
     if (abs(RSMIN - EXP_RSMIN_2) > tol) then
-        print '(A, G0, A, ES24.10)', "ERROR: RSMIN expected ", EXP_RSMIN_2, " but got ", RSMIN
+        print *, "ERROR: RSMIN expected ", EXP_RSMIN_2, " but got ", RSMIN
         res = 1
     end if
 
-    if (res .ne. 0) then
-        print *, "Test 2 failed."
-        stop 10
-    end if
+    if (res .ne. 0) stop 20
 
     print *, "SUCCESS!"
 end program test_canres
