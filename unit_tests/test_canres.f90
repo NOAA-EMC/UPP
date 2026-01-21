@@ -27,7 +27,7 @@ program test_canres
     res = 0 ! Initialize to no errors
 
     ivegsrc = 1 ! Test cases where veg type is IGBP
-    nsoil = npts
+    nsoil = 4
     novegtype = 20
     SOLAR = 600.0
     SFCTMP = 295.0
