@@ -8,24 +8,22 @@ program test_cldfrac_zhao
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: nx = 3, ny = 4
+    integer, parameter :: nx = 3, ny = 3
     integer :: i, j, res
     integer :: IX, NLAY, IFLIP
     real(r_kind), dimension(1:nx,1:ny) :: PLYR, TLYR, QLYR, QSTL, CLW
-    real(r_kind), dimension(1:nx,1:ny-1) :: CLDTOT, EXP_CLDTOT
+    real(r_kind), dimension(1:nx,1:ny) :: CLDTOT, EXP_CLDTOT
 
     IX = nx
-    NLAY = ny - 1
+    NLAY = ny
 
     PLYR(1:nx,1) = 400.0
     PLYR(1:nx,2) = 650.0
     PLYR(1:nx,3) = 900.0
-    PLYR(1:nx,4) = 1100.0
 
     TLYR(1:nx,1) = 240.0
     TLYR(1:nx,2) = 260.0
     TLYR(1:nx,3) = 280.0
-    TLYR(1:nx,4) = 300.0
 
     QSTL = 0.0100
     QLYR = 0.0090
@@ -56,8 +54,8 @@ program test_cldfrac_zhao
     call progcld1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
 
     res = 0
-    do i = 1, IX
-        do j = 1, NLAY
+    do i = 1, nx
+        do j = 1, ny
             if (abs(CLDTOT(i,j) - EXP_CLDTOT(i,j)) > tol) then
                 print *, 'CLDTOT Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_CLDTOT(i,j), &
@@ -72,8 +70,8 @@ program test_cldfrac_zhao
     ! Test Case: IFLIP = 1 (input data from sfc to toa)
     IFLIP = 1
     call progcld1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
-    do i = 1, IX
-        do j = 1, NLAY
+    do i = 1, nx
+        do j = 1, ny
             if (abs(CLDTOT(i,j) - EXP_CLDTOT(i,j)) > tol) then
                 print *, 'CLDTOT Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_CLDTOT(i,j), &
