@@ -67,7 +67,10 @@ program test_cldfrac_zhao
     
     if (res .ne. 0) stop 10
 
-    
+    ! There appears to be a problem with the IFLIP = 1 case in the original code.
+    ! The way the array sizes and loops are structured seems to lead to out-of-bounds access.
+    ! This test case will need to be revisited once the original subroutine is corrected.
+    !
     ! Test Case: IFLIP = 1 (input data from sfc to toa)
     !IFLIP = 1
     !call progcld1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
