@@ -5016,6 +5016,7 @@
 !> 2024-11-15 | Jesse Meng | Initial
 !> 2025-04-23 | Jesse Meng | Bug fix zmid calculation in very thin layers
 !> 2025-06-12 | Jesse Meng | Bug fix RH converted from decimal to percent. SLR masking procedure modified
+!> 2026-01-14 | Nick Szapiro | fix for thread safe
 !>
 !> @author Jesse Meng @date 2024-11-15
 
@@ -5154,7 +5155,7 @@
 
       slr = spval
 
-!$omp parallel do private(i,j)      
+!$omp parallel do private(i,j,swnd)      
       do j=jsta,jend
       do i=ista,iend
       if(zsfc(i,j)<spval) then

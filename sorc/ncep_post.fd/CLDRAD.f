@@ -89,6 +89,7 @@
 !>                                |    logic, rather than a dedicated parameter number.
 !> 2025-05-05 | Ben Blake         | Add sanity checks for RRFSv1 implementation
 !> 2025-05-08 | Jaymes Kenyon     | For FV3 and MPAS applications, prevent cloud base from being diagnosed as below ground
+!> 2026-01-14 | Nick Szapiro       | Fixes for thread safe
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -3813,7 +3814,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     CURRENT OUTGOING SW RADIATION AT THE SURFACE.
       IF (IGET(141)>0) THEN
         GRID1 = spval
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,FACTRS)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             IF(RSWOUT(I,J)<SPVAL) THEN
@@ -3936,7 +3937,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     CURRENT (instantaneous) INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
       IF (IGET(262)>0) THEN
          GRID1 = spval
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,FACTRS)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
             IF(RSWINC(I,J)<SPVAL) THEN
