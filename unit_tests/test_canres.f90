@@ -90,7 +90,7 @@ program test_canres
 
 
     if (res .ne. 0) then
-        print * "Test 1 failed."
+        print *, "Test 1 failed."
         stop 10
     end if
 
@@ -155,7 +155,7 @@ program test_canres
     end if
 
     if (res .ne. 0) then
-        print * "Test 2 failed."
+        print *, "Test 2 failed."
         stop 10
     end if
 
