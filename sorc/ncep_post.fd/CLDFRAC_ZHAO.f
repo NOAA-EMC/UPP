@@ -190,7 +190,7 @@
           kinver (i) = NLAY
         enddo
 
-        do k = 2, NLAY
+        do k = 2, NLAY-1
 !$omp parallel do private(i,tem1)
           do i = 1, IX
             if (plyr(i,k) > 600.0 .and. (.not.inversn(i))) then
