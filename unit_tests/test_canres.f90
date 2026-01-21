@@ -8,7 +8,7 @@ program test_canres
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: npts = 3
+    integer, parameter :: npts = 4
     integer :: res
     ! Input variables
     integer :: IVEG, ISOIL
@@ -21,13 +21,13 @@ program test_canres
             EXP_RCSOIL_1 = 4.5774650574E-01, EXP_GC_1 = 3.8059044164E-03, EXP_RC_1 = 2.6274963379E+02, &
             EXP_SMCWLT_1 = 2.3000000045E-02, EXP_SMCREF_1 = 2.3600000143E-01, EXP_RSMIN_1 = 225.0
     real :: EXP_RCT_2 = 9.8559999466E-01, EXP_RCS_2 = 8.9405411482E-01, EXP_RCQ_2 = 9.9999997474E-05, & 
-            EXP_RCSOIL_2 = 9.9853557348E-01, EXP_GC_2 = 7.9999997979E-04, EXP_RC_2 = 1250.0, &
+            EXP_RCSOIL_2 =  5.5774652958E-01, EXP_GC_2 = 7.9999997979E-04, EXP_RC_2 = 1250.0, &
             EXP_SMCWLT_2 = 2.3000000045E-02, EXP_SMCREF_2 = 2.3600000143E-01, EXP_RSMIN_2 = 100.0
 
     res = 0 ! Initialize to no errors
 
     ivegsrc = 1 ! Test cases where veg type is IGBP
-    nsoil = 4
+    nsoil = npts
     novegtype = 20
     SOLAR = 600.0
     SFCTMP = 295.0
@@ -39,10 +39,12 @@ program test_canres
     SMC(1) = 0.50 ! GX > 1.0, will be clipped to 1.0
     SMC(2) = 0.00 ! GX < 0.0, will be clipped to 0.0
     SMC(3) = 0.15 ! 0.0 < GX < 1.0
+    SMC(4) = 0.15 
 
     SLDPTH(1) = 0.10
     SLDPTH(2) = 0.30
     SLDPTH(3) = 0.60
+    SLDPTH(4) = 0.0
     
     call CANRES(SOLAR, SFCTMP, Q2, SFCPRS, SMC, GC, RC, IVEG, ISOIL, RSMIN, &
                 NROOTS, SMCWLT, SMCREF, RCS, RCQ, RCT, RCSOIL, SLDPTH)
@@ -101,10 +103,12 @@ program test_canres
     SMC(1) = 0.00 ! GX < 0.0
     SMC(2) = 0.50 ! GX > 1.0
     SMC(3) = 0.15 ! 0.0 < GX < 1.0
+    SMC(4) = 0.15 
 
     SLDPTH(1) = 0.20 
     SLDPTH(2) = 0.20
     SLDPTH(3) = 0.60
+    SLDPTH(4) = 0.0
 
     call CANRES(SOLAR, SFCTMP, Q2, SFCPRS, SMC, GC, RC, IVEG, ISOIL, RSMIN, &
                 NROOTS, SMCWLT, SMCREF, RCS, RCQ, RCT, RCSOIL, SLDPTH)
