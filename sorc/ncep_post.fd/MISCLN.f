@@ -3712,7 +3712,7 @@
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0
-         IF (SUBMODELNAME == 'RTMA') THEN
+         IF (MODELNAME == 'RAPR' .AND. SUBMODELNAME == 'RTMA') THEN
 !---  IF USSING EL BASE & TOP COMPUTED BY NEW SCHEME FOR THE
 !RELATED VARIABLES
 !$omp parallel do private(i,j)
