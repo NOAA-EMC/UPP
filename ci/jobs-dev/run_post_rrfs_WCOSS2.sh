@@ -60,6 +60,7 @@ IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='FV3R'
+SUBMODELNAME='RTMA'
 fileNameFlux='$homedir/data_in/rrfs/phyf${fhr}.nc'
 /
 &NAMPGB
