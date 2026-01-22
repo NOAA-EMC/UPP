@@ -2,7 +2,7 @@
 !
 ! This program tests the CANRES() subroutine.
 !
-! Alyson Stahl, 12/2025
+! Alyson Stahl, 1/2026
 program test_canres
     use ctlblk_mod, only: novegtype, nsoil, ivegsrc
     implicit none

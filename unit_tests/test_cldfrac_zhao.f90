@@ -2,7 +2,7 @@
 !
 ! This program tests the progcld1() subroutine in CLDFRAC_ZHAO.f
 !
-! Alyson Stahl, 12/2025
+! Alyson Stahl, 1/2026
 program test_cldfrac_zhao
     use kinds, only: r_kind
     implicit none

@@ -2,7 +2,7 @@
 !
 ! This program tests the CLMAX() subroutine.
 !
-! Alyson Stahl, 12/2025
+! Alyson Stahl, 1/2026
 program test_clmax
     use vrbls3d, only: zint, q2, pint
     use masks, only: lmh, sm
