@@ -42,7 +42,8 @@ program test_geo_zenith_angle
     EXP_ZA = (/0.0, 0.0, 0.0, 0.0, 0.0/)
 
     do i = 1, ntests
-        call GEO_ZENITH_ANGLE(RLAT(i), RLON(i), SLAT(i), SLON(i), ZA(i))
+        ! First two arguments are unused in current implementation
+        call GEO_ZENITH_ANGLE(0, 0, RLAT(i), RLON(i), SLAT(i), SLON(i), ZA(i))
     end do
 
     res = 0
