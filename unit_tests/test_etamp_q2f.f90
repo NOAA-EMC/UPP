@@ -50,10 +50,15 @@ program test_etamp_q2f
     ! Test Case: F_RAIN = 1.0 with QQW < 0
     QQW(2,2,1) = -0.0001
 
-    EXP_F_RAIN = reshape([7.8571426868E-01, 0.0, 7.8571426868E-01, 1.0], [npts, npts, nlevs])
-    EXP_F_ICE = reshape([0.0, 1.0, 1.0, 2.6845636964E-01], [npts, npts, nlevs])
-    EXP_F_RIMEF = reshape([1.0, 100.0, 1.0, 3.7499997616], [npts, npts, nlevs])
-    EXP_CWM = reshape([1.4000000432E-02, 4.0000001900E-03, 1.4000000432E-02, 1.4900000766E-02], [npts, npts, nlevs])
+    EXP_F_RAIN = reshape([7.8571426868E-01, 0.0, 7.8571426868E-01, 1.0], &
+                            [npts, npts, nlevs])
+    EXP_F_ICE = reshape([0.0, 1.0, 1.0, 2.6845636964E-01], &
+                            [npts, npts, nlevs])
+    EXP_F_RIMEF = reshape([1.0, 100.0, 1.0, 3.7499997616], & 
+                            [npts, npts, nlevs])
+    EXP_CWM = reshape([1.4000000432E-02, 4.0000001900E-03, &
+                        1.4000000432E-02, 1.4900000766E-02], &
+                        [npts, npts, nlevs])
     
     call ETAMP_Q2F(QRIMEF, QQI, QQR, QQW, CWM, F_RAIN, F_ICE, F_RIMEF, T)
 
