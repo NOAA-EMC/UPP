@@ -8,7 +8,7 @@
 ! FPVS() has mostly been replaced, but is still used in
 ! CALMICT.f, so it is still being tested here.
 !
-! Alyson Stahl, 1/2025
+! Alyson Stahl, 1/2026
 program test_gpvs
     use svptbl_mod, only: nx, tbpvs, tbpvs0
     implicit none

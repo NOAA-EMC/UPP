@@ -2,7 +2,7 @@
 !
 ! This program tests the GEO_ZENITH_ANGLE() subroutine.
 !
-! Alyson Stahl, 1/2025
+! Alyson Stahl, 1/2026
 program test_geo_zenith_angle
     implicit none
 

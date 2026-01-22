@@ -2,7 +2,7 @@
 !
 ! This program tests the ICAOHEIGHT() subroutine.
 !
-! Alyson Stahl, 1/2025
+! Alyson Stahl, 1/2026
 program test_icaoheight
     use ctlblk_mod, only: jsta, jend, spval, ista, iend
     implicit none
