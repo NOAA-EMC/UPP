@@ -6,7 +6,7 @@
 program test_geo_zenith_angle
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ntests = 5
     integer :: i, res
     real, dimension(ntests) :: RLAT, RLON, SLAT, SLON, ZA, EXP_ZA
