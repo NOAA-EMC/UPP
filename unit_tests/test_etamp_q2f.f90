@@ -2,7 +2,7 @@
 !
 ! This program tests the ETAMP_Q2F() subroutine.
 !
-! Alyson Stahl, 1/2025
+! Alyson Stahl, 1/2026
 program test_etamp_q2f
     use ctlblk_mod, only:   lm,jsta,jend,jsta_2l,jend_2u,&
                             ista,iend,ista_2l,iend_2u
