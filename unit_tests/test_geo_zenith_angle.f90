@@ -38,8 +38,7 @@ program test_geo_zenith_angle
     SLAT(5) = 0.0
     SLON(5) = 0.0
 
-    ! TODO: Fix this later.
-    EXP_ZA = (/0.0, 0.0, 0.0, 0.0, 0.0/)
+    EXP_ZA = (/ 41.077945709,  117.58034515, 180.0, 0.0, 0.0 /)
 
     do i = 1, ntests
         ! First two arguments are unused in current implementation
@@ -48,8 +47,14 @@ program test_geo_zenith_angle
 
     res = 0
     do i = 1, ntests
-        print '(A,I0,A,ES24.10)', "ZA(", i, ") = ", ZA(i)
+        if (abs(ZA(i) - EXP_ZA(i)) > tol) then
+            print *, 'Test ', i, ' failed: computed ZA = ', ZA(i), &
+                    ', expected ZA = ', EXP_ZA(i)
+            res = 1
+        end if
     end do
+    
+    if (res .ne. 0) stop 10
     
     print *, 'SUCCESS!'
 end program test_geo_zenith_angle
