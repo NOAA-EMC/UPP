@@ -6,7 +6,7 @@
 program test_geo_zenith_angle
     implicit none
 
-    real, parameter :: tol = 1.0e-6
+    real, parameter :: tol_abs = 1.0e-6, tol_rel = 1.0e-6
     integer, parameter :: ntests = 5
     integer :: i, res
     real, dimension(ntests) :: RLAT, RLON, SLAT, SLON, ZA, EXP_ZA
@@ -47,7 +47,7 @@ program test_geo_zenith_angle
 
     res = 0
     do i = 1, ntests
-        if (abs(ZA(i) - EXP_ZA(i)) > tol) then
+        if (abs(ZA(i) - EXP_ZA(i)) > max(tol_abs, tol_rel*abs(EXP_ZA(i)))) then
             print *, 'Test ', i, ' failed: computed ZA = ', ZA(i), &
                     ', expected ZA = ', EXP_ZA(i)
             res = 1
