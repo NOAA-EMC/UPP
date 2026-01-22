@@ -128,6 +128,14 @@ if(IFI_FOUND OR INTERNAL_IFI)
   add_definitions(-DUSE_IFI=1)
 endif()
 
+# Enforce 32bit for UPP
+# Intel
+string(REPLACE "-real-size 64" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+string(REPLACE " -r8 " " " CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+# GNU
+string(REPLACE "-fdefault-real-8" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+string(REPLACE "-fdefault-double-8" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+
 add_subdirectory(sorc)
 
 # Run unit tests.
