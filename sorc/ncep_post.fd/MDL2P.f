@@ -39,12 +39,13 @@
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
-!> 2024-09-23 | K Asmar		| Add velocity potential and streamfunction from wind vectors
+!> 2024-09-23 | K Asmar		    | Add velocity potential and streamfunction from wind vectors
 !> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
 !> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
 !> 2025-11-13 | L Pan           | enable aerosols to be output on isobaric surfaces
 !> 2025-11-17 | W Meng          | Correct variable allocation
 !> 2025-11-19 | W Meng          | Relocate dxm calculation
+!> 2026-01-06 | K Asmar			| Add convective wind gust calculation
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -120,6 +121,7 @@
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: CHI, PSI
+	  real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: WS850, WS950, GUSTCONV
 !
       INTEGER K, NSMOOTH
 !
@@ -301,7 +303,8 @@
          (IGET(257) > 0) .OR. (IGET(258) > 0) .OR.      &
          (IGET(294) > 0) .OR. (IGET(268) > 0) .OR.      &
          (IGET(331) > 0) .OR. (IGET(326) > 0) .OR.      &
-	 (IGET(1021) > 0) .OR. (IGET(1022) > 0) .OR.	&
+	     (IGET(1021) > 0) .OR. (IGET(1022) > 0) .OR.	&
+		 (IGET(1026) > 0) .OR.							&
 ! add D3D fields
          (IGET(354) > 0) .OR. (IGET(355) > 0) .OR.      &
          (IGET(356) > 0) .OR. (IGET(357) > 0) .OR.      &
@@ -350,6 +353,10 @@
         if(gridtype == 'B' .or. gridtype == 'E')                         &
           call exch(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LP1)) 
  
+! wind speeds at 850 and 950 mb for HAFS wind gust
+ 	WS850 = SPVAL
+	WS950 = SPVAL
+
         DO LP=1,LSM
 
 !         if(me == 0) print *,'in LP loop me=',me,'UH=',UH(1:10,JSTA,LP), &
@@ -1919,6 +1926,49 @@
             endif
           ENDIF
         ENDIF
+!
+! *** WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST
+        IF (IGET(1026) > 0) THEN
+		! print*, 'HAFS GUST SPL: ', LP, SPL(LP)
+          log1=.true.
+		  IF ((LP == 41) .OR. (LP == 45)) THEN   ! ONLY 850 AND 950 MB FOR WIND SPEED   
+          if ( log1 ) then
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=ISTA,IEND
+                 GRID1(I,J) = USL(I,J)
+                 GRID2(I,J) = VSL(I,J)
+               ENDDO
+             ENDDO
+
+          !  IF (SMFLAG) THEN
+          !    NSMOOTH=nint(5.*(13500./dxm))
+          !    call AllGETHERV(GRID1)
+          !    do k=1,NSMOOTH
+          !      CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+          !    end do
+          !    NSMOOTH=nint(5.*(13500./dxm))
+          !    call AllGETHERV(GRID2)
+          !    do k=1,NSMOOTH
+          !      CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
+          !    end do
+          !  ENDIF
+            
+            DO J=JSTA,JEND
+			  DO I=ISTA,IEND
+                           IF(GRID1(I,J)<SPVAL .and.  GRID2(I,J)<SPVAL) then
+			    IF (LP == 41) THEN
+			      WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+				ELSE   
+				  WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+				ENDIF
+                           ENDIF
+			  ENDDO
+			ENDDO
+		  endif
+          ENDIF
+        ENDIF
+!
 !     
 !***  ABSOLUTE VORTICITY
 !
@@ -4966,6 +5016,31 @@
               enddo
             enddo
          endif
+      ENDIF
+
+!
+! *** HAFS WIND GUST
+!
+      IF (IGET(1026) > 0) THEN
+ 		CALL CALGUSTCONV(WS850,WS950,GUSTCONV)
+!$omp  parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+             GRID1(I,J) = GUSTCONV(I,J)
+           ENDDO
+         ENDDO
+		if(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(1026))
+!$omp parallel do private(i,j,ii,jj)
+        do j=1,jend-jsta+1
+          jj = jsta+j-1
+          do i=1,iend-ista+1
+            ii = ista+i-1
+            datapd(i,j,cfld) = GRID1(ii,jj)
+          enddo
+        enddo
+       endif
       ENDIF
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
