@@ -38,6 +38,8 @@
 !      04-15-2003   yu-tai hou        - rewritten in frotran 90         !
 !         modulized form, seperate prognostic and diagnostic methods    !
 !         into two packages.                                            !
+!      01-23-2025   alyson stahl      - fixed out of bounds bug in      !
+!                                       iflip !=0 case                  !
 !                                                                       !
 ! usage:         call progcld1                                          !
 !                                                                       !
