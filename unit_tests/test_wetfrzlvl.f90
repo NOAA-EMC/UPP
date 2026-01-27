@@ -79,10 +79,12 @@ program test_wetfrzlvl
     thz0(1,2) = 270.0
     ths(1,2)  = 270.0
 
-    ! Test Case: t(1,3,nlevs) = tsfc
-    t(1,3,nlevs) = sm(1,3) * thz0(1,3) + (1.0 - sm(1,3)) * ths(1,3)  &
+    ! Test Case: t(1,3,nlevs-1) = t(1,3,nlevs) =  tsfc
+    t_sfc = sm(1,3) * thz0(1,3) + (1.0 - sm(1,3)) * ths(1,3)  &
                     * (pint(1,3,nlevs+1)/p1000)**capa
-
+    t(1,3,nlevs-1) = t_sfc
+    t(1,3,nlevs)   = t_sfc
+    
     call WETFRZLVL(TWET, ZWET)
 
     do i = ista, iend
