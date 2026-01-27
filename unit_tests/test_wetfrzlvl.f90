@@ -78,13 +78,14 @@ program test_wetfrzlvl
     ! Test Case:  tsfc < tfrz (tfrz = 273.15 K)
     thz0(1,2) = 270.0
     ths(1,2)  = 270.0
+    EXP_ZWET(1,2) = -5.3279840088E+02
 
-    ! Test Case: t(1,3,nlevs-1) = t(1,3,nlevs) =  tsfc
+    ! Test Case: t(1,3,k) = tsfc
     t_sfc = sm(1,3) * thz0(1,3) + (1.0 - sm(1,3)) * ths(1,3)  &
                     * (pint(1,3,nlevs+1)/p1000)**capa
-    t(1,3,nlevs-1) = t_sfc
-    t(1,3,nlevs)   = t_sfc
-    
+    do k= 1, nlevs
+        t(1,3,k) = t_sfc
+    end do
     call WETFRZLVL(TWET, ZWET)
 
     do i = ista, iend
