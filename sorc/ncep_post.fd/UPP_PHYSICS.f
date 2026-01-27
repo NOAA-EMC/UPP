@@ -569,6 +569,7 @@
 !> 2021-07-28 | W Meng        | Restrict computation from undefined grids
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
 !> 2025-07-22 | K Halbert / E Colon | CAPE/CINH use shelter fields
+!> 2025-12-16 | B Blake       | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
@@ -582,7 +583,7 @@
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval, &
-                            ista_2l, iend_2u, ista, iend
+                            ista_2l, iend_2u, ista, iend, capecin_2m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -695,7 +696,7 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  IF (KB == LM) THEN 
+                  IF (capecin_2m .AND. KB == LM) THEN 
                       PKL = PSHLTR(I,J)
                       TBTK = TSHLTR(I,J)
                       QBTK = max(0.0, QSHLTR(I,J))
@@ -1053,6 +1054,8 @@
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
 !> 2022-08-27 | S Trahan      | Fixed bug in CALCAPE2 where extreme atmospheric conditions cause an out-of-bounds access
 !> 2022-09-01 | S Trahan      | Fixed another bug in CALCAPE2 where extreme atmospheric conditions cause an out-of-bounds access
+!> 2025-07-22 | K Halbert / E Colon | CAPE/CINH use shelter fields
+!> 2025-12-16 | B Blake       | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &  
@@ -1068,7 +1071,7 @@
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval,&
-                            ista_2l, iend_2u,     ista, iend,             ista_m, iend_m
+                            ista_2l, iend_2u, ista, iend, ista_m, iend_m, capecin_2m
       use exch_upp_mod, only: exch
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1262,7 +1265,7 @@
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
-                  IF (KB == LM) THEN 
+                  IF (capecin_2m .AND. KB == LM) THEN 
                       PKL = PSHLTR(I,J)
                       TBTK = TSHLTR(I,J)
                       QBTK = max(0.0, QSHLTR(I,J))
