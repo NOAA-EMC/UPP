@@ -101,7 +101,7 @@ pipeline {
 						if ((label.matches("hera-RT"))) {
               echo "Inside Hera Branch"
               echo "Remove label hera-RT"
-              sh 'curl --silent -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${API_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT'
+              sh 'curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${API_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT'
               echo "Label Removed"
             }
 				  }    
