@@ -67,7 +67,7 @@ program test_ttblex
 
     ! TODO: For one (i,j) point in (1:npts,1:npts), modify the input arrays
     ! so that IPTB and ITHTB will fall below 1. Replace the ??? with appropriate code.
-    PMIDL(1,1) = PL - 1000.0      ! force TPK < 0 -> IPTB < 1 before clamp
+    PMIDL(1,1) = PL - 3000.0      ! force TPK <= -1 -> IPTB < 1 before clamp
     THESP(1,1) = THE0(1) - 5.0    ! ensure THESP < BTHK for negative TTHK
     STHE(1)    = 0.1              ! small scale to make TTHK <= -1 -> ITHTB < 1
 
