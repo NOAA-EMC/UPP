@@ -12,8 +12,9 @@ program test_wetfrzlvl
     implicit none
     
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: npts = 3, nlevs = 4
+    integer, parameter :: npts = 3, nlevs = 30
     integer :: i, j, k, res
+    real :: z_sfc, z_top, dz, p0, H, z_mid, t_sfc
     real, dimension(1:npts,1:npts,1:nlevs) :: TWET
     real, dimension(1:npts,1:npts) :: ZWET, EXP_ZWET
 
@@ -38,31 +39,49 @@ program test_wetfrzlvl
     allocate(pint(ista_2l:iend_2u, jsta_2l:jend_2u, nlevs+1))
     allocate(t(ista_2l:iend_2u, jsta_2l:jend_2u, nlevs))
 
-    sm   = 0.0
-    fis  = 0.0
-    thz0 = 285.0
-    ths  = 285.0
+    ! Initialize default inputs
+    sm   = 0.5          ! mixed land/sea fraction
+    fis  = 981.0        ! surface geopotential (m^2 s^-2) -> ~100 m MSL
+    thz0 = 290.0        ! potential temperature near surface (K)
+    ths  = 288.0        ! surface skin potential temperature (K)
     lmh  = real(nlevs)
 
     do i = ista_2l, iend_2u
         do j = jsta_2l, jend_2u
+            ! Set up physically realistic vertical profiles
+            ! Define surface and top heights, and compute uniform layer spacing
+            z_sfc = 100.0     ! meters MSL
+            z_top = 16000.0   ! meters MSL
+            dz    = (z_top - z_sfc)/real(nlevs)
+            p0    = 100000.0  ! Pa
+            H     = 8000.0    ! scale height (m)
+            t_sfc = 288.0     ! near-surface air temperature (K)
             do k= 1, nlevs+1
-                zint(i,j,k) = (k-1)*1000.0      ! interface heights [m]
-                pint(i,j,k) = 100000.0 - 20000.0*(k-1)  ! interface pressures [Pa]
+                zint(i,j,k) = z_top - dz*real(k-1)
+                pint(i,j,k) = p0*exp(-zint(i,j,k)/H)
             end do
             do k= 1, nlevs
-                t(i,j,k)    = 285.0 - 5.0*(k-1) ! layer temperatures [K]
-                TWET(i,j,k) = t(i,j,k) - 2.0     ! wet-bulb approx [K]
+                z_mid       = 0.5*(zint(i,j,k) + zint(i,j,k+1))
+                t(i,j,k)    = t_sfc - 6.5*((z_mid - z_sfc)/1000.0)   ! lapse rate 6.5 K/km
+                TWET(i,j,k) = t(i,j,k) - 1.0                          ! wet-bulb slightly below T
             end do
         end do
     end do
 
+    EXP_ZWET = 2.2307702637E+03  ! Expected output for the default test case
+    
+    ! Test Case: FIS = spval, expect ZWET = spval
+    FIS(1,1) = spval
+    EXP_ZWET(1,1) = spval
+
+    print '(ES24.10)', pint(1,2,nlevs+1)
     call WETFRZLVL(TWET, ZWET)
 
     do i = ista, iend
         do j = jsta, jend
-            print *, "Point (", i, ",", j, "): WETFRZLVL = ", ZWET(i,j)
+            print '(A,I0,A,I0,A,ES24.10)', "Point (", i, ",", j, "): WETFRZLVL = ", ZWET(i,j)
         end do
     end do
+
     print *, "SUCCESS!"
 end program test_wetfrzlvl
