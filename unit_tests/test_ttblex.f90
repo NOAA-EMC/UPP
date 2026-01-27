@@ -8,7 +8,8 @@ program test_ttblex
                         ista, iend, ista_2l, iend_2u
     implicit none
     
-    real, parameter :: tol = 1.0e-8
+    ! spval for tests
+    real, parameter :: tol = 1.0e-8, spval = 9.9e10
     integer, parameter :: npts = 2, ni = 50, nj = 50
     integer :: i, j, res
     ! Inputs
@@ -58,9 +59,9 @@ program test_ttblex
     end do
 
     ! Expected Outputs
-    EXP_TREF = reshape([2.2080192566E+02, 0.0000000000E+00, 2.6900000000E+02, 2.3158871460E+02], [npts, npts])
-    EXP_QQ   = reshape([-5.0000000745E-02, 0.0000000000E+00, 0.0000000000E+00, 6.9000053406E-01], [npts, npts])
-    EXP_PP   = reshape([-2.9679930210E-01, 0.0000000000E+00, 0.0000000000E+00, -8.1216067076E-01], [npts, npts])
+    EXP_TREF = reshape([2.2080192566E+02, spval, 2.6900000000E+02, 2.3158871460E+02], [npts, npts])
+    EXP_QQ   = reshape([-5.0000000745E-02, spval, 0.0000000000E+00, 6.9000053406E-01], [npts, npts])
+    EXP_PP   = reshape([-2.9679930210E-01, spval, 0.0000000000E+00, -8.1216067076E-01], [npts, npts])
     EXP_IPTB = reshape([1, 0, 49, 28], [npts, npts])
     EXP_ITHTB= reshape([1, 0, 49, 1], [npts, npts])
 
@@ -72,8 +73,15 @@ program test_ttblex
     PMIDL(1,2) = PL + (ITB + 10)/RDP
     THESP(1,2) = THE0(ITB-1) + STHE(ITB-1)*(JTB + 0.2)
 
-    ! Test Case: KARR = 0 
+    ! Test Case: KARR = 0. This won't compute anything and will leave output arrays as is.
+    ! Output arrays set to default value before call for predictable output. 
+    ! (spval for reals, 0 for integers)
     KARR(2,1) = 0
+    TREF = spval
+    QQ   = spval
+    PP   = spval
+    IPTB = 0
+    ITHTB= 0
 
     call TTBLEX(TREF, TTBL, ITB, JTB, KARR, PMIDL, PL, QQ, PP, RDP, THE0, &
                 STHE, RDTHE, THESP, IPTB, ITHTB)
