@@ -34,7 +34,10 @@ program test_ttblex
     ITB = ni
     JTB = nj
     KARR = 1
-    
+    PL = 10000.0      ! Pa
+    RDP = 5.0e-4      ! 1/Pa
+    RDTHE = 5.0e-2    ! 1/K
+
     ! Initialize temperature table (TTBL) in Kelvin
     do j = 1, nj
         do i = 1, ni
@@ -62,15 +65,17 @@ program test_ttblex
         STHE(i) = 40.0
     end do
 
-    ! Pressure table base and scaling
-    PL = 10000.0      ! Pa
-    RDP = 5.0e-4      ! 1/Pa
-
-    ! Theta table reciprocal scaling
-    RDTHE = 5.0e-2    ! 1/K
-
     call TTBLEX(TREF, TTBL, ITB, JTB, KARR, PMIDL, PL, QQ, PP, RDP, THE0, &
                 STHE, RDTHE, THESP, IPTB, ITHTB)
 
+    do i = 1, npts
+        do j = 1, npts
+            print '(A,I0,A,I0,A,ES24.10)', "TREF(", i, ",", j, ") = ", TREF(i,j)
+            print '(A,I0,A,I0,A,ES24.10)', "QQ(", i, ",", j, ")   = ", QQ(i,j)
+            print '(A,I0,A,I0,A,ES24.10)', "PP(", i, ",", j, ")   = ", PP(i,j)
+            print '(A,I0,A,I0,A,I0)',      "IPTB(", i, ",", j, ") = ", IPTB(i,j)
+            print '(A,I0,A,I0,A,I0)',      "ITHTB(", i, ",", j, ")= ", ITHTB(i,j)
+        end do
+    end do
     print *, "SUCCESS!"
 end program test_ttblex
