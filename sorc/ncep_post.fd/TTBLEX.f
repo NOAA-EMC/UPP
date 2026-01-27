@@ -66,6 +66,7 @@
             QQ(I,J)   = TPK-AINT(TPK)
             IF(AINT(TPK) >= ITB) THEN
               IPTB(I,J) = ITB
+              print *, "WARNING: TTBLEX - IPTB index exceeds table size"
             ELSE
               IPTB(I,J) = INT(TPK)+1
             ENDIF
@@ -73,11 +74,13 @@
             IF(IPTB(I,J) < 1) THEN
               IPTB(I,J) = 1
               QQ(I,J)   = 0.
+              print *, "WARNING: TTBLEX - IPTB index below table size"
             ENDIF
 !
             IF(IPTB(I,J) >= ITB) THEN
               IPTB(I,J) = ITB-1
               QQ(I,J)   = 0.
+              print *, "WARNING: TTBLEX - IPTB index exceeds table size"
             ENDIF
 !--------------BASE AND SCALING FACTOR FOR THE--------------------------
             IPTBK   = IPTB(I,J)
@@ -95,6 +98,7 @@
 
             IF(AINT(TTHK) >= JTB) THEN
               ITHTB(I,J) = JTB
+              print *, "WARNING: TTBLEX - ITHTB index exceeds table size"
             ELSE
               ITHTB(I,J) = INT(TTHK)+1
             ENDIF
@@ -102,11 +106,13 @@
             IF(ITHTB(I,J) < 1) THEN
               ITHTB(I,J) = 1
               PP(I,J)    = 0.
+              print *, "WARNING: TTBLEX - ITHTB index below table size"
             ENDIF
 !
             IF(ITHTB(I,J) >= JTB) THEN
               ITHTB(I,J) = JTB-1
               PP(I,J)    = 0.
+              print *, "WARNING: TTBLEX - ITHTB index exceeds table size"
             ENDIF
 !--------------TEMPERATURE AT FOUR SURROUNDING TT TABLE PTS.------------
             ITH  = ITHTB(I,J)
