@@ -65,11 +65,15 @@ program test_ttblex
         STHE(i) = 40.0
     end do
 
-    ! TODO: For one (i,j) point in (1:npts,1:npts), modify the input arrays
-    ! so that IPTB and ITHTB will fall below 1. Replace the ??? with appropriate code.
+    ! Test Case: IPTB and ITHTB clipped to 1
     PMIDL(1,1) = PL - 3000.0      ! force TPK <= -1 -> IPTB < 1 before clamp
     THESP(1,1) = THE0(1) - 5.0    ! ensure THESP < BTHK for negative TTHK
     STHE(1)    = 0.1              ! small scale to make TTHK <= -1 -> ITHTB < 1
+
+    ! Test Case: IPTB and ITHTB clipped to ITB-1 and JTB-1, respectively
+    PMIDL(1,2) = PL + (ITB + 2) / RDP   ! force AINT(TPK) >= ITB -> IPTB overflow before clamp
+    STHE(ITB-1) = 0.01                  ! tiny scale at high pressure bin to amplify theta index
+    THESP(1,2) = THE0(ITB-1) + 20.0     ! large positive offset -> TTHK >= JTB -> ITHTB overflow
 
     call TTBLEX(TREF, TTBL, ITB, JTB, KARR, PMIDL, PL, QQ, PP, RDP, THE0, &
                 STHE, RDTHE, THESP, IPTB, ITHTB)
