@@ -80,12 +80,17 @@ program test_wetfrzlvl
     ths(1,2)  = 270.0
     EXP_ZWET(1,2) = -5.3279840088E+02
 
-    ! Test Case: t(1,3,k) = tsfc
-    t_sfc = sm(1,3) * thz0(1,3) + (1.0 - sm(1,3)) * ths(1,3)  &
-                    * (pint(1,3,nlevs+1)/p1000)**capa
-    do k= 1, nlevs
-        t(1,3,k) = t_sfc
+    ! Test Case: TWET = tfrz at top level.
+    ! T = TSFC at (i,j) = (2,1)
+    do k = 25, nlevs
+        TWET(1,3,k) = 273.15
+        TWET(2,1,k) = 273.15
     end do
+    t_sfc = sm(2,1) * thz0(2,1) + (1.0 - sm(2,1)) * ths(2,1)  &
+                    * (pint(2,1,nlevs+1)/p1000)**capa
+
+    t(2,1,nlevs) = t_sfc
+
     call WETFRZLVL(TWET, ZWET)
 
     do i = ista, iend
