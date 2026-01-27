@@ -1,0 +1,94 @@
+# This is a GitHub Actions workflow for building and testing UPP on the develop branch.
+#
+# Alyson Stahl, 10/2025
+name: developer
+on:
+  push:
+    branches:
+    - develop
+  pull_request:
+    branches:
+    - develop
+
+# Cancel in-progress workflows when pushing to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  developer:
+    runs-on: ubuntu-latest 
+    env:
+      CC: gcc
+      FC: gfortran
+      CXX: g++
+
+    steps:
+      - name: install-dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libmpich-dev libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
+          sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf gcovr doxygen
+
+      - name: build-crtm
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: EMC_crtm
+          package-org: NOAA-EMC
+          git-ref: v2.3.0
+
+      - name: build-g2tmpl
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: NCEPLIBS-g2tmpl
+          package-org: NOAA-EMC
+
+      - name: build-sigio
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: NCEPLIBS-sigio
+          package-org: NOAA-EMC
+
+      - name: build-wrf-io
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: NCEPLIBS-wrf_io
+          package-org: NOAA-EMC
+
+      - name: build-dependencies
+        uses: NOAA-EMC/ci-build-nceplibs@develop
+        with:
+          jasper-version: version-4.0.0
+          bacio-version: develop
+          w3emc-version: develop
+          w3emc-cmake-args: -DBUILD_WITH_BUFR=OFF
+          g2-version: v3.5.1
+          ip-version: develop
+          nemsio-version: develop
+
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          path: UPP
+
+      - name: build
+        run: |
+          set -x
+          cd UPP
+          mkdir build && cd build
+          export CC=mpicc
+          export FC=mpif90
+          cmake .. -DBUILD_WITH_WRFIO=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_C_FLAGS='-g -fprofile-abs-path -fprofile-arcs -ftest-coverage -O0' -DCMAKE_Fortran_FLAGS='-g -fprofile-abs-path -fprofile-arcs -ftest-coverage -O0' \
+            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/nceplibs/jasper;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-bacio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-w3emc;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-ip;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2tmpl;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-sigio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-nemsio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-wrf_io;$GITHUB_WORKSPACE/nceplibs/EMC_crtm" 
+          make VERBOSE=1
+          make install
+          ctest --verbose --output-on-failure --rerun-failed
+          gcovr --root .. -v --html-details --exclude ../unit_tests --exclude CMakeFiles --print-summary -o test-coverage.html &> /dev/null
+
+      - name: upload-test-coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: UPP-test-coverage
+          path: |
+            UPP/build/*.html
+            UPP/build/*.css

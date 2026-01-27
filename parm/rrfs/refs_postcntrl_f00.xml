@@ -1210,72 +1210,21 @@
        </param>
 
        <param>
-           <shortname>EFSH_ON_EFBL</shortname>
-           <scale>-1.0</scale>
+       <shortname>UESH_ON_EFL</shortname>
+       <pname>UESH</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
        </param>
 
        <param>
-           <shortname>EFSH_ON_EFTL</shortname>
-           <scale>-1.0</scale>
+       <shortname>VESH_ON_EFL</shortname>
+       <pname>VESH</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
        </param>
 
        <param>
            <shortname>ELMELT_ON_EFTL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>UESH_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>VESH_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>ESHR_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>UEID_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>VEID_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>E3KH_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>STPC_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>SIGT_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>SCCP_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>SIGH_ON_EFL</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
-           <shortname>MLFC_ON_EFL</shortname>
            <scale>-1.0</scale>
        </param>
 
