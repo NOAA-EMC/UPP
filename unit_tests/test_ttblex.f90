@@ -22,7 +22,6 @@ program test_ttblex
     integer, dimension(1:npts,1:npts) :: IPTB, ITHTB, EXP_IPTB, EXP_ITHTB
 
     ! Grid parameters
-    lm =  nlevs
     jsta = 1
     jend = npts
     jsta_2l = jsta
