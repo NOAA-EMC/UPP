@@ -91,6 +91,16 @@ program test_wetfrzlvl
 
     t(2,1,nlevs) = t_sfc
 
+
+    ! TODO: Replace ??? with code to set up a test case at (i,j) = (3,1), with the appropriate 
+    ! vertical profile, such that 
+    ! TWET(3,1,nlev) = 273.15 K and ZWET(3,1) < ZU and -ZWET(3,1) < ZU where:
+    ! ZU = 0.5*(ZINT(3,1,nlevs)+ZINT(3,1,nlevs+1))
+    sm(3,1)    = 0.5
+    thz0(3,1)  = 270.0
+    ths(3,1)   = 270.0
+    TWET(3,1,nlevs) = 273.15
+    
     call WETFRZLVL(TWET, ZWET)
 
     do i = ista, iend
