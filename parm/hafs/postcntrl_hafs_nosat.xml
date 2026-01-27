@@ -555,7 +555,7 @@
        </param>
 
        <param>
-       <shortname>CONVECTIVE_GUST_ON_SURFACE</shortname>
+       <shortname>HAFS_GUST_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
        <scale>3.0</scale>
        </param>
 
