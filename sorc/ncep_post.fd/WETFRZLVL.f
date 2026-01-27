@@ -98,10 +98,8 @@
                   DELT    = T(I,J,L)-TSFC
 		  IF(DELT /= 0.)THEN  
                    ZWET(I,J) = ZL + (TFRZ-TSFC)/DELT*DELZ
-                   print *, "Delt not zero"
 		  ELSE
 		   ZWET(I,J) = HTSFC+(TSFC-TWET(I,J,L))/D0065
-                  print *, "Delt zero"
 		  END IF  
                   IF (ZWET(I,J) > ZU) THEN
                     ZWET(I,J)=ZU

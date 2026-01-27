@@ -41,82 +41,100 @@ program test_wetfrzlvl
     allocate(t(ista_2l:iend_2u, jsta_2l:jend_2u, nlevs))
 
     ! Initialize default inputs
-    sm   = 0.5          ! mixed land/sea fraction
-    fis  = 981.0        ! surface geopotential (m^2 s^-2) -> ~100 m MSL
-    thz0 = 290.0        ! potential temperature near surface (K)
-    ths  = 288.0        ! surface skin potential temperature (K)
+    z_sfc = 200.0
+    z_top = 5200.0
+    dz    = (z_top - z_sfc)/real(nlevs)
+    p0    = 100000.0
+    H     = 7500.0
+
+    sm   = 0.5
+    fis  = 9.81*z_sfc
+    thz0 = 290.0
+    ths  = 288.0
     lmh  = real(nlevs)
 
     do i = ista_2l, iend_2u
         do j = jsta_2l, jend_2u
-            ! Set up physically realistic vertical profiles
-            ! Define surface and top heights, and compute uniform layer spacing
-            z_sfc = 100.0     ! meters MSL
-            z_top = 16000.0   ! meters MSL
-            dz    = (z_top - z_sfc)/real(nlevs)
-            p0    = 100000.0  ! Pa
-            H     = 8000.0    ! scale height (m)
-            t_sfc = 288.0     ! near-surface air temperature (K)
-            do k= 1, nlevs+1
-                zint(i,j,k) = z_top - dz*real(k-1)
-                pint(i,j,k) = p0*exp(-zint(i,j,k)/H)
+            do k = 1, nlevs+1
+                zint(i,j,k) = z_top - real(k-1)*dz
+                pint(i,j,k) = p0 * exp( - zint(i,j,k) / H )
             end do
-            do k= 1, nlevs
-                z_mid       = 0.5*(zint(i,j,k) + zint(i,j,k+1))
-                t(i,j,k)    = t_sfc - 6.5*((z_mid - z_sfc)/1000.0)   ! lapse rate 6.5 K/km
-                TWET(i,j,k) = t(i,j,k) - 1.0                          ! wet-bulb slightly below T
+            do k = 1, nlevs
+                t(i,j,k)    = 240.0 + (260.0 - 240.0) * real(k-1) / real(nlevs-1)
+                TWET(i,j,k) = 260.0 + (273.15 - 260.0) * real(k-1) / real(nlevs-1)
             end do
         end do
     end do
 
-    EXP_ZWET = 2.2307702637E+03  ! Expected output for the default test case
-    
-    ! Test Case: FIS = spval, expect ZWET = spval
+    ! Expected output for default test case
+    EXP_ZWET = 2.4406500244E+02
+
+    ! Test Case: FIS = spval
     FIS(1,1) = spval
     EXP_ZWET(1,1) = spval
 
-    ! Test Case:  tsfc < tfrz (tfrz = 273.15 K)
+    ! Test Case: Freezing level at ground level
     thz0(1,2) = 270.0
     ths(1,2)  = 270.0
-    EXP_ZWET(1,2) = -5.3279840088E+02
+    EXP_ZWET(1,2) = -6.0009576416E+02
 
-    ! Test Case: TWET = tfrz at top level.
-    ! T = TSFC at (i,j) = (2,1)
-    do k = 25, nlevs
-        TWET(1,3,k) = 273.15
-        TWET(2,1,k) = 273.15
+    ! Test Case: Freezing level above heighest model level
+    thz0(1,3) = 290.0
+    ths(1,3)  = 290.0
+    do k = 1, nlevs
+        TWET(1,3,k) = 275.0
     end do
-    t_sfc = sm(2,1) * thz0(2,1) + (1.0 - sm(2,1)) * ths(2,1)  &
-                    * (pint(2,1,nlevs+1)/p1000)**capa
+    EXP_ZWET(1,3) = z_sfc
 
+    ! Test Case: DELT = 0 branch
+    thz0(2,1) = 279.06
+    ths(2,1)  = 270.0
+    t_sfc = sm(2,1)*thz0(2,1) + (1.0 - sm(2,1))*ths(2,1) * ( pint(2,1,nlevs+1) / p1000 )**capa
     t(2,1,nlevs) = t_sfc
+    EXP_ZWET(2,1) = 9.1531143188E+01
 
-    sm(3,1)   = 0.5
-    thz0(3,1) = 274.5
-    ths(3,1)  = 274.5
-    TWET(3,1,nlevs) = 273.15
-    t(3,1,nlevs) = sm(3,1)*thz0(3,1) + (1.0 - sm(3,1))*ths(3,1) * (pint(3,1,nlevs+1)/p1000)**capa
-    
+    ! Test Case: ZWET clipped to ZU if ZWET > ZU
+    t_sfc = sm(2,2)*thz0(2,2) + (1.0 - sm(2,2))*ths(2,2) * ( pint(2,2,nlevs+1) / p1000 )**capa
+    t(2,2,nlevs) = t_sfc - 0.5
+    EXP_ZWET(2,2) = 2.8333325195E+02
 
-    ! TODO: Replace ??? with code to set up a test case at (i,j) = (3,2), with the appropriate 
-    ! vertical profile, such that:
-    ! TWET(3,1,nlev) = 273.15 K and ZWET(3,1) < ZU and -ZWET(3,1) < ZU where:
-    ! ZU = 0.5*(ZINT(3,1,nlevs)+ZINT(3,1,nlevs+1))
-    ! You must ensure that the values are chosen such that we enter loopL at (I,J) = (3,2) in WETFRZLVL.
-    ! We also require that DELT /= 0 in the calculation of ZWET.
-    sm(3,2)   = 0.5
-    thz0(3,2) = 276.0
-    ths(3,2)  = 276.0
-    TWET(3,2,nlevs) = 273.15
-    t(3,2,nlevs)    = 272.5
+    ! Test Case: ZWET clipped to ZU if -ZWET > ZU
+    t_sfc = sm(2,3)*thz0(2,3) + (1.0 - sm(2,3))*ths(2,3) * ( pint(2,3,nlevs+1) / p1000 )**capa
+    t(2,3,nlevs) = t_sfc + 1.2
+    EXP_ZWET(2,3) = 2.8333325195E+02
+
+    ! Test Case: TWET <= TFRZ below model top
+    ! TODO: Replace ??? with code that sets up TWET(3,1,k) such that TWET <= TFRZ at some
+    ! level k < nlevs - 1. Preferably, the freezing level is around k = 15.
+    do k = 1, nlevs
+        TWET(3,1,k) = 260.0 + (285.0 - 260.0) * real(k-1) / real(nlevs-1)
+    end do
+    EXP_ZWET(3,1) = 2.5743332520E+03
 
     call WETFRZLVL(TWET, ZWET)
 
+    deallocate(sm)
+    deallocate(fis)
+    deallocate(thz0)
+    deallocate(ths)
+    deallocate(lmh)
+    deallocate(zint)
+    deallocate(pint)
+    deallocate(t)
+
+    res = 0
     do i = ista, iend
         do j = jsta, jend
-            print '(A,I0,A,I0,A,ES24.10)', "Point (", i, ",", j, "): WETFRZLVL = ", ZWET(i,j)
+            if ( abs(ZWET(i,j) - EXP_ZWET(i,j)) > tol ) then
+                print *, "Test failed at (i,j)=(", i, ",", j, "): ", &
+                         "Expected ZWET = ", EXP_ZWET(i,j), &
+                         ", Computed ZWET = ", ZWET(i,j)
+                res = 1
+            end if
         end do
     end do
 
+    if (res .ne. 0) stop 10
+    
     print *, "SUCCESS!"
 end program test_wetfrzlvl
