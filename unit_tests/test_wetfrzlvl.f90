@@ -74,7 +74,11 @@ program test_wetfrzlvl
     FIS(1,1) = spval
     EXP_ZWET(1,1) = spval
 
-    print '(ES24.10)', pint(1,2,nlevs+1)
+    do k=1,nlevs
+        print *, TWET(1,1,k)
+    end do
+
+
     call WETFRZLVL(TWET, ZWET)
 
     do i = ista, iend
