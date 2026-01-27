@@ -57,5 +57,12 @@ program test_wetfrzlvl
         end do
     end do
 
+    call WETFRZLVL(TWET, ZWET)
+
+    do i = ista, iend
+        do j = jsta, jend
+            print *, "Point (", i, ",", j, "): WETFRZLVL = ", ZWET(i,j)
+        end do
+    end do
     print *, "SUCCESS!"
 end program test_wetfrzlvl
