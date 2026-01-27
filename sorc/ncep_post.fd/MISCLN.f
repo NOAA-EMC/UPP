@@ -3560,7 +3560,7 @@
          IF(IGET(951)>0)THEN
            FIELD2=.TRUE.
          ENDIF
-         IF(MODELNAME == "FV3R" .and. SUBMODELNAME == "RTMA") THEN
+         IF(SUBMODELNAME == 'RTMA') THEN
            FIELD1=.TRUE.
            FIELD2=.TRUE.
          ENDIF
@@ -3712,7 +3712,7 @@
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0
-         IF (SUBMODELNAME == 'RTMA') THEN
+         IF (MODELNAME == 'RAPR' .AND. SUBMODELNAME == 'RTMA') THEN
 !---  IF USSING EL BASE & TOP COMPUTED BY NEW SCHEME FOR THE
 !RELATED VARIABLES
 !$omp parallel do private(i,j)
@@ -3930,7 +3930,8 @@
              endif
             ENDIF
 
-!U inflow based to 50% EL shear vector
+! U component of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
 
             IF (IGET(983)>0) THEN
              GRID1=spval
@@ -3957,7 +3958,9 @@
              endif
             ENDIF
 
-!V inflow based to 50% EL shear vector
+! V component of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
+
             IF (IGET(984)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
@@ -3983,7 +3986,9 @@
              endif
             ENDIF
 
-!Inflow based (ESFC) to (50%) EL shear magnitude
+! Magnitude of effective layer bulk shear
+! Calculated dynamically from the inflow base up to 50% of EL
+
             IF (IGET(985)>0) THEN
              GRID1=spval
              DO J=JSTA,JEND
@@ -4461,46 +4466,46 @@
 
 !    Downdraft CAPE
 
-!           ITYPE = 1
-!           DO J=JSTA,JEND
-!           DO I=ISTA,IEND
-!               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
-!                            LVLBND(I,J,3))/3
-!               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-!               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-!               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-!             ENDDO
-!           ENDDO
+!            ITYPE = 1
+!            DO J=JSTA,JEND
+!              DO I=ISTA,IEND
+!                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+!                             LVLBND(I,J,3))/3
+!                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+!                T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+!                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+!              ENDDO
+!            ENDDO
 
-!           DPBND = 400.E2
-!           CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
-!                         EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
-!                         EGRID6,EGRID7,EGRID8)
+!            DPBND = 400.E2
+!            CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
+!                          EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
+!                          EGRID6,EGRID7,EGRID8)
 
-           IF (IGET(954)>0) THEN
-               GRID1 = spval
+            IF (IGET(954)>0) THEN
+                GRID1 = spval
 !$omp parallel do private(i,j)
-              DO J=JSTA,JEND
-                 DO I=ISTA,IEND
-                  IF(T1D(I,J) < spval) GRID1(I,J) = -EGRID6(I,J)
-                 ENDDO
-              ENDDO
-               CALL BOUND(GRID1,D00,H99999)
-               if(grib=='grib2') then
-                cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(954))
-                fld_info(cfld)%lvl=LVLSXML(1,IGET(954))
+               DO J=JSTA,JEND
+                  DO I=ISTA,IEND
+                   IF(T1D(I,J) < spval) GRID1(I,J) = -EGRID6(I,J)
+                  ENDDO
+               ENDDO
+                CALL BOUND(GRID1,D00,H99999)
+                if(grib=='grib2') then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(954))
+                 fld_info(cfld)%lvl=LVLSXML(1,IGET(954))
 !$omp parallel do private(i,j,ii,jj)
-                do j=1,jend-jsta+1
-                  jj = jsta+j-1
-                  do i=1,iend-ista+1
-                  ii = ista+i-1
-                    datapd(i,j,cfld) = GRID1(ii,jj)
-                  enddo
-                enddo
-               endif
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,iend-ista+1
+                   ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
+                   enddo
+                 enddo
+                endif
 
-           ENDIF   !954
+            ENDIF   !954
 
        if (allocated(ushr1)) deallocate(ushr1)
        if (allocated(vshr1)) deallocate(vshr1)
