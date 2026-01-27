@@ -69,6 +69,9 @@ def URSA_RTS = 'false'
 pipeline {
 	agent none
 
+  environment {
+    API_TOKEN = credentials('GithubJenkinsNew')
+  }
 	stages {
 		stage('UPP Regression Tests') {
 			agent {
@@ -98,10 +101,7 @@ pipeline {
 						if ((label.matches("hera-RT"))) {
               echo "Inside Hera Branch"
               echo "Remove label hera-RT"
-  		        withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'TOKEN')]) {
-                 cmd="curl --silent -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token ${TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT"
-                 echo "${cmd}"
-              }
+              sh 'curl --silent -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${API_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT"'
               echo "Label Removed"
             }
 				  }    
