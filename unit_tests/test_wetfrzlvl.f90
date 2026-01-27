@@ -7,6 +7,7 @@ program test_wetfrzlvl
     use vrbls3d, only: pint, zint, t
     use vrbls2d, only:  fis, thz0, ths
     use masks, only: lmh, sm
+    use params_mod, only: p1000, capa
     use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, lm, spval, &
                         ista, iend, ista_2l, iend_2u 
     implicit none
@@ -74,10 +75,13 @@ program test_wetfrzlvl
     FIS(1,1) = spval
     EXP_ZWET(1,1) = spval
 
-    do k=1,nlevs
-        print *, TWET(1,1,k)
-    end do
+    ! Test Case:  tsfc < tfrz (tfrz = 273.15 K)
+    thz0(1,2) = 270.0
+    ths(1,2)  = 270.0
 
+    ! Test Case: t(1,3,nlevs) = tsfc
+    t(1,3,nlevs) = sm(1,3) * thz0(1,3) + (1.0 - sm(1,3)) * ths(1,3)  &
+                    * (pint(1,3,nlevs+1)/p1000)**capa
 
     call WETFRZLVL(TWET, ZWET)
 
