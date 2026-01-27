@@ -8662,7 +8662,7 @@
   
     <param>
        <post_avblfldidx>1026</post_avblfldidx>
-       <shortname>CONVECTIVE_GUST_ON_SURFACE</shortname>
+       <shortname>HAFS_GUST_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
        <pname>GUST</pname>
 	   <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
  	   <level>10.</level>
