@@ -24,3 +24,7 @@ create_test(test_calwxt_dominant)
 create_test(test_calthte)
 create_test(test_calvessel)
 create_test(test_calwxt_explicit)
+create_test(test_ttblex)
+
+create_test(test_wetfrzlvl)
+create_test(test_zensun)
