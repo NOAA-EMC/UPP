@@ -65,7 +65,8 @@ ALL_TXT= \
   postxconfig-NT-wps.txt \
   ./gcafs/postxconfig-NT-gcafs.txt \
   ./gcafs/postxconfig-NT-gcafs-f00.txt \
-  ./3drtma/postxconfig-NT-3drtma.txt
+  ./3drtma/postxconfig-NT-3drtma.txt \
+  ./arafs/postxconfig-NT-arafs.txt
 
 .PHONY: all clean
 all: $(ALL_TXT)
@@ -117,6 +118,7 @@ postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs-f00.txt: ./gcafs/postcntrl_gcafs_f00.xml post_avblflds.xml
 ./3drtma/postxconfig-NT-3drtma.txt: ./3drtma/3drtma_postcntrl.xml post_avblflds.xml
+./arafs/postxconfig-NT-arafs.txt: ./arafs/postcntrl_arafs.xml post_avblflds.xml
 
 %.txt:
 	$(PERL) $(PERLXML) $^ $@
