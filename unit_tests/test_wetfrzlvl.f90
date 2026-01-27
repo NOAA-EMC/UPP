@@ -104,8 +104,6 @@ program test_wetfrzlvl
     EXP_ZWET(2,3) = 2.8333325195E+02
 
     ! Test Case: TWET <= TFRZ below model top
-    ! TODO: Replace ??? with code that sets up TWET(3,1,k) such that TWET <= TFRZ at some
-    ! level k < nlevs - 1. Preferably, the freezing level is around k = 15.
     do k = 1, nlevs
         TWET(3,1,k) = 260.0 + (285.0 - 260.0) * real(k-1) / real(nlevs-1)
     end do
@@ -135,6 +133,6 @@ program test_wetfrzlvl
     end do
 
     if (res .ne. 0) stop 10
-    
+
     print *, "SUCCESS!"
 end program test_wetfrzlvl
