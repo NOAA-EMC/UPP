@@ -93,13 +93,15 @@ program test_wetfrzlvl
 
 
     ! TODO: Replace ??? with code to set up a test case at (i,j) = (3,1), with the appropriate 
-    ! vertical profile, such that 
+    ! vertical profile, such that:
     ! TWET(3,1,nlev) = 273.15 K and ZWET(3,1) < ZU and -ZWET(3,1) < ZU where:
     ! ZU = 0.5*(ZINT(3,1,nlevs)+ZINT(3,1,nlevs+1))
-    sm(3,1)    = 0.5
-    thz0(3,1)  = 270.0
-    ths(3,1)   = 270.0
+    ! You must ensure that the values are chosen such that we enter loopL at (I,J) = (3,1) in WETFRZLVL.
+    sm(3,1)   = 0.5
+    thz0(3,1) = 274.5
+    ths(3,1)  = 274.5
     TWET(3,1,nlevs) = 273.15
+    t(3,1,nlevs) = sm(3,1)*thz0(3,1) + (1.0 - sm(3,1))*ths(3,1) * (pint(3,1,nlevs+1)/p1000)**capa
     
     call WETFRZLVL(TWET, ZWET)
 
