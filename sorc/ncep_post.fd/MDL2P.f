@@ -115,13 +115,14 @@
      &,                      SALTSL(:,:,:), SOOTSL(:,:,:), WASOSL(:,:,:)           &
      &,                      SUSOSL(:,:,:)
       REAL, allocatable :: GTGSL(:,:),CATSL(:,:),MWTSL(:,:)
+      REAL, allocatable :: WS850(:,:), WS950(:,:)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
       real, dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM) :: RHPRS
       real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: CHI, PSI
-	  real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: WS850, WS950, GUSTCONV
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: GUSTCONV
 !
       INTEGER K, NSMOOTH
 !
@@ -279,6 +280,9 @@
         if (.not. allocated(CATSL)) allocate(CATSL(ista_2l:iend_2u,jsta_2l:jend_2u))
         if (.not. allocated(MWTSL)) allocate(MWTSL(ista_2l:iend_2u,jsta_2l:jend_2u))
       endif
+! Allocate HAFS wind speeds
+      if (.not. allocated(ws850)) allocate(ws850(ista_2l:iend_2u,jsta_2l:jend_2u))
+      if (.not. allocated(ws950)) allocate(ws950(ista_2l:iend_2u,jsta_2l:jend_2u))
 !     
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
@@ -5057,6 +5061,9 @@ if(allocated(susosl))  deallocate(susosl)
 if(allocated(GTGSL)) deallocate(GTGSL)
 if(allocated(CATSL)) deallocate(CATSL)
 if(allocated(MWTSL)) deallocate(MWTSL)
+! HAFS winds
+if(allocated(WS850)) deallocate(WS850)
+if(allocated(WS950)) deallocate(WS950)
 !     END OF ROUTINE.
 !
       RETURN
