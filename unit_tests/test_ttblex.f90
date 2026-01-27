@@ -9,7 +9,7 @@ program test_ttblex
     implicit none
     
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: npts = 3, ni = 50, nj = 50
+    integer, parameter :: npts = 2, ni = 50, nj = 50
     integer :: i, j, res
     ! Inputs
     integer :: ITB, JTB, KARR(1:npts,1:npts)
@@ -31,61 +31,92 @@ program test_ttblex
     ista_2l = ista
     iend_2u = iend
     
+    ! Initialize inputs
     ITB = ni
     JTB = nj
     KARR = 1
-    PL = 10000.0      ! Pa
-    RDP = 5.0e-4      ! 1/Pa
-    RDTHE = 5.0e-2    ! 1/K
+    PL = 0.0
+    RDP = 5.0e-4
+    RDTHE = 1.0
 
-    ! Initialize temperature table (TTBL) in Kelvin
     do j = 1, nj
         do i = 1, ni
-            TTBL(i,j) = 200.0 + 0.6*j + 0.3*i
+            TTBL(i,j) = 220.0 + 0.6*i + 0.4*j
         end do
     end do
 
-    ! Initialize mid-layer pressure (PMIDL) in Pascals
     do j = 1, npts
         do i = 1, npts
-            PMIDL(i,j) = 60000.0 + 5000.0*(i-2) + 3000.0*(j-2)
+            PMIDL(i,j) = 55000.0 + 137.0*i + 53.0*j
+            THESP(i,j) = 310.0 + 0.7*j + 0.3*i
         end do
     end do
-
-    ! Initialize saturation potential temperature (THESP) in Kelvin
-    do j = 1, npts
-        do i = 1, npts
-            THESP(i,j) = 305.0 + 0.5*(i-2) + 0.3*(j-2)
-        end do
-    end do
-
-    ! Initialize theta table base and scale (K)
+    
     do i = 1, ni
-        THE0(i) = 300.0 + 0.2*(i-1)
-        STHE(i) = 40.0
+        THE0(i) = 300.0 + 0.8*(i-1)
+        STHE(i) = 12.5
     end do
+
+    ! Expected Outputs
+    EXP_TREF = reshape([2.2080192566E+02, 2.6900000000E+02, &
+                    0.0, 2.3158871460E+02], [npts, npts])
+    EXP_QQ = reshape([-5.0000000745E-02, 0.0, 0.0, &
+                    6.9000053406E-01], [npts, npts])
+    EXP_PP = reshape([-2.9679930210E-01, 0.0, 0.0, &
+                    -8.1216067076E-01], [npts, npts])
+    EXP_IPTB = reshape([1, 49, 0, 28], [npts, npts])
+    EXP_ITHTB = reshape([1, 49, 0, 1], [npts, npts])
 
     ! Test Case: IPTB and ITHTB clipped to 1
-    PMIDL(1,1) = PL - 3000.0      ! force TPK <= -1 -> IPTB < 1 before clamp
-    THESP(1,1) = THE0(1) - 5.0    ! ensure THESP < BTHK for negative TTHK
-    STHE(1)    = 0.1              ! small scale to make TTHK <= -1 -> ITHTB < 1
+    PMIDL(1,1) = PL - 100.0
+    THESP(1,1) = THE0(1) - 0.3*STHE(1)
 
     ! Test Case: IPTB and ITHTB clipped to ITB-1 and JTB-1, respectively
-    PMIDL(1,2) = PL + (ITB + 2) / RDP   ! force AINT(TPK) >= ITB -> IPTB overflow before clamp
-    STHE(ITB-1) = 0.01                  ! tiny scale at high pressure bin to amplify theta index
-    THESP(1,2) = THE0(ITB-1) + 20.0     ! large positive offset -> TTHK >= JTB -> ITHTB overflow
+    PMIDL(1,2) = PL + (ITB + 10)/RDP
+    THESP(1,2) = THE0(ITB-1) + STHE(ITB-1)*(JTB + 0.2)
+
+    ! Test Case: KARR = 0 
+    KARR(2,1) = 0
 
     call TTBLEX(TREF, TTBL, ITB, JTB, KARR, PMIDL, PL, QQ, PP, RDP, THE0, &
                 STHE, RDTHE, THESP, IPTB, ITHTB)
 
+    res = 0
     do i = 1, npts
         do j = 1, npts
-            print '(A,I0,A,I0,A,ES24.10)', "TREF(", i, ",", j, ") = ", TREF(i,j)
-            print '(A,I0,A,I0,A,ES24.10)', "QQ(", i, ",", j, ")   = ", QQ(i,j)
-            print '(A,I0,A,I0,A,ES24.10)', "PP(", i, ",", j, ")   = ", PP(i,j)
-            print '(A,I0,A,I0,A,I0)',      "IPTB(", i, ",", j, ") = ", IPTB(i,j)
-            print '(A,I0,A,I0,A,I0)',      "ITHTB(", i, ",", j, ")= ", ITHTB(i,j)
+            if ( abs(TREF(i,j) - EXP_TREF(i,j)) > tol ) then
+                print *, "Test failed at TREF (i,j)=(", i, ",", j, "): ", &
+                         "Expected TREF = ", EXP_TREF(i,j), &
+                         ", Computed TREF = ", TREF(i,j)
+                res = 1
+            end if
+            if ( abs(QQ(i,j) - EXP_QQ(i,j)) > tol ) then
+                print *, "Test failed at QQ (i,j)=(", i, ",", j, "): ", &
+                         "Expected QQ = ", EXP_QQ(i,j), &
+                         ", Computed QQ = ", QQ(i,j)
+                res = 1
+            end if
+            if ( abs(PP(i,j) - EXP_PP(i,j)) > tol ) then
+                print *, "Test failed at PP (i,j)=(", i, ",", j, "): ", &
+                         "Expected PP = ", EXP_PP(i,j), &
+                         ", Computed PP = ", PP(i,j)
+                res = 1
+            end if
+            if ( IPTB(i,j) /= EXP_IPTB(i,j) ) then
+                print *, "Test failed at IPTB (i,j)=(", i, ",", j, "): ", &
+                         "Expected IPTB = ", EXP_IPTB(i,j), &
+                         ", Computed IPTB = ", IPTB(i,j)
+                res = 1
+            end if
+            if ( ITHTB(i,j) /= EXP_ITHTB(i,j) ) then
+                print *, "Test failed at ITHTB (i,j)=(", i, ",", j, "): ", &
+                         "Expected ITHTB = ", EXP_ITHTB(i,j), &
+                         ", Computed ITHTB = ", ITHTB(i,j)
+                res = 1
+            end if
+            if (res .ne. 0) stop 10
         end do
     end do
+    
     print *, "SUCCESS!"
 end program test_ttblex
