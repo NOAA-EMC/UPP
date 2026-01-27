@@ -58,14 +58,11 @@ program test_ttblex
     end do
 
     ! Expected Outputs
-    EXP_TREF = reshape([2.2080192566E+02, 2.6900000000E+02, &
-                    0.0, 2.3158871460E+02], [npts, npts])
-    EXP_QQ = reshape([-5.0000000745E-02, 0.0, 0.0, &
-                    6.9000053406E-01], [npts, npts])
-    EXP_PP = reshape([-2.9679930210E-01, 0.0, 0.0, &
-                    -8.1216067076E-01], [npts, npts])
-    EXP_IPTB = reshape([1, 49, 0, 28], [npts, npts])
-    EXP_ITHTB = reshape([1, 49, 0, 1], [npts, npts])
+    EXP_TREF = reshape([2.2080192566E+02, 0.0000000000E+00, 2.6900000000E+02, 2.3158871460E+02], [npts, npts])
+    EXP_QQ   = reshape([-5.0000000745E-02, 0.0000000000E+00, 0.0000000000E+00, 6.9000053406E-01], [npts, npts])
+    EXP_PP   = reshape([-2.9679930210E-01, 0.0000000000E+00, 0.0000000000E+00, -8.1216067076E-01], [npts, npts])
+    EXP_IPTB = reshape([1, 0, 49, 28], [npts, npts])
+    EXP_ITHTB= reshape([1, 0, 49, 1], [npts, npts])
 
     ! Test Case: IPTB and ITHTB clipped to 1
     PMIDL(1,1) = PL - 100.0
@@ -117,6 +114,6 @@ program test_ttblex
             if (res .ne. 0) stop 10
         end do
     end do
-    
+
     print *, "SUCCESS!"
 end program test_ttblex
