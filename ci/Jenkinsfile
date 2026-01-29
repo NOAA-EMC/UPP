@@ -38,9 +38,9 @@ def postGitHubComment(commentMessage) {
 
 def removeGitHubLabel(labelName) {
   script {
-  
+    def apiURL = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
     sh '''
-      curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${GLOBAL_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/${labelName}
+      curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${GLOBAL_TOKEN}\" + apiURL
     '''
   }
 }
