@@ -110,7 +110,7 @@ pipeline {
 				  }    
           if (( HERA_RTS == 'true' )) {
               echo "Remove label hera-RT"
-              removeGitHubLabel("hera-RT") {
+              removeGitHubLabel("hera-RT")
               // sh '''
               //   curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${API_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT
               //'''
