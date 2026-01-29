@@ -124,6 +124,7 @@ pipeline {
 				label "hercules"
 			}
       when {
+        beforeAgent true
         expression { HERCULES_RTS == 'true' }
       }
 			environment {
@@ -171,6 +172,7 @@ pipeline {
  				label "orion"
  			}
       when {
+        beforeAgent true
         expression { ORION_RTS == 'true' }
       }
  			environment {
@@ -214,6 +216,7 @@ pipeline {
  		} 
  		stage('Run UPP RTs on Ursa') {
  			agent {
+        beforeAgent true
  				label "ursa"
  			}
       when {
@@ -260,6 +263,7 @@ pipeline {
  		} 
  		stage('Run UPP RTs on Ursa2') {
  			agent {
+        beforeAgent true
  				label "ursa"
  			}
       when {
