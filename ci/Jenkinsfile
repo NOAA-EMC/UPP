@@ -36,12 +36,20 @@ def postGitHubComment(commentMessage) {
 	}
 }
 
+/************************************************
+* Removes a label from the PR
+* labelName: The name of the label to be removed
+************************************************/
 def removeGitHubLabel(labelName) {
   script {
     def apiURL = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
-    sh '''
-      curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${GLOBAL_TOKEN}\" + apiURL
-    '''
+    def curlCmd = "curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${GLOBAL_TOKEN}\" ${apiURL}"
+	  def response = sh(script: curlCommand, returnStatus: true)
+	  if (response == 0) {
+	  	echo "Label ${labelName} successfully removed from PR #${env.CHANGE_ID}"
+	  } else {
+	  	error "Failed to remove Label ${labelName} from PR #${env.CHANGE_ID}"
+	  }
   }
 }
 //		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
