@@ -1,7 +1,7 @@
-def formatComment(machine) {
+def formatComment(machine, compiler) {
 	script {
 		def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
-		def commentMessage = "${machine} UPP Regression Tests ${buildResult}"      
+		def commentMessage = "${machine} UPP Regression Tests with ${compiler} compiler ${buildResult}"      
 		if (fileExists('ci/changed_results.txt')) {
 			echo 'changed_results.txt file found'
 			sh "cat ci/changed_results.txt"
@@ -39,6 +39,8 @@ def postGitHubComment(commentMessage) {
 /************************************************
 * Removes a label from the PR
 * labelName: The name of the label to be removed
+* Note: For security concerns remove GLOBAL_TOKEN 
+* from quoted text and use string concat op
 ************************************************/
 def removeGitHubLabel(labelName) {
   script {
@@ -52,29 +54,6 @@ def removeGitHubLabel(labelName) {
 	  }
   }
 }
-//		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
-//      sh '''
-//        export GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
-//        export GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
-//      using credential epic-jenkins-cicd-new  echo "Testing concluded...removing labels for $machine from $GIT_URL"
-//        echo "https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/jenkins-ort"
-//        curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${ACCESS_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/hera-RT
-//      '''
-//    }
-//  script {
-//		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
-//			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
-//			def curlCommand = "curl -s -w '%{response_code}\n'  -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" + "\"" + apiUrl + "\""
-//			def response = sh(script: curlCommand, returnStatus: true)
-//			if (response == 0) {
-//				echo "Label: ${labelName} successfully removed from PR #${env.CHANGE_ID}"
-//			} else {
-//				error "Failed to remove the label: ${labelName} from PR #${env.CHANGE_ID}"
-//			}
-//    }
-//  }
-//  }
-//}
 
 def ORION_RTS = 'false'
 def HERCULES_RTS = 'false'
@@ -177,7 +156,7 @@ pipeline {
 			post {
 				always {
 					script {
-						formatComment("Hercules")
+						formatComment("Hercules", UPP_COMPILER)
 					}
 				}
 			}
@@ -225,7 +204,7 @@ pipeline {
  			post {
  				always {
  					script {
- 						formatComment("Orion")
+ 						formatComment("Orion", UPP_COMPILER)
  					}
  				}
  			}
@@ -272,7 +251,7 @@ pipeline {
  			post {
  				always {
  					script {
- 						formatComment("Ursa - Intel")
+ 						formatComment("Ursa", UPP_COMPILER)
  					}
  				}
  			}
@@ -319,7 +298,7 @@ pipeline {
  			post {
  				always {
  					script {
- 						formatComment("Ursa - Intelllvm")
+ 						formatComment("Ursa", UPP_COMPILER)
  					}
  				}
  			}
