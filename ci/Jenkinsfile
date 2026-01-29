@@ -124,8 +124,8 @@ pipeline {
             echo "Remove label ursa-RT"
             removeGitHubLabel("ursa-RT")
 			    }
-
-		  } 
+        }
+		  }   
     }
 		stage('Run UPP RTs on Hercules - Intel') {
 			agent {
