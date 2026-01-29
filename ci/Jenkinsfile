@@ -216,10 +216,10 @@ pipeline {
  		} 
  		stage('Run UPP RTs on Ursa') {
  			agent {
-        beforeAgent true
  				label "ursa"
  			}
       when {
+        beforeAgent true
         expression { URSA_RTS == 'true' }
       }
  			environment {
@@ -263,10 +263,10 @@ pipeline {
  		} 
  		stage('Run UPP RTs on Ursa2') {
  			agent {
-        beforeAgent true
  				label "ursa"
  			}
       when {
+        beforeAgent true
         expression { URSA_RTS == 'true' }
       }
  			environment {
