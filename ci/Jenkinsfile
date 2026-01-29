@@ -38,7 +38,10 @@ def postGitHubComment(commentMessage) {
 
 def removeGitHubLabel(labelName) {
   script {
-    echo "${my_test}: ${labelName}"
+  
+    sh '''
+      curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${GLOBAL_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/${labelName}
+    '''
   }
 }
 //		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
@@ -74,8 +77,7 @@ pipeline {
 	agent none
 
   environment {
-    API_TOKEN = credentials('GithubJenkinsNew')
-    my_test = "hello world"
+    GLOBAL_TOKEN = credentials('GithubJenkinsNew')
   }
 	stages {
 		stage('UPP Regression Tests') {
@@ -84,42 +86,48 @@ pipeline {
 			}
 			steps {
 				script {
+
+          // Determine which RDHPC systems have been selected for RTs
 					for (label in pullRequest.labels) {
 						if ((label.matches("hercules-RT"))) {
-              echo "Inside Hercules Branch"
-              echo "HERCULES_RTS: ${HERCULES_RTS}"
-//              HERCULES_RTS = 'true'
-              echo "HERCULES_RTS: ${HERCULES_RTS}"
+              echo "Hercules RTs Selected"
+              HERCULES_RTS = 'true'
 						}  
 						if ((label.matches("orion-RT"))) {
-              echo "Inside Orion Branch"
-              echo "ORION: ${ORION_RTS}"
-//              ORION_RTS = 'true'
-              echo "ORION_RTS: ${ORION_RTS}"
+              echo "Orion RTs Selected"
+              ORION_RTS = 'true'
             }
 						if ((label.matches("ursa-RT"))) {
-              echo "Inside Ursa Branch"
-              echo "URSA: ${URSA_RTS}"
-//              URSA_RTS = 'true'
-              echo "URSA_RTS: ${URSA_RTS}"
+              echo "Ursa RTs Selected"
+              URSA_RTS = 'true'
             }
 						if ((label.matches("hera-RT"))) {
-              echo "Inside Hera Branch"
+              echo "Hera RTs Selected"
               HERA_RTS = 'true'
             }
 				  }    
+
+          // Remove the appropriate label from the PR to avoid infinite build loops
           if (( HERA_RTS == 'true' )) {
-              echo "Remove label hera-RT"
-              removeGitHubLabel("hera-RT")
-              // sh '''
-              //   curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer ${API_TOKEN}\" https://api.github.com/repos/NOAA-EMC/UPP/issues/${CHANGE_ID}/labels/hera-RT
-              //'''
-              echo "Label Removed"
+            echo "Remove label hera-RT"
+            removeGitHubLabel("hera-RT")
           }
-			  }
+          if (( ORION_RTS == 'true' )) {
+            echo "Remove label orion-RT"
+            removeGitHubLabel("orion-RT")
+			    }
+          if (( HERCULES_RTS == 'true' )) {
+            echo "Remove label hercules-RT"
+            removeGitHubLabel("hercules-RT")
+			    }
+          if (( URSA_RTS == 'true' )) {
+            echo "Remove label ursa-RT"
+            removeGitHubLabel("ursa-RT")
+			    }
+
 		  } 
     }
-		stage('Run UPP RTs on Hercules') {
+		stage('Run UPP RTs on Hercules - Intel') {
 			agent {
 				label "hercules"
 			}
@@ -167,7 +175,7 @@ pipeline {
 			}
 		} 
 
- 		stage('Run UPP RTs on Orion') {
+ 		stage('Run UPP RTs on Orion - Intel') {
  			agent {
  				label "orion"
  			}
@@ -214,7 +222,7 @@ pipeline {
  				}
  			}
  		} 
- 		stage('Run UPP RTs on Ursa') {
+ 		stage('Run UPP RTs on Ursa - Intel') {
  			agent {
  				label "ursa"
  			}
@@ -256,12 +264,12 @@ pipeline {
  			post {
  				always {
  					script {
- 						formatComment("Ursa")
+ 						formatComment("Ursa - Intel")
  					}
  				}
  			}
  		} 
- 		stage('Run UPP RTs on Ursa2') {
+ 		stage('Run UPP RTs on Ursa - Intelllvm') {
  			agent {
  				label "ursa"
  			}
@@ -303,7 +311,7 @@ pipeline {
  			post {
  				always {
  					script {
- 						formatComment("Ursa")
+ 						formatComment("Ursa - Intelllvm")
  					}
  				}
  			}
