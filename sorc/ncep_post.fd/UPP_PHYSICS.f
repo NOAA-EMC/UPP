@@ -698,7 +698,7 @@
                 IF (ITYPE == 1) THEN
                   IF (capecin_2m .AND. KB == LM) THEN 
                       PKL = PSHLTR(I,J)
-                      TBTK = TSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA
                       QBTK = max(0.0, QSHLTR(I,J))
                   ELSE 
                       TBTK   = T(I,J,KB)
@@ -1267,7 +1267,7 @@
                 IF (ITYPE == 1) THEN
                   IF (capecin_2m .AND. KB == LM) THEN 
                       PKL = PSHLTR(I,J)
-                      TBTK = TSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA
                       QBTK = max(0.0, QSHLTR(I,J))
                   ELSE 
                       TBTK   = T(I,J,KB)
