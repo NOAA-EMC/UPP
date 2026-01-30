@@ -1008,9 +1008,9 @@
        <param>
           <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+          <level>0. 10. 40. 100.</level>
           <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2> 
+          <level2>10. 40. 100. 200.</level2> 
           <scale>4.0</scale> 
        </param>
 
@@ -1018,9 +1018,9 @@
        <param>
           <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+          <level>0. 10. 40. 100.</level>
           <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2> 
+          <level2>10. 40. 100. 200.</level2> 
           <scale>3.0</scale>
        </param>
 
@@ -1287,9 +1287,9 @@
        <param>
           <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+          <level>0. 10. 40. 100.</level>
           <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2> 
+          <level2>10. 40. 100. 200.</level2> 
           <scale>4.0</scale> 
        </param>
 
@@ -1297,9 +1297,9 @@
        <param>
           <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+          <level>0. 10. 40. 100.</level>
           <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2> 
+          <level2>10. 40. 100. 200.</level2> 
           <scale>3.0</scale>
        </param>
 

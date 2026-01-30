@@ -57,12 +57,14 @@ ALL_TXT= \
   ./mpas/postxconfig-NT-rrfs_mpas.txt \
   ./mpas/postxconfig-NT-hfip_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas.txt \
+  ./mpas/postxconfig-NT-global_mpas_noah.txt \
   postxconfig-NT-UFS-aerosol.txt \
   postxconfig-NT-UFS-aerosol-F00.txt \
   ./aqm/postxconfig-NT-AQM.txt \
   ./dafs/postxconfig-NT-hrrr_dafs.txt \
   postxconfig-NT-wps.txt \
   ./gcafs/postxconfig-NT-gcafs.txt \
+  ./gcafs/postxconfig-NT-gcafs-f00.txt \
   ./3drtma/postxconfig-NT-3drtma.txt
 
 .PHONY: all clean
@@ -106,12 +108,14 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./mpas/postxconfig-NT-rrfs_mpas.txt:   ./mpas/rrfs_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-hfip_mpas.txt:   ./mpas/hfip_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-global_mpas.txt: ./mpas/global_mpas_postcntrl.xml post_avblflds.xml
+./mpas/postxconfig-NT-global_mpas_noah.txt: ./mpas/global_mpas_postcntrl_noah.xml post_avblflds.xml
 postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
 postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 ./aqm/postxconfig-NT-AQM.txt:        ./aqm/aqm.xml                  post_avblflds.xml
 ./dafs/postxconfig-NT-hrrr_dafs.txt: ./dafs/hrrr_postcntrl_dafs.xml post_avblflds.xml
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
+./gcafs/postxconfig-NT-gcafs-f00.txt: ./gcafs/postcntrl_gcafs_f00.xml post_avblflds.xml
 ./3drtma/postxconfig-NT-3drtma.txt: ./3drtma/3drtma_postcntrl.xml post_avblflds.xml
 
 %.txt:
