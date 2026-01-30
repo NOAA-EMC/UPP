@@ -105,7 +105,7 @@ pipeline {
 			    }
           if (( HERCULES_RTS == 'true' )) {
             echo "Remove label hercules-RT"
-            removeGitHubLabel("hercules-RT")
+            //removeGitHubLabel("hercules-RT")
 			    }
           if (( URSA_RTS == 'true' )) {
             echo "Remove label ursa-RT"
@@ -156,6 +156,7 @@ pipeline {
 			post {
 				always {
 					script {
+            removeGitHubLabel("hercules-RT")
 						formatComment("Hercules", UPP_COMPILER)
 					}
 				}
