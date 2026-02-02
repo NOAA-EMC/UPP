@@ -79,8 +79,6 @@ pipeline {
             if (label.matches("Run_RTs")) {
 
               RUN_RTS = 'true' 
-              echo "Remove label RUN_RTS"
-              removeGitHubLabel("Run_RTs")
 
 						  if ((label.matches("hercules-RT"))) {
                 echo "Hercules RTs Selected"
@@ -100,6 +98,13 @@ pipeline {
               }
             }
 				  }    
+          if (RUN_RTS == 'true') {
+            echo "Remove label RUN_RTS"
+            removeGitHubLabel("Run_RTs")
+          }
+          else {
+            echo "Jenkins automated RTs will not run unless the label 'Run_RTs' is added to the PR"
+          }
         }
 		  }   
     }
