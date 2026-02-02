@@ -66,7 +66,7 @@
                             teql,ieql, cape,cin,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog, tfrz, small, g, capa
+                            rhmin, rgamog, tfrz, small, g, capa, p1000
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, &

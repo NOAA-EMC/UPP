@@ -578,7 +578,7 @@
       use vrbls2d,    only: teql,ieql,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
-                            oneps, g
+                            oneps, g, p1000
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
@@ -610,7 +610,6 @@
            THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
 !      real,external :: fpvsnew
       integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ, KB,ITTBK
-
 !     integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ,IT,LMHK, KB,ITTBK
 !     
 !**************************************************************
@@ -1066,7 +1065,7 @@
       use gridspec_mod, only: gridtype
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
-                            oneps, g, tfrz
+                            oneps, g, tfrz, p1000
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
