@@ -12,7 +12,6 @@
 !>   
 !> @author Karina Asmar NCEP/EMC @date 2026-01-06
 ! ------------------------------------------------------------------------------------------
-!> @brief Computes new corrected gust wind factor for HAFS model.
 !>
 !> @param[in] SPEED850 Wind speed at 850 mb.
 !> @param[in] SPEED950 Wind speed at 950 mb.
