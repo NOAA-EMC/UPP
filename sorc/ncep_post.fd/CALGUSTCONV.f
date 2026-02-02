@@ -4,10 +4,6 @@
 !> 
 !> This subroutine is based on the Python code provided by Andre Hazelton (HRD),
 !> which computes a new wind gust factor based on turbulence and convective components.
-!> 
-!> @param[in] SPEED850 Wind speed at 850 mb.
-!> @param[in] SPEED950 Wind speed at 950 mb.
-!> @param[inout] GUSTCONV Gust factor.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -15,7 +11,13 @@
 !> 2026-01-06 | Karina Asmar | Initial
 !>   
 !> @author Karina Asmar NCEP/EMC @date 2026-01-06
-
+! ------------------------------------------------------------------------------------------
+!> @brief Computes new corrected gust wind factor for HAFS model.
+!>
+!> @param[in] SPEED850 Wind speed at 850 mb.
+!> @param[in] SPEED950 Wind speed at 950 mb.
+!> @param[inout] GUSTCONV Gust factor.
+!>
       SUBROUTINE CALGUSTCONV(SPEED850,SPEED950,GUSTCONV)
 !     
 !     
