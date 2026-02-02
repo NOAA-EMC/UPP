@@ -7,7 +7,7 @@
 !> 
 !> @param[in] SPEED850 WIND SPEED AT 850 MB
 !> @param[in] SPEED950 WIND SPEED AT 950 MB
-!> @param[inout] GUST FACTOR FROM CONVECTIVE AND TURBULENT COMPONENTS
+!> @param[inout] GUSTCONV GUST FACTOR FROM CONVECTIVE AND TURBULENT COMPONENTS
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
