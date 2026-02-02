@@ -1,13 +1,13 @@
 !> @file
-!> @brief SUBROUTINE THAT COMPUTES WIND GUST FROM TURBULENCE AND CONVECTIVE COMPONENTS
-!>        FOR HAFS MODEL.
+!> @brief Subroutine that computes wind gust form turbulence and convective components
+!> for HAFS model. 
 !> 
-!> THIS SUBROUTINE IS BASED ON THE PYTHON CODE PROVIDED BY ANDREW HAZELTON (HAFS TEAM),
-!> WHICH COMPUTES A NEW WIND GUST FACTOR BASED ON TURBULENCE AND CONVECTIVE COMPONTNETS.
+!> This subroutine is based on the Python code provided by Andre Hazelton (HRD),
+!> which computes a new wind gust factor based on turbulence and convective components.
 !> 
-!> @param[in] SPEED850 WIND SPEED AT 850 MB
-!> @param[in] SPEED950 WIND SPEED AT 950 MB
-!> @param[inout] GUSTCONV GUST FACTOR FROM CONVECTIVE AND TURBULENT COMPONENTS
+!> @param[in] SPEED850 Wind speed at 850 mb.
+!> @param[in] SPEED950 Wind speed at 950 mb.
+!> @param[inout] GUSTCONV Gust factor.
 !>
 !> ### Program history log:
 !> Date | Programmer | Comments
@@ -21,9 +21,9 @@
 !     
       use vrbls2d , only: u10,v10, ustar
       use ctlblk_mod, only: ista, iend, jsta, jend, ista_2l, iend_2u, jsta_2l, jend_2u, spval
-
+!
       implicit none
-
+!
       INCLUDE "mpif.h"
 ! 
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
@@ -33,10 +33,10 @@
       REAL,intent(in)    :: SPEED850(ista_2l:iend_2u,jsta_2l:jend_2u)
       REAL,intent(in)    :: SPEED950(ista_2l:iend_2u,jsta_2l:jend_2u)
       REAL,intent(inout) :: GUSTCONV(ista_2l:iend_2u,jsta_2l:jend_2u)
-
+!
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: WIND10, WSD, GUST1_NEW, GUST2_NEW, WSTT1_NEW, &
                                                             WSTT2_NEW, GF1_NEW, GF2_NEW
-
+!
 !
       integer I,J
 !     
