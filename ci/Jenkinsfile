@@ -86,13 +86,12 @@ pipeline {
                 echo "Orion RTs Selected"
                 ORION_RTS = 'true'
               }
-              if ((label.matches("ursa-RT")) {
+              if (label.matches("ursa-RT")) {
                 echo "Ursa RTs Selected"
                 URSA_RTS = 'true'
               }
-              if ((label.matches("hera-RT")) {
-                echo "Hera RTs Selected"
-                HERA_RTS = 'true'
+              if (label.matches("hera-RT")) {
+                echo "Hera RTs no longer supported"
               }
             }
           }    
