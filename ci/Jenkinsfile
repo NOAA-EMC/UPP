@@ -61,45 +61,43 @@ def URSA_RTS = 'false'
 def RUN_RTS = 'false'
 
 pipeline {
-	agent none
+  agent none
 
   environment {
     GLOBAL_TOKEN = credentials('GithubJenkinsNew')
   }
-	stages {
-		stage('UPP Regression Tests') {
-			agent {
-				label 'built-in'   
-			}
-			steps {
-				script {
-
+  stages {
+    stage('UPP Regression Tests') {
+      agent {
+        label 'built-in'   
+      }
+      steps {
+        script {
           // Determine which RDHPC systems have been selected for RTs
-					for (label in pullRequest.labels) {
+          for (label in pullRequest.labels) {
             if (label.matches("Run_RTs")) {
-
+              echo "Run_RTs label selected"
               RUN_RTS = 'true' 
-
-						  if ((label.matches("hercules-RT"))) {
+              if ((label.matches("hercules-RT"))) {
                 echo "Hercules RTs Selected"
                 HERCULES_RTS = 'true'
-						  }  
-						  if ((label.matches("orion-RT"))) {
+              }  
+              if ((label.matches("orion-RT"))) {
                 echo "Orion RTs Selected"
                 ORION_RTS = 'true'
               }
-						  if ((label.matches("ursa-RT"))) {
+              if ((label.matches("ursa-RT"))) {
                 echo "Ursa RTs Selected"
                 URSA_RTS = 'true'
               }
-						  if ((label.matches("hera-RT"))) {
+              if ((label.matches("hera-RT"))) {
                 echo "Hera RTs Selected"
                 HERA_RTS = 'true'
               }
             }
 				  }    
           if (RUN_RTS == 'true') {
-            echo "Remove label RUN_RTS"
+            echo "Remove label Run_RTs"
             removeGitHubLabel("Run_RTs")
           }
           else {
