@@ -78,24 +78,24 @@ pipeline {
             if (label.matches("Run_RTs")) {
               echo "Run_RTs label selected"
               RUN_RTS = 'true' 
-              if ((label.matches("hercules-RT"))) {
+              if (label.matches("hercules-RT")) {
                 echo "Hercules RTs Selected"
                 HERCULES_RTS = 'true'
               }  
-              if ((label.matches("orion-RT"))) {
+              if (label.matches("orion-RT")) {
                 echo "Orion RTs Selected"
                 ORION_RTS = 'true'
               }
-              if ((label.matches("ursa-RT"))) {
+              if ((label.matches("ursa-RT")) {
                 echo "Ursa RTs Selected"
                 URSA_RTS = 'true'
               }
-              if ((label.matches("hera-RT"))) {
+              if ((label.matches("hera-RT")) {
                 echo "Hera RTs Selected"
                 HERA_RTS = 'true'
               }
             }
-				  }    
+          }    
           if (RUN_RTS == 'true') {
             echo "Remove label Run_RTs"
             removeGitHubLabel("Run_RTs")
@@ -104,56 +104,56 @@ pipeline {
             echo "Jenkins automated RTs will not run unless the label 'Run_RTs' is added to the PR"
           }
         }
-		  }   
+      }   
     }
-		stage('Run UPP RTs on Hercules - Intel') {
-			agent {
-				label "hercules"
-			}
+    stage('Run UPP RTs on Hercules - Intel') {
+      agent {
+        label "hercules"
+      }
       when {
         beforeAgent true
         expression { HERCULES_RTS == 'true' }
       }
-			environment {
-				ACCNR = 'epic'
-				UPP_COMPILER = 'intel'
-				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-			}
-			steps {
-				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {	
-					cleanWs()
-					checkout scm
-					sh '''
-					   echo $(pwd)
-					   cd ci/
-             echo $CHANGE_ID
-             export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
-             export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-             ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
-             cd ../tests/logs
-					   git remote -v
-             git fetch --no-recurse-submodules origin
-             git config user.email "ecc.platform@noaa.gov"
-             git config user.name "epic-cicd-jenkins"
-             echo "Hercules testing concluded..."
-             git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
-					   git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
-             git pull sshorigin $FORK_BRANCH
-             git add rt.log.HERCULES_${UPP_COMPILER}
-             git commit -m "Jenkins RT log for Hercules using ${UPP_COMPILER} compiler."
-             git push sshorigin HEAD:$FORK_BRANCH
-					'''
-				}
-			}
-			post {
-				always {
-					script {
+      environment {
+        ACCNR = 'epic'
+        UPP_COMPILER = 'intel'
+        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {	
+          cleanWs()
+          checkout scm
+          sh '''
+            echo $(pwd)
+            cd ci/
+            echo $CHANGE_ID
+            export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+            export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+            ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
+            cd ../tests/logs
+            git remote -v
+            git fetch --no-recurse-submodules origin
+            git config user.email "ecc.platform@noaa.gov"
+            git config user.name "epic-cicd-jenkins"
+            echo "Hercules testing concluded..."
+            git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+            git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+            git pull sshorigin $FORK_BRANCH
+            git add rt.log.HERCULES_${UPP_COMPILER}
+            git commit -m "Jenkins RT log for Hercules using ${UPP_COMPILER} compiler."
+            git push sshorigin HEAD:$FORK_BRANCH
+          '''
+        }
+      }
+      post {
+        always {
+          script {
             removeGitHubLabel("hercules-RT")
-						formatComment("Hercules", UPP_COMPILER)
-					}
-				}
-			}
-		} 
+            formatComment("Hercules", UPP_COMPILER)
+          }
+        }
+      }
+    } 
 
  		stage('Run UPP RTs on Orion - Intel') {
  			agent {
