@@ -58,7 +58,7 @@ def removeGitHubLabel(labelName) {
 def ORION_RTS = 'false'
 def HERCULES_RTS = 'false'
 def URSA_RTS = 'false'
-def HERA_RTS = 'false'
+def RUN_RTS = 'false'
 
 pipeline {
 	agent none
@@ -76,41 +76,30 @@ pipeline {
 
           // Determine which RDHPC systems have been selected for RTs
 					for (label in pullRequest.labels) {
-						if ((label.matches("hercules-RT"))) {
-              echo "Hercules RTs Selected"
-              HERCULES_RTS = 'true'
-						}  
-						if ((label.matches("orion-RT"))) {
-              echo "Orion RTs Selected"
-              ORION_RTS = 'true'
-            }
-						if ((label.matches("ursa-RT"))) {
-              echo "Ursa RTs Selected"
-              URSA_RTS = 'true'
-            }
-						if ((label.matches("hera-RT"))) {
-              echo "Hera RTs Selected"
-              HERA_RTS = 'true'
+            if (label.matches("Run_RTs")) {
+
+              RUN_RTS = 'true' 
+              echo "Remove label RUN_RTS"
+              removeGitHubLabel("RUN_RTS")
+
+						  if ((label.matches("hercules-RT"))) {
+                echo "Hercules RTs Selected"
+                HERCULES_RTS = 'true'
+						  }  
+						  if ((label.matches("orion-RT"))) {
+                echo "Orion RTs Selected"
+                ORION_RTS = 'true'
+              }
+						  if ((label.matches("ursa-RT"))) {
+                echo "Ursa RTs Selected"
+                URSA_RTS = 'true'
+              }
+						  if ((label.matches("hera-RT"))) {
+                echo "Hera RTs Selected"
+                HERA_RTS = 'true'
+              }
             }
 				  }    
-
-          // Remove the appropriate label from the PR to avoid infinite build loops
-          if (( HERA_RTS == 'true' )) {
-            echo "Remove label hera-RT"
-            removeGitHubLabel("hera-RT")
-          }
-          if (( ORION_RTS == 'true' )) {
-            echo "Remove label orion-RT"
-            removeGitHubLabel("orion-RT")
-			    }
-          if (( HERCULES_RTS == 'true' )) {
-            echo "Remove label hercules-RT"
-            //removeGitHubLabel("hercules-RT")
-			    }
-          if (( URSA_RTS == 'true' )) {
-            echo "Remove label ursa-RT"
-            removeGitHubLabel("ursa-RT")
-			    }
         }
 		  }   
     }
@@ -206,6 +195,7 @@ pipeline {
  				always {
  					script {
  						formatComment("Orion", UPP_COMPILER)
+            removeGitHubLabel("orion-RT")
  					}
  				}
  			}
@@ -253,6 +243,7 @@ pipeline {
  				always {
  					script {
  						formatComment("Ursa", UPP_COMPILER)
+            // Dont remove Ursa label yet, so we can run for both compilers
  					}
  				}
  			}
@@ -300,6 +291,7 @@ pipeline {
  				always {
  					script {
  						formatComment("Ursa", UPP_COMPILER)
+            removeGitHubLabel("ursa-RT")
  					}
  				}
  			}
