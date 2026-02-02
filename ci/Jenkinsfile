@@ -80,7 +80,7 @@ pipeline {
 
               RUN_RTS = 'true' 
               echo "Remove label RUN_RTS"
-              removeGitHubLabel("RUN_RTS")
+              removeGitHubLabel("Run_RTs")
 
 						  if ((label.matches("hercules-RT"))) {
                 echo "Hercules RTs Selected"
