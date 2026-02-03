@@ -119,9 +119,10 @@ program test_ttblex
                          ", Computed ITHTB = ", ITHTB(i,j)
                 res = 1
             end if
-            if (res .ne. 0) stop 10
         end do
     end do
 
+    if (res .ne. 0) stop 10
+    
     print *, "SUCCESS!"
 end program test_ttblex
