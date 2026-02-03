@@ -1,5 +1,5 @@
 !> @file
-!> @brief Subroutine that computes wind gust form turbulence and convective components
+!> @brief Subroutine that computes wind gust from turbulence and convective components
 !> for HAFS model. 
 !> 
 !> This subroutine is based on the Python code provided by Andre Hazelton (HRD),
