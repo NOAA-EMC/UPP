@@ -91,7 +91,7 @@ program test_wetfrzlvl
     ths(2,1)  = 270.0
     t_sfc = sm(2,1)*thz0(2,1) + (1.0 - sm(2,1))*ths(2,1) * ( pint(2,1,nlevs+1) / p1000 )**capa
     t(2,1,nlevs) = t_sfc
-    EXP_ZWET(2,1) = 9.1531143188E+01
+    EXP_ZWET(2,1) = 2.8333325195E+02
 
     ! Test Case: ZWET clipped to ZU if ZWET > ZU
     t_sfc = sm(2,2)*thz0(2,2) + (1.0 - sm(2,2))*ths(2,2) * ( pint(2,2,nlevs+1) / p1000 )**capa
@@ -123,13 +123,12 @@ program test_wetfrzlvl
     res = 0
     do i = ista, iend
         do j = jsta, jend
-        print '(A,I0,A,I0,A,ES24.10)', "ZWET(", i, ",", j, ") = ", ZWET(i,j)
-            !if ( abs(ZWET(i,j) - EXP_ZWET(i,j)) > tol ) then
-            !    print *, "Test failed at (i,j)=(", i, ",", j, "): ", &
-            !             "Expected ZWET = ", EXP_ZWET(i,j), &
-            !             ", Computed ZWET = ", ZWET(i,j)
-            !    res = 1
-            !end if
+            if ( abs(ZWET(i,j) - EXP_ZWET(i,j)) > tol ) then
+                print *, "Test failed at (i,j)=(", i, ",", j, "): ", &
+                         "Expected ZWET = ", EXP_ZWET(i,j), &
+                         ", Computed ZWET = ", ZWET(i,j)
+                res = 1
+            end if
         end do
     end do
 
