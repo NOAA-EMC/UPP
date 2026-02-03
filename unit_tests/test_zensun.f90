@@ -8,7 +8,7 @@ program test_zensun
     implicit none
     
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: ntests = 10
+    integer, parameter :: ntests = 11
     integer :: i, res
     ! Input
     real(r_kind), parameter :: PI = 3.14159265358979323846
@@ -77,8 +77,22 @@ program test_zensun
     LAT(10)  = 10.0
     LON(10)  = -90.0
 
+    ! 11) di == 74
+    DAY(11)  = 2
+    TIME(11) = 0.0
+    LAT(11)  = -10.0
+    LON(11)  = 45.0
+    
     do i = 1, ntests
         call ZENSUN(DAY(i), TIME(i), LAT(i), LON(i), PI, SUN_ZENITH(i), SUN_AZIMUTH(i))
+    end do
+
+    do i = 1, ntests
+        print '(A,I0,A,ES24.10)', "SUN_ZENITH(", i, ") = ", SUN_ZENITH(i)
+    end do
+
+    do i = 1, ntests
+        print '(A,I0,A,ES24.10)', "SUN_AZIMUTH(", i, ") = ", SUN_AZIMUTH(i)
     end do
 
     print *, "SUCCESS!"
