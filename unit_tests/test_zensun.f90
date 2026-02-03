@@ -19,6 +19,7 @@ program test_zensun
     real(r_kind), dimension(ntests) :: TIME, LAT, LON
     ! Output
     real(r_kind), dimension(ntests) :: SUN_ZENITH, SUN_AZIMUTH
+    real(r_kind), dimension(ntests) :: EXP_SUN_ZENITH, EXP_SUN_AZIMUTH
 
     ! 1) di == 1 lower boundary: tt = 1.0 (nday(1))
     DAY(1)  = 1
@@ -106,7 +107,7 @@ program test_zensun
             res = 1
         end if
     end do
-    
+
     if (res .ne. 0) stop 10
 
     print *, "SUCCESS!"
