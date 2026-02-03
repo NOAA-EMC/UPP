@@ -58,7 +58,7 @@ usage() {
 
 set_defaults
 
-while getopts ":p:gnwc:vhiIdBD:o:at:" opt; do
+while getopts ":p:gnwc:vhiIdBD:o:at" opt; do
   case $opt in
     a)
       delete_exec=NO
