@@ -1934,13 +1934,8 @@
             DO J=JSTA,JEND
 			  DO I=ISTA,IEND
                 IF(GRID1(I,J)<SPVAL .and.  GRID2(I,J)<SPVAL) then
-			    IF (ABS(SPL(LP)-85000.)<SMALL) THEN
-			      WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
-				ELSE IF (ABS(SPL(LP)-95000.)<SMALL) THEN   
-				  WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
-				ELSE
-				  CONTINUE
-				ENDIF
+			     IF (ABS(SPL(LP)-85000.)<SMALL) WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+				 IF (ABS(SPL(LP)-95000.)<SMALL) WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
                 ENDIF
 			  ENDDO
 			ENDDO
