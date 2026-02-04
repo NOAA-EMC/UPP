@@ -25,6 +25,7 @@ set_defaults() {
     gtg_opt=" -DBUILD_WITH_GTG=OFF"
     nemsio_opt=" -DBUILD_WITH_NEMSIO=ON"
     wrfio_opt=" -DBUILD_WITH_WRFIO=ON"
+    build_unit_tests_opt=" -DBUILD_TESTING=ON"
     more=" "
     verbose_opt=""
     debug_opt=""
@@ -44,6 +45,7 @@ usage() {
   echo "  -B  build libIFI test programs (only valid with -I)       DEFAULT: OFF"
   echo "  -n  build with nemsio               DEFAULT: ${nemsio_opt#*=}"
   echo "  -w  build with WRF-IO               DEFAULT: ${wrfio_opt#*=}"
+  echo "  -t  build unit tests                DEFAULT: ${build_unit_tests_opt#*=}"
   echo "  -v  build with cmake verbose        DEFAULT: OFF"
   echo "  -c  Compiler to use for build       DEFAULT: $compiler"
   echo "  -d  Debug mode of CMAKE_BUILD_TYPE  DEFAULT: Release"
@@ -56,7 +58,7 @@ usage() {
 
 set_defaults
 
-while getopts ":p:gnwc:vhiIdBD:o:a" opt; do
+while getopts ":p:gnwc:vhiIdBD:o:at" opt; do
   case $opt in
     a)
       delete_exec=NO
@@ -82,6 +84,9 @@ while getopts ":p:gnwc:vhiIdBD:o:a" opt; do
       ;;
     w)
       wrfio_opt=" -DBUILD_WITH_WRFIO=OFF"
+      ;;
+    t)
+      build_unit_tests_opt=" -DBUILD_TESTING=OFF"
       ;;
     I)
       ifi_opt=" -DINTERNAL_IFI=ON"
@@ -112,7 +117,7 @@ if [[ ! -z $debug_opt && $ifi_opt =~ INTERNAL.*=ON ]] ; then
     debug_opt="$debug_opt -DIFI_DEBUG=ON"
 fi
 
-cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}${build_ifi_executables_opt}${more}
+cmake_opts=" -DCMAKE_INSTALL_PREFIX=$prefix"${nemsio_opt}${wrfio_opt}${gtg_opt}${ifi_opt}${debug_opt}${build_ifi_executables_opt}${build_unit_tests_opt}${more}
 
 #Load required modulefiles
 if [[ $MACHINE_ID != "unknown" ]]; then
