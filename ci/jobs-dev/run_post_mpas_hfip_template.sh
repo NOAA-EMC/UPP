@@ -61,6 +61,9 @@ cat > itag <<EOF
     modelname = 'RAPR'
     submodelname = 'MPAS'
 /
+&NAMPGB
+    capecin_2m=.false.,
+/
 EOF
 
 # copy fix data
