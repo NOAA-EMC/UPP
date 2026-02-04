@@ -1873,13 +1873,13 @@
 !     
 !***  U AND/OR V WIND
 !
-        IF(IGET(018) > 0.OR.IGET(019) > 0)THEN
+        IF(IGET(018) > 0.OR.IGET(019) > 0 .OR. IGET(1026) > 0)THEN
           log1=.false.
-          IF(IGET(018) > 0.) then
-             if(LVLS(LP,IGET(018)) > 0 ) log1=.true.
+          IF(IGET(018) > 0 .OR. IGET(1026) > 0) then
+             if(LVLS(LP,IGET(018)) > 0 .OR. IGET(1026) > 0 ) log1=.true.
           endif
-          IF(IGET(019) > 0) then
-             if(LVLS(LP,IGET(019)) > 0 ) log1=.true.
+          IF(IGET(019) > 0 .OR. IGET(1026) > 0) then
+             if(LVLS(LP,IGET(019)) > 0 .OR. IGET(1026) > 0) log1=.true.
           endif
           if ( log1 ) then
 !$omp  parallel do private(i,j)
@@ -1928,51 +1928,26 @@
                 enddo
               enddo
             endif
-          ENDIF
-        ENDIF
-!
-! *** WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST
-        IF (IGET(1026) > 0) THEN
-		! print*, 'HAFS GUST SPL: ', LP, SPL(LP)
-          log1=.true.
-		  IF ((LP == 41) .OR. (LP == 45)) THEN   ! ONLY 850 AND 950 MB FOR WIND SPEED   
-          if ( log1 ) then
-!$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=ISTA,IEND
-                 GRID1(I,J) = USL(I,J)
-                 GRID2(I,J) = VSL(I,J)
-               ENDDO
-             ENDDO
 
-          !  IF (SMFLAG) THEN
-          !    NSMOOTH=nint(5.*(13500./dxm))
-          !    call AllGETHERV(GRID1)
-          !    do k=1,NSMOOTH
-          !      CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-          !    end do
-          !    NSMOOTH=nint(5.*(13500./dxm))
-          !    call AllGETHERV(GRID2)
-          !    do k=1,NSMOOTH
-          !      CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
-          !    end do
-          !  ENDIF
-            
+			! *** WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST  
+			IF(IGET(1026)>0)THEN
             DO J=JSTA,JEND
 			  DO I=ISTA,IEND
-                           IF(GRID1(I,J)<SPVAL .and.  GRID2(I,J)<SPVAL) then
-			    IF (LP == 41) THEN
+                IF(GRID1(I,J)<SPVAL .and.  GRID2(I,J)<SPVAL) then
+			    IF (ABS(SPL(LP)-85000.)<SMALL) THEN
 			      WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
-				ELSE   
+				ELSE IF (ABS(SPL(LP)-95000.)<SMALL) THEN   
 				  WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+				ELSE
+				  CONTINUE
 				ENDIF
-                           ENDIF
+                ENDIF
 			  ENDDO
 			ENDDO
-		  endif
+			ENDIF
+			
           ENDIF
         ENDIF
-!
 !     
 !***  ABSOLUTE VORTICITY
 !
