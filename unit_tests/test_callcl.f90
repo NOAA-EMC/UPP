@@ -69,7 +69,7 @@ program test_callcl
 
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
-    if abs(PLCL(1,1) - EXP_PLCL(1,1)) > tol then
+    if (abs(PLCL(1,1) - EXP_PLCL(1,1)) > tol) then
         print *, 'PLCL Test failed: Expected ', EXP_PLCL(1,1), &
                  ' but got ', PLCL(1,1)
         res = 1
@@ -77,13 +77,12 @@ program test_callcl
         print *, 'PLCL Test passed: ', PLCL(1,1)
     end if
 
-    if abs(ZLCL(1,1) - EXP_ZLCL(1,1)) > tol then
+    if (abs(ZLCL(1,1) - EXP_ZLCL(1,1)) > tol) then
         print *, 'ZLCL Test failed: Expected ', EXP_ZLCL(1,1), &
                  ' but got ', ZLCL(1,1)
         res = 1
     else
         print *, 'ZLCL Test passed: ', ZLCL(1,1)
     end if
-    
     print *, 'SUCCESS!'
 end program test_callcl
