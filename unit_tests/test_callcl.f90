@@ -12,7 +12,9 @@ program test_callcl
                         ista, iend, ista_m, iend_m
     implicit none
 
-    real, parameter :: tol = 1.0e-6, p0 = 101325.0, height = 8000.0, ztop = 15000.0
+    real, parameter :: tol = 1.0e-6
+    ! Parameters for setting up input values
+    real, parameter :: p0 = 101325.0, height = 8000.0, ztop = 15000.0
     integer, parameter :: npts = 2, nlevs = 60
     integer :: i, j, k, res
     real :: zsfc(1:npts,1:npts), levels(1:nlevs), pint(1:npts,1:npts,1:nlevs)
@@ -39,20 +41,11 @@ program test_callcl
     allocate(fis(1:npts,1:npts))
     allocate(lmh(1:npts,1:npts))
 
-    ! Expected results
-    EXP_ZLCL = reshape([486.8708, 9.9e+10, 428.96264648, 385.38275146], [npts, npts])
-    EXP_PLCL = reshape([92988.375, 9.9e+10, 93080.39, 93005.65], [npts, npts])
+    ! CALLCL() uses lmh to determine the number of levels
+    ! Set to nlevs - 1 since loop accesses lmh(i,j) + 1
+    lmh = nlevs - 1
 
-    ! Initialize input arrays
-    P1D = reshape([100000.0, spval, 99500.0, 99000.0], [npts, npts])
-    T1D = reshape([292.0, 293.0, 293.0, 294.0], [npts, npts])
-    Q1D = reshape([0.01, 0.011, 0.011, 0.012], [npts, npts])
-
-    lmh = nlevs
-    fis = reshape([1962.0, 2452.5, 2452.5, 2943.0], [npts, npts])
-    zsfc = reshape([200.0, 250.0, 250.0, 300.0], [npts, npts])
-
-    ! Calculate some reasonable values for alpint and zint
+    ! Calculate some reasonable values for alpint, pint, and zint
     do k = 1, nlevs
         levels(k) = real(k - 1) / real(nlevs - 1)
     end do
@@ -66,6 +59,19 @@ program test_callcl
             end do
         end do
     end do
+    
+    ! Expected results
+    EXP_ZLCL = reshape([486.8708, 9.9e+10, 428.96264648, 385.38275146], [npts, npts])
+    EXP_PLCL = reshape([92988.375, 9.9e+10, 93080.39, 93005.65], [npts, npts])
+
+    ! Initialize input arrays
+    P1D = reshape([100000.0, spval, 99500.0, 99000.0], [npts, npts])
+    T1D = reshape([292.0, 293.0, 293.0, 294.0], [npts, npts])
+    Q1D = reshape([0.01, 0.011, 0.011, 0.012], [npts, npts])
+
+    
+    fis = reshape([1962.0, 2452.5, 2452.5, 2943.0], [npts, npts])
+    zsfc = reshape([200.0, 250.0, 250.0, 300.0], [npts, npts])
 
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
