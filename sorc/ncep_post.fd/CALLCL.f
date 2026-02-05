@@ -99,7 +99,8 @@
         DALP      = ALPINT(I,J,L) - ALPINT(I,J,L+1)
         DZ        = ZINT(I,J,L)   - ZINT(I,J,L+1)
         ZLCL(I,J) = max(D00, ZINT(I,J,L+1) + DZ*DLPLCL/DALP - ZSFC)
-        print *, 'L =', L
+        print *, 'ALPINT(I,J,L)=', ALPINT(I,J,L), 'ALPINT(I,J,L+1)=', ALPINT(I,J,L+1)
+        print *, 'ZINT(I,J,L)=', ZINT(I,J,L), 'ZINT(I,J,L+1)=', ZINT(I,J,L+1)
         EXIT
       ENDIF
  20   CONTINUE
