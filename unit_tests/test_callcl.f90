@@ -62,27 +62,35 @@ program test_callcl
     rmx = eps * evp / (100000.0 - evp)
     rkapa = 1.0 / (D2845 * (1.0 - D28 * rmx))
     tlcl = H55 + H2840 / (D35*LOG(300.0)-LOG(evp * D01)-D4805)
-    EXP_PLCL(1,1) = 100000.0 * (tlcl/300.0)**rkapa
+    EXP_PLCL = 100000.0 * (tlcl/300.0)**rkapa
     dlplcl = LOG(EXP_PLCL(1,1)) - alpint(1,1,nlevs)
     dalp = alpint(1,1,nlevs-1) - alpint(1,1,nlevs)
-    EXP_ZLCL(1,1) = zint(1,1,nlevs) - dz*dlplcl/dalp - zsfc
+    EXP_ZLCL = zint(1,1,nlevs) - dz*dlplcl/dalp - zsfc
 
+    ! Test Case: Input value missing, outputs all set to spval
+    P1D(2,1) = spval
+    EXP_PLCL(2,1) = spval
+    EXP_ZLCL(2,1) = spval
+
+    ! Test Case: EVP * D01 > H1M12, clips log argument in PLCL calculation
+    !
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
-    if (abs(PLCL(1,1) - EXP_PLCL(1,1)) > tol) then
-        print *, 'PLCL Test failed: Expected ', EXP_PLCL(1,1), &
-                 ' but got ', PLCL(1,1)
-        res = 1
-    else
-        print *, 'PLCL Test passed: ', PLCL(1,1)
-    end if
-
-    if (abs(ZLCL(1,1) - EXP_ZLCL(1,1)) > tol) then
-        print *, 'ZLCL Test failed: Expected ', EXP_ZLCL(1,1), &
-                 ' but got ', ZLCL(1,1)
-        res = 1
-    else
-        print *, 'ZLCL Test passed: ', ZLCL(1,1)
-    end if
+    do i = ista, iend
+        do j = jsta, jend
+            if (abs(PLCL(i,j) - EXP_PLCL(i,j)) > tol) then
+                print *, 'PLCL Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_PLCL(i,j), &
+                         ' but got ', PLCL(i,j)
+                res = 1
+            end if
+            if (abs(ZLCL(i,j) - EXP_ZLCL(i,j)) > tol) then
+                print *, 'ZLCL Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_ZLCL(i,j), &
+                         ' but got ', ZLCL(i,j)
+                res = 1
+            end if
+        end do
+    end do
     print *, 'SUCCESS!'
 end program test_callcl
