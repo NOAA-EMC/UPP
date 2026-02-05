@@ -79,7 +79,7 @@
   logical :: slrutah_on    !< Calculate snow to liquid ratio (SLR) using method from University of Utah.
   logical :: gtg_on        !< Turn on GTG (Graphical Turbulence Guidance)
   logical :: method_blsn   !< Turn on blowing snow effect on visibility diagnostic
-  logical :: capecin_2m    !< Turn on option to calculate CAPE and CIN using 2-m fields
+  logical :: capecin_2m = .false. !< Turn on option to calculate CAPE and CIN using 2-m fields
 !
   logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.
