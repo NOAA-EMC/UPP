@@ -65,7 +65,7 @@ program test_callcl
     EXP_PLCL(1,1) = 100000.0 * (tlcl/300.0)**rkapa
     dlplcl = LOG(EXP_PLCL(1,1)) - alpint(1,1,nlevs)
     dalp = alpint(1,1,nlevs-1) - alpint(1,1,nlevs)
-    EXP_ZLCL(1,1) = zint(1,1,nlevs) + dz*dlplcl/dalp - zsfc
+    EXP_ZLCL(1,1) = zint(1,1,nlevs) - dz*dlplcl/dalp - zsfc
 
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
