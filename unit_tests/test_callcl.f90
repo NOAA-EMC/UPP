@@ -18,8 +18,9 @@ program test_callcl
     ! Used to initialize inputs
     real, parameter :: zsfc = 10.0, dz = 200.0, Hscale = 8000.0
     integer, parameter :: npts = 2, nlevs = 60
+    ! Used to calculate expected results
+    real :: evp, rmx, rkapa, tlcl, dlplcl, dalp
     integer :: i, j, k, res
-    real :: z, p
     real :: P1D(1:npts,1:npts), T1D(1:npts,1:npts), Q1D(1:npts,1:npts)
     real :: PLCL(1:npts,1:npts), ZLCL(1:npts,1:npts)
     real :: EXP_PLCL(1:npts,1:npts), EXP_ZLCL(1:npts,1:npts)
@@ -47,32 +48,42 @@ program test_callcl
     ! Set to nlevs - 1 since loop accesses lmh(i,j) + 1
     lmh = nlevs - 1
 
-    ! TODO: Replace ??? with a single value for all points of the input arrays, fis, P1D, T1D, Q1D. The selected 
-    ! values should be physically reasonable and lead to a non-trivial test of the CALLCL() logic.
-    ! The selected values should also:
-    ! - Not clip ARG to H1M12 on line 89 of CALLCL.f
-    ! - Not clip ZLCL to D00 on line 101 of CALLCL.f
-    ! - No Values set to zero
     fis = zsfc/gi        ! Set surface geopotential consistent with ~10 m AGL
     P1D = 100000.0       ! 1000 hPa surface parcel pressure (Pa)
     T1D = 300.0          ! 300 K surface parcel temperature
     Q1D = 0.012          ! 12 g/kg specific humidity (kg/kg)
-
-    ! TODO: Replace ??? with code that initializes alpint and zint with physically reasonable values that are 
-    ! consistent with the selected P1D, T1D, Q1D, and fis values. The selected values should lead to a non-trivial 
-    ! test of the CALLCL() logic.
-    ! The selected values should also:
-    ! - Not clip ARG to H1M12 on line 89 of CALLCL.f
-    ! - Not clip ZLCL to D00 on line 101 of CALLCL.f
-    ! - No Values set to zero
 
     do k = 1, nlevs
         zint(:,:,k) = zsfc + (k-1)*dz
         alpint(:,:,k) = LOG(100000.0) - zint(:,:,k)/Hscale
     end do
 
+    evp = 100000.0 * 0.012 / (eps + 0.012 * oneps)  
+    rmx = eps * evp / (100000.0 - evp)
+    rkapa = 1.0 / (D2845 * (1.0 - D28 * rmx))
+    tlcl = H55 + H2840 / (D35*LOG(300.0)-LOG(evp * D01)-D4805)
+    EXP_PLCL(1,1) = 100000.0 * (tlcl/300.0)**rkapa
+    dlplcl = LOG(EXP_PLCL(1,1)) - alpint(1,1,nlevs)
+    dalp = alpint(1,1,nlevs-1) - alpint(1,1,nlevs)
+    EXP_ZLCL(1,1) = zint(1,1,nlevs) + dz*dlplcl/dalp - zsfc
+
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
+    if abs(PLCL(1,1) - EXP_PLCL(1,1)) > tol then
+        print *, 'PLCL Test failed: Expected ', EXP_PLCL(1,1), &
+                 ' but got ', PLCL(1,1)
+        res = 1
+    else
+        print *, 'PLCL Test passed: ', PLCL(1,1)
+    end if
+
+    if abs(ZLCL(1,1) - EXP_ZLCL(1,1)) > tol then
+        print *, 'ZLCL Test failed: Expected ', EXP_ZLCL(1,1), &
+                 ' but got ', ZLCL(1,1)
+        res = 1
+    else
+        print *, 'ZLCL Test passed: ', ZLCL(1,1)
+    end if
     
     print *, 'SUCCESS!'
 end program test_callcl
