@@ -1,238 +1,310 @@
-def formatComment(machine) {
-	script {
-		def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
-		def commentMessage = "${machine} UPP Regression Tests ${buildResult}"      
-		if (fileExists('ci/changed_results.txt')) {
-			echo 'changed_results.txt file found'
-			sh "cat ci/changed_results.txt"
-			def changedResults = readFile(file: 'ci/changed_results.txt')
-			def failMessage = commentMessage + "\n\n" + changedResults
-			def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
-			postGitHubComment(formattedMessage)
-			sh "rm -rf ci/changed_results.txt"
-		} else {
-			echo 'changed_results.txt file not found'
-			postGitHubComment(commentMessage)
-		}
-	}
+def formatComment(machine, compiler) {
+    script {
+        def buildResult = currentBuild.resultIsBetterOrEqualTo("SUCCESS") ? "PASSED" : "FAILED"
+        def commentMessage = "${machine} UPP Regression Tests with ${compiler} compiler ${buildResult}"      
+        if (fileExists('ci/changed_results.txt')) {
+            echo 'changed_results.txt file found'
+            sh "cat ci/changed_results.txt"
+            def changedResults = readFile(file: 'ci/changed_results.txt')
+            def failMessage = commentMessage + "\n\n" + changedResults
+            def formattedMessage = failMessage.replaceAll("\n", "\\\\n") 
+            postGitHubComment(formattedMessage)
+            sh "rm -rf ci/changed_results.txt"
+        } else {
+            echo 'changed_results.txt file not found'
+            postGitHubComment(commentMessage)
+        }
+    }
 }
 
 
 def postGitHubComment(commentMessage) {
-	script {
-		withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
-			def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/comments"
-			def curlCommand = "curl -s -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" +
-				"-X POST -d '{\"body\": \"" + commentMessage + "\"}' \\\n" +
-				"\"" + apiUrl + "\""
+    script {
+        withCredentials([string(credentialsId: 'GithubJenkinsNew', variable: 'ACCESS_TOKEN')]) {
+            def apiUrl = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/comments"
+            def curlCommand = "curl -s -H \"Authorization: token " + ACCESS_TOKEN + "\" \\\n" +
+                "-X POST -d '{\"body\": \"" + commentMessage + "\"}' \\\n" +
+                "\"" + apiUrl + "\""
 
-			def response = sh(script: curlCommand, returnStatus: true)
-			if (response == 0) {
-				echo "Comment added successfully to PR #${env.CHANGE_ID}"
-			} else {
-				error "Failed to add comment to PR #${env.CHANGE_ID}"
-			}
-		}
-	}
+            def response = sh(script: curlCommand, returnStatus: true)
+            if (response == 0) {
+                echo "Comment added successfully to PR #${env.CHANGE_ID}"
+            } else {
+                error "Failed to add comment to PR #${env.CHANGE_ID}"
+            }
+        }
+    }
 }
 
+/************************************************
+* Removes a label from the PR
+* labelName: The name of the label to be removed
+* Note: For security concerns remove GLOBAL_TOKEN 
+* from quoted text and use string concat op
+************************************************/
+def removeGitHubLabel(labelName) {
+  script {
+    def apiURL = "https://api.github.com/repos/NOAA-EMC/UPP/issues/${env.CHANGE_ID}/labels/${labelName}"
+    def curlCmd = "curl -L -X DELETE -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer " + GLOBAL_TOKEN + "\" ${apiURL}"
+      def response = sh(script: curlCmd, returnStatus: true)
+      if (response == 0) {
+        echo "Label ${labelName} successfully removed from PR #${env.CHANGE_ID}"
+      } else {
+        error "Failed to remove Label ${labelName} from PR #${env.CHANGE_ID}"
+      }
+  }
+}
+
+def ORION_RTS = 'false'
+def HERCULES_RTS = 'false'
+def URSA_RTS = 'false'
+def RUN_RTS = 'false'
 
 pipeline {
-	agent none
-	stages {
-		stage('UPP Regression Tests') {
-			agent {
-				label 'built-in'   
-			}
-			steps {
-				script {
-					for (label in pullRequest.labels) {
-						if ((label.matches("orion"))) {
-							env.CHOICE_NODE='orion'
-						}  
-						else if ((label.matches("hera"))) {
-							env.CHOICE_NODE='hera'
-						}  
-						else if ((label.matches("hercules"))) {
-							env.CHOICE_NODE='hercules'
-						}  
-						else if ((label.matches("jet"))) {
-							env.CHOICE_NODE='jet'
-						} 
-						else { 
-							env.CHOICE_NODE='none'
-						}
-					}
-					// Why do I need another if..block, because it just works this way.
-					if (CHOICE_NODE == 'orion') {
-						echo "Starting up orion ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					} 
-					else if (CHOICE_NODE == 'jet') {
-						echo "Starting up jet ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					}
-					else if (CHOICE_NODE == 'hercules') {
-						echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					}
-					else if (CHOICE_NODE == 'hera') {
-						echo "Starting up hera ${CHOICE_NODE}...this might take 5-10 minutes...please be patient."
-					}
-					else {
-						echo "${CHOICE_NODE} is NOT a platform, moving on..."
-					}
-				}    
-			}
-		} 
-		stage('Run UPP RTs on Orion') {
-			agent {
-				label "orion"
-			}
-			environment {
-				ACCNR = 'epic'
-				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
-			}
-			steps {
-				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-					cleanWs()
-					checkout scm
-					sh '''
-					echo $(pwd)
-					cd ci/
-                                        echo $CHANGE_ID
-                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
-                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir
-                                        cd ../tests/logs
-					git remote -v
-                                        git fetch --no-recurse-submodules origin
-                                        git config user.email "ecc.platform@noaa.gov"
-                                        git config user.name "epic-cicd-jenkins"
-                                        echo "Orion testing concluded..."
-					git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
-					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
-                                        git pull sshorigin $FORK_BRANCH
-					git add rt.log.ORION
-                                        git commit -m "Orion Jobs Completed."
-                                        git push sshorigin HEAD:$FORK_BRANCH
-					'''
-				}
-			}
-			post {
-				always {
-					script {
-						formatComment("Orion")
-					}
-				}
-			}
-		} 
-		stage('Run UPP RTs on Hera') {
-			agent {
-				label "hera"
-			}
-			environment {
-				ACCNR = 'epic'
-				NODE_PATH = '/scratch2/NAGAPE/epic/UPP/jenkins-ci'
-			}
-			steps {
-				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-					cleanWs()
-					checkout scm
-					sh '''
-					echo $(pwd)
-					cd ci/
-                                        echo $CHANGE_ID
-                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
-                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir
-                                        cd ../tests/logs
-					git remote -v
-                                        git fetch --no-recurse-submodules origin
-                                        git config user.email "ecc.platform@noaa.gov"
-                                        git config user.name "epic-cicd-jenkins"
-                                        echo "Hera testing concluded..."
-                                        git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
-					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
-                                        git pull sshorigin $FORK_BRANCH
-					git add rt.log.HERA
-                                        git commit -m "Hera Jobs Completed."
-                                        git push sshorigin HEAD:$FORK_BRANCH
-					'''
-				}
-			}
-			post {
-				always {
-					script {
-						formatComment("Hera")
-					}
-				}
-			} 
-		}        
-		stage('Run UPP RTs on Hercules') {
-			agent {
-				label "hercules"
-			}
-			environment {
-				ACCNR = 'epic'
-				NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
-			}
-			steps {
-				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {	
-					cleanWs()
-					checkout scm
-					sh '''
-					echo $(pwd)
-					cd ci/
-                                        echo $CHANGE_ID
-                                        export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
-                                        export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
-					./rt.sh -a ${ACCNR} -r `pwd`/rundir
-                                        cd ../tests/logs
-					git remote -v
-                                        git fetch --no-recurse-submodules origin
-                                        git config user.email "ecc.platform@noaa.gov"
-                                        git config user.name "epic-cicd-jenkins"
-                                        echo "Hercules testing concluded..."
-                                        git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
-					git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
-                                        git pull sshorigin $FORK_BRANCH
-					git add rt.log.HERCULES
-                                        git commit -m "Hercules Jobs Completed."
-                                        git push sshorigin HEAD:$FORK_BRANCH
-					'''
-				}
-			}
-			post {
-				always {
-					script {
-						formatComment("Hercules")
-					}
-				}
-			}
-		} 
-		// TO BE ADDED...
-		// stage('Run UPP RTs on Jet') {
-		// 	agent {
-		// 		label "jet"
-		// 	}
-		// 	environment {
-		// 		ACCNR = 'hfv3gfs'
-		// 		NODE_PATH = '/mnt/lfs4/HFIP/hfv3gfs/role.epic/'
-		// 	}
-		// 	steps {
-		// 		catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-		// 			cleanWs()
-		// 			checkout scm
-		// 			sh '''
+  agent none
 
-		// 			'''
-		// 		}
-		// 	}
-		// 	post {
-		// 		always {
-		// 			script {
-		// 				formatComment("Jet")
-		// 			}
-		// 		}
-		// 	}
-		// }		  
-	} 
+  environment {
+    GLOBAL_TOKEN = credentials('GithubJenkinsNew')
+  }
+  stages {
+    stage('UPP Regression Tests') {
+      agent {
+        label 'built-in'   
+      }
+      steps {
+        script {
+          // Determine which RDHPC systems have been selected for RTs
+          for (label in pullRequest.labels) {
+            if (label.matches("Run_RTs")) {
+              echo "Run_RTs label selected"
+              RUN_RTS = 'true' 
+            }
+          }
+          if (RUN_RTS == 'true') {
+            echo "Remove label Run_RTs"
+            removeGitHubLabel("Run_RTs")
+          }
+          else {
+            echo "Jenkins automated RTs will not run unless the label 'Run_RTs' is added to the PR"
+          }
+          
+          if (RUN_RTS == 'true') {
+            for (label in pullRequest.labels) {
+              if (label.matches("hercules-RT")) {
+                echo "Hercules RTs Selected"
+                HERCULES_RTS = 'true'
+              }  
+              if (label.matches("orion-RT")) {
+                echo "Orion RTs Selected"
+                ORION_RTS = 'true'
+              }
+              if (label.matches("ursa-RT")) {
+                echo "Ursa RTs Selected"
+                URSA_RTS = 'true'
+              }
+              if (label.matches("hera-RT")) {
+                echo "Hera RTs no longer supported"
+              }
+            }
+          }    
+        }
+      }   
+    }
+
+    stage('Run UPP RTs on Hercules - Intel') {
+      agent {
+        label "hercules"
+      }
+      when {
+        beforeAgent true
+        expression { HERCULES_RTS == 'true' }
+      }
+      environment {
+        ACCNR = 'epic'
+        UPP_COMPILER = 'intel'
+        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/hercules'
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {    
+          cleanWs()
+          checkout scm
+          sh '''
+            echo $(pwd)
+            cd ci/
+            echo $CHANGE_ID
+            export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+            export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+            ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
+            cd ../tests/logs
+            git remote -v
+            git fetch --no-recurse-submodules origin
+            git config user.email "ecc.platform@noaa.gov"
+            git config user.name "epic-cicd-jenkins"
+            echo "Hercules testing concluded..."
+            git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+            git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+            git pull sshorigin $FORK_BRANCH
+            git add rt.log.HERCULES_${UPP_COMPILER}
+            git commit -m "Jenkins RT log for Hercules using ${UPP_COMPILER} compiler."
+            git push sshorigin HEAD:$FORK_BRANCH
+          '''
+        }
+      }
+      post {
+        always {
+          script {
+            removeGitHubLabel("hercules-RT")
+            formatComment("Hercules", UPP_COMPILER)
+          }
+        }
+      }
+    } 
+
+    stage('Run UPP RTs on Orion - Intel') {
+      agent {
+        label "orion"
+      }
+      when {
+        beforeAgent true
+        expression { ORION_RTS == 'true' }
+      }
+      environment {
+        ACCNR = 'epic'
+        UPP_COMPILER = 'intel'
+        NODE_PATH = '/work/noaa/epic/UPP/jenkins-ci/orion'
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          cleanWs()
+          checkout scm
+          sh '''
+            echo $(pwd)
+            cd ci/
+            echo $CHANGE_ID
+            export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+            export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+            ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
+            cd ../tests/logs
+            git remote -v
+            git fetch --no-recurse-submodules origin
+            git config user.email "ecc.platform@noaa.gov"
+            git config user.name "epic-cicd-jenkins"
+            echo "Orion testing concluded..."
+            git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+            git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+            git pull sshorigin $FORK_BRANCH
+            git add rt.log.ORION_${UPP_COMPILER}
+            git commit -m "Jenkins RT log for Orion using ${UPP_COMPILER} compiler."
+            git push sshorigin HEAD:$FORK_BRANCH
+          '''
+        }
+      }
+      post {
+        always {
+          script {
+            formatComment("Orion", UPP_COMPILER)
+            removeGitHubLabel("orion-RT")
+          }
+        }
+      }
+    } 
+
+    stage('Run UPP RTs on Ursa - Intel') {
+      agent {
+        label "ursa"
+      }
+      when {
+        beforeAgent true
+        expression { URSA_RTS == 'true' }
+      }
+      environment {
+        ACCNR = 'epic'
+        UPP_COMPILER = 'intel'
+        NODE_PATH = '/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite'
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          cleanWs()
+          checkout scm
+          sh '''
+            echo $(pwd)
+            cd ci/
+            echo $CHANGE_ID
+            export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+            export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+            ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
+            cd ../tests/logs
+            git remote -v
+            git fetch --no-recurse-submodules origin
+            git config user.email "ecc.platform@noaa.gov"
+            git config user.name "epic-cicd-jenkins"
+            echo "Ursa testing concluded..."
+            git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+            git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+            git pull sshorigin $FORK_BRANCH
+            git add rt.log.URSA_${UPP_COMPILER}
+            git commit -m "Jenkins RT log for URSA using ${UPP_COMPILER} compiler."
+            git push sshorigin HEAD:$FORK_BRANCH
+          '''
+        }
+      }
+      post {
+        always {
+          script {
+            formatComment("Ursa", UPP_COMPILER)
+            // Dont remove Ursa label yet, so we can run for both compilers
+          }
+        }
+      }
+    } 
+
+    stage('Run UPP RTs on Ursa - Intelllvm') {
+      agent {
+        label "ursa"
+      }
+      when {
+        beforeAgent true
+        expression { URSA_RTS == 'true' }
+      }
+      environment {
+        ACCNR = 'epic'
+        UPP_COMPILER = 'intelllvm'
+        NODE_PATH = '/scratch4/NAGAPE/epic/role-epic/ursa/UPP/test_suite'
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          cleanWs()
+          checkout scm
+          sh '''
+            echo $(pwd)
+            cd ci/
+            echo $CHANGE_ID
+            export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+            export FORK_BRANCH=$(curl --silent https://api.github.com/repos/NOAA-EMC/UPP/pulls/$CHANGE_ID | jq -r '.head.ref')
+            ./rt.sh -a ${ACCNR} -C ${UPP_COMPILER} -r `pwd`/rundir
+            cd ../tests/logs
+            git remote -v
+            git fetch --no-recurse-submodules origin
+            git config user.email "ecc.platform@noaa.gov"
+            git config user.name "epic-cicd-jenkins"
+            echo "Ursa testing concluded..."
+            git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
+            git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+            git pull sshorigin $FORK_BRANCH
+            git add rt.log.URSA_${UPP_COMPILER}
+            git commit -m "Jenkins RT log for URSA using ${UPP_COMPILER} compiler."
+            git push sshorigin HEAD:$FORK_BRANCH
+          '''
+        }
+      }
+      post {
+        always {
+          script {
+            formatComment("Ursa", UPP_COMPILER)
+            removeGitHubLabel("ursa-RT")
+          }
+        }
+      }
+    } 
+  } 
 }
