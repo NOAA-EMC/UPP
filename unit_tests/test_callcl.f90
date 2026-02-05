@@ -68,7 +68,7 @@ program test_callcl
 
     do k = 1, nlevs
         zint(:,:,k) = zsfc + (k-1)*dz
-        alpint(:,:,k) = log(100000) - zint(:,:,k)/Hscale
+        alpint(:,:,k) = LOG(100000.0) - zint(:,:,k)/Hscale
     end do
 
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
