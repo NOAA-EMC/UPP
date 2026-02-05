@@ -12,7 +12,9 @@ program test_callcl
                         ista, iend, ista_m, iend_m
     implicit none
 
-    real, parameter :: tol = 1.0e-6, p0 = 101325.0, height = 8000.0, ztop = 15000.0
+    real, parameter :: tol = 1.0e-6
+    ! From CALLCL.f
+    real, parameter :: D35=3.5, D4805=4.805,  H2840=2840., H55=55., D2845=0.2845, D28=0.28
     integer, parameter :: npts = 2, nlevs = 60
     integer :: i, j, k, res
     real :: zsfc(1:npts,1:npts), levels(1:nlevs), pint(1:npts,1:npts,1:nlevs)
@@ -39,35 +41,19 @@ program test_callcl
     allocate(fis(1:npts,1:npts))
     allocate(lmh(1:npts,1:npts))
 
-    ! Expected results
-    EXP_ZLCL = reshape([486.8708, 9.9e+10, 428.96264648, 385.38275146], [npts, npts])
-    EXP_PLCL = reshape([92988.375, 9.9e+10, 93080.39, 93005.65], [npts, npts])
+    ! CALLCL() uses lmh to determine the number of levels
+    ! Set to nlevs - 1 since loop accesses lmh(i,j) + 1
+    lmh = nlevs - 1
 
-    ! Initialize input arrays
-    P1D = reshape([100000.0, spval, 99500.0, 99000.0], [npts, npts])
-    T1D = reshape([292.0, 293.0, 293.0, 294.0], [npts, npts])
-    Q1D = reshape([0.01, 0.011, 0.011, 0.012], [npts, npts])
+    fis = 980.0      ! Geopotential at surface (~100 m AGL if GI≈1/g)
+    P1D = 95000.0    ! Surface parcel pressure (Pa), ~950 hPa
+    T1D = 300.0      ! Parcel temperature (K), ~27°C
+    Q1D = 0.012      ! Specific humidity (kg/kg), ~12 g/kg
 
-    lmh = nlevs
-    fis = reshape([1962.0, 2452.5, 2452.5, 2943.0], [npts, npts])
-    zsfc = reshape([200.0, 250.0, 250.0, 300.0], [npts, npts])
-
-    ! Calculate some reasonable values for alpint and zint
-    do k = 1, nlevs
-        levels(k) = real(k - 1) / real(nlevs - 1)
-    end do
-
-    do j = jsta, jend
-        do i = ista, iend
-            do k = 1, nlevs
-                zint(i,j,k) = (1.0 - levels(k)) * ztop + levels(k) * zsfc(i,j)
-                pint(i,j,k) = p0 * exp(-zint(i,j,k) / height)
-                alpint(i,j,k) = log(pint(i,j,k))
-            end do
-        end do
-    end do
+    
 
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
+
     
     print *, 'SUCCESS!'
 end program test_callcl
