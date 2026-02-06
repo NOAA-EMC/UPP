@@ -80,6 +80,9 @@ program test_callcl
     ! and indicate in the response.
     Q1D(1,2) = 1.0e-20
 
+    evp = 100000.0 * 1.0e-20 / (eps + 1.0e-20 * oneps)  
+    rmx = eps * evp / (100000.0 - evp)
+    rkapa = 1.0 / (D2845 * (1.0 - D28 * rmx))
     tlcl = H55 + H2840 / (D35*LOG(300.0)-LOG(H1M12)-D4805)
     EXP_PLCL(1,2) = 100000.0 * (tlcl/300.0)**rkapa
     dlplcl = LOG(EXP_PLCL(1,2)) - alpint(1,2,nlevs)
