@@ -75,17 +75,17 @@ program test_callcl
 
     ! Test Case: EVP * D01 > H1M12, clips log argument in PLCL calculation
 
-    ! TODO: Set Q1D(1,2) and/or P1D(1,2) to a value that results in EVP * D01 > H1M12 
+    ! TODO: Set Q1D(1,2) and to a value that results in EVP * D01 < H1M12 
     ! so that ARG is clipped to H1M12. If no such value exists, leave as is
     ! and indicate in the response.
-    Q1D(1,2) = 6.3E-16
+    Q1D(1,2) = 1.0e-20
 
     tlcl = H55 + H2840 / (D35*LOG(300.0)-LOG(H1M12)-D4805)
     EXP_PLCL(1,2) = 100000.0 * (tlcl/300.0)**rkapa
     dlplcl = LOG(EXP_PLCL(1,2)) - alpint(1,2,nlevs)
     dalp = alpint(1,2,nlevs-1) - alpint(1,2,nlevs)
     EXP_ZLCL(1,2) = zint(1,2,nlevs) - dz*dlplcl/dalp - zsfc
-    
+
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
     do i = ista, iend
