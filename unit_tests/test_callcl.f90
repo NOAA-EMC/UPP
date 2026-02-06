@@ -74,10 +74,6 @@ program test_callcl
     EXP_ZLCL(2,1) = spval
 
     ! Test Case: EVP * D01 > H1M12, clips log argument in PLCL calculation
-
-    ! TODO: Set Q1D(1,2) and to a value that results in EVP * D01 < H1M12 
-    ! so that ARG is clipped to H1M12. If no such value exists, leave as is
-    ! and indicate in the response.
     Q1D(1,2) = 1.0e-20
 
     evp = 100000.0 * 1.0e-20 / (eps + 1.0e-20 * oneps)  
@@ -85,10 +81,12 @@ program test_callcl
     rkapa = 1.0 / (D2845 * (1.0 - D28 * rmx))
     tlcl = H55 + H2840 / (D35*LOG(300.0)-LOG(H1M12)-D4805)
     EXP_PLCL(1,2) = 100000.0 * (tlcl/300.0)**rkapa
-    dlplcl = LOG(EXP_PLCL(1,2)) - alpint(1,2,nlevs)
-    dalp = alpint(1,2,nlevs-1) - alpint(1,2,nlevs)
-    EXP_ZLCL(1,2) = zint(1,2,nlevs) - dz*dlplcl/dalp - zsfc
+    EXP_ZLCL(1,2) = spval
 
+    ! Test Case: ZLCL below surface, clips to 0 m
+    fis(2,2) = 5000.0/gi
+    EXP_ZLCL(2,2) = 0.0
+    
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
     do i = ista, iend
