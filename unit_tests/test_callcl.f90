@@ -89,6 +89,7 @@ program test_callcl
     
     call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
 
+    res = 0
     do i = ista, iend
         do j = jsta, jend
             if (abs(PLCL(i,j) - EXP_PLCL(i,j)) > tol) then
@@ -107,6 +108,6 @@ program test_callcl
     end do
 
     if (res .ne. 0) stop 10
-    
+
     print *, 'SUCCESS!'
 end program test_callcl
