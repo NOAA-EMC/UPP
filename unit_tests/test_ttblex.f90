@@ -40,14 +40,14 @@ program test_ttblex
     RDP = 5.0e-4
     RDTHE = 1.0
 
-    do j = 1, nj
-        do i = 1, ni
+    do i = 1, ni
+        do j = 1, nj
             TTBL(i,j) = 220.0 + 0.6*i + 0.4*j
         end do
     end do
 
-    do j = 1, npts
-        do i = 1, npts
+    do i = 1, npts
+        do j = 1, npts
             PMIDL(i,j) = 55000.0 + 137.0*i + 53.0*j
             THESP(i,j) = 310.0 + 0.7*j + 0.3*i
         end do
