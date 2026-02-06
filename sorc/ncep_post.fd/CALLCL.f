@@ -87,7 +87,6 @@
       RMX       = EPS*EVP/(P1D(I,J)-EVP)
       RKAPA     = 1.0 / (D2845*(1.0-D28*RMX))
       ARG       = MAX(H1M12,EVP*D01)
-      print *, 'ARG=', ARG
       TLCL(I,J) = H55 + H2840 / (D35*LOG(T1D(I,J))-LOG(ARG)-D4805)
       PLCL(I,J) = P1D(I,J)*(TLCL(I,J)/T1D(I,J))**RKAPA
       ALPLCL    = LOG(PLCL(I,J))
@@ -100,9 +99,6 @@
         DALP      = ALPINT(I,J,L) - ALPINT(I,J,L+1)
         DZ        = ZINT(I,J,L)   - ZINT(I,J,L+1)
         ZLCL(I,J) = max(D00, ZINT(I,J,L+1) + DZ*DLPLCL/DALP - ZSFC)
-        print *, 'dz =', DZ
-        print *, 'L=', L
-        print *, 'ZLCL=', ZLCL(I,J)
         EXIT
       ENDIF
  20   CONTINUE

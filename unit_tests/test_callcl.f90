@@ -105,5 +105,8 @@ program test_callcl
             end if
         end do
     end do
+
+    if (res .ne. 0) stop 10
+    
     print *, 'SUCCESS!'
 end program test_callcl
