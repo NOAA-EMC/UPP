@@ -1875,7 +1875,7 @@
 !
         IF(IGET(018) > 0.OR.IGET(019) > 0)THEN
           log1=.false.
-          IF(IGET(018) > 0 .OR. IGET(1026) > 0) then
+          IF(IGET(018) > 0) then
              if(LVLS(LP,IGET(018)) > 0) log1=.true.
           endif
           IF(IGET(019) > 0) then
