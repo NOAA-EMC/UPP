@@ -1873,13 +1873,13 @@
 !     
 !***  U AND/OR V WIND
 !
-        IF(IGET(018) > 0.OR.IGET(019) > 0 .OR. IGET(1026) > 0)THEN
+        IF(IGET(018) > 0.OR.IGET(019) > 0)THEN
           log1=.false.
           IF(IGET(018) > 0 .OR. IGET(1026) > 0) then
-             if(LVLS(LP,IGET(018)) > 0 .OR. IGET(1026) > 0 ) log1=.true.
+             if(LVLS(LP,IGET(018)) > 0) log1=.true.
           endif
-          IF(IGET(019) > 0 .OR. IGET(1026) > 0) then
-             if(LVLS(LP,IGET(019)) > 0 .OR. IGET(1026) > 0) log1=.true.
+          IF(IGET(019) > 0) then
+             if(LVLS(LP,IGET(019)) > 0) log1=.true.
           endif
           if ( log1 ) then
 !$omp  parallel do private(i,j)
