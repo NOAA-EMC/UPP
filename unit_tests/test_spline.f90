@@ -11,7 +11,7 @@ program test_spline
     integer :: i, res
     integer :: NOLD, NNEW
     real :: XOLD(JTB), YOLD(JTB), XNEW(JTB), P(JTB), Q(JTB), Y2(JTB)
-    real :: YNEW(JTB), EXP_YNEW(JTB)
+    real :: YNEW(JTB), EXP_YNEW_1(JTB), EXP_YNEW_2(JTB)
 
     interface
         subroutine SPLINE(JTB,NOLD,XOLD,YOLD,Y2,NNEW,XNEW,YNEW,P,Q)
@@ -21,6 +21,13 @@ program test_spline
             real,dimension(JTB),intent(out) ::  YNEW
         end subroutine SPLINE
     end interface
+
+    ! Test Case: Standard case where NOLD > 3
+    EXP_YNEW_1 = 0.0
+    EXP_YNEW_1(1) =         0.34558820724
+    EXP_YNEW_1(2) =         0.61488968134
+    EXP_YNEW_1(3) =         2.2107839584
+    EXP_YNEW_1(4) =         25.0
 
     ! Choose NOLD>3 to exercise forward sweep; NNEW>=2 to test reuse/recompute
     NOLD = 5
@@ -45,10 +52,35 @@ program test_spline
     XNEW(3) = 1.5          ! moves to next interval (recompute coefficients)
     XNEW(4) = XOLD(NOLD)   ! right endpoint path (assign YNEW=YOLD(NOLD))
 
+    ! Initialize YNEW so that unused indices maintain consistent values.
+    YNEW = 0.0
+
+    call SPLINE(JTB,NOLD,XOLD,YOLD,Y2,NNEW,XNEW,YNEW,P,Q)
+
+    res = 0
+    do i = 1, JTB
+        if (abs(YNEW(i) - EXP_YNEW_1(i)) > tol) then
+            print *, 'YNEW Failed for test', i, ': ', &
+                        'Expected ', EXP_YNEW_1(i), &
+                        ' but got ', YNEW(i)
+            res = 1
+        end if
+    end do
+    if (res .ne. 0) stop 10
+
+    ! Test Case: Edge case where NOLD=3
+    NOLD = 3
+
+    ! Reinitialize inout and output variables
+    Y2 = 0.0
+    P = 0.0
+    Q = 0.0
+    YNEW = 0.0
+
     call SPLINE(JTB,NOLD,XOLD,YOLD,Y2,NNEW,XNEW,YNEW,P,Q)
 
     do i = 1, JTB
-        print '(A,I0,A,ES24.10)', 'YNEW(', i, ') = ', YNEW(i)
+        print '(A,I0,A,ES24.10)', 'YNEW for NOLD=3, test', i, ': ', YNEW(i)
     end do
     print *, 'SUCCESS!'
 end program test_spline
