@@ -66,10 +66,18 @@ program test_spline
             res = 1
         end if
     end do
+    
     if (res .ne. 0) stop 10
 
     ! Test Case: Edge case where NOLD=3
     NOLD = 3
+
+    EXP_YNEW_2 = 0.0
+    EXP_YNEW_2(1) =         0.31249994040
+    EXP_YNEW_2(2) =         0.58593744040
+    EXP_YNEW_2(3) =         2.3333330154
+    EXP_YNEW_2(4) =         6.25
+    EXP_YNEW_2(5) =         0.0
 
     ! Reinitialize inout and output variables
     Y2 = 0.0
@@ -80,7 +88,15 @@ program test_spline
     call SPLINE(JTB,NOLD,XOLD,YOLD,Y2,NNEW,XNEW,YNEW,P,Q)
 
     do i = 1, JTB
-        print '(A,I0,A,ES24.10)', 'YNEW for NOLD=3, test', i, ': ', YNEW(i)
+        if (abs(YNEW(i) - EXP_YNEW_2(i)) > tol) then
+            print *, 'YNEW Failed for test', i, ': ', &
+                        'Expected ', EXP_YNEW_2(i), &
+                        ' but got ', YNEW(i)
+            res = 1
+        end if
     end do
+
+    if (res .ne. 0) stop 20
+    
     print *, 'SUCCESS!'
 end program test_spline
