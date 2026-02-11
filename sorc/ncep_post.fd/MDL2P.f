@@ -1929,17 +1929,17 @@
               enddo
             endif
 
-			! *** WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST  
-			IF(IGET(1026)>0)THEN
+! WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST  
+          IF(IGET(1026)>0)THEN
             DO J=JSTA,JEND
-			  DO I=ISTA,IEND
+              DO I=ISTA,IEND
                 IF(GRID1(I,J)<SPVAL .and.  GRID2(I,J)<SPVAL) then
-			     IF (ABS(SPL(LP)-85000.)<SMALL) WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
-				 IF (ABS(SPL(LP)-95000.)<SMALL) WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+                  IF (ABS(SPL(LP)-85000.)<SMALL) WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+                  IF (ABS(SPL(LP)-95000.)<SMALL) WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
                 ENDIF
-			  ENDDO
-			ENDDO
-			ENDIF
+              ENDDO
+            ENDDO
+          ENDIF
 			
           ENDIF
         ENDIF
