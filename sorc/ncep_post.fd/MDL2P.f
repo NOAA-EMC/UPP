@@ -358,8 +358,8 @@
           call exch(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LP1)) 
  
 ! wind speeds at 850 and 950 mb for HAFS wind gust
- 	WS850 = SPVAL
-	WS950 = SPVAL
+    WS850 = SPVAL
+    WS950 = SPVAL
 
         DO LP=1,LSM
 
