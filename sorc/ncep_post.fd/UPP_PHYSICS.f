@@ -5154,7 +5154,7 @@
 
       slr = spval
 
-!$omp parallel do private(i,j)      
+!$omp parallel do private(i,j,swnd)      
       do j=jsta,jend
       do i=ista,iend
       if(zsfc(i,j)<spval) then

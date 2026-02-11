@@ -60,6 +60,7 @@ IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='FV3R'
+SUBMODELNAME='RTMA'
 fileNameFlux='$homedir/data_in/rrfs/phyf${fhr}.nc'
 /
 &NAMPGB
@@ -102,7 +103,8 @@ fhr2=`printf "%02d" $fhr`
 
 # RRFS post processing generates 2 files
 filelist="PRSLEV${fhr2}.${tmmark} \
-          NATLEV${fhr2}.${tmmark}"
+          NATLEV${fhr2}.${tmmark} \
+          2DFLD${fhr2}.${tmmark}"
 
 for file in $filelist; do
 export filein2=$file

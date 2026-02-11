@@ -49,6 +49,9 @@ if(APPLE)
 endif()
 
 find_package(bacio REQUIRED)
+if(bacio_VERSION LESS 2.5.0)
+  add_library(bacio::bacio ALIAS bacio::bacio_4)
+endif()
 find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)
 find_package(g2tmpl REQUIRED)
@@ -108,7 +111,7 @@ if(BUILD_POSTEXEC)
     find_package(wrf_io REQUIRED)
   endif()
   if(IFI_FOUND)
-    if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel$")
+    if(CMAKE_C_COMPILER_ID MATCHES "^Intel$")
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -cxxlib")
     elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^GNU$")
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++")
@@ -125,7 +128,21 @@ if(IFI_FOUND OR INTERNAL_IFI)
   add_definitions(-DUSE_IFI=1)
 endif()
 
+# Enforce 32bit for UPP
+# Intel
+string(REPLACE "-real-size 64" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+string(REPLACE " -r8 " " " CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+# GNU
+string(REPLACE "-fdefault-real-8" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+string(REPLACE "-fdefault-double-8" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+
 add_subdirectory(sorc)
+
+# Run unit tests.
+include(CTest)
+if(BUILD_TESTING)
+  add_subdirectory(unit_tests)
+endif()
 
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)

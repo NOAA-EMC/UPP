@@ -58,7 +58,7 @@ Please review the [wiki](https://github.com/NOAA-EMC/UPP/wiki)
 
 NCEP/EMC Developers
 
-Code Managers: Wen Meng, Huiya Chuang, Fernando Andrade-Maldonado
+Code Managers: Wen Meng, Ben Blake, Chad Lyden
 
 ## Prerequisites
 
