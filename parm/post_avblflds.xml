@@ -8660,5 +8660,14 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>1026</post_avblfldidx>
+       <shortname>HAFS_GUST_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <pname>GUST</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>10.</level>
+       <scale>3.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>

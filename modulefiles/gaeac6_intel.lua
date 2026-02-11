@@ -20,7 +20,6 @@ load("upp_common")
 load("zlib/1.2.13")
 
 unload("darshan-runtime")
---unload("cray-libsci")
 
 setenv("CC","cc")
 setenv("CXX","CC")
