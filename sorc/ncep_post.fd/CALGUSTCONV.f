@@ -1,6 +1,6 @@
 !> @file
 !> @brief Subroutine that computes wind gust from turbulence and convective components
-!> for HAFS model. 
+!> for HAFS model.
 !> 
 !> This subroutine is based on the Python code provided by Andrew Hazelton (HRD),
 !> which computes a new wind gust factor based on turbulence and convective components.
@@ -26,7 +26,7 @@
       implicit none
 !
       INCLUDE "mpif.h"
-! 
+!
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
 !     DECLARE VARIABLES.
@@ -46,8 +46,8 @@
 !> CALGUSTCONV computes new gust wind factor for HAFS based on convective and
 !> turbulent components.
 !     START CALGUSTCONV HERE.
-!     
-!    
+!
+! 
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=ISTA,IEND
@@ -77,6 +77,6 @@
      ENDDO
 !
 !     END OF ROUTINE.
-!     
+!
       RETURN
       END
