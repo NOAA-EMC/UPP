@@ -1929,7 +1929,7 @@
               enddo
             endif
 
-! WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST  
+! WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST
           IF(IGET(1026)>0)THEN
             DO J=JSTA,JEND
               DO I=ISTA,IEND
@@ -1940,7 +1940,7 @@
               ENDDO
             ENDDO
           ENDIF
-			
+		  
           ENDIF
         ENDIF
 !     
