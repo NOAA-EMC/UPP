@@ -39,12 +39,13 @@
 !> 2023-08-24 | Y Mao           | Add gtg_on option for GTG interpolation
 !> 2023-09-12 | J Kenyon        | Prevent spurious supercooled rain and cloud water
 !> 2024-04-23 | E James         | Adding smoke emissions (ebb) from RRFS
-!> 2024-09-23 | K Asmar		| Add velocity potential and streamfunction from wind vectors
+!> 2024-09-23 | K Asmar		    | Add velocity potential and streamfunction from wind vectors
 !> 2024-12-12 | J Meng          | Adding UUtah 2024 SLR algorithm
 !> 2025-01-17 | J Kenyon        | Add graupel number concentration (QQNG)
 !> 2025-11-13 | L Pan           | enable aerosols to be output on isobaric surfaces
 !> 2025-11-17 | W Meng          | Correct variable allocation
 !> 2025-11-19 | W Meng          | Relocate dxm calculation
+!> 2026-01-06 | K Asmar			| Add convective wind gust calculation
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -114,6 +115,7 @@
      &,                      SALTSL(:,:,:), SOOTSL(:,:,:), WASOSL(:,:,:)           &
      &,                      SUSOSL(:,:,:)
       REAL, allocatable :: GTGSL(:,:),CATSL(:,:),MWTSL(:,:)
+      REAL, allocatable :: WS850(:,:), WS950(:,:), GUSTCONV(:,:)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(ista_2l:iend_2u,jsta_2l:jend_2u)  :: NL1X, NL1XF
@@ -277,6 +279,10 @@
         if (.not. allocated(CATSL)) allocate(CATSL(ista_2l:iend_2u,jsta_2l:jend_2u))
         if (.not. allocated(MWTSL)) allocate(MWTSL(ista_2l:iend_2u,jsta_2l:jend_2u))
       endif
+! Allocate HAFS wind speeds and gust factor
+      if (.not. allocated(ws850)) allocate(ws850(ista_2l:iend_2u,jsta_2l:jend_2u))
+      if (.not. allocated(ws950)) allocate(ws950(ista_2l:iend_2u,jsta_2l:jend_2u))
+      if (.not. allocated(gustconv)) allocate(gustconv(ista_2l:iend_2u,jsta_2l:jend_2u))
 !     
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
@@ -301,7 +307,8 @@
          (IGET(257) > 0) .OR. (IGET(258) > 0) .OR.      &
          (IGET(294) > 0) .OR. (IGET(268) > 0) .OR.      &
          (IGET(331) > 0) .OR. (IGET(326) > 0) .OR.      &
-	 (IGET(1021) > 0) .OR. (IGET(1022) > 0) .OR.	&
+	     (IGET(1021) > 0) .OR. (IGET(1022) > 0) .OR.	&
+		 (IGET(1026) > 0) .OR.							&
 ! add D3D fields
          (IGET(354) > 0) .OR. (IGET(355) > 0) .OR.      &
          (IGET(356) > 0) .OR. (IGET(357) > 0) .OR.      &
@@ -350,6 +357,10 @@
         if(gridtype == 'B' .or. gridtype == 'E')                         &
           call exch(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LP1)) 
  
+! wind speeds at 850 and 950 mb for HAFS wind gust
+    WS850 = SPVAL
+    WS950 = SPVAL
+
         DO LP=1,LSM
 
 !         if(me == 0) print *,'in LP loop me=',me,'UH=',UH(1:10,JSTA,LP), &
@@ -1864,11 +1875,11 @@
 !
         IF(IGET(018) > 0.OR.IGET(019) > 0)THEN
           log1=.false.
-          IF(IGET(018) > 0.) then
-             if(LVLS(LP,IGET(018)) > 0 ) log1=.true.
+          IF(IGET(018) > 0) then
+             if(LVLS(LP,IGET(018)) > 0) log1=.true.
           endif
           IF(IGET(019) > 0) then
-             if(LVLS(LP,IGET(019)) > 0 ) log1=.true.
+             if(LVLS(LP,IGET(019)) > 0) log1=.true.
           endif
           if ( log1 ) then
 !$omp  parallel do private(i,j)
@@ -1917,6 +1928,19 @@
                 enddo
               enddo
             endif
+
+! WIND SPEED AT 850 AND 950 MB FOR HAFS WIND GUST
+          IF(IGET(1026)>0)THEN
+            DO J=JSTA,JEND
+              DO I=ISTA,IEND
+                IF(GRID1(I,J)<SPVAL .and.  GRID2(I,J)<SPVAL) then
+                  IF (ABS(SPL(LP)-85000.)<SMALL) WS850(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+                  IF (ABS(SPL(LP)-95000.)<SMALL) WS950(I,J) = SQRT(GRID1(I,J)**2 + GRID2(I,J)**2)
+                ENDIF
+              ENDDO
+            ENDDO
+          ENDIF
+		  
           ENDIF
         ENDIF
 !     
@@ -4967,6 +4991,31 @@
             enddo
          endif
       ENDIF
+
+!
+! *** HAFS WIND GUST
+!
+      IF (IGET(1026) > 0) THEN
+ 		CALL CALGUSTCONV(WS850,WS950,GUSTCONV)
+!$omp  parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=ISTA,IEND
+             GRID1(I,J) = GUSTCONV(I,J)
+           ENDDO
+         ENDDO
+		if(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(1026))
+!$omp parallel do private(i,j,ii,jj)
+        do j=1,jend-jsta+1
+          jj = jsta+j-1
+          do i=1,iend-ista+1
+            ii = ista+i-1
+            datapd(i,j,cfld) = GRID1(ii,jj)
+          enddo
+        enddo
+       endif
+      ENDIF
 !
 if(allocated(d3dsl))   deallocate(d3dsl)
 if(allocated(smokesl)) deallocate(smokesl)
@@ -4982,6 +5031,10 @@ if(allocated(susosl))  deallocate(susosl)
 if(allocated(GTGSL)) deallocate(GTGSL)
 if(allocated(CATSL)) deallocate(CATSL)
 if(allocated(MWTSL)) deallocate(MWTSL)
+! HAFS winds and gust factor
+if(allocated(WS850)) deallocate(WS850)
+if(allocated(WS950)) deallocate(WS950)
+if(allocated(GUSTCONV)) deallocate(GUSTCONV)
 !     END OF ROUTINE.
 !
       RETURN

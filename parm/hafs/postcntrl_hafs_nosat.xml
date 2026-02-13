@@ -555,6 +555,11 @@
        </param>
 
        <param>
+       <shortname>HAFS_GUST_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
        <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <scale>-4.0</scale>
