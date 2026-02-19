@@ -73,11 +73,11 @@ program test_spline
     NOLD = 3
 
     EXP_YNEW_2 = 0.0
-    EXP_YNEW_2(1) =         0.31249994040
-    EXP_YNEW_2(2) =         0.58593744040
-    EXP_YNEW_2(3) =         2.3333330154
-    EXP_YNEW_2(4) =         6.25
-    EXP_YNEW_2(5) =         0.0
+    EXP_YNEW_2(1) = 0.31249994040
+    EXP_YNEW_2(2) = 0.58593744040
+    EXP_YNEW_2(3) = 2.3333330154
+    EXP_YNEW_2(4) = 6.25
+    EXP_YNEW_2(5) = 0.0
 
     ! Reinitialize inout and output variables
     Y2 = 0.0
