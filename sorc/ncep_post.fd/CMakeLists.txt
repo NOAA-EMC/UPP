@@ -7,6 +7,7 @@ list(APPEND LIB_SRC
     CALDRG.f
     CALDWP.f
     CALGUST.f
+    CALGUSTCONV.f
     CALHEL.f
     CALHEL2.f
     CALHEL3.f
