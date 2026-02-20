@@ -16,7 +16,6 @@ program test_snfrac
 
     interface
         subroutine SNFRAC(SNEQV, IVEGx, SNCOVR)
-            include 'mpif.h'
             integer,intent(in) :: IVEGx
             real,intent(in) ::  SNEQV
             real,intent(out) ::  SNCOVR
