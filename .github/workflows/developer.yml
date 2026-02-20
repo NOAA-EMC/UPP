@@ -27,7 +27,7 @@ jobs:
       - name: install-dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libmpich-dev libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
+          sudo apt-get install libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
           sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf gcovr doxygen
 
       - name: build-crtm
@@ -80,7 +80,7 @@ jobs:
           export FC=mpif90
           cmake .. -DBUILD_WITH_WRFIO=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_C_FLAGS='-g -fprofile-abs-path -fprofile-arcs -ftest-coverage -O0' -DCMAKE_Fortran_FLAGS='-g -fprofile-abs-path -fprofile-arcs -ftest-coverage -O0' \
             -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/nceplibs/jasper;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-bacio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-w3emc;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-ip;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2tmpl;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-sigio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-nemsio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-wrf_io;$GITHUB_WORKSPACE/nceplibs/EMC_crtm" 
-          make 
+          make VERBOSE=1
           make install
           ctest --verbose --output-on-failure --rerun-failed
           gcovr --root .. -v --html-details --exclude ../unit_tests --exclude CMakeFiles --print-summary -o test-coverage.html &> /dev/null
