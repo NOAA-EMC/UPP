@@ -19,6 +19,15 @@ program test_wetfrzlvl
     real, dimension(1:npts,1:npts,1:nlevs+1) :: TWET
     real, dimension(1:npts,1:npts) :: ZWET, EXP_ZWET
 
+    interface
+        subroutine WETFRZLVL(TWET,ZWET)
+            use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, lm, &
+                                ista, iend, ista_2l, iend_2u 
+            real, intent(in) :: TWET(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+            real, intent(out) :: ZWET(ista:iend,jsta:jend)
+        end subroutine WETFRZLVL
+    end interface
+
     ! Grid parameters
     lm =  nlevs+1
     jsta = 1
@@ -122,8 +131,8 @@ program test_wetfrzlvl
     deallocate(t)
 
     res = 0
-    do i = ista, iend
-        do j = jsta, jend
+    do i = 1, npts
+        do j = 1, npts
             if ( abs(ZWET(i,j) - EXP_ZWET(i,j)) > tol ) then
                 print *, "Test failed at (i,j)=(", i, ",", j, "): ", &
                          "Expected ZWET = ", EXP_ZWET(i,j), &

@@ -11,6 +11,14 @@ program test_geo_zenith_angle
     integer :: i, res
     real, dimension(ntests) :: RLAT, RLON, SLAT, SLON, ZA, EXP_ZA
 
+    interface 
+        subroutine GEO_ZENITH_ANGLE(i, j, RLAT, RLON, SLAT, SLON, ZA)
+            integer, intent(in) :: i, j
+            real, intent(in) :: RLAT, RLON, SLAT, SLON
+            real, intent(out) :: ZA
+        end subroutine GEO_ZENITH_ANGLE
+    end interface
+
     ! Default input values
     RLAT = 35.0
     RLON = 135.0
