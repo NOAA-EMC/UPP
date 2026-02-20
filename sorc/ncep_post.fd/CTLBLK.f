@@ -21,6 +21,7 @@
 !>  2025-07-25 | Jaymes Kenyon | Add "earth_radius" namelist option
 !>  2025-11-03 | Nick Szapiro | Initialize earth_radius=0. namelist option
 !>  2025-11-13 | Eric James | Increase number of pressure levels to enable additional isobaric output in global MPAS
+!>  2025-12-16 | Ben Blake  | Add capecin_2m logical option
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK CTLBLK
 !> Sets default parameters that are used throughout the UPP code
@@ -78,6 +79,7 @@
   logical :: slrutah_on    !< Calculate snow to liquid ratio (SLR) using method from University of Utah.
   logical :: gtg_on        !< Turn on GTG (Graphical Turbulence Guidance)
   logical :: method_blsn   !< Turn on blowing snow effect on visibility diagnostic
+  logical :: capecin_2m = .false. !< Turn on option to calculate CAPE and CIN using 2-m fields
 !
   logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.
