@@ -15,7 +15,7 @@ program test_snfrac
     real, dimension(ntests) :: SNEQV, SNCOVR, EXP_SNCOVR
 
     interface
-        subroutine SNFRAC(SNEQV, IVEGx, SNCOVR)
+        subroutine SNFRAC (SNEQV, IVEGx, SNCOVR)
             integer,intent(in) :: IVEGx
             real,intent(in) ::  SNEQV
             real,intent(out) ::  SNCOVR
@@ -83,7 +83,7 @@ program test_snfrac
 
     res = 0
     do i = 1, ntests
-        call SNFRAC(SNEQV(i), IVEGx(i), SNCOVR(i))
+        call SNFRAC (SNEQV(i), IVEGx(i), SNCOVR(i))
         if (abs(SNCOVR(i) - EXP_SNCOVR(i)) > tol) then
             print *, 'SNCOVR Failed for test', i, ': ', &
                         'Expected ', EXP_SNCOVR(i), &
