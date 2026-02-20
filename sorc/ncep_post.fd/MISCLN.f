@@ -51,6 +51,7 @@
 !!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
 !!   2025-07-22 | K Halbert / E Colon | Updated mixed-layer CAPE/CINH to include 2m fielfd
 !!   2025-12-16 | B Blake | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
+!!   2026-02-20 | B Blake | Turn on downdraft CAPE for RRFS and 3DRTMA
 !> 
 !> @author RUSS TREADON 
 !> @date 1992-12-20
@@ -4520,21 +4521,21 @@
 
 !    Downdraft CAPE
 
-!            ITYPE = 1
-!            DO J=JSTA,JEND
-!              DO I=ISTA,IEND
-!                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
-!                             LVLBND(I,J,3))/3
-!                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-!                T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-!                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-!              ENDDO
-!            ENDDO
+            ITYPE = 1
+            DO J=JSTA,JEND
+              DO I=ISTA,IEND
+                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+                             LVLBND(I,J,3))/3
+                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+              ENDDO
+            ENDDO
 
-!            DPBND = 400.E2
-!            CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
-!                          EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
-!                          EGRID6,EGRID7,EGRID8)
+            DPBND = 400.E2
+            CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
+                          EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
+                          EGRID6,EGRID7,EGRID8)
 
             IF (IGET(954)>0) THEN
                 GRID1 = spval
