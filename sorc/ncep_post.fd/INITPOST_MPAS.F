@@ -135,7 +135,6 @@
       real LAT
 
       integer jdn, numr, ic, jc, ierr
-      integer, external :: iw3jdn
       real sun_zenith,sun_azimuth, ptop_low, ptop_mid, ptop_high
 
 !***********************************************************************
@@ -2654,7 +2653,7 @@ endif  ! 1==2
        end do
       ELSE
 
-        jdn=iw3jdn(idat(3),idat(1),idat(2))
+        call w3fs13(idat(3),idat(1),idat(2),jdn)
         do j=jsta,jend
          do i=1,im
              call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)     &
