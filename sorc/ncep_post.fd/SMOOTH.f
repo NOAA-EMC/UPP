@@ -150,7 +150,7 @@
       SMTH4 = (1.-SMTH)
       SMTH5 = 0.5 * SMTH
 !
-      do i=2,ix-1
+      do i=1,ix-1
         ie(i) = i + 1
         iw(i) = i - 1
       enddo
