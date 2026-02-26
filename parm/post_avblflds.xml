@@ -5279,9 +5279,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5297,9 +5297,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5315,9 +5315,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5333,9 +5333,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5351,9 +5351,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5369,9 +5369,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
@@ -5387,9 +5387,9 @@
        <scale_val_1st_size>20</scale_val_1st_size>
        <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
        <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
-       <scale_val_1st_wvlen>550</scale_val_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
        <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
-       <scale_val_2nd_wvlen>550</scale_val_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
        <scale>9.0</scale>
     </param>
 
