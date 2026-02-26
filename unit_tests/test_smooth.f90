@@ -37,10 +37,10 @@ program test_smooth
                     282.0, 283.0, 284.0, 285.0, &
                     284.0, 285.0, 286.0, 287.0, &
                     286.0, 287.0, 288.0, 289.0], [nx, ny]) 
-    EXP_FIELDC = reshape([210.75, 263.6875, 277.671875, 266.4375, &
-                      212.25, 283.0, 284.0, 284.25,   &
-                      213.75, 285.0, 286.0, 285.75,   &
-                      215.25, 269.3125, 283.578125, 269.75], [nx, ny])
+    EXP_FIELDC = reshape([281.0, 281.25, 282.0625, 284.0, &
+                    283.0, 283.0, 284.0, 284.25, &
+                    285.0, 285.0, 286.0, 285.75, &
+                    287.0, 287.25, 288.0625, 287.6875], [nx, ny])
 
     do i = 1, nx
         do j = 1, ny
@@ -76,13 +76,12 @@ program test_smooth
     res = 0
     do i = 1, nx
         do j = 1, ny
-            print '("(",I1,",",I1,"): ",ES24.10)', i, j, FIELDC(i, j)
-            !if (abs(FIELDC(i,j) - EXP_FIELDC(i,j)) > tol) then
-            !    print *, 'FIELDC Test failed at (', i, ',', j, '): ', &
-            !             'Expected ', EXP_FIELDC(i,j), &
-            !             ' but got ', FIELDC(i,j)
-            !    res = 1
-            !end if
+            if (abs(FIELDC(i,j) - EXP_FIELDC(i,j)) > tol) then
+                print *, 'FIELDC Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_FIELDC(i,j), &
+                         ' but got ', FIELDC(i,j)
+                res = 1
+            end if
         end do
     end do  
 
