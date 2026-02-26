@@ -33,7 +33,6 @@ program test_poleavg
     JSTA = 2
     JEND = 2
 
-    print *, "Running Test Case 1"
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
 
     res = 0
@@ -51,8 +50,6 @@ program test_poleavg
     ! Test Case: JJ in bounds, but COSL > SMALL at both poles. VAR should be unchanged.
     JSTA = 1
     JEND = ny
-
-    print *, "Running Test Case 2"
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
     
     res = 0
@@ -68,7 +65,6 @@ program test_poleavg
     if (res .ne. 0) stop 20
 
     ! Test Case: COSL < SMALL at both poles, but VAR is SPVAL everywhere. VAR should be unchanged.
-    print *, "Running Test Case 3"
     COSL = SMALL / 10.0
     VAR = SPVAL
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
@@ -86,19 +82,20 @@ program test_poleavg
     if (res .ne. 0) stop 30
 
     ! Test Case: COSL < SMALL at both poles and VAR does not contain SPVAL. 
-    ! VAR should be set to the average of the non-SPVAL values in the column.
+    ! VAR should be set to the average of all values in the column.
     do i = 1, nx
         do j = 1, ny
             VAR(i,j) = real((j-1)*nx + i)
-            EXP_VAR(i,j) = VAR(i,j)
         end do
     end do
 
     ! Average of both poles
     EXP_VAR(:,1) = 2.0
+    EXP_VAR(1,2) = VAR(1,2)
+    EXP_VAR(2,2) = VAR(2,2)
+    EXP_VAR(3,2) = VAR(3,2) 
     EXP_VAR(:,3) = 8.0
 
-    print *, "Running Test Case 4"
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
     res = 0
     do i = 1, nx
@@ -111,6 +108,31 @@ program test_poleavg
         end do
     end do
     if (res .ne. 0) stop 40
+    
+    ! Test Case: Mix of SPVAL and non-SPVAL values in VAR. VAR should be set to the 
+    ! average of the non-SPVAL values in the column.
+    VAR(1,1) = 1.0
+    VAR(2,1) = SPVAL
+    VAR(3,1) = 3.0
+    VAR(1,3) = SPVAL
+    VAR(2,3) = 8.0
+    VAR(3,3) = 9.0
+
+    EXP_VAR(:,1) = 2.0
+    EXP_VAR(:,3) = 8.5
+
+    call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
+    res = 0
+    do i = 1, nx
+        do j = 1, ny
+            if (abs(VAR(i,j) - EXP_VAR(i,j)) > tol) then
+                print *, 'Test failed at (', i, ',', j, '): ', &
+                    'Expected VAR=', EXP_VAR(i,j), ' but got VAR=', VAR(i,j)
+                res = 1
+            end if
+        end do
+    end do
+    if (res .ne. 0) stop 50
     
     print *, "SUCCESS!"
 end program test_poleavg
