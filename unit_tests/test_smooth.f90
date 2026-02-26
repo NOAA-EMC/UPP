@@ -85,7 +85,7 @@ program test_smooth
         end do
     end do  
 
-    if (res .ne. 0) stop 11
+    if (res .ne. 0) stop 20
     
     print *, "SUCCESS!"
 end program test_smooth
