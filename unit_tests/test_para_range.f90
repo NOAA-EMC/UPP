@@ -126,7 +126,7 @@ program test_para_range
     NY(8) = 3
     EXP_ISTA2(8) = 4
     EXP_IEND2(8) = 6
-    EXP_JSTA2(8) = 3
+    EXP_JSTA2(8) = 4
     EXP_JEND2(8) = 5
 
     res = 0
