@@ -33,6 +33,7 @@ program test_poleavg
     JSTA = 2
     JEND = 2
 
+    print *, "Running Test Case 1"
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
 
     res = 0
@@ -50,6 +51,8 @@ program test_poleavg
     ! Test Case: JJ in bounds, but COSL > SMALL at both poles. VAR should be unchanged.
     JSTA = 1
     JEND = ny
+
+    print *, "Running Test Case 2"
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
     
     res = 0
@@ -65,6 +68,7 @@ program test_poleavg
     if (res .ne. 0) stop 20
 
     ! Test Case: COSL < SMALL at both poles, but VAR is SPVAL everywhere. VAR should be unchanged.
+    print *, "Running Test Case 3"
     COSL = SMALL / 10.0
     VAR = SPVAL
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
@@ -94,6 +98,7 @@ program test_poleavg
     EXP_VAR(:,1) = 2.0
     EXP_VAR(:,3) = 8.0
 
+    print *, "Running Test Case 4"
     call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
     res = 0
     do i = 1, nx
