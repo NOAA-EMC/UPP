@@ -41,7 +41,7 @@ program test_smooth
     end do
     
     ! Test for SMOOTH()
-
+    
     call SMOOTH(FIELD, HOLD, IX, IY, SMTH)
 
     print *, "SMOOTH() Results:"
@@ -53,7 +53,9 @@ program test_smooth
 
     ! Test for SMOOTHC()
 
-    call SMOOTHC(FIELDC, HOLDC, IX, IY, SMTHC)
+    HOLD = 0.0 ! Reset HOLD for SMOOTHC test, just in case.
+
+    call SMOOTHC(FIELDC, HOLD, IX, IY, SMTH)
 
     print *, "SMOOTHC() Results:"
     do i = 1, nx
