@@ -39,7 +39,8 @@ program test_poleavg
     do i = 1, nx
         do j = 1, ny
             if (abs(VAR(i,j) - 1.0) > tol) then
-                print *, 'Test failed at (', i, ',', j, '): Expected VAR=1.0 but got VAR=', VAR(i,j)
+                print *, 'Test failed at (', i, ',', j, '): ', &
+                    'Expected VAR=1.0 but got VAR=', VAR(i,j)
                 res = 1
             end if
         end do
@@ -55,12 +56,56 @@ program test_poleavg
     do i = 1, nx
         do j = 1, ny
             if (abs(VAR(i,j) - 1.0) > tol) then
-                print *, 'Test failed at (', i, ',', j, '): Expected VAR=1.0 but got VAR=', VAR(i,j)
+                print *, 'Test failed at (', i, ',', j, '): ', &
+                    'Expected VAR=1.0 but got VAR=', VAR(i,j)
                 res = 1
             end if
         end do
     end do
     if (res .ne. 0) stop 20
 
+    ! Test Case: COSL < SMALL at both poles, but VAR is SPVAL everywhere. VAR should be unchanged.
+    COSL = SMALL / 10.0
+    VAR = SPVAL
+    call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
+    
+    res = 0
+    do i = 1, nx
+        do j = 1, ny
+            if (abs(VAR(i,j) - SPVAL) > tol) then
+                print *, 'Test failed at (', i, ',', j, '): ', &
+                    'Expected VAR=', SPVAL, ' but got VAR=', VAR(i,j)
+                res = 1
+            end if
+        end do
+    end do
+    if (res .ne. 0) stop 30
+
+    ! Test Case: COSL < SMALL at both poles and VAR does not contain SPVAL. 
+    ! VAR should be set to the average of the non-SPVAL values in the column.
+    do i = 1, nx
+        do j = 1, ny
+            VAR(i,j) = real((j-1)*nx + i)
+            EXP_VAR(i,j) = VAR(i,j)
+        end do
+    end do
+
+    ! Average of both poles
+    EXP_VAR(:,1) = 2.0
+    EXP_VAR(:,3) = 8.0
+
+    call POLEAVG(IM, JM, JSTA, JEND, SMALL, COSL, SPVAL, VAR)
+    res = 0
+    do i = 1, nx
+        do j = 1, ny
+            if (abs(VAR(i,j) - EXP_VAR(i,j)) > tol) then
+                print *, 'Test failed at (', i, ',', j, '): ', &
+                    'Expected VAR=', EXP_VAR(i,j), ' but got VAR=', VAR(i,j)
+                res = 1
+            end if
+        end do
+    end do
+    if (res .ne. 0) stop 40
+    
     print *, "SUCCESS!"
 end program test_poleavg
