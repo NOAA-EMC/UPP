@@ -34,9 +34,13 @@ program test_smooth
     HOLD = 0.0
 
     EXP_FIELD = reshape([280.0, 281.0, 282.0, 283.0, &
-        282.0, 283.0, 284.0, 285.0, &
-        284.0, 285.0, 286.0, 287.0, &
-        286.0, 287.0, 288.0, 289.0], [nx, ny]) 
+                    282.0, 283.0, 284.0, 285.0, &
+                    284.0, 285.0, 286.0, 287.0, &
+                    286.0, 287.0, 288.0, 289.0], [nx, ny]) 
+    EXP_FIELDC = reshape([210.75, 263.6875, 277.671875, 266.4375, &
+                      212.25, 283.0, 284.0, 284.25,   &
+                      213.75, 285.0, 286.0, 285.75,   &
+                      215.25, 269.3125, 283.578125, 269.75], [nx, ny])
 
     do i = 1, nx
         do j = 1, ny
@@ -69,12 +73,19 @@ program test_smooth
 
     call SMOOTHC(FIELDC, HOLD, IX, IY, SMTH)
 
-    print *, "SMOOTHC() Results:"
+    res = 0
     do i = 1, nx
         do j = 1, ny
-            print '("(",I1,",",I1,"): ",ES24.10)', i, j, FIELDC(i, j)
+            if (abs(FIELDC(i,j) - EXP_FIELDC(i,j)) > tol) then
+                print *, 'FIELDC Test failed at (', i, ',', j, '): ', &
+                         'Expected ', EXP_FIELDC(i,j), &
+                         ' but got ', FIELDC(i,j)
+                res = 1
+            end if
         end do
     end do  
 
+    if (res .ne. 0) stop 11
+    
     print *, "SUCCESS!"
 end program test_smooth
