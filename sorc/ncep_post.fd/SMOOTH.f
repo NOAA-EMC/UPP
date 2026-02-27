@@ -154,9 +154,9 @@
         ie(i) = i + 1
         iw(i) = i - 1
       enddo
-      ie(1) = 2
+      ie(1)  = 2
       ie(ix) = 1
-      iw(1)  =  ix
+      iw(1)  = ix
       iw(ix) = ix - 1
 !
       I1 = 2
