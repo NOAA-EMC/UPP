@@ -89,16 +89,12 @@ program test_mixlen
     ZINT(2,1,3)  = 10.0
     HTM(2,1,2)   = 0.0
     HTM(2,1,3)   = 0.0
-    
-    call MIXLEN(EL0, EL)
 
-    do i = 1, nx
-        do j = 1, ny
-            do k = 1, lm
-                print '(A,I0,A,I0,A,I0,A,ES24.10)', 'EL(', i, ',', j, ',', k, ') = ', EL(i, j, k)
-            end do
-        end do
-    end do
+    EXP_EL(2,1,1) = 16.0
+    EXP_EL(2,1,2) = 4.0
+    EXP_EL(2,1,3) = 0.0
+
+    call MIXLEN(EL0, EL)
 
     deallocate(zint)
     deallocate(pmid)
@@ -106,6 +102,21 @@ program test_mixlen
     deallocate(q2)
     deallocate(htm)
     deallocate(lmh)
+
+    res = 0
+    do i = 1, nx
+        do j = 1, ny
+            do k = 1, lm
+                if (abs(EL(i, j, k) - EXP_EL(i, j, k)) > tol) then
+                    print *, 'Test failed at (', i, j, k, '): EL = ', EL(i, j, k), &
+                             ' but expected ', EXP_EL(i, j, k)
+                    res = 1
+                end if
+            end do
+        end do
+    end do
+
+    if (res .ne. 0) stop 10
     
     print *, 'SUCCESS!'
 end program test_mixlen
