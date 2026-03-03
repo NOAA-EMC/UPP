@@ -83,15 +83,13 @@ program test_mixlen
     EXP_EL(1,2,3) = spval
 
     ! Test Case: ZIAG >= CPBLT * EL0(2,1)
-    ! TODO: Replace the ??? with value assignments to the input variables
-    ! that will trigger this condition at (i,j) = (2,1). Not only
-    ! do we want to trigger this condition, but I also want:
-    ! EL(I,J,L) = AMIN1(ELST,ELVGD,VKRM*ZIAG) = VKRM * ZIAG for at least
-    ! one level L at (i,j) = (2,1). 
-    EL0(2,1) = 10.0
-    HTM(2,1,2) = 0.0
-    ZINT(2,1,1) = 900.0
-
+    EL0(2,1)     = 1.0
+    ZINT(2,1,1)  = 150.0
+    ZINT(2,1,2)  = 40.0
+    ZINT(2,1,3)  = 10.0
+    HTM(2,1,2)   = 0.0
+    HTM(2,1,3)   = 0.0
+    
     call MIXLEN(EL0, EL)
 
     do i = 1, nx
