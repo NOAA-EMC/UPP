@@ -13,7 +13,7 @@ program test_mixlen
     real, parameter :: tol = 1.0e-8
     integer, parameter :: nx = 2, ny = 2, nlevs = 3
     integer :: i, j, k, res
-    real :: EL0(nx, ny), EL(nx, ny, nlevs)
+    real :: EL0(nx, ny), EL(nx, ny, nlevs), EXP_EL(nx, ny, nlevs)
     
     interface
         subroutine MIXLEN(EL0,EL)
@@ -69,13 +69,28 @@ program test_mixlen
         end do
     end do
 
+    EXP_EL(:,:,1) = 10.445438385
+    EXP_EL(:,:,2) = 11.520626068
+    EXP_EL(:,:,3) = 0.0
+
     ! Test Case: HGT(1,2) = ZINT(1,2,lm+1) = spval and T(1,2,1) = spval
     ! Expect EL(1,2,1) = EL(1,2,lm) = spval
     ZINT(1,2,lm+1) = spval
     T(1,2,1) = spval
 
+    EXP_EL(1,2,1) = spval
+    EXP_EL(1,2,2) = 540.0
+    EXP_EL(1,2,3) = spval
+
     ! Test Case: ZIAG >= CPBLT * EL0(2,1)
+    ! TODO: Replace the ??? with value assignments to the input variables
+    ! that will trigger this condition at (i,j) = (2,1). Not only
+    ! do we want to trigger this condition, but I also want:
+    ! EL(I,J,L) = AMIN1(ELST,ELVGD,VKRM*ZIAG) = VKRM * ZIAG for at least
+    ! one level L at (i,j) = (2,1). 
     EL0(2,1) = 10.0
+    HTM(2,1,2) = 0.0
+    ZINT(2,1,1) = 900.0
 
     call MIXLEN(EL0, EL)
 
