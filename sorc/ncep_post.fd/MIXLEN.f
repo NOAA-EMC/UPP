@@ -65,7 +65,7 @@
 
 !***********************************************************************
 !
-!**$omp  parallel do
+!$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
         DO I=ISTA,IEND
@@ -82,7 +82,7 @@
 !---THE AVERAGE EL SCHEME---------------------------(FM, AUGUST 19 MEMO)
 !   FIRST GET EL IN THE LAYERS
 !
-!**$omp  parallel do private(i,j,l,vkrmz,zl)
+!$omp  parallel do private(i,j,l,vkrmz,zl)
       DO L=1,LM
         DO J=JSTA,JEND
           DO I=ISTA,IEND
@@ -100,7 +100,7 @@
 !***  GET NOW THE INTERFACE EL BY TWO-POINT AVERAGING OF LAYER VALUES
 !***
       DO L=1,LM1
-!**$omp  parallel do private(i,j)
+!$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
             IF(HGT(I,J)<spval)THEN
@@ -112,7 +112,7 @@
         ENDDO
       ENDDO
 !
-!**$omp  parallel do private(i,j)
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=ISTA,IEND
           IF(HGT(I,J)<spval)THEN
@@ -127,7 +127,7 @@
 !   * USE THE SMALLER OF EL BLACKADAR, EL STABLE IF WITHIN PBL;
 !   * USE THE SMALLEST OF EL STABLE, ELVGD, AND VKRMZ IF ABOVE PBL
 !       (ASSUME PBL TOP IS AT CPBLT*EL0(K));
-!**$omp  parallel do private(i,j)
+!$omp  parallel do private(i,j)
       DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
           APE(I,J,1) = (1.E5/PMID(I,J,1))**CAPA
@@ -135,7 +135,7 @@
       ENDDO
 !
       DO L=1,LM1
-!**$omp  parallel do private(i,j,elst,elvgd,ensq,q2kl,ziag)
+!$omp  parallel do private(i,j,elst,elvgd,ensq,q2kl,ziag)
         DO J=JSTA_M,JEND_M
           DO I=ISTA_M,IEND_M
             IF(T(I,J,L)<spval)THEN
