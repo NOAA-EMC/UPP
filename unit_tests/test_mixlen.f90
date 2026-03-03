@@ -11,7 +11,7 @@ program test_mixlen
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: nx = 3, ny = 3, nlevs = 3
+    integer, parameter :: nx = 2, ny = 2, nlevs = 3
     integer :: i, j, k, res
     real :: EL0(nx, ny), EL(nx, ny, nlevs)
     
@@ -68,6 +68,14 @@ program test_mixlen
             end do
         end do
     end do
+
+    ! Test Case: HGT(1,2) = ZINT(1,2,lm+1) = spval and T(1,2,1) = spval
+    ! Expect EL(1,2,1) = EL(1,2,lm) = spval
+    ZINT(1,2,lm+1) = spval
+    T(1,2,1) = spval
+
+    ! Test Case: ZIAG >= CPBLT * EL0(2,1)
+    EL0(2,1) = 10.0
 
     call MIXLEN(EL0, EL)
 
