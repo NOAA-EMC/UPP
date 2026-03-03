@@ -79,6 +79,14 @@ program test_mixlen
 
     call MIXLEN(EL0, EL)
 
+    do k = 1, lm
+        do i = 1, nx
+            do j = 1, ny
+                print '(A,I0,A,I0,A,I0,A,ES24.10)', 'EL(', i, ',', j, ',', k, ') = ', EL(i, j, k)
+            end do
+        end do
+    end do
+    
     deallocate(zint)
     deallocate(pmid)
     deallocate(t)
