@@ -3263,6 +3263,7 @@
            DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
+           MUCAPE = D00
            IF (IGET(584)>0 .or. NEED_IFI) THEN
 ! dong add missing value to cin
                GRID1 = spval
@@ -3276,9 +3277,9 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               IF (SUBMODELNAME == 'RTMA') THEN
-                    CALL BOUND(MUCAPE,D00,H99999)
-               ENDIF
+!              IF (SUBMODELNAME == 'RTMA') THEN
+!                   CALL BOUND(MUCAPE,D00,H99999)
+!              ENDIF
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=ISTA,IEND
@@ -3301,6 +3302,7 @@
 
            ENDIF
                 
+           MUCIN = D00
            IF (IGET(585)>0 .or. NEED_IFI) THEN
 ! dong add missing value to cin
                GRID1 = spval
