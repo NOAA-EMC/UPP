@@ -50,7 +50,11 @@
 !!   2024-01-09 | Y Mao | Correct the height level of EDPARM (ID=467) on 0m to index 52 from the control file, instead of 0.
 !!   2024-04-09 | Y Mao | Change the mnemonics of EDPARM (ID=467) on 0m to MXEDPRM (ID=476) on the entire atmoshpere       
 !!   2025-07-22 | K Halbert / E Colon | Updated mixed-layer CAPE/CINH to include 2m field
-!!   2025-12-16 | Ben Blake | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
+!!   2025-12-16 | B Blake | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
+!!   2026-02-20 | B Blake | Turn on downdraft CAPE for RRFS and 3DRTMA
+!!   2026-03-04 | G Zhao  | Fixed a bug: for ID(585), MU-CIN should be saved in MUCIN array, not in MUCAPE;
+!!                          Comment off "MUQ1D(I,J) = Q1D(I,J)" since Q1D is NOT the moisture of the Most
+!!                          Unstable (MU) parcel, MUQ1D is calculated later with CALTHTE to find MU parcel. 
 !> 
 !> @author RUSS TREADON 
 !> @date 1992-12-20
@@ -3272,9 +3276,9 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-!               IF (SUBMODELNAME == 'RTMA') THEN
-!                    CALL BOUND(MUCAPE,D00,H99999)
-!               ENDIF
+               IF (SUBMODELNAME == 'RTMA') THEN
+                    CALL BOUND(MUCAPE,D00,H99999)
+               ENDIF
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=ISTA,IEND
@@ -3303,17 +3307,17 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=ISTA,IEND
-                   IF(T1D(I,J) < spval) GRID1(I,J) = - EGRID2(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = - EGRID2(I,J) ! GRID1 >= 0 here
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
                DO J=JSTA,JEND
                  DO I=ISTA,IEND
                    IF(T1D(I,J) < spval) THEN 
-                   GRID1(I,J) = - GRID1(I,J)
+                   GRID1(I,J) = - GRID1(I,J)                       ! GRID1 <= 0 here
                        IF (SUBMODELNAME == 'RTMA')THEN 
-                              MUCAPE(I,J) = GRID1(I,J)
-                              MUQ1D(I,J) = Q1D(I,J)
+                              MUCIN(I,J) = GRID1(I,J)              ! MUCIN <= 0 here
+!                             MUQ1D(I,J) = Q1D(I,J)                ! Q1D is NOT Q of MU parcel here
                        ENDIF
                    ENDIF
                  ENDDO
@@ -4516,21 +4520,21 @@
 
 !    Downdraft CAPE
 
-!           ITYPE = 1
-!           DO J=JSTA,JEND
-!           DO I=ISTA,IEND
-!               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
-!                            LVLBND(I,J,3))/3
-!               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-!               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-!               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-!             ENDDO
-!           ENDDO
+            ITYPE = 1
+            DO J=JSTA,JEND
+            DO I=ISTA,IEND
+                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+                             LVLBND(I,J,3))/3
+                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+                T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+              ENDDO
+            ENDDO
 
-!           DPBND = 400.E2
-!           CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
-!                         EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
-!                         EGRID6,EGRID7,EGRID8)
+            DPBND = 400.E2
+            CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
+                          EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
+                          EGRID6,EGRID7,EGRID8)
 
            IF (IGET(954)>0) THEN
                GRID1 = spval

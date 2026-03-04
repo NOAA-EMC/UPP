@@ -20,6 +20,7 @@
 !>  2023-11-24 | Eric James | Add method_blsn logical option
 !>  2025-07-25 | Jaymes Kenyon | Add "earth_radius" namelist option
 !>  2025-12-16 | Ben Blake  | Add capecin_2m logical option
+!>  2026-03-04 | Gang Zhao  | Add synthetic_cfr logical option to switch on/off the synthetic scheme for Cloud-fraction added by Jaymes Kenyon for HRRR-3DRTMA in Nov 2025.
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK CTLBLK
 !> Sets default parameters that are used throughout the UPP code
@@ -78,6 +79,7 @@
   logical :: gtg_on        !< Turn on GTG (Graphical Turbulence Guidance)
   logical :: method_blsn   !< Turn on blowing snow effect on visibility diagnostic
   logical :: capecin_2m    !< Turn on option to calculate CAPE and CIN using 2-m fields
+  logical :: synthetic_cfr !< Turn on option to enable the synthetic cloud fraction scheme for HRRR-3DRTMA
 !
   logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.
