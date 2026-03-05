@@ -12,6 +12,14 @@ program test_bound
     integer :: i, j, res
     real :: FLD(1:npts, 1:npts), EXPECTED_FLD(1:npts, 1:npts)
 
+    interface
+        subroutine BOUND(FLD, FMIN, FMAX)
+            use ctlblk_mod, only: im, jm
+            real, intent(in) :: FMAX, FMIN
+            real, intent(inout) :: FLD(IM,JM)
+        end subroutine BOUND
+    end interface
+
     im = npts
     jm = npts
     ista = 1
@@ -28,8 +36,8 @@ program test_bound
     call BOUND(FLD, FMIN, FMAX)
 
     res = 0
-    do j = 1, jm
-        do i = 1, im
+    do i = 1, npts
+        do j = 1, npts
             if (FLD(i,j) /= EXPECTED_FLD(i,j)) then
                 print *, 'FAIL: FLD(',i,',',j,') = ', FLD(i,j), ' expected ', EXPECTED_FLD(i,j)
                 res = 1

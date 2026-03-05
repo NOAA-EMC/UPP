@@ -17,6 +17,16 @@ program test_etamp_q2f
     real, dimension(1:npts,1:npts,1:nlevs) :: F_RAIN, F_ICE, F_RIMEF, CWM
     real, dimension(1:npts,1:npts,1:nlevs) :: EXP_F_RAIN, EXP_F_ICE, EXP_F_RIMEF, EXP_CWM
 
+    interface 
+        subroutine ETAMP_Q2F(QRIMEF, QQI, QQR, QQW, CWM, F_RAIN, F_ICE, F_RIMEF, T)
+            use ctlblk_mod, only: lm, jsta_2l, jend_2u, ista_2l, iend_2u
+            real, intent(in), dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm) :: &
+                QRIMEF, QQW, QQR, QQI, T
+            real, intent(out), dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm) :: &
+                F_RAIN, F_ICE, F_RIMEF, CWM
+        end subroutine ETAMP_Q2F
+    end interface
+
     ! Grid parameters
     jsta = 1
     jend = npts
@@ -63,8 +73,8 @@ program test_etamp_q2f
     call ETAMP_Q2F(QRIMEF, QQI, QQR, QQW, CWM, F_RAIN, F_ICE, F_RIMEF, T)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(F_RAIN(i,j,1) - EXP_F_RAIN(i,j,1)) > tol) then
                 print *, "F_RAIN test failed at (", i, ",", j, "): ", &
                          "Expected ", EXP_F_RAIN(i,j,1), " but got ", F_RAIN(i,j,1)
