@@ -4,7 +4,7 @@
 !
 ! Alyson Stahl, 1/2026
 program test_icaoheight
-    use ctlblk_mod, only: jsta, jend, spval, ista, iend
+    use ctlblk_mod, only: jsta, jend, ista, iend, spval
     implicit none
 
     real, parameter :: tol = 1.0e-8
@@ -13,6 +13,14 @@ program test_icaoheight
     integer, parameter :: npts = 3
     integer :: i, j, res
     real, dimension(1:npts,1:npts) :: MAXWP, MAXWICAOZ, EXP_MAXWICAOZ
+
+    interface
+        subroutine ICAOHEIGHT(MAXWP, MAXWICAOZ)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real, intent(in) :: MAXWP(ista:iend,jsta:jend)
+            real, intent(out) :: MAXWICAOZ(ista:iend,jsta:jend)
+        end subroutine ICAOHEIGHT
+    end interface
 
     ! Grid parameters
     jsta = 1
@@ -38,9 +46,9 @@ program test_icaoheight
     call ICAOHEIGHT(MAXWP, MAXWICAOZ)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
-            if (abs(MAXWICAOZ(j,i) - EXP_MAXWICAOZ(j,i)) > tol) then
+    do i = 1, npts
+        do j = 1, npts
+            if (abs(MAXWICAOZ(i,j) - EXP_MAXWICAOZ(i,j)) > tol) then
                 res = 1
             end if
         end do

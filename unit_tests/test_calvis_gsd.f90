@@ -15,6 +15,15 @@ program test_calvis_gsd
     integer :: i, j, k, res
     real, dimension(1:npts,1:npts) :: CZEN, VIS, EXP_VIS
 
+    interface
+        subroutine CALVIS_GSD(CZEN, VIS)
+            use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, &
+                                  ista, iend, ista_2l, iend_2u
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in) :: CZEN
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(out) :: VIS
+        end subroutine CALVIS_GSD
+    end interface
+
     ! Grid parameters
     jm = npts
     im = npts
@@ -162,8 +171,8 @@ program test_calvis_gsd
     deallocate(aextc55)
     
     res = 0
-    do j = jsta_2l, jend_2u
-        do i = ista_2l, iend_2u
+    do i = 1, npts
+        do j = 1, npts
             if (abs(VIS(i,j) - EXP_VIS(i,j)) > tol) then
                 print *, 'VIS Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_VIS(i,j), &

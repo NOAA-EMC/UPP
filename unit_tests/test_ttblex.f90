@@ -22,6 +22,25 @@ program test_ttblex
     real, dimension(1:npts,1:npts) :: TREF, QQ, PP, EXP_TREF, EXP_QQ, EXP_PP
     integer, dimension(1:npts,1:npts) :: IPTB, ITHTB, EXP_IPTB, EXP_ITHTB
 
+    interface
+        subroutine TTBLEX(TREF, TTBL, ITB, JTB, KARR, PMIDL,            &
+                          PL, QQ, PP, RDP, THE0, STHE, RDTHE, THESP,    &
+                          IPTB, ITHTB)
+            use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, &
+                                ista, iend, ista_2l, iend_2u
+            integer, intent(in) :: ITB,JTB
+            integer, intent(in) :: KARR(ista:iend,jsta:jend)
+            real, dimension(JTB,ITB), intent(in) :: TTBL
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in) :: PMIDL
+            real, dimension(ista:iend,jsta:jend), intent(in) :: THESP
+            real, dimension(ITB),  intent(in) :: THE0,STHE
+            real, intent(in) :: PL,RDP,RDTHE
+            integer, dimension(ista:iend,jsta:jend), intent(out) :: IPTB,ITHTB
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(out) :: TREF
+            real, dimension(ista:iend,jsta:jend), intent(out) :: QQ,PP
+        end subroutine TTBLEX
+    end interface
+
     ! Grid parameters
     jsta = 1
     jend = npts

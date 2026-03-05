@@ -14,6 +14,16 @@ program test_calvis
     real, dimension(1:npts,1:npts) :: QV,QC,QR,QI,QS,TT,PP
     real, dimension(1:npts,1:npts) :: VIS, EXP_VIS
 
+    interface
+        subroutine CALVIS(QV, QC, QR, QI, QS, TT, PP, VIS)
+            use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, &
+                                ista, iend, ista_2l, iend_2u
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in) :: &
+                QV, QC, QR, QI, QS, TT, PP
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: VIS
+        end subroutine CALVIS
+    end interface
+
     ! Grid parameters
     jsta = 1
     jend = npts
@@ -57,8 +67,8 @@ program test_calvis
     call CALVIS(QV, QC, QR, QI, QS, TT, PP, VIS)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(VIS(i,j) - EXP_VIS(i,j)) > tol) then
                 print *, 'VIS Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_VIS(i,j), &

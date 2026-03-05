@@ -14,6 +14,16 @@ program test_cldfrac_zhao
     real(r_kind), dimension(1:nx,1:ny) :: PLYR, TLYR, QLYR, QSTL, CLW
     real(r_kind), dimension(1:nx,1:ny) :: CLDTOT, EXP_CLDTOT
 
+    interface
+        subroutine PROGCLD1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
+            use kinds, only: r_kind
+            integer, intent(in) :: IX, NLAY, IFLIP
+            real(kind=r_kind), dimension(IX, NLAY), intent(in) :: PLYR, TLYR, &
+                QLYR, QSTL, CLW
+            real(kind=r_kind), dimension(IX, NLAY), intent(out) :: CLDTOT
+        end subroutine PROGCLD1
+    end interface
+    
     IX = nx
     NLAY = ny
 
@@ -51,7 +61,7 @@ program test_cldfrac_zhao
     
     ! Test Case: IFLIP = 0 (input data from toa to sfc)
     IFLIP = 0
-    call progcld1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
+    call PROGCLD1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
 
     res = 0
     do i = 1, nx
@@ -69,7 +79,7 @@ program test_cldfrac_zhao
 
     ! Test Case: IFLIP = 1 (input data from sfc to toa)
     IFLIP = 1
-    call progcld1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
+    call PROGCLD1(PLYR, TLYR, QLYR, QSTL, CLW, IX, NLAY, IFLIP, CLDTOT)
     
     do i = 1, nx
         do j = 1, ny
