@@ -70,7 +70,7 @@
                             teql,ieql, cape,cin,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog, tfrz, small, g, capa
+                            rhmin, rgamog, tfrz, small, g, capa, p1000
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, &
@@ -78,7 +78,7 @@
                             ifi_flight_levels, gtg_on, capecin_2m
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
+      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -3110,12 +3110,12 @@
                    QBND(I,J,1) < spval .and. QBND(I,J,2) < spval .and.  &
                    QBND(I,J,3) < spval) THEN
                  IF (capecin_2m) THEN
-                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
-                                PBND(I,J,3) + PSHLTR(I,J))/4
-                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
-                                TBND(I,J,3) + TSHLTR(I,J))/4
-                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
-                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
+                                PSHLTR(I,J))/4
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
+                                TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA)/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
+                                max(0.0,QSHLTR(I,J)))/4
                  ELSE
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
@@ -3277,9 +3277,9 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-!              IF (SUBMODELNAME == 'RTMA') THEN
-!                   CALL BOUND(MUCAPE,D00,H99999)
-!              ENDIF
+!               IF (SUBMODELNAME == 'RTMA') THEN
+!                    CALL BOUND(MUCAPE,D00,H99999)
+!               ENDIF
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=ISTA,IEND
@@ -3585,7 +3585,7 @@
          IF(IGET(951)>0)THEN
            FIELD2=.TRUE.
          ENDIF
-         IF(MODELNAME == "FV3R" .and. SUBMODELNAME == "RTMA") THEN
+         IF(MODELNAME == "RAPR" .and. SUBMODELNAME == 'RTMA') THEN
            FIELD1=.TRUE.
            FIELD2=.TRUE.
          ENDIF
@@ -3625,12 +3625,12 @@
                    QBND(I,J,1) < spval .and. QBND(I,J,2) < spval .and.  &
                    QBND(I,J,3) < spval) THEN
                  IF (capecin_2m) THEN
-                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
-                                PBND(I,J,3) + PSHLTR(I,J))/4
-                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
-                                TBND(I,J,3) + TSHLTR(I,J))/4
-                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
-                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
+                                PSHLTR(I,J))/4
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
+                                TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA)/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
+                                max(0.0,QSHLTR(I,J)))/4
                  ELSE
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
@@ -3755,7 +3755,7 @@
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0
-         IF (SUBMODELNAME == 'RTMA') THEN
+         IF (MODELNAME == 'RAPR' .AND. SUBMODELNAME == 'RTMA') THEN
 !---  IF USSING EL BASE & TOP COMPUTED BY NEW SCHEME FOR THE
 !RELATED VARIABLES
 !$omp parallel do private(i,j)
@@ -4335,12 +4335,12 @@
                    QBND(I,J,1) < spval .and. QBND(I,J,2) < spval .and.  &
                    QBND(I,J,3) < spval) THEN
                  IF (capecin_2m) THEN
-                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) +             &
-                                PBND(I,J,3) + PSHLTR(I,J))/4
-                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) +             &
-                                TBND(I,J,3) + TSHLTR(I,J))/4
-                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) +             &
-                                QBND(I,J,3) + max(0.0,QSHLTR(I,J)))/4
+                   P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3) + &
+                                PSHLTR(I,J))/4
+                   T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3) + &
+                                TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA)/4
+                   Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3) + &
+                                max(0.0,QSHLTR(I,J)))/4
                  ELSE
                    P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
                    T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
@@ -4524,7 +4524,7 @@
 
             ITYPE = 1
             DO J=JSTA,JEND
-            DO I=ISTA,IEND
+              DO I=ISTA,IEND
                 LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                              LVLBND(I,J,3))/3
                 P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3

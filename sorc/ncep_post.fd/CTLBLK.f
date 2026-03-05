@@ -56,7 +56,7 @@
   character(len=8)   :: FULLMODELNAME              !< No longer used/supported.
   character(len=20)  :: IOFORM                     !< Input file format.
   character(len=4)   :: VTIMEUNITS                 !< Valid time units.
-  real :: earth_radius                             !< Radius of the earth (meters), as optionally specified in the namelist
+  real :: earth_radius = 0.                        !< Radius of the earth (meters), as optionally specified in the namelist
 ! 
   character(5) :: grib                          !< Grib type (Note that UPP only supports Grib2 currently).
   type(field_info),allocatable :: fld_info(:)   !< _____?
@@ -78,8 +78,8 @@
   logical :: slrutah_on    !< Calculate snow to liquid ratio (SLR) using method from University of Utah.
   logical :: gtg_on        !< Turn on GTG (Graphical Turbulence Guidance)
   logical :: method_blsn   !< Turn on blowing snow effect on visibility diagnostic
-  logical :: capecin_2m    !< Turn on option to calculate CAPE and CIN using 2-m fields
-  logical :: synthetic_cfr !< Turn on option to enable the synthetic cloud fraction scheme for HRRR-3DRTMA
+  logical :: capecin_2m = .false. !< Turn on option to calculate CAPE and CIN using 2-m fields
+  logical :: synthetic_cfr = .false. !< Turn on option to enable the synthetic cloud fraction scheme for HRRR-3DRTMA
 !
   logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.
