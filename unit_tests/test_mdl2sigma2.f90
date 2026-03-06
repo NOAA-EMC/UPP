@@ -116,4 +116,6 @@ program test_mdl2sigma2
     if (res .ne. 0) stop 10
 
     iget(296) = 1
+
+    call MDL2SIGMA2()
 end program test_mdl2sigma2
