@@ -90,12 +90,30 @@ program test_mdl2sigma2
     ! Test Case: IGET(296) = 0. Should skip entire subroutine.
     call MDL2SIGMA2()
 
-    print *, "cfld = ", cfld
-    print *, "ifld = ", fld_info(1)%ifld
-    print *, "lvl  = ", fld_info(1)%lvl
+    res = 0
+    if (cfld .ne. 0) then
+        print *, "Expected cfld = 0, got ", cfld
+        res = 1
+    end if
+    if (fld_info(1)%ifld .ne. 9999) then
+        print *, "Expected fld_info(1)%ifld = 9999, got ", fld_info(1)%ifld
+        res = 1
+    end if
+    if (fld_info(1)%lvl .ne. 9999) then
+        print *, "Expected fld_info(1)%lvl = 9999, got ", fld_info(1)%lvl
+        res = 1
+    end if
+
     do i = 1, nx
         do j = 1, ny
-            print *, "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
+            if (datapd(i, j, 1) .ne. 0.0) then
+                print *, "Expected datapd(", i, ",", j, ",1) = 0.0, got ", datapd(i, j, 1)
+                res = 1
+            end if
         end do
     end do
+
+    if (res .ne. 0) stop 10
+
+    iget(296) = 1
 end program test_mdl2sigma2
