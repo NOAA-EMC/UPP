@@ -128,7 +128,7 @@ program test_mdl2sigma2
     res = 0
     do i = 1, nx
         do j = 1, ny
-            print '(A,I0,A,I0,A,I0,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
+            print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
         end do
     end do
 end program test_mdl2sigma2
