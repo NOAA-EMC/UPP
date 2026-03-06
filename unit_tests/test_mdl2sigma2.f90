@@ -135,6 +135,9 @@ program test_mdl2sigma2
     call MDL2SIGMA2()
 
     res = 0
+
+    print *, fld_info(1)%ifld
+    print *, fld_info(1)%lvl
     do i = 1, nx
         do j = 1, ny
             print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
