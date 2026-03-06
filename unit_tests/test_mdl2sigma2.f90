@@ -16,6 +16,8 @@ program test_mdl2sigma2
     real, parameter :: tol = 1.0e-8
     integer, parameter :: nx = 2, ny = 2, nlevs = 3
     integer :: i, j, k, res
+    integer :: EXP_IFLD = 296, EXP_LVL = 1000
+    real :: EXP_DATAPD(1:nx, 1:ny)
 
     interface
         subroutine MDL2SIGMA2()
@@ -117,30 +119,51 @@ program test_mdl2sigma2
 
     ! Testing with IGET(296) = 1. Should execute subroutine and populate datapd, fld_info.
     iget(296) = 1
+    EXP_DATAPD(1,1,1) =  280.09765625
 
     ! Test Case: Sigma pressure deeper than the model bottom interface. 0.01 <= RHL <= 1.0
     pint(1, 2, :) = 0.5*pt
     pmid(1, 2, :) = 0.5*pt
-    
+    EXP_DATAPD(1,2,1) = 301.68432617
+
     ! Test Case: Sigma pressure deeper than the model bottom interface. RHL < 0.01
     pint(2, 1, :) = 0.5*pt
     pmid(2, 1, :) = 0.5*pt
     q(2, 1, 1:2) = 1.0e-10
+    EXP_DATAPD(2,1,1) = 301.68429565
 
     ! Test Case: Sigma pressure deeper than the model bottom interface. RHL > 1.0
     pint(2, 2, :) = 0.5*pt
     pmid(2, 2, :) = 0.5*pt
     q(2, 2, 1:2) = 1.0
+    EXP_DATAPD(2,2,1) = 301.68432617
 
     call MDL2SIGMA2()
 
     res = 0
-
-    print *, fld_info(1)%ifld
-    print *, fld_info(1)%lvl
+    if (cfld .ne. 1) then
+        print *, "Expected cfld = 1, got ", cfld
+        res = 1
+    end if
+    if (fld_info(1)%ifld .ne. EXP_IFLD) then
+        print *, "Expected fld_info(1)%ifld = ", EXP_IFLD, " got ", fld_info(1)%ifld
+        res = 1
+    end if
+    if (fld_info(1)%lvl .ne. EXP_LVL) then
+        print *, "Expected fld_info(1)%lvl = ", EXP_LVL, " got ", fld_info(1)%lvl
+        res = 1
+    end if
+    
     do i = 1, nx
         do j = 1, ny
-            print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
+            if (abs(datapd(i, j, 1) - EXP_DATAPD(i, j, 1)) > tol) then
+                print *, "Expected datapd(", i, ",", j, ",1) = ", EXP_DATAPD(i, j, 1), " got ", datapd(i, j, 1)
+                res = 1
+            end if
         end do
     end do
+
+    if (res .ne. 0) stop 20
+
+    print *, 'SUCCESS!'
 end program test_mdl2sigma2
