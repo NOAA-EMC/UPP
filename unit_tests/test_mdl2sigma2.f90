@@ -84,14 +84,15 @@ program test_mdl2sigma2
     datapd(:,:,:) = 0.0
 
     ! Set to some default values.
-    fld_info(:)%ifld = 9999
-    fld_info(:)%lvl = 9999
+    fld_info(1)%ifld = 9999
+    fld_info(1)%lvl = 9999
 
     ! Test Case: IGET(296) = 0. Should skip entire subroutine.
     call MDL2SIGMA2()
 
-    print *, "ifld = ", fld_info(cfld)%ifld
-    print *, "lvl  = ", fld_info(cfld)%lvl
+    print *, "cfld = ", cfld
+    print *, "ifld = ", fld_info(1)%ifld
+    print *, "lvl  = ", fld_info(1)%lvl
     do i = 1, nx
         do j = 1, ny
             print *, "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
