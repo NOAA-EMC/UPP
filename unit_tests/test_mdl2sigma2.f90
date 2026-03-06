@@ -84,4 +84,12 @@ program test_mdl2sigma2
     datapd(:,:,:) = 0.0
 
     call MDL2SIGMA2()
+
+    print *, "ifld = ", fld_info(cfld)%ifld
+    print *, "lvl  = ", fld_info(cfld)%lvl
+    do i = 1, nx
+        do j = 1, ny
+            print *, "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
+        end do
+    end do
 end program test_mdl2sigma2
