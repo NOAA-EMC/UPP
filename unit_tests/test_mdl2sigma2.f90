@@ -66,8 +66,8 @@ program test_mdl2sigma2
             end do
             do k = 1, lm
                 pmid(i, j, k) = 0.5*(pint(i, j, k) + pint(i, j, k+1))
-                t(   i, j, k) = 290.0 - 6.0*real(k-1)
-                q(   i, j, k) = 0.010/real(k)
+                t(i, j, k) = 290.0 - 6.0*real(k-1)
+                q(i, j, k) = 0.010/real(k)
             end do
             lmh(i, j) = real(lm)
         end do
@@ -87,7 +87,7 @@ program test_mdl2sigma2
     fld_info(1)%ifld = 9999
     fld_info(1)%lvl = 9999
 
-    ! Test Case: IGET(296) = 0. Should skip entire subroutine.
+    ! Testing with IGET(296) = 0. Should skip entire subroutine.
     call MDL2SIGMA2()
 
     res = 0
@@ -115,7 +115,20 @@ program test_mdl2sigma2
 
     if (res .ne. 0) stop 10
 
+    ! Testing with IGET(296) = 1. Should execute subroutine and populate datapd, fld_info.
     iget(296) = 1
 
+    ! - no L satisfies PMID(1,2,L) > PSIGO so that NL1X stays LP1 throughout the L-loop
+    ! - PINT(1,2,LLMH+1) < PSIGO so that the second if condition is false and NL1X stays LP1.
+    pint(1, 2, :) = 0.5*pt
+    pmid(1, 2, :) = 0.5*pt
+    
     call MDL2SIGMA2()
+
+    res = 0
+    do i = 1, nx
+        do j = 1, ny
+            print '(A,I0,A,I0,A,I0,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
+        end do
+    end do
 end program test_mdl2sigma2
