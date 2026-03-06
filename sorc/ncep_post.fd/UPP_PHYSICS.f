@@ -570,6 +570,7 @@
 !> 2021-07-28 | W Meng        | Restrict computation from undefined grids
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
 !> 2025-07-22 | K Halbert / E Colon | CAPE/CINH use shelter fields
+!> 2025-12-16 | B Blake       | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
@@ -578,7 +579,7 @@
       use vrbls2d,    only: teql,ieql,tshltr,pshltr,qshltr
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
-                            oneps, g
+                            oneps, g, p1000
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
@@ -698,7 +699,7 @@
                 IF (ITYPE == 1) THEN
                   IF (capecin_2m .AND. KB == LM) THEN
                       PKL = PSHLTR(I,J)
-                      TBTK = TSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA
                       QBTK = max(0.0, QSHLTR(I,J))
                   ELSE
                       TBTK   = T(I,J,KB)
@@ -1054,6 +1055,8 @@
 !> 2021-09-01 | E Colon       | Equivalent level height index for RTMA
 !> 2022-08-27 | S Trahan      | Fixed bug in CALCAPE2 where extreme atmospheric conditions cause an out-of-bounds access
 !> 2022-09-01 | S Trahan      | Fixed another bug in CALCAPE2 where extreme atmospheric conditions cause an out-of-bounds access
+!> 2025-07-22 | K Halbert / E Colon | CAPE/CINH use shelter fields
+!> 2025-12-16 | B Blake       | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !>
 !> @author Russ Treadon W/NP2 @date 1993-02-10
       SUBROUTINE CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &  
@@ -1064,7 +1067,7 @@
       use gridspec_mod, only: gridtype
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
-                            oneps, g, tfrz
+                            oneps, g, tfrz, p1000
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
@@ -1264,7 +1267,7 @@
                 IF (ITYPE == 1) THEN
                   IF (capecin_2m .AND. KB == LM) THEN
                       PKL = PSHLTR(I,J)
-                      TBTK = TSHLTR(I,J)
+                      TBTK = TSHLTR(I,J)*(PSHLTR(I,J)/P1000)**CAPA
                       QBTK = max(0.0, QSHLTR(I,J))
                   ELSE 
                       TBTK   = T(I,J,KB)
