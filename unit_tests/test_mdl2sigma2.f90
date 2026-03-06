@@ -24,13 +24,6 @@ program test_mdl2sigma2
         end subroutine MDL2SIGMA2
     end interface
 
-    ! Input:
-    !   pint, pmid, t, zint, q, lmh, pt, iget, lvls, iavblfld, lvlsxml
-    ! Output:
-    !   datapd, fld_info(cfld)%ifld, fld_info(cfld)%lvl
-    ! In/Out:
-    !   cfld
-
     ! Grid Dimensions
     ista     = 1
     iend     = nx
@@ -140,6 +133,16 @@ program test_mdl2sigma2
 
     call MDL2SIGMA2()
 
+    deallocate(pint)
+    deallocate(pmid)
+    deallocate(t)
+    deallocate(zint)
+    deallocate(q)
+    deallocate(lmh)
+    deallocate(datapd)
+    deallocate(fld_info)
+    deallocate(lvlsxml)
+    
     res = 0
     if (cfld .ne. 1) then
         print *, "Expected cfld = 1, got ", cfld
