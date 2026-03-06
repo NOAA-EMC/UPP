@@ -8,13 +8,80 @@ program test_mdl2sigma2
     use masks, only: lmh
     use params_mod, only: pq0, a2, a3, a4, rgamog
     use ctlblk_mod, only: pt, jsta_2l, jend_2u, spval, lp1, lm, jsta, jend,&
-                        grib, cfld, datapd, fld_info, im, jm, im_jm, &
+                        grib, cfld, datapd, fld_info, &
                         ista, iend, ista_2l, iend_2u
-    use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
+    use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml
     implicit none
 
     real, parameter :: tol = 1.0e-8
+    integer, parameter :: nx = 2, ny = 2, nlevs = 3
+    integer :: i, j, k, res
+    interface
+        subroutine MDL2SIGMA2()
+        end subroutine MDL2SIGMA2
+    end interface
 
+    ! Input:
+    !   pint, pmid, t, zint, q, lmh, pt, iget, lvls, iavblfld, lvlsxml
+    ! Output:
+    !   datapd, fld_info(cfld)%ifld, fld_info(cfld)%lvl
+    ! In/Out:
+    !   cfld
 
-    print *, 'SUCCESS!'
+    ! Grid Dimensions
+    ista     = 1
+    iend     = nx
+    ista_2l  = 1
+    iend_2u  = nx
+    jsta     = 1
+    jend     = ny
+    jsta_2l  = 1
+    jend_2u  = ny
+    lm       = nlevs
+    lp1      = nlevs + 1
+
+    spval = 9.9e10
+    grib = 'grib2'
+    pt   = 1.0e4
+    cfld = 0
+
+    allocate(pint(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm+1))
+    allocate(pmid(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm))
+    allocate(t(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm))
+    allocate(zint(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm+1))
+    allocate(q(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm))
+    allocate(lmh(ista:iend, jsta:jend))
+    allocate(datapd(iend-ista+1, jend-jsta+1, 1))
+    allocate(fld_info(1))
+    allocate(lvlsxml(5, 1))
+
+    cfld = 0
+
+    do i = 1, nx
+        do j = 1, ny
+            do k = 1, lm+1
+                pint(i, j, k) = pt + (real(k-1)/real(lm))*(1.0e5 - pt)
+                zint(i, j, k) = real(k-1)*1000.0
+            end do
+            do k = 1, lm
+                pmid(i, j, k) = 0.5*(pint(i, j, k) + pint(i, j, k+1))
+                t(   i, j, k) = 290.0 - 6.0*real(k-1)
+                q(   i, j, k) = 0.010/real(k)
+            end do
+            lmh(i, j) = real(lm)
+        end do
+    end do
+
+    iget(:) = 0
+    iget(296) = 1
+    lvls(:,:) = 0
+    lvls(1:5,1) = 0
+    lvls(1,1) = 1000
+    iavblfld(1) = 296
+    lvlsxml(:,:) = 0
+    lvlsxml(1,1) = 1000
+
+    datapd(:,:,:) = 0.0
+
+    call MDL2SIGMA2()
 end program test_mdl2sigma2
