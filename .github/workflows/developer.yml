@@ -83,6 +83,7 @@ jobs:
 
       - name: run-tests
         run: |
+          cd UPP/build
           ctest --verbose --output-on-failure --rerun-failed
           gcovr --root .. -v --html-details --exclude ../unit_tests --exclude CMakeFiles --print-summary -o test-coverage.html &> /dev/null
 
