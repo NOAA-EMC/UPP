@@ -16,6 +16,14 @@ program test_clmax
     real, dimension(1:npts,1:npts) :: SQZ, SQ, RQ2L, RQ2H
     real, dimension(1:npts,1:npts) :: EL0, EXP_EL0
 
+    interface
+        subroutine CLMAX(EL0, SQZ, SQ, RQ2L, RQ2H)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real, dimension(ista:iend,jsta:jend), intent(inout) :: &
+                EL0, SQZ, SQ, RQ2L, RQ2H
+        end subroutine CLMAX
+    end interface
+    
     ! Grid parameters
     jsta = 1
     jend = npts
@@ -72,8 +80,8 @@ program test_clmax
 
     ! Check results
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(EL0(i,j) - EXP_EL0(i,j)) > tol) then
                 print *, 'EL0 Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_EL0(i,j), &

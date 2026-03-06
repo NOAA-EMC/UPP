@@ -15,6 +15,16 @@ program test_etcalc
     real, dimension(1:ntests) :: EXP_CMC, EXP_EC, EXP_EDIR, EXP_ETRANS, EXP_ESNOW, &
                                     EXP_SMCDRY, EXP_SMCMAX
 
+    interface 
+        subroutine ETCALC(ETA, ETP, ESD, VEGFAC, ISOIL, SMC, CMC,        &
+                          EC, EDIR, ETRANS, ESNOW, SMCDRY, SMCMAX)
+        integer, intent(in) :: ISOIL
+        real, intent(in) :: ETA, ETP, ESD, VEGFAC, SMC
+        real, intent(inout) :: CMC
+        real, intent(out) ::  EC, EDIR, ETRANS, ESNOW, SMCDRY, SMCMAX
+        end subroutine ETCALC
+    end interface
+
     ! Initialize arrays with default test case values
     ETA = 150.0
     ETP = 200.0

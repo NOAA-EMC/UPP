@@ -21,6 +21,15 @@ program test_zensun
     real(r_kind), dimension(ntests) :: SUN_ZENITH, SUN_AZIMUTH
     real(r_kind), dimension(ntests) :: EXP_SUN_ZENITH, EXP_SUN_AZIMUTH
 
+    interface
+        subroutine ZENSUN(DAY, TIME, LAT, LON, PI, SUN_ZENITH, SUN_AZIMUTH)
+            use kinds, only: r_kind,i_kind
+            integer(i_kind), intent(in) :: DAY
+            real(r_kind), intent(in) :: TIME, LAT, LON, PI
+            real(r_kind), intent(out) :: SUN_ZENITH, SUN_AZIMUTH
+        end subroutine ZENSUN
+    end interface
+
     ! 1) di == 1 lower boundary: tt = 1.0 (nday(1))
     DAY(1)  = 1
     TIME(1) = 0.0

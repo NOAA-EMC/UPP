@@ -2997,7 +2997,7 @@
        <scale>5.0</scale>
        </param>
 
-<!--   <param>
+       <param>
        <shortname>DOWNWARD_CAPE</shortname>
        <pname>DCAPE</pname>
        <table_info>NCEP</table_info>
@@ -3006,7 +3006,7 @@
        <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
        <level2>0.</level2>
        <scale>4.0</scale>
-       </param> -->
+       </param>
 
        <param>
        <shortname>UESH_ON_EFL</shortname>
