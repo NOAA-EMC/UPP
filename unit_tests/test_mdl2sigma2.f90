@@ -133,16 +133,6 @@ program test_mdl2sigma2
 
     call MDL2SIGMA2()
 
-    deallocate(pint)
-    deallocate(pmid)
-    deallocate(t)
-    deallocate(zint)
-    deallocate(q)
-    deallocate(lmh)
-    deallocate(datapd)
-    deallocate(fld_info)
-    deallocate(lvlsxml)
-    
     res = 0
     if (cfld .ne. 1) then
         print *, "Expected cfld = 1, got ", cfld
@@ -167,6 +157,16 @@ program test_mdl2sigma2
     end do
 
     if (res .ne. 0) stop 20
+
+    deallocate(pint)
+    deallocate(pmid)
+    deallocate(t)
+    deallocate(zint)
+    deallocate(q)
+    deallocate(lmh)
+    deallocate(datapd)
+    deallocate(fld_info)
+    deallocate(lvlsxml)
 
     print *, 'SUCCESS!'
 end program test_mdl2sigma2
