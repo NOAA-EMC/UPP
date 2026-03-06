@@ -16,6 +16,7 @@ program test_mdl2sigma2
     real, parameter :: tol = 1.0e-8
     integer, parameter :: nx = 2, ny = 2, nlevs = 3
     integer :: i, j, k, res
+
     interface
         subroutine MDL2SIGMA2()
         end subroutine MDL2SIGMA2
@@ -73,7 +74,6 @@ program test_mdl2sigma2
     end do
 
     iget(:) = 0
-    iget(296) = 1
     lvls(:,:) = 0
     lvls(1:5,1) = 0
     lvls(1,1) = 1000
@@ -83,6 +83,11 @@ program test_mdl2sigma2
 
     datapd(:,:,:) = 0.0
 
+    ! Set to some default values.
+    fld_info(:)%ifld = 9999
+    fld_info(:)%lvl = 9999
+
+    ! Test Case: IGET(296) = 0. Should skip entire subroutine.
     call MDL2SIGMA2()
 
     print *, "ifld = ", fld_info(cfld)%ifld
