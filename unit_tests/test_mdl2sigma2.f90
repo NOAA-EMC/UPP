@@ -118,17 +118,26 @@ program test_mdl2sigma2
     ! Testing with IGET(296) = 1. Should execute subroutine and populate datapd, fld_info.
     iget(296) = 1
 
-    ! - no L satisfies PMID(1,2,L) > PSIGO so that NL1X stays LP1 throughout the L-loop
-    ! - PINT(1,2,LLMH+1) < PSIGO so that the second if condition is false and NL1X stays LP1.
+    ! Test Case: Sigma pressure deeper than the model bottom interface. 0.01 <= RHL <= 1.0
     pint(1, 2, :) = 0.5*pt
     pmid(1, 2, :) = 0.5*pt
     
+    ! Test Case: Sigma pressure deeper than the model bottom interface. RHL < 0.01
+    pint(2, 1, :) = 0.5*pt
+    pmid(2, 1, :) = 0.5*pt
+    q(2, 1, 1:2) = 1.0e-10
+
+    ! Test Case: Sigma pressure deeper than the model bottom interface. RHL > 1.0
+    pint(2, 2, :) = 0.5*pt
+    pmid(2, 2, :) = 0.5*pt
+    q(2, 2, 1:2) = 1.0
+
     call MDL2SIGMA2()
 
     res = 0
     do i = 1, nx
         do j = 1, ny
-            print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
+            print '(A,I0,A,I0,ES24.10)', "datapd(", i, ",", j, ",1) = ", datapd(i, j, 1)
         end do
     end do
 end program test_mdl2sigma2
