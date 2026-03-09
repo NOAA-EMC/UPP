@@ -41,11 +41,11 @@ program test_mdl2sigma2
     pt   = 1.0e4
     cfld = 0
 
-    allocate(pint(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lp1))
-    allocate(pmid(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lp1))
-    allocate(t(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lp1))
-    allocate(zint(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lp1))
-    allocate(q(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lp1))
+    allocate(pint(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm+1))
+    allocate(pmid(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm))
+    allocate(t(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm))
+    allocate(zint(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm+1))
+    allocate(q(ista_2l:iend_2u, jsta_2l:jend_2u, 1:lm))
     allocate(lmh(ista:iend, jsta:jend))
     allocate(datapd(iend-ista+1, jend-jsta+1, 1))
     allocate(fld_info(1))
@@ -55,9 +55,11 @@ program test_mdl2sigma2
 
     do i = 1, nx
         do j = 1, ny
-            do k = 1, lp1
+            do k = 1, lm+1
                 pint(i, j, k) = pt + (real(k-1)/real(lm))*(1.0e5 - pt)
                 zint(i, j, k) = real(k-1)*1000.0
+            end do
+            do k = 1, lm
                 pmid(i, j, k) = 0.5*(pint(i, j, k) + pint(i, j, k+1))
                 t(i, j, k) = 290.0 - 6.0*real(k-1)
                 q(i, j, k) = 0.010/real(k)

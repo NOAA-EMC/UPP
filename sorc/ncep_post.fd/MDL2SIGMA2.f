@@ -188,7 +188,7 @@
               LLMH = NINT(LMH(I,J))
               PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO) 
               APSIGO=LOG(PSIGO)
-              IF(NL1X(I,J)<=LLMH.and. &
+              IF(NL1X(I,J)>=2.and.NL1X(I,J)<=LLMH.and. &
                (PMID(I,J,LL)-PMID(I,J,LL-1))/=0.)THEN
 !
 !---------------------------------------------------------------------
