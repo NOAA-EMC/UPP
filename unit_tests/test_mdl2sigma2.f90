@@ -117,19 +117,19 @@ program test_mdl2sigma2
     ! Test Case: Sigma pressure deeper than the model bottom interface. 0.01 <= RHL <= 1.0
     !pint(1, 2, :) = 0.5*pt
     pmid(1, 2, :) = 0.5*pt
-    !EXP_DATAPD(1,2) = 301.68432617
+    EXP_DATAPD(1,2) = 321.78915405
 
     ! Test Case: Sigma pressure deeper than the model bottom interface. RHL < 0.01
     !pint(2, 1, :) = 0.5*pt
     pmid(2, 1, :) = 0.5*pt
     q(2, 1, 1:2) = 1.0e-10
-    !EXP_DATAPD(2,1) = 301.68429565
+    EXP_DATAPD(2,1) =  321.78912354
 
     ! Test Case: Sigma pressure deeper than the model bottom interface. RHL > 1.0
     !pint(2, 2, :) = 0.5*pt
     pmid(2, 2, :) = 0.5*pt
     q(2, 2, 1:2) = 1.0
-    !EXP_DATAPD(2,2) = 301.68432617
+    EXP_DATAPD(2,2) = 321.78915405
 
     call MDL2SIGMA2()
 
@@ -149,11 +149,11 @@ program test_mdl2sigma2
     
     do i = 1, nx
         do j = 1, ny
-            print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ") = ", datapd(i, j, 1)
-            !if (abs(datapd(i, j, 1) - EXP_DATAPD(i, j)) > tol) then
-            !    print *, "Expected datapd(", i, ",", j, ",1) = ", EXP_DATAPD(i, j), " got ", datapd(i, j, 1)
-            !    res = 1
-            !end if
+            !print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ") = ", datapd(i, j, 1)
+            if (abs(datapd(i, j, 1) - EXP_DATAPD(i, j)) > tol) then
+                print *, "Expected datapd(", i, ",", j, ",1) = ", EXP_DATAPD(i, j), " got ", datapd(i, j, 1)
+                res = 1
+            end if
         end do
     end do
 
