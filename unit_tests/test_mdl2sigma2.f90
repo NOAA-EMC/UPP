@@ -121,14 +121,14 @@ program test_mdl2sigma2
 
     ! Test Case: Sigma pressure deeper than the model bottom interface. RHL < 0.01
     !pint(2, 1, :) = 0.5*pt
-    !pmid(2, 1, :) = 0.5*pt
-    !q(2, 1, 1:2) = 1.0e-10
+    pmid(2, 1, :) = 0.5*pt
+    q(2, 1, 1:2) = 1.0e-10
     !EXP_DATAPD(2,1) = 301.68429565
 
     ! Test Case: Sigma pressure deeper than the model bottom interface. RHL > 1.0
     !pint(2, 2, :) = 0.5*pt
-    !pmid(2, 2, :) = 0.5*pt
-    !q(2, 2, 1:2) = 1.0
+    pmid(2, 2, :) = 0.5*pt
+    q(2, 2, 1:2) = 1.0
     !EXP_DATAPD(2,2) = 301.68432617
 
     call MDL2SIGMA2()
