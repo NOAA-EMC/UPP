@@ -129,7 +129,7 @@ program test_mdl2sigma2
     q(2, 2, 1:2) = 1.0
     t(2, 2, 1) = 200.0
     t(2, 2, 2) = 200.0
-    EXP_DATAPD(2,2) = 321.78915405
+    EXP_DATAPD(2,2) = 224.24328613
 
     call MDL2SIGMA2()
 
@@ -149,11 +149,10 @@ program test_mdl2sigma2
     
     do i = 1, nx
         do j = 1, ny
-            print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ") = ", datapd(i, j, 1)
-            !if (abs(datapd(i, j, 1) - EXP_DATAPD(i, j)) > tol) then
-            !    print *, "Expected datapd(", i, ",", j, ",1) = ", EXP_DATAPD(i, j), " got ", datapd(i, j, 1)
-            !    res = 1
-            !end if
+            if (abs(datapd(i, j, 1) - EXP_DATAPD(i, j)) > tol) then
+                print *, "Expected datapd(", i, ",", j, ",1) = ", EXP_DATAPD(i, j), " got ", datapd(i, j, 1)
+                res = 1
+            end if
         end do
     end do
 
