@@ -149,7 +149,7 @@ program test_mdl2sigma2
     
     do i = 1, nx
         do j = 1, ny
-            !print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ") = ", datapd(i, j, 1)
+            print '(A,I0,A,I0,A,ES24.10)', "datapd(", i, ",", j, ") = ", datapd(i, j, 1)
             !if (abs(datapd(i, j, 1) - EXP_DATAPD(i, j)) > tol) then
             !    print *, "Expected datapd(", i, ",", j, ",1) = ", EXP_DATAPD(i, j), " got ", datapd(i, j, 1)
             !    res = 1
