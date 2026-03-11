@@ -16,7 +16,7 @@ load(pathJoin("cmake", cmake_ver))
 
 local ufs_modules = {
   {["jasper"]          = "2.0.32" },
-  {["zlib-ng"]         = "2.2.1"  },
+  {["zlib"]            = "1.2.13"  },
   {["libpng"]          = "1.6.37" },
   {["hdf5"]            = "1.14.3" },
   {["netcdf-c"]        = "4.9.2"  },
