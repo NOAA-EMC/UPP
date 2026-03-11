@@ -13,6 +13,13 @@ program test_calstrm
     real :: Z1D(1:npts,1:npts), STRM(1:npts,1:npts)
     real :: EXP_STRM(1:npts,1:npts)
 
+    interface
+        subroutine CALSTRM(Z1D, STRM)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real, dimension(ista:iend,jsta:jend), intent(in) :: Z1D
+            real, dimension(ista:iend,jsta:jend), intent(inout) :: STRM
+        end subroutine CALSTRM
+    end interface
     ! Grid parameters
     ista = 1
     iend = npts
@@ -27,11 +34,11 @@ program test_calstrm
     STRM = 0.0
     EXP_STRM = reshape([5.24657E7, -5.24657E7, 1.049314E8, 0.0], [npts, npts])
 
-    call calstrm(Z1D, STRM)
+    call CALSTRM(Z1D, STRM)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(STRM(i,j) - EXP_STRM(i,j)) > tol) then
                 print *, 'Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_STRM(i,j), &

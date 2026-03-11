@@ -25,6 +25,14 @@ program test_callcl
     real :: PLCL(1:npts,1:npts), ZLCL(1:npts,1:npts)
     real :: EXP_PLCL(1:npts,1:npts), EXP_ZLCL(1:npts,1:npts)
 
+    interface
+        subroutine CALLCL(P1D, T1D, Q1D, PLCL, ZLCL)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real, dimension(ista:iend,jsta:jend), intent(in) :: P1D, T1D, Q1D
+            real, dimension(ista:iend,jsta:jend), intent(inout) :: PLCL, ZLCL
+        end subroutine CALLCL
+    end interface
+    
     ! Grid parameters
     jsta = 1
     jend = npts
@@ -87,11 +95,11 @@ program test_callcl
     fis(2,2) = 5000.0/gi
     EXP_ZLCL(2,2) = 0.0
     
-    call callcl(P1D, T1D, Q1D, PLCL, ZLCL)
+    call CALLCL(P1D, T1D, Q1D, PLCL, ZLCL)
 
     res = 0
-    do i = ista, iend
-        do j = jsta, jend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(PLCL(i,j) - EXP_PLCL(i,j)) > tol) then
                 print *, 'PLCL Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_PLCL(i,j), &

@@ -22,6 +22,13 @@ program test_caldrg
     real :: EXP_DRAGCO_A(1:npts, 1:npts), EXP_DRAGCO_E(1:npts, 1:npts), EXP_DRAGCO_B(1:npts, 1:npts),  &
             EXP_DRAGCO_B_NMM(1:npts, 1:npts), EXP_DRAGCO_INVALID(1:npts, 1:npts)
 
+    interface
+        subroutine CALDRG(DRAGCO)
+            use ctlblk_mod, only: jsta_2l, jend_2u, ista_2l, iend_2u
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: DRAGCO
+        end subroutine CALDRG
+    end interface
+
     ! Grid dimensions and bounds
     im = npts
     jm = npts
@@ -123,8 +130,8 @@ program test_caldrg
 
     ! Compare results for gridtype 'E'
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(DRAGCO(i,j) - EXP_DRAGCO_E(i,j)) > tol) then
                 print *, "Mismatch at (", i, ",", j, "): ", DRAGCO(i,j), " vs ", EXP_DRAGCO_E(i,j)
                 res = 1
@@ -141,8 +148,8 @@ program test_caldrg
 
     ! Compare results for gridtype 'B'
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(DRAGCO(i,j) - EXP_DRAGCO_B(i,j)) > tol) then
                 print *, "Mismatch at (", i, ",", j, "): ", DRAGCO(i,j), " vs ", EXP_DRAGCO_B(i,j)
                 res = 1
@@ -159,8 +166,8 @@ program test_caldrg
 
     ! Compare results for gridtype 'B' with NMM model
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(DRAGCO(i,j) - EXP_DRAGCO_B_NMM(i,j)) > tol) then
                 print *, "Mismatch at (", i, ",", j, "): ", DRAGCO(i,j), " vs ", EXP_DRAGCO_B_NMM(i,j)
                 res = 1
@@ -176,8 +183,8 @@ program test_caldrg
 
     ! Compare results for invalid grid type
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (DRAGCO(i,j) /= EXP_DRAGCO_INVALID(i,j)) then
                 print *, "Mismatch at (", i, ",", j, "): ", DRAGCO(i,j), " vs ", EXP_DRAGCO_INVALID(i,j)
                 res = 1

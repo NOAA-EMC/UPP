@@ -14,6 +14,12 @@ program test_calvessel
     integer :: i, j, res
     real, dimension(1:npts,1:npts) :: ICEG, EXP_ICEG
 
+    interface
+        subroutine CALVESSEL(ICEG)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real, dimension(ista:iend,jsta:jend), intent(out) ::  ICEG
+        end subroutine CALVESSEL
+    end interface
     ! Grid parameters
     jsta = 1
     jend = npts
@@ -69,8 +75,8 @@ program test_calvessel
     call CALVESSEL(ICEG)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(ICEG(i,j) - EXP_ICEG(i,j)) > tol) then
                 print *, 'ICEG Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_ICEG(i,j), &

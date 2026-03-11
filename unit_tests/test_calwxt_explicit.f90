@@ -14,6 +14,18 @@ program test_calwxt_explicit
     real, dimension(1:npts,1:npts,1:nlevs) :: PMID, F_RIMEF
     integer, dimension(1:npts,1:npts) :: IWX, EXP_IWX
 
+    interface
+        subroutine CALWXT_EXPLICIT_POST(LMH, THS, PMID, PREC, SR, F_RIMEF, IWX)
+            use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, ista, iend, &
+                                  ista_2l, iend_2u, lm
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm), intent(in) :: &
+                F_RIMEF, PMID
+            real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in) :: &
+                LMH, PREC, THS, SR
+            integer, dimension(ista:iend,jsta:jend), intent(inout) :: IWX
+        end subroutine CALWXT_EXPLICIT_POST
+    end interface
+
     ! Grid parameters
     jsta = 1
     jsta_2l = 1
@@ -54,8 +66,8 @@ program test_calwxt_explicit
     call CALWXT_EXPLICIT_POST(LMH, THS, PMID, PREC, SR, F_RIMEF, IWX)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (IWX(i,j) /= EXP_IWX(i,j)) then
                 print *, 'IWX Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_IWX(i,j), &

@@ -33,7 +33,10 @@ program test_gpvs
     real, dimension(ntests) :: EXP_SVP = (/&
         5.1082324717E-06, 1.9790380611E-04, 3.7731970660E-03, 4.2686607689E-02, &
         3.2524418831E-01, 1.5943791866E+00, 5.7352380753E+00, 1.7075515747E+01 /)
+        
     interface 
+        subroutine GPVS()
+        end subroutine GPVS
         real function FPVS(T)
             real, intent(in) :: T
         end function FPVS

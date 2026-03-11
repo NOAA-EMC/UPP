@@ -256,6 +256,13 @@
        <scale>-3.0</scale>
        </param>
 
+       <param>
+       <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
+       <pname>MSLET</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+       </param>
+
     </paramset>
 
    </postxml>

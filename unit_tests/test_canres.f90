@@ -24,6 +24,18 @@ program test_canres
             EXP_RCSOIL_2 = 5.5774652958E-01, EXP_GC_2 = 7.9999997979E-04, EXP_RC_2 = 1250.0, &
             EXP_SMCWLT_2 = 2.3000000045E-02, EXP_SMCREF_2 = 2.3600000143E-01, EXP_RSMIN_2 = 100.0
 
+    interface
+        subroutine CANRES(SOLAR, SFCTMP, Q2, SFCPRS, SMC, GC, RC, IVEG, ISOIL, RSMIN, &
+                          NROOTS, SMCWLT, SMCREF, RCS, RCQ, RCT, RCSOIL, SLDPTH)
+            use ctlblk_mod, only: novegtype, nsoil, ivegsrc
+            integer , intent(in) :: IVEG, ISOIL
+            real, intent(in) :: SOLAR, SFCTMP, Q2, SFCPRS
+            real, dimension(nsoil), intent(in) :: SMC, SLDPTH
+            integer, intent(out) :: NROOTS
+            real, intent(out) :: RCT, RCS, RCQ, RCSOIL, GC, RC, SMCWLT, SMCREF, RSMIN
+        end subroutine CANRES
+    end interface
+    
     res = 0 ! Initialize to no errors
 
     ivegsrc = 1 ! Test cases where veg type is IGBP
