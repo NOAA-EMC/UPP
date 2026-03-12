@@ -80,6 +80,10 @@ jobs:
             -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/nceplibs/jasper;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-bacio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-w3emc;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-ip;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2tmpl;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-sigio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-nemsio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-wrf_io;$GITHUB_WORKSPACE/nceplibs/EMC_crtm" 
           make VERBOSE=1
           make install
+
+      - name: run-tests
+        run: |
+          cd UPP/build
           ctest --verbose --output-on-failure --rerun-failed
           gcovr --root .. -v --html-details --exclude ../unit_tests --exclude CMakeFiles --print-summary -o test-coverage.html &> /dev/null
 
