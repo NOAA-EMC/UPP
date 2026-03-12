@@ -14,6 +14,14 @@ program test_dewpoint
     integer :: i, j, res
     real :: VP(1:npts, 1:npts), TD(1:npts, 1:npts)
 
+    interface
+        subroutine DEWPOINT(VP, TD)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real,intent(in) ::  VP(ista:iend,jsta:jend)
+            real,intent(out) :: TD(ista:iend,jsta:jend)
+        end subroutine DEWPOINT
+    end interface
+
     im = npts
     jm = npts
     ista = 1
@@ -23,20 +31,22 @@ program test_dewpoint
     spval = -9999.0
     
     ! Set up test vapor pressure values (centibars)
-    VP = reshape([0.02, 0.5, 2.0, 8.0], [im, jm])
+    VP = reshape([0.02, 0.5, 2.0, 8.0], [npts, npts])
 
     print *, 'Testing DEWPOINT subroutine with spval less than min vapor pressure. Expect TD = spval.'
 
     call DEWPOINT(VP, TD)
+    
     res = 0
-    do j = 1, jm
-        do i = 1, im
+    do i = 1, npts
+        do j = 1, npts
             if (TD(i,j) /= spval) then
                 print *, 'FAIL: TD(',i,',',j,') = ', TD(i,j), ' expected spval = ', spval
                 res = 1
             end if
         end do
     end do
+
     if (res .ne. 0) stop 10
 
     print *, "Testing DEWPOINT subroutine with spval greater than max vapor pressure."
@@ -45,8 +55,8 @@ program test_dewpoint
     call DEWPOINT(VP, TD)
 
     res = 0
-    do j = 1, jm
-        do i = 1, im
+    do i = 1, npts
+        do j = 1, npts
             if (TD(i,j) < min_expected .or. TD(i,j) > max_expected) then
                 print *, 'FAIL: TD(',i,',',j,') = ', TD(i,j), ' out of expected range.'
                 res = 1

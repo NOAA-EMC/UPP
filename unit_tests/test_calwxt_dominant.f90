@@ -15,6 +15,19 @@ program test_calwxt_dominant
     real, dimension(1:npts,1:npts,nalg) :: RAIN, SNOW, SLEET, FREEZR
     real, dimension(1:npts,1:npts) :: EXP_DOMS, EXP_DOMR, EXP_DOMZR, EXP_DOMIP
 
+    interface
+        subroutine CALWXT_DOMINANT_POST(PREC, RAIN, FREEZR, SLEET, SNOW, DOMR, &
+                                        DOMZR, DOMIP, DOMS)
+            use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, &
+                                  ista, iend, ista_2l, iend_2u
+            integer, parameter :: nalg = 5
+            real, intent(in) :: PREC(ista_2l:iend_2u,jsta_2l:jend_2u)
+            real, dimension(ista:iend,jsta:jend,nalg), intent(in) :: &
+                RAIN, SNOW, SLEET, FREEZR
+            real, dimension(ista:iend,jsta:jend), intent(inout) ::  &
+                DOMS, DOMR, DOMZR, DOMIP
+        end subroutine CALWXT_DOMINANT_POST
+    end interface
 
     ! Grid parameters
     jsta = 1
@@ -106,8 +119,8 @@ program test_calwxt_dominant
     call CALWXT_DOMINANT_POST(PREC, RAIN, FREEZR, SLEET, SNOW, DOMR, DOMZR, DOMIP, DOMS)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (DOMS(i,j) /= EXP_DOMS(i,j)) then
                 print *, 'DOMS Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_DOMS(i,j), &

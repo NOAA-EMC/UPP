@@ -2997,7 +2997,7 @@
        <scale>5.0</scale>
        </param>
 
-<!--   <param>
+       <param>
        <shortname>DOWNWARD_CAPE</shortname>
        <pname>DCAPE</pname>
        <table_info>NCEP</table_info>
@@ -3006,7 +3006,7 @@
        <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
        <level2>0.</level2>
        <scale>4.0</scale>
-       </param> -->
+       </param>
 
        <param>
        <shortname>UESH_ON_EFL</shortname>
@@ -3018,6 +3018,20 @@
        <param>
        <shortname>VESH_ON_EFL</shortname>
        <pname>VESH</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>UEID_ON_EFL</shortname>
+       <pname>UEID</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>VEID_ON_EFL</shortname>
+       <pname>VEID</pname>
        <table_info>NCEP</table_info>
        <scale>6.0</scale>
        </param>

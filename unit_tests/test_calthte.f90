@@ -13,6 +13,13 @@ program test_calthte
     real, dimension(1:npts,1:npts) :: P1D, T1D, Q1D
     real, dimension(1:npts,1:npts) :: THTE, EXP_THTE
 
+    interface
+        subroutine CALTHTE(P1D, T1D, Q1D, THTE)
+            use ctlblk_mod, only: jsta, jend, ista, iend
+            real, dimension(ista:iend,jsta:jend), intent(in) :: P1D, T1D, Q1D
+            real, dimension(ista:iend,jsta:jend), intent(out) :: THTE
+        end subroutine CALTHTE
+    end interface
     ! Grid parameters
     jsta = 1
     jend = npts
@@ -30,8 +37,8 @@ program test_calthte
     call CALTHTE(P1D, T1D, Q1D, THTE)
 
     res = 0
-    do j = jsta, jend
-        do i = ista, iend
+    do i = 1, npts
+        do j = 1, npts
             if (abs(THTE(i,j) - EXP_THTE(i,j)) > tol) then
                 print *, 'THTE Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_THTE(i,j), &
