@@ -3110,6 +3110,20 @@
        </param>
 
        <param>
+       <shortname>UEID_ON_EFL</shortname>
+       <pname>UEID</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>VEID_ON_EFL</shortname>
+       <pname>VEID</pname>
+       <table_info>NCEP</table_info>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
        <shortname>ICEG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
        <pname>ICEG</pname>
        <level>10.</level>

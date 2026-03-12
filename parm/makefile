@@ -27,8 +27,6 @@ ALL_TXT= \
   ./gfs/postxconfig-NT-gfs-f00-two.txt \
   ./gefs/postxconfig-NT-gefs.txt \
   ./gefs/postxconfig-NT-gefs-f00.txt \
-  ./gefs/postxconfig-NT-gefs-aerosol.txt \
-  ./gefs/postxconfig-NT-gefs-f00-aerosol.txt \
   ./wafs/postxconfig-NT-gfs-wafs-anl.txt \
   ./wafs/postxconfig-NT-gfs-wafs-ext.txt \
   ./wafs/postxconfig-NT-gfs-wafs.txt \
@@ -58,8 +56,6 @@ ALL_TXT= \
   ./mpas/postxconfig-NT-hfip_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas_noah.txt \
-  postxconfig-NT-UFS-aerosol.txt \
-  postxconfig-NT-UFS-aerosol-F00.txt \
   ./aqm/postxconfig-NT-AQM.txt \
   ./dafs/postxconfig-NT-hrrr_dafs.txt \
   postxconfig-NT-wps.txt \
@@ -79,8 +75,6 @@ clean:
 ./gfs/postxconfig-NT-gfs-f00-two.txt:       ./gfs/postcntrl_gfs_f00_two.xml       post_avblflds.xml
 ./gefs/postxconfig-NT-gefs.txt:             ./gefs/postcntrl_gefs.xml             post_avblflds.xml
 ./gefs/postxconfig-NT-gefs-f00.txt:         ./gefs/postcntrl_gefs_f00.xml         post_avblflds.xml
-./gefs/postxconfig-NT-gefs-aerosol.txt:     ./gefs/postcntrl_gefs_aerosol.xml     post_avblflds.xml
-./gefs/postxconfig-NT-gefs-f00-aerosol.txt: ./gefs/postcntrl_gefs_aerosol_f00.xml post_avblflds.xml
 ./wafs/postxconfig-NT-gfs-wafs-anl.txt:      ./wafs/postcntrl_gfs_wafs_anl.xml      post_avblflds.xml
 ./wafs/postxconfig-NT-gfs-wafs-ext.txt:      ./wafs/postcntrl_gfs_wafs_ext.xml      post_avblflds.xml
 ./wafs/postxconfig-NT-gfs-wafs.txt:          ./wafs/postcntrl_gfs_wafs.xml          post_avblflds.xml
@@ -110,8 +104,6 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./mpas/postxconfig-NT-hfip_mpas.txt:   ./mpas/hfip_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-global_mpas.txt: ./mpas/global_mpas_postcntrl.xml post_avblflds.xml
 ./mpas/postxconfig-NT-global_mpas_noah.txt: ./mpas/global_mpas_postcntrl_noah.xml post_avblflds.xml
-postxconfig-NT-UFS-aerosol.txt:      postcntrl_ufs_aerosol.xml      post_avblflds.xml
-postxconfig-NT-UFS-aerosol-F00.txt:  postcntrl_ufs_aerosol_f00.xml  post_avblflds.xml
 ./aqm/postxconfig-NT-AQM.txt:        ./aqm/aqm.xml                  post_avblflds.xml
 ./dafs/postxconfig-NT-hrrr_dafs.txt: ./dafs/hrrr_postcntrl_dafs.xml post_avblflds.xml
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
