@@ -48,7 +48,7 @@ export DATA=$rundir/rrfs_ifi_${startdate}
 cd $DATA
 
 upp_output=cat_vars_0.nc
-ifi_standalone_output=20250401/fip_icing_category.20250401_g_120000_f_00064800.nc
+ifi_standalone_output=icing-category-output.nc
 diff_file=cat_vars_0.nc.diff
 
 $APRUN --cpus-per-task=$OMP_NUM_THREADS --nodes=1 --ntasks=1 --exclusive \
