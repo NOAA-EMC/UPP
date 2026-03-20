@@ -3804,13 +3804,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               ENDDO
             ENDDO
 
-            IF(MODELNAME == 'NCAR'.OR.MODELNAME=='RSM'.OR. MODELNAME == 'RAPR')THEN
+            IF(MODELNAME == 'NCAR'.OR.MODELNAME=='RSM')THEN
 !             CALL MIXLEN(EL0,EL)  
-            ELSE IF(MODELNAME == 'NMM')THEN
+            ELSE IF(MODELNAME == 'NMM' .OR. MODELNAME == 'RAPR')THEN
               DO L=1,LM
                DO J=JSTA,JEND
                DO I=ista,iend
-                 EL(I,J,L)=EL_PBL(I,J,L)  !NOW EL COMES OUT OF WRF NMM
+                 EL(I,J,L)=EL_PBL(I,J,L) ! use the EL_PBL array provided by the model
                ENDDO
                ENDDO
               ENDDO
