@@ -1043,7 +1043,7 @@ contains !==============================================================
     use ifi_mod
     use iso_c_binding
     use netcdf
-    use ctlblk_mod, only: me
+    use ctlblk_mod, only: me, DateStr
     implicit none
     integer, parameter :: maxname=80
     integer, parameter :: maxvars=999
@@ -1129,6 +1129,9 @@ contains !==============================================================
 
         call nc_check(nf90_put_att(ncid,NF90_GLOBAL,"fcst_lead_sec",fcst_lead_sec),&
              output_file,"nf90_put_att fcst_lead_sec")
+
+        call nc_check(nf90_put_att(ncid,NF90_GLOBAL,"valid_string",trim(DateStr)),&
+             output_file,"nf90_put_att valid_string")
         
         call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
         call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
