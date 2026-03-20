@@ -278,7 +278,7 @@ sub constructSudoCommand()
    my $preserveOldCopy = 'echo "New baseline file detected"';
    if (-e $fullDestFile)
    {
-     $preserveOldCopy = sprintf('cp -p %s %s-old2', $fullDestFile, $fullDestFile);
+     $preserveOldCopy = sprintf('cp -p %s %s-old', $fullDestFile, $fullDestFile);
    }
    
    # Move the new source file into place with the full baseline file  name
