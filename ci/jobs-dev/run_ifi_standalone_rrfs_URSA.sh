@@ -40,7 +40,7 @@ msg="Starting ifi_standalone_rrfs test"
 postmsg "$logfile" "$msg"
 
 
-FIPEXEC=${svndir}/exec/fip2-lookalike.x
+FIPEXEC=${svndir}/exec/fip_runner
 
 # use the UPP run directory so we get the input files in the expected format
 export startdate=2025040112
@@ -48,7 +48,7 @@ export DATA=$rundir/rrfs_ifi_${startdate}
 cd $DATA
 
 upp_output=cat_vars_0.nc
-ifi_standalone_output=icing-category-output.nc
+ifi_standalone_output=20250401/fip_icing_category.20250401_g_120000_f_00064800.nc
 diff_file=cat_vars_0.nc.diff
 
 $APRUN --cpus-per-task=$OMP_NUM_THREADS --nodes=1 --ntasks=1 --exclusive \
