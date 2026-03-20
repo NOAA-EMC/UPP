@@ -175,5 +175,5 @@ fi
 test -d $PATHTR/exec || mkdir -p $PATHTR/exec
 cp $prefix/bin/upp.x $PATHTR/exec/$upp_name
 if [[ "$build_ifi_executables" == YES ]] ; then
-    cp $prefix/bin/fip2-lookalike.x $PATHTR/exec/.
+    cp $prefix/bin/fip_runner $PATHTR/exec/.
 fi
