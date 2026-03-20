@@ -1869,7 +1869,7 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            USTAR( i, j ) = dummy ( i, j )
+            RMOL( i, j ) = dummy ( i, j )
         end do
        end do
 

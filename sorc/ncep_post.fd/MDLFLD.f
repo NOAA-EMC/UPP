@@ -3764,6 +3764,33 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
        ENDIF
+
+!-- Mixing length (computed in model); see also IDs 146 and 147 below
+!  J. Kenyon (20 Mar 2026)
+       IF (IGET(1028)>0) THEN
+         IF (LVLS(L,IGET(1028))>0) THEN
+           LL=LM-L+1
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=ista,iend
+               GRID1(I,J) = EL_PBL(I,J,LL)
+             ENDDO
+           ENDDO
+           if(grib=="grib2") then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(1028))
+             fld_info(cfld)%lvl=LVLSXML(L,IGET(1028))
+!$omp parallel do private(i,j,ii,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,iend-ista+1
+                 ii = ista+i-1
+                 datapd(i,j,cfld) = GRID1(ii,jj)
+               enddo
+             enddo
+           endif
+         END IF
+       ENDIF
 !     
 !     ASYMPTOTIC AND FREE ATMOSPHERE MASTER LENGTH SCALE (EL), PLUS
 !     GRADIENT RICHARDSON NUMBER.
@@ -3806,7 +3833,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
             IF(MODELNAME == 'NCAR'.OR.MODELNAME=='RSM')THEN
 !             CALL MIXLEN(EL0,EL)  
-            ELSE IF(MODELNAME == 'NMM' .OR. MODELNAME == 'RAPR')THEN
+            ELSE IF(MODELNAME == 'NMM')THEN
               DO L=1,LM
                DO J=JSTA,JEND
                DO I=ista,iend
@@ -3886,7 +3913,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
          ENDIF
       ENDIF
-     
+
 !     -- COMPUTE/ASSIGN PBL HEIGHT ARRAY(S) --
 !
 !        J Kenyon (16 Jun 2025):
