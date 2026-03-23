@@ -803,26 +803,6 @@
        </param>
 
        <param>
-          <shortname>NON_NADIR_SBT123_ON_TOP_OF_ATMOS</shortname>
-          <scale>4.0</scale>
-       </param>
-
-       <param>
-          <shortname>NON_NADIR_SBT124_ON_TOP_OF_ATMOS</shortname>
-          <scale>4.0</scale>
-       </param>
-
-       <param>
-          <shortname>SBT113_ON_TOP_OF_ATMOS</shortname>
-          <scale>4.0</scale>
-       </param>
-
-       <param>
-          <shortname>SBT114_ON_TOP_OF_ATMOS</shortname>
-          <scale>4.0</scale>
-       </param>
-
-       <param>
            <shortname>AOD_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
            <scale>5.0</scale>
        </param>

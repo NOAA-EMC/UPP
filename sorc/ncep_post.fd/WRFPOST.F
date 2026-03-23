@@ -42,6 +42,7 @@
 !> 2025-07-25 | Jaymes Kenyon             | Add "earth_radius" namelist option
 !> 2025-11-03 | Nick Szapiro              | earth_radius namelist option initialized in CTLBLK instead
 !> 2025-12-16 | Ben Blake                 | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
+!> 2026-03-04 | Gang Zhao                 | Add synthetic_cfr logical option to switch on/off the synthetic scheme for Cloud-fraction added by Jaymes Kenyon for HRRR-3DRTMA in Nov 2025.
 !> @author Mike Baldwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -135,7 +136,7 @@
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,nasa_on,gccpp_on,         &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqf_on,numx,  &
-              run_ifi_tim, slrutah_on, d2d_chem, gtg_on, method_blsn, capecin_2m
+              run_ifi_tim, slrutah_on, d2d_chem, gtg_on, method_blsn, capecin_2m, synthetic_cfr
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use upp_ifi_mod, only: write_ifi_debug_files
       use allocate_all_upp_mod, only: allocate_all
@@ -170,7 +171,8 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,gtg_on,method_blsn,popascal &
-                     ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files, capecin_2m
+                     ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files, capecin_2m   &
+                     , synthetic_cfr
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME,earth_radius &
                      ,fileNameFlux,fileNameFlat
@@ -279,6 +281,7 @@
         gtg_on   = .false.
         method_blsn = .true.
         capecin_2m  = .false.
+        synthetic_cfr = .false.
         popascal    = .false.
         fileNameAER = ''
         rdaod       = .false.
