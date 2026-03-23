@@ -72,7 +72,8 @@
 !!   25-06-16 | J Kenyon | Updated calls to CALPBL; these now specify the PBL height formulation to 
 !!                       | apply (RI or THV). Restricted the smoothing of PBL height (for gust calculations) to
 !!                       | RAP/HRRR-era applications only. Additionally, added several descriptive in-code comments.
-!!   25-07-15 | J Duda | Read/process hourly-maximum composite reflectivity
+!!   25-07-15 | J Duda   | Read/process hourly-maximum composite reflectivity
+!!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028 
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -2033,6 +2034,33 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
                ENDIF
             ENDIF
+!     
+!           MIXING LENGTH ON MDL SURFACES (AS COMPUTED IN MODEL)
+!           ...see also IDs 111 and 146 for other mixing-length options
+            IF (IGET(1028)>0) THEN
+               IF (LVLS(L,IGET(1028))>0) THEN
+                 LL=LM-L+1
+!$omp parallel do private(i,j)
+                DO J=JSTA,JEND
+                  DO I=ista,iend
+                    GRID1(I,J) = EL_PBL(I,J,LL)
+                  ENDDO
+                ENDDO
+                if(grib=="grib2") then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(1028))
+                  fld_info(cfld)%lvl=LVLSXML(L,IGET(1028))
+!$omp parallel do private(i,j,ii,jj)
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
+                    enddo
+                  enddo
+               endif
+               ENDIF
+            ENDIF
 !    
 !           CLOUD WATER CONTENT
 !HC            IF (IGET(124)>0) THEN
@@ -3763,33 +3791,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(912))
                  datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
-       ENDIF
-
-!-- Mixing length (computed in model); see also IDs 146 and 147 below
-!  J. Kenyon (20 Mar 2026)
-       IF (IGET(1028)>0) THEN
-         IF (LVLS(L,IGET(1028))>0) THEN
-           LL=LM-L+1
-!$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=ista,iend
-               GRID1(I,J) = EL_PBL(I,J,LL)
-             ENDDO
-           ENDDO
-           if(grib=="grib2") then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(1028))
-             fld_info(cfld)%lvl=LVLSXML(L,IGET(1028))
-!$omp parallel do private(i,j,ii,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,iend-ista+1
-                 ii = ista+i-1
-                 datapd(i,j,cfld) = GRID1(ii,jj)
-               enddo
-             enddo
-           endif
-         END IF
        ENDIF
 !     
 !     ASYMPTOTIC AND FREE ATMOSPHERE MASTER LENGTH SCALE (EL), PLUS
