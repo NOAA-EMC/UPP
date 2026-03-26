@@ -26,6 +26,7 @@ my $REL_LOG_DIR_PATH  = '../tests/logs';
 my $RUNTIME_PATTERN   = '([a-z0-9]+)_test ([0-9:]{8}) -- baseline ([0-9:]{8})$';
 my $BASELINE_PATTERN  = 'changes in results for case ([0-9a-z_]+) in (.*)$';
 my $debug             = 0;
+my $copy_files        = 0;
 
 #---------------------------------------------------------
 # Return the RDHPC system specific baseline directory
@@ -309,9 +310,10 @@ sub errHand()
 #---
 my $runDir = undef;
 GetOptions(
-  'run|r=s'   => \$runDir,
-  'debug|d=i' => \$debug
-) or &errHand("Usage: $0 --run <run-directory> [--debug <0|1>]");
+  'run|r=s' => \$runDir,
+  'debug|d' => \$debug,
+  'copy|c'  => \$copy_files
+) or &errHand("Usage: $0 --run <run-directory> [--copy] [--debug]");
 &errHand("Error defining run directory") unless(defined($runDir));
 
 my $workDir = &getWorkDir($runDir);
@@ -378,11 +380,13 @@ foreach(keys(%baselineHsh))
     print "\t${cnt}) ${blf}\n";
     my $sudoCmd = &constructSudoCommand($rdhpc_sys, $compiler, $_, $blf);
     print "\nCommand to execute:\n---\n ${sudoCmd}\n---\n\n" if ($debug); 
-    if (system($sudoCmd))
-    {
-       &errHand("Problem encountered while copying baseline file: ${sudoCmd}")
+    if ($copy_files) {
+       if (system($sudoCmd))
+       {
+          &errHand("Problem encountered while copying baseline file: ${sudoCmd}")
+       }
+       print "\t   ***New baseline file copied successfully***\n";
     }
-    print "\t   ***New baseline file copied successfully***\n";
     $cnt++;
   }
 } 
