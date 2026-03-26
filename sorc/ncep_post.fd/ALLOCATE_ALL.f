@@ -658,6 +658,7 @@
       allocate(smoke_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(dust_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(coarsepm_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(emdust(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -691,6 +692,7 @@
           smoke_ave(i,j)=spval
           dust_ave(i,j)=spval
           coarsepm_ave(i,j)=spval
+          emdust(i,j)=spval
         enddo
       enddo
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
