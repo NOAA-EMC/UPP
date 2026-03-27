@@ -284,11 +284,10 @@
                  UST5(I,J) = UST5(I,J) + UH(I,J,L)
                  VST5(I,J) = VST5(I,J) + VH(I,J,L)
                  COUNT5(I,J) = 1
-                 GOTO 30
+                 EXIT ! L loop
               ENDIF
             ENDDO
           ENDIF
-30    CONTINUE
         ENDDO
       ENDDO
 
