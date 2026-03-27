@@ -110,7 +110,7 @@
           TLAPSE2(LL) = 0.
           DZ2(LL) = (2./3.)*(ZINT(I,J,LL-2)-ZINT(I,J,L+1))
           IF ((DZ2(LL) > 2000.) .AND.                    &
-              (DZ2(LL+1) > 2000.)) GO TO 15
+              (DZ2(LL+1) > 2000.)) EXIT loopLL
           DELT2(LL) = T(I,J,LL-2)-T(I,J,L)
           TLAPSE2(LL) = -DELT2(LL)/DZ2(LL)
 !
