@@ -1,4 +1,4 @@
 sphinx>=7.2.0
 sphinx_rtd_theme
 sphinxcontrib-bibtex
-requests<2.33
+requests<2.34
