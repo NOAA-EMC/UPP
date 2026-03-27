@@ -74,6 +74,7 @@
 !!                       | RAP/HRRR-era applications only. Additionally, added several descriptive in-code comments.
 !!   25-07-15 | J Duda | Read/process hourly-maximum composite reflectivity
 !!   25-03-23 | E James  | Add computation of aerosol layer height top and bottom
+!!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
