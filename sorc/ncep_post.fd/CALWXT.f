@@ -99,8 +99,8 @@
 
 !
 !!$omp  parallel do private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
-      DO 800 J=JSTA,JEND
-      DO 800 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
       LMHK=NINT(LMH(I,J))
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
@@ -152,12 +152,13 @@
         jcontinue=.false.
       ENDIF
       enddo     ! enddo jcontinue
-  800 CONTINUE
+      ENDDO
+      ENDDO
 !
 !    LOWEST LAYER T
 !
-      DO 850 J=JSTA,JEND
-      DO 850 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
       KARR(I,J)=0
       IF (PREC(I,J)<=PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
@@ -185,7 +186,8 @@
           ENDIF
       ENDIF
       KARR(I,J)=1
-  850 CONTINUE
+      ENDDO
+      ENDDO
 !
 !   COMPUTE WET BULB ONLY AT POINTS THAT NEED IT
 !
@@ -196,8 +198,8 @@
 !    & private(area1,areap4,areas8,dzkl,ifrzl,iwrml,lice,          &
 !    &         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,         &
 !    &         tlmhk,twrmk)
-      DO 1900 J=JSTA,JEND
-      DO 1900 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
 !       IF (I == 324 .AND. J == 390) THEN
 !          LMHK=NINT(LMH(I,J))
 !          DO L=LMHK,1,-1          
@@ -313,7 +315,8 @@
           IWX(I,J)=IWX(I,J)+8
         ENDIF
       ENDIF
- 1900 CONTINUE
+      ENDDO
+      ENDDO
 !---------------------------------------------------------
       DEALLOCATE (TWET)
 
