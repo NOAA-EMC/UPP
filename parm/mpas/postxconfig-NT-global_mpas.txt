@@ -5987,8 +5987,8 @@ MEAN_FIRE_RDIATV_PWR
 ?
 1
 tmpl4_0
-CFNSF
-NCEP
+FRADPOW
+?
 ?
 surface
 0

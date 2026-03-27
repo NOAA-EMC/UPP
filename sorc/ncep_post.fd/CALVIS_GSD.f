@@ -328,7 +328,7 @@
             z_r = 1.6*(ustar(i,j)**2./(2.*g))
             Q_s = max((0.68/ustar(i,j))*(RHOAIR/g)*ustar_t*(ustar(i,j)**2.-ustar_t**2.),0.0)
             C_r = (Q_s/u_p)*(lamda*g/ustar(i,j)**2.)*exp(-lamda*z_r*g/ustar(i,j)**2.)
-            c_z = max(C_r * exp(-1.55*((0.05628*ustar(i,j))**-0.544 - z**-0.544)),1e-15)
+            c_z = max(C_r * exp(-1.55*((0.05628*ustar(i,j))**(-0.544) - z**(-0.544))),1e-15)
             c_alpha = alpha/(alpha+2) !simplified version of (6) in Letcher et al (2021)    
             rho_sno = sno(i,j)/(si(i,j)/1.0e3)
             rho_sno = rho_sno*2. + 10.*max(0.,rho_sno-150.0)

@@ -37,8 +37,8 @@ postmsg "$logfile" "$msg"
 export POSTGPEXEC=${svndir}/exec/upp_with_ifi.x
 
 # specify forecast start time and hour for running your post job
-export startdate=2025040112
-export fhr=018
+export startdate=2026032512
+export fhr=036
 export tmmark=tm00
 
 # specify your running and output directory
