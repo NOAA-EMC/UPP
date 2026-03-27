@@ -9,6 +9,7 @@ Jun/12/2025 - Sam Trahan: Fix parser errors in test name detection.
 
 import os
 import sys
+import re
 
 # files used in result comparison
 test_list = os.environ["test_list"].split()
@@ -34,7 +35,8 @@ def check_for_diff(tests):
             full_file = full_case_dir + '/' + file
             if file.endswith('.diff') or ( file=="TEST_ERROR" and os.path.getsize(full_file) ):
                 for test in tests:
-                    if test in case_dir:
+                    rpat = rf"\b{test}_\d+\b"
+                    if re.match(rpat, case_dir):
                         diff_case = test
                         break
             if diff_case:
