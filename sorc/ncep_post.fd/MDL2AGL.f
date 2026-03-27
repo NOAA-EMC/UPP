@@ -20,6 +20,7 @@
 !! 2023-03-02  S TRAHAN - copy lightning threat index 3 element-by-element
 !! 2023-10-23  J Kenyon - HAILCAST output enabled in RRFS
 !! 2025-04-01  W Meng - Bug fix in HAILCAST
+!! 2026-03-27  A Stahl - Remove shared DO termination labels
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -1037,8 +1038,8 @@
 	   call exch(VH(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LL))
 	  END DO
 	 END IF   
-         DO 230 J=JSTART,JSTOP
-         DO 230 I=ISTART,ISTOP
+        DO J=JSTART,JSTOP
+        DO I=ISTART,ISTOP
           LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -1128,7 +1129,8 @@
      &	       VH(IE,JS,NINT(LMV(IE,JS)))+VH(IW,JS,NINT(LMV(IW,JS))))/4.0
            END IF
           END IF
-  230    CONTINUE
+        ENDDO
+        ENDDO
 !
 !     
 !---------------------------------------------------------------------
@@ -1238,8 +1240,8 @@
 !chc        I=IHOLD(NN)
 !chc        J=JHOLD(NN)
 !        DO 220 J=JSTA,JEND
-            DO 240 J=JSTA_2L,JEND_2U
-              DO 240 I=ISTA_2L,IEND_2U
+            DO J=JSTA_2L,JEND_2U
+              DO I=ISTA_2L,IEND_2U
                 LL = NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -1295,7 +1297,8 @@
                 UAGL(I,J) = UH(I,J,NINT(LMV(I,J)))
                 VAGL(I,J) = VH(I,J,NINT(LMV(I,J)))
               END IF
-  240 CONTINUE
+      ENDDO
+      ENDDO
 !
 !
 !---------------------------------------------------------------------

@@ -11,6 +11,7 @@
 !     19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     21-07-26  Wen Meng - Restrict computation from undefined grids
 !     21-10-31  JESSE MENG - 2D DECOMPOSITION
+!     26-03-27  Alyson Stahl - Remove shared DO termination labels
 !                              
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING A DECISION TREE
