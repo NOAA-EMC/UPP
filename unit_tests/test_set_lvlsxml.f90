@@ -500,7 +500,7 @@ program test_set_lvlsxml
     ! Unrecognized fixed surface type and short name
     EXP_LVLS(1,24) = 1
     EXP_LVLSXML(1,24) = 1
-    EXP_IREC(1,24) = 1
+    EXP_IREC(24) = 1
 
     res = 0
     do IFLD = 1, ntests
