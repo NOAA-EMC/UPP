@@ -141,34 +141,33 @@ program test_set_lvlsxml
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
 
-    
     res = 0
-    do IFLD = 1, 1
-        print * , 'Test Case ', IFLD, ': IREC = ', IREC(IFLD)
+    do i = 1, 1
+        print * , 'Test Case ', i, ': IREC = ', IREC(i)
 
-        do i = 1, nlvls
-            if (abs(LVLS(i, IFLD) - EXP_LVLS(i, IFLD)) > tol) then
-                print *, 'LVLS Test failed at (', i, ',', IFLD, '): ', &
-                         'Expected ', EXP_LVLS(i, IFLD), &
-                         ' but got ', LVLS(i, IFLD)
+        do j = 1, nlvls
+            if (abs(LVLS(j, i) - EXP_LVLS(j, i)) > tol) then
+                print *, 'LVLS Test failed at (', j, ',', i, '): ', &
+                         'Expected ', EXP_LVLS(j, i), &
+                         ' but got ', LVLS(j, i)
                 res = 1
             end if
-            if (abs(LVLSXML(i, IFLD) - EXP_LVLSXML(i, IFLD)) > tol) then
-                print *, 'LVLSXML Test failed at (', i, ',', IFLD, '): ', &
-                         'Expected ', EXP_LVLSXML(i, IFLD), &
-                         ' but got ', LVLSXML(i, IFLD)
+            if (abs(LVLSXML(j, i) - EXP_LVLSXML(j, i)) > tol) then
+                print *, 'LVLSXML Test failed at (', j, ',', i, '): ', &
+                         'Expected ', EXP_LVLSXML(j, i), &
+                         ' but got ', LVLSXML(j, i)
                 res = 1
             end if
-            if (abs(PARAM(IFLD)%level(i) - EXP_LEVEL(i, IFLD)) > tol) then
-                print *, 'PARAM%LEVEL Test failed at (', i, ',', IFLD, '): ', &
-                         'Expected ', EXP_LEVEL(i, IFLD), &
-                         ' but got ', PARAM(IFLD)%level(i)
+            if (abs(PARAM(i)%level(j) - EXP_LEVEL(j, i)) > tol) then
+                print *, 'PARAM%LEVEL Test failed at (', j, ',', i, '): ', &
+                         'Expected ', EXP_LEVEL(j, i), &
+                         ' but got ', PARAM(i)%level(j)
                 res = 1
             end if
-            if (abs(PARAM(IFLD)%level2(i) - EXP_LEVEL2(i, IFLD)) > tol) then
-                print *, 'PARAM%LEVEL2 Test failed at (', i, ',', IFLD, '): ', &
-                         'Expected ', EXP_LEVEL2(i, IFLD), &
-                         ' but got ', PARAM(IFLD)%level2(i)
+            if (abs(PARAM(i)%level2(j) - EXP_LEVEL2(j, i)) > tol) then
+                print *, 'PARAM%LEVEL2 Test failed at (', j, ',', i, '): ', &
+                         'Expected ', EXP_LEVEL2(j, i), &
+                         ' but got ', PARAM(i)%level2(j)
                 res = 1
             end if
         end do
