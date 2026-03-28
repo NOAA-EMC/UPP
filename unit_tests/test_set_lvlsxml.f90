@@ -12,7 +12,7 @@ program test_set_lvlsxml
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: nlvls = 25, ntests = 23
+    integer, parameter :: nlvls = 25, ntests = 24
     integer, parameter :: KPV = 5, KTH = 5
     ! 
     integer :: i, j, res
