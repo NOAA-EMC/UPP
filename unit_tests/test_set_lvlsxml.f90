@@ -316,7 +316,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 12) = 1
     EXP_LEVEL(1, 12) = nint(PETABND(3)+15.)*100
     EXP_LEVEL2(1, 12) = nint(PETABND(1)-15.)*100
-    EXP_IREC(1, 12) = 1
+    EXP_IREC(12) = 1
 
     ! Test Case 13:
     ! Fixed surface 1 type: spec_prec_above_grnd
@@ -327,7 +327,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 13) = 1
     EXP_LEVEL(1, 13) = nint(PETABND(3)+15.)*100
     EXP_LEVEL2(1, 13) = nint(PETABND(1)-15.)*100
-    EXP_IREC(1, 13) = 1
+    EXP_IREC(13) = 1
 
     ! Test Case 14:
     ! Fixed surface 1 type: spec_prec_above_grnd
@@ -338,7 +338,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 14) = 1
     EXP_LEVEL(1, 14) = 25500
     EXP_LEVEL2(1, 14) = 0
-    EXP_IREC(1, 14) = 1
+    EXP_IREC(14) = 1
 
     ! Test Case 15:
     ! Fixed surface 1 type: spec_prec_above_grnd
@@ -349,7 +349,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 15) = 1
     EXP_LEVEL(1, 15) = 25500
     EXP_LEVEL2(1, 15) = 0
-    EXP_IREC(1, 15) = 1
+    EXP_IREC(15) = 1
     
     ! Test Case 16:
     ! Fixed surface 1 type: spec_prec_above_grnd
@@ -360,7 +360,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 16) = 1
     EXP_LEVEL(1, 16) = nint(PETABND(NBND)+15.)*100
     EXP_LEVEL2(1, 16) = nint(PETABND(1)-15.)*100
-    EXP_IREC(1, 16) = 1
+    EXP_IREC(16) = 1
 
     ! Test Case 17:
     ! Fixed surface 1 type: spec_prec_above_grnd
@@ -371,7 +371,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 17) = 1
     EXP_LEVEL(1, 17) = nint(PETABND(NBND)+15.)*100
     EXP_LEVEL2(1, 17) = nint(PETABND(1)-15.)*100
-    EXP_IREC(1, 17) = 1
+    EXP_IREC(17) = 1
 
     ! Test Case 18:
     ! Fixed surface 1 type: spec_prec_above_grnd
