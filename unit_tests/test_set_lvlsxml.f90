@@ -137,6 +137,9 @@ program test_set_lvlsxml
         EXP_LEVEL(i, 1) = PARAM(1)%level(i)
     end do
 
+    IFLD = 1
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
     ! Test Case 2:
     ! Fixed surface 1 type: isobaric_sfc
     ! Short name contains "ON_ICAO_STD_SFC"
@@ -147,6 +150,9 @@ program test_set_lvlsxml
         EXP_LVLS(i, 2) = 1
         EXP_LVLSXML(i, 2) = i
     end do
+
+    IFLD = 2
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     ! Test Case 3:
     ! Fixed surface 1 type: hybrid_lvl
@@ -160,6 +166,9 @@ program test_set_lvlsxml
             EXP_LVLSXML(i, 3) = i / 2
         end if
     end do
+
+    IFLD = 3
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     ! Test Case 4:
     ! Fixed surface 1 type: depth_bel_land_sfc
@@ -183,6 +192,9 @@ program test_set_lvlsxml
     EXP_LVLS(3, 4)   = 1
     EXP_LVLSXML(3, 4) = 2
 
+    IFLD = 4
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 5:
     ! Fixed surface 1 type: depth_bel_land_sfc
     ! Fixed surface 2 type: depth_bel_land_sfc
@@ -205,6 +217,9 @@ program test_set_lvlsxml
     EXP_LVLSXML(2, 5) = 1
     EXP_LVLS(3, 5)   = 1
     EXP_LVLSXML(3, 5) = 2
+    
+    IFLD = 5
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
     
     ! Test Case 6:
     ! Fixed surface 1 type: pot_vort_sfc
@@ -231,7 +246,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 6) = 1
     EXP_LVLS(3, 6) = 1
     EXP_LVLSXML(3, 6) = 4
-
+    
+    IFLD = 6
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 7:
     ! Fixed surface 1 type: isentropic_lvl
     PARAM(7)%fixed_sfc1_type = 'isentropic_lvl'
@@ -250,7 +268,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 7) = 1
     EXP_LVLS(3, 7)   = 1
     EXP_LVLSXML(3, 7) = 3
-
+    
+    IFLD = 7
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 8:
     ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
     ! Short name contains "SPECIFIC_IFI_FLIGHT_LEVEL"
@@ -268,7 +289,10 @@ program test_set_lvlsxml
         end if
         EXP_LEVEL(j, 8) = PARAM(8)%level(j)
     end do
-
+    
+    IFLD = 8
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 9:
     ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
     ! Short name contains "IFI_FLIGHT_LEVEL"
@@ -279,7 +303,10 @@ program test_set_lvlsxml
         EXP_LVLS(i, 9)   = 1
         EXP_LVLSXML(i, 9) = i
     end do
-
+    
+    IFLD = 9
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 10:
     ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
     ! Short name contains "GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL"
@@ -290,7 +317,10 @@ program test_set_lvlsxml
         EXP_LVLS(i, 10)   = 1
         EXP_LVLSXML(i, 10) = i
     end do
-
+    
+    IFLD = 10
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 11:
     ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
     ! Short name is not set
@@ -306,7 +336,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, 11) = 1
     EXP_LVLS(8, 11)   = 1
     EXP_LVLSXML(8, 11) = 2
-
+    
+    IFLD = 11
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 12:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! Short name == "MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND"
@@ -317,7 +350,10 @@ program test_set_lvlsxml
     EXP_LEVEL(1, 12) = nint(PETABND(3)+15.)*100
     EXP_LEVEL2(1, 12) = nint(PETABND(1)-15.)*100
     EXP_IREC(12) = 1
-
+    
+    IFLD = 12
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 13:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! Short name == "MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND"
@@ -328,7 +364,10 @@ program test_set_lvlsxml
     EXP_LEVEL(1, 13) = nint(PETABND(3)+15.)*100
     EXP_LEVEL2(1, 13) = nint(PETABND(1)-15.)*100
     EXP_IREC(13) = 1
-
+    
+    IFLD = 13
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 14:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! Short name == "UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND"
@@ -339,7 +378,10 @@ program test_set_lvlsxml
     EXP_LEVEL(1, 14) = 25500
     EXP_LEVEL2(1, 14) = 0
     EXP_IREC(14) = 1
-
+    
+    IFLD = 14
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 15:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! Short name == "UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND"
@@ -350,6 +392,9 @@ program test_set_lvlsxml
     EXP_LEVEL(1, 15) = 25500
     EXP_LEVEL2(1, 15) = 0
     EXP_IREC(15) = 1
+        
+    IFLD = 15
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
     
     ! Test Case 16:
     ! Fixed surface 1 type: spec_prec_above_grnd
@@ -361,7 +406,10 @@ program test_set_lvlsxml
     EXP_LEVEL(1, 16) = nint(PETABND(NBND)+15.)*100
     EXP_LEVEL2(1, 16) = nint(PETABND(1)-15.)*100
     EXP_IREC(16) = 1
-
+    
+    IFLD = 16
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 17:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! Short name == "BEST_CIN_ON_SPEC_PRES_ABOVE_GRND"
@@ -372,7 +420,10 @@ program test_set_lvlsxml
     EXP_LEVEL(1, 17) = nint(PETABND(NBND)+15.)*100
     EXP_LEVEL2(1, 17) = nint(PETABND(1)-15.)*100
     EXP_IREC(17) = 1
-
+    
+    IFLD = 17
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 18:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! Short name is not listed above
@@ -397,7 +448,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(4, 18) = 4
     EXP_LVLS(6, 18)    = 1
     EXP_LVLSXML(6, 18) = 5
-
+    
+    IFLD = 18
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 19:
     ! Fixed surface 1 type: 'spec_hgt_lvl_above_grnd'
     ! Short name contains "SPEC_HGT_LVL_ABOVE_GRND_FDHGT"
@@ -425,7 +479,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(8, 19) = 5
     EXP_LVLS(10, 19)   = 1
     EXP_LVLSXML(10, 19)= 3
-
+    
+    IFLD = 19
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 20:
     ! Fixed surface 1 type: 'spec_hgt_lvl_above_grnd'
     ! Short name does not contain "SPEC_HGT_LVL_ABOVE_GRND_FDHGT"
@@ -435,7 +492,10 @@ program test_set_lvlsxml
         EXP_LVLS(i, 20)    = 1
         EXP_LVLSXML(i, 20) = i
     end do
-
+    
+    IFLD = 20
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 21:
     ! Short name  == 'TMP_ON_SIGMA_LVL_HPC'
     PARAM(21)%shortname = 'TMP_ON_SIGMA_LVL_HPC'
@@ -461,7 +521,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(4, 21) = 5
     EXP_LVLS(5, 21)    = 1
     EXP_LVLSXML(5, 21) = 3
-
+    
+    IFLD = 21
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 22:
     ! Short name containing 'SIGMA_LVLS'
     PARAM(22)%shortname = 'SIGMA_LVLS'
@@ -487,7 +550,10 @@ program test_set_lvlsxml
     EXP_LVLSXML(10, 22)= 3
     EXP_LVLS(20, 22)   = 1
     EXP_LVLSXML(20, 22)= 4
-
+    
+    IFLD = 22
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 23:
     ! Fixed surface 1 type: spec_prec_above_grnd
     ! nlevels == 1
@@ -495,17 +561,21 @@ program test_set_lvlsxml
 
     EXP_LVLS(1, 23)    = 1
     EXP_LVLSXML(1, 23) = 1
-
+    
+    IFLD = 23
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     ! Test Case 24:
     ! Unrecognized fixed surface type and short name
     EXP_LVLS(1,24) = 1
     EXP_LVLSXML(1,24) = 1
     EXP_IREC(24) = 1
-
+    
+    IFLD = 24
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     res = 0
     do IFLD = 1, ntests
-        call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
-
         print * , 'Test Case ', IFLD, ': IREC = ', IREC(IFLD)
 
         do i = 1, nlvls
