@@ -290,6 +290,56 @@ program test_set_lvlsxml
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
+    ! Test Case 9:
+    ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
+    ! Short name contains "IFI_FLIGHT_LEVEL"
+    IFLD = 9
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_alt_above_mean_sea_lvl'
+    PARAM(IFLD)%shortname = 'IFI_FLIGHT_LEVEL'
+
+    EXP_IREC(IFLD) = ifi_nflight
+    do i = 1, ifi_nflight
+        EXP_LVLS(i, IFLD)   = 1
+        EXP_LVLSXML(i, IFLD) = i
+    end do
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 10:
+    ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
+    ! Short name contains "GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL"
+    IFLD = 10
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_alt_above_mean_sea_lvl'
+    PARAM(IFLD)%shortname = 'GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL'
+
+    EXP_IREC(IFLD) = nlvls
+    do i = 1, nlvls
+        EXP_LVLS(i, IFLD)   = 1
+        EXP_LVLSXML(i, IFLD) = i
+    end do
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
+    ! Test Case 11:
+    ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
+    ! Short name is not set
+    IFLD = 11
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_alt_above_mean_sea_lvl'
+
+    PARAM(IFLD)%level(1) = HTFD(1)
+    PARAM(IFLD)%level(2) = HTFD(8)
+
+    EXP_IREC(IFLD) = 2
+    
+    EXP_LEVEL(1, IFLD) = HTFD(1)
+    EXP_LEVEL(2, IFLD) = HTFD(8)
+
+    EXP_LVLS(1, IFLD)   = 2
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LVLS(8, IFLD)   = 1
+    EXP_LVLSXML(8, IFLD) = 2
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     res = 0
     do j = 1, ntests
