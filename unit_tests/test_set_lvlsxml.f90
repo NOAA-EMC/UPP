@@ -200,6 +200,8 @@ program test_set_lvlsxml
     EXP_LVLSXML(2, IFLD) = 1
     EXP_LVLS(3, IFLD)   = 1
     EXP_LVLSXML(3, IFLD) = 2
+    EXP_LVLS(4, IFLD)   = 1
+    EXP_LVLSXML(4, IFLD) = nlvls
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
