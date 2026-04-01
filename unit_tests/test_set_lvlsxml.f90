@@ -127,19 +127,23 @@ program test_set_lvlsxml
         end if
         do i = 1, nlvls
             if (LVLS(i, j) .ne. EXP_LVLS(i, j)) then
-                print *, 'Test Case ', j, ' Failed: LVLS(', i, ',', j, ') = ', LVLS(i, j), ' Expected: ', EXP_LVLS(i, j)
+                print *, 'Test Case ', j, ' Failed: LVLS(', i, ',', j, ') = ', &
+                    LVLS(i, j), ' Expected: ', EXP_LVLS(i, j)
                 res = 1
             end if
             if (LVLSXML(i, j) .ne. EXP_LVLSXML(i, j)) then
-                print *, 'Test Case ', j, ' Failed: LVLSXML(', i, ',', j, ') = ', LVLSXML(i, j), ' Expected: ', EXP_LVLSXML(i, j)
+                print *, 'Test Case ', j, ' Failed: LVLSXML(', i, ',', j, ') = ', &
+                    LVLSXML(i, j), ' Expected: ', EXP_LVLSXML(i, j)
                 res = 1
             end if
             if (abs(PARAM(j)%level(i) - EXP_LEVEL(i, j)) > tol) then
-                print *, 'Test Case ', j, ' Failed: PARAM(', j, ')%level(', i, ') = ', PARAM(j)%level(i), ' Expected: ', EXP_LEVEL(i, j)
+                print *, 'Test Case ', j, ' Failed: PARAM(', j, ')%level(', i, ') = ', &
+                    PARAM(j)%level(i), ' Expected: ', EXP_LEVEL(i, j)
                 res = 1
             end if
             if (abs(PARAM(j)%level2(i) - EXP_LEVEL2(i, j)) > tol) then
-                print *, 'Test Case ', j, ' Failed: PARAM(', j, ')%level2(', i, ') = ', PARAM(j)%level2(i), ' Expected: ', EXP_LEVEL2(i, j)
+                print *, 'Test Case ', j, ' Failed: PARAM(', j, ')%level2(', i, ') = ', &
+                    PARAM(j)%level2(i), ' Expected: ', EXP_LEVEL2(i, j)
                 res = 1
             end if
     end do
