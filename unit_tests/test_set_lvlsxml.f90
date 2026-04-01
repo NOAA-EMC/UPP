@@ -124,6 +124,7 @@ program test_set_lvlsxml
 
     res = 0
     do j = 1, ntests
+        print *, 'Checking Test Case ', j
         if (IREC(j) .ne. EXP_IREC(j)) then
             print *, 'Test Case ', j, ': IREC = ', IREC(j), ' but expected ', EXP_IREC(j)
             res = 1
