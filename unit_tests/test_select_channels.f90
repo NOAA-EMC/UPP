@@ -19,9 +19,8 @@ program test_select_channels
         subroutine SELECT_CHANNELS_L(CHANNELINFO, NCHANNELS, CHANNELS, L, IGOT)
             use crtm_channelinfo_define, only: crtm_channelinfo_type
             type(crtm_channelinfo_type), intent(inout) :: CHANNELINFO
-            integer, intent(in) :: NCHANNELS
-            integer, intent(in) :: CHANNELS(NCHANNELS), L(NCHANNELS)
-            integer, intent(out) :: IGOT
+            integer, intent(in) :: NCHANNELS, CHANNELS(NCHANNELS)
+            integer :: IGOT, L(NCHANNELS)
         end subroutine SELECT_CHANNELS_L
     end interface
 
