@@ -93,12 +93,13 @@ program test_set_lvlsxml
         spl(i) = 100000.0 - real(i - 1) * 4000.0
         if (i == 1) then
             PARAM%level(nlvls) = spl(1)
+            EXP_LEVEL(nlvls) = spl(1)
             EXP_LVLSXML(i, 1) = nlvls
         else
             PARAM%level(i-1) = spl(i)
+            EXP_LEVEL(i-1) = spl(i)
             EXP_LVLSXML(i, 1) = i - 1
         end if
-        EXP_LEVEL(i) = PARAM%level(i)
     end do
 
     EXP_LEVEL2 = 0.0
@@ -137,6 +138,6 @@ program test_set_lvlsxml
     end do
 
     if (res .ne. 0) stop 10
-    
+
     print *, 'SUCCESS!'
 end program test_set_lvlsxml
