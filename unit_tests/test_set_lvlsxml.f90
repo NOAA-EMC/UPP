@@ -146,8 +146,6 @@ program test_set_lvlsxml
 
 contains
 
-contains
-
     subroutine check_test_case(num, irec, exp_irec, param, &
                                exp_lvls, exp_lvlsxml,      &
                                exp_level, exp_level2, res)
