@@ -37,8 +37,8 @@ postmsg "$logfile" "$msg"
 export POSTGPEXEC=${svndir}/exec/upp.x
 
 # specify forecast start time and hour
-export startdate=2025071400
-export fhr=018
+export startdate=2026032009
+export fhr=012
 export tmmark=tm00
 
 # specify your running and output directory
@@ -54,7 +54,7 @@ export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/mpas/MPAS-A_out.${YY}-${MM}-${DD}_${HH}.00.00.nc'
+fileName='$homedir/data_in/mpas/mpassit.${YY}-${MM}-${DD}_${HH}.00.00.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'

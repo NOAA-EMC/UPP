@@ -30,6 +30,7 @@
 !! -  25-05-05  Jaymes Kenyon - Add HAIL_BUCKET
 !! -  25-07-15  Jeff Duda - Add max_compref, max_prate_1min, max_prate_5min, and max_prate_10min
 !! -  26-01-02  Eric James - Correcting range for allocation of u
+!! -  26-03-20  Jaymes Kenyon - Add reciprocal Obukhov length (RMOL)
 
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -658,6 +659,7 @@
       allocate(smoke_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(dust_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(coarsepm_ave(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(emdust(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -691,6 +693,7 @@
           smoke_ave(i,j)=spval
           dust_ave(i,j)=spval
           coarsepm_ave(i,j)=spval
+          emdust(i,j)=spval
         enddo
       enddo
       allocate(smoke(ista_2l:iend_2u,jsta_2l:jend_2u,lm,nbin_sm))
@@ -826,6 +829,7 @@
       allocate(potevp(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(z0(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(ustar(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(rmol(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(pblh(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(pblhgust(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(mixht(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -856,6 +860,7 @@
           potevp(i,j)=spval
           z0(i,j)=spval
           ustar(i,j)=spval
+          rmol(i,j)=spval
           pblh(i,j)=spval
           pblhgust(i,j)=spval
           mixht(i,j)=spval

@@ -84,6 +84,7 @@
       ,POTEVP(:,:) &       !< Potential evaporation
       ,Z0(:,:) &           !< Roughness length
       ,USTAR(:,:) &        !< Frictional velocity
+      ,RMOL(:,:) &         !< Reciprocal of the Obukhov length
       ,TWBS(:,:) &         !< Instantaneous surface sensible heat flux
       ,QWBS(:,:) &         !< Instantaneous surface latent heat flux
       ,SFCEXC(:,:) &       !< Surface exchange coefficient 
@@ -229,6 +230,7 @@
       ,SMOKE_AVE(:,:) &       !< Hourly averaged smoke
       ,DUST_AVE(:,:)   &      !< Hourly averaged fine dust (PM 2.5)
       ,COARSEPM_AVE(:,:) &    !< Hourly averaged coarse dust (PM 10)
+      ,EMDUST(:,:) &          !< Dust emissions
 ! add new fields for GFS
       ,SFCUX(:,:) &           !< Time-averaged zonal momentum flux
       ,SFCVX(:,:) &           !< Time-averaged meridional momentum flux

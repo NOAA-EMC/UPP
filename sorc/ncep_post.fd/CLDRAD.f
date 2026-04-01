@@ -89,6 +89,10 @@
 !>                                |    logic, rather than a dedicated parameter number.
 !> 2025-05-05 | Ben Blake         | Add sanity checks for RRFSv1 implementation
 !> 2025-05-08 | Jaymes Kenyon     | For FV3 and MPAS applications, prevent cloud base from being diagnosed as below ground
+!> 2025-11-13 | Jaymes Kenyon     | Minor refactoring: the value of "cloud_def_p" (constant) is now set in params_mod
+!> 2026-03-09 | Eric James        | Add column-integrated total dust and mass-weighted aerosol centroid
+!>                                     height, and scale FRP to be in Watts (consistent with GRIB2
+!>                                     field definition).
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -98,7 +102,8 @@
       SUBROUTINE CLDRAD
 
 !
-      use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO,NO3,NH4,EBB
+      use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO,NO3,NH4,EBB,SMOKE,&
+                         FV3DUST,COARSEPM
       use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID,PMID,&
                          PINT, DUEM, DUSD, DUDP, DUWT, DUSV, SSEM, SSSD,SSDP,&
                          SSWT, SSSV, BCEM, BCSD, BCDP, BCWT, BCSV, OCEM,OCSD,&
@@ -117,13 +122,13 @@
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, HWP,        &
-                         LWP, IWP, AVGCPRATE,                                 &
+                         LWP, IWP, AVGCPRATE, EMDUST,                         &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
                          PWAT,DUSTPM10,MAOD,NO3CB,NH4CB,aqm_aod550
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, CFRmin_BASE_TOP,      &
-                            SMALL, D608, H1, ROG,                             &
+                            CLOUD_DEF_P, SMALL, D608, H1, ROG,                &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
                             A3, A4
       use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, SUBMODELNAME,       &
@@ -156,7 +161,7 @@
                                          CLDP, CLDZ, CLDT, CLDZCu
       REAL,dimension(lm)       :: RHB, watericetotal, pabovesfc
       REAL   :: watericemax, wimin, zcldbase, zcldtop, zpbltop,              &
-                rhoice, coeffp, exponfp, const1, cloud_def_p,                &
+                rhoice, coeffp, exponfp, const1,                             &
                 pcldbase, rhoair, vovermd, concfp, betav,                    &
                 vertvis, tx, tv, pol, esx, es, e, zsf, zcld, frac
       integer   nfog, nfogn(7),npblcld,nlifr, k1, k2, ll, ii, ib, n, jj,     &
@@ -506,7 +511,7 @@
         endif
       ENDIF
 !
-!     TOTAL COLUMN DUST
+!     TOTAL COLUMN FINE DUST
 !
       IF (IGET(741) > 0) THEN
          CALL CALPW(GRID1(ista:iend,jsta:iend),22)
@@ -533,6 +538,43 @@
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(1011))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+!     TOTAL COLUMN DUST
+!
+      IF (IGET(895) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),24)
+         CALL BOUND(GRID1,D00,H99999)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(895))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!     
+!     MASS-WEIGHTED AEROSOL CENTROID
+!
+      IF (IGET(893) > 0) THEN
+         CALL CALPW(GRID1(ista:iend,jsta:iend),25)
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(893))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -1891,8 +1933,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          nfogn(k) = 0
         end do
         npblcld = 0
-
-        Cloud_def_p = 0.0000001
 
         DO J=JSTA,JEND
           DO I=ISTA,IEND
@@ -3881,12 +3921,28 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(740)>0) THEN
         DO J=JSTA,JEND
           DO I=ISTA,IEND
-            GRID1(I,J) = MEAN_FRP(I,J)
+            GRID1(I,J) = 1000000.0*MEAN_FRP(I,J)
           ENDDO
         ENDDO
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(740))
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+        endif
+      ENDIF
+
+! Dust emissions
+      IF (IGET(894)>0) THEN
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            if(EMDUST(i,j)/=spval)then
+              GRID1(I,J) = EMDUST(I,J)/(1E9)
+            endif
+          ENDDO
+        ENDDO
+        if(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(894))
           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
         endif
       ENDIF

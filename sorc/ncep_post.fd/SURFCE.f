@@ -66,6 +66,7 @@
 !> 2025-09-11 | W Meng     | Set surface spfh to missing when not available
 !> 2025-10-21 | J Kenyon   | For ID 434 (BUCKET_APCP_ON_SURFACE), remove the assumption (and the hard coding)
 !>                         | of a 1-h accumulation interval
+!> 2026-03-20 | J Kenyon   | Add reciprocal of the Obukhov length (1/L)
 !>
 !> @note
 !> USAGE:    CALL SURFCE
@@ -108,7 +109,7 @@
                          snownc, tmax, graup_bucket, graupelnc, qrmax, sfclhx,&
                          rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,        &
                          sfcvx, smcwlt, suntime, pd, sfcux, sfcuxi, sfcvxi, sfcevp, z0,   &
-                         ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,         &
+                         ustar, rmol, mdltaux, mdltauy, gtaux, gtauy, twbs,   &
                          sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg ,&
                          akmsavg, u10h, v10h,snfden,sndepac,qvl1,             &
                          spduv10mean,swradmean,swnormmean,prate_max,fprate_max &
@@ -6338,6 +6339,20 @@
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(045))
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+           endif
+      ENDIF
+!     
+!     Reciprocal of the Obukhov length (1/L)
+      IF (IGET(1027)>0) THEN
+          DO J=JSTA,JEND
+            DO I=ISTA,IEND
+              GRID1(I,J) = RMOL(I,J)
+            ENDDO
+          ENDDO
+           if(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(1027))
             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
            endif
       ENDIF
