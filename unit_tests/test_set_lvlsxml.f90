@@ -572,7 +572,9 @@ program test_set_lvlsxml
     ! nlevels == 1
     IFLD = 23
     PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
-
+    PARAM(IFLD)%level(1) = 25500.0
+    EXP_LEVEL(1, IFLD) = 25500.0
+    
     EXP_IREC(IFLD) = 1
     EXP_LVLS(1, IFLD)    = 1
     EXP_LVLSXML(1, IFLD) = 1
