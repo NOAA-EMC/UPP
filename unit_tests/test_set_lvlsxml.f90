@@ -442,6 +442,7 @@ program test_set_lvlsxml
         EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
     end do
 
+    EXP_IREC(IFLD) = 4
     EXP_LVLS(1, IFLD)    = 1
     EXP_LVLSXML(1, IFLD) = 1
     EXP_LVLS(2, IFLD)    = 1
@@ -471,6 +472,7 @@ program test_set_lvlsxml
         EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
     end do
 
+    EXP_IREC(IFLD) = 5
     EXP_LVLS(1, IFLD)    = 1
     EXP_LVLSXML(1, IFLD) = 4
     EXP_LVLS(2, IFLD)    = 1
@@ -484,6 +486,51 @@ program test_set_lvlsxml
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
     
+
+    ! Test Case 20:
+    ! Fixed surface 1 type: 'spec_hgt_lvl_above_grnd'
+    ! Short name does not contain "SPEC_HGT_LVL_ABOVE_GRND_FDHGT"
+    IFLD = 20
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_hgt_lvl_above_grnd'
+
+    EXP_IREC(IFLD) = nlvls
+    do i = 1, nlvls
+        EXP_LVLS(i, IFLD)    = 1
+        EXP_LVLSXML(i, IFLD) = i
+    end do
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
+    ! Test Case 21:
+    ! Short name  == 'TMP_ON_SIGMA_LVL_HPC'
+    IFLD = 21
+    PARAM(IFLD)%shortname = 'TMP_ON_SIGMA_LVL_HPC'
+
+    PARAM(IFLD)%level = 0.0
+    PARAM(IFLD)%level(1) = 8000.0
+    PARAM(IFLD)%level(2) = 7000.0
+    PARAM(IFLD)%level(3) = 9000.0
+    PARAM(IFLD)%level(4) = 7500.0
+    PARAM(IFLD)%level(5) = 8500.0
+
+    do i = 1, 5
+        EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
+    end do
+
+    EXP_LVLS(1, IFLD)    = 1
+    EXP_LVLSXML(1, IFLD) = 2
+    EXP_LVLS(2, IFLD)    = 1
+    EXP_LVLSXML(2, IFLD) = 4
+    EXP_LVLS(3, IFLD)    = 1
+    EXP_LVLSXML(3, IFLD) = 1
+    EXP_LVLS(4, IFLD)    = 1
+    EXP_LVLSXML(4, IFLD) = 5
+    EXP_LVLS(5, IFLD)    = 1
+    EXP_LVLSXML(5, IFLD) = 3
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
+
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
@@ -515,9 +562,6 @@ program test_set_lvlsxml
 
     if (res .ne. 0) stop 10
     print *, 'SUCCESS!'
-
-contains
-
 
 end program test_set_lvlsxml
 
