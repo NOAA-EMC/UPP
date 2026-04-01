@@ -141,6 +141,10 @@ program test_set_lvlsxml
         end if
     end do
 
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+
+    
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
