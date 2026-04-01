@@ -342,10 +342,10 @@ program test_set_lvlsxml
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     ! Test Case 12:
-    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! Fixed surface 1 type: spec_pres_above_grnd
     ! Short name == "MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND"
     IFLD = 12
-    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
     PARAM(IFLD)%shortname = 'MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND'
 
     EXP_LVLSXML(1, IFLD) = 1
@@ -356,11 +356,11 @@ program test_set_lvlsxml
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     ! Test Case 13:
-    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! Fixed surface 1 type: spec_pres_above_grnd
     ! Short name == "MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND"
     IFLD = 13
-    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
-    PARAM(IFLD)%shortname = "MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND"
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
+    PARAM(IFLD)%shortname = 'MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND'
 
     EXP_LVLSXML(1, IFLD) = 1
     EXP_LEVEL(1, IFLD) = nint(PETABND(3)+15.)*100
@@ -370,15 +370,57 @@ program test_set_lvlsxml
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     ! Test Case 14:
-    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! Fixed surface 1 type: spec_pres_above_grnd
     ! Short name == "UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND"
     IFLD = 14
-    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
-    PARAM(IFLD)%shortname = "UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND"
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
+    PARAM(IFLD)%shortname = 'UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND'
 
     EXP_LVLSXML(1, IFLD) = 1
     EXP_LEVEL(1, IFLD) = 25500
     EXP_LEVEL2(1, IFLD) = 0
+    EXP_IREC(IFLD) = 1
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 15:
+    ! Fixed surface 1 type: spec_pres_above_grnd
+    ! Short name == "UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND"
+    IFLD = 15
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
+    PARAM(IFLD)%shortname = 'UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND'
+
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LEVEL(1, IFLD) = 25500
+    EXP_LEVEL2(1, IFLD) = 0
+    EXP_IREC(IFLD) = 1
+        
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 16:
+    ! Fixed surface 1 type: spec_pres_above_grnd
+    ! Short name == "BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND"
+    IFLD = 16
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
+    PARAM(IFLD)%shortname = 'BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND'
+
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LEVEL(1, IFLD) = nint(PETABND(NBND)+15.)*100
+    EXP_LEVEL2(1, IFLD) = nint(PETABND(1)-15.)*100
+    EXP_IREC(IFLD) = 1
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 17:
+    ! Fixed surface 1 type: spec_pres_above_grnd
+    ! Short name == "BEST_CIN_ON_SPEC_PRES_ABOVE_GRND"
+    IFLD = 17
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
+    PARAM(IFLD)%shortname = 'BEST_CIN_ON_SPEC_PRES_ABOVE_GRND'
+
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LEVEL(1, IFLD) = nint(PETABND(NBND)+15.)*100
+    EXP_LEVEL2(1, IFLD) = nint(PETABND(1)-15.)*100
     EXP_IREC(IFLD) = 1
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
