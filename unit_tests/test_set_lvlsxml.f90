@@ -69,13 +69,6 @@ program test_set_lvlsxml
     SLDPTH = 0.0 
     SLLEVEL = 0.0 
 
-    PARAM%level = 0.0
-    PARAM%level2 = 0.0
-    PARAM%scale_fact_fixed_sfc1 = 0.0
-
-    PARAM_ONE_LEVEL%level = 0.0
-    PARAM_ONE_LEVEL%level2 = 0.0
-
     ! Initialize output arrays
     LVLS = 0
     LVLSXML = 0
