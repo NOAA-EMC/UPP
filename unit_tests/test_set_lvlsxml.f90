@@ -15,7 +15,7 @@ program test_set_lvlsxml
     integer, parameter :: nlvls = 25, ntests = 24
     integer, parameter :: KPV = 5, KTH = 5
     ! 
-    integer :: i, j, res
+    integer :: i, j, levs, res
     type(param_t), pointer :: PARAM(:)
     integer :: IFLD, IREC(1:ntests), EXP_IREC(1:ntests)
     real :: PV(1:KPV), TH(1:KTH)
@@ -55,9 +55,15 @@ program test_set_lvlsxml
     nullify(PARAM)
     allocate(PARAM(1:ntests))
     do i = 1, ntests
-        allocate(PARAM(i)%level(nlvls))
-        allocate(PARAM(i)%level2(nlvls))
-        allocate(PARAM(i)%scale_fact_fixed_sfc1(nlvls))
+        if (i == 23 .or. i == 24) then
+            allocate(PARAM(i)%level(1))
+            allocate(PARAM(i)%level2(1))
+            allocate(PARAM(i)%scale_fact_fixed_sfc1(1))
+        else
+            allocate(PARAM(i)%level(nlvls))
+            allocate(PARAM(i)%level2(nlvls))
+            allocate(PARAM(i)%scale_fact_fixed_sfc1(nlvls))
+        end if
 
         PARAM(i)%level  = 0.0
         PARAM(i)%level2 = 0.0
@@ -517,6 +523,7 @@ program test_set_lvlsxml
         EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
     end do
 
+    EXP_IREC(IFLD) = 5
     EXP_LVLS(1, IFLD)    = 1
     EXP_LVLSXML(1, IFLD) = 2
     EXP_LVLS(2, IFLD)    = 1
@@ -530,7 +537,57 @@ program test_set_lvlsxml
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
     
+    ! Test Case 22:
+    ! Short name containing 'SIGMA_LVLS'
+    IFLD = 22
+    PARAM(IFLD)%shortname = 'SIGMA_LVLS'
 
+    PARAM(IFLD)%level = 0.0
+    PARAM(IFLD)%level(1) = 4550.0
+    PARAM(IFLD)%level(2) = 530.0
+    PARAM(IFLD)%level(3) = 7585.0
+    PARAM(IFLD)%level(4) = 9835.0
+    PARAM(IFLD)%level(5) = 2605.0
+
+    do i = 1, 5
+        EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
+    end do
+
+    EXP_IREC(IFLD) = 5
+    EXP_LVLS(1, IFLD)    = 1
+    EXP_LVLSXML(1, IFLD) = 2
+    EXP_LVLS(3, IFLD)    = 1
+    EXP_LVLSXML(3, IFLD) = 5
+    EXP_LVLS(5, IFLD)    = 1
+    EXP_LVLSXML(5, IFLD) = 1
+    EXP_LVLS(10, IFLD)   = 1
+    EXP_LVLSXML(10, IFLD)= 3
+    EXP_LVLS(20, IFLD)   = 1
+    EXP_LVLSXML(20, IFLD)= 4
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
+    ! Test Case 23:
+    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! nlevels == 1
+    IFLD = 23
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
+
+    EXP_IREC(IFLD) = 1
+    EXP_LVLS(1, IFLD)    = 1
+    EXP_LVLSXML(1, IFLD) = 1
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
+    ! Test Case 24:
+    ! Unrecognized fixed surface type and short name
+    IFLD = 24
+    EXP_LVLS(1, IFLD) = 1
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_IREC(IFLD) = 1
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
@@ -538,7 +595,12 @@ program test_set_lvlsxml
             print *, 'Test Case ', j, ': IREC = ', IREC(j), ' but expected ', EXP_IREC(j)
             res = 1
         end if
-        do i = 1, nlvls
+        if (j == 23 .or. j == 24) then
+            levs = 1
+        else
+            levs = nlvls
+        end if
+        do i = 1, levs
             if (LVLS(i, j) .ne. EXP_LVLS(i, j)) then
                 print *, 'Test Case ', j, ': LVLS(', i, ') = ', LVLS(i, j), ' but expected ', EXP_LVLS(i, j)
                 res = 1
