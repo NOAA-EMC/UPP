@@ -623,9 +623,9 @@ program test_set_lvlsxml
 
     ! Deallocate all allocated arrays
     do i = 1, ntests
-        if (allocated(PARAM(i)%level)) deallocate(PARAM(i)%level)
-        if (allocated(PARAM(i)%level2)) deallocate(PARAM(i)%level2)
-        if (allocated(PARAM(i)%scale_fact_fixed_sfc1)) deallocate(PARAM(i)%scale_fact_fixed_sfc1)
+        if (associated(PARAM(i)%level)) deallocate(PARAM(i)%level)
+        if (associated(PARAM(i)%level2)) deallocate(PARAM(i)%level2)
+        if (associated(PARAM(i)%scale_fact_fixed_sfc1)) deallocate(PARAM(i)%scale_fact_fixed_sfc1)
     end do
     deallocate(PARAM)
     deallocate(ifi_flight_levels)
