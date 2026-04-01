@@ -201,6 +201,8 @@ program test_set_lvlsxml
     EXP_LVLS(3, IFLD)   = 1
     EXP_LVLSXML(3, IFLD) = 2
 
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
