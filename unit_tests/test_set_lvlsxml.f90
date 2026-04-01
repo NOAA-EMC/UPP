@@ -19,11 +19,11 @@ program test_set_lvlsxml
     type(param_t) :: PARAM, PARAM_ONE_LEVEL
     integer :: IREC, EXP_IREC
     real :: PV(1:KPV), TH(1:KTH)
-    real :: EXP_LVLS(1:nlvls, 1), EXP_LVLSXML(1:nlvls, 1)
+    integer :: EXP_LVLS(1:nlvls, 1), EXP_LVLSXML(1:nlvls, 1)
     ! In some test cases, param%level and/or param%level2 will be updated by SET_LVLSXML().
     ! We want to verify that the updated values are correct and that no unexpected 
     ! updates are occurring.
-    real :: EXP_LEVEL(1:nlvls, 1), EXP_LEVEL2(1:nlvls, 1)
+    real :: EXP_LEVEL(1:nlvls), EXP_LEVEL2(1:nlvls)
 
     interface
         subroutine SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
@@ -72,10 +72,10 @@ program test_set_lvlsxml
     PARAM_ONE_LEVEL%level2 = 0.0
 
     ! Initialize output arrays
-    LVLS = 0.0
-    LVLSXML = 0.0
-    EXP_LVLS = 0.0
-    EXP_LVLSXML = 0.0
+    LVLS = 0
+    LVLSXML = 0
+    EXP_LVLS = 0
+    EXP_LVLSXML = 0
     EXP_LEVEL = 0.0
     EXP_LEVEL2 = 0.0
     EXP_IREC = 0
@@ -93,26 +93,50 @@ program test_set_lvlsxml
         spl(i) = 100000.0 - real(i - 1) * 4000.0
         if (i == 1) then
             PARAM%level(nlvls) = spl(1)
+            EXP_LVLSXML(i, 1) = nlvls
         else
             PARAM%level(i-1) = spl(i)
+            EXP_LVLSXML(i, 1) = i - 1
+        end if
+        EXP_LEVEL(i) = PARAM%level(i)
+    end do
+
+    EXP_LEVEL2 = 0.0
+    EXP_LVLS = 1
+    EXP_IREC = nlvls
+
+    res = 0
+    call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
+
+    if (IREC .ne. EXP_IREC) then
+        print *, 'Test Case 1 Failed: IREC = ', IREC, ' Expected: ', EXP_IREC
+        res = 1
+    end if
+
+    do i = 1, nlvls
+        if (LVLS(i, IFLD) .ne. EXP_LVLS(i, 1)) then
+            print *, 'Test Case 1 Failed: LVLS(', i, ') = ', LVLS(i, IFLD), &
+                     ' Expected: ', EXP_LVLS(i, 1)
+            res = 1
+        end if
+        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i, 1)) then
+            print *, 'Test Case 1 Failed: LVLSXML(', i, ') = ', LVLSXML(i, IFLD), &
+                     ' Expected: ', EXP_LVLSXML(i, 1)
+            res = 1
+        end if
+        if (abs(PARAM%level(i) - EXP_LEVEL(i)) > tol) then
+            print *, 'Test Case 1 Failed: PARAM%level(', i, ') = ', PARAM%level(i), &
+                     ' Expected: ', EXP_LEVEL(i)
+            res = 1
+        end if
+        if (abs(PARAM%level2(i) - EXP_LEVEL2(i)) > tol) then
+            print *, 'Test Case 1 Failed: PARAM%level2(', i, ') = ', PARAM%level2(i), &
+                     ' Expected: ', EXP_LEVEL2(i)
+            res = 1
         end if
     end do
 
-    call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
-
-    print *, "IREC = ", IREC
-    do i = 1, nlvls
-        print *, "LVLS(", i, ") = ", LVLS(i, IFLD)
-    end do
-    do i = 1, nlvls
-        print *, "LVLSXML(", i, ") = ", LVLSXML(i, IFLD)
-    end do
-    do i = 1, nlvls
-        print *, "PARAM%level(", i, ") = ", PARAM%level(i)
-    end do
-    do i = 1, nlvls
-        print *, "PARAM%level2(", i, ") = ", PARAM%level2(i)
-    end do
+    if (res .ne. 0) stop 10
     
     print *, 'SUCCESS!'
 end program test_set_lvlsxml
