@@ -146,6 +146,7 @@ program test_set_lvlsxml
                     PARAM(j)%level2(i), ' Expected: ', EXP_LEVEL2(i, j)
                 res = 1
             end if
+        end do
     end do
 
     if (res .ne. 0) stop 10
