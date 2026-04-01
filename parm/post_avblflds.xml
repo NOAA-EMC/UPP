@@ -1303,7 +1303,7 @@
        <scale>3.0</scale>
     </param>
 
-    <param>
+    <param> <!-- IDs 146, 147, and 1028: various mixing-length fields -->
        <post_avblfldidx>146</post_avblfldidx>
        <shortname>BMIXL_ON_HYBRID_LVL</shortname>
        <pname>BMIXL</pname>
@@ -1311,7 +1311,7 @@
        <scale>3.0</scale>
     </param>
 
-    <param>
+    <param> <!-- IDs 146, 147, and 1028: various mixing-length fields -->
        <post_avblfldidx>147</post_avblfldidx>
        <shortname>AMIXL_ON_HYBRID_LVL</shortname>
        <pname>AMIXL</pname>
@@ -8731,6 +8731,23 @@
        <pname>GUST</pname>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>10.</level>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1027</post_avblfldidx>
+       <shortname>OBUKHOV_RECIPROCAL_ON_SURFACE</shortname>
+       <pname>RMOL</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param> <!-- IDs 146, 147, and 1028: various mixing-length fields -->
+       <post_avblfldidx>1028</post_avblfldidx>
+       <shortname>MIXL_ON_HYBRID_LVL</shortname>
+       <pname>MIXL</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 

@@ -74,6 +74,7 @@
 !!                       | RAP/HRRR-era applications only. Additionally, added several descriptive in-code comments.
 !!   25-07-15 | J Duda | Read/process hourly-maximum composite reflectivity
 !!   25-03-23 | E James  | Add computation of aerosol layer height top and bottom
+!!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -2034,6 +2035,33 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
                ENDIF
             ENDIF
+!     
+!           MIXING LENGTH ON MDL SURFACES (AS COMPUTED IN MODEL)
+!           ...see also IDs 111 and 146 for other mixing-length options
+            IF (IGET(1028)>0) THEN
+               IF (LVLS(L,IGET(1028))>0) THEN
+                 LL=LM-L+1
+!$omp parallel do private(i,j)
+                DO J=JSTA,JEND
+                  DO I=ista,iend
+                    GRID1(I,J) = EL_PBL(I,J,LL)
+                  ENDDO
+                ENDDO
+                if(grib=="grib2") then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(1028))
+                  fld_info(cfld)%lvl=LVLSXML(L,IGET(1028))
+!$omp parallel do private(i,j,ii,jj)
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,iend-ista+1
+                      ii = ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
+                    enddo
+                  enddo
+               endif
+               ENDIF
+            ENDIF
 !    
 !           CLOUD WATER CONTENT
 !HC            IF (IGET(124)>0) THEN
@@ -3850,13 +3878,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               ENDDO
             ENDDO
 
-            IF(MODELNAME == 'NCAR'.OR.MODELNAME=='RSM'.OR. MODELNAME == 'RAPR')THEN
+            IF(MODELNAME == 'NCAR'.OR.MODELNAME=='RSM')THEN
 !             CALL MIXLEN(EL0,EL)  
             ELSE IF(MODELNAME == 'NMM')THEN
               DO L=1,LM
                DO J=JSTA,JEND
                DO I=ista,iend
-                 EL(I,J,L)=EL_PBL(I,J,L)  !NOW EL COMES OUT OF WRF NMM
+                 EL(I,J,L)=EL_PBL(I,J,L) ! use the EL_PBL array provided by the model
                ENDDO
                ENDDO
               ENDDO
@@ -3932,7 +3960,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
          ENDIF
       ENDIF
-     
+
 !     -- COMPUTE/ASSIGN PBL HEIGHT ARRAY(S) --
 !
 !        J Kenyon (16 Jun 2025):
