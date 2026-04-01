@@ -226,11 +226,9 @@ program test_set_lvlsxml
     PV(4) = 0.0
     PV(5) = PARAM(IFLD)%level(5) * 10.0**(-1.0 * real(PARAM(IFLD)%scale_fact_fixed_sfc1(5) - 6)) + 1.0e-4
 
-    EXP_IREC(IFLD) = 2
-    EXP_LVLS(1, IFLD) = 1
-    EXP_LVLSXML(1, IFLD) = 1
-    EXP_LVLS(3, IFLD) = 1
-    EXP_LVLSXML(3, IFLD) = 4
+    EXP_IREC(IFLD) = 25
+    EXP_LVLS(1, IFLD)    = 1
+    EXP_LVLSXML(1, IFLD) = nlvls
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
