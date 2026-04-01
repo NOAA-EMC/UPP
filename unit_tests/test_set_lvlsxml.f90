@@ -205,6 +205,35 @@ program test_set_lvlsxml
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
+    ! Test Case 6:
+    ! Fixed surface 1 type: pot_vort_sfc
+    IFLD = 6
+    PARAM(IFLD)%fixed_sfc1_type = 'pot_vort_sfc'
+
+    do i = 1, nlvls
+        PARAM(IFLD)%level(i) = real(i) * 1.0e-6
+        EXP_LEVEL(i, IFLD) = real(i) * 1.0e-6
+        if (i <= 3) then
+            PARAM(IFLD)%scale_fact_fixed_sfc1(i) = 5
+        else
+            PARAM(IFLD)%scale_fact_fixed_sfc1(i) = 7
+        end if
+    end do
+
+    PV(1) = PARAM(IFLD)%level(1) * 10.0**(-1.0 * real(PARAM(IFLD)%scale_fact_fixed_sfc1(1) - 6))
+    PV(2) = PARAM(IFLD)%level(3) * 10.0**(-1.0 * real(PARAM(IFLD)%scale_fact_fixed_sfc1(3) - 6)) + 1.0e-4
+    PV(3) = PARAM(IFLD)%level(4) * 10.0**(-1.0 * real(PARAM(IFLD)%scale_fact_fixed_sfc1(4) - 6))
+    PV(4) = 0.0
+    PV(5) = PARAM(IFLD)%level(5) * 10.0**(-1.0 * real(PARAM(IFLD)%scale_fact_fixed_sfc1(5) - 6)) + 1.0e-4
+
+    EXP_IREC(IFLD) = 2
+    EXP_LVLS(1, IFLD) = 1
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LVLS(3, IFLD) = 1
+    EXP_LVLSXML(3, IFLD) = 4
+
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
