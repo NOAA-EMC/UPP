@@ -98,8 +98,6 @@ program test_set_lvlsxml
         end if
     end do
 
-    LVLS(:, IFLD) = 0
-    LVLSXML(:, IFLD) = 0
     EXP_LEVEL2(:, IFLD) = 0.0
     EXP_LVLS(:, IFLD) = 1
     EXP_IREC(IFLD) = nlvls
@@ -118,8 +116,6 @@ program test_set_lvlsxml
         EXP_LVLSXML(i, IFLD) = i
     end do
 
-    LVLS(:, IFLD) = 0
-    LVLSXML(:, IFLD) = 0
     EXP_LEVEL(:, IFLD) = 0.0
     EXP_LEVEL2(:, IFLD) = 0.0
     EXP_IREC(IFLD) = nlvls
@@ -131,8 +127,6 @@ program test_set_lvlsxml
     IFLD = 3
     PARAM(IFLD)%fixed_sfc1_type = 'hybrid_lvl'
 
-    LVLS(:, IFLD) = 0
-    LVLSXML(:, IFLD) = 0
     EXP_LEVEL(:, IFLD) = 0.0
     EXP_LEVEL2(:, IFLD) = 0.0
     EXP_IREC(IFLD) = nlvls
