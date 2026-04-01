@@ -12,7 +12,7 @@ program test_set_lvlsxml
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: nlvls = 25, ntests = 3
+    integer, parameter :: nlvls = 25, ntests = 24
     integer, parameter :: KPV = 5, KTH = 5
     ! 
     integer :: i, j, res
@@ -98,7 +98,6 @@ program test_set_lvlsxml
         end if
     end do
 
-    EXP_LEVEL2(:, IFLD) = 0.0
     EXP_LVLS(:, IFLD) = 1
     EXP_IREC(IFLD) = nlvls
 
@@ -116,8 +115,6 @@ program test_set_lvlsxml
         EXP_LVLSXML(i, IFLD) = i
     end do
 
-    EXP_LEVEL(:, IFLD) = 0.0
-    EXP_LEVEL2(:, IFLD) = 0.0
     EXP_IREC(IFLD) = nlvls
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
@@ -127,8 +124,6 @@ program test_set_lvlsxml
     IFLD = 3
     PARAM(IFLD)%fixed_sfc1_type = 'hybrid_lvl'
 
-    EXP_LEVEL(:, IFLD) = 0.0
-    EXP_LEVEL2(:, IFLD) = 0.0
     EXP_IREC(IFLD) = nlvls
 
     do i = 1, nlvls
@@ -143,7 +138,37 @@ program test_set_lvlsxml
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
+    ! Test Case 4:
+    ! Fixed surface 1 type: depth_bel_land_sfc
+    ! Fixed surface 2 type: depth_bel_land_sfc
+    ! ISF_SURFACE_PHYSICS != 3
+    IFLD = 4
+    PARAM(IFLD)%fixed_sfc1_type = 'depth_bel_land_sfc'
+    PARAM(IFLD)%fixed_sfc2_type = 'depth_bel_land_sfc'
 
+    PARAM(IFLD)%level2(1) = 30.0
+    PARAM(IFLD)%level2(2) = 60.0
+    PARAM(IFLD)%level2(3) = 10.0
+
+    SLDPTH = 0.0
+    SLDPTH(1) = 0.10
+    SLDPTH(2) = 0.20
+    SLDPTH(3) = 0.30
+
+    EXP_IREC(IFLD) = nlvls
+
+    EXP_LEVEL2(1, IFLD) = 30.0
+    EXP_LEVEL2(2, IFLD) = 60.0
+    EXP_LEVEL2(3, IFLD) = 10.0
+
+    EXP_LVLS(1, IFLD)   = 1
+    EXP_LVLSXML(1, IFLD) = 3
+    EXP_LVLS(2, IFLD)   = 1
+    EXP_LVLSXML(2, IFLD) = 1
+    EXP_LVLS(3, IFLD)   = 1
+    EXP_LVLSXML(3, IFLD) = 2
+
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
     res = 0
     do j = 1, ntests
