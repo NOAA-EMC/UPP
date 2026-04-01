@@ -55,7 +55,7 @@ program test_set_lvlsxml
     nullify(PARAM)
     allocate(PARAM(1:ntests))
     do i = 1, ntests
-        if (i == 23 .or. i == 24) then
+        if (i .eq. 23 .or. i .eq. 24) then
             allocate(PARAM(i)%level(1))
             allocate(PARAM(i)%level2(1))
             allocate(PARAM(i)%scale_fact_fixed_sfc1(1))
@@ -93,7 +93,7 @@ program test_set_lvlsxml
     ! Specified pressure levels
     do i = 1, nlvls
         spl(i) = 100000.0 - real(i - 1) * 4000.0
-        if (i == 1) then
+        if (i .eq. 1) then
             PARAM(IFLD)%level(nlvls) = spl(1)
             EXP_LEVEL(nlvls, IFLD) = spl(1)
             EXP_LVLSXML(i, IFLD) = nlvls
@@ -136,7 +136,7 @@ program test_set_lvlsxml
         PARAM(IFLD)%level(i) = real(i) * 2.0
         EXP_LEVEL(i, IFLD) = real(i) * 2.0
 
-        if (mod(i, 2) == 0) then
+        if (mod(i, 2) .eq. 0) then
             EXP_LVLS(i, IFLD) = 1
             EXP_LVLSXML(i, IFLD) = i / 2
         end if
@@ -282,7 +282,7 @@ program test_set_lvlsxml
     EXP_IREC(IFLD) = 49
 
     do j = 1, nlvls
-        if (j == nlvls) then
+        if (j .eq. nlvls) then
             PARAM(IFLD)%level(j) = ifi_flight_levels(j) + 50.0
         else
             i = mod(j, 24) + 1
@@ -596,7 +596,7 @@ program test_set_lvlsxml
             print *, 'Test Case ', j, ': IREC = ', IREC(j), ' but expected ', EXP_IREC(j)
             res = 1
         end if
-        if (j == 23 .or. j == 24) then
+        if (j .eq. 23 .or. j .eq. 24) then
             levs = 1
         else
             levs = nlvls
