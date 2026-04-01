@@ -138,13 +138,16 @@ program test_set_lvlsxml
         if (mod(i, 2) == 0) then
             EXP_LVLS(i, IFLD) = 1
             EXP_LVLSXML(i, IFLD) = i / 2
+        else
+            EXP_LVLS(i, IFLD) = 0
+            EXP_LVLSXML(i, IFLD) = 0
         end if
     end do
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
 
-    
+
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
