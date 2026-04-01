@@ -136,12 +136,12 @@ program test_set_lvlsxml
             res = 1
         end if
         do i = 1, nlvls
-            if (LVLS(i) .ne. EXP_LVLS(i, j)) then
-                print *, 'Test Case ', j, ': LVLS(', i, ') = ', LVLS(i), ' but expected ', EXP_LVLS(i, j)
+            if (LVLS(i, j) .ne. EXP_LVLS(i, j)) then
+                print *, 'Test Case ', j, ': LVLS(', i, ') = ', LVLS(i, j), ' but expected ', EXP_LVLS(i, j)
                 res = 1
             end if
-            if (LVLSXML(i) .ne. EXP_LVLSXML(i, j)) then
-                print *, 'Test Case ', j, ': LVLSXML(', i, ') = ', LVLSXML(i), ' but expected ', EXP_LVLSXML(i, j)
+            if (LVLSXML(i, j) .ne. EXP_LVLSXML(i, j)) then
+                print *, 'Test Case ', j, ': LVLSXML(', i, ') = ', LVLSXML(i, j), ' but expected ', EXP_LVLSXML(i, j)
                 res = 1
             end if
             if (PARAM(j)%level(i) .ne. EXP_LEVEL(i, j)) then
