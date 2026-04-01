@@ -232,6 +232,33 @@ program test_set_lvlsxml
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
+    ! Test Case 7:
+    ! Fixed surface 1 type: isentropic_lvl
+    IFLD = 7
+    PARAM(IFLD)%fixed_sfc1_type = 'isentropic_lvl'
+
+    PARAM(IFLD)%level(1) = 290.0
+    PARAM(IFLD)%level(2) = 305.0
+    PARAM(IFLD)%level(3) = 310.0
+    PARAM(IFLD)%level(4) = 295.0
+    PARAM(IFLD)%level(5) = 325.0
+    do i = 1, 5
+        EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
+    end do
+
+    TH = 0.0
+    TH(1) = 290.0
+    TH(2) = 300.0
+    TH(3) = 310.0
+    TH(4) = 0.0
+    TH(5) = 320.0
+
+    EXP_IREC(IFLD) = 25
+    EXP_LVLS(1, IFLD)   = 1
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LVLS(3, IFLD)   = 1
+    EXP_LVLSXML(3, IFLD) = 3
+
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
