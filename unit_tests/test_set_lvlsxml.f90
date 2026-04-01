@@ -590,7 +590,6 @@ program test_set_lvlsxml
     
     res = 0
     do j = 1, ntests
-        print *, 'Checking Test Case ', j
         if (IREC(j) .ne. EXP_IREC(j)) then
             print *, 'Test Case ', j, ': IREC = ', IREC(j), ' but expected ', EXP_IREC(j)
             res = 1
@@ -622,7 +621,20 @@ program test_set_lvlsxml
         end do
     end do
 
+    ! Deallocate all allocated arrays
+    do i = 1, ntests
+        if (allocated(PARAM(i)%level)) deallocate(PARAM(i)%level)
+        if (allocated(PARAM(i)%level2)) deallocate(PARAM(i)%level2)
+        if (allocated(PARAM(i)%scale_fact_fixed_sfc1)) deallocate(PARAM(i)%scale_fact_fixed_sfc1)
+    end do
+    deallocate(PARAM)
+    deallocate(ifi_flight_levels)
+    deallocate(SLDPTH)
+    deallocate(SLLEVEL)
+    deallocate(LVLSXML)
+
     if (res .ne. 0) stop 10
+
     print *, 'SUCCESS!'
 
 end program test_set_lvlsxml
