@@ -107,9 +107,9 @@ program test_set_lvlsxml
     EXP_LVLS = 1
     EXP_IREC = nlvls
 
-    res = 0
     call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
 
+    res = 0
     call check_test_case(1, IREC, EXP_IREC, PARAM, EXP_LVLS, EXP_LVLSXML, &
                     EXP_LEVEL, EXP_LEVEL2, res)
 
@@ -134,15 +134,47 @@ program test_set_lvlsxml
         EXP_LVLSXML(i) = i
     end do
 
-    res = 0
     call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
 
+    res = 0
     call check_test_case(2, IREC, EXP_IREC, PARAM, EXP_LVLS, EXP_LVLSXML, &
                     EXP_LEVEL, EXP_LEVEL2, res)
 
     if (res .ne. 0) stop 20
 
-    print *, 'SUCCESS!'
+    ! Test Case 3:
+    ! Fixed surface 1 type: hybrid_lvl
+    PARAM%fixed_sfc1_type = 'hybrid_lvl'
+    PARAM%shortname = ''
+    PARAM%level = 0.0
+    PARAM%level2 = 0.0
+    PARAM%scale_fact_fixed_sfc1 = 0.0
+
+    IREC = 0
+    EXP_LEVEL = 0.0
+    EXP_LEVEL2 = 0.0
+    EXP_LVLS = 0
+    EXP_IREC = nlvls
+    
+    do i = 1, nlvls
+        PARAM%level(i) = real(i) * 2.0
+        EXP_LEVEL(i) = real(i) * 2.0
+
+        if (mod(i, 2) == 0) then
+            EXP_LVLS(i) = 1
+            EXP_LVLSXML(i) = i / 2
+        end if
+    end do
+
+    res = 0
+    call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
+
+    call check_test_case(3, IREC, EXP_IREC, PARAM, EXP_LVLS, EXP_LVLSXML, &
+                    EXP_LEVEL, EXP_LEVEL2, res)
+
+    if (res .ne. 0) stop 30
+
+    print *, 'SUCCESS       !'
 
 contains
 
