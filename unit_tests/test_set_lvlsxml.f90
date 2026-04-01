@@ -259,6 +259,36 @@ program test_set_lvlsxml
     EXP_LVLS(3, IFLD)   = 1
     EXP_LVLSXML(3, IFLD) = 3
 
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 8:
+    ! Fixed surface 1 type: spec_alt_above_mean_sea_lvl
+    ! Short name contains "SPECIFIC_IFI_FLIGHT_LEVEL"
+    IFLD = 8
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_alt_above_mean_sea_lvl'
+    PARAM(IFLD)%shortname = 'SPECIFIC_IFI_FLIGHT_LEVEL'
+
+    ! Flight levels in feet (usually provided by libIFI)
+    do i = 1, ifi_nflight
+        ifi_flight_levels(i) = 10000.0 + 1000.0 * real(i)
+    end do
+
+    EXP_IREC(IFLD) = nlvls
+    do j = 1, nlvls
+        if (j == nlvls) then
+            PARAM(IFLD)%level(j) = ifi_flight_levels(j) + 50.0
+        else
+            i = mod(j, 24) + 1
+            PARAM(IFLD)%level(j) = ifi_flight_levels(i)
+            EXP_LVLS(i, IFLD) = 1
+            EXP_LVLSXML(i, IFLD) = j
+        end if
+        EXP_LEVEL(j, IFLD) = PARAM(IFLD)%level(j)
+    end do
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
