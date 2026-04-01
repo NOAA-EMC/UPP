@@ -188,7 +188,7 @@ program test_set_lvlsxml
     SLLEVEL(2) = 1.0
     SLLEVEL(3) = 1.5
     
-    EXP_IREC(IFLD) = 3
+    EXP_IREC(IFLD) = 25
 
     EXP_LEVEL(1, IFLD) = 100.0
     EXP_LEVEL(2, IFLD) = 150.0
@@ -202,7 +202,7 @@ program test_set_lvlsxml
     EXP_LVLSXML(3, IFLD) = 2
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
-    
+
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
