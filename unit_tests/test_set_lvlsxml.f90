@@ -160,6 +160,7 @@ contains
 
         integer :: i
 
+        print *, 'Checking Test Case ', num, '...'
         if (irec .ne. exp_irec) then
             print *, 'Test Case ', num, ' Failed: IREC = ', irec, &
                      ' Expected: ', exp_irec
