@@ -12,18 +12,18 @@ program test_set_lvlsxml
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: nlvls = 25
-    integer, parameter :: KPV = 5, KTH = 5, IFLD = 1
+    integer, parameter :: nlvls = 25, ntests = 2
+    integer, parameter :: KPV = 5, KTH = 5
     ! 
     integer :: i, j, res
-    type(param_t) :: PARAM, PARAM_ONE_LEVEL
-    integer :: IREC, EXP_IREC
+    type(param_t) :: PARAM(1:ntests)
+    integer :: IFLD, IREC(1:ntests), EXP_IREC(1:ntests)
     real :: PV(1:KPV), TH(1:KTH)
-    integer :: EXP_LVLS(1:nlvls), EXP_LVLSXML(1:nlvls)
+    integer :: EXP_LVLS(1:nlvls, 1:ntests), EXP_LVLSXML(1:nlvls, 1:ntests)
     ! In some test cases, param%level and/or param%level2 will be updated by SET_LVLSXML().
     ! We want to verify that the updated values are correct and that no unexpected 
     ! updates are occurring.
-    real :: EXP_LEVEL(1:nlvls), EXP_LEVEL2(1:nlvls)
+    real :: EXP_LEVEL(1:nlvls, 1:ntests), EXP_LEVEL2(1:nlvls, 1:ntests)
 
     interface
         subroutine SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
@@ -52,24 +52,19 @@ program test_set_lvlsxml
     allocate(SLLEVEL(1:nsoil))
     allocate(LVLSXML(1:mxlvl, 1))
 
-    allocate(PARAM%level(1:nlvls))
-    allocate(PARAM%level2(1:nlvls))
-    allocate(PARAM%scale_fact_fixed_sfc1(1:nlvls))
-
-    allocate(PARAM_ONE_LEVEL%level(1))
-    allocate(PARAM_ONE_LEVEL%level2(1))
+    do i = 1, ntests
+        allocate(PARAM(i)%level(1:nlvls))
+        allocate(PARAM(i)%level2(1:nlvls))
+        allocate(PARAM(i)%scale_fact_fixed_sfc1(1:nlvls))
+        PARAM(i)%level = 0.0
+        PARAM(i)%level2 = 0.0
+        PARAM(i)%scale_fact_fixed_sfc1 = 0.0
+    end do
 
     spl = 0.0 
     ifi_flight_levels = 0.0
     SLDPTH = 0.0 
     SLLEVEL = 0.0 
-
-    PARAM%level = 0.0
-    PARAM%level2 = 0.0
-    PARAM%scale_fact_fixed_sfc1 = 0.0
-
-    PARAM_ONE_LEVEL%level = 0.0
-    PARAM_ONE_LEVEL%level2 = 0.0
 
     ! Initialize output arrays
     LVLS = 0
@@ -83,57 +78,54 @@ program test_set_lvlsxml
     ! Test Case 1:
     ! Fixed surface 1 type: isobaric_sfc
     ! Short name does not contain "ON_ICAO_STD_SFC"
-    PARAM%fixed_sfc1_type = 'isobaric_sfc'
-    PARAM%shortname = ''
-    PARAM%level = 0.0
-    PARAM%level2 = 0.0
-    PARAM%scale_fact_fixed_sfc1 = 0.0
-
+    IFLD = 1
+    PARAM(IFLD)%fixed_sfc1_type = 'isobaric_sfc'
+    
     ! Specified pressure levels
     do i = 1, nlvls
         spl(i) = 100000.0 - real(i - 1) * 4000.0
         if (i == 1) then
-            PARAM%level(nlvls) = spl(1)
-            EXP_LEVEL(nlvls) = spl(1)
-            EXP_LVLSXML(i) = nlvls
+            PARAM(IFLD)%level(nlvls) = spl(1)
+            EXP_LEVEL(nlvls, IFLD) = spl(1)
+            EXP_LVLSXML(i, IFLD) = nlvls
         else
-            PARAM%level(i-1) = spl(i)
-            EXP_LEVEL(i-1) = spl(i)
-            EXP_LVLSXML(i) = i - 1
+            PARAM(IFLD)%level(i-1) = spl(i)
+            EXP_LEVEL(i-1, IFLD) = spl(i)
+            EXP_LVLSXML(i, IFLD) = i - 1
         end if
     end do
 
-    EXP_LEVEL2 = 0.0
-    EXP_LVLS = 1
-    EXP_IREC = nlvls
+    EXP_LEVEL2(:, IFLD) = 0.0
+    EXP_LVLS(:, IFLD) = 1
+    EXP_IREC(IFLD) = nlvls
 
     res = 0
-    call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
-    if (IREC .ne. EXP_IREC) then
-        print *, 'Test Case 1 Failed: IREC = ', IREC, ' Expected: ', EXP_IREC
+    if (IREC(IFLD) .ne. EXP_IREC(IFLD)) then
+        print *, 'Test Case 1 Failed: IREC = ', IREC(IFLD), ' Expected: ', EXP_IREC(IFLD)
         res = 1
     end if
 
     do i = 1, nlvls
-        if (LVLS(i, IFLD) .ne. EXP_LVLS(i)) then
+        if (LVLS(i, IFLD) .ne. EXP_LVLS(i, IFLD)) then
             print *, 'Test Case 1 Failed: LVLS(', i, ') = ', LVLS(i, IFLD), &
-                     ' Expected: ', EXP_LVLS(i)
+                     ' Expected: ', EXP_LVLS(i, IFLD)
             res = 1
         end if
-        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i)) then
+        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i, IFLD)) then
             print *, 'Test Case 1 Failed: LVLSXML(', i, ') = ', LVLSXML(i, IFLD), &
-                     ' Expected: ', EXP_LVLSXML(i)
+                     ' Expected: ', EXP_LVLSXML(i, IFLD)
             res = 1
         end if
-        if (abs(PARAM%level(i) - EXP_LEVEL(i)) > tol) then
-            print *, 'Test Case 1 Failed: PARAM%level(', i, ') = ', PARAM%level(i), &
-                     ' Expected: ', EXP_LEVEL(i)
+        if (abs(PARAM(IFLD)%level(i) - EXP_LEVEL(i, IFLD)) > tol) then
+            print *, 'Test Case 1 Failed: PARAM%level(', i, ') = ', PARAM(IFLD)%level(i), &
+                     ' Expected: ', EXP_LEVEL(i, IFLD)
             res = 1
         end if
-        if (abs(PARAM%level2(i) - EXP_LEVEL2(i)) > tol) then
-            print *, 'Test Case 1 Failed: PARAM%level2(', i, ') = ', PARAM%level2(i), &
-                     ' Expected: ', EXP_LEVEL2(i)
+        if (abs(PARAM(IFLD)%level2(i) - EXP_LEVEL2(i, IFLD)) > tol) then
+            print *, 'Test Case 1 Failed: PARAM%level2(', i, ') = ', PARAM(IFLD)%level2(i), &
+                     ' Expected: ', EXP_LEVEL2(i, IFLD)
             res = 1
         end if
     end do
@@ -143,52 +135,50 @@ program test_set_lvlsxml
     ! Test Case 2:
     ! Fixed surface 1 type: isobaric_sfc
     ! Short name contains "ON_ICAO_STD_SFC"
-    PARAM%fixed_sfc1_type = 'isobaric_sfc'
-    PARAM%shortname = 'ON_ICAO_STD_SFC'
-    PARAM%level = 0.0
-    PARAM%level2 = 0.0
-    PARAM%scale_fact_fixed_sfc1 = 0.0
+    IFLD = 2
+    PARAM(IFLD)%fixed_sfc1_type = 'isobaric_sfc'
+    PARAM(IFLD)%shortname = 'ON_ICAO_STD_SFC'
 
-    EXP_LEVEL = 0.0
-    EXP_LEVEL2 = 0.0
-    EXP_LVLS = 1
-    EXP_IREC = nlvls
+    IREC(IFLD) = 0
+    EXP_LEVEL(:, IFLD) = 0.0
+    EXP_LEVEL2(:, IFLD) = 0.0
+    EXP_LVLS(:, IFLD) = 1
+    EXP_IREC(IFLD) = nlvls
 
     do i = 1, nlvls
-        EXP_LVLSXML(i) = i
+        EXP_LVLSXML(i, IFLD) = i
     end do
 
     res = 0
-    call SET_LVLSXML(PARAM, IFLD, IREC, KPV, PV, KTH, TH)
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
-    if (IREC .ne. EXP_IREC) then
-        print *, 'Test Case 2 Failed: IREC = ', IREC, ' Expected: ', EXP_IREC
+    if (IREC(IFLD) .ne. EXP_IREC(IFLD)) then
+        print *, 'Test Case 2 Failed: IREC = ', IREC(IFLD), ' Expected: ', EXP_IREC(IFLD)
         res = 1
     end if
 
     do i = 1, nlvls
-        if (LVLS(i, IFLD) .ne. EXP_LVLS(i)) then
+        if (LVLS(i, IFLD) .ne. EXP_LVLS(i, IFLD)) then
             print *, 'Test Case 2 Failed: LVLS(', i, ') = ', LVLS(i, IFLD), &
-                     ' Expected: ', EXP_LVLS(i)
+                     ' Expected: ', EXP_LVLS(i, IFLD)
             res = 1
         end if
-        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i)) then
+        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i, IFLD)) then
             print *, 'Test Case 2 Failed: LVLSXML(', i, ') = ', LVLSXML(i, IFLD), &
-                     ' Expected: ', EXP_LVLSXML(i)
+                     ' Expected: ', EXP_LVLSXML(i, IFLD)
             res = 1
         end if
-        if (abs(PARAM%level(i) - EXP_LEVEL(i)) > tol) then
-            print *, 'Test Case 2 Failed: PARAM%level(', i, ') = ', PARAM%level(i), &
-                     ' Expected: ', EXP_LEVEL(i)
+        if (abs(PARAM(IFLD)%level(i) - EXP_LEVEL(i, IFLD)) > tol) then
+            print *, 'Test Case 2 Failed: PARAM%level(', i, ') = ', PARAM(IFLD)%level(i), &
+                     ' Expected: ', EXP_LEVEL(i, IFLD)
             res = 1
         end if
-        if (abs(PARAM%level2(i) - EXP_LEVEL2(i)) > tol) then
-            print *, 'Test Case 2 Failed: PARAM%level2(', i, ') = ', PARAM%level2(i), &
-                     ' Expected: ', EXP_LEVEL2(i)
+        if (abs(PARAM(IFLD)%level2(i) - EXP_LEVEL2(i, IFLD)) > tol) then
+            print *, 'Test Case 2 Failed: PARAM%level2(', i, ') = ', PARAM(IFLD)%level2(i), &
+                     ' Expected: ', EXP_LEVEL2(i, IFLD)
             res = 1
         end if
     end do
-
     if (res .ne. 0) stop 20
 
     print *, 'SUCCESS!'
