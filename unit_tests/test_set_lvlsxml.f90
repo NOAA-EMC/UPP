@@ -425,6 +425,65 @@ program test_set_lvlsxml
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
+    ! Test Case 18:
+    ! Fixed surface 1 type: spec_pres_above_grnd
+    ! Short name is not listed above
+    IFLD = 18
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_pres_above_grnd'
+
+    PARAM(IFLD)%level = 0.0
+    PARAM(IFLD)%level(1) = 25500.0
+    PARAM(IFLD)%level(2) = 5000.0
+    PARAM(IFLD)%level(3) = (PETABND(2) + 15.0) * 100.0
+    PARAM(IFLD)%level(4) = (PETABND(4) + 15.0) * 100.0
+    PARAM(IFLD)%level(5) = (PETABND(6) + 15.0) * 100.0
+
+    do i = 1, 5
+        EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
+    end do
+
+    EXP_LVLS(1, IFLD)    = 1
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LVLS(2, IFLD)    = 1
+    EXP_LVLSXML(2, IFLD) = 3
+    EXP_LVLS(4, IFLD)    = 1
+    EXP_LVLSXML(4, IFLD) = 4
+    EXP_LVLS(6, IFLD)    = 1
+    EXP_LVLSXML(6, IFLD) = 5
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 19:
+    ! Fixed surface 1 type: 'spec_hgt_lvl_above_grnd'
+    ! Short name contains "SPEC_HGT_LVL_ABOVE_GRND_FDHGT"
+    IFLD = 19
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_hgt_lvl_above_grnd'
+    PARAM(IFLD)%shortname = 'SPEC_HGT_LVL_ABOVE_GRND_FDHGT'
+
+    PARAM(IFLD)%level = 0.0
+    PARAM(IFLD)%level(1) = HTFD(2)
+    PARAM(IFLD)%level(2) = HTFD(5)
+    PARAM(IFLD)%level(3) = HTFD(10)
+    PARAM(IFLD)%level(4) = HTFD(1)
+    PARAM(IFLD)%level(5) = HTFD(8)
+
+    do i = 1, 5
+        EXP_LEVEL(i, IFLD) = PARAM(IFLD)%level(i)
+    end do
+
+    EXP_LVLS(1, IFLD)    = 1
+    EXP_LVLSXML(1, IFLD) = 4
+    EXP_LVLS(2, IFLD)    = 1
+    EXP_LVLSXML(2, IFLD) = 1
+    EXP_LVLS(5, IFLD)    = 1
+    EXP_LVLSXML(5, IFLD) = 2
+    EXP_LVLS(8, IFLD)    = 1
+    EXP_LVLSXML(8, IFLD) = 5
+    EXP_LVLS(10, IFLD)   = 1
+    EXP_LVLSXML(10, IFLD)= 3
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+    
     res = 0
     do j = 1, ntests
         print *, 'Checking Test Case ', j
