@@ -12,7 +12,7 @@ program test_set_lvlsxml
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: nlvls = 25, ntests = 2
+    integer, parameter :: nlvls = 25, ntests = 3
     integer, parameter :: KPV = 5, KTH = 5
     ! 
     integer :: i, j, res
@@ -121,6 +121,25 @@ program test_set_lvlsxml
     EXP_IREC(IFLD) = nlvls
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 3:
+    ! Fixed surface 1 type: hybrid_lvl
+    IFLD = 3
+    PARAM(IFLD)%fixed_sfc1_type = 'hybrid_lvl'
+
+    EXP_LEVEL(:, IFLD) = 0.0
+    EXP_LEVEL2(:, IFLD) = 0.0
+    EXP_IREC(IFLD) = nlvls
+
+    do i = 1, nlvls
+        PARAM(IFLD)%level(i) = real(i) * 2.0
+        EXP_LEVEL(i, IFLD) = real(i) * 2.0
+
+        if (mod(i, 2) == 0) then
+            EXP_LVLS(i, IFLD) = 1
+            EXP_LVLSXML(i, IFLD) = i / 2
+        end if
+    end do
 
     res = 0
     do j = 1, ntests
