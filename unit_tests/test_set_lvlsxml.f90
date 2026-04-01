@@ -253,7 +253,7 @@ program test_set_lvlsxml
     TH(4) = 0.0
     TH(5) = 320.0
 
-    EXP_IREC(IFLD) = 25
+    EXP_IREC(IFLD) = 2
     EXP_LVLS(1, IFLD)   = 1
     EXP_LVLSXML(1, IFLD) = 1
     EXP_LVLS(3, IFLD)   = 1
@@ -273,17 +273,19 @@ program test_set_lvlsxml
         ifi_flight_levels(i) = 10000.0 + 1000.0 * real(i)
     end do
 
-    EXP_IREC(IFLD) = nlvls
+    EXP_IREC(IFLD) = 49
+
     do j = 1, nlvls
         if (j == nlvls) then
             PARAM(IFLD)%level(j) = ifi_flight_levels(j) + 50.0
         else
             i = mod(j, 24) + 1
             PARAM(IFLD)%level(j) = ifi_flight_levels(i)
-            EXP_LVLS(i, IFLD) = 1
-            EXP_LVLSXML(i, IFLD) = j
+
         end if
         EXP_LEVEL(j, IFLD) = PARAM(IFLD)%level(j)
+        EXP_LVLS(j, IFLD) = 1
+        EXP_LVLSXML(j, IFLD) = j
     end do
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
