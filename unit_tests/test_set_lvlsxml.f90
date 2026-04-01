@@ -99,38 +99,7 @@ program test_set_lvlsxml
     EXP_LVLS(:, IFLD) = 1
     EXP_IREC(IFLD) = nlvls
 
-    res = 0
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
-
-    if (IREC(IFLD) .ne. EXP_IREC(IFLD)) then
-        print *, 'Test Case 1 Failed: IREC = ', IREC(IFLD), ' Expected: ', EXP_IREC(IFLD)
-        res = 1
-    end if
-
-    do i = 1, nlvls
-        if (LVLS(i, IFLD) .ne. EXP_LVLS(i, IFLD)) then
-            print *, 'Test Case 1 Failed: LVLS(', i, ') = ', LVLS(i, IFLD), &
-                     ' Expected: ', EXP_LVLS(i, IFLD)
-            res = 1
-        end if
-        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i, IFLD)) then
-            print *, 'Test Case 1 Failed: LVLSXML(', i, ') = ', LVLSXML(i, IFLD), &
-                     ' Expected: ', EXP_LVLSXML(i, IFLD)
-            res = 1
-        end if
-        if (abs(PARAM(IFLD)%level(i) - EXP_LEVEL(i, IFLD)) > tol) then
-            print *, 'Test Case 1 Failed: PARAM%level(', i, ') = ', PARAM(IFLD)%level(i), &
-                     ' Expected: ', EXP_LEVEL(i, IFLD)
-            res = 1
-        end if
-        if (abs(PARAM(IFLD)%level2(i) - EXP_LEVEL2(i, IFLD)) > tol) then
-            print *, 'Test Case 1 Failed: PARAM%level2(', i, ') = ', PARAM(IFLD)%level2(i), &
-                     ' Expected: ', EXP_LEVEL2(i, IFLD)
-            res = 1
-        end if
-    end do
-
-    if (res .ne. 0) stop 10
 
     ! Test Case 2:
     ! Fixed surface 1 type: isobaric_sfc
@@ -149,37 +118,33 @@ program test_set_lvlsxml
         EXP_LVLSXML(i, IFLD) = i
     end do
 
-    res = 0
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
-    if (IREC(IFLD) .ne. EXP_IREC(IFLD)) then
-        print *, 'Test Case 2 Failed: IREC = ', IREC(IFLD), ' Expected: ', EXP_IREC(IFLD)
-        res = 1
-    end if
-
-    do i = 1, nlvls
-        if (LVLS(i, IFLD) .ne. EXP_LVLS(i, IFLD)) then
-            print *, 'Test Case 2 Failed: LVLS(', i, ') = ', LVLS(i, IFLD), &
-                     ' Expected: ', EXP_LVLS(i, IFLD)
+    do j = 1, ntests
+        if (IREC(j) .ne. EXP_IREC(j)) then
+            print *, 'Test Case ', j, ' Failed: IREC = ', IREC(j), ' Expected: ', EXP_IREC(j)
             res = 1
         end if
-        if (LVLSXML(i, IFLD) .ne. EXP_LVLSXML(i, IFLD)) then
-            print *, 'Test Case 2 Failed: LVLSXML(', i, ') = ', LVLSXML(i, IFLD), &
-                     ' Expected: ', EXP_LVLSXML(i, IFLD)
-            res = 1
-        end if
-        if (abs(PARAM(IFLD)%level(i) - EXP_LEVEL(i, IFLD)) > tol) then
-            print *, 'Test Case 2 Failed: PARAM%level(', i, ') = ', PARAM(IFLD)%level(i), &
-                     ' Expected: ', EXP_LEVEL(i, IFLD)
-            res = 1
-        end if
-        if (abs(PARAM(IFLD)%level2(i) - EXP_LEVEL2(i, IFLD)) > tol) then
-            print *, 'Test Case 2 Failed: PARAM%level2(', i, ') = ', PARAM(IFLD)%level2(i), &
-                     ' Expected: ', EXP_LEVEL2(i, IFLD)
-            res = 1
-        end if
+        do i = 1, nlvls
+            if (LVLS(i, j) .ne. EXP_LVLS(i, j)) then
+                print *, 'Test Case ', j, ' Failed: LVLS(', i, ',', j, ') = ', LVLS(i, j), ' Expected: ', EXP_LVLS(i, j)
+                res = 1
+            end if
+            if (LVLSXML(i, j) .ne. EXP_LVLSXML(i, j)) then
+                print *, 'Test Case ', j, ' Failed: LVLSXML(', i, ',', j, ') = ', LVLSXML(i, j), ' Expected: ', EXP_LVLSXML(i, j)
+                res = 1
+            end if
+            if (abs(PARAM(j)%level(i) - EXP_LEVEL(i, j)) > tol) then
+                print *, 'Test Case ', j, ' Failed: PARAM(', j, ')%level(', i, ') = ', PARAM(j)%level(i), ' Expected: ', EXP_LEVEL(i, j)
+                res = 1
+            end if
+            if (abs(PARAM(j)%level2(i) - EXP_LEVEL2(i, j)) > tol) then
+                print *, 'Test Case ', j, ' Failed: PARAM(', j, ')%level2(', i, ') = ', PARAM(j)%level2(i), ' Expected: ', EXP_LEVEL2(i, j)
+                res = 1
+            end if
     end do
-    if (res .ne. 0) stop 20
+
+    if (res .ne. 0) stop 10
 
     print *, 'SUCCESS!'
 end program test_set_lvlsxml
