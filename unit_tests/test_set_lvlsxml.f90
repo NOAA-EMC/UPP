@@ -297,7 +297,7 @@ program test_set_lvlsxml
     PARAM(IFLD)%fixed_sfc1_type = 'spec_alt_above_mean_sea_lvl'
     PARAM(IFLD)%shortname = 'IFI_FLIGHT_LEVEL'
 
-    EXP_IREC(IFLD) = ifi_nflight
+    EXP_IREC(IFLD) = 50
     do i = 1, ifi_nflight
         EXP_LVLS(i, IFLD)   = 1
         EXP_LVLSXML(i, IFLD) = i
@@ -330,7 +330,7 @@ program test_set_lvlsxml
     PARAM(IFLD)%level(2) = HTFD(8)
 
     EXP_IREC(IFLD) = 2
-    
+
     EXP_LEVEL(1, IFLD) = HTFD(1)
     EXP_LEVEL(2, IFLD) = HTFD(8)
 
@@ -338,6 +338,48 @@ program test_set_lvlsxml
     EXP_LVLSXML(1, IFLD) = 1
     EXP_LVLS(8, IFLD)   = 1
     EXP_LVLSXML(8, IFLD) = 2
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 12:
+    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! Short name == "MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND"
+    IFLD = 12
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
+    PARAM(IFLD)%shortname = 'MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND'
+
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LEVEL(1, IFLD) = nint(PETABND(3)+15.)*100
+    EXP_LEVEL2(1, IFLD) = nint(PETABND(1)-15.)*100
+    EXP_IREC(IFLD) = 1
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 13:
+    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! Short name == "MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND"
+    IFLD = 13
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
+    PARAM(IFLD)%shortname = "MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND"
+
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LEVEL(1, IFLD) = nint(PETABND(3)+15.)*100
+    EXP_LEVEL2(1, IFLD) = nint(PETABND(1)-15.)*100
+    EXP_IREC(IFLD) = 1
+    
+    call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 14:
+    ! Fixed surface 1 type: spec_prec_above_grnd
+    ! Short name == "UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND"
+    IFLD = 14
+    PARAM(IFLD)%fixed_sfc1_type = 'spec_prec_above_grnd'
+    PARAM(IFLD)%shortname = "UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND"
+
+    EXP_LVLSXML(1, IFLD) = 1
+    EXP_LEVEL(1, IFLD) = 25500
+    EXP_LEVEL2(1, IFLD) = 0
+    EXP_IREC(IFLD) = 1
     
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
 
