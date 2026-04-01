@@ -155,7 +155,7 @@ program test_set_lvlsxml
     SLDPTH(2) = 0.20
     SLDPTH(3) = 0.30
 
-    EXP_IREC(IFLD) = nlvls
+    EXP_IREC(IFLD) = 3
 
     EXP_LEVEL2(1, IFLD) = 30.0
     EXP_LEVEL2(2, IFLD) = 60.0
@@ -169,6 +169,37 @@ program test_set_lvlsxml
     EXP_LVLSXML(3, IFLD) = 2
 
     call SET_LVLSXML(PARAM(IFLD), IFLD, IREC(IFLD), KPV, PV, KTH, TH)
+
+    ! Test Case 5:
+    ! Fixed surface 1 type: depth_bel_land_sfc
+    ! Fixed surface 2 type: depth_bel_land_sfc
+    ! ISF_SURFACE_PHYSICS == 3
+    IFLD = 5
+    PARAM(IFLD)%fixed_sfc1_type = 'depth_bel_land_sfc'
+    PARAM(IFLD)%fixed_sfc2_type = 'depth_bel_land_sfc'
+    isf_surface_physics = 3
+
+    PARAM(IFLD)%level(1) = 100.0
+    PARAM(IFLD)%level(2) = 150.0
+    PARAM(IFLD)%level(3) = 50.0
+
+    SLLEVEL = 0.0
+    SLLEVEL(1) = 0.5
+    SLLEVEL(2) = 1.0
+    SLLEVEL(3) = 1.5
+    
+    EXP_IREC(IFLD) = 3
+
+    EXP_LEVEL(1, IFLD) = 100.0
+    EXP_LEVEL(2, IFLD) = 150.0
+    EXP_LEVEL(3, IFLD) = 50.0
+
+    EXP_LVLS(1, IFLD)   = 1
+    EXP_LVLSXML(1, IFLD) = 3
+    EXP_LVLS(2, IFLD)   = 1
+    EXP_LVLSXML(2, IFLD) = 1
+    EXP_LVLS(3, IFLD)   = 1
+    EXP_LVLSXML(3, IFLD) = 2
 
     res = 0
     do j = 1, ntests
