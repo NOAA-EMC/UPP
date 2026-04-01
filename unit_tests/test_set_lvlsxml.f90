@@ -50,7 +50,7 @@ program test_set_lvlsxml
     allocate(ifi_flight_levels(1:ifi_nflight))
     allocate(SLDPTH(1:nsoil))
     allocate(SLLEVEL(1:nsoil))
-    allocate(LVLSXML(1:mxlvl, 1))
+    allocate(LVLSXML(1:mxlvl, ntests))
 
     nullify(PARAM)
     allocate(PARAM(1:ntests))
