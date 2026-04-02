@@ -34,6 +34,8 @@ Hourly wildfire potential,hwp_ave,hwp,2d,phy,regional FV3
 Hourly averaged smoke,smoke_ave,smoke_ave,2d,phy,regional FV3
 Hourly averaged dust,dust_ave,dust_ave,2d,phy,regional FV3
 Hourly averaged coarsepm,coarsepm_ave,coarsepm_ave,2d,phy,regional FV3
+Mean fire radiative power,frp_output,mean_frp,2d,phy,regional FV3
+Dust emissions,emdust,emdust,2d,phy,regional FV3
 Lightning threat index 1,ltg1_max,ltg1_max,2d,phy,regional FV3
 Lightning threat index 2,ltg2_max,ltg2_max,2d,phy,regional FV3
 Lightning threat index 3,ltg3_max,ltg3_max,2d,phy,regional FV3
@@ -68,6 +70,7 @@ Aerodynamic conductance,acond,acond,2d,phy,
 Mid day avg albedo,albdo_ave,avgalbedo,2d,phy,
 Surface albedo,sfalb,albedo,2d,phy,
 Surface potential temperature,tmpsfc,ths,2d,phy,
+Surface specific humidity,qs,qs,2d,phy,
 Foundation temperature,tref,fdnsst,2d,phy,
 Convective precip in m per physics time step,cpratb_ave,avgcprate,2d,phy,
 Convective precip - coninuous bucket,cprat_ave,avgcprate_cont,2d,phy,

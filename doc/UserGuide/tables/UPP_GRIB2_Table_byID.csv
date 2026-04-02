@@ -746,6 +746,8 @@ Simulated GOES 13 channel 2 brightness temperature with satellite angle correcti
 Simulated GOES 15 channel 5 brightness temperature with satellite angle correction,Not currently available for grib2,NA,872
 Seviri brightness temperature channels 5-11,Not currently available for grib2,NA,876
 Hourly max relative vorticity on hybrid level 1,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1,RELV,890
+Dust emissions,DUST_EMISSIONS,AEMFLX,894
+Total dust on entire atmosphere single layer,TOTAL_DUST_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,895
 Virtual temperature on model surfaces,VTMP_ON_HYBRID_LVL,VTMP,909
 Virtual temperature on pressure surfaces,VTMP_ON_ISOBARIC_SFC,VTMP,910
 Virtual temperature on flight levels,VTMP_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,VTMP,911
