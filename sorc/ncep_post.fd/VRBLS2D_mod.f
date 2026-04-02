@@ -84,6 +84,7 @@
       ,POTEVP(:,:) &       !< Potential evaporation
       ,Z0(:,:) &           !< Roughness length
       ,USTAR(:,:) &        !< Frictional velocity
+      ,RMOL(:,:) &         !< Reciprocal of the Obukhov length
       ,TWBS(:,:) &         !< Instantaneous surface sensible heat flux
       ,QWBS(:,:) &         !< Instantaneous surface latent heat flux
       ,SFCEXC(:,:) &       !< Surface exchange coefficient 
