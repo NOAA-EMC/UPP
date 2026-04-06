@@ -36,6 +36,7 @@
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
 !> 2021-10-15 |JESSE MENG    | 2D DECOMPOSITION
+!> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !-----------------------------------------------------------------------------
@@ -80,8 +81,8 @@
 !    &         qsat,qsfc,qsfrz,rhsfc,rhz,tsfc,                        &
 !    &         zl,zu)
 
-       DO 20 J=JSTA,JEND
-       DO 20 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
          HTSFC    = FIS(I,J)*GI
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00
@@ -225,7 +226,8 @@
                EXIT             
             ENDIF
  10      CONTINUE
-20   CONTINUE
+      ENDDO
+      ENDDO
 !     
 !     END OF ROUTINE.
 !     

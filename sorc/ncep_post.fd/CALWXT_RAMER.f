@@ -78,8 +78,8 @@
       enddo
 
 !  BIG LOOP
-      DO 800 J=JSTA,JEND
-      DO 800 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
 !
@@ -373,8 +373,8 @@
       END IF
       IF (trace) WRITE (*,*) "Returned ptyp is:ptyp,lll ", ptyp, lll,'me=',me
       IF (trace) WRITE (*,*) "Returned icefrac is: ", icefrac,'me=',me
- 800  CONTINUE 
-
+      ENDDO
+      ENDDO
       RETURN
 !
       END
