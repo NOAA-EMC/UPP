@@ -21,6 +21,7 @@
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!   21-07-26  W Meng - Restrict compuatation from undefined grids
 !!   21-10-14  J MENG - 2D DECOMPOSITION
+!!   26-03-27  Alyson Stahl - Remove shared DO termination labels
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -176,8 +177,8 @@
 !hc        J=JHOLD(NN)
 !         DO 220 J=JSTA,JEND
 !         DO 220 J=JSTA_2L,JEND_2U
-          DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
-            DO 220 I=ISTA,IEND
+          DO J=JSTA,JEND           ! Moorthi on Nov 26, 2014
+            DO I=ISTA,IEND
               LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -252,7 +253,8 @@
 !
                 TSL(I,J) = TBLO
               END IF
-  220       CONTINUE
+            ENDDO
+            ENDDO
 
 !---------------------------------------------------------------------
 !        *** PART II ***

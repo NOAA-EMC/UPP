@@ -22,6 +22,7 @@
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!   21-10-14  J MENG - 2D DECOMPOSITION
 !!   2022-09-01 S Trahan - fixed bugs where extreme atmospheric conditions can cause out-of-bounds access
+!!   26-03-27  Alyson Stahl - Remove shared DO termination labels
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -210,8 +211,8 @@
         ENDDO
        END DO	
        END DO
-       DO 167 J=JSTA,JEND
-        DO 167 I=ISTA_2L,IEND_2U
+       DO J=JSTA,JEND
+        DO I=ISTA_2L,IEND_2U
 	 DONEFSL1=.FALSE.
          PFSIGO=PTSIGO
          APFSIGO=LOG(PFSIGO)
@@ -307,7 +308,8 @@
      &      AKH(I,J)=EXCH_H(I,J,LL-1)+(EXCH_H(I,J,LL-1)                 &
      &	    -EXCH_H(I,J,LL-2))*FACT 
 	 END IF    
- 167    CONTINUE
+        ENDDO
+        ENDDO
 ! OUTPUT FIRST LAYER GEOPOTENTIAL
 !       GEOPOTENTIAL (SCALE BY GI)
         IF (IGET(205)>0) THEN
@@ -407,12 +409,12 @@
 !$omp  parallel do private(i,j,ll,llmh,psigo,apsigo,fact,dum,pl,     &
 !$omp &         zl,tl,ql,ai,bi,qsat,rhl,tvrl,tvrblo,tblo,tmt0,       &
 !$omp &         qblo,pnl1,fac,ahf)
-!hc        DO 220 NN=1,NHOLD
+!hc        DO NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
-        DO 220 J=JSTA,JEND      ! Moorthi on Nov 26 2014
-!       DO 220 J=JSTA_2L,JEND_2U
-        DO 220 I=ISTA,IEND
+        DO J=JSTA,JEND      ! Moorthi on Nov 26 2014
+!       DO J=JSTA_2L,JEND_2U
+        DO I=ISTA,IEND
         LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -556,7 +558,8 @@
 	  QG1(I,J)=0.
           CFRSIG(I,J)=0.
         END IF
-  220   CONTINUE
+        ENDDO
+        ENDDO
 !
 ! OBTAIN GEOPOTENTIAL AND KH ON INTERFACES 
        DO J=JSTA_2L,JEND_2U
@@ -792,9 +795,9 @@
         ENDDO
         ENDDO
 !
-        DO 230 J=JSTA,JEND
-!        DO 230 I=1,IM-MOD(j,2)
-        DO 230 I=ISTA,IEND-MOD(j,2) !Jesse 20211014
+        DO J=JSTA,JEND
+!        DO I=1,IM-MOD(j,2)
+        DO I=ISTA,IEND-MOD(j,2) !Jesse 20211014
 
          LLMH = NINT(LMH(I,J))
 
@@ -865,7 +868,8 @@
           IF(UH(I,J,LLMH)<SPVAL)USL(I,J)=UH(I,J,LLMH)
 	  IF(VH(I,J,LLMH)<SPVAL)VSL(I,J)=VH(I,J,LLMH)
         END IF
-  230   CONTINUE
+        ENDDO
+        ENDDO
         JJB=JSTA 
         IF(MOD(JSTA,2)==0)JJB=JSTA+1
         JJE=JEND
@@ -905,8 +909,8 @@
          ENDDO
          ENDDO
 !
-         DO 231 J=JSTA,JEND_M
-         DO 231 I=ISTA,IEND_M
+         DO J=JSTA,JEND_M
+         DO I=ISTA,IEND_M
 	  PDV=0.25*(PINT(I,J,LP1)+PINT(I+1,J,LP1)                       &
              +PINT(I,J+1,LP1)+PINT(I+1,J+1,LP1))
           PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
@@ -943,7 +947,8 @@
            IF(UH(I,J,LLMH)<SPVAL)USL(I,J)=UH(I,J,LLMH)
 	   IF(VH(I,J,LLMH)<SPVAL)VSL(I,J)=VH(I,J,LLMH)
           END IF
-  231   CONTINUE
+        ENDDO
+        ENDDO
 	
 	
 	
