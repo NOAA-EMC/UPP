@@ -25,7 +25,8 @@
 !> 2002-04-24 | Mike Baldwin | WRF Version            
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" Statement
 !> 2021-07-28 | W Meng       | Restriction compuatation from undefined grids
-!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction          
+!> 2021-09-02 | Bo Cui       | Decompose UPP in X direction     
+!> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels     
 !>
 !> @author Russ Treadon W/NP2 @date 1993-03-15
 !-----------------------------------------------------------------------
@@ -80,8 +81,8 @@
 !
 ! Bo Cui 10/30/2019, remove "GOTO" statement
 
-      DO 30 J=JSTA_M,JEND_M
-      DO 30 I=ISTA_M,IEND_M
+      DO J=JSTA_M,JEND_M
+      DO I=ISTA_M,IEND_M
       IF(P1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
       EVP       = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
       RMX       = EPS*EVP/(P1D(I,J)-EVP)
@@ -103,7 +104,8 @@
       ENDIF
  20   CONTINUE
       ENDIF
- 30   CONTINUE
+      ENDDO
+      ENDDO
 !     
 !     END OF ROUTINE.
 !     

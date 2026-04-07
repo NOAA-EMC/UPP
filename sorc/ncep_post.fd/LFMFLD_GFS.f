@@ -40,6 +40,7 @@
 !> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS Module
 !> 2021-10-14 | JESSE MENG   | 2D DECOMPOSITION
+!> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !---------------------------------------------------------------------------
@@ -87,8 +88,8 @@
 !
 !     LOOP OVER HORIZONTAL GRID.
 !     
-      DO 30 J=JSTA,JEND
-      DO 30 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
 !     
 !        ZERO VARIABLES.
          RH4410(I,J) = D00
@@ -194,7 +195,8 @@
          ELSE
             RH7294(I,J) = SPVAL
          ENDIF
- 30   CONTINUE
+      ENDDO
+      ENDDO
 !     
 !     END OF ROUTINE.
 !     
