@@ -157,12 +157,6 @@
        </param>
 
        <param>
-       <shortname>INST_USWRF_ON_TOP_OF_ATMOS</shortname>
-       <pname>USWRF</pname>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
        <shortname>INST_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
        <table_info>NCEP</table_info>
