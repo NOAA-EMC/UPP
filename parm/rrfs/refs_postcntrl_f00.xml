@@ -380,21 +380,7 @@
        <table_info>NCEP</table_info>
         <scale>6.0</scale>
        </param>
-
-       <param>
-       <shortname>SPFH_ON_HYBRID_LVL</shortname>
-       <pname>SPFH</pname>
-       <level>1.</level>
-       <scale>7.0</scale>
-       </param>
-       
-       <param>
-       <shortname>HGT_ON_HYBRID_LVL</shortname>
-       <pname>HGT</pname>
-       <level>1.</level>
-       <scale>4.0</scale>
-       </param>
-
+ 
        <param>
        <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>TMP</pname>
@@ -1772,6 +1758,20 @@
        <pname>SMREF</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>SPFH_ON_HYBRID_LVL</shortname>
+       <pname>SPFH</pname>
+       <level>1.</level>
+       <scale>7.0</scale>
+       </param>
+       
+       <param>
+       <shortname>HGT_ON_HYBRID_LVL</shortname>
+       <pname>HGT</pname>
+       <level>1.</level>
+       <scale>4.0</scale>
        </param>
 
        <param>
