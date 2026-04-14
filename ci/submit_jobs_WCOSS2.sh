@@ -1,7 +1,8 @@
 #!/bin/bash
 ##########################################################################
 # This script is used to submit test jobs on WCOSS2.
-# # Wen Meng, 05/2025, First version.
+# # Wen Meng  05/2025  First version.
+# # Ben Blake 04/2026  Remove RRFS IFI support
 # ##########################################################################
 
 jobid_list=""
@@ -16,7 +17,7 @@ done
 
 # Run additional IFI tests
 if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
-  for ifi_test in hrrr_ifi rrfs_ifi; do
+  for ifi_test in hrrr_ifi; do
     cp $svndir/ci/jobs-dev/run_post_${ifi_test}_${machine}.sh .
     job_id=$(qsub -A "${accnr}" run_post_${ifi_test}_${machine}.sh)
     jobid_list="${jobid_list} ${job_id}"

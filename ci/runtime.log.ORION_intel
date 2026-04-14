@@ -11,5 +11,4 @@ mpas_test 00:02:30
 mpas_hfip_test 00:05:00
 gcafs_test 00:03:15
 rrfs_test 00:17:00
-rrfs_ifi_missing 00:04:00
 gfs_test 00:26:00

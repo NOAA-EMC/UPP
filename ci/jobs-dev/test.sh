@@ -179,21 +179,6 @@ rrfs() {
 
 }
 
-rrfs_ifi_missing() {
-
-   case $machine in
-      ORION|HERCULES)
-         export NODES='-N 8'
-         export N_TASKS_PER_NODE='--ntasks-per-node=12'
-      ;;
-      URSA)
-         export N_TASKS='--ntasks 240'
-         export TASKS_PER_NODE='--tasks-per-node 48'
-      ;;
-   esac
-
-}
-
 sfs() {
 
    case $machine in
