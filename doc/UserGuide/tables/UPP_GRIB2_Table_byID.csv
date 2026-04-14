@@ -271,7 +271,7 @@ Average precipitation rate,AVE_PRATE_ON_SURFACE,PRATE,271
 Average convective precipitation rate,AVE_CPRAT_ON_SURFACE,CPRAT,272
 Sigma pressure thickness on model surface,PRES_ON_HYBRID_LVL_LLM,PRES,273
 Instantaneous outgoing longwave at top of atmosphere,INST_ULWRF_ON_TOP_OF_ATMOS,ULWRF,274
-Total spectrum brightness temperature,BRTMP_ON_TOP_OF_ATMOS,BRTMP,275
+Total spectrum brightness temperature,BRTMP_ON_TOP_OF_ATMOS,BRTEMP,275
 Composite rain radar reflectivity,REFZR_ON_ENTIRE_ATMOS,REFZR,276
 Composite ice radar reflectivity,REFZI_ON_ENTIRE_ATMOS,REFZI,277
 Composite radar reflectivity from convection,REFZC_ON_ENTIRE_ATMOS,REFZC,278
@@ -296,9 +296,9 @@ Temperature on sigma levels,TMP_ON_SIGMA_LVL_HPC,TMP,296
 Time averaged clear sky incoming UV-B shortwave,AVE_CDUVB_ON_SURFACE,CDUVB,297
 Time averaged incoming UV-B shortwave,AVE_DUVB_ON_SURFACE,DUVB,298
 Total column ozone,TOZNE_ON_ENTIRE_ATMOS_SINGLE_LYR,TOZNE,299
-Average low cloud fraction,AVE_TCDC_ON_LOW_CLOUD_LYR,TCDC,300
-Average mid cloud fraction,AVE_TCDC_ON_MID_CLOUD_LYR,TCDC,301
-Average high cloud fraction,AVE_TCDC_ON_HIGH_CLOUD_LYR,TCDC,302
+Average low cloud fraction,AVE_TCDC_ON_LOW_CLOUD_LYR,LCDC,300
+Average mid cloud fraction,AVE_TCDC_ON_MID_CLOUD_LYR,MCDC,301
+Average high cloud fraction,AVE_TCDC_ON_HIGH_CLOUD_LYR,HCDC,302
 Average low cloud bottom pressure,AVE_PRES_ON_LOW_CLOUD_BOT_LVL,PRES,303
 Average low cloud top pressure,AVE_PRES_ON_LOW_CLOUD_TOP_LVL,PRES,304
 Average low cloud top temperature,AVE_TMP_ON_LOW_CLOUD_TOP_LVL,TMP,305
@@ -421,9 +421,9 @@ Maximum updraft vertical velocity,MAX_MAXUVV_ON_ISOBARIC_SFC_100-1000hpa,MAXUVV,
 Maximum downdraft vertical velocity,MAX_MAXDVV_ON_ISOBARIC_SFC_100-1000hpa,MAXDVV,424
 Mean vertical velocity,AVE_DZDT_ON_SIGMA_LVL_0.5-0.8,DZDT,425
 Radar echo top in KDT,HGT_ON_SPEC_HGT_LVL_ABOVE_GRND,HGT,426
-Updraft helicity,UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,MXUPHL,427
+Updraft helicity,UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km,UPHL,427
 Total column integrated graupel,TCOLG_ON_ENTIRE_ATMOS,TCOLG,428
-Column integrated maximum graupel,MAXVIG_ON_ENTIRE_ATMOS_SINGLE_LYR,TCOLG,429
+Column integrated maximum graupel,MAXVIG_ON_ENTIRE_ATMOS_SINGLE_LYR,MAXVIG,429
 U-component of 0-1km level wind shear,VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,VUCSH,430
 V-component of 0-1km level wind shear,VVCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km,VVCSH,431
 U-component of 0-6km level wind shear,VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-6km,VUCSH,432
@@ -439,7 +439,7 @@ Dust 4 on pressure surface,DUST4_ON_ISOBARIC_LVL,MASSMR,441
 Dust 5 on pressure surface,DUST5_ON_ISOBARIC_LVL,MASSMR,442
 Equilibrium level height,HGT_ON_EQUIL_LVL,HGT,443
 Lightning,LTNG_ON_SURFACE,LTNG,444
-MAPS Sea Level Pressure,MAPS_PRMSL_ON_MEAN_SEA_LVL,PRMSL,445
+MAPS Sea Level Pressure,MAPS_PRMSL_ON_MEAN_SEA_LVL,MSLMA,445
 GOES west channel 2 brightness temperature,SBT112_ON_TOP_OF_ATMOS,SBT112,446
 GOES west channel 3 brightness temperature,SBT113_ON_TOP_OF_ATMOS,SBT113,447
 GOES west channel 4 brightness temperature,SBT114_ON_TOP_OF_ATMOS,SBT114,448
@@ -556,7 +556,7 @@ GFS 2D seasalt aerosol optical depth at 550 nm,SEASALT_AER_OPT_GFS_at550,AOTK,60
 GFS 2D sulfate aerosol optical depth at 550 nm,SULFATE_AER_OPT_GFS_at550,AOTK,603
 GFS 2D organic carbon aerosol optical depth at 550 nm,ORGANIC_CARBON_AER_OPT_GFS_at550,AOTK,604
 GFS 2D black carbon aerosol optical depth at 550 nm,BLACK_CARBON_AER_OPT_GFS_at550,AOTK,605
-Aerosol extinction coefficient on model surface,AECOEF_ON_HYBRID_LVL,AECOEF,606
+Aerosol extinction coefficient on model surface,AECOEF_ON_HYBRID_LVL,AECOFF,606
 Asymmetry factor on model surface,ASYSFK_ON_HYBRID_LVL,ASYSFK,607
 Single scattering albedo on model surface,SSALBK_ON_HYBRID_LVL,SSALBK,608
 Aerosol optical depth at 550nm,AER_OPT_DEP_at550,AOTK,609
@@ -681,7 +681,7 @@ Total column fire smoke,SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,736
 Smoke on model surface,SMOKE_ON_HYBRID_LVL,MASSDEN,737
 Smoke on pressure surface,SMOKE_ON_ISOBARIC_SFC,MASSDEN,738
 Smoke at 8m above ground,SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m,MASSDEN,739
-Instantaneous mean fire radiative power (FRP),MEAN_FIRE_RDIATV_PWR,CFNSF,740
+Instantaneous mean fire radiative power (FRP),MEAN_FIRE_RDIATV_PWR,FRADPOW,740
 Total column dust,DUST_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,741
 Dust on model surface,DUST_ON_HYBRID_LVL,MASSDEN,742
 Dust on pressure surface,DUST_ON_ISOBARIC_SFC,MASSDEN,743
@@ -746,6 +746,8 @@ Simulated GOES 13 channel 2 brightness temperature with satellite angle correcti
 Simulated GOES 15 channel 5 brightness temperature with satellite angle correction,Not currently available for grib2,NA,872
 Seviri brightness temperature channels 5-11,Not currently available for grib2,NA,876
 Hourly max relative vorticity on hybrid level 1,GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1,RELV,890
+Dust emissions,DUST_EMISSIONS,AEMFLX,894
+Total dust on entire atmosphere single layer,TOTAL_DUST_ON_ENTIRE_ATMOS_SINGLE_LYR,COLMD,895
 Virtual temperature on model surfaces,VTMP_ON_HYBRID_LVL,VTMP,909
 Virtual temperature on pressure surfaces,VTMP_ON_ISOBARIC_SFC,VTMP,910
 Virtual temperature on flight levels,VTMP_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL,VTMP,911
