@@ -311,6 +311,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity
 !
+          Zice=Zice+Zsmice
           Ztot=Zrain+Zice+Zconv
           IF (Ztot > Zmin)  DBZ1(I,J)= 10.*ALOG10(Ztot)
           IF (Zrain > Zmin) DBZR1(I,J)=10.*ALOG10(Zrain)
