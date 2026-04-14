@@ -287,7 +287,6 @@ no_hail:      IF (.NOT. HAIL) THEN
             if (NLICE1(I,J) /= 0.0) Zice=Cice*RQLICE*RQLICE/NLICE1(I,J)
             IF (TC>=0.) Zice=Cwet*Zice      ! increased for wet ice
           ENDIF                 ! End IF (QI1(I,J) > 0.) THEN
-        ENDIF ! END IF C1D(I,J)>EPSQ THEN
 !
 !--- Assumed enhanced radar reflectivity when rain and ice coexist
 !    above an assumed threshold mass content, RQmix
@@ -308,6 +307,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
               ENDIF
             ENDIF
           ENDIF  dbz_mix
+        ENDIF ! END IF C1D(I,J)>EPSQ
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity
 !
