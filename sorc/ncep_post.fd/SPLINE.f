@@ -2,27 +2,28 @@
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       SUBROUTINE SPLINE(JTB,NOLD,XOLD,YOLD,Y2,NNEW,XNEW,YNEW,P,Q)
 !     ******************************************************************
-!     * *
-!     * THIS IS A ONE-DIMENSIONAL CUBIC SPLINE FITTING ROUTINE        *
-!     * PROGRAMED FOR A SMALL SCALAR MACHINE.                         *
-!     * *
-!     * PROGRAMER Z. JANJIC, YUGOSLAV FED. HYDROMET. INST., BEOGRAD   *
-!     * *
-!     * *
-!     * NOLD - NUMBER OF GIVEN VALUES OF THE FUNCTION.  MUST BE GE 3. *
-!     * XOLD - LOCATIONS OF THE POINTS AT WHICH THE VALUES OF THE     *
-!     * FUNCTION ARE GIVEN.  MUST BE IN ASCENDING ORDER.       *
-!     * YOLD - THE GIVEN VALUES OF THE FUNCTION AT THE POINTS XOLD.   *
-!     * Y2   - THE SECOND DERIVATIVES AT THE POINTS XOLD.  IF NATURAL *
-!     * SPLINE IS FITTED Y2(1)=0. AND Y2(NOLD)=0. MUST BE      *
-!     * SPECIFIED.                                             *
-!     * NNEW - NUMBER OF VALUES OF THE FUNCTION TO BE CALCULATED.     *
-!     * XNEW - LOCATIONS OF THE POINTS AT WHICH THE VALUES OF THE     *
-!     * FUNCTION ARE CALCULATED.  XNEW(K) MUST BE GE XOLD(1)   *
-!     * AND LE XOLD(NOLD).                                     *
-!     * YNEW - THE VALUES OF THE FUNCTION TO BE CALCULATED.           *
-!     * P, Q - AUXILIARY VECTORS OF THE LENGTH NOLD-2.                *
-!     * *
+!     *                                                                *
+!     *  THIS IS A ONE-DIMENSIONAL CUBIC SPLINE FITTING ROUTINE        *
+!     *  PROGRAMED FOR A SMALL SCALAR MACHINE.                         *
+!     *                                                                *
+!     *  PROGRAMER Z. JANJIC, YUGOSLAV FED. HYDROMET. INST., BEOGRAD  *
+!     *                                                                *
+!     *                                                                *
+!     *                                                                *
+!     *  NOLD - NUMBER OF GIVEN VALUES OF THE FUNCTION.  MUST BE GE 3. *
+!     *  XOLD - LOCATIONS OF THE POINTS AT WHICH THE VALUES OF THE     *
+!     *         FUNCTION ARE GIVEN.  MUST BE IN ASCENDING ORDER.       *
+!     *  YOLD - THE GIVEN VALUES OF THE FUNCTION AT THE POINTS XOLD.   *
+!     *  Y2   - THE SECOND DERIVATIVES AT THE POINTS XOLD.  IF NATURAL *
+!     *         SPLINE IS FITTED Y2(1)=0. AND Y2(NOLD)=0. MUST BE      *
+!     *         SPECIFIED.                                             *
+!     *  NNEW - NUMBER OF VALUES OF THE FUNCTION TO BE CALCULATED.     *
+!     *  XNEW - LOCATIONS OF THE POINTS AT WHICH THE VALUES OF THE     *
+!     *         FUNCTION ARE CALCULATED.  XNEW(K) MUST BE GE XOLD(1)   *
+!     *         AND LE XOLD(NOLD).                                     *
+!     *  YNEW - THE VALUES OF THE FUNCTION TO BE CALCULATED.           *
+!     *  P, Q - AUXILIARY VECTORS OF THE LENGTH NOLD-2.                *
+!     *                                                                *
 !     ******************************************************************
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
