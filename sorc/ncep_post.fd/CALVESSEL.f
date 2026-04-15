@@ -49,7 +49,7 @@
           endif
 
 !  CALCULATE ICE GROWTH
-          PR(i,j)=SPD10(i,j)*(-1.7-TSHLTR_C)/(1.+.4*(SST_C+1.7))
+          PR(i,j)=SPD10(i,j)*(-1.7-TSHLTR_C)/(1.+.3*(SST_C+1.7))
           ICEG(i,j)=(2.73E-02)*PR(i,j)+(2.91E-04)*PR(i,j)*PR(i,j) &
                    +(1.84E-06)*PR(i,j)**3
 
