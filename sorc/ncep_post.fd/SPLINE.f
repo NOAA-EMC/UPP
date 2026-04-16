@@ -35,8 +35,8 @@
       real,dimension(JTB),intent(out) ::  YNEW
 !
       integer NOLDM1,K,K1,K2,KOLD
-      real DXL,DXR,DYDXL,DYDXR,RTDXC,DXC,DEN,XK,Y2K,Y2KP1,DX,RDX,       &
-            Ak,BK,CK,X,XSQ
+      real DXL,DXR,DYDXL,DYDXR,RTDXC,DXC,DEN,XK,Y2K,Y2KP1,DX,RDX,      &
+           Ak,BK,CK,X,XSQ
 !-----------------------------------------------------------------------
       NOLDM1=NOLD-1
 !
@@ -49,9 +49,11 @@
       P(1)= RTDXC*(6.*(DYDXR-DYDXL)-DXL*Y2(1))
       Q(1)=-RTDXC*DXR
 !
+      IF(NOLD==3) GO TO 700
 !-----------------------------------------------------------------------
-      DO K=3, NOLD-1
-      DXL=DXR
+      K=3
+!
+ 100  DXL=DXR
       DYDXL=DYDXR
       DXR=XOLD(K+1)-XOLD(K)
       DYDXR=(YOLD(K+1)-YOLD(K))/DXR
@@ -60,47 +62,55 @@
 !
       P(K-1)= DEN*(6.*(DYDXR-DYDXL)-DXL*P(K-2))
       Q(K-1)=-DEN*DXR
-      END DO
-!-----------------------------------------------------------------------
-      DO K=NOLDM1, 2, -1
-      Y2(K)=P(K-1)+Q(K-1)*Y2(K+1)
-      END DO
-!-----------------------------------------------------------------------
-      K=0
-      DO K1=1,NNEW
-      XK=XNEW(K1)
 !
-      KOLD=0
-      DO K2=2,NOLD
-      IF(XOLD(K2)>XK) THEN
+      K=K+1
+      IF(K<NOLD) GO TO 100
+!-----------------------------------------------------------------------
+ 700  K=NOLDM1
+!
+ 200  Y2(K)=P(K-1)+Q(K-1)*Y2(K+1)
+!
+      K=K-1
+      IF(K>1) GO TO 200
+!-----------------------------------------------------------------------
+      K1=1
+!
+ 300  XK=XNEW(K1)
+!
+      DO 400 K2=2,NOLD
+      IF(XOLD(K2)<=XK) GO TO 400
       KOLD=K2-1
-      EXIT
-      ENDIF
-      END DO
-!
-      IF(KOLD==0) THEN
+      GO TO 450
+ 400  CONTINUE
       YNEW(K1)=YOLD(NOLD)
-      CYCLE
-      ENDIF
+      GO TO 600
 !
-      IF(K/=KOLD) THEN
-      K=KOLD
+ 450  IF(K1==1)   GO TO 500
+      IF(K==KOLD) GO TO 550
+!
+ 500  K=KOLD
 !
       Y2K=Y2(K)
       Y2KP1=Y2(K+1)
       DX=XOLD(K+1)-XOLD(K)
       RDX=1./DX
 !
+!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+!     WRITE(6,5000) K,Y2K,Y2KP1,DX,RDX,YOLD(K),YOLD(K+1)
+!5000 FORMAT(' K=',I4,' Y2K=',E12.4,' Y2KP1=',E12.4,' DX=',E12.4,' RDX='
+!    2,E12.4,' YOK=',E12.4,' YOP1=',E12.4)
+!AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       AK=.1666667*RDX*(Y2KP1-Y2K)
       BK=.5*Y2K
       CK=RDX*(YOLD(K+1)-YOLD(K))-.1666667*DX*(Y2KP1+Y2K+Y2K)
-      ENDIF
 !
-      X=XK-XOLD(K)
+ 550  X=XK-XOLD(K)
       XSQ=X*X
 !
       YNEW(K1)=AK*XSQ*X+BK*XSQ+CK*X+YOLD(K)
-      END DO
+!
+ 600  K1=K1+1
+      IF(K1<=NNEW) GO TO 300
 !-----------------------------------------------------------------------
                               RETURN
                               END
