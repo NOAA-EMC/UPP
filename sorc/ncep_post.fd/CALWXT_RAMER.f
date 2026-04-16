@@ -233,113 +233,104 @@
       END IF
 !
 !     Loop downward through sounding from highest precip generating level.
-      k1_start = k1
-      falling_loop: DO k1 = k1_start, 1, -1
-          skip_level = .false.
-
-          IF (trace) PRINT *, ptop, twtop - 273.15, icefrac,'me=',me
-          IF (trace) WRITE (*,*) 'P,Tw,frac,twq(I,J,k1)', ptop,              &
-     &        twtop - 273.15, icefrac, twq(I,J,k1),'me=',me
-          IF (icefrac>=1.0) THEN  !  starting as all ice
-              IF (trace) WRITE (*,*) 'ICEFRAC=1', icefrac
-              IF (twq(I,J,k1)<twmelt .or. twq(I,J,k1)==twtop) THEN
-                  skip_level = .true.
-              ELSE
-                  wgt1 = (twmelt-twq(I,J,k1)) / (twtop-twq(I,J,k1))
-                  rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
-                  dtavg = (twmelt-twq(I,J,k1)) / 2
-                  dpk = wgt1 * alog(pq(I,J,k1)/ptop) 
-                  mye = emelt * rhavg ** efac
-                  icefrac = icefrac + dpk * dtavg / mye
-                  IF (trace) WRITE (*,*)                                     &
-     &                'HERE8: wgt1,rhavg,dtavg,dpk,mye,icefrac', wgt1,       &
-     &                rhavg, dtavg, dpk, mye, icefrac,'me=',me
-              END IF
-          ELSE IF (icefrac<=0.0) THEN      !  starting as all liquid
-              IF (trace) WRITE (*,*) 'HERE9: twtop,twq(I,J,k1),k1,lll'       &
-     &            , twtop, twq(I,J,k1), k1, lll
-              lll = 1
-              IF (twq(I,J,k1)>twice) THEN
-                  skip_level = .true.
-              ELSE
-                  IF (twq(I,J,k1)==twtop) THEN
-                      wgt1 = 0.5
-                  ELSE
-                      wgt1 = (twice-twq(I,J,k1)) / (twtop-twq(I,J,k1))
-                  END IF
-                  rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
-                  dtavg = twmelt - (twq(I,J,k1)+twice) / 2
-                  dpk = wgt1 * alog(pq(I,J,k1)/ptop) 
-                  mye = emelt * rhavg ** efac
-                  icefrac = icefrac + dpk * dtavg / mye
-                  IF (trace) WRITE (*,*)                                     &
-     &                'HERE10: wgt1,rhtop,rhq(I,J,k1),dtavg',                &
-     &                wgt1, rhtop, rhq(I,J,k1), dtavg,'me=',me
-              END IF
-          ELSE IF ((twq(I,J,k1)<=twmelt).and.(twq(I,J,k1)<twmelt)) THEN ! mix
-              rhavg = (rhq(I,J,k1)+rhtop) / 2
-              dtavg = twmelt - (twq(I,J,k1)+twtop) / 2
-              dpk = alog(pq(I,J,k1)/ptop)  
-              mye = emelt * rhavg ** efac
-              icefrac = icefrac + dpk * dtavg / mye
-              IF (trace) WRITE (*,*) 'HERE11: twq(i,j,K1),twtop',            &
-     &            twq(i,j,k1),twtop,'me=',me
-          ELSE      ! mix where Tw curve crosses twmelt in layer
-              IF (twq(I,J,k1)==twtop) THEN
-                  skip_level = .true.
-              ELSE
-                  wgt1 = (twmelt-twq(I,J,k1)) / (twtop-twq(I,J,k1))
-                  wgt2 = 1.0 - wgt1
-                  rhavg = rhtop + wgt2 * (rhq(I,J,k1)-rhtop) / 2
-                  dtavg = (twmelt-twtop) / 2
-                  dpk = wgt2 * alog(pq(I,J,k1)/ptop)   
-                  mye = emelt * rhavg ** efac
-                  icefrac = icefrac + dpk * dtavg / mye
-                  icefrac = amin1(1.0,amax1(icefrac,0.0))
-                  IF (trace) WRITE (*,*)                                     &
-     &                'HERE12: twq(I,J,k1),twtop,icefrac,wgt1,wgt2,',        &
-     &                'rhavg,rhtop,rhq(I,J,k1),dtavg,k1',                    &
-     &                 twq(I,J,k1), twtop,                                   &
-     &                icefrac,wgt1,wgt2, rhavg, rhtop, rhq(I,J,k1),          &
-     &                dtavg, k1 ,'me=',me  
-                  IF (icefrac<=0.0) THEN
-                      IF (twq(I,J,k1)>twice) THEN
-                          skip_level = .true.
-                      ELSE
-                          wgt1 = (twice-twq(I,J,k1)) / (twtop-twq(I,J,k1))
-                          dtavg = twmelt - (twq(I,J,k1)+twice) / 2
-                          IF (trace) WRITE (*,*) 'IN IF','me=',me
-                      END IF
-                  ELSE
-                      dtavg = (twmelt-twq(I,J,k1)) / 2
-                      IF (trace) WRITE (*,*) 'IN ELSE','me=',me
-                  END IF
-                  IF (.not. skip_level) THEN
-                      IF (trace) WRITE (*,*) 'NEW ICE FRAC CALC','me=',me
-                      rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
-                      dpk = wgt1 * alog(pq(I,J,k1)/ptop) 
-                      mye = emelt * rhavg ** efac
-                      icefrac = icefrac + dpk * dtavg / mye
-                      IF (trace) WRITE (*,*) 'HERE13: icefrac,k1,dtavg',     &
-     &                    ',rhavg', icefrac, k1, dtavg, rhavg,'me=',me
-                  END IF
-              END IF
+   30 CONTINUE
+!
+      IF (trace) PRINT *, ptop, twtop - 273.15, icefrac,'me=',me
+      IF (trace) WRITE (*,*) 'P,Tw,frac,twq(I,J,k1)', ptop,             &
+     &    twtop - 273.15, icefrac, twq(I,J,k1),'me=',me
+      IF (icefrac>=1.0) THEN  !  starting as all ice
+          IF (trace) WRITE (*,*) 'ICEFRAC=1', icefrac
+!          print *, 'twq twmwelt twtop ', twq(I,J,k1), twmelt, twtop
+          IF (twq(I,J,k1)<twmelt) GO TO 40       ! cannot commence melting
+          IF (twq(I,J,k1)==twtop) GO TO 40        ! both equal twmelt, nothing h
+          wgt1 = (twmelt-twq(I,J,k1)) / (twtop-twq(I,J,k1))
+          rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
+          dtavg = (twmelt-twq(I,J,k1)) / 2
+          dpk = wgt1 * alog(pq(I,J,k1)/ptop)        !lin   dpk=wgt1*(Pq(k1)-Ptop)
+!         mye=emelt*(1.0-(1.0-Rhavg)*efac)
+          mye = emelt * rhavg ** efac
+          icefrac = icefrac + dpk * dtavg / mye
+          IF (trace) WRITE (*,*)                                       &
+     &        'HERE8: wgt1,rhavg,dtavg,dpk,mye,icefrac', wgt1, rhavg,   &
+     &        dtavg, dpk, mye, icefrac,'me=',me
+      ELSE IF (icefrac<=0.0) THEN     !  starting as all liquid
+          IF (trace) WRITE (*,*) 'HERE9: twtop,twq(I,J,k1),k1,lll'     &
+     &    , twtop, twq(I,J,k1), k1, lll
+          lll = 1
+!         If (Twq(I,J,k1)<=Twice) icefrac=1.0 ! autoconvert
+!         Goto 1020
+          IF (twq(I,J,k1)>twice) GO TO 40        ! cannot commence freezing
+          IF (twq(I,J,k1)==twtop) THEN
+              wgt1 = 0.5
+          ELSE
+              wgt1 = (twice-twq(I,J,k1)) / (twtop-twq(I,J,k1))
           END IF
-
-          IF (.not. skip_level) THEN
-              icefrac = amin1(1.0,amax1(icefrac,0.0))
-              IF (i==1.and.j==1) WRITE (*,*) 'NEW ICEFRAC:',                 &
-     &            icefrac, icefrac,'me=',me
+          rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
+          dtavg = twmelt - (twq(I,J,k1)+twice) / 2
+          dpk = wgt1 * alog(pq(I,J,k1)/ptop)      !lin  dpk=wgt1*(Pq(k1)-Ptop)
+!         mye=emelt*(1.0-(1.0-Rhavg)*efac)
+          mye = emelt * rhavg ** efac
+          icefrac = icefrac + dpk * dtavg / mye
+          IF (trace) WRITE (*,*) 'HERE10: wgt1,rhtop,rhq(I,J,k1),dtavg', &
+              wgt1, rhtop, rhq(I,J,k1), dtavg,'me=',me
+      ELSE IF ((twq(I,J,k1)<=twmelt).and.(twq(I,J,k1)<twmelt)) THEN ! mix
+          rhavg = (rhq(I,J,k1)+rhtop) / 2
+          dtavg = twmelt - (twq(I,J,k1)+twtop) / 2
+          dpk = alog(pq(I,J,k1)/ptop)       !lin   dpk=Pq(I,J,k1)-Ptop
+!         mye=emelt*(1.0-(1.0-Rhavg)*efac)
+          mye = emelt * rhavg ** efac
+          icefrac = icefrac + dpk * dtavg / mye
+           
+          IF (trace) WRITE (*,*) 'HERE11: twq(i,j,K1),twtop',        &
+              twq(i,j,k1),twtop,'me=',me
+      ELSE      ! mix where Tw curve crosses twmelt in layer
+          IF (twq(I,J,k1)==twtop) GO TO 40   ! both equal twmelt, nothing h
+          wgt1 = (twmelt-twq(I,J,k1)) / (twtop-twq(I,J,k1))
+          wgt2 = 1.0 - wgt1
+          rhavg = rhtop + wgt2 * (rhq(I,J,k1)-rhtop) / 2
+          dtavg = (twmelt-twtop) / 2
+          dpk = wgt2 * alog(pq(I,J,k1)/ptop)     !lin   dpk=wgt2*(Pq(k1)-Ptop)
+!         mye=emelt*(1.0-(1.0-Rhavg)*efac)
+          mye = emelt * rhavg ** efac
+          icefrac = icefrac + dpk * dtavg / mye
+          icefrac = amin1(1.0,amax1(icefrac,0.0))
+          IF (trace) WRITE (*,*) 'HERE12: twq(I,J,k1),twtop,icefrac,wgt1,wg'//  &
+              't2,rhavg,rhtop,rhq(I,J,k1),dtavg,k1', &
+               twq(I,J,k1), twtop,       &
+              icefrac,wgt1,wgt2, rhavg, rhtop, rhq(I,J,k1), dtavg, k1 ,'me=',me  
+          IF (icefrac<=0.0) THEN
+!             If (Twq(I,J,k1)<=Twice) icefrac=1.0 ! autoconvert
+!             Goto 1020
+              IF (twq(I,J,k1)>twice) GO TO 40    ! cannot commence freezin
+              wgt1 = (twice-twq(I,J,k1)) / (twtop-twq(I,J,k1))
+              dtavg = twmelt - (twq(I,J,k1)+twice) / 2
+              IF (trace) WRITE (*,*) 'IN IF','me=',me
+          ELSE
+              dtavg = (twmelt-twq(I,J,k1)) / 2
+              IF (trace) WRITE (*,*) 'IN ELSE','me=',me
           END IF
-
-          ! Get next level down if there is one, loop back.
-          IF (k1>1) THEN
-              IF (trace) WRITE (*,*) 'LOOPING BACK','me=',me
-              twtop = twq(I,J,k1)
-              ptop = pq(I,J,k1)
-              rhtop = rhq(I,J,k1)
-          END IF
-      END DO falling_loop
+          IF (trace) WRITE (*,*) 'NEW ICE FRAC CALC','me=',me
+          rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
+          dpk = wgt1 * alog(pq(I,J,k1)/ptop)     !lin  dpk=wgt1*(Pq(k1)-Ptop)
+!         mye=emelt*(1.0-(1.0-Rhavg)*efac)
+          mye = emelt * rhavg ** efac
+          icefrac = icefrac + dpk * dtavg / mye
+          IF (trace) WRITE (*,*) 'HERE13: icefrac,k1,dtavg,rhavg',      &
+              icefrac, k1, dtavg, rhavg,'me=',me
+      END IF
+!
+      icefrac = amin1(1.0,amax1(icefrac,0.0))
+      IF (i==1.and.j==1) WRITE (*,*) 'NEW ICEFRAC:', icefrac, icefrac,'me=',me
+!
+!     Get next level down if there is one, loop back.
+   40 IF (k1>1) THEN
+          IF (trace) WRITE (*,*) 'LOOPING BACK','me=',me
+          twtop = twq(I,J,k1)
+          ptop = pq(I,J,k1)
+          rhtop = rhq(I,J,k1)
+          k1 = k1 - 1
+          GO TO 30
+      END IF
 !
 !
 !     Determine precip type based on snow fraction and surface wet-bulb.
@@ -383,9 +374,8 @@
       END IF
       IF (trace) WRITE (*,*) "Returned ptyp is:ptyp,lll ", ptyp, lll,'me=',me
       IF (trace) WRITE (*,*) "Returned icefrac is: ", icefrac,'me=',me
-      END DO
-      END DO
-
+      ENDDO
+      ENDDO
       RETURN
 !
       END
