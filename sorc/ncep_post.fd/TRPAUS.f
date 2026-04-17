@@ -99,16 +99,18 @@
         TLAPSE(L) = -DELT/DZ
 !
         IF ((TLAPSE(L)<CRTLAP).AND.(PM<PSTART)) THEN 
-          IF (L == 2 .AND. TLAPSE(L) < CRTLAP) GOTO 15
+          IF (L == 2 .AND. TLAPSE(L) < CRTLAP) THEN
+            ! Already found
+          ELSE
           DZ2(L+1) = 0.
 !
-          DO 17 LL=L,3,-1
+          loopLL: DO LL=L,3,-1
           DZ2(LL) = 0.
           DELT2(LL) = 0.
           TLAPSE2(LL) = 0.
           DZ2(LL) = (2./3.)*(ZINT(I,J,LL-2)-ZINT(I,J,L+1))
           IF ((DZ2(LL) > 2000.) .AND.                    &
-              (DZ2(LL+1) > 2000.)) GO TO 15
+              (DZ2(LL+1) > 2000.)) EXIT loopLL
           DELT2(LL) = T(I,J,LL-2)-T(I,J,L)
           TLAPSE2(LL) = -DELT2(LL)/DZ2(LL)
 !
@@ -116,12 +118,13 @@
             CYCLE loopL
           ENDIF
 !
-   17     CONTINUE 
+          END DO loopLL
+          ENDIF ! L==2
         ELSE
           CYCLE loopL
         ENDIF 
 !
-   15   PTROP(I,J)  = D50*(PINT(I,J,L)+PINT(I,J,L+1))
+        PTROP(I,J)  = D50*(PINT(I,J,L)+PINT(I,J,L+1))
         TTROP(I,J)  = T(I,J,L)
         ZTROP(I,J)= 0.5*(ZINT(I,J,L)+ZINT(I,J,L+1))
 !
