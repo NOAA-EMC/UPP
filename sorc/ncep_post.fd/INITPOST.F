@@ -109,6 +109,9 @@
       INTEGER IDUMMY ( IM, JM )
       REAL,allocatable ::  DUM3D ( :, :, : )
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
+      real :: PT_tmp3d(1,1,1)
+      real, allocatable :: SLLEVEL_tmp(:,:,:)
+      real, allocatable :: SLDPTH_tmp(:,:,:)
         real, allocatable::  pvapor(:,:)
         real, allocatable::  pvapor_orig(:,:)      
       REAL, ALLOCATABLE :: THV(:,:,:)
@@ -799,8 +802,9 @@
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY2,       &
         IM,1,JM,1,IM,JS,JE,1)
       VarName='P_TOP'
-      call getVariable(fileName,DateStr,DataHandle,VarName,PT,           & 
+      call getVariable(fileName,DateStr,DataHandle,VarName,PT_tmp3d,    & 
         1,1,1,1,1,1,1,1)
+      PT = PT_tmp3d(1,1,1)
 
          DO I=1,IM
             DO J=JS,JE
@@ -1428,12 +1432,18 @@ endif  ! 1==2
 
       ! RUC LSM - use depths of center of soil layer
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
-       call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
+       allocate(SLLEVEL_tmp(NSOIL,1,1))
+       call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL_tmp,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
+       SLLEVEL(:) = SLLEVEL_tmp(:,1,1)
+       deallocate(SLLEVEL_tmp)
        print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
       ELSE
-       call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
+       allocate(SLDPTH_tmp(NSOIL,1,1))
+       call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH_tmp,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
+       SLDPTH(:) = SLDPTH_tmp(:,1,1)
+       deallocate(SLDPTH_tmp)
        print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
       END IF
 
