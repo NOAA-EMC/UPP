@@ -107,6 +107,7 @@
       REAL DUMMY2 ( IM, JM )
       real, allocatable::  msft(:,:)
       INTEGER IDUMMY ( IM, JM )
+      integer :: NPHS_tmp(1,1,1)
       REAL,allocatable ::  DUM3D ( :, :, : )
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
       real :: PT_tmp3d(1,1,1)
@@ -2965,8 +2966,9 @@ endif  ! 1==2
 
 ! physics calling frequency
       VarName='STEPBL'
-      call getIVariableN(fileName,DateStr,DataHandle,VarName,NPHS,       &
+  call getIVariableN(fileName,DateStr,DataHandle,VarName,NPHS_tmp,   &
         1,1,1,1,1,1,1,1)
+  NPHS = NPHS_tmp(1,1,1)
      
 
 !        ncdump -h
