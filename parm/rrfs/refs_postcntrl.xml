@@ -837,6 +837,13 @@
        </param>
 
        <param>
+       <shortname>DPT_ON_HYBRID_LVL</shortname>
+       <pname>DPT</pname>
+       <level>1.</level>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
        <shortname>SPFH_ON_HYBRID_LVL</shortname>
        <pname>SPFH</pname>
        <level>1.</level>
