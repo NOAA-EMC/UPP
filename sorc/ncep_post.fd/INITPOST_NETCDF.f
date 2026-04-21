@@ -68,6 +68,7 @@
 !> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
 !> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
+!> 2026-03-09 | Eric James    | Add reading in of total dust emissions.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -117,7 +118,8 @@
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, &
-              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m, &
+              mean_frp, emdust
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1117,6 +1119,16 @@
       call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,coarsepm_ave(ista_2l,jsta_2l))
      if(debugprint)print*,'sample ',VarName,' =',coarsepm_ave(isa,jsa)
+! fire radiative power
+      VarName='frp_output'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,mean_frp(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',mean_frp(isa,jsa)
+! dust emissions
+      VarName='emdust'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,emdust(ista_2l,jsta_2l))
+     if(debugprint)print*,'sample ',VarName,' =',emdust(isa,jsa)
       endif
 
 ! lightning threat index 1

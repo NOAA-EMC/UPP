@@ -118,14 +118,11 @@
           Zice=0.             !--- Radar reflectivity from ice
           Zsmice=0.           !--- Radar reflectivity from small ice
           Zconv=CUREFL(I,J)   !--- Radar reflectivity from convection
-          IF (C1D(I,J) <= EPSQ) THEN
+          IF (C1D(I,J) > EPSQ) THEN
 !
 !--- Skip rest of calculatiions if no condensate is present
 !
-            GO TO 10
-          ELSE
             WC=C1D(I,J)
-          ENDIF
 !
 !--- Code below is from GSMDRIVE for determining:
 !    QI1 - total ice (cloud ice & snow) mixing ratio
@@ -310,10 +307,11 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
               ENDIF
             ENDIF
           ENDIF  dbz_mix
+        ENDIF ! END IF C1D(I,J)>EPSQ
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity
 !
-10        Zice=Zice+Zsmice
+          Zice=Zice+Zsmice
           Ztot=Zrain+Zice+Zconv
           IF (Ztot > Zmin)  DBZ1(I,J)= 10.*ALOG10(Ztot)
           IF (Zrain > Zmin) DBZR1(I,J)=10.*ALOG10(Zrain)
@@ -414,14 +412,11 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
           Zrain=0.            !--- Radar reflectivity from rain
           Zice=0.             !--- Radar reflectivity from ice
           Zconv=CUREFL(I,J)   !--- Radar reflectivity from convection
-          IF (C1D(I,J) <= EPSQ) THEN
+          IF (C1D(I,J) > EPSQ) THEN
 !
 !--- Skip rest of calculatiions if no condensate is present
 !
-            GO TO 10
-          ELSE
             WC=C1D(I,J)
-          ENDIF
 !
 !--- Code below is from GSMDRIVE for determining:
 !    QI1 - total ice (cloud ice & snow) mixing ratio
@@ -564,9 +559,10 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
    !
             Zice=Cice*RHO*RHO*QLICE*QLICE/NLICE1(I,J)
           ENDIF                 ! End IF (QI1(I,J) > 0.) THEN
+          ENDIF ! End IF (C1D(I,J) > EPSQ) THEN
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity
-10        Ztot=Zrain+Zice+Zconv
+          Ztot=Zrain+Zice+Zconv
           IF (Ztot > Zmin)  DBZ1(I,J)= 10.*ALOG10(Ztot)
           IF (Zrain > Zmin) DBZR1(I,J)=10.*ALOG10(Zrain)
           IF (Zice > Zmin)  DBZI1(I,J)=10.*ALOG10(Zice)

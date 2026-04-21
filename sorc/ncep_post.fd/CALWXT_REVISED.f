@@ -12,6 +12,7 @@
 !                TO MAKE AN ALTERNATE ALGORITHM 
 !     19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     21-10-31  JESSE MENG - 2D DECOMPOSITION
+!     26-03-27  Alyson Stahl - Remove shared DO termination labels
 !                              
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING A DECISION TREE
@@ -88,8 +89,8 @@
 !
 !!$omp  parallel do
 !!$omp& private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
-      DO 800 J=JSTA,JEND
-      DO 800 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
       LMHK=NINT(LMH(I,J))
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
@@ -141,12 +142,13 @@
         jcontinue=.false.
       ENDIF
       enddo     ! enddo jcontinue
-  800 CONTINUE
+      ENDDO
+      ENDDO
 !
 !    LOWEST LAYER T
 !
-      DO 850 J=JSTA,JEND
-      DO 850 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
       KARR(I,J)=0
       IF (PREC(I,J)<=PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
@@ -174,7 +176,8 @@
           ENDIF
       ENDIF
       KARR(I,J)=1
-  850 CONTINUE
+      ENDDO
+      ENDDO
 !
 !   COMPUTE WET BULB ONLY AT POINTS THAT NEED IT
 !
@@ -184,8 +187,8 @@
 !!$omp& private(area1,areap4,areap0,areas8,dzkl,ifrzl,iwrml,lice,
 !!$omp&         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,
 !!$omp&         tlmhk,twrmk)
-      DO 1900 J=JSTA,JEND
-      DO 1900 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
       IF(KARR(I,J)>0)THEN
         LMHK=NINT(LMH(I,J))
         LICE=LICEE(I,J)
@@ -307,7 +310,8 @@
           IWX(I,J)=IWX(I,J)+8
         ENDIF
       ENDIF
- 1900 CONTINUE
+      ENDDO
+      ENDDO
 !      print *, 'revised check ', IWX(500,800)
 
 !---------------------------------------------------------

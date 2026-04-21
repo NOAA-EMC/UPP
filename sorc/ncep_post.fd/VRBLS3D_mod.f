@@ -62,7 +62,7 @@
       ,EXCH_H(:,:,:) &     !< Exchange coefficient
       ,TRAIN(:,:,:) &      !< Temperature tendency due to latent heating from grid scale
       ,TCUCN(:,:,:) &      !< Temperature tendency due to latent heating from convection
-      ,EL_PBL(:,:,:)  &    !< Mixing length ?
+      ,EL_PBL(:,:,:)  &    !< Mixing length
       ,MCVG(:,:,:) &       !< Moisture convergence
       ,EXTCOF55(:,:,:) &   !< Unified extinction ext550/Aerosol optical depth
       ,NLICE(:,:,:) &      !< Time-averaged number concentration of large ice

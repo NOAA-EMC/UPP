@@ -1,15 +1,17 @@
 #!/bin/bash
 ######################################################################
 # This script is desined for UPP regression tests run by UPP developer.
-# Wen Meng, 12/2020, First version.
-# Fernando Andrade-Maldonado 5/2023 rework for CLI Options
-# Fernando Andrade-Maldonado / Wen Meng 9/2023 Add Hercules, fix typos, and refactor
-# Fernando Andrade-Maldonado 4/2024 Additional Log info
-# Wen Meng 05/2025 Refactor to support WCOSS2 and R&D machines
-# Sam Trahan 06/2025 Add usage message, Ursa support, and multi-compiler support
-# Gillian Petro 06/2025 Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
-# Wen Meng and Ben Blake, 07/2025, Update test names, add RRFS, MPAS, DAFS, SFS tests
-# Ben Blake, 12/2025, Remove Hera support
+# Wen Meng                   12/2020  First version.
+# Fernando Andrade-Maldonado 05/2023  rework for CLI Options
+# Fernando Andrade-Maldonado / Wen Meng 
+#                            09/2023  Add Hercules, fix typos, and refactor
+# Fernando Andrade-Maldonado 04/2024  Additional Log info
+# Wen Meng                   05/2025  Refactor to support WCOSS2 and R&D machines
+# Sam Trahan                 06/2025  Add usage message, Ursa support, and multi-compiler support
+# Gillian Petro              06/2025  Update to spack-stack 1.9.1; require compiler indication on Orion/Hercules
+# Wen Meng / Ben Blake       07/2025  Update test names, add RRFS, MPAS, DAFS, SFS tests
+# Ben Blake                  12/2025  Remove Hera support
+# Ben Blake                  04/2026  Remove RRFS IFI support
 ######################################################################
 set -xue
 SECONDS=0
@@ -91,7 +93,7 @@ check_for_dash() {
 }
 
 # Space required at start and and of string for pattern matching in check_valid_tests
-valid_tests=' sfs aqm gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip gcafs rrfs rrfs_ifi_missing gfs '
+valid_tests=' sfs aqm gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip gcafs rrfs gfs '
 
 check_valid_tests() {
    local tests=${@}

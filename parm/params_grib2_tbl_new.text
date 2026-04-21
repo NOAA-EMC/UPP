@@ -26,6 +26,13 @@
 !2025-05-14         B. BLAKE         Added new parameters
 !2025-06-11         B. BLAKE         Added new parameters
 !2025-08-04         B. BLAKE         Added new parameters
+!2025-09-17         B. BLAKE         Added new parameter
+!2025-10-01         B. BLAKE         Added new parameters, and
+!                                    new tables 4.2-2-7,4.2-20-4,
+!                                    4.2-20-5,4.2-191-0
+!2025-11-24         B. BLAKE         Added new parameters
+!2026-01-29         B. BLAKE         Added new parameters
+!2026-03-03         B. BLAKE         Added new parameter
 !
 !
 !GRIB2 parameter table for all disciplines and categories
@@ -275,6 +282,9 @@
 !  Added New Parameters 12/15/2023
    0   1   168   0 SSPFHW
    0   1   169   0 TCISSPFHW
+!  Added new parameters on 11/24/2025
+   0   1   170   0 MEANHAIL
+   0   1   171   0 MAXHAIL
 !  NCEP Local use
    0   1   192   1 CRAIN
    0   1   193   1 CFRZR
@@ -410,6 +420,9 @@
    0   2    65   0 NRTHTSSOD
    0   2    66   0 EASTTSSSR
    0   2    67   0 NRTHTSSSR
+!  Added new parameters on 10/1/2025
+   0   2    68   0 CNVGUST
+   0   2    69   0 TURBGUST
 !  NCEP Local use
    0   2   192   1 VWSH
    0   2   193   1 MFLX
@@ -585,6 +598,9 @@
    0   4    59   0 UVBDIRV
    0   4    60   0 PHOARFCS
    0   4    61   0 DSWRFLXCS
+!  Added new parameters on 10/1/2025
+   0   4    62   0 DNSWRFLXCS
+   0   4    63   0 DFSWRFLXCS
 !  NCEP Local use
    0   4   192   1 DSWRF
    0   4   193   1 USWRF
@@ -696,6 +712,8 @@
    0   6   199   1 FICE
    0   6   200   1 MFLUX
    0   6   201   1 SUNSD
+! Added new parameter on 9/17/2025
+   0   6   202   1 FOGLWC
 !
 ! GRIB2 - TABLE 4.2-0-7 PARAMETERS FOR DISCIPLINE 0 CATEGORY 7
 !
@@ -722,6 +740,9 @@
    0   7    19   0 CONAPES
 !  Added new parameter 11/2/2023
    0   7    20   0 TIIDEX
+!  Added new parameters on 10/1/2025
+   0   7    21   0 SSI
+   0   7    22   0 RMOL
 !  NCEP Local use
    0   7   192   1 LFTX
    0   7   193   1 4LFTX
@@ -799,6 +820,13 @@
 !  Added more parameters in 8/26/2015
    0  15    15   0 HSR
    0  15    16   0 HSRHT
+!  Added new parameters on 10/1/2025
+   0  15    17   0 PRATERAD
+   0  15    18   0 RQI
+   0  15    19   0 RDQF
+!  Added new parameters on 11/24/2025
+   0  15    20   0 LMAXPRATE
+!  NCEP Local use
 !  Added new parameters on 6/11/2025
    0  15   192   1 RADARVIL
 !
@@ -810,6 +838,11 @@
    0  16     3   0 RETOP
    0  16     4   0 REFD
    0  16     5   0 REFC
+!  Added new parameters on 10/1/2025
+   0  16     6   0 PRATEFRAD
+!  Added new parameters on 11/24/2025
+   0  16     7   0 LMAXPRATEF
+   0  16     8   0 LMAXREF
 !  NCEP Local use
    0  16   192   1 REFZR
    0  16   193   1 REFZI
@@ -927,6 +960,10 @@
    0  19    48   0 PCONTT
    0  19    49   0 PCONTB
    0  19    50   0 CITEDR
+!  Added new parameters on 10/1/2025
+   0  19    51   0 VISPCP
+!  Added new parameters on 11/24/2025
+   0  19    52   0 HAILKEF
 !  NCEP Local use
    0  19   192   1 MXSALB
    0  19   193   1 SNFALB
@@ -959,6 +996,11 @@
    0  19   220   1 SVRTS
    0  19   221   1 PROCON
    0  19   222   1 CONVP
+!  Added new parameters on 1/29/2026
+   0  19   223   1 CIGTOR
+   0  19   224   1 CIGHAIL
+   0  19   225   1 CIGWIND
+   0  19   226   1 CIGSVR
    0  19   232   1 VAFTD
    0  19   233   1 ICPRB
    0  19   234   1 ICSEV
@@ -994,6 +1036,8 @@
    0  20    17   0 MSSRWETA
 !  Added new parameters 10/20/2023
    0  20    18   0 POTHPH
+!  Added new parameters on 11/24/2025
+   0  20    19   0 LRATEOH
 !
    0  20    50   0 AIA
    0  20    51   0 CONAIR
@@ -1030,6 +1074,10 @@
    0  20    79   0 CNMF
    0  20    80   0 CDIVMF
    0  20    81   0 CNETS 
+!  Added new parameters on 10/1/2025
+   0  20    82   0 SNKMFLX
+   0  20    83   0 SRCMFLX
+   0  20    84   0 VTCOLMIXR
 !
    0  20   100   0 SADEN
    0  20   101   0 ATMTK
@@ -1044,6 +1092,8 @@
    0  20   110   0 ALEGRD
    0  20   111   0 ANGSTEXP
    0  20   112   0 SCTAOTK
+!  Added new parameters on 10/1/2025
+   0  20   113   0 ABCOEF
 !
 ! GRIB2 - TABLE 4.2-0-21 PARAMETERS FOR DISCIPLINE 0 CATEGORY 21
 !
@@ -1152,6 +1202,11 @@
    1   0    18   0 FLDPOW
    1   0    19   0 FLDPATHOW
    1   0    20   0 WATSURF
+!  Added new parameters on 11/24/2025
+   1   0    21   0 WSE
+   1   0    22   0 GRFR
+   1   0    23   0 RVERFLDPS
+   1   0    24   0 DARVERVEL
 !  NCEP Local use
    1   0   192   1 BGRUN
    1   0   193   1 SSRUN
@@ -1328,6 +1383,8 @@
    2   0   237   1 EIWATER
    2   0   238   1 PLANTTR
    2   0   239   1 SOILSE
+!  Added new parameters on 3/3/2026
+   2   0   240   1 MIXL 
 !
 ! GRIB2 - TABLE 4.2-2-1 PARAMETERS FOR DISCIPLINE 2 CATEGORY 1
 !
@@ -1430,6 +1487,16 @@
    2   4    34   0 FDWMC
    2   4    35   0 DDWMC
    2   4    36   0 FRADPOW
+!  Added new parameters on 10/1/2025
+   2   4    37   0 LFMCLV
+   2   4    38   0 LFMCHV
+   2   4    39   0 MEANHGTINJ
+   2   4    40   0 HGTINJ
+   2   4    41   0 HGTPLUMEB
+   2   4    42   0 HGTPLUMET
+!  Added new parameters on 11/24/2025
+   2   4    43   0 FDPROB
+   2   4    44   0 IGNLTNG
 !
 !  Added new Discipline 2 category 5 in 8/26/2015
 !
@@ -1451,6 +1518,12 @@
    2   6     6   0 DDROOF
    2   6     7   0 DIOWALL
    2   6     8   0 DDROAD
+!                                    
+! GRIB2 - TABLE 4.2-2-7 PARAMETERS FOR DISCIPLINE 2 CATEGORY 7
+!
+   2   7     0   0 HNETFLUX
+   2   7     1   0 LHTFLUX
+   2   7     2   0 SHTFLUX
 !
 ! GRIB2 - TABLE 4.2-3-0 PARAMETERS FOR DISCIPLINE 3 CATEGORY 0
 !
@@ -1491,6 +1564,8 @@
    3   1    21   0 AOT08
    3   1    22   0 AOT16
    3   1    23   0 ANGCOE
+!  Added new parameters on 10/1/2025
+   3   1    24   0 COSOLZA
 !
 !  Added more parameters in 2/28/2017
    3   1    27   0 BRFLF
@@ -1885,6 +1960,14 @@
   10   0    97   0 STMWAVE
 !  New parameters added 07/17/2024
   10   0    98   0 GODAPEAK
+!  Added new parameters on 10/1/2025
+  10   0    99   0 BFI2D
+  10   0   100   0 CTCORR
+  10   0   101   0 WSTRICEX
+  10   0   102   0 WSTRICEY
+!  Added new parameters on 11/24/2025
+  10   0   103   0 UASMF
+  10   0   104   0 VASMF
 !  NCEP Local use
   10   0   192   1 WSTP
 !  Added parameter in 8/26/2015
@@ -1935,13 +2018,18 @@
   10   2    21   0 ICEMPD
   10   2    22   0 ICEMPV
   10   2    23   0 SIFTP
-! Added new parameters 12/15/2023
+!  Added new parameters 12/15/2023
   10   2    24   0 XICE
   10   2    25   0 YICE
-!
+!  Added new parameters on 10/1/2025
+  10   2    26   0 SICESAL
+!  Added new parameters 12/15/2023
   10   2    27   0 FRZMLTPOT
   10   2    28   0 MLTDATE
   10   2    29   0 FRZDATE
+!  Added new parameters on 10/1/2025
+  10   2    30   0 SICEBM
+  10   2    31   0 DSWRFICE
 !
 ! GRIB2 - TABLE 4.2-10-3 PARAMETERS FOR DISCIPLINE 10 CATEGORY 3
 !
@@ -1968,8 +2056,10 @@
   10   3    18   0 HFLUXCOR
   10   3    19   0 SSHGTPARM
   10   3    20   0 DSLIBARCOR
-! Added new parameter 12/15/2023
+!  Added new parameter 12/15/2023
   10   3    21   0 SALINITY
+!  Added new parameters on 10/1/2025
+  10   3    22   0 DSWRFSS
 !  NCEP Local use
   10   3   192   1 SURGE
   10   3   193   1 ETSRG
@@ -2063,6 +2153,14 @@
   10   4    49   0 SEACZMT
   10   4    50   0 SEACPSALT
   10   4    51   0 SEACSALT
+!  Added new parameters on 10/1/2025
+  10   4    52   0 MLD
+  10   4    53   0 NCOMPWVEL
+  10   4    54   0 TCOMPWVEL
+  10   4    55   0 SEAUVT
+  10   4    56   0 SEAUMT
+  10   4    57   0 SEAAGE
+  10   4    58   0 DSWRFSEA
 !  NCEP Local use
   10   4   192   1 WTMPC
   10   4   193   1 SALIN
@@ -2092,6 +2190,11 @@
   20   0     6   0 NOREFTMP
   20   0     7   0 STDEFTMP
   20   0     8   0 PEQUTMP
+!  Added new parameters on 10/1/2025
+  20   0     9   0 UVBED
+  20   0    10   0 UVBEDCS
+  20   0    11   0 EHF
+  20   0    12   0 ECF
 !
 ! GRIB2 - TABLE 4.2-20-1 PARAMETERS FOR DISCIPLINE 20 CATEGORY 1
 !
@@ -2122,3 +2225,102 @@
   20   3     7   0 SNPVPPROD
   20   3     8   0 CSPPCAP
   20   3     9   0 CSPPROD
+!
+! GRIB2 - TABLE 4.2-20-4 PARAMETERS FOR DISCIPLINE 20 CATEGORY 4
+!
+  20   4     1   0 DBURSTHI
+  20   4     2   0 LTNGHI
+  20   4     3   0 TSTMHI
+  20   4     4   0 COASTFLDHI
+  20   4     5   0 ESTFLDHI
+  20   4     6   0 FFLDHI
+  20   4     7   0 FLUVFLDHI
+  20   4     8   0 GFLDHI
+  20   4     9   0 IJFLDHI
+  20   4    10   0 PFLDHI
+  20   4    11   0 SMFLDHI
+  20   4    12   0 SWFLDHI
+  20   4    13   0 GLOFLDHI
+  20   4    14   0 BCHI
+  20   4    15   0 DSTMHI
+  20   4    16   0 FOGHI
+  20   4    17   0 HZHI
+  20   4    18   0 POLAIRHI
+  20   4    19   0 SAHZHI
+  20   4    20   0 SMOKEHI
+  20   4    21   0 OAHI
+  20   4    22   0 RWAVEHI
+  20   4    23   0 SWIHI
+  20   4    24   0 SICEHI
+  20   4    25   0 ICEFLOWHI
+  20   4    26   0 SEICHEHI
+  20   4    27   0 SURGEHI
+  20   4    28   0 STMTIDEHI
+  20   4    29   0 TSUNAMIHI
+  20   4    30   0 DEPRESHI
+  20   4    31   0 ECPRESHI
+  20   4    32   0 SUBTCPRESHI
+  20   4    33   0 ACIDRAINHI
+  20   4    34   0 BLIZHI
+  20   4    35   0 DRTHI
+  20   4    36   0 HAILHI
+  20   4    37   0 ICESTMHI
+  20   4    38   0 SNOWHI
+  20   4    39   0 SNOWSTMHI
+  20   4    40   0 CWAVEHI
+  20   4    41   0 DZUDHI
+  20   4    42   0 FRZHI
+  20   4    43   0 FROSTHI
+  20   4    44   0 FRZRHI
+  20   4    45   0 GLAZEHI
+  20   4    46   0 GFROSTHI
+  20   4    47   0 HWAVEHI
+  20   4    48   0 ICINGHI
+  20   4    49   0 THAWHI
+  20   4    50   0 AVALHI
+  20   4    51   0 MUDFLOWHI
+  20   4    52   0 RSLIDEHI
+  20   4    53   0 DERECHOHI
+  20   4    54   0 GALEHI
+  20   4    55   0 SQLNHI
+  20   4    56   0 SSTMHI
+  20   4    57   0 TCWINDHI
+  20   4    58   0 TSWINDHI
+  20   4    59   0 TORHI
+  20   4    60   0 WINDHI
+!
+! GRIB2 - TABLE 4.2-20-5 PARAMETERS FOR DISCIPLINE 20 CATEGORY 5
+!
+  20   5     1   0 HHAIRPOLHI
+  20   5     2   0 AIRPOLHI
+  20   5     3   0 AAIRPOLHI
+  20   5     4   0 LANDDEGHI
+  20   5     5   0 SOILDEGHI
+  20   5     6   0 RUNOFFHI
+  20   5     7   0 SALTHI
+  20   5     8   0 BDLOSSHI
+  20   5     9   0 DEFORESTHI
+  20   5    10   0 FORESTDECHI
+  20   5    11   0 FORESTDISHI
+  20   5    12   0 FORESTINVHI
+  20   5    13   0 WFIREHI
+  20   5    14   0 DESERTHI
+  20   5    15   0 MANLOSSHI
+  20   5    16   0 WETLOSSHI
+  20   5    17   0 CORALBHI
+  20   5    18   0 COMPSOILHI
+  20   5    19   0 SOILEROHI
+  20   5    20   0 COASTEROHI
+  20   5    21   0 PFLOSSHI
+  20   5    22   0 SAMINHI
+  20   5    23   0 SLRHI
+  20   5    24   0 EUTROPHI
+!
+! GRIB2 - TABLE 4.2-191-0 PARAMETERS FOR DISCIPLINE 191 CATEGORY 0
+!
+ 191   0     0   0 SPPT
+ 191   0     1   0 SPP
+ 191   0     2   0 SKEB
+ 191   0     3   0 STC
+ 191   0     4   0 SHUM
+ 191   0     5   0 STTP

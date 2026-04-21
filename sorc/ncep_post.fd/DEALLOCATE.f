@@ -16,6 +16,7 @@
 !> 2023-08-16 | Yali Mao     | Add CIT to GTG fields. Add namelist optoin of gtg_on
 !> 2025-01-13 | Jaymes Kenyon| Add graupel number concentration (QQNG)
 !> 2025-01-13 | Jaymes Kenyon| Add HAIL_BUCKET
+!> 2026-03-20 | Jaymes Kenyon| Add reciprocal Obukhov length (RMOL)
 
       MODULE DE_ALLOCATE_UPP_MOD
 
@@ -228,6 +229,7 @@
       deallocate(smoke_ave)
       deallocate(dust_ave)
       deallocate(coarsepm_ave)
+      deallocate(emdust)
       deallocate(taod5502d)
       deallocate(aerasy2d)
       deallocate(aerssa2d)
@@ -282,6 +284,7 @@
       deallocate(potevp)
       deallocate(z0)
       deallocate(ustar)
+      deallocate(rmol)
       deallocate(pblh)
       deallocate(pblhgust)
       deallocate(twbs)

@@ -36,9 +36,10 @@
      &                  emelt=0.045,rlim=0.04,slim=0.85
       real,PARAMETER :: twmelt=273.15,tz=273.15,efac=1.0 ! specify in params now 
 !
-      INTEGER*4 i, k1, lll, k2, toodry, iflag, nq
+      INTEGER*4 i, k1, lll, k2, toodry, iflag, nq, k1_start
 !
       REAL xxx ,mye, icefrac,flg,flag
+      LOGICAL skip_level
       real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u,LM), intent(in)    :: T,Q,PMID
       real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u,LP1),intent(in)    :: PINT
       real,DIMENSION(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(in)    :: LMH,PREC
@@ -78,8 +79,8 @@
       enddo
 
 !  BIG LOOP
-      DO 800 J=JSTA,JEND
-      DO 800 I=ISTA,IEND
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
 !
@@ -106,7 +107,7 @@
 !     toodry=((Rhq(I,J,1)<rhprcp).and.1)
       pbot = pq(I,J,1)
       NQ=LMH(I,J)
-      DO 10 L = 1, nq
+      DO L = 1, nq
 !         xxx = tdofesat(esat(tq(I,J,L),flag,flg)*rhq(I,J,L),flag,flg)
           xxx = max(0.0,min(pq(i,j,l),esat(tq(I,J,L),flag,flg))*rhq(I,J,L))
           xxx = tdofesat(xxx,flag,flg)
@@ -169,7 +170,7 @@
               END IF
           END IF
 !
-   10 CONTINUE
+      END DO
 
 !
 !     Gross checks for liquid and solid precip which dont require generating level.
@@ -212,9 +213,9 @@
 !
 
 !     Calculate temp and wet-bulb ranges below precip generating level.
-      DO 20 L = 1, k1
+      DO L = 1, k1
           twmax = amax1(twq(i,j,l),twmax)
-   20 CONTINUE
+      END DO
 !
 !     Gross check for solid precip, initialize ice fraction.
       IF (i==1.and.j==1) WRITE (*,*) 'twmax=',twmax,twice,'twtop=',twtop
@@ -373,8 +374,8 @@
       END IF
       IF (trace) WRITE (*,*) "Returned ptyp is:ptyp,lll ", ptyp, lll,'me=',me
       IF (trace) WRITE (*,*) "Returned icefrac is: ", icefrac,'me=',me
- 800  CONTINUE 
-
+      ENDDO
+      ENDDO
       RETURN
 !
       END
