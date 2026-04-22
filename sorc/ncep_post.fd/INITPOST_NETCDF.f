@@ -242,7 +242,6 @@
       integer isa, jsa, latghf, jtem, idvc, idsl, nvcoord, ip1, nn, npass
 
       integer jdn
-      integer, external :: iw3jdn
       real sun_zenith, sun_azimuth, temp
 
       integer, parameter    :: npass2=5, npass3=30
