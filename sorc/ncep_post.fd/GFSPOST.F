@@ -198,6 +198,7 @@
 !> -----|------------|---------
 !> 1999-10-18 | Mark Iredell  | Initial
 !> 2021-08-31 | Hui-ya Chuang | Increase depth criteria for identifying PV layer from 25 to 50 to avoid finding shallow high level PV layer in high latitudes
+!> 2026-04-22 | Alyson Stahl  | Fix rank mismatch warnings for gcc compiler by adding l_tmp array
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
     subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
@@ -371,6 +372,7 @@ end subroutine
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 1999-10-18 | Mark Iredell  | Initial
+!> 2026-04-22 | Alyson Stahl  | Fix rank mismatch warnings for gcc compiler by adding kd_tmp array
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
     subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)

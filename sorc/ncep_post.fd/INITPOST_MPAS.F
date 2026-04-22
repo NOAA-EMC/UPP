@@ -40,6 +40,8 @@
 !>                           | add numerous descriptive comments.
 !> 2026-03-20 | Jaymes Kenyon| Add mixing length (EL_PBL), reciprocal of the Obukhov length (RMOL), and some 
 !>                           | descriptive comments for other fields
+!> 2026-04-22 | Alyson Stahl | Fix rank mismatch warnings for gcc compiler by adding
+!>                           | PT_tmp3d, SLLEVEL_tmp, and SLDPTH_tmp arrays
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 

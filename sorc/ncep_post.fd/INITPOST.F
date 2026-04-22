@@ -23,6 +23,8 @@
 !> 2025-11-13 | J Kenyon     | Reintroduce a previous algorithm to create a
 !>                           | "synthetic" cloud-fraction field, intended for
 !>                           | RTMA applications
+!> 2026-04-22 | Alyson Stahl | Fix rank mismatch warnings for gcc compiler by adding
+!>                           | NPHS_tmp, PT_tmp3d, SLLEVEL_tmp, and SLDPTH_tmp arrays
 !>
 !> @author Russ Treadon W/NP2 @date 1993-11-10
       SUBROUTINE INITPOST
