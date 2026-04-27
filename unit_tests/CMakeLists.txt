@@ -7,6 +7,13 @@ message(STATUS "Building test directory...")
 # This function builds, links, and runs a Fortran test program.
 function(create_test name)
   cmake_parse_arguments(ARG "" "" "SRC_FILES" ${ARGN})
+  if(ARG_SRC_FILES)
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM)$")
+      set_source_files_properties(${ARG_SRC_FILES} PROPERTIES COMPILE_FLAGS "-free")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
+      set_source_files_properties(${ARG_SRC_FILES} PROPERTIES COMPILE_FLAGS "-ffree-form")
+    endif()
+  endif()
   add_executable(${name} ${name}.f90 ${ARG_SRC_FILES})
   target_link_libraries(${name} PRIVATE upp::upp)
   set_target_properties(${name} PROPERTIES LINKER_LANGUAGE Fortran)
@@ -65,15 +72,6 @@ create_test(test_set_lvlsxml)
 create_test(test_select_channels)
 
 if(BUILD_WITH_NEMSIO)
-  if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM)$")
-    set_source_files_properties(
-      ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f
-      PROPERTIES COMPILE_FLAGS "-free")
-  elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
-    set_source_files_properties(
-      ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f
-      PROPERTIES COMPILE_FLAGS "-ffree-form")
-  endif()
   create_test(test_getrecn SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
   create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
 endif()
