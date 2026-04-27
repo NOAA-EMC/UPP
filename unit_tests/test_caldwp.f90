@@ -32,7 +32,7 @@ program test_caldwp
     P1D = 100000.0
     Q1D = 0.003
     T1D = 280.0
-    EXP_TDWP(1,1) = 0.0 ! Replace with expected value for test case 1
+    EXP_TDWP(1,1) = 269.9227295
 
     ! Test Case 2: TDWP clipped to ambient temperature.
     Q1D(1, 2) = 0.99
@@ -60,14 +60,11 @@ program test_caldwp
 
     res = 0
     do i = 1, npts
-        ! TODO: Replace the ??? below with code that prints TDWP(1,i) to precision 10^10. The print
-        ! statement should also indicate which test case (i.e. value of i) is being printed.
-        write(*, '(A, I0, A, E20.10)') "Test case ", i, ": TDWP = ", TDWP(1,i)
-        !if (abs(TDWP(1,i) - EXP_TDWP(1,i)) > tol) then
-        !    print *, "ERROR: TDWP(1,", i, ") = ", TDWP(1,i), &
-        !             " does not match expected value ", EXP_TDWP(1,i)
-        !    res = 1
-        !end if
+        if (abs(TDWP(1,i) - EXP_TDWP(1,i)) > tol) then
+            print *, "ERROR: TDWP(1,", i, ") = ", TDWP(1,i), &
+                     " does not match expected value ", EXP_TDWP(1,i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) stop 10
