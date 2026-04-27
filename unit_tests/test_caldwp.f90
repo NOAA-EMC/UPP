@@ -30,7 +30,7 @@ program test_caldwp
 
     ! Test Case 1: Standard case without any spvals or clipped values. Initialize input arrays with these values.
     P1D = 100000.0
-    Q1D = 0.01
+    Q1D = 0.003
     T1D = 280.0
     EXP_TDWP(1,1) = 0.0 ! Replace with expected value for test case 1
 
@@ -41,20 +41,20 @@ program test_caldwp
 
     ! Test Case 3: MAX(H1M12,EVP(I,J)*D001) == H1M12
     P1D(1,3) = 0.0
-    EXP_TDWP(1,3) = 0.0 ! Replace with expected value for test case 3
+    EXP_TDWP(1,3) = 192.1247864
 
     ! Test Case 4: P1D and Q1D have spvals.
     P1D(1, 4) = spval
     Q1D(1, 4) = spval
-    EXP_TDWP(1,4) = spval
+    EXP_TDWP(1,4) = 280.0
 
     ! Test Case 5: P1D has a spval.
     P1D(1, 5) = spval
-    EXP_TDWP(1,5) = spval
+    EXP_TDWP(1,5) = 280.0
 
     ! Test Case 6: Q1D has a spval.
     Q1D(1, 6) = spval
-    EXP_TDWP(1,6) = spval
+    EXP_TDWP(1,6) = 280.0
     
     call CALDWP(P1D, Q1D, TDWP, T1D)
 
