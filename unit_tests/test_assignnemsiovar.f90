@@ -10,7 +10,7 @@ program test_assignnemsiovar
     real, parameter :: tol = 1e-8
     integer, parameter :: MAX_LEN = 50, NREC = 15, FLDSIZE = 16
     integer, parameter :: nx = 4, ny = 4
-    integer :: i, j, res
+    integer :: i, j, k, res
     integer :: IM, JSTA, JEND, JSTA_2L, JEND_2U
     integer :: RECLEV(NREC), FLDLEV, OTHER_FLDLEV
     real :: SPVAL, TMP(FLDSIZE * NREC)
