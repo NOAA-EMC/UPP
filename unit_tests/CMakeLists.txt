@@ -6,6 +6,7 @@ message(STATUS "Building test directory...")
 
 # This function builds, links, and runs a Fortran test program.
 function(create_test name)
+  # optional source files for testing files that are only part of the EXE source list.
   cmake_parse_arguments(ARG "" "" "SRC_FILES" ${ARGN})
   if(ARG_SRC_FILES)
     if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM)$")
@@ -72,7 +73,6 @@ create_test(test_set_lvlsxml)
 create_test(test_select_channels)
 
 if(BUILD_WITH_NEMSIO)
-  create_test(test_getrecn SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
   create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
 endif()
 
