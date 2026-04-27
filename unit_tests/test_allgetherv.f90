@@ -55,6 +55,9 @@ program test_allgetherv
     end do
 
     call MPI_FINALIZE(ierr)
+
+    deallocate(GRID1)
+    deallocate(EXP_GRID1)
     
     if (res .ne. 0) call exit(10)
 
