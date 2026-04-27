@@ -65,6 +65,15 @@ create_test(test_set_lvlsxml)
 create_test(test_select_channels)
 
 if(BUILD_WITH_NEMSIO)
+  if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM)$")
+    set_source_files_properties(
+      ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f
+      PROPERTIES COMPILE_FLAGS "-free")
+  elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
+    set_source_files_properties(
+      ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f
+      PROPERTIES COMPILE_FLAGS "-ffree-form")
+  endif()
   create_test(test_getrecn SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
   create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
 endif()
