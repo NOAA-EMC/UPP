@@ -71,6 +71,7 @@ create_test(test_snfrac)
 create_test(test_snfrac_gfs)
 create_test(test_set_lvlsxml)
 create_test(test_select_channels)
+create_test(test_caldwp)
 
 if(BUILD_WITH_NEMSIO)
   create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
