@@ -6,7 +6,8 @@ message(STATUS "Building test directory...")
 
 # This function builds, links, and runs a Fortran test program.
 function(create_test name)
-  add_executable(${name} ${name}.f90)
+  cmake_parse_arguments(ARG "" "" "SRC_FILES" ${ARGN})
+  add_executable(${name} ${name}.f90 ${ARG_SRC_FILES})
   target_link_libraries(${name} PRIVATE upp::upp)
   set_target_properties(${name} PROPERTIES LINKER_LANGUAGE Fortran)
   add_test(NAME ${name} COMMAND ${name})
@@ -62,8 +63,11 @@ create_test(test_snfrac)
 create_test(test_snfrac_gfs)
 create_test(test_set_lvlsxml)
 create_test(test_select_channels)
-create_test(test_getrecn)
-create_test(test_assignnemsiovar)
+
+if(BUILD_WITH_NEMSIO)
+  create_test(test_getrecn SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
+  create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
+endif()
 
 # The following tests require MPI to run.
 create_mpi_test(test_allgetherv 1)
