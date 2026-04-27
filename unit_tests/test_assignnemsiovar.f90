@@ -120,6 +120,7 @@ program test_assignnemsiovar
     call ASSIGNNEMSIOVAR(IM, JSTA, JEND, JSTA_2L, JEND_2U, FLDLEV, NREC, FLDSIZE, &
                         SPVAL, TMP, RECNAME, RECLEVTYP, RECLEV, FLDNAME, FLDLEVTYP, BUF)
 
+    res = 0
     do i = 1, nx
         do j = 1, ny
             if (abs(BUF(i,j) - EXP_BUF(i,j)) > tol) then
@@ -148,6 +149,7 @@ program test_assignnemsiovar
     call ASSIGNNEMSIOVAR(IM, JSTA, JEND, JSTA_2L, JEND_2U, FLDLEV, NREC, FLDSIZE, &
                         SPVAL, TMP, RECNAME, RECLEVTYP, RECLEV, FLDNAME, FLDLEVTYP, BUF)
 
+    res = 0
     do i = 1, nx
         do j = 1, ny
             if (abs(BUF(i,j) - SPVAL) > tol) then
