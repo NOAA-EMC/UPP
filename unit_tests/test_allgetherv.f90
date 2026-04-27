@@ -2,7 +2,7 @@
 !
 ! This program tests the ALLGETHERV() subroutine.
 !
-! Alyson Stahl, 2/2026
+! Alyson Stahl, 4/2026
 program test_allgetherv
     use mpi
     use ctlblk_mod, only: im, jm, num_procs, me, jsta, jend, ista, iend, mpi_comm_comp

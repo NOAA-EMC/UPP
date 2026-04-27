@@ -2,7 +2,7 @@
 !
 ! This program tests the GETRECN() and ASSIGNNEMSIOVAR() subroutines in ASSIGNNEMSIOVAR.f.
 !
-! Alyson Stahl, 2/2026
+! Alyson Stahl, 4/2026
 program test_assignnemsiovar
     use ctlblk_mod, only: me
     implicit none
