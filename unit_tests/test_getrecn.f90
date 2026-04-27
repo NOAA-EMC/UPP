@@ -7,8 +7,7 @@ program test_getrecn
     use ctlblk_mod, only: me
     implicit none
 
-    integer, parameter :: MAX_LEN = 50
-    integer :: NREC = 15
+    integer, parameter :: MAX_LEN = 50, NREC = 15
     integer :: RECLEV(NREC), FLDLEV, OTHER_FLDLEV
     character(MAX_LEN) :: RECNAME(NREC), RECLEVTYP(NREC)
     character(MAX_LEN) :: FLDNAME, FLDLEVTYP
