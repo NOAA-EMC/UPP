@@ -105,7 +105,7 @@ program test_assignnemsiovar
 
     if (RECN .ne. EXP_RECN) then
         print *, "ERROR: GETRECN() returned ", RECN, " but expected ", EXP_RECN
-        call exit(10)
+        stop 10
     end if
 
     BUF = 0.0
@@ -120,7 +120,6 @@ program test_assignnemsiovar
     call ASSIGNNEMSIOVAR(IM, JSTA, JEND, JSTA_2L, JEND_2U, FLDLEV, NREC, FLDSIZE, &
                         SPVAL, TMP, RECNAME, RECLEVTYP, RECLEV, FLDNAME, FLDLEVTYP, BUF)
 
-
     do i = 1, nx
         do j = 1, ny
             if (abs(BUF(i,j) - EXP_BUF(i,j)) > tol) then
@@ -131,7 +130,7 @@ program test_assignnemsiovar
         end do
     end do
 
-    if (res .ne. 0) call exit(20)
+    if (res .ne. 0) stop 20
 
     ! Test Case 2: No matching record exists.
 
@@ -142,7 +141,7 @@ program test_assignnemsiovar
 
     if (RECN .ne. 0) then
         print *, "ERROR: GETRECN() returned ", RECN, " but expected 0 when there is no match"
-        call exit(30)
+        stop 30
     end if
 
     ! Now checking that ASSIGNNEMSIOVAR() returns the SPVAL for all grid points when there is no match.
@@ -159,7 +158,7 @@ program test_assignnemsiovar
         end do
     end do
 
-    if (res .ne. 0) call exit(40)
+    if (res .ne. 0) stop 40
 
     print *, "SUCCESS!"
 end program test_assignnemsiovar

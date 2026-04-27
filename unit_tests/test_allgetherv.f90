@@ -58,8 +58,8 @@ program test_allgetherv
 
     deallocate(GRID1)
     deallocate(EXP_GRID1)
-    
-    if (res .ne. 0) call exit(10)
+
+    if (res .ne. 0) stop 10
 
     print *, "SUCCESS!"
 
