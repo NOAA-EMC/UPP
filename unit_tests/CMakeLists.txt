@@ -51,5 +51,6 @@ create_test(test_select_channels)
 create_test(test_calgustconv)
 create_test(test_paramr)
 create_test(test_microinit)
-target_compile_definitions(test_microinit PRIVATE COMMCODE)
-set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/fix)
+configure_file(${CMAKE_SOURCE_DIR}/fix/nam_micro_lookup.dat
+               ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)
+set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
