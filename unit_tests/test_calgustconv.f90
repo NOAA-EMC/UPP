@@ -16,6 +16,7 @@ program test_calgustconv
 
     interface
         subroutine CALGUSTCONV(SPEED850,SPEED950,GUSTCONV)
+            use ctlblk_mod, only: ista_2l, iend_2u, jsta_2l, jend_2u
             real, intent(in) :: SPEED850(ista_2l:iend_2u,jsta_2l:jend_2u)
             real, intent(in) :: SPEED950(ista_2l:iend_2u,jsta_2l:jend_2u)
             real, intent(inout) :: GUSTCONV(ista_2l:iend_2u,jsta_2l:jend_2u)
