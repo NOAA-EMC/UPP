@@ -15,9 +15,6 @@ program test_calfltcnd
     real :: FLTCND(1, npts), EXP_FLTCND(1, npts)
     real :: ft_to_m, mi_to_m
     
-    ft_to_m = 0.3048 ! Conversion factor from feet to meters
-    mi_to_m = 1609.34 ! Conversion factor from miles to meters
-
     interface
         subroutine CALFLTCND(CEILING,FLTCND)
             use ctlblk_mod, only: jsta, jend, ista, iend
@@ -26,6 +23,9 @@ program test_calfltcnd
         end subroutine CALFLTCND
     end interface
 
+    ft_to_m = 0.3048 ! Conversion factor from feet to meters
+    mi_to_m = 1609.34 ! Conversion factor from miles to meters 
+    
     ! Grid parameters
     ista = 1
     iend = 1
