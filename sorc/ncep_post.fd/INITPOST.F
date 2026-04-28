@@ -23,6 +23,7 @@
 !> 2025-11-13 | J Kenyon     | Reintroduce a previous algorithm to create a
 !>                           | "synthetic" cloud-fraction field, intended for
 !>                           | RTMA applications
+!> 2026-04-21 | Wen Meng     | Correct solar zenith angle calculation
 !> 2026-04-22 | Alyson Stahl | Fix rank mismatch warnings for gcc compiler by adding
 !>                           | NPHS_tmp, PT_tmp3d, SLLEVEL_tmp, and SLDPTH_tmp arrays
 !>
@@ -127,7 +128,6 @@
       real LAT
 
       integer jdn, numr, ic, jc, ierr
-      integer, external :: iw3jdn
       real sun_zenith,sun_azimuth, ptop_low, ptop_mid, ptop_high
       real delta_theta4gust
       real watericetotal, radius, totcount, cloudcount
@@ -2986,7 +2986,7 @@ endif  ! 1==2
        end do
       ELSE
 
-        jdn=iw3jdn(idat(3),idat(1),idat(2))
+        call w3fs13(idat(3),idat(1),idat(2),jdn)
         do j=jsta,jend
          do i=1,im
              call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)     &
