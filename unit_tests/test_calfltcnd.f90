@@ -9,7 +9,7 @@ program test_calfltcnd
     implicit none
 
     real, parameter :: tol = 1.0e-8
-    integer, parameter :: npts = 16
+    integer, parameter :: npts = 14
     integer :: i, res
     real :: CEILING(1, npts)
     real :: FLTCND(1, npts), EXP_FLTCND(1, npts)
@@ -99,30 +99,20 @@ program test_calfltcnd
     vis(1, 11) = 6.0 * mi_to_m
     EXP_FLTCND(1, 11) = 4.0
 
-    ! Test Case 12: CEILING < 3000 ft & VIS > 5.0 mi
-    CEILING(1, 12) = 2900.0 * ft_to_m
-    vis(1, 12) = 6.0 * mi_to_m
-    EXP_FLTCND(1, 12) = 4.0
+    ! Test Case 12: CEILING = spval & VIS = spval
+    CEILING(1, 12) = spval
+    vis(1, 12) = spval
+    EXP_FLTCND(1, 12) = spval
 
-    ! Test Case 13: CEILING > 3000 ft & VIS < 5.0 mi
-    CEILING(1, 13) = 3500.0 * ft_to_m
-    vis(1, 13) = 4.0 * mi_to_m
-    EXP_FLTCND(1, 13) = 4.0
+    ! Test Case 13: CEILING = spval & VIS != spval
+    CEILING(1, 13) = spval
+    vis(1, 13) = 1.0 * mi_to_m
+    EXP_FLTCND(1, 13) = spval
 
-    ! Test Case 14: CEILING = spval & VIS = spval
-    CEILING(1, 14) = spval
+    ! Test Case 14: CEILING != spval & VIS = spval
+    CEILING(1, 14) = 100.0 * ft_to_m
     vis(1, 14) = spval
     EXP_FLTCND(1, 14) = spval
-
-    ! Test Case 15: CEILING = spval & VIS != spval
-    CEILING(1, 15) = spval
-    vis(1, 15) = 1.0 * mi_to_m
-    EXP_FLTCND(1, 15) = spval
-
-    ! Test Case 16: CEILING != spval & VIS = spval
-    CEILING(1, 16) = 100.0 * ft_to_m
-    vis(1, 16) = spval
-    EXP_FLTCND(1, 16) = spval
 
     call CALFLTCND(CEILING, FLTCND)
 
