@@ -50,11 +50,7 @@ create_test(test_set_lvlsxml)
 create_test(test_select_channels)
 create_test(test_calgustconv)
 create_test(test_paramr)
-if(COMMCODE)
-  configure_file(${CMAKE_SOURCE_DIR}/fix/nam_micro_lookup.dat
-                 ${CMAKE_CURRENT_BINARY_DIR}/nam_micro_lookup.dat COPYONLY)
-  configure_file(${CMAKE_SOURCE_DIR}/fix/hires_micro_lookup.dat
-                 ${CMAKE_CURRENT_BINARY_DIR}/hires_micro_lookup.dat COPYONLY)
-  create_test(test_microinit)
-  set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-endif()
+configure_file(${CMAKE_SOURCE_DIR}/fix/hires_micro_lookup.dat
+               ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)
+create_test(test_microinit)
+set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
