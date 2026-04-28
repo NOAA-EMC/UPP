@@ -50,10 +50,6 @@ create_test(test_set_lvlsxml)
 create_test(test_select_channels)
 create_test(test_calgustconv)
 create_test(test_paramr)
-file(COPY ${CMAKE_SOURCE_DIR}/fix/nam_micro_lookup.dat
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-     FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
-file(RENAME ${CMAKE_CURRENT_BINARY_DIR}/nam_micro_lookup.dat
-            ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat)
 create_test(test_microinit)
-set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions(test_microinit PRIVATE COMMCODE)
+set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/fix)
