@@ -52,8 +52,8 @@ program test_microinit
     EXP_MDRmax(1) = int(EXP_XMRmax(1))
     EXP_NLImax(1) = spval
     ! Come from table so will need to set later
-    EXP_RQR_DRmin(1) = spval 
-    EXP_RQR_DRmax(1) = spval
+    EXP_RQR_DRmin(1) = 1.5419247745E-07
+    EXP_RQR_DRmax(1) = 2.4873061106E-02
     !
     tmp = 1000.0 * pi * DMRmin * DMRmin * DMRmin * DMRmin
     EXP_CN0r_DMRmin(1) = 1./tmp
@@ -68,8 +68,8 @@ program test_microinit
     EXP_MDRmax(2) = int(EXP_XMRmax(2))
     EXP_NLImax(2) = spval
     ! Come from table so will need to set later
-    EXP_RQR_DRmin(2) = spval 
-    EXP_RQR_DRmax(2) = spval
+    EXP_RQR_DRmin(2) = 1.5419247745E-07
+    EXP_RQR_DRmax(2) = 2.4873061106E-02
     !
     tmp = 1000.0 * pi * DMRmin * DMRmin * DMRmin * DMRmin
     EXP_CN0r_DMRmin(2) = 1./tmp
@@ -84,8 +84,8 @@ program test_microinit
     EXP_MDRmax(3) = int(EXP_XMRmax(3))
     EXP_NLImax(3) = 20.E3
     ! Come from table so will need to set later
-    EXP_RQR_DRmin(3) = spval 
-    EXP_RQR_DRmax(3) = spval
+    EXP_RQR_DRmin(3) = 1.5419246324E-07
+    EXP_RQR_DRmax(3) = 1.0305735050E-03
     !
     tmp = 1000.0 * pi * DMRmin * DMRmin * DMRmin * DMRmin
     EXP_CN0r_DMRmin(3) = 1./tmp
@@ -100,8 +100,8 @@ program test_microinit
     EXP_MDRmax(4) = int(EXP_XMRmax(4))
     EXP_NLImax(4) = 5.E3
     ! Come from table so will need to set later
-    EXP_RQR_DRmin(4) = spval 
-    EXP_RQR_DRmax(4) = spval
+    EXP_RQR_DRmin(4) = 1.5419246324E-07 
+    EXP_RQR_DRmax(4) = 1.0305735050E-03
     !
     tmp = 1000.0 * pi * DMRmin * DMRmin * DMRmin * DMRmin
     EXP_CN0r_DMRmin(4) = 1./tmp
@@ -117,8 +117,8 @@ program test_microinit
     EXP_MDRmax(5) = int(EXP_XMRmax(5))
     EXP_NLImax(5) = 5.E3
     ! Come from table so will need to set later
-    EXP_RQR_DRmin(5) = spval 
-    EXP_RQR_DRmax(5) = spval
+    EXP_RQR_DRmin(5) = 1.5419247745E-07
+    EXP_RQR_DRmax(5) = 2.4873061106E-02
     !
     tmp = 1000.0 * pi * DMRmin * DMRmin * DMRmin * DMRmin
     EXP_CN0r_DMRmin(5) = 1./tmp
