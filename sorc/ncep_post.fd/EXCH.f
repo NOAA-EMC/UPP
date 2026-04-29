@@ -11,6 +11,8 @@
 !> -----------|---------------------|----------
 !> 2000-01-06 | Jim Tuccillo        | Initial
 !> 2021-06-01 | George Vandenberghe | 2D decomposition             
+!> 2026-04-22 | Alyson Stahl        | Fix type mismatch warnings for gcc compiler
+!>                                  | by swapping 'INCLUDE mpif.h' with 'use mpi'.
 !>
 !> @note The 1st line is an inlined compiler directive that turns off -qcheck
 !> during compilation, even if it's specified as a compiler option in the
@@ -34,11 +36,10 @@
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&
           icoords,ibcoords,bufs,ibufs,me,numx, &  
           jsta_2l, jend_2u,ileft,iright,ista_2l,iend_2u,ista,iend,jm,modelname
+      use mpi
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
-      include 'mpif.h'
-!
       real,intent(inout) :: a ( ista_2l:iend_2u,jsta_2l:jend_2u )
       real, allocatable :: coll(:), colr(:)
       integer, allocatable :: icoll(:), icolr(:)
@@ -436,10 +437,9 @@
  
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn,    &
      &                      mpi_comm_comp, im, jsta_2l, jend_2u
+      use mpi
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
-!
-      include 'mpif.h'
 !
       real,intent(inout) :: a ( im,jsta_2l:jend_2u )
       integer status(MPI_STATUS_SIZE)
