@@ -38,7 +38,7 @@ export POSTGPEXEC=$svndir/exec/upp.x
 
 # specify forecast start time and hour
 export startdate=2017050100
-export fhr=048
+export fhr=060
 export cyc=`echo $startdate |cut -c9-10`
 
 # specify your running and output directory
