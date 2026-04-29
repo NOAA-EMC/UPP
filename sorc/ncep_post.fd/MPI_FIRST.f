@@ -18,7 +18,9 @@
 !> 2021-07-07 | JESSE MENG | 2D DECOMPOSITION
 !> 2022-09-22 | Li(Kate) Zhang | Add new aerosols fields for UFS-Aerosols
 !> 2023-03-22 | WM LEWIS | ADDED EFFRI, EFFRS, EFFRL
-!!
+!> 2026-04-22 | Alyson Stahl  | Fix type mismatch warnings for gcc compiler
+!>                            | by swapping 'INCLUDE mpif.h' with 'use mpi'.
+!>
 !! USAGE:    CALL MPI_FIRST
 !!   INPUT ARGUMENT LIST:
 !!
@@ -99,13 +101,12 @@
               ileft,iright,ileftb,irightb,ibsize,ibsum, isxa,iexa,jsxa,jexa,           &
               icoords,ibcoords,bufs,ibufs, rbufs, rcoords,rbcoords,                    &  
               ISTA_2L, IEND_2U,IVEND_2U,numx,MODELNAME   
+      use mpi
 
 !
 !     use params_mod
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - 
       implicit none
-     
-      include 'mpif.h'
 !
       integer ierr,i,jsx,jex,isx,iex,j
       integer size,ubound,lbound
@@ -391,10 +392,9 @@
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,MODELNAME,numx,&
           icoords,ibcoords,rbcoords,bufs,ibufs,me, &  
               jsta_2l,jend_2u,ileft,iright,ista_2l,iend_2u,ista,iend,jm,icnt2,idsp2
+      use mpi
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
-!
-      include 'mpif.h'
 !
       real,intent(inout) :: a ( ista_2l:iend_2u,jsta_2l:jend_2u ),rpoles(im,2)
       real, allocatable ::  rpole(:)

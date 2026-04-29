@@ -15,6 +15,8 @@
 !> -----|------------|---------
 !> 2007-03-01 | Hui-Ya Chuang | Initial
 !> 2021-03-11 | Bo Cui        | Change local arrays to dimension (im,jsta:jend)
+!> 2026-04-22 | Alyson Stahl  | Fix type mismatch warnings for gcc compiler
+!>                            | by swapping 'INCLUDE mpif.h' with 'use mpi'.
 !>
 !> @author Hui-Ya Chuang @date 2007-03-26
 !----------------------------------------------------------------------
@@ -62,13 +64,13 @@
       use exch_upp_mod, only: exch
       use table_upp_mod, only : table
       use tableq_upp_mod, only : tableq
+      use mpi
 !
 !     INCLUDE/SET PARAMETERS.
       implicit none
 !
       type(nemsio_gfile),intent(inout) :: nfile  
 !     
-      INCLUDE "mpif.h"
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
@@ -110,6 +112,7 @@
       integer,allocatable:: reclev(:)
       real, allocatable:: bufy(:)
       real, allocatable:: glat1d(:),glon1d(:)
+      real, allocatable :: islope_tmp(:,:)
 !jw
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,   &
               nsrfc,nrdlw,nrdsw,nheat,nclod,                           &
@@ -1661,9 +1664,12 @@
       varname='islope' !???
       VcoordName='sfc'
       l=1
+      allocate(islope_tmp(im,jsta_2l:jend_2u))
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-      ,l,impf,jmpf,nframe,islope)
+      ,l,impf,jmpf,nframe,islope_tmp)
+      islope = nint(islope_tmp)
+      deallocate(islope_tmp)
       if(debugprint)print*,'sample ',VarName,' = ',islope(im/2,(jsta+jend)/2)
       
 ! either assign SLDPTH to be the same as eta (which is original
