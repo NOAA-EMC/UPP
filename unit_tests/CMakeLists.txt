@@ -75,6 +75,12 @@ create_test(test_caldwp)
 create_test(test_calceiling)
 create_test(test_calicing)
 create_test(test_calfltcnd)
+create_test(test_calgustconv)
+create_test(test_paramr)
+configure_file(${CMAKE_SOURCE_DIR}/fix/hires_micro_lookup.dat
+               ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)
+create_test(test_microinit)
+set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 if(BUILD_WITH_NEMSIO)
   create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
