@@ -68,6 +68,7 @@
 !> 2025-07-21 | Sam Trahan    | If U10 and V10 are absent, calculate them from F10M if possible.
 !> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
+!> 2026-05-06 | Wen Meng      | Mask land areas for foundation temperature
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -1898,6 +1899,13 @@
       VarName='tref'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,fdnsst)
+! mask land areas
+!$omp parallel do private(i,j) 
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) == 0.0) fdnsst(i,j)=spval
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',fdnsst(isa,jsa)
 
           
