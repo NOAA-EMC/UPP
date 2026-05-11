@@ -865,6 +865,16 @@
        </param>
 
        <param>
+           <shortname>HWP_ON_SURFACE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>BIOMASS_BURNING_EMISSIONS</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
            <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
            <scale>5.0</scale>
        </param>

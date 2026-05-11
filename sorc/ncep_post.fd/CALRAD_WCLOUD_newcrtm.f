@@ -22,6 +22,7 @@
 !> 2023-10-25 | Eric James     | Bug fix for invalid land category in CRTM
 !> 2025-03-10 | Hua Leighton   | Added channel 12 and 13 in ssmis-f17 
 !> 2025-09-05 | Gillian Petro  | Remove legacy satellite products: amsre (483-86), tim (488-91), and ssmi(s) TB (492-499)
+!> 2026-04-21 | Wen Meng       | Correct solar zenith angle calculation
 !>
 !> @author Chuang @date 2007-01-17
 !---------------------------------------------------------------------------
@@ -218,7 +219,6 @@
   type(crtm_channelinfo_type),allocatable,dimension(:) :: channelinfo
 !     
   integer ii,jj,n_clouds,n,nc
-  integer,external :: iw3jdn
   !
 
   !*****************************************************************************
@@ -362,8 +362,7 @@
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' &
       )o3=0.0
      ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
-!     if (MODELNAME == 'GFS')then
-        jdn=iw3jdn(idat(3),idat(1),idat(2))
+        call w3fs13(idat(3),idat(1),idat(2),jdn)
 	do j=jsta,jend
 	   do i=ista,iend
 	      call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)       &
@@ -374,7 +373,6 @@
 	end do
         if(jj>=jsta .and. jj<=jend.and.debugprint)                   &
             print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
-!     end if	       
      ! Initialize CRTM.  Load satellite sensor array.
      ! The optional arguments Process_ID and Output_Process_ID limit
      ! generation of runtime informative output to mpi task

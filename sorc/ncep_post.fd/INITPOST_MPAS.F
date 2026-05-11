@@ -40,12 +40,16 @@
 !>                           | add numerous descriptive comments.
 !> 2026-03-20 | Jaymes Kenyon| Add mixing length (EL_PBL), reciprocal of the Obukhov length (RMOL), and some 
 !>                           | descriptive comments for other fields
+!> 2026-04-22 | Alyson Stahl | Fix rank mismatch warnings for gcc compiler by adding
+!>                           | PT_tmp3d, SLLEVEL_tmp, and SLDPTH_tmp arrays
+!> 2026-04-30 | Eric James   | Add smoke_fine tracer,  biomass burning
+!>                           | emissions, FRP, and hourly wildfire potential for MPAS
 !>
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
       SUBROUTINE INITPOST_MPAS
 
-      use vrbls4d, only: dust, smoke
+      use vrbls4d, only: dust, smoke, ebb
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
               qqr, qqs, qqi, qqg, qqnw, qqni, qqnr, qqng, cwm, qqw, qqi, qqr, qqs, extcof55,&
               q2, zint, zmid, ttnd, cfr, cfr_raw, qc_bl, REF_10CM,                 &
@@ -64,7 +68,7 @@
               vegfrc, acsnow, cmc, sst, thz0, qs, qvg,                             &
               z0, ustar, rmol, radot, ths, acsnom, cuprec, ancprc, acprec,         &
               rainc_bucket, pcp_bucket, cprate, prec, snownc, snow_bucket,         &
-              graup_bucket, hail_bucket, swddni, swddif, mean_frp,                 &
+              graup_bucket, hail_bucket, swddni, swddif, mean_frp, hwp,            &
               acgraup, acfrain,                                                    &
               graupelnc, albedo, rswin, rswout, swdnbc, swddnic,                   &
               swddifc, swupbc, swupt, czen, czmean, rlwin, lwdnbc, lwupbc,         &
@@ -128,6 +132,9 @@
       INTEGER IDUMMY ( IM, JM )
       REAL,allocatable ::  DUM3D ( :, :, : )
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
+      real :: PT_tmp3d(1,1,1)
+      real, allocatable :: SLLEVEL_tmp(:,:,:)
+      real, allocatable :: SLDPTH_tmp(:,:,:)
  
       integer js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,          &
               ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,         &
@@ -724,11 +731,22 @@
          end do
       ENDIF
 
+      VarName='E_BB_OUT_SMOKE_FINE'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,       &
+        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+          ebb ( i, j, l, 1 ) = dum3d ( i, j, l )
+        end do
+       end do
+      end do
 
 ! Pressure at model top
       VarName='P_TOP'
-      call getVariable(fileName,DateStr,DataHandle,VarName,PT,           & 
+      call getVariable(fileName,DateStr,DataHandle,VarName,PT_tmp3d,    & 
         1,1,1,1,1,1,1,1)
+      PT = PT_tmp3d(1,1,1)
        DO I=1,IM
         DO J=JS,JE
           PINT (I,J,1)  = PT
@@ -1076,10 +1094,10 @@
           enddo
       ENDIF
 
-! GRAUP
-! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
 !
-     VarName='smoke'
+! E. James - 30 Apr 2026: SMOKE_FINE from MPAS
+!
+     VarName='SMOKE_FINE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        & 
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1,lm
@@ -1222,12 +1240,18 @@ endif  ! 1==2
       SLDPTH=0.0 !Assign bogus value
 
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM - use depths of center of soil layer
-       call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
+       allocate(SLLEVEL_tmp(NSOIL,1,1))
+       call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL_tmp,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
+       SLLEVEL(:) = SLLEVEL_tmp(:,1,1)
+       deallocate(SLLEVEL_tmp)
        if (me==0) print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
       ELSE ! Other LSMs (e.g., Noah) - use thicknesses of soil layers
-       call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
+       allocate(SLDPTH_tmp(NSOIL,1,1))
+       call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH_tmp,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
+       SLDPTH(:) = SLDPTH_tmp(:,1,1)
+       deallocate(SLDPTH_tmp)
        if (me==0) print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
       END IF
 
@@ -2247,13 +2271,23 @@ endif  ! 1==2
 !
 ! E. James - 8 Dec 2017: Fire Radiative Power from HRRR-smoke
 !
-      VarName='MEAN_FRP'
+      VarName='FRP_OUT'
 ! Mean fire radiative power
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-             MEAN_FRP ( i, j ) = dummy ( i, j )
+             MEAN_FRP ( i, j ) = 0.000001*dummy ( i, j )
+        end do
+       end do
+
+      VarName='HWP'
+! Hourly wildfire potential
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             HWP ( i, j ) = dummy ( i, j )
         end do
        end do
 

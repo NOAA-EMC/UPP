@@ -9,6 +9,8 @@
 !!
 !! PROGRAM HISTORY LOG:
 !!   01-06-15  TUCCILLO - ORIGINAL
+!!   2026-04-22 Alyson Stahl - Fix type mismatch warnings for gcc compiler
+!!                             by swapping 'INCLUDE mpif.h' with 'use mpi'.
 !!
 !! USAGE:    CALL SERVER
 !!   INPUT ARGUMENT LIST:
@@ -37,10 +39,9 @@
 
 !
       use CTLBLK_mod, only: mpi_comm_inter
+      use mpi
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
       implicit none
-!
-      INCLUDE 'mpif.h'
 !
       LOGICAL :: DONE, NEWFILE
       INTEGER :: STATUS(MPI_STATUS_SIZE)

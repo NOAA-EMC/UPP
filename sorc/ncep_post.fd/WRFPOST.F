@@ -43,6 +43,7 @@
 !> 2025-11-03 | Nick Szapiro              | earth_radius namelist option initialized in CTLBLK instead
 !> 2025-12-16 | Ben Blake                 | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !> 2026-03-04 | Gang Zhao                 | Add synthetic_cfr logical option to switch on/off the synthetic scheme for Cloud-fraction added by Jaymes Kenyon for HRRR-3DRTMA in Nov 2025.
+!> 2026-04-22 | Alyson Stahl              | Fix type mismatch warnings for gcc compiler by swapping 'INCLUDE mpif.h' with 'use mpi'.
 !> @author Mike Baldwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -120,6 +121,7 @@
 !
 !===========================================================================================
 !
+      use mpi
       use netcdf
 #if defined(BUILD_WITH_NEMSIO)
       use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
@@ -151,7 +153,6 @@
 #if defined(BUILD_WITH_NEMSIO)
       type(nemsio_gfile) :: nfile,ffile,rfile
 #endif
-      INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
 !     

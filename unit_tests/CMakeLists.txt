@@ -6,10 +6,33 @@ message(STATUS "Building test directory...")
 
 # This function builds, links, and runs a Fortran test program.
 function(create_test name)
-  add_executable(${name} ${name}.f90)
+  # optional source files for testing files that are only part of the EXE source list.
+  cmake_parse_arguments(ARG "" "" "SRC_FILES" ${ARGN})
+  if(ARG_SRC_FILES)
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM)$")
+      set_source_files_properties(${ARG_SRC_FILES} PROPERTIES COMPILE_FLAGS "-free")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
+      set_source_files_properties(${ARG_SRC_FILES} PROPERTIES COMPILE_FLAGS "-ffree-form")
+    endif()
+  endif()
+  add_executable(${name} ${name}.f90 ${ARG_SRC_FILES})
   target_link_libraries(${name} PRIVATE upp::upp)
   set_target_properties(${name} PROPERTIES LINKER_LANGUAGE Fortran)
   add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+# This function builds, links, and runs a Fortran test program using MPI with a specified number of processes.
+function(create_mpi_test name num_procs)
+  add_executable(${name}_np_${num_procs} ${name}.f90)
+  target_link_libraries(${name}_np_${num_procs} PRIVATE upp::upp MPI::MPI_Fortran)
+  set_target_properties(${name}_np_${num_procs} PROPERTIES LINKER_LANGUAGE Fortran)
+
+  add_test(
+    NAME ${name}_np_${num_procs}
+    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${name}_np_${num_procs}> ${MPIEXEC_POSTFLAGS}
+  )
+  set_tests_properties(${name}_np_${num_procs} PROPERTIES PROCESSORS ${num_procs})
 endfunction()
 
 create_test(test_dewpoint)
@@ -48,3 +71,21 @@ create_test(test_snfrac)
 create_test(test_snfrac_gfs)
 create_test(test_set_lvlsxml)
 create_test(test_select_channels)
+create_test(test_caldwp)
+create_test(test_calceiling)
+create_test(test_calicing)
+create_test(test_calfltcnd)
+create_test(test_calgustconv)
+create_test(test_paramr)
+configure_file(${CMAKE_SOURCE_DIR}/fix/hires_micro_lookup.dat
+               ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)
+create_test(test_microinit)
+set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+if(BUILD_WITH_NEMSIO)
+  create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
+endif()
+
+# The following tests require MPI to run.
+create_mpi_test(test_allgetherv 1)
+create_mpi_test(test_allgetherv 2)

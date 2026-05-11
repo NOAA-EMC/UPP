@@ -198,6 +198,7 @@
 !> -----|------------|---------
 !> 1999-10-18 | Mark Iredell  | Initial
 !> 2021-08-31 | Hui-ya Chuang | Increase depth criteria for identifying PV layer from 25 to 50 to avoid finding shallow high level PV layer in high latitudes
+!> 2026-04-22 | Alyson Stahl  | Fix rank mismatch warnings for gcc compiler by adding l_tmp array
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
     subroutine p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
@@ -214,11 +215,13 @@
 ! to avoid finding shallow high level PV layer in high latitudes
     real,parameter:: pd=5000.
     real w,spdu,spdd
-    integer k,l1,l2,lu,ld,l
+    integer k,l1,l2,lu,ld,l,l_tmp(1)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     do k=1,kpv
-      call rsearch1(km,p,1,pvpb(k),l1)
-      call rsearch1(km,p,1,pvpt(k),l2)
+      call rsearch1(km,p,1,(/pvpb(k)/),l_tmp)
+      l1 = l_tmp(1)
+      call rsearch1(km,p,1,(/pvpt(k)/),l_tmp)
+      l2 = l_tmp(1)
 !     l1=l1+1
       l = 0
       if(pv(k) >= 0.) then
@@ -227,7 +230,8 @@
         do lu=l2+2,l1 ! Chuang: post counts top down
 !         if(pv(k)<pvu(lu+1).and.pv(k)>=pvu(lu)) then
           if(pv(k) >= pvu(lu+1).and.pv(k) < pvu(lu)) then
-            call rsearch1(km,p,1,p(lu)+pd,ld)
+            call rsearch1(km,p,1,(/p(lu)+pd/),l_tmp)
+            ld = l_tmp(1)
 !           if(all(pv(k)>=pvu(ld:lu-1))) then
             if(all(pv(k) >= pvu(lu+1:ld))) then
               l = lu
@@ -241,7 +245,8 @@
         do lu=l2+2,l1 ! Chuang: post counts top down
 !         if(pv(k)>pvu(lu+1).and.pv(k)<=pvu(lu)) then
           if(pv(k) <= pvu(lu+1).and.pv(k) > pvu(lu)) then
-            call rsearch1(km,p,1,p(lu)+pd,ld)
+            call rsearch1(km,p,1,(/p(lu)+pd/),l_tmp)
+            ld = l_tmp(1)
 !           if(all(pv(k)<=pvu(ld:lu-1))) then
             if(all(pv(k) <= pvu(lu+1:ld))) then
               l = lu
@@ -367,6 +372,7 @@ end subroutine
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 1999-10-18 | Mark Iredell  | Initial
+!> 2026-04-22 | Alyson Stahl  | Fix rank mismatch warnings for gcc compiler by adding kd_tmp array
 !>
 !> @author Mark Iredell np23 @date 1999-10-18
     subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
@@ -377,7 +383,7 @@ end subroutine
     real,intent(out):: ptp,utp,vtp,ttp,htp,shrtp
     real,parameter:: ptplim(2)=(/500.e+2,50.e+2/),gamtp=2.e-3,hd=2.e+3
     real gamu,gamd,td,gami,wtp,spdu,spdd
-    integer klim(2),k,kd,ktp
+    integer klim(2),k,kd,ktp,kd_tmp(1)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find tropopause level
     call rsearch1(km-2,p(2),2,ptplim,klim)
@@ -394,7 +400,8 @@ end subroutine
       gamu=(t(k+1)-t(k-1))/(h(k-1)-h(k+1))
       if(gamu<=gamtp) then
 !        call rsearch1(km-k-1,h(k+1),1,h(k)+hd,kd)
-	call rsearch1(k-2,h(2),1,h(k)+hd,kd)
+    	call rsearch1(k-2,h(2),1,(/h(k)+hd/),kd_tmp)
+    	kd = kd_tmp(1)
 !        td=t(k+kd)+(h(k)+hd-h(k+kd))/(h(k+kd+1)-h(k+kd))*(t(k+kd+1)-t(k+kd))
         td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
         gami=(t(k)-td)/hd
