@@ -51,7 +51,7 @@ program test_upp_physics
     res = 0
     do i = 1, N_TV
         if (abs(TV(i) - EXP_TV(i)) > tol) then
-            print '(A,I0,A,ES24.10,A,ES24.10)', "TVIRTUAL() Failed for test ", i, ": ", &
+            print '(A,I0,A,A,ES24.10,A,ES24.10)', "TVIRTUAL() Failed for test ", i, ": ", &
                         "Expected ", EXP_TV(i), &
                         " but got ", TV(i)
             res = 1
