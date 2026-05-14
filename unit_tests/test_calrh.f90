@@ -155,6 +155,7 @@ program test_calrh
     print *, "Testing CALRH()..."
 
     ! Test Case 1: modelname == 'RAPR' (Calls CALRH_GSD())
+    RH = 0.0 ! Reset
     call CALRH(P1, T1, Q1, RH)
 
     res = 0
@@ -180,6 +181,7 @@ program test_calrh
 
     ! Test Case 2: modelname != 'RAPR' (Calls CALRH_NAM())
     modelname = "Not_RAPR"
+    RH = 0.0 ! Reset
     call CALRH(P1, T1, Q1, RH)
 
     res = 0
