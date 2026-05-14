@@ -54,7 +54,7 @@ program test_calrh
     EXP_RH_NAM(1,2) = 1.0
 
     ! Test Case 3: Q1/QC < RHmin & P1 >= 300.0 (Clipped to RHmin)
-    Q1_NAM(1,3) = 1e-7
+    Q1_NAM(1,3) = 1e-10
     EXP_Q1_NAM(1,3) = RHMIN * QC
     EXP_RH_NAM(1,3) = RHMIN
 
