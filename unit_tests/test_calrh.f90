@@ -43,7 +43,7 @@ program test_calrh
 
     EXP_Q1_NAM = 0.004
     QC = PQ0/P1(1,1)*EXP(A2*(T1(1,1)-A3)/(T1(1,1)-A4))
-    EXP_RH = Q1_NAM(1,1)/QC
+    EXP_RH_NAM = Q1_NAM(1,1)/QC
     
     ! Test Case 2: Q1/QC > 1.0 (Clipped to 1.0)
     Q1_NAM(1,2) = 0.010
@@ -120,7 +120,7 @@ program test_calrh
     print *, "Testing CALRH_GSD()..."
 
     RH = 0.0 ! Reset
-    
+
     call CALRH_GSD(P1, T1, Q1_GSD, RH)
 
     do i = 1, npts
