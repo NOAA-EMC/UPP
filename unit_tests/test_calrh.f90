@@ -85,6 +85,7 @@ program test_calrh
     res = 0
     do i = 1, npts
         print '(A,I0,A,ES24.10)', "RH(", i, ") = ", RH(1,i)
+        print '(A,I0,A,ES24.10)', "Q1(", i, ") = ", Q1_NAM(1,i)
         !if (abs(Q1_NAM(1,i) - EXP_Q1_NAM(1,i)) > tol) then
         !    print *, "CALRH_NAM() Failed for test ", i, ": ", &
         !                "Expected Q1 = ", EXP_Q1_NAM(1,i), &
