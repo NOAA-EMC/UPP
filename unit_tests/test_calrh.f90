@@ -96,8 +96,8 @@ program test_calrh
         !                " but got RH = ", RH_NAM(1,i)
         !    res = 1
         !end if
-        print '(A,I0,A,F10.9)', "Q(", i, ") = ", Q1_NAM(1,i)
-        print '(A,I0,A,F10.9)', "RH(", i, ") = ", RH_NAM(1,i)
+        print '(A,I0,A,E24.10)', "Q(", i, ") = ", Q1_NAM(1,i)
+        print '(A,I0,A,E24.10)', "RH(", i, ") = ", RH_NAM(1,i)
     end do
 
     if (res .ne. 0) stop 10
