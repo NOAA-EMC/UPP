@@ -58,7 +58,7 @@ program test_upp_physics
         end if
     end do
 
-    !if (res .ne. 0) stop 10
+    if (res .ne. 0) stop 10
 
     print *, "Testing FPVSNEW()..."
 
@@ -86,7 +86,6 @@ program test_upp_physics
 
     res = 0
     do i = 1, N_FPVS
-        !print '(A,I0,A,ES24.10)', "SVP(", i, ") = ", SVP(i)
         if (abs(SVP(i) - EXP_SVP(i)) > tol) then
             print *, "FPVSNEW() Failed for test ", i, ": ", &
                         "Expected ", EXP_SVP(i), &
