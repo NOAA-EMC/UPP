@@ -93,14 +93,15 @@ program test_calrh
     do i = 1, npts
         Q1(1,i) = Q1_NAM(1,i)
         Q1_GSD(1,i) = Q1_NAM(1,i)
+
+        ! Q1 not overwritten in CALRH_GSD(), but copy it to EXP_Q1_GSD for consistency.
+        EXP_Q1_GSD(1,i) = Q1_GSD(1,i)
     end do
 
     call CALRH_NAM(P1, T1, Q1_NAM, RH)
 
     res = 0
     do i = 1, npts
-        !print '(A,I0,A,ES24.10)', "RH(", i, ") = ", RH(1,i)
-        !print '(A,I0,A,ES24.10)', "Q1(", i, ") = ", Q1_NAM(1,i)
         if (abs(Q1_NAM(1,i) - EXP_Q1_NAM(1,i)) > tol) then
             print *, "CALRH_NAM() Failed for test ", i, ": ", &
                         "Expected Q1 = ", EXP_Q1_NAM(1,i), &
@@ -121,14 +122,32 @@ program test_calrh
 
     RH = 0.0 ! Reset
 
+    EXP_RH_GSD(1) = 5.5023592710E-01
+    EXP_RH_GSD(2) = 1.0000000000E+00
+    EXP_RH_GSD(3) = 1.3789341224E-08
+    EXP_RH_GSD(4) = 1.6222745103E-07
+    EXP_RH_GSD(5) = 1.6222753141E-09
+    EXP_RH_GSD(6) = 3.2366820051E-06
+    EXP_RH_GSD(7) = spval
+    EXP_RH_GSD(8) = spval
+    EXP_RH_GSD(9) = spval
+
     call CALRH_GSD(P1, T1, Q1_GSD, RH)
 
+    res = 0
     do i = 1, npts
-        print '(A,I0,A,ES24.10)', "Q1(", i, ") = ", Q1_GSD(1,i)
-    end do
-
-    do i = 1, npts
-        print '(A,I0,A,ES24.10)', "RH(", i, ") = ", RH(1,i)
+        if (abs(Q1_GSD(1,i) - EXP_Q1_GSD(1,i)) > tol) then
+            print *, "CALRH_GSD() Failed for test ", i, ": ", &
+                        "Expected Q1 = ", EXP_Q1_GSD(1,i), &
+                                " but got Q1 = ", Q1_GSD(1,i)
+            res = 1
+        end if
+        if (abs(RH(1,i) - EXP_RH_GSD(1,i)) > tol) then
+            print *, "CALRH_GSD() Failed for test ", i, ": ", &
+                        "Expected RH = ", EXP_RH_GSD(1,i), &
+                                " but got RH = ", RH(1,i)
+            res = 1
+        end if
     end do
 
 end program test_calrh
