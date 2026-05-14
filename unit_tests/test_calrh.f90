@@ -27,7 +27,7 @@ program test_calrh
     jsta = 1
     jend = npts
     spval = 9.9e10
-    modelname = ""
+    modelname = "RAPR"
 
     ! Test Cases completely cover CALRH_NAM() and CALRH_GSD(). CALRH() just calls
     ! CALRH_NAM() or CALRH_GSD() depending on the model, so the tests just check it 
@@ -150,4 +150,58 @@ program test_calrh
         end if
     end do
 
+    if (res .ne. 0) stop 20
+
+    print *, "Testing CALRH()..."
+
+    ! Test Case 1: modelname == 'RAPR' (Calls CALRH_GSD())
+    call CALRH(P1, T1, Q1, RH)
+
+    res = 0
+    do i = 1, npts
+        if (abs(Q1(1,i) - EXP_Q1_GSD(1,i)) > tol) then
+            print *, "CALRH() Failed for test ", i, ": ", &
+                        "Expected Q1 = ", EXP_Q1_GSD(1,i), &
+                                " but got Q1 = ", Q1(1,i)
+            res = 1
+        end if
+        if (abs(RH(1,i) - EXP_RH_GSD(1,i)) > tol) then
+            print *, "CALRH() Failed for test ", i, ": ", &
+                        "Expected RH = ", EXP_RH_GSD(1,i), &
+                                " but got RH = ", RH(1,i)
+            res = 1
+        end if
+    end do
+
+    if (res .ne. 0) then
+        print *, "CALRH() failed for modelname == 'RAPR'."
+        stop 30
+    end if
+
+    ! Test Case 2: modelname != 'RAPR' (Calls CALRH_NAM())
+    modelname = "Not_RAPR"
+    call CALRH(P1, T1, Q1, RH)
+
+    res = 0
+    do i = 1, npts
+        if (abs(Q1(1,i) - EXP_Q1_NAM(1,i)) > tol) then
+            print *, "CALRH() Failed for test ", i, ": ", &
+                        "Expected Q1 = ", EXP_Q1_NAM(1,i), &
+                                " but got Q1 = ", Q1(1,i)
+            res = 1
+        end if
+        if (abs(RH(1,i) - EXP_RH_NAM(1,i)) > tol) then
+            print *, "CALRH() Failed for test ", i, ": ", &
+                        "Expected RH = ", EXP_RH_NAM(1,i), &
+                                " but got RH = ", RH(1,i)
+            res = 1
+        end if
+    end do
+
+    if (res .ne. 0) then
+        print *, "CALRH() failed for modelname != 'RAPR'."
+        stop 40
+    end if
+
+    print *, "SUCCESS!"
 end program test_calrh
