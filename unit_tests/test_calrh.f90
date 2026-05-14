@@ -84,20 +84,21 @@ program test_calrh
 
     res = 0
     do i = 1, npts
-        !if (abs(Q1_NAM(1,i) - EXP_Q1_NAM(1,i)) > tol) then
-        !    print *, "CALRH_NAM() Failed for test ", i, ": ", &
-        !                "Expected Q1 = ", EXP_Q1_NAM(1,i), &
-        !                        " but got Q1 = ", Q1_NAM(1,i)
-        !    res = 1
-        !end if
-        !if (abs(RH_NAM(1,i) - EXP_RH_NAM(1,i)) > tol) then
-        !    print *, "CALRH_NAM() Failed for test ", i, ": ", &
-        !                "Expected RH = ", EXP_RH_NAM(1,i), &
-        !                " but got RH = ", RH_NAM(1,i)
-        !    res = 1
-        !end if
-        print '(A,I0,A,E24.10)', "Q(", i, ") = ", Q1_NAM(1,i)
-        print '(A,I0,A,E24.10)', "RH(", i, ") = ", RH_NAM(1,i)
+        if (abs(Q1_NAM(1,i) - EXP_Q1_NAM(1,i)) > tol) then
+            print *, "CALRH_NAM() Failed for test ", i, ": ", &
+                        "Expected Q1 = ", EXP_Q1_NAM(1,i), &
+                                " but got Q1 = ", Q1_NAM(1,i)
+            res = 1
+        end if
+        if (abs(RH_NAM(1,i) - EXP_RH_NAM(1,i)) > tol) then
+            print *, "CALRH_NAM() Failed for test ", i, ": ", &
+                        "Expected RH = ", EXP_RH_NAM(1,i), &
+                        " but got RH = ", RH_NAM(1,i)
+            res = 1
+        end if
+        
+        !print '(A,I0,A,E24.10)', "Q(", i, ") = ", Q1_NAM(1,i)
+        !print '(A,I0,A,E24.10)', "RH(", i, ") = ", RH_NAM(1,i)
     end do
 
     if (res .ne. 0) stop 10
