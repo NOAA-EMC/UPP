@@ -122,15 +122,15 @@ program test_calrh
 
     RH = 0.0 ! Reset
 
-    EXP_RH_GSD(1) = 5.5023592710E-01
-    EXP_RH_GSD(2) = 1.0000000000E+00
-    EXP_RH_GSD(3) = 1.3789341224E-08
-    EXP_RH_GSD(4) = 1.6222745103E-07
-    EXP_RH_GSD(5) = 1.6222753141E-09
-    EXP_RH_GSD(6) = 3.2366820051E-06
-    EXP_RH_GSD(7) = spval
-    EXP_RH_GSD(8) = spval
-    EXP_RH_GSD(9) = spval
+    EXP_RH_GSD(1,1) = 5.5023592710E-01
+    EXP_RH_GSD(1,2) = 1.0000000000E+00
+    EXP_RH_GSD(1,3) = 1.3789341224E-08
+    EXP_RH_GSD(1,4) = 1.6222745103E-07
+    EXP_RH_GSD(1,5) = 1.6222753141E-09
+    EXP_RH_GSD(1,6) = 3.2366820051E-06
+    EXP_RH_GSD(1,7) = spval
+    EXP_RH_GSD(1,8) = spval
+    EXP_RH_GSD(1,9) = spval
 
     call CALRH_GSD(P1, T1, Q1_GSD, RH)
 
