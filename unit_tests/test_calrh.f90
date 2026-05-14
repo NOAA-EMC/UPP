@@ -82,7 +82,7 @@ program test_calrh
 
     ! Test Case 9: Q1 has spval (not explicitly handled by CALRH_NAM)
     Q1_NAM(1,9) = spval
-    QC = PQ0/P1(1,5)*EXP(A2*(T1(1,5)-A3)/(T1(1,5)-A4))
+    QC = PQ0/P1(1,9)*EXP(A2*(T1(1,9)-A3)/(T1(1,9)-A4))
     EXP_RH(1,9) = 1.0
     EXP_Q1_NAM(1,9) = QC
 
