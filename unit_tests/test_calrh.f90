@@ -24,9 +24,7 @@ program test_calrh
     real :: P1_GSD(1, npts), T1_GSD(1, npts), Q1_GSD(1, npts)
     real :: RH_GSD(1, npts), EXP_RH_GSD(1, npts)
     ! Arrays for CALRH()
-    real :: P1(1, npts), T1(1, npts)
-    real :: Q1(1, npts), EXP_Q1(1, npts)
-    real :: RH(1, npts)
+    real :: P1(1, npts), T1(1, npts), Q1(1, npts), RH(1, npts)
 
     ! Grid dimensions
     ista = 1
@@ -96,14 +94,36 @@ program test_calrh
                         " but got RH = ", RH_NAM(1,i)
             res = 1
         end if
-        
-        !print '(A,I0,A,E24.10)', "Q(", i, ") = ", Q1_NAM(1,i)
-        !print '(A,I0,A,E24.10)', "RH(", i, ") = ", RH_NAM(1,i)
     end do
 
     if (res .ne. 0) stop 10
 
     print *, "Testing CALRH_GSD()..."
 
+    P1_GSD = 85000.0
+    T1_GSD = 280.0
+    Q1_GSD = 0.004
+    RH_GSD = 0.0 ! Give a default value.
+
+    Q1_GSD(1,2) = 0.010
+
+    Q1_GSD(1,3) = 1e-10
+
+    P1_GSD(1,4) = 100.0
+    Q1_GSD(1,4) = 1e-6
+
+    P1_GSD(1,5) = 100.0
+    Q1_GSD(1,5) = 1e-8
+
+    P1_GSD(1,6) = 0.5
+
+    T1_GSD(1,7) = spval
+
+    call CALRH_GSD(P1_GSD, T1_GSD, Q1_GSD, RH_GSD)
+
+    do i = 1, npts
+        print '(A,I0,A,ES24.10)', "Q1(", i, ") = ", Q1_GSD(1,i)
+        print '(A,I0,A,ES24.10)', "RH(", i, ") = ", RH_GSD(1,i)
+    end do
 
 end program test_calrh
