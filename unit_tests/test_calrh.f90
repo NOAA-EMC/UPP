@@ -74,30 +74,36 @@ program test_calrh
     T1(1,7) = spval
     EXP_RH(1,7) = spval
 
-    ! Test Case 8: P1 has spval
+    ! Test Case 8: P1 has spval (not explicitly handled by CALRH_NAM)
     P1(1,8) = spval
+    QC = PQ0/P1(1,8)*EXP(A2*(T1(1,8)-A3)/(T1(1,8)-A4))
+    EXP_RH(1,8) = 1.0
+    EXP_Q1_NAM(1,8) = QC
 
-    ! Test Case 9: Q1 has spval
+    ! Test Case 9: Q1 has spval (not explicitly handled by CALRH_NAM)
     Q1_NAM(1,9) = spval
+    QC = PQ0/P1(1,5)*EXP(A2*(T1(1,5)-A3)/(T1(1,5)-A4))
+    EXP_RH(1,9) = 1.0
+    EXP_Q1_NAM(1,9) = QC
 
     call CALRH_NAM(P1, T1, Q1_NAM, RH)
 
     res = 0
     do i = 1, npts
-        print '(A,I0,A,ES24.10)', "RH(", i, ") = ", RH(1,i)
-        print '(A,I0,A,ES24.10)', "Q1(", i, ") = ", Q1_NAM(1,i)
-        !if (abs(Q1_NAM(1,i) - EXP_Q1_NAM(1,i)) > tol) then
-        !    print *, "CALRH_NAM() Failed for test ", i, ": ", &
-        !                "Expected Q1 = ", EXP_Q1_NAM(1,i), &
-        !                        " but got Q1 = ", Q1_NAM(1,i)
-        !    res = 1
-        !end if
-        !if (abs(RH(1,i) - EXP_RH(1,i)) > tol) then
-        !    print *, "CALRH_NAM() Failed for test ", i, ": ", &
-        !                "Expected RH = ", EXP_RH(1,i), &
-        !                        " but got RH = ", RH(1,i)
-        !    res = 1
-        !end if
+        !print '(A,I0,A,ES24.10)', "RH(", i, ") = ", RH(1,i)
+        !print '(A,I0,A,ES24.10)', "Q1(", i, ") = ", Q1_NAM(1,i)
+        if (abs(Q1_NAM(1,i) - EXP_Q1_NAM(1,i)) > tol) then
+            print *, "CALRH_NAM() Failed for test ", i, ": ", &
+                        "Expected Q1 = ", EXP_Q1_NAM(1,i), &
+                                " but got Q1 = ", Q1_NAM(1,i)
+            res = 1
+        end if
+        if (abs(RH(1,i) - EXP_RH(1,i)) > tol) then
+            print *, "CALRH_NAM() Failed for test ", i, ": ", &
+                        "Expected RH = ", EXP_RH(1,i), &
+                                " but got RH = ", RH(1,i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) stop 10
