@@ -18,7 +18,7 @@ program test_calrh
     real :: P1(1, npts), T1(1, npts), RH(1, npts)
     ! Keeping Q1 arrays separate because it can get overwritten.
     real :: Q1_NAM(1, npts), Q1_GSD(1, npts), Q1(1, npts)
-    real :: EXP_Q1_NAM(1, npts), EXP_Q1_GSD(1, npts), 
+    real :: EXP_Q1_NAM(1, npts), EXP_Q1_GSD(1, npts)
     real :: EXP_RH(1, npts), EXP_RH_GSD(1, npts)
 
 
@@ -79,7 +79,7 @@ program test_calrh
 
     ! Test Case 9: Q1 has spval
     Q1_NAM(1,9) = spval
-    
+
     call CALRH_NAM(P1, T1, Q1_NAM, RH)
 
     res = 0
