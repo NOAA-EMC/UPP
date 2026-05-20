@@ -116,6 +116,7 @@ list(APPEND LIB_SRC
     svptbl.f
     TABLE.f
     TABLEQ.f
+    TRPAUS2.f
     TRPAUS.f
     TTBLEX.f
     UPP_MATH.f
