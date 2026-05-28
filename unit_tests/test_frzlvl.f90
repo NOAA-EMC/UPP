@@ -154,24 +154,21 @@ program test_frzlvl
     call FRZLVL(ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
-        !if (abs(ZFRZ(1, i) - EXP_ZFRZ(1, i)) > tol) then
-        !    print *, "Test Case ", i, " FAILED: Expected ZFRZ = ", EXP_ZFRZ(1, i), &
-        !             " but got ZFRZ = ", ZFRZ(1, i)
-        !    res = 1
-        !end if
-        !if (abs(RHFRZ(1, i) - EXP_RHFRZ(1, i)) > tol) then
-        !    print *, "Test Case ", i, " FAILED: Expected RHFRZ = ", EXP_RHFRZ(1, i), &
-        !             " but got RHFRZ = ", RHFRZ(1, i)
-        !    res = 1
-        !end if
-        !if (abs(PFRZL(1, i) - EXP_PFRZL(1, i)) > tol) then
-        !    print *, "Test Case ", i, " FAILED: Expected PFRZL = ", EXP_PFRZL(1, i), &
-        !             " but got PFRZL = ", PFRZL(1, i)
-        !    res = 1
-        !end if
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ(1, i)) > tol) then
+            print *, "Test Case ", i, " FAILED: Expected ZFRZ = ", EXP_ZFRZ(1, i), &
+                     " but got ZFRZ = ", ZFRZ(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ(1, i)) > tol) then
+            print *, "Test Case ", i, " FAILED: Expected RHFRZ = ", EXP_RHFRZ(1, i), &
+                     " but got RHFRZ = ", RHFRZ(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL(1, i)) > tol) then
+            print *, "Test Case ", i, " FAILED: Expected PFRZL = ", EXP_PFRZL(1, i), &
+                     " but got PFRZL = ", PFRZL(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) then
@@ -185,24 +182,21 @@ program test_frzlvl
     call FRZLVL(ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
-        !if (abs(ZFRZ(1, i) - EXP_ZFRZ_GFS(1, i)) > tol) then
-        !    print *, "Test Case ", i, " FAILED: Expected ZFRZ = ", EXP_ZFRZ_GFS(1, i), &
-        !             " but got ZFRZ = ", ZFRZ(1, i)
-        !    res = 1
-        !end if
-        !if (abs(RHFRZ(1, i) - EXP_RHFRZ_GFS(1, i)) > tol) then
-        !    print *, "Test Case ", i, " FAILED: Expected RHFRZ = ", EXP_RHFRZ_GFS(1, i), &
-        !             " but got RHFRZ = ", RHFRZ(1, i)
-        !    res = 1
-        !end if
-        !if (abs(PFRZL(1, i) - EXP_PFRZL_GFS(1, i)) > tol) then
-        !    print *, "Test Case ", i, " FAILED: Expected PFRZL = ", EXP_PFRZL_GFS(1, i), &
-        !             " but got PFRZL = ", PFRZL(1, i)
-        !    res = 1
-        !end if
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_GFS(1, i)) > tol) then
+            print *, "Test Case ", i, " FAILED: Expected ZFRZ = ", EXP_ZFRZ_GFS(1, i), &
+                     " but got ZFRZ = ", ZFRZ(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_GFS(1, i)) > tol) then
+            print *, "Test Case ", i, " FAILED: Expected RHFRZ = ", EXP_RHFRZ_GFS(1, i), &
+                     " but got RHFRZ = ", RHFRZ(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_GFS(1, i)) > tol) then
+            print *, "Test Case ", i, " FAILED: Expected PFRZL = ", EXP_PFRZL_GFS(1, i), &
+                     " but got PFRZL = ", PFRZL(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) then
