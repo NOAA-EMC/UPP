@@ -142,9 +142,9 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_1, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_1(1, ", i, ") = ", ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_1(1, ", i, ") = ", RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_PFRZL_1(1, ", i, ") = ", PFRZL(1, i)
     end do
 
     if (res .ne. 0) then
@@ -160,9 +160,9 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_2(1, ", i, ") = ", ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_2(1, ", i, ") = ", RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_PFRZL_2(1, ", i, ") = ", PFRZL(1, i)
     end do
 
     if (res .ne. 0) then
@@ -179,9 +179,9 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_1, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_GFS_1(1, ", i, ") = ", ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_GFS_1(1, ", i, ") = ", RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_PFRZL_GFS_1(1, ", i, ") = ", PFRZL(1, i)
     end do
 
     if (res .ne. 0) then
@@ -197,9 +197,9 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_GFS_2(1, ", i, ") = ", ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_GFS_2(1, ", i, ") = ", RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_PFRZL_GFS_2(1, ", i, ") = ", PFRZL(1, i)
     end do
 
     if (res .ne. 0) then
@@ -215,12 +215,6 @@ program test_frzlvl2
     PFRZL = 0.0
     call FRZLVL2(ISOTHERM_1, ZFRZ, RHFRZ, PFRZL)
 
-    do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
-    end do
-
     if (res .ne. 0) then
         deallocate(pint, t, zmid, q, pmid, zint, alpint, fis, tshltr, pshltr, qz0, qs, qshltr, lmh, sm)
         stop 50
@@ -233,12 +227,6 @@ program test_frzlvl2
     PFRZL = 0.0
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
-    do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
-    end do
-    
     if (res .ne. 0) then
         deallocate(pint, t, zmid, q, pmid, zint, alpint, fis, tshltr, pshltr, qz0, qs, qshltr, lmh, sm)
         stop 60

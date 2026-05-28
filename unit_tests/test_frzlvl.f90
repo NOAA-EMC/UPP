@@ -155,9 +155,9 @@ program test_frzlvl
     call FRZLVL(ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_ZFRZ(1, ", i, ") = ", EXP_ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_RHFRZ(1, ", i, ") = ", EXP_RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_PFRZL(1, ", i, ") = ", EXP_PFRZL(1, i)
     end do
 
     if (res .ne. 0) then
@@ -171,9 +171,9 @@ program test_frzlvl
     call FRZLVL(ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_GFS(1, ", i, ") = ", ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_GFS(1, ", i, ") = ", RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "EXP_PFRZL_GFS(1, ", i, ") = ", PFRZL(1, i)
     end do
 
     if (res .ne. 0) then
@@ -185,12 +185,6 @@ program test_frzlvl
     modelname = "RAPR"
     res = 0
     call FRZLVL(ZFRZ, RHFRZ, PFRZL)
-
-    do i = 1, npts
-        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
-    end do
 
     if (res .ne. 0) stop 30
 
