@@ -156,11 +156,7 @@ program test_frzlvl
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -176,11 +172,7 @@ program test_frzlvl
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -196,11 +188,7 @@ program test_frzlvl
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 

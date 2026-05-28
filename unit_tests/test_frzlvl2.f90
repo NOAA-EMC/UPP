@@ -143,11 +143,7 @@ program test_frzlvl2
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -165,11 +161,7 @@ program test_frzlvl2
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -188,11 +180,7 @@ program test_frzlvl2
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -210,11 +198,7 @@ program test_frzlvl2
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -233,11 +217,7 @@ program test_frzlvl2
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
-    end do
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
     end do
 
@@ -253,12 +233,18 @@ program test_frzlvl2
     PFRZL = 0.0
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
+    do i = 1, npts
+        print '(A, I0, A, ES16.9)', "ZFRZ(", i, ") = ", ZFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "RHFRZ(", i, ") = ", RHFRZ(1, i)
+        print '(A, I0, A, ES16.9)', "PFRZL(", i, ") = ", PFRZL(1, i)
+    end do
+    
     if (res .ne. 0) then
         deallocate(pint, t, zmid, q, pmid, zint, alpint, fis, tshltr, pshltr, qz0, qs, qshltr, lmh, sm)
         stop 60
     end if
 
     deallocate(pint, t, zmid, q, pmid, zint, alpint, fis, tshltr, pshltr, qz0, qs, qshltr, lmh, sm)
-    
+
     print *, "SUCCESS!"
 end program test_frzlvl2

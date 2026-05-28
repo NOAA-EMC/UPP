@@ -13,6 +13,7 @@ program test_ngmslp
     real, parameter :: tol = 1.0e-8
     integer, parameter :: npts = 4, nlevs = 30
     integer :: i, k, res
+    integer :: lm
     real :: EXP_SLP(1, npts), EXP_Z1000(1, npts)
 
     interface
@@ -78,15 +79,12 @@ program test_ngmslp
 
     do i = 1, npts
         print '(A, I0, A, ES16.9)', "SLP(", i, ") = ", slp(1, i)
-    end do
-
-    do i = 1, npts
         print '(A, I0, A, ES16.9)', "Z1000(", i, ") = ", z1000(1, i)
     end do
 
     if (res .ne. 0) stop 10
 
     deallocate(zint, pint, t, q, zmid, fis, slp, z1000)
-    
+
     print *, "SUCCESS!"
 end program test_ngmslp
