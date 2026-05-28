@@ -35,7 +35,7 @@ program test_ngmslp
     allocate(zmid(ista:iend, jsta:jend, 1:lm))
     allocate(fis(ista:iend, jsta:jend))
     allocate(lmh(ista:iend, jsta:jend))
-    
+
     ! Output arrays
     allocate(slp(ista:iend, jsta:jend))
     allocate(z1000(ista:iend, jsta:jend))
@@ -55,8 +55,8 @@ program test_ngmslp
         q(1, :, k) = 0.01 * exp(-real(k - 1) / real(lm - 1) * 3.0)
     end do
 
-    EXP_SLP = 0.0
-    EXP_Z1000 = 0.0
+    EXP_SLP = 1.444795625E+05
+    EXP_Z1000 = 1.229971484E+04
 
     ! Test Case 2: ((TAUSL>TAUCR).AND.(TAUSFC<=TAUCR))
     zint(1, 2, lm+1) = 8000.0
@@ -65,6 +65,9 @@ program test_ngmslp
     t(1, 2, lm) = 260.0
     q(1, 2, lm) = 0.01
 
+    EXP_SLP(1,2) =  1.342745410E+04
+    EXP_Z1000(1,2) = -8.556410156E+04
+
     ! Test Case 3: ((TAUSL>TAUCR).AND.(TAUSFC>TAUCR))
     zint(1, 3, lm+1) = 100.0
     fis(1, 3) = 100.0 * 9.81
@@ -72,15 +75,27 @@ program test_ngmslp
     t(1, 3, lm) = 310.0
     q(1, 3, lm) = 0.02
 
+    EXP_SLP(1,3) =  5.056930664E+03
+    EXP_Z1000(1,3) = -1.667697344E+05
+
     ! Test Case 4: spval case
     pint(1, 4, lm+1) = spval
+
+    EXP_SLP(1,4) =  spval
+    EXP_Z1000(1,4) = spval
 
     res = 0
     call NGMSLP()
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "SLP(", i, ") = ", slp(1, i)
-        print '(A, I0, A, ES16.9)', "Z1000(", i, ") = ", z1000(1, i)
+        if (abs(slp(1, i) - EXP_SLP(1, i)) > tol) then
+            print *, "Error: SLP(1, ", i, ") = ", slp(1, i), " != EXP_SLP(1, ", i, ") = ", EXP_SLP(1, i)
+            res = 1
+        end if
+        if (abs(z1000(1, i) - EXP_Z1000(1, i)) > tol) then
+            print *, "Error: Z1000(1, ", i, ") = ", z1000(1, i), " != EXP_Z1000(1, ", i, ") = ", EXP_Z1000(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) stop 10
