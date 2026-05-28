@@ -3,6 +3,7 @@
 # This script is used to submit test jobs on WCOSS2.
 # # Wen Meng  05/2025  First version.
 # # Ben Blake 04/2026  Remove RRFS IFI support
+# # Ben Blake 05/2026  Add WAFS test
 # ##########################################################################
 
 jobid_list=""
@@ -27,7 +28,7 @@ fi
 
 # Run additional GTG tests
 if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" && "$have_gtg" == "yes" && "$disable_gtg" == "no" ]] ; then
-  for gtg_test in dafs; do
+  for gtg_test in dafs wafs; do
     cp $svndir/ci/jobs-dev/run_post_${gtg_test}_${machine}.sh .
     job_id=$(qsub -A "${accnr}" run_post_${gtg_test}_${machine}.sh)
     jobid_list="${jobid_list} ${job_id}"
