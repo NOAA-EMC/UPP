@@ -125,6 +125,9 @@ program test_frzlvl
     qshltr(1, 6) = spval
     pshltr(1, 6) = spval
     t(1, 6, lm) = 270.0
+    do k = 1, lm - 1
+        t(1, 6, k) = 270.0 - 2.0 * real(lm - k) / real(lm - 1)
+    end do
 
     EXP_ZFRZ(1, 6) = -4.846145020E+02
     EXP_RHFRZ(1, 6) =  2.189850062E-01
