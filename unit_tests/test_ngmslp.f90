@@ -34,6 +34,8 @@ program test_ngmslp
     allocate(q(ista:iend, jsta:jend, 1:lm))
     allocate(zmid(ista:iend, jsta:jend, 1:lm))
     allocate(fis(ista:iend, jsta:jend))
+    allocate(lmh(ista:iend, jsta:jend))
+    
     ! Output arrays
     allocate(slp(ista:iend, jsta:jend))
     allocate(z1000(ista:iend, jsta:jend))

@@ -67,60 +67,59 @@ program test_frzlvl
         q(1, :, k) = 0.010 * exp(-real(lm - k) / real(lm - 1) * 3.0)
     end do
 
-    ! Replace with the actual expected value calculations once I have them.
-    EXP_ZFRZ = 0.0
-    EXP_RHFRZ = 0.0
-    EXP_PFRZL = 0.0
+    EXP_ZFRZ(1, 1) =  4.153851562E+03
+    EXP_RHFRZ(1, 1) =  3.624264598E-01
+    EXP_PFRZL(1, 1) =  2.565234961E+04
 
-    EXP_ZFRZ_GFS = 0.0
-    EXP_RHFRZ_GFS = 0.0
-    EXP_PFRZL_GFS = 0.0
+    EXP_ZFRZ_GFS(1, 1) =  4.153851562E+03
+    EXP_RHFRZ_GFS(1, 1) =  3.591695130E-01
+    EXP_PFRZL_GFS(1, 1) =  2.565234961E+04
 
     ! Test Case 2: TSHLTR and PSHLTR are spval with other default input values.
     tshltr(1, 2) = spval
     pshltr(1, 2) = spval
 
-    EXP_ZFRZ(1, 2) = 0.0
-    EXP_RHFRZ(1, 2) = 0.0
-    EXP_PFRZL(1, 2) = 0.0
+    EXP_ZFRZ(1, 2) =  4.153851562E+03
+    EXP_RHFRZ(1, 2) =  3.624264598E-01
+    EXP_PFRZL(1, 2) =  2.565234961E+04
 
-    EXP_ZFRZ_GFS(1, 2) = 0.0
-    EXP_RHFRZ_GFS(1, 2) = 0.0
-    EXP_PFRZL_GFS(1, 2) = 0.0
+    EXP_ZFRZ_GFS(1, 2) =  4.153851562E+03
+    EXP_RHFRZ_GFS(1, 2) =  3.591695130E-01
+    EXP_PFRZL_GFS(1, 2) =  2.565234961E+04
 
     ! Test Case 3: QSHLTR is spval with other default input values.
     qshltr(1, 3) = spval
 
-    EXP_ZFRZ(1, 3) = 0.0
-    EXP_RHFRZ(1, 3) = 0.0
-    EXP_PFRZL(1, 3) = 0.0
+    EXP_ZFRZ(1, 3) =  4.153851562E+03
+    EXP_RHFRZ(1, 3) =  3.624264598E-01
+    EXP_PFRZL(1, 3) =  2.565234961E+04
 
-    EXP_ZFRZ_GFS(1, 3) = 0.0
-    EXP_RHFRZ_GFS(1, 3) = 0.0
-    EXP_PFRZL_GFS(1, 3) = 0.0
+    EXP_ZFRZ_GFS(1, 3) =  4.153851562E+03
+    EXP_RHFRZ_GFS(1, 3) =  3.591695130E-01
+    EXP_PFRZL_GFS(1, 3) =  2.565234961E+04
 
     ! Test Case 4: TSFC < TFRZ
     tshltr(1, 4) = 270.0
 
-    EXP_ZFRZ(1, 4) = 0.0
-    EXP_RHFRZ(1, 4) = 0.0
-    EXP_PFRZL(1, 4) = 0.0
+    EXP_ZFRZ(1, 4) = -4.826144409E+02
+    EXP_RHFRZ(1, 4) =  1.000000000E+00
+    EXP_PFRZL(1, 4) =  1.000000000E+05
 
-    EXP_ZFRZ_GFS(1, 4) = 0.0
-    EXP_RHFRZ_GFS(1, 4) = 0.0
-    EXP_PFRZL_GFS(1, 4) = 0.0
+    EXP_ZFRZ_GFS(1, 4) = -4.826144409E+02
+    EXP_RHFRZ_GFS(1, 4) =  1.000000000E+00
+    EXP_PFRZL_GFS(1, 4) =  1.000000000E+05
 
     ! Test Case 5: In the L do loop labeled 10, T(I,J,L) <= TFRZ at L == LLMH.
     tshltr(1, 5) = 275.0
     t(1, 5, lm) = 270.0
     
-    EXP_ZFRZ(1, 5) = 0.0
-    EXP_RHFRZ(1, 5) = 0.0
-    EXP_PFRZL(1, 5) = 0.0
+    EXP_ZFRZ(1, 5) =  1.259997606E+00
+    EXP_RHFRZ(1, 5) =  1.458200514E-01
+    EXP_PFRZL(1, 5) =  5.535744629E+03
 
-    EXP_ZFRZ_GFS(1, 5) = 0.0
-    EXP_RHFRZ_GFS(1, 5) = 0.0
-    EXP_PFRZL_GFS(1, 5) = 0.0
+    EXP_ZFRZ_GFS(1, 5) =  1.259997606E+00
+    EXP_RHFRZ_GFS(1, 5) =  1.397437900E-01
+    EXP_PFRZL_GFS(1, 5) =  5.535744629E+03
 
     ! Test Case 6: QSHLTR and PSHLTR are spval with the T(I,J,LLMH) <= TFRZ case.
     qshltr(1, 6) = spval
@@ -128,13 +127,13 @@ program test_frzlvl
     tshltr(1, 6) = 275.0
     t(1, 6, lm) = 270.0
 
-    EXP_ZFRZ(1, 6) = 0.0
-    EXP_RHFRZ(1, 6) = 0.0
-    EXP_PFRZL(1, 6) = 0.0
+    EXP_ZFRZ(1, 6) = -4.846145020E+02
+    EXP_RHFRZ(1, 6) =  2.189850062E-01
+    EXP_PFRZL(1, 6) =  6.583333496E+03
 
-    EXP_ZFRZ_GFS(1, 6) = 0.0
-    EXP_RHFRZ_GFS(1, 6) = 0.0
-    EXP_PFRZL_GFS(1, 6) = 0.0
+    EXP_ZFRZ_GFS(1, 6) = -4.846145020E+02
+    EXP_RHFRZ_GFS(1, 6) =  2.138300836E-01
+    EXP_PFRZL_GFS(1, 6) =  6.583333496E+03
 
     ! Test Case 7: T(I,J,L) > TFRZ at all levels.
     tshltr(1, 7) = 300.0
@@ -142,13 +141,13 @@ program test_frzlvl
         t(1, 7, k) = 300.0 - 2.0 * real(lm - k) / real(lm - 1) * 11000.0 / 1000.0
     end do
 
-    EXP_ZFRZ(1, 7) = 0.0
-    EXP_RHFRZ(1, 7) = 0.0
-    EXP_PFRZL(1, 7) = 0.0
+    EXP_ZFRZ(1, 7) =  0.0
+    EXP_RHFRZ(1, 7) =  0.0
+    EXP_PFRZL(1, 7) =  5000.0
 
-    EXP_ZFRZ_GFS(1, 7) = 0.0
-    EXP_RHFRZ_GFS(1, 7) = 0.0
-    EXP_PFRZL_GFS(1, 7) = 0.0
+    EXP_ZFRZ_GFS(1, 7) =  0.0
+    EXP_RHFRZ_GFS(1, 7) =  0.0
+    EXP_PFRZL_GFS(1, 7) =  5000.0
 
     print *, "Testing FRZLVL() with modelname != 'GFS' or 'RAPR'..."
     res = 0
