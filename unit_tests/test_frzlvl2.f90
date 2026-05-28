@@ -87,22 +87,82 @@ program test_frzlvl2
         q(1, :, k) = 0.001 * exp(-real(lm - k) / real(lm - 1) * 2.0)
     end do
     
-    EXP_ZFRZ_1 = 0.0; EXP_RHFRZ_1 = 0.0; EXP_PFRZL_1 = 0.0
-    EXP_ZFRZ_2 = 0.0; EXP_RHFRZ_2 = 0.0; EXP_PFRZL_2 = 0.0
-    EXP_ZFRZ_GFS_1 = 0.0; EXP_RHFRZ_GFS_1 = 0.0; EXP_PFRZL_GFS_1 = 0.0
-    EXP_ZFRZ_GFS_2 = 0.0; EXP_RHFRZ_GFS_2 = 0.0; EXP_PFRZL_GFS_2 = 0.0
+    EXP_ZFRZ_1(1, 1) = 0.000000000E+00
+    EXP_RHFRZ_1(1, 1) = 6.934353113E-01
+    EXP_PFRZL_1(1, 1) =  5.666664551E+03
+
+    EXP_ZFRZ_GFS_1(1, 1) = 0.000000000E+00
+    EXP_RHFRZ_GFS_1(1, 1) = 1.000000000E+00
+    EXP_PFRZL_GFS_1(1, 1) = 5.666664551E+03
+
+    EXP_ZFRZ_2(1, 1) = 0.000000000E+00
+    EXP_RHFRZ_2(1, 1) = 1.000000000E+00
+    EXP_PFRZL_2(1, 1) =  2.440000000E+04
+
+    EXP_ZFRZ_GFS_2(1, 1) = 0.000000000E+00
+    EXP_RHFRZ_GFS_2(1, 1) = 1.000000000E+00
+    EXP_PFRZL_GFS_2(1, 1) = 2.440000000E+04
+
 
     ! Test Case 2: QSHLTR == spval with other default input values.
     qshltr(1, 2) = spval
+
+    EXP_ZFRZ_1(1, 2) = 0.000000000E+00
+    EXP_RHFRZ_1(1, 2) = 6.934353113E-01
+    EXP_PFRZL_1(1, 2) =  5.666664551E+03
+
+    EXP_ZFRZ_GFS_1(1, 2) = 0.000000000E+00
+    EXP_RHFRZ_GFS_1(1, 2) = 1.000000000E+00
+    EXP_PFRZL_GFS_1(1, 2) = 5.666664551E+03
+
+    EXP_ZFRZ_2(1, 2) = 0.000000000E+00
+    EXP_RHFRZ_2(1, 2) = 3.072937727E-01
+    EXP_PFRZL_2(1, 2) =  5.333333008E+03
+
+    EXP_ZFRZ_GFS_2(1, 2) = 0.000000000E+00
+    EXP_RHFRZ_GFS_2(1, 2) = 4.265226424E-01
+    EXP_PFRZL_GFS_2(1, 2) = 5.333333008E+03
 
     ! Test Case 3: QSHLTR, TSHLTR, and PSHLTR are spval with other default input values.
     qshltr(1, 3) = spval
     tshltr(1, 3) = spval
     pshltr(1, 3) = spval
 
+    EXP_ZFRZ_1(1, 3) = 1.540770020E+03
+    EXP_RHFRZ_1(1, 3) = 6.934353113E-01
+    EXP_PFRZL_1(1, 3) =  5.666664551E+03
+
+    EXP_ZFRZ_GFS_1(1, 3) = 1.540770020E+03
+    EXP_RHFRZ_GFS_1(1, 3) = 1.000000000E+00
+    EXP_PFRZL_GFS_1(1, 3) = 5.666664551E+03
+
+    EXP_ZFRZ_2(1, 3) = 0.000000000E+00
+    EXP_RHFRZ_2(1, 3) = 2.320170552E-01
+    EXP_PFRZL_2(1, 3) =  5.333333008E+03
+
+    EXP_ZFRZ_GFS_2(1, 3) = 0.000000000E+00
+    EXP_RHFRZ_GFS_2(1, 3) = 3.142645955E-01
+    EXP_PFRZL_GFS_2(1, 3) = 5.333333008E+03
+
     ! Test Case 4: TSHLTR and PSHLTR are spval with other default input values.
     tshltr(1, 4) = spval
     pshltr(1, 4) = spval
+
+    EXP_ZFRZ_1(1, 4) = 1.540770020E+03
+    EXP_RHFRZ_1(1, 4) = 6.934353113E-01
+    EXP_PFRZL_1(1, 4) =  5.666664551E+03
+
+    EXP_ZFRZ_GFS_1(1, 4) = 1.540770020E+03
+    EXP_RHFRZ_GFS_1(1, 4) = 1.000000000E+00
+    EXP_PFRZL_GFS_1(1, 4) = 5.666664551E+03
+
+    EXP_ZFRZ_2(1, 4) = 0.000000000E+00
+    EXP_RHFRZ_2(1, 4) = 1.000000000E+00
+    EXP_PFRZL_2(1, 4) =  9.900000051E+10
+
+    EXP_ZFRZ_GFS_2(1, 4) = 0.000000000E+00
+    EXP_RHFRZ_GFS_2(1, 4) = 1.000000000E+00
+    EXP_PFRZL_GFS_2(1, 4) = 9.900000051E+10
 
     ! Test Case 5: LICE clipped to L < LLMH due to PMID(1,5,L) >= PUCAP
     pint(1, 5, 15) = 35000.0
@@ -112,6 +172,22 @@ program test_frzlvl2
     alpint(1, 5, 16) = log(pint(1, 5, 16))
     t(1, 5, 15) = 228.0
     t(1, 5, 16) = 232.0
+
+    EXP_ZFRZ_1(1, 5) = 9.300000000E+03
+    EXP_RHFRZ_1(1, 5) = 1.000000000E+00
+    EXP_PFRZL_1(1, 5) =  2.239790430E+04
+
+    EXP_ZFRZ_GFS_1(1, 5) = 9.300000000E+03
+    EXP_RHFRZ_GFS_1(1, 5) = 1.000000000E+00
+    EXP_PFRZL_GFS_1(1, 5) = 2.239790430E+04
+
+    EXP_ZFRZ_2(1, 5) = 0.000000000E+00
+    EXP_RHFRZ_2(1, 5) = 1.000000000E+00
+    EXP_PFRZL_2(1, 5) =  2.440000000E+04
+
+    EXP_ZFRZ_GFS_2(1, 5) = 0.000000000E+00
+    EXP_RHFRZ_GFS_2(1, 5) = 1.000000000E+00
+    EXP_PFRZL_GFS_2(1, 5) = 2.440000000E+04
 
     ! Test Case 6: Previous LICE clipped to L < LLMH case with QSHLTR, TSHLTR, and PSHLTR all spval.
     pint(1, 6, 15) = 35000.0
@@ -125,13 +201,38 @@ program test_frzlvl2
     tshltr(1, 6) = spval
     pshltr(1, 6) = spval
 
+    EXP_ZFRZ_1(1, 6) = 9.300000000E+03
+    EXP_RHFRZ_1(1, 6) = 1.000000000E+00
+    EXP_PFRZL_1(1, 6) =  2.239790430E+04
+
+    EXP_ZFRZ_GFS_1(1, 6) = 9.300000000E+03
+    EXP_RHFRZ_GFS_1(1, 6) = 1.000000000E+00
+    EXP_PFRZL_GFS_1(1, 6) = 2.239790430E+04
+
+    EXP_ZFRZ_2(1, 6) = 0.000000000E+00
+    EXP_RHFRZ_2(1, 6) = 2.320170552E-01
+    EXP_PFRZL_2(1, 6) =  5.333333008E+03
+
+    EXP_ZFRZ_GFS_2(1, 6) = 0.000000000E+00
+    EXP_RHFRZ_GFS_2(1, 6) = 3.142645955E-01
+    EXP_PFRZL_GFS_2(1, 6) = 5.333333008E+03
+
     ! Test Case 7: FIS is spval
     fis(1, 7) = spval
 
-    EXP_ZFRZ_1(1,7) = spval; EXP_RHFRZ_1(1,7) = spval; EXP_PFRZL_1(1,7) = 0.0
-    EXP_ZFRZ_2(1,7) = spval; EXP_RHFRZ_2(1,7) = spval; EXP_PFRZL_2(1,7) = 0.0
-    EXP_ZFRZ_GFS_1(1,7) = spval; EXP_RHFRZ_GFS_1(1,7) = spval; EXP_PFRZL_GFS_1(1,7) = 0.0
-    EXP_ZFRZ_GFS_2(1,7) = spval; EXP_RHFRZ_GFS_2(1,7) = spval; EXP_PFRZL_GFS_2(1,7) = 0.0
+    EXP_ZFRZ_1(1,7) = spval 
+    EXP_RHFRZ_1(1,7) = spval 
+    EXP_PFRZL_1(1,7) = 0.0
+
+    EXP_ZFRZ_2(1,7) = spval 
+    EXP_RHFRZ_2(1,7) = spval 
+    EXP_PFRZL_2(1,7) = 0.0
+    EXP_ZFRZ_GFS_1(1,7) = spval 
+    EXP_RHFRZ_GFS_1(1,7) = spval 
+    EXP_PFRZL_GFS_1(1,7) = 0.0
+    EXP_ZFRZ_GFS_2(1,7) = spval 
+    EXP_RHFRZ_GFS_2(1,7) = spval 
+    EXP_PFRZL_GFS_2(1,7) = 0.0
 
     print *, "Testing FRZLVL2() with modelname != 'GFS' and ISOTHERM < TSFC..."
     res = 0
@@ -142,9 +243,18 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_1, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_1(1, ", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_1(1, ", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_PFRZL_1(1, ", i, ") = ", PFRZL(1, i)
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_1(1, i)) > tol) then
+            print *, "ZFRZ(1, ", i, ") = ", ZFRZ(1, i), " does not match expected value of ", EXP_ZFRZ_1(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_1(1, i)) > tol) then
+            print *, "RHFRZ(1, ", i, ") = ", RHFRZ(1, i), " does not match expected value of ", EXP_RHFRZ_1(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_1(1, i)) > tol) then
+            print *, "PFRZL(1, ", i, ") = ", PFRZL(1, i), " does not match expected value of ", EXP_PFRZL_1(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) then
@@ -160,9 +270,18 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_2(1, ", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_2(1, ", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_PFRZL_2(1, ", i, ") = ", PFRZL(1, i)
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_2(1, i)) > tol) then
+            print *, "ZFRZ(1, ", i, ") = ", ZFRZ(1, i), " does not match expected value of ", EXP_ZFRZ_2(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_2(1, i)) > tol) then
+            print *, "RHFRZ(1, ", i, ") = ", RHFRZ(1, i), " does not match expected value of ", EXP_RHFRZ_2(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_2(1, i)) > tol) then
+            print *, "PFRZL(1, ", i, ") = ", PFRZL(1, i), " does not match expected value of ", EXP_PFRZL_2(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) then
@@ -179,9 +298,18 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_1, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_GFS_1(1, ", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_GFS_1(1, ", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_PFRZL_GFS_1(1, ", i, ") = ", PFRZL(1, i)
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_GFS_1(1, i)) > tol) then
+            print *, "ZFRZ(1, ", i, ") = ", ZFRZ(1, i), " does not match expected value of ", EXP_ZFRZ_GFS_1(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_GFS_1(1, i)) > tol) then
+            print *, "RHFRZ(1, ", i, ") = ", RHFRZ(1, i), " does not match expected value of ", EXP_RHFRZ_GFS_1(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_GFS_1(1, i)) > tol) then
+            print *, "PFRZL(1, ", i, ") = ", PFRZL(1, i), " does not match expected value of ", EXP_PFRZL_GFS_1(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) then
@@ -197,9 +325,18 @@ program test_frzlvl2
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
     do i = 1, npts
-        print '(A, I0, A, ES16.9)', "EXP_ZFRZ_GFS_2(1, ", i, ") = ", ZFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_RHFRZ_GFS_2(1, ", i, ") = ", RHFRZ(1, i)
-        print '(A, I0, A, ES16.9)', "EXP_PFRZL_GFS_2(1, ", i, ") = ", PFRZL(1, i)
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_GFS_2(1, i)) > tol) then
+            print *, "ZFRZ(1, ", i, ") = ", ZFRZ(1, i), " does not match expected value of ", EXP_ZFRZ_GFS_2(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_GFS_2(1, i)) > tol) then
+            print *, "RHFRZ(1, ", i, ") = ", RHFRZ(1, i), " does not match expected value of ", EXP_RHFRZ_GFS_2(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_GFS_2(1, i)) > tol) then
+            print *, "PFRZL(1, ", i, ") = ", PFRZL(1, i), " does not match expected value of ", EXP_PFRZL_GFS_2(1, i)
+            res = 1
+        end if
     end do
 
     if (res .ne. 0) then
@@ -215,6 +352,21 @@ program test_frzlvl2
     PFRZL = 0.0
     call FRZLVL2(ISOTHERM_1, ZFRZ, RHFRZ, PFRZL)
 
+    do i = 1, npts
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_GFS_1(1, i)) > tol) then
+            print *, "ZFRZ(1, ", i, ") = ", ZFRZ(1, i), " does not match expected value of ", EXP_ZFRZ_GFS_1(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_GFS_1(1, i)) > tol) then
+            print *, "RHFRZ(1, ", i, ") = ", RHFRZ(1, i), " does not match expected value of ", EXP_RHFRZ_GFS_1(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_GFS_1(1, i)) > tol) then
+            print *, "PFRZL(1, ", i, ") = ", PFRZL(1, i), " does not match expected value of ", EXP_PFRZL_GFS_1(1, i)
+            res = 1
+        end if
+    end do
+
     if (res .ne. 0) then
         deallocate(pint, t, zmid, q, pmid, zint, alpint, fis, tshltr, pshltr, qz0, qs, qshltr, lmh, sm)
         stop 50
@@ -227,6 +379,21 @@ program test_frzlvl2
     PFRZL = 0.0
     call FRZLVL2(ISOTHERM_2, ZFRZ, RHFRZ, PFRZL)
 
+    do i = 1, npts
+        if (abs(ZFRZ(1, i) - EXP_ZFRZ_GFS_2(1, i)) > tol) then
+            print *, "ZFRZ(1, ", i, ") = ", ZFRZ(1, i), " does not match expected value of ", EXP_ZFRZ_GFS_2(1, i)
+            res = 1
+        end if
+        if (abs(RHFRZ(1, i) - EXP_RHFRZ_GFS_2(1, i)) > tol) then
+            print *, "RHFRZ(1, ", i, ") = ", RHFRZ(1, i), " does not match expected value of ", EXP_RHFRZ_GFS_2(1, i)
+            res = 1
+        end if
+        if (abs(PFRZL(1, i) - EXP_PFRZL_GFS_2(1, i)) > tol) then
+            print *, "PFRZL(1, ", i, ") = ", PFRZL(1, i), " does not match expected value of ", EXP_PFRZL_GFS_2(1, i)
+            res = 1
+        end if
+    end do
+    
     if (res .ne. 0) then
         deallocate(pint, t, zmid, q, pmid, zint, alpint, fis, tshltr, pshltr, qz0, qs, qshltr, lmh, sm)
         stop 60
