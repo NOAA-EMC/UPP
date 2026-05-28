@@ -7,13 +7,12 @@ program test_ngmslp
     use vrbls3d,    only: zint, pint, t, q, zmid
     use vrbls2d,    only: slp, fis, z1000
     use masks,      only: lmh
-    use ctlblk_mod, only: jsta, jend, im, jm, spval, ista, iend
+    use ctlblk_mod, only: jsta, jend, im, jm, spval, ista, iend. lm
     implicit none
 
     real, parameter :: tol = 1.0e-8
     integer, parameter :: npts = 4, nlevs = 30
     integer :: i, k, res
-    integer :: lm
     real :: EXP_SLP(1, npts), EXP_Z1000(1, npts)
 
     interface
