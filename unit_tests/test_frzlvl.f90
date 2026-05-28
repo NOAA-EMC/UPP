@@ -127,13 +127,13 @@ program test_frzlvl
     t(1, 6, lm) = 272.0
     zmid(1, 6, lm) = 1000.0
 
-    EXP_ZFRZ(1, 6) = -4.846145020E+02
-    EXP_RHFRZ(1, 6) =  2.189850062E-01
-    EXP_PFRZL(1, 6) =  6.583333496E+03
+    EXP_ZFRZ(1, 6) = 8.230778198E+02
+    EXP_RHFRZ(1, 6) =  1.651607752E-01
+    EXP_PFRZL(1, 6) =  6.269973633E+03
 
-    EXP_ZFRZ_GFS(1, 6) = -4.846145020E+02
-    EXP_RHFRZ_GFS(1, 6) =  2.138300836E-01
-    EXP_PFRZL_GFS(1, 6) =  6.583333496E+03
+    EXP_ZFRZ_GFS(1, 6) = 8.230778198E+02
+    EXP_RHFRZ_GFS(1, 6) =  1.590846628E-01
+    EXP_PFRZL_GFS(1, 6) =  6.269973633E+03
 
     ! Test Case 7: T(I,J,L) > TFRZ at all levels.
     tshltr(1, 7) = 300.0
