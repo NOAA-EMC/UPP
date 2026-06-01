@@ -69,6 +69,7 @@
 !> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !> 2026-05-06 | Wen Meng      | Mask land areas for foundation temperature
+!> 2026-06-01 | Wen Meng      | Read max/min factional coverage of vegetation.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -118,7 +119,7 @@
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, &
-              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m, shdmax, shdmin
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -2121,6 +2122,50 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,qshltr)
      if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
+
+! Maximum vegetation fraction in fraction.
+      VarName='shdmax'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,shdmax)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (shdmax(i,j) /= spval) then
+            shdmax(i,j) = shdmax(i,j) * 0.01
+          else
+            shdmax(i,j) = 0.0
+          endif
+        enddo
+      enddo
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) shdmax(i,j) = spval
+        enddo
+      enddo
+
+! Minimum vegetation fraction in fraction.
+      VarName='shdmin'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,shdmin)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (shdmin(i,j) /= spval) then
+            shdmin(i,j) = shdmin(i,j) * 0.01
+          else
+            shdmin(i,j) = 0.0
+          endif
+        enddo
+      enddo
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          if (sm(i,j) /= 0.0) shdmin(i,j) = spval
+        enddo
+      enddo
       
 ! time averaged column cloud fractionusing nemsio
       VarName='tcdc_aveclm'
