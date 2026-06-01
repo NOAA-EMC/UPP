@@ -8,3 +8,4 @@ Building, Running, and Testing the UPP
    BuildingUPP
    RunningUPP
    TestingUPP
+   UnitTests
