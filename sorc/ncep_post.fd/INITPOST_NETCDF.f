@@ -70,6 +70,7 @@
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !> 2026-05-06 | Wen Meng      | Mask land areas for foundation temperature
 !> 2026-06-01 | Wen Meng      | Read max/min factional coverage of vegetation.
+!> 2026-06-01 | Michael Barlage | Modify qshltr for GFS v17.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -135,7 +136,7 @@
               nbin_oc, nbin_su, nbin_no3, nbin_nh4, gocart_on,gccpp_on, nasa_on,pt_tbl,hyb_sigp,&
               filenameFlux, fileNameAER, prec_acc_dt1,                                          &
               iSF_SURFACE_PHYSICS,rdaod, d2d_chem, modelname, aqf_on,                         &
-              ista, iend, ista_2l, iend_2u,iend_m
+              ista, iend, ista_2l, iend_2u,iend_m, isf_surface_physics
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
@@ -3921,6 +3922,23 @@
       maod(1:im,jsta_2l:jend_2u)=chem_2d(1:im,jsta_2l:jend_2u)
 
        endif ! gocart_on
+
+       ! create a blended qshltr
+       if (modelname == 'GFS' .and. iSF_SURFACE_PHYSICS==2) then
+       !$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=ista,iend
+           if(sm(i,j) == 0.0) then
+            if(ivgtyp(i,j) == 13 .or. ivgtyp(i,j) == 16 .or. ivgtyp(i,j) == 20) then
+              qshltr(i,j) = q(i,j,lm)
+            elseif(ivgtyp(i,j) /= 15) then
+              qshltr(i,j) = shdmax(i,j) * qshltr(i,j) + (1.0 - shdmax(i,j)) * q(i,j,lm)
+            end if
+           end if
+          enddo
+        enddo
+       endif
+
 ! done with flux file, close it for now
       Status=nf90_close(ncid2d)
 !      deallocate(tmp,recname,reclevtyp,reclev)
