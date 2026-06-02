@@ -296,3 +296,55 @@ This test is a good model because it:
 * Checks both single-value output, such as ``IGOT``, and array values,
   such as ``CHANNELINFO%Process_Channel``
 * Prints descriptive messages when a case fails
+
+.. _add-unit-test-upp:
+
+How to Add a Unit Test to UPP
+=============================
+
+Add new unit tests to the top-level ``unit_tests`` directory. Use the
+standard UPP naming convention for test files:
+
+.. code-block:: text
+
+   test_<name>.f90
+
+where ``<name>`` identifies the subroutine, file, or module under test.
+
+If the routine under test is not part of a module, define an explicit
+interface in the unit test:
+
+.. code-block:: fortran
+
+   interface
+       subroutine ROUTINE_NAME(arg1, arg2)
+           ! Argument declarations
+       end subroutine ROUTINE_NAME
+   end interface
+
+The structure of each unit test depends on the routine under test. In
+general:
+
+* Routines with single-value inputs should be called once for each test case
+* Routines with array inputs can often test multiple cases in a single
+  call by assigning each case to a different array index
+* Each test case should include a comment that describes the condition
+  being tested
+* Failure messages should identify what failed and what value was expected
+
+After adding the test file, update ``unit_tests/CMakeLists.txt`` so CMake
+builds and runs the test:
+
+.. code-block:: cmake
+
+   create_test(test_name)
+
+Use ``create_test(test_name)`` for most unit tests. If the test requires
+MPI, use:
+
+.. code-block:: cmake
+
+   create_mpi_test(test_name nprocs)
+
+If a test depends on an optional build setting, add logic that builds the
+test only when that option is enabled.
