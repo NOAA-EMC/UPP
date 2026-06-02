@@ -3,11 +3,11 @@
 .. role:: bolditalic
     :class: bolditalic
 
-.. _testing-upp:
+.. _regression-test:
 
-*****************
-Testing the UPP
-*****************
+****************
+Regression Tests
+****************
 
 Running UPP Regression Tests
 =============================
