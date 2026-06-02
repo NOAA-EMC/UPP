@@ -21,6 +21,8 @@ built. The root CMake configuration includes the ``unit_tests``
 directory, which contains its own ``CMakeLists.txt`` file. No additional
 steps are required to build unit tests locally or in GitHub CI.
 
+.. _good-unit-test-upp:
+
 What Makes a Good Unit Test in UPP?
 ===================================
 
@@ -63,6 +65,8 @@ avoid adding:
   difficult to verify in a unit test that the ``STOP`` statement was
   called as expected
 * Branches that cannot be reached with any input
+
+.. _example-test-calicing:
 
 Example: ``test_calicing.f90``
 ------------------------------
@@ -183,6 +187,8 @@ are useful throughout UPP unit testing:
   case, the actual value, and the expected value
 * It returns a non-zero stop code when any test case fails
 
+.. _example-test-calgustconv:
+
 Example: ``test_calgustconv.f90``
 ---------------------------------
 
@@ -243,6 +249,8 @@ This test is a good model because it:
 * Deallocates the arrays after the subroutine call
 * Covers typical input, negative wind-speed differences that are treated
   as zero, equal wind speeds, and ``spval`` handling
+
+.. _example-test-select-channels:
 
 Example: ``test_select_channels.f90``
 -------------------------------------
