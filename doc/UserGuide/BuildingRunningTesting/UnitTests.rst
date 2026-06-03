@@ -348,3 +348,72 @@ MPI, use:
 
 If a test depends on an optional build setting, add logic that builds the
 test only when that option is enabled.
+
+.. note::
+
+   New code should be written so that it can be fully tested. Developers
+   should be able to write unit tests that achieve 100% line and branch
+   coverage for the new code.
+
+.. _update-existing-unit-test:
+
+Updating an Existing Unit Test
+==============================
+
+When modifying an existing routine, first determine whether the expected
+output is intended to change. If the expected output should remain the
+same, the existing unit tests should continue to pass.
+
+If the change adds new logic, such as a new branch in an ``if``/``else``
+statement, add a corresponding test case. The exact update will depend on
+the structure of the existing unit test.
+
+Many UPP unit tests store multiple test cases in input arrays. These tests
+often define a parameter near the top of the file that controls the number
+of cases. To add a case, increase that parameter, then add the new input
+values and expected output values.
+
+.. _unit-tests-ci:
+
+How Unit Tests Run in CI
+========================
+
+Unit tests are compiled automatically with CMake when UPP is built. The
+top-level CMake configuration adds the ``unit_tests`` directory to the
+build, and ``unit_tests`` contains its own ``CMakeLists.txt`` file. No
+additional steps are required to build unit tests locally or in GitHub CI.
+
+The GitHub Actions workflow ``developer.yml`` runs the unit tests in the
+``run-tests`` step. This workflow also calculates test coverage and
+uploads the coverage report after all unit tests pass.
+
+Some tests may only be compiled or run when optional build settings are
+enabled. If a new unit test requires a specific build option, add the
+appropriate CMake option to the ``build`` step in ``developer.yml`` so the
+test is included in the CI coverage results.
+
+.. _run-unit-tests-locally:
+
+Running Unit Tests Locally
+==========================
+
+After building UPP, run all unit tests from the build directory with:
+
+.. code-block:: console
+
+   ctest --verbose --output-on-failure --rerun-failed
+
+This is the same command used by the GitHub CI workflow. The additional
+options provide more output for debugging.
+
+To run a single unit test, execute the test program from the
+``<build-directory>/unit_tests/`` subdirectory.
+
+When adding or updating a unit test, developers can usually rebuild the
+test quickly from the ``<build-directory>/unit_tests/`` subdirectory:
+
+.. code-block:: console
+
+   make
+
+This rebuilds the unit tests without rebuilding all of UPP.
