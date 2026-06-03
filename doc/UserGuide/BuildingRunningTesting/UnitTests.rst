@@ -373,6 +373,18 @@ often define a parameter near the top of the file that controls the number
 of cases. To add a case, increase that parameter, then add the new input
 values and expected output values.
 
+.. _comparing-floating-point-values:
+
+Comparing Floating-Point Values
+===============================
+
+The tolerance used to compare floating-point values depends on the
+calculations performed by the routine under test. An absolute tolerance of
+``1e-6`` is a reasonable starting point.
+
+Many existing UPP unit tests use ``1e-8``. Use that tighter tolerance only
+when the routine can reliably support that level of precision.
+
 .. _unit-tests-ci:
 
 How Unit Tests Run in CI
