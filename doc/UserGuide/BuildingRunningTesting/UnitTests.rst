@@ -26,45 +26,37 @@ steps are required to build unit tests locally or in GitHub CI.
 What Makes a Good Unit Test in UPP?
 ===================================
 
-A good UPP unit test verifies the expected behavior of the full function
-or subroutine being tested. It should exercise the routine thoroughly
-enough to confirm that the implementation is correct, stable, and
-protected against future regressions.
+A good UPP unit test verifies the expected behavior of a complete
+function or subroutine. It should exercise the routine thoroughly enough
+to confirm that the implementation is correct, stable, and protected
+against future regressions.
 
-At a minimum, a unit test should verify:
+Coverage
+   At a minimum, a unit test should verify every ``if``/``else`` branch,
+   every error condition, important edge and corner cases, every output
+   variable, and any expected error codes returned by the routine.
 
-* Every ``if``/``else`` branch
-* Every error condition
-* Important edge and corner cases
-* Every output variable, including variables updated by the routine
-* Expected error codes, when routines return them
+Reliability
+   Unit tests should be reliable and self-contained. They should
+   initialize all required state explicitly, use deterministic inputs,
+   define expected values independently from the implementation being
+   tested, and clean up allocated resources before exiting.
 
-Good unit tests should also be reliable and self-contained. They should:
+Failure messages
+   Unit tests should return a non-zero stop code when a failure occurs.
+   They should also print descriptive error messages that identify the
+   failing output variable, the expected value, the actual value, and the
+   array index where the failure occurred, when applicable.
 
-* Initialize all required state explicitly
-* Use deterministic inputs
-* Define expected values independently from the implementation being
-  tested
-* Clean up allocated resources before exiting
+Test intent
+   Each test case should include a short comment that clearly describes
+   its purpose, such as the branch, error condition, or edge case being
+   tested.
 
-Unit tests should return a non-zero stop code when a failure occurs. They
-should also print descriptive error messages that make the failure easy to
-diagnose. Useful error messages identify:
-
-* The failing output variable
-* The expected value and actual value
-* The precise array index where the failure occurred, when applicable
-
-Each test case should include a short comment that clearly describes its
-purpose, such as the branch, error condition, or edge case being tested.
-
-UPP code should also be written with testability in mind. When possible,
-avoid adding:
-
-* ``STOP`` statements, which Fortran cannot intercept, making it
-  difficult to verify in a unit test that the ``STOP`` statement was
-  called as expected
-* Branches that cannot be reached with any input
+Testability
+   UPP code should be written with testability in mind. When possible,
+   avoid adding ``STOP`` statements, which Fortran cannot intercept, and
+   avoid adding branches that cannot be reached with any input.
 
 .. _example-test-calicing:
 
@@ -72,7 +64,7 @@ Example: ``test_calicing.f90``
 ------------------------------
 
 The ``test_calicing.f90`` unit test is a useful example for new tests. It
-tests a small subroutine with minimal setup, but includes enough
+tests a small subroutine with minimal setup and includes enough
 ``if``/``else`` branches, boundary conditions, and missing-value cases to
 demonstrate how to write a thorough unit test.
 
@@ -194,8 +186,8 @@ Example: ``test_calgustconv.f90``
 
 The ``test_calgustconv.f90`` unit test is a useful template for routines
 that depend on UPP global data arrays. It shows how to allocate,
-initialize, and clean up arrays that are normally managed by the full UPP
-workflow.
+initialize, and clean up arrays that the full UPP workflow normally
+manages.
 
 The following excerpt shows the global data setup:
 
@@ -322,7 +314,7 @@ interface in the unit test:
        end subroutine ROUTINE_NAME
    end interface
 
-The structure of each unit test depends on the routine under test. In
+The structure of each unit test depends on the routine being tested. In
 general:
 
 * Routines with single-value inputs should be called once for each test case
@@ -332,8 +324,8 @@ general:
   being tested
 * Failure messages should identify what failed and what value was expected
 
-After adding the test file, update ``unit_tests/CMakeLists.txt`` so CMake
-builds and runs the test:
+After adding the test file, update ``unit_tests/CMakeLists.txt`` so the
+test is included in the CMake build:
 
 .. code-block:: cmake
 
@@ -346,14 +338,14 @@ MPI, use:
 
    create_mpi_test(test_name nprocs)
 
-If a test depends on an optional build setting, add logic that builds the
-test only when that option is enabled.
+If a test depends on an optional build setting, add logic so the test is
+built only when that option is enabled.
 
 .. note::
 
    New code should be written so that it can be fully tested. Developers
    should be able to write unit tests that achieve 100% line and branch
-   coverage for the new code.
+   coverage for the added code.
 
 .. _update-existing-unit-test:
 
@@ -364,14 +356,14 @@ When modifying an existing routine, first determine whether the expected
 output is intended to change. If the expected output should remain the
 same, the existing unit tests should continue to pass.
 
-If the change adds new logic, such as a new branch in an ``if``/``else``
-statement, add a corresponding test case. The exact update will depend on
-the structure of the existing unit test.
+If a change adds new logic, such as a new branch in an ``if``/``else``
+statement, add a corresponding test case. The exact update depends on the
+structure of the existing unit test.
 
 Many UPP unit tests store multiple test cases in input arrays. These tests
 often define a parameter near the top of the file that controls the number
 of cases. To add a case, increase that parameter, then add the new input
-values and expected output values.
+and expected output values.
 
 .. _comparing-floating-point-values:
 
@@ -395,14 +387,42 @@ top-level CMake configuration adds the ``unit_tests`` directory to the
 build, and ``unit_tests`` contains its own ``CMakeLists.txt`` file. No
 additional steps are required to build unit tests locally or in GitHub CI.
 
-The GitHub Actions workflow ``developer.yml`` runs the unit tests in the
-``run-tests`` step. This workflow also calculates test coverage and
-uploads the coverage report after all unit tests pass.
+The ``developer.yml`` GitHub Actions workflow runs the unit tests in the
+``run-tests`` step. After all unit tests pass, this workflow calculates
+test coverage and uploads the coverage report.
 
-Some tests may only be compiled or run when optional build settings are
+Some tests may only compile or run when optional build settings are
 enabled. If a new unit test requires a specific build option, add the
 appropriate CMake option to the ``build`` step in ``developer.yml`` so the
 test is included in the CI coverage results.
+
+.. _view-code-coverage-reports:
+
+Viewing Code Coverage Reports
+=============================
+
+Review the test coverage report to confirm that unit tests cover the
+intended lines and branches.
+
+The coverage report is available after the ``developer.yml`` workflow
+completes successfully. To access the report from an open pull request:
+
+#. Select the ``Checks`` tab under the pull request title.
+#. Select the ``developer`` workflow to open the summary view.
+#. Find ``UPP-test-coverage`` under ``Artifacts``. The artifact appears
+   only after the workflow completes.
+#. Download the compressed folder and extract it.
+#. Open ``test-coverage.html`` from the extracted folder.
+#. Navigate to the file or subroutine being tested.
+
+Lines highlighted in red were not executed by any unit tests. Lines
+highlighted in yellow typically indicate partial coverage.
+
+GCOVR can occasionally report yellow lines in unexpected ways, so a yellow
+line does not always indicate missing coverage. Pay particular attention
+to red blocks inside ``if``/``else`` statements. These blocks may indicate
+that another test case is needed or that an existing test case is not
+reaching the intended branch.
 
 .. _run-unit-tests-locally:
 
@@ -421,11 +441,31 @@ options provide more output for debugging.
 To run a single unit test, execute the test program from the
 ``<build-directory>/unit_tests/`` subdirectory.
 
-When adding or updating a unit test, developers can usually rebuild the
-test quickly from the ``<build-directory>/unit_tests/`` subdirectory:
+When adding or updating a unit test, developers can usually rebuild it
+quickly from the ``<build-directory>/unit_tests/`` subdirectory:
 
 .. code-block:: console
 
    make
 
 This rebuilds the unit tests without rebuilding all of UPP.
+
+.. _common-unit-test-challenges:
+
+Common Challenges When Writing Unit Tests
+=========================================
+
+Writing unit tests for individual UPP routines can be challenging because
+many routines were designed to be called by external drivers. Unit tests
+run routines independently, so developers may need to recreate state that
+is normally set elsewhere in the UPP workflow.
+
+Some UPP routines depend on module variables for global state management,
+such as variables from ``CTLBLK.f``. If a routine depends on global
+variables, the unit test must set those values explicitly before calling
+the routine.
+
+Some routines require data files that are available during normal UPP
+execution but not during an isolated unit test. In these cases, update
+``unit_tests/CMakeLists.txt`` to copy the required files to the correct
+location for the test. See the existing CMake file for examples.
