@@ -15,8 +15,20 @@ Glossary
    CIN
       Convective Inhibition.
 
+   CI
+      Continuous Integration. CI automatically builds and tests code changes to help identify errors before changes are merged.
+
+   CMake
+      A cross-platform build system generator used to configure and build UPP and its unit tests.
+
+   code coverage
+      A measure of which lines or branches of source code are executed by tests.
+
    CRTM
       The `Community Radiative Transfer Model <https://www.jcsda.org/jcsda-project-community-radiative-transfer-model>`__ (CRTM) is a fast and accurate radiative transfer model developed at the `Joint Center for Satellite Data Assimilation <https://www.jcsda.org/>`__ (JCSDA) in the United States. It is a sensor-based radiative transfer model and supports more than 100 sensors, including sensors on most meteorological satellites and some from other remote sensing satellites. 
+
+   CTest
+      A CMake testing tool used to run test suites and report test results.
 
    Component
       A software element that has a clear function and interface. In Earth system models, components are often single portions of the Earth system (e.g., atmosphere, ocean, or land surface) that are assembled to form a whole.
@@ -59,6 +71,12 @@ Glossary
 
    GFS
       The `Global Forecast System <https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>`__. The GFS is a National Centers for Environmental Prediction (:term:`NCEP`) weather forecast model that generates data for dozens of atmospheric and land-soil variables, including temperatures, winds, precipitation, soil moisture, and atmospheric ozone concentration. The system couples four separate models (atmosphere, ocean, land/soil, and sea ice) that work together to accurately depict weather conditions.
+
+   GCOVR
+      A tool that generates code coverage reports from compiler coverage data.
+
+   GitHub Actions
+      A GitHub automation service used to run workflows such as builds, tests, and documentation checks.
 
    GRIB2 
       The second version of the World Meterological Organization's (WMO) standard for distributing gridded data.  
@@ -147,6 +165,9 @@ Glossary
 
    spack-stack
       The `spack-stack <https://github.com/JCSDA/spack-stack>`__ is a collaborative effort between the NOAA Environmental Modeling Center (:term:`EMC`), the UCAR Joint Center for Satellite Data Assimilation (:term:`JCSDA`), and the Earth Prediction Innovation Center (:term:`EPIC`). *spack-stack* is a repository that provides a :term:`Spack`-based method for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufscommunity.org/>`__ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`__ framework. *spack-stack* uses the Spack package manager along with custom Spack configuration files and Python scripts to simplify installation of the libraries required to run various applications. The *spack-stack* can be installed on a range of platforms and comes pre-configured for many systems. Users can install the necessary packages for a particular application and later add the missing packages for another application without having to rebuild the entire stack.
+
+   spval
+      A special value used in UPP to represent missing or invalid data.
 
    UFS
       The Unified Forecast System is a community-based, coupled, comprehensive Earth modeling 

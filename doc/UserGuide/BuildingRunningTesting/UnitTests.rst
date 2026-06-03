@@ -13,13 +13,13 @@ important safeguard against regressions, especially when existing routines
 are modified without an intended change in output.
 
 New code should be written so that it can be fully tested. Ideally,
-developers should be able to write unit tests that achieve 100% line and
+developers should be able to write unit tests that achieve 100% line coverage and
 branch coverage for the routine being tested.
 
-By default, unit tests are compiled automatically with CMake when UPP is
-built. The root CMake configuration includes the ``unit_tests``
+By default, unit tests are compiled automatically with :term:`CMake` when
+UPP is built. The root CMake configuration includes the ``unit_tests``
 directory, which contains its own ``CMakeLists.txt`` file. No additional
-steps are required to build unit tests locally or in GitHub CI.
+steps are required to build unit tests locally or in GitHub :term:`CI`.
 
 .. _good-unit-test-upp:
 
@@ -39,7 +39,7 @@ Coverage
 Reliability
    Unit tests should be reliable and self-contained. They should
    initialize all required state explicitly, use deterministic inputs,
-   define expected values independently from the implementation being
+   define expected values independently of the implementation being
    tested, and clean up allocated resources before exiting.
 
 Failure messages
@@ -240,7 +240,7 @@ This test is a good model because it:
   ``CALGUSTCONV()``
 * Deallocates the arrays after the subroutine call
 * Covers typical input, negative wind-speed differences that are treated
-  as zero, equal wind speeds, and ``spval`` handling
+  as zero, equal wind speeds, and :term:`spval` handling
 
 .. _example-test-select-channels:
 
@@ -332,7 +332,7 @@ test is included in the CMake build:
    create_test(test_name)
 
 Use ``create_test(test_name)`` for most unit tests. If the test requires
-MPI, use:
+:term:`MPI`, use:
 
 .. code-block:: cmake
 
@@ -387,9 +387,9 @@ top-level CMake configuration adds the ``unit_tests`` directory to the
 build, and ``unit_tests`` contains its own ``CMakeLists.txt`` file. No
 additional steps are required to build unit tests locally or in GitHub CI.
 
-The ``developer.yml`` GitHub Actions workflow runs the unit tests in the
-``run-tests`` step. After all unit tests pass, this workflow calculates
-test coverage and uploads the coverage report.
+The ``developer.yml`` :term:`GitHub Actions` workflow runs the unit tests
+in the ``run-tests`` step. After all unit tests pass, this workflow
+calculates :term:`code coverage` and uploads the coverage report.
 
 Some tests may only compile or run when optional build settings are
 enabled. If a new unit test requires a specific build option, add the
@@ -418,18 +418,19 @@ completes successfully. To access the report from an open pull request:
 Lines highlighted in red were not executed by any unit tests. Lines
 highlighted in yellow typically indicate partial coverage.
 
-GCOVR can occasionally report yellow lines in unexpected ways, so a yellow
-line does not always indicate missing coverage. Pay particular attention
-to red blocks inside ``if``/``else`` statements. These blocks may indicate
-that another test case is needed or that an existing test case is not
-reaching the intended branch.
+:term:`GCOVR` can occasionally report yellow lines in unexpected ways, so
+a yellow line does not always indicate missing coverage. Pay particular
+attention to red blocks inside ``if``/``else`` statements. These blocks
+may indicate that another test case is needed or that an existing test
+case is not reaching the intended branch.
 
 .. _run-unit-tests-locally:
 
 Running Unit Tests Locally
 ==========================
 
-After building UPP, run all unit tests from the build directory with:
+After building UPP, use :term:`CTest` to run all unit tests from the build
+directory:
 
 .. code-block:: console
 
@@ -449,6 +450,19 @@ quickly from the ``<build-directory>/unit_tests/`` subdirectory:
    make
 
 This rebuilds the unit tests without rebuilding all of UPP.
+
+.. _debugging-unit-test-failures:
+
+Debugging Unit Test Failures
+============================
+
+GitHub CI reports errors that occur while compiling UPP or running unit
+tests. This output is typically similar to the output produced when the
+same tests are run locally.
+
+When a unit test fails, CI prints the name of the failing test and its
+output. Well-written unit tests should include descriptive error messages
+that identify the failed condition and help developers diagnose the issue.
 
 .. _common-unit-test-challenges:
 
