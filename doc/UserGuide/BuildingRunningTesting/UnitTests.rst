@@ -13,8 +13,8 @@ important safeguard against regressions, especially when existing routines
 are modified without an intended change in output.
 
 New code should be written so that it can be fully tested. Ideally,
-developers should be able to write unit tests that achieve 100% line coverage and
-branch coverage for the routine being tested.
+developers should be able to write unit tests that achieve 100% line
+coverage and branch coverage for the routine being tested.
 
 By default, unit tests are compiled automatically with :term:`CMake` when
 UPP is built. The root CMake configuration includes the ``unit_tests``
@@ -162,8 +162,8 @@ demonstrate how to write a thorough unit test.
        print *, "SUCCESS!"
    end program test_calicing
 
-This test is a good model because it demonstrates several practices that
-are useful throughout UPP unit testing:
+This example demonstrates several practices that are useful throughout UPP
+unit testing:
 
 * It initializes required global state variables from ``ctlblk_mod`` so
   the subroutine can be tested outside of the full UPP workflow
@@ -231,7 +231,8 @@ The following excerpt shows the global data setup:
 
        deallocate(u10, v10, ustar)
 
-This test is a good model because it:
+This example is useful for routines that depend on global arrays because
+it:
 
 * Imports the required global arrays from ``vrbls2d``
 * Sets the related grid dimensions from ``ctlblk_mod`` before allocating
@@ -281,7 +282,8 @@ The following excerpt shows the repeated subroutine calls:
        res = 1
    end if
 
-This test is a good model because it:
+This example is useful for tests that call the same routine multiple times
+because it:
 
 * Calls ``SELECT_CHANNELS_L()`` multiple times with different inputs
 * Resets ``CHANNELINFO%Process_Channel`` between test cases
@@ -323,6 +325,7 @@ general:
 * Each test case should include a comment that describes the condition
   being tested
 * Failure messages should identify what failed and what value was expected
+* Unique exit codes should be used where appropriate
 
 After adding the test file, update ``unit_tests/CMakeLists.txt`` so the
 test is included in the CMake build:
@@ -364,6 +367,37 @@ Many UPP unit tests store multiple test cases in input arrays. These tests
 often define a parameter near the top of the file that controls the number
 of cases. To add a case, increase that parameter, then add the new input
 and expected output values.
+
+.. _unit-test-edge-cases:
+
+Common Edge Cases
+=================
+
+In addition to covering all branches and error conditions, developers
+should consider test cases for common edge conditions, including:
+
+* Threshold boundary values or values just outside thresholds
+* Empty string inputs
+* Missing files, corrupted formats, permission errors, or other I/O issues
+* ``min`` and ``max`` outcomes, especially at boundaries
+
+.. _unit-test-expected-values:
+
+Determining Expected Values
+===========================
+
+Expected values usually need to be hardcoded to the appropriate precision.
+How those values are determined depends on the output and the calculations
+performed by the routine under test.
+
+Possible sources for expected values include:
+
+* Precalculated values
+* Existing input or output data
+* Proven reference implementations
+* Known analytical solutions
+
+Some edge or boundary cases also have predictable expected results.
 
 .. _comparing-floating-point-values:
 
