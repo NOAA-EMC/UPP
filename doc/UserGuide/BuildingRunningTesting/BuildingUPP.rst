@@ -21,7 +21,7 @@ have the required libraries available via `spack-stack <https://github.com/JCSDA
 location. The :term:`spack-stack` is a :term:`Spack`-based method for installing UFS prerequisite software libraries.
 
 Users working on unsupported platforms will need to install spack-stack on their system and can do so following
-the instructions in the :doc:`spack-stack User's Guide <spack-stack:index>`.
+the instructions in the `spack-stack wiki <https://github.com/JCSDA/spack-stack/wiki>`__.
 
 ----------------
 Common Modules

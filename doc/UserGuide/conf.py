@@ -102,7 +102,6 @@ def setup(app):
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
    'hpc-stack': ('https://hpc-stack-epic.readthedocs.io/en/develop/', None),
-   'spack-stack': ('https://spack-stack.readthedocs.io/en/develop/', None),
    'ufs-wm': ('https://ufs-weather-model.readthedocs.io/en/develop/', None),
    'srw': ('https://ufs-srweather-app.readthedocs.io/en/develop', None),
 }
