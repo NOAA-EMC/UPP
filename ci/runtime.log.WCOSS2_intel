@@ -12,5 +12,6 @@ hafs_test 00:02:00
 mpas_test 00:02:40
 mpas_hfip_test 00:05:00
 gcafs_test 00:05:30
+wafs_test 00:07:00
 rrfs_test 00:10:00
 gfs_test 00:15:00

@@ -116,5 +116,5 @@ postmsg "$logfile" "$msg"
 done
 
 echo "PROGRAM IS COMPLETE!!!!!" 2>&1 | tee SUCCESS
-msg="Ending rrfs_ifi test"
+msg="Ending dafs test"
 postmsg "$logfile" "$msg"
