@@ -2128,45 +2128,11 @@
       VarName='shdmax'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,shdmax)
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=ista,iend
-          if (shdmax(i,j) /= spval) then
-            shdmax(i,j) = shdmax(i,j) * 0.01
-          else
-            shdmax(i,j) = 0.0
-          endif
-        enddo
-      enddo
-!     mask water areas
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=ista,iend
-          if (sm(i,j) /= 0.0) shdmax(i,j) = spval
-        enddo
-      enddo
 
 ! Minimum vegetation fraction in fraction.
       VarName='shdmin'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,shdmin)
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=ista,iend
-          if (shdmin(i,j) /= spval) then
-            shdmin(i,j) = shdmin(i,j) * 0.01
-          else
-            shdmin(i,j) = 0.0
-          endif
-        enddo
-      enddo
-!     mask water areas
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=ista,iend
-          if (sm(i,j) /= 0.0) shdmin(i,j) = spval
-        enddo
-      enddo
       
 ! time averaged column cloud fractionusing nemsio
       VarName='tcdc_aveclm'
@@ -3928,7 +3894,7 @@
        !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=ista,iend
-           if(sm(i,j) == 0.0) then
+           if(sm(i,j) == 0.0 .and. qshltr(i,j) /= spval) then ! only for land grids
             if(ivgtyp(i,j) == 13 .or. ivgtyp(i,j) == 16 .or. ivgtyp(i,j) == 20) then
               qshltr(i,j) = q(i,j,lm)
             elseif(ivgtyp(i,j) /= 15) then
