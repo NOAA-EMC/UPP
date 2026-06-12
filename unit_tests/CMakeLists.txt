@@ -97,13 +97,13 @@ create_test(test_ngmslp)
 create_test(test_table)
 create_test(test_tableq)
 
-configure_file(${CMAKE_SOURCE_DIR}/fix/hires_micro_lookup.dat
+configure_file(${PROJECT_SOURCE_DIR}/fix/hires_micro_lookup.dat
                ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)
 create_test(test_microinit)
 set_tests_properties(test_microinit PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 if(BUILD_WITH_NEMSIO)
-  create_test(test_assignnemsiovar SRC_FILES ${CMAKE_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
+  create_test(test_assignnemsiovar SRC_FILES ${PROJECT_SOURCE_DIR}/sorc/ncep_post.fd/ASSIGNNEMSIOVAR.f)
 endif()
 
 # The following tests require MPI to run.
