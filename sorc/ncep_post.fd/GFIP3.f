@@ -1673,6 +1673,7 @@ contains
     real :: severity
     integer :: k, n
 
+    ! moistInt: module member
 
     iseverity(:) = 0.0
 
