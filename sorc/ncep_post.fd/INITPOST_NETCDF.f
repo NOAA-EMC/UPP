@@ -69,6 +69,8 @@
 !> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !> 2026-05-06 | Wen Meng      | Mask land areas for foundation temperature
+!> 2026-06-01 | Wen Meng      | Read max/min factional coverage of vegetation.
+!> 2026-06-01 | Michael Barlage | Modify qshltr for GFS v17.
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -118,7 +120,7 @@
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max,maod,dustpm10, &
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, &
-              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m
+              smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m, shdmax, shdmin
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -134,7 +136,7 @@
               nbin_oc, nbin_su, nbin_no3, nbin_nh4, gocart_on,gccpp_on, nasa_on,pt_tbl,hyb_sigp,&
               filenameFlux, fileNameAER, prec_acc_dt1,                                          &
               iSF_SURFACE_PHYSICS,rdaod, d2d_chem, modelname, aqf_on,                         &
-              ista, iend, ista_2l, iend_2u,iend_m
+              ista, iend, ista_2l, iend_2u,iend_m, isf_surface_physics
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv,cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON,  &
@@ -2121,6 +2123,16 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,qshltr)
      if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
+
+! Maximum vegetation fraction in fraction.
+      VarName='shdmax'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,shdmax)
+
+! Minimum vegetation fraction in fraction.
+      VarName='shdmin'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,shdmin)
       
 ! time averaged column cloud fractionusing nemsio
       VarName='tcdc_aveclm'
@@ -3876,6 +3888,23 @@
       maod(1:im,jsta_2l:jend_2u)=chem_2d(1:im,jsta_2l:jend_2u)
 
        endif ! gocart_on
+
+       ! create a blended qshltr
+       if (modelname == 'GFS' .and. iSF_SURFACE_PHYSICS==2) then
+       !$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=ista,iend
+           if(sm(i,j) == 0.0 .and. qshltr(i,j) /= spval) then ! only for land grids
+            if(ivgtyp(i,j) == 13 .or. ivgtyp(i,j) == 16 .or. ivgtyp(i,j) == 20) then
+              qshltr(i,j) = q(i,j,lm)
+            elseif(ivgtyp(i,j) /= 15) then
+              qshltr(i,j) = shdmax(i,j) * qshltr(i,j) + (1.0 - shdmax(i,j)) * q(i,j,lm)
+            end if
+           end if
+          enddo
+        enddo
+       endif
+
 ! done with flux file, close it for now
       Status=nf90_close(ncid2d)
 !      deallocate(tmp,recname,reclevtyp,reclev)
