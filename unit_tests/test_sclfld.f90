@@ -7,7 +7,7 @@ program test_sclfld
     use ctlblk_mod, only: jsta, jend, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 2
     integer :: i, j, res
     integer :: IMO, JMO

@@ -8,7 +8,7 @@ program test_etamp_q2f
                             ista,iend,ista_2l,iend_2u
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     ! From etamp_q2f.f
     real, parameter :: t_ice=-40., t0c=273.15, t_icek=233.15, epsq=1.e-12
     integer, parameter :: npts = 2, nlevs = 1

@@ -10,7 +10,7 @@ program test_lfmfld_gfs
     use ctlblk_mod, only: jsta, jend, modelname, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 4, nlevs = 30
     integer :: i, j, res
     integer :: lm

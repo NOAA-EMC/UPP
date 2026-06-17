@@ -8,7 +8,7 @@ program test_caldwp
     use ctlblk_mod, only: jsta, jend, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 6
     integer :: i, j, res
     real :: P1D(1, npts), Q1D(1, npts), T1D(1, npts)

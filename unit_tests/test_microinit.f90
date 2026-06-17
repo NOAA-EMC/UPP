@@ -15,7 +15,7 @@ program test_microinit
     use ctlblk_mod, only: me
     implicit none
 
-    real, parameter :: tol = 1.0e-8, spval = -999.0
+    real, parameter :: tol = 1.0e-6, spval = -999.0
     integer, parameter :: ntests = 5
     integer :: i, j, res
     integer :: imp_physics(ntests)

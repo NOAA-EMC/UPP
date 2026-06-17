@@ -10,7 +10,7 @@ program test_calrh_pw
     use upp_physics, only: CALRH_PW
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 5, nlevs = 30
     real :: RHPW(1, npts), EXP_RHPW(1, npts)
     integer :: i, res

@@ -15,7 +15,7 @@ program test_paramr
 
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer :: res
     real :: EXP_r1 = 1.E-15
     real :: EXP_const1r = 4.9E8

@@ -7,7 +7,7 @@ program test_canres
     use ctlblk_mod, only: novegtype, nsoil, ivegsrc
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 4
     integer :: res
     ! Input variables

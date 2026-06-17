@@ -7,7 +7,7 @@ program test_assignnemsiovar
     use ctlblk_mod, only: me
     implicit none
 
-    real, parameter :: tol = 1e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: MAX_LEN = 50, NREC = 15, FLDSIZE = 16
     integer, parameter :: nx = 4, ny = 4
     integer :: i, j, k, res

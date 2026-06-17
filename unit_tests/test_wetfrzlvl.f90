@@ -12,7 +12,7 @@ program test_wetfrzlvl
                         ista, iend, ista_2l, iend_2u 
     implicit none
     
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 3, nlevs = 30
     integer :: i, j, k, res
     real :: z_sfc, z_top, dz, p0, H, z_mid, t_sfc

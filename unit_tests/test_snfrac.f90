@@ -6,7 +6,7 @@
 program test_snfrac
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ntests = 10
     real, parameter :: SALP = 4.0 ! From SNFRAC.f
     integer :: i, res

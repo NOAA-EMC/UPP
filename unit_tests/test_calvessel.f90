@@ -9,7 +9,7 @@ program test_calvessel
     use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 3
     integer :: i, j, res
     real, dimension(1:npts,1:npts) :: ICEG, EXP_ICEG

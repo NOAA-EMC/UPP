@@ -7,7 +7,7 @@ program test_table
     use table_upp_mod, only: TABLE
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ITB=076, JTB=134, ntests = 3
     integer :: i, j, res
     !

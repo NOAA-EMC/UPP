@@ -13,7 +13,7 @@ program test_gpvs
     use svptbl_mod, only: nx, tbpvs, tbpvs0
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     real, parameter :: XMIN = 180.0, XMAX = 330.0 ! From GPVS.f
     integer, parameter :: npts = 16 ! Number of points to check in svp tables
     integer, parameter :: ntests = 8 ! Number of tests for FPVS

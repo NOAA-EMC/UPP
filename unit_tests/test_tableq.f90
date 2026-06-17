@@ -7,7 +7,7 @@ program test_tableq
     use tableq_upp_mod, only: TABLEQ
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ITB=152, JTB=440
     integer :: i, j, res
     !

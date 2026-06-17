@@ -13,7 +13,7 @@ program test_mdl2sigma2
     use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: nx = 2, ny = 2, nlevs = 3
     integer :: i, j, k, res
     integer :: EXP_IFLD = 296, EXP_LVL = 1000

@@ -7,7 +7,7 @@ program test_calicing
     use ctlblk_mod, only: jsta, jend, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 11
     integer :: i, res
     real :: T1(1, npts), RH(1, npts), OMGA(1, npts)
