@@ -14,7 +14,7 @@ program test_zensun
     integer, parameter :: ntests = 10
     integer :: i, res
     ! Input
-    real(r_kind), parameter :: PI = 3.14159265358979323846
+    real(r_kind), parameter :: PI = 3.14159265358979323846_r_kind
     integer(i_kind), dimension(ntests) :: DAY
     real(r_kind), dimension(ntests) :: TIME, LAT, LON
     ! Output
