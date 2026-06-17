@@ -74,12 +74,12 @@ program test_table
     do i = 1, ITB
         do j = 1, JTB
             if (abs(PTBL(i,j) - EXP_PTBL(i,j,1)) > tol) then
-                print *, 'Test Case 1 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
                          ' Expected: ', EXP_PTBL(i,j,1)
                 res = 1
             end if
             if (abs(TTBL(j,i) - EXP_TTBL(j,i,1)) > tol) then
-                print *, 'Test Case 1 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
                          ' Expected: ', EXP_TTBL(j,i,1)
                 res = 1
             end if
