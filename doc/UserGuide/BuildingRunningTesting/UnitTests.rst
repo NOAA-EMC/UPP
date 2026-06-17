@@ -79,7 +79,7 @@ demonstrate how to write a thorough unit test.
        use ctlblk_mod, only: jsta, jend, spval, ista, iend
        implicit none
 
-       real, parameter :: tol = 1.0e-8
+       real, parameter :: tol = 1.0e-6
        integer, parameter :: npts = 11
        integer :: i, res
        real :: T1(1, npts), RH(1, npts), OMGA(1, npts)
@@ -199,7 +199,7 @@ The following excerpt shows the global data setup:
                              jsta_2l, jend_2u, spval
        implicit none
 
-       real, parameter :: tol = 1.0e-8
+       real, parameter :: tol = 1.0e-6
        integer, parameter :: npts = 5
        integer :: j, res
        real :: SPEED850(1, 1:npts), SPEED950(1, 1:npts)
@@ -406,9 +406,9 @@ Comparing Floating-Point Values
 
 The tolerance used to compare floating-point values depends on the
 calculations performed by the routine under test. An absolute tolerance of
-``1e-6`` is a reasonable starting point.
+``1e-5`` is a reasonable starting point.
 
-Many existing UPP unit tests use ``1e-8``. Use that tighter tolerance only
+Many existing UPP unit tests use ``1e-6``. Use that tighter tolerance only
 when the routine can reliably support that level of precision.
 
 .. _unit-tests-ci:
