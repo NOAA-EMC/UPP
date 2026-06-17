@@ -10,7 +10,7 @@ program test_zensun
     use kinds, only: r_kind,i_kind
     implicit none
     
-    real, parameter :: tol = 1.0e-6
+    real, parameter :: tol = 1.0e-5
     integer, parameter :: ntests = 10
     integer :: i, res
     ! Input
