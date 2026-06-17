@@ -10,7 +10,7 @@ program test_zensun
     use kinds, only: r_kind,i_kind
     implicit none
     
-    real, parameter :: tol = 1.0e-6
+    real(r_kind), parameter :: tol = 1.0e-6_r_kind
     integer, parameter :: ntests = 10
     integer :: i, res
     ! Input
@@ -32,63 +32,63 @@ program test_zensun
 
     ! 1) di == 1 lower boundary: tt = 1.0 (nday(1))
     DAY(1)  = 1
-    TIME(1) = 0.0
-    LAT(1)  = 0.0
-    LON(1)  = 0.0
+    TIME(1) = 0.0_r_kind
+    LAT(1)  = 0.0_r_kind
+    LON(1)  = 0.0_r_kind
 
     ! 2) di == 1 upper boundary: tt = 6.0 (nday(2)), first matching interval is di=1
     DAY(2)  = 6
-    TIME(2) = 0.0
-    LAT(2)  = 45.0
-    LON(2)  = 0.0
+    TIME(2) = 0.0_r_kind
+    LAT(2)  = 45.0_r_kind
+    LON(2)  = 0.0_r_kind
 
     ! 3) di == 2 lower boundary just above 6: tt ≈ 6.0417
     DAY(3)  = 6
-    TIME(3) = 1.0
-    LAT(3)  = 0.0
-    LON(3)  = 30.0
+    TIME(3) = 1.0_r_kind
+    LAT(3)  = 0.0_r_kind
+    LON(3)  = 30.0_r_kind
 
     ! 4) di == 2 typical interior: tt in [6,11]
     DAY(4)  = 8
-    TIME(4) = 12.0
-    LAT(4)  = -30.0
-    LON(4)  = -60.0
+    TIME(4) = 12.0_r_kind
+    LAT(4)  = -30.0_r_kind
+    LON(4)  = -60.0_r_kind
 
     ! 5) di in [3,72] typical interior: mid-year day
     DAY(5)  = 100
-    TIME(5) = 6.0
-    LAT(5)  = 50.0
-    LON(5)  = 10.0
+    TIME(5) = 6.0_r_kind
+    LAT(5)  = 50.0_r_kind
+    LON(5)  = 10.0_r_kind
 
     ! 6) di in [3,72] exact LOWTRAN point: tt = 171.0 (summer solstice)
     DAY(6)  = 171
-    TIME(6) = 0.0
-    LAT(6)  = 23.5
-    LON(6)  = 0.0
+    TIME(6) = 0.0_r_kind
+    LAT(6)  = 23.5_r_kind
+    LON(6)  = 0.0_r_kind
 
     ! 7) di in [3,72] equinox region: tt = 266.0 (fall equinox)
     DAY(7)  = 266
-    TIME(7) = 12.0
-    LAT(7)  = 0.0
-    LON(7)  = 0.0
+    TIME(7) = 12.0_r_kind
+    LAT(7)  = 0.0_r_kind
+    LON(7)  = 0.0_r_kind
 
     ! 8) di == 73 lower boundary: tt = 361.0
     DAY(8)  = 361
-    TIME(8) = 0.0
-    LAT(8)  = 0.0
-    LON(8)  = 0.0
+    TIME(8) = 0.0_r_kind
+    LAT(8)  = 0.0_r_kind
+    LON(8)  = 0.0_r_kind
 
     ! 9) di == 73 interior: tt in [361,366]
     DAY(9)  = 363
-    TIME(9) = 18.0
-    LAT(9)  = -60.0
-    LON(9)  = 120.0
+    TIME(9) = 18.0_r_kind
+    LAT(9)  = -60.0_r_kind
+    LON(9)  = 120.0_r_kind
 
     ! 10) di == 73 upper boundary: tt = 366.0 (nday(74))
     DAY(10)  = 366
-    TIME(10) = 0.0
-    LAT(10)  = 10.0
-    LON(10)  = -90.0
+    TIME(10) = 0.0_r_kind
+    LAT(10)  = 10.0_r_kind
+    LON(10)  = -90.0_r_kind
     
     EXP_SUN_ZENITH = (/ &
          1.5711235046E+02_r_kind, 1.5745872498E+02_r_kind, 1.3195394897E+02_r_kind, 5.5247062683E+01_r_kind, &
