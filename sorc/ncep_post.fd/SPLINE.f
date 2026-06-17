@@ -29,7 +29,6 @@
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
-      real, parameter :: SIXTH = 1.0/6.0
       integer,intent(in) :: JTB,NOLD,NNEW
       real,dimension(JTB),intent(in) ::  XOLD,YOLD,XNEW 
       real,dimension(JTB),intent(inout) :: P,Q,Y2
@@ -101,9 +100,9 @@
 !5000 FORMAT(' K=',I4,' Y2K=',E12.4,' Y2KP1=',E12.4,' DX=',E12.4,' RDX='
 !    2,E12.4,' YOK=',E12.4,' YOP1=',E12.4)
 !AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AK=SIXTH*RDX*(Y2KP1-Y2K)
+      AK=.1666667*RDX*(Y2KP1-Y2K)
       BK=.5*Y2K
-      CK=RDX*(YOLD(K+1)-YOLD(K))-SIXTH*DX*(Y2KP1+Y2K+Y2K)
+      CK=RDX*(YOLD(K+1)-YOLD(K))-.1666667*DX*(Y2KP1+Y2K+Y2K)
 !
  550  X=XK-XOLD(K)
       XSQ=X*X
