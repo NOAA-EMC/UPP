@@ -124,13 +124,13 @@ program test_zensun
     do i = 1, ntests
         call ZENSUN(DAY(i), TIME(i), LAT(i), LON(i), PI, SUN_ZENITH(i), SUN_AZIMUTH(i))
         if ( abs(SUN_ZENITH(i) - EXP_SUN_ZENITH(i)) > tol ) then
-            print '(A,I0,A,A,ES16.10,A,ES16.10)', "Test failed for SUN_ZENITH(", i, "): ", &
+            print '(A,I0,A,A,ES20.10,A,ES20.10)', "Test failed for SUN_ZENITH(", i, "): ", &
                      "Expected = ", EXP_SUN_ZENITH(i), &
                      ", Computed = ", SUN_ZENITH(i)
             res = 1
         end if
         if ( abs(SUN_AZIMUTH(i) - EXP_SUN_AZIMUTH(i)) > tol ) then
-            print '(A,I0,A,A,ES16.10,A,ES16.10)', "Test failed for SUN_AZIMUTH(", i, "): ", &
+            print '(A,I0,A,A,ES20.10,A,ES20.10)', "Test failed for SUN_AZIMUTH(", i, "): ", &
                      "Expected = ", EXP_SUN_AZIMUTH(i), &
                      ", Computed = ", SUN_AZIMUTH(i)
             res = 1
