@@ -22,71 +22,70 @@ jobs:
         compilers: ["oneapi", "classic"]
 
     steps:
+      - name: "Install Intel"
+        uses: NOAA-EMC/ci-install-intel-toolkit@develop
+        with:
+          oneapi-version: 2023.2.1
+          compiler-setup: ${{ matrix.compilers }}
 
-    - name: "Install Intel"
-      uses: NOAA-EMC/ci-install-intel-toolkit@develop
-      with:
-        oneapi-version: 2023.2.1
-        compiler-setup: ${{ matrix.compilers }}
+      - name: install-dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libmpich-dev libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
+          sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
 
-    - name: install-dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install libmpich-dev libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
-        sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
+      - name: build-crtm
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: EMC_crtm
+          package-org: NOAA-EMC
+          git-ref: v2.3.0
 
-    - name: build-crtm
-      uses: NOAA-EMC/ci-build-cmake-code@develop
-      with:
-        package-name: EMC_crtm
-        package-org: NOAA-EMC
-        git-ref: v2.3.0
+      - name: build-g2tmpl
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: NCEPLIBS-g2tmpl
+          package-org: NOAA-EMC
 
-    - name: build-g2tmpl
-      uses: NOAA-EMC/ci-build-cmake-code@develop
-      with:
-        package-name: NCEPLIBS-g2tmpl
-        package-org: NOAA-EMC
+      - name: build-sigio
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: NCEPLIBS-sigio
+          package-org: NOAA-EMC
 
-    - name: build-sigio
-      uses: NOAA-EMC/ci-build-cmake-code@develop
-      with:
-        package-name: NCEPLIBS-sigio
-        package-org: NOAA-EMC
+      - name: build-wrf-io
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: NCEPLIBS-wrf_io
+          package-org: NOAA-EMC
 
-    - name: build-wrf-io
-      uses: NOAA-EMC/ci-build-cmake-code@develop
-      with:
-        package-name: NCEPLIBS-wrf_io
-        package-org: NOAA-EMC
+      - name: build-dependencies
+        uses: NOAA-EMC/ci-build-nceplibs@develop
+        with:
+          jasper-version: version-4.0.0
+          bacio-version: develop
+          w3emc-version: develop
+          w3emc-cmake-args: -DBUILD_WITH_BUFR=OFF
+          g2-version: v3.5.1
+          ip-version: develop
+          nemsio-version: develop
 
-    - name: build-dependencies
-      uses: NOAA-EMC/ci-build-nceplibs@develop
-      with:
-        jasper-version: version-4.0.0
-        bacio-version: develop
-        w3emc-version: develop
-        w3emc-cmake-args: -DBUILD_WITH_BUFR=OFF
-        g2-version: v3.5.1
-        ip-version: develop
-        nemsio-version: develop
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          path: UPP
 
-    - name: checkout
-      uses: actions/checkout@v4
-      with:
-        path: UPP
+      - name: build
+        run: |
+            set -x
+            cd UPP
+            mkdir build && cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install  \
+              -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/nceplibs/jasper;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-bacio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-w3emc;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-ip;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2tmpl;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-sigio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-nemsio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-wrf_io;$GITHUB_WORKSPACE/nceplibs/EMC_crtm" 
+            make VERBOSE=1
+            make install
 
-    - name: build
-      run: |
-          set -x
-          cd UPP
-          mkdir build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install  \
-            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/nceplibs/jasper;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-bacio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-w3emc;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-ip;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2tmpl;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-sigio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-nemsio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-wrf_io;$GITHUB_WORKSPACE/nceplibs/EMC_crtm" 
-          make VERBOSE=1
-          make install
-
-    - name: run-tests
-      run: |
-        cd UPP/build
-        ctest --verbose --output-on-failure --rerun-failed
+      - name: run-tests
+        run: |
+          cd UPP/build
+          ctest --verbose --output-on-failure --rerun-failed
