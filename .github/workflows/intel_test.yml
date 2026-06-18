@@ -18,13 +18,12 @@ jobs:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
-          oneapi-version: 2023.2.1
           compiler-setup: ${{ matrix.compilers }}
 
       - name: install-dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libmpich-dev libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
+          sudo apt-get install libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
           sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
 
       - name: build-crtm
@@ -69,6 +68,15 @@ jobs:
 
       - name: build
         run: |
+            if [ "${{ matrix.compiler }}" = "oneapi" ]; then
+              export CC=icx
+              export CXX=icpx
+              export FC=ifx
+            else
+              export CC=icc
+              export CXX=icpc
+              export FC=ifort
+            fi
             set -x
             cd UPP
             mkdir build && cd build
