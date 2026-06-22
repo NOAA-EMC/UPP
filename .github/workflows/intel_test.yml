@@ -10,10 +10,10 @@ jobs:
   Intel:
     runs-on: ubuntu-latest
     env:
-      CC: icc
-      FC: ifort
-      CXX: icpc
-      I_MPI_CC: icc
+      CC: mpiicx
+      FC: mpiifx
+      CXX: mpiicpx
+      I_MPI_CC: icx
       I_MPI_F90: ifort
 
     steps:
