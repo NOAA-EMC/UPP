@@ -9,13 +9,19 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
+    env:
+      CC: icc
+      FC: ifort
+      CXX: icpc
+      I_MPI_CC: icc
+      I_MPI_F90: ifort
 
     steps:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
           compiler-setup: oneapi
-          install-openmp: true
+          install-mpi: true
 
       - name: install-dependencies
         run: |
