@@ -8,13 +8,14 @@ concurrency:
 
 jobs:
   Intel:
+    runs-on: ubuntu-latest
+
     steps:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
           compiler-setup: oneapi
           install-mpi: true
-
 
       - name: install-dependencies
         run: |
