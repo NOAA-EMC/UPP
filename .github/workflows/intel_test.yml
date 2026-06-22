@@ -9,16 +9,18 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        compilers: ["oneapi", "classic"]
+    env:
+      CC: icc
+      FC: ifort
+      CXX: icpc
+      I_MPI_CC: icc
+      I_MPI_F90: ifort
 
     steps:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
-          compiler-setup: ${{ matrix.compilers }}
+          compiler-setup: oneapi
 
       - name: install-dependencies
         run: |
@@ -68,15 +70,6 @@ jobs:
 
       - name: build
         run: |
-            if [ "${{ matrix.compiler }}" = "oneapi" ]; then
-              export CC=icx
-              export CXX=icpx
-              export FC=ifx
-            else
-              export CC=icc
-              export CXX=icpc
-              export FC=ifort
-            fi
             set -x
             cd UPP
             mkdir build && cd build
