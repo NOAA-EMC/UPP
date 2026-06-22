@@ -15,7 +15,7 @@ jobs:
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
           compiler-setup: oneapi
-          install-mpi: true
+          install-openmp: true
 
       - name: install-dependencies
         run: |
