@@ -73,7 +73,7 @@ jobs:
 
       - name: build
         run: |
-            export CC=mpiicc
+            export CC=mpiicx
             export FC=mpiifx
             export I_MPI_CC=icx
             export I_MPI_F90=ifort
