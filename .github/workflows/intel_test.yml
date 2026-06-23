@@ -9,12 +9,12 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
-    #env:
-    #  CC: mpiicx
-    #  FC: mpiifx
-    #  CXX: mpiicpx
-    #  I_MPI_CC: icx
-    #  I_MPI_F90: ifort
+    env:
+      CC: mpiicx
+      FC: mpiifx
+      CXX: mpiicpx
+      I_MPI_CC: icx
+      I_MPI_F90: ifort
 
     steps:
       - name: "Install Intel"
@@ -30,7 +30,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
           sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
-          echo "source /opt/intel/oneapi/setvars.sh" >> $GITHUB_ENV
+          #echo "source /opt/intel/oneapi/setvars.sh" >> $GITHUB_ENV
 
 
       - name: build-crtm
@@ -75,10 +75,10 @@ jobs:
 
       - name: build
         run: |
-            export CC=mpiicc
-            export FC=mpiifx
-            export I_MPI_CC=icx
-            export I_MPI_F90=ifort
+            #export CC=mpiicx
+            #export FC=mpiifx
+            #export I_MPI_CC=icx
+            #export I_MPI_F90=ifort
 
             set -x
             cd UPP
