@@ -67,10 +67,10 @@ jobs:
           bacio-version: develop
           w3emc-version: develop
           w3emc-cmake-args: -DBUILD_WITH_BUFR=OFF
-          g2c-version: develop
-          g2-version: develop
+          g2-version: v3.5.1
           ip-version: develop
           repo-cache: false
+          key-prefix: intel-1
 
       - name: checkout
         uses: actions/checkout@v4
