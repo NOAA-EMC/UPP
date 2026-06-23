@@ -22,7 +22,7 @@ jobs:
         with:
           compiler-setup: oneapi
           install-mpi: true
-          #mpi-wrapper-setup: oneapi
+          mpi-wrapper-setup: oneapi
           
 
       - name: install-dependencies
