@@ -81,7 +81,7 @@ jobs:
             set -x
             cd UPP
             mkdir build && cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_NEMSIO=OFF -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$FC\
+            cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_NEMSIO=OFF -DCMAKE_INSTALL_PREFIX=../install \
               -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/nceplibs/jasper;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-bacio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-w3emc;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-ip;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-g2tmpl;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-sigio;$GITHUB_WORKSPACE/nceplibs/NCEPLIBS-wrf_io;$GITHUB_WORKSPACE/nceplibs/EMC_crtm" 
             make VERBOSE=1
             make install
