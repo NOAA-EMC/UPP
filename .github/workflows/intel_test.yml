@@ -73,6 +73,11 @@ jobs:
 
       - name: build
         run: |
+            export CC=mpiicc
+            export FC=mpiifx
+            export I_MPI_CC=icx
+            export I_MPI_F90=ifort
+            
             set -x
             cd UPP
             mkdir build && cd build
