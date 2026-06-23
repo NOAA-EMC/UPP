@@ -22,6 +22,7 @@ jobs:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
+          oneapi-version: 2023.2.1
           compiler-setup: oneapi
           install-mpi: true
           mpi-wrapper-setup: oneapi
@@ -32,7 +33,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
           sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
-          #echo "source /opt/intel/oneapi/setvars.sh" >> $GITHUB_ENV
 
 
       - name: build-crtm
@@ -69,7 +69,6 @@ jobs:
           w3emc-cmake-args: -DBUILD_WITH_BUFR=OFF
           g2-version: v3.5.1
           ip-version: develop
-          repo-cache: false
           key-prefix: intel-1
 
       - name: checkout
@@ -79,11 +78,6 @@ jobs:
 
       - name: build
         run: |
-            #export CC=mpiicx
-            #export FC=mpiifx
-            #export I_MPI_CC=icx
-            #export I_MPI_F90=ifort
-
             set -x
             cd UPP
             mkdir build && cd build
