@@ -21,31 +21,11 @@ jobs:
       I_MPI_F90: ifort
 
     steps:
-      #- name: "Install Intel"
-      #  uses: NOAA-EMC/ci-install-intel-toolkit@develop
-      #  with:
-      #    oneapi-version: 2023.2.1
-      #    compiler-setup: oneapi
-          
-      - name: install-intel-compilers
-        run: |
-          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-          sudo apt-get update
-          sudo apt-get install intel-oneapi-dev-utilities intel-oneapi-mpi-devel intel-oneapi-openmp intel-oneapi-compiler-fortran-2023.2.1 intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic-2023.2.1
-          source /opt/intel/oneapi/setvars.sh
-
-          {
-            echo "CC=icc"
-            echo "CXX=icpc"
-            echo "FC=ifort"
-            echo "I_MPI_CC=icc"
-            echo "I_MPI_F90=ifort"
-          } >> "$GITHUB_ENV"
-
-          echo "/opt/intel/oneapi/compiler/2023.2.1/linux/bin/intel64" >> "$GITHUB_PATH"
-          echo "/opt/intel/oneapi/mpi/latest/bin" >> "$GITHUB_PATH"
+      - name: "Install Intel"
+        uses: NOAA-EMC/ci-install-intel-toolkit@develop
+        with:
+          oneapi-version: 2023.2.1
+          compiler-setup: oneapi
           
       - name: install-dependencies
         run: |
