@@ -33,8 +33,15 @@ jobs:
       - name: install-dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libnetcdf-mpi-dev libnetcdff-dev libhdf5-mpi-dev libpnetcdf-dev pkg-config 
+          sudo apt-get install libnetcdf-dev pkg-config 
           sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
+
+      - name: build-netcdf
+        uses: NOAA-EMC/ci-build-cmake-code@develop
+        with:
+          package-name: netcdf-fortran
+          package-org: Unidata
+          git-ref: v4.6.1
 
       - name: build-crtm
         uses: NOAA-EMC/ci-build-cmake-code@develop
