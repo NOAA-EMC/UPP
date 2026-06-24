@@ -14,21 +14,21 @@ jobs:
   Intel:
     runs-on: ubuntu-latest
     env:
-      CC: mpicc
-      FC: mpiifort
-      CXX: mpiicpc
-      I_MPI_CC: icc
-      I_MPI_F90: ifort
-      I_MPI_CXX: icpc
+      CC: mpicx
+      FC: mpiifx
+      CXX: mpiicpx
+      I_MPI_CC: icx
+      I_MPI_F90: ifx
+      I_MPI_CXX: icpx
 
     steps:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
-          #oneapi-version: 2023.2.1
-          compiler-setup: classic
+          oneapi-version: 2023.2.1
+          compiler-setup: oneapi
           install-mpi: true
-          mpi-wrapper-setup: classic
+          mpi-wrapper-setup: oneapi
           
       - name: install-dependencies
         run: |
