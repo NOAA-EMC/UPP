@@ -14,11 +14,9 @@ jobs:
   Intel:
     runs-on: ubuntu-latest
     env:
-      CC: icc
-      FC: ifort
-      CXX: icpc
-      I_MPI_CC: icc
-      I_MPI_F90: ifort
+      CC: icx
+      FC: ifx
+      CXX: icpx
 
     steps:
       - name: "Install Intel"
@@ -76,8 +74,6 @@ jobs:
 
       - name: build
         run: |
-          export CC=mpiicc
-          export FC=mpiifort
           set -x
           cd UPP
           mkdir build && cd build
