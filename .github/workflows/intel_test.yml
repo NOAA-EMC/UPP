@@ -13,17 +13,13 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
-    env:
-      CC: icx
-      FC: ifx
-      CXX: icpx
 
     steps:
       - name: "Install Intel"
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
-          #oneapi-version: 2023.2.1
-          compiler-setup: classic
+          oneapi-version: 2023.2.1
+          compiler-setup: oneapi
           
       - name: install-dependencies
         run: |
