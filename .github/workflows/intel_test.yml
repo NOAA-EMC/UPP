@@ -33,7 +33,7 @@ jobs:
       - name: install-dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config 
+          sudo apt-get install libnetcdf-dev libnetcdff-dev pkg-config 
           sudo apt-get install libopenblas-dev libpng-dev autotools-dev libaec-dev autoconf
 
       - name: build-crtm
