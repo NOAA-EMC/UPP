@@ -44,6 +44,9 @@ jobs:
             echo "I_MPI_F90=ifort"
           } >> "$GITHUB_ENV"
 
+          echo "/opt/intel/oneapi/compiler/2023.2.1/linux/bin/intel64" >> "$GITHUB_PATH"
+          echo "/opt/intel/oneapi/mpi/latest/bin" >> "$GITHUB_PATH"
+          
       - name: install-dependencies
         run: |
           sudo apt-get update
