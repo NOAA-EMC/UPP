@@ -72,6 +72,8 @@ jobs:
 
       - name: build
         run: |
+          export CC=mpicc
+          export FC=mpif90
           set -x
           cd UPP
           mkdir build && cd build
