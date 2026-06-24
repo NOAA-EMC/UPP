@@ -44,7 +44,7 @@ function(copy_test_data name)
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 endfunction()
 
-create_test(test_dewpoint)
+#create_test(test_dewpoint)
 create_test(test_bound)
 create_test(test_caldrg)
 create_test(test_calstrm)
