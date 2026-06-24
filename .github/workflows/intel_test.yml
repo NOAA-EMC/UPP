@@ -62,12 +62,6 @@ jobs:
           package-name: NCEPLIBS-sigio
           package-org: NOAA-EMC
 
-      - name: build-wrf-io
-        uses: NOAA-EMC/ci-build-cmake-code@develop
-        with:
-          package-name: NCEPLIBS-wrf_io
-          package-org: NOAA-EMC
-
       - name: build-dependencies
         uses: NOAA-EMC/ci-build-nceplibs@develop
         with:
