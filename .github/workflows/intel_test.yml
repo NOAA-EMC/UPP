@@ -14,11 +14,12 @@ jobs:
   Intel:
     runs-on: ubuntu-latest
     env:
-      CC: icc
-      FC: ifort
-      CXX: icpc
+      CC: mpicc
+      FC: mpiifort
+      CXX: mpiicpc
       I_MPI_CC: icc
       I_MPI_F90: ifort
+      I_MPI_CXX: icpc
 
     steps:
       - name: "Install Intel"
