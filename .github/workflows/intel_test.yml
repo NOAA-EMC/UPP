@@ -80,6 +80,7 @@ jobs:
 
       - name: build
         run: |
+          find . -type f \( -name "*.o" -o -name "*.a" \) -exec sh -c 'nm -A "$1" 2>/xnull | grep __msan_param_tls' _ {} \;
           set -x
           cd UPP
           mkdir build && cd build
