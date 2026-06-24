@@ -20,6 +20,7 @@ jobs:
         with:
           #oneapi-version: 2023.2.1
           compiler-setup: classic
+          install-mpi: true
           
       - name: install-dependencies
         run: |
