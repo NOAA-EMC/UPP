@@ -13,6 +13,12 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
+    env:
+      CC: icc
+      FC: ifort
+      CXX: icpc
+      I_MPI_CC: icc
+      I_MPI_F90: ifort
 
     steps:
       - name: "Install Intel"
