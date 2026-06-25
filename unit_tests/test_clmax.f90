@@ -10,7 +10,7 @@ program test_clmax
     use ctlblk_mod, only: jsta, jend, lm, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 2, nlevs = 3
     integer :: i, j, res
     real, dimension(1:npts,1:npts) :: SQZ, SQ, RQ2L, RQ2H

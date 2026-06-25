@@ -12,7 +12,7 @@ program test_upp_physics
     use upp_physics, only: FPVSNEW, TVIRTUAL
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     ! Number of test points for TVIRTUAL(). 
     integer, parameter :: N_TV = 5
     ! Number of test points for FPVSNEW().

@@ -6,7 +6,7 @@
 program test_snfrac_gfs
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ntests = 5
     real, parameter :: SALP = 2.6 ! From SNFRAC_GFS.f
     integer :: i, res

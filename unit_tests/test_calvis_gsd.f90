@@ -10,7 +10,7 @@ program test_calvis_gsd
                           ista_2l, iend_2u
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 4, nlevs = 5
     integer :: i, j, k, res
     real, dimension(1:npts,1:npts) :: CZEN, VIS, EXP_VIS

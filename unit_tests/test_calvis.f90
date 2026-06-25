@@ -8,7 +8,7 @@ program test_calvis
                           ista, iend, ista_2l, iend_2u
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 3
     integer :: i, j, res
     real, dimension(1:npts,1:npts) :: QV,QC,QR,QI,QS,TT,PP

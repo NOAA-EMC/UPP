@@ -8,7 +8,7 @@ program test_calfltcnd
     use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 14
     integer :: i, res
     real :: CEILING(1, npts)

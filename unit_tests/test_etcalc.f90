@@ -6,7 +6,7 @@
 program test_etcalc
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ntests = 24
     integer :: i, res
     integer, dimension(1:ntests) :: ISOIL

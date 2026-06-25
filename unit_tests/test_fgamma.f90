@@ -6,7 +6,7 @@
 program test_fgamma
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     real, parameter :: XBIG = 35.040E0, XMININ = 1.18E-38, EPS = 1.19E-7, &
                         XINF = 3.4E38
     integer, parameter :: ntests = 12

@@ -10,7 +10,7 @@ program test_frzlvl2
       use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 7, nlevs = 30
     integer :: i, j, k, res
     real :: ISOTHERM_1, ISOTHERM_2

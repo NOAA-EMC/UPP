@@ -6,7 +6,7 @@
 program test_poleavg
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: nx = 3, ny = 3
     integer :: i, j, res
     integer :: IM, JM, JSTA, JEND

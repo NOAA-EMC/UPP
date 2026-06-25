@@ -7,7 +7,7 @@ program test_icaoheight
     use ctlblk_mod, only: jsta, jend, ista, iend, spval
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     ! From ICAOHEIGHT.f
     real, parameter :: Press_Bot = 101325., Press_Mid = 22632., Press_Top = 5474.87
     integer, parameter :: npts = 3

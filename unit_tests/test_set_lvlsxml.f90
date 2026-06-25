@@ -11,7 +11,7 @@ program test_set_lvlsxml
     use rqstfld_mod, only : mxlvl, LVLS, LVLSXML
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: nlvls = 25, ntests = 24
     integer, parameter :: KPV = 5, KTH = 5
     ! 

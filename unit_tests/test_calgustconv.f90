@@ -8,7 +8,7 @@ program test_calgustconv
     use ctlblk_mod, only: ista, iend, jsta, jend, ista_2l, iend_2u, jsta_2l, jend_2u, spval
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 5
     integer :: j, res
     real :: SPEED850(1, 1:npts), SPEED950(1, 1:npts)

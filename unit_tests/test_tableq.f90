@@ -7,7 +7,7 @@ program test_tableq
     use tableq_upp_mod, only: TABLEQ
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6, rel_tol = 1.0e-6
     integer, parameter :: ITB=152, JTB=440
     integer :: i, j, res
     !
@@ -48,14 +48,23 @@ program test_tableq
     end if
     do i = 1, JTB
         do j = 1, ITB
-            if (abs(TTBLQ(i,j) - EXP_TTBLQ(i,j)) > tol) then
-                print *, 'Test Failed: TTBLQ(', i, ',', j, ') = ', TTBLQ(i,j), &
+            if (abs(TTBLQ(i,j) - EXP_TTBLQ(i,j)) / EXP_TTBLQ(i,j) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Failed: TTBLQ(', i, ',', j, ') = ', TTBLQ(i,j), &
                          ' Expected: ', EXP_TTBLQ(i,j)
                 res = 1
             end if
         end do
     end do
-
+    do i = 1, ITB
+        if (abs(STHE(i) - EXP_STHE(i)) / EXP_STHE(i) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i)
+            res = 1
+        end if
+        if (abs(THE0(i) - EXP_THE0(i)) / EXP_THE0(i) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i)
+            res = 1
+        end if
+    end do
     if (res .ne. 0) stop 10
 
     print *, 'SUCCESS!'

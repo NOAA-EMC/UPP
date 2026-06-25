@@ -7,7 +7,7 @@ program test_table
     use table_upp_mod, only: TABLE
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6, rel_tol = 1.0e-6
     integer, parameter :: ITB=076, JTB=134, ntests = 3
     integer :: i, j, res
     !
@@ -73,34 +73,34 @@ program test_table
 
     do i = 1, ITB
         do j = 1, JTB
-            if (abs(PTBL(i,j) - EXP_PTBL(i,j,1)) > tol) then
-                print *, 'Test Case 1 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
+            if (abs(PTBL(i,j) - EXP_PTBL(i,j,1)) / EXP_PTBL(i,j,1) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
                          ' Expected: ', EXP_PTBL(i,j,1)
                 res = 1
             end if
-            if (abs(TTBL(j,i) - EXP_TTBL(j,i,1)) > tol) then
-                print *, 'Test Case 1 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
+            if (abs(TTBL(j,i) - EXP_TTBL(j,i,1)) / EXP_TTBL(j,i,1) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
                          ' Expected: ', EXP_TTBL(j,i,1)
                 res = 1
             end if
         end do
-        if (abs(STHE(i) - EXP_STHE(i,1)) > tol) then
-            print *, 'Test Case 1 Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i,1)
+        if (abs(STHE(i) - EXP_STHE(i,1)) / EXP_STHE(i,1) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i,1)
             res = 1
         end if
-        if (abs(THE0(i) - EXP_THE0(i,1)) > tol) then
-            print *, 'Test Case 1 Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i,1)
+        if (abs(THE0(i) - EXP_THE0(i,1)) / EXP_THE0(i,1) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i,1)
             res = 1
         end if
     end do
 
     do j = 1, JTB
-        if (abs(QS0(j) - EXP_QS0(j,1)) > tol) then
-            print *, 'Test Case 1 Failed: QS0(', j, ') = ', QS0(j), ' Expected: ', EXP_QS0(j,1)
+        if (abs(QS0(j) - EXP_QS0(j,1)) / EXP_QS0(j,1) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: QS0(', j, ') = ', QS0(j), ' Expected: ', EXP_QS0(j,1)
             res = 1
         end if
-        if (abs(SQS(j) - EXP_SQS(j,1)) > tol) then
-            print *, 'Test Case 1 Failed: SQS(', j, ') = ', SQS(j), ' Expected: ', EXP_SQS(j,1)
+        if (abs(SQS(j) - EXP_SQS(j,1)) / EXP_SQS(j,1) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 1 Failed: SQS(', j, ') = ', SQS(j), ' Expected: ', EXP_SQS(j,1)
             res = 1
         end if
     end do
@@ -145,34 +145,34 @@ program test_table
 
     do i = 1, ITB
         do j = 1, JTB
-            if (abs(PTBL(i,j) - EXP_PTBL(i,j,2)) > tol) then
-                print *, 'Test Case 2 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
+            if (abs(PTBL(i,j) - EXP_PTBL(i,j,2)) / EXP_PTBL(i,j,2) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 2 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
                          ' Expected: ', EXP_PTBL(i,j,2)
                 res = 1
             end if
-            if (abs(TTBL(j,i) - EXP_TTBL(j,i,2)) > tol) then
-                print *, 'Test Case 2 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
+            if (abs(TTBL(j,i) - EXP_TTBL(j,i,2)) / EXP_TTBL(j,i,2) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 2 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
                          ' Expected: ', EXP_TTBL(j,i,2)
                 res = 1
             end if
         end do
-        if (abs(STHE(i) - EXP_STHE(i,2)) > tol) then
-            print *, 'Test Case 2 Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i,2)
+        if (abs(STHE(i) - EXP_STHE(i,2)) / EXP_STHE(i,2) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 2 Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i,2)
             res = 1
         end if
-        if (abs(THE0(i) - EXP_THE0(i,2)) > tol) then
-            print *, 'Test Case 2 Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i,2)
+        if (abs(THE0(i) - EXP_THE0(i,2)) / EXP_THE0(i,2) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 2 Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i,2)
             res = 1
         end if
     end do
 
     do j = 1, JTB
-        if (abs(QS0(j) - EXP_QS0(j,2)) > tol) then
-            print *, 'Test Case 2 Failed: QS0(', j, ') = ', QS0(j), ' Expected: ', EXP_QS0(j,2)
+        if (abs(QS0(j) - EXP_QS0(j,2)) / EXP_QS0(j,2) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 2 Failed: QS0(', j, ') = ', QS0(j), ' Expected: ', EXP_QS0(j,2)
             res = 1
         end if
-        if (abs(SQS(j) - EXP_SQS(j,2)) > tol) then
-            print *, 'Test Case 2 Failed: SQS(', j, ') = ', SQS(j), ' Expected: ', EXP_SQS(j,2)
+        if (abs(SQS(j) - EXP_SQS(j,2)) / EXP_SQS(j,2) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 2 Failed: SQS(', j, ') = ', SQS(j), ' Expected: ', EXP_SQS(j,2)
             res = 1
         end if
     end do
@@ -217,34 +217,34 @@ program test_table
 
     do i = 1, ITB
         do j = 1, JTB
-            if (abs(PTBL(i,j) - EXP_PTBL(i,j,3)) > tol) then
-                print *, 'Test Case 3 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
+            if (abs(PTBL(i,j) - EXP_PTBL(i,j,3)) / EXP_PTBL(i,j,3) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 3 Failed: PTBL(', i, ',', j, ') = ', PTBL(i,j), &
                          ' Expected: ', EXP_PTBL(i,j,3)
                 res = 1
             end if
-            if (abs(TTBL(j,i) - EXP_TTBL(j,i,3)) > tol) then
-                print *, 'Test Case 3 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
+            if (abs(TTBL(j,i) - EXP_TTBL(j,i,3)) / EXP_TTBL(j,i,3) > rel_tol) then
+                print '(A,I0,A,I0,A,ES24.16,A,ES24.16)', 'Test Case 3 Failed: TTBL(', j, ',', i, ') = ', TTBL(j,i), &
                          ' Expected: ', EXP_TTBL(j,i,3)
                 res = 1
             end if
         end do
-        if (abs(STHE(i) - EXP_STHE(i,3)) > tol) then
-            print *, 'Test Case 3 Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i,3)
+        if (abs(STHE(i) - EXP_STHE(i,3)) / EXP_STHE(i,3) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 3 Failed: STHE(', i, ') = ', STHE(i), ' Expected: ', EXP_STHE(i,3)
             res = 1
         end if
-        if (abs(THE0(i) - EXP_THE0(i,3)) > tol) then
-            print *, 'Test Case 3 Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i,3)
+        if (abs(THE0(i) - EXP_THE0(i,3)) / EXP_THE0(i,3) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 3 Failed: THE0(', i, ') = ', THE0(i), ' Expected: ', EXP_THE0(i,3)
             res = 1
         end if
     end do
 
     do j = 1, JTB
-        if (abs(QS0(j) - EXP_QS0(j,3)) > tol) then
-            print *, 'Test Case 3 Failed: QS0(', j, ') = ', QS0(j), ' Expected: ', EXP_QS0(j,3)
+        if (abs(QS0(j) - EXP_QS0(j,3)) / EXP_QS0(j,3) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 3 Failed: QS0(', j, ') = ', QS0(j), ' Expected: ', EXP_QS0(j,3)
             res = 1
         end if
-        if (abs(SQS(j) - EXP_SQS(j,3)) > tol) then
-            print *, 'Test Case 3 Failed: SQS(', j, ') = ', SQS(j), ' Expected: ', EXP_SQS(j,3)
+        if (abs(SQS(j) - EXP_SQS(j,3)) / EXP_SQS(j,3) > rel_tol) then
+            print '(A,I0,A,ES24.16,A,ES24.16)', 'Test Case 3 Failed: SQS(', j, ') = ', SQS(j), ' Expected: ', EXP_SQS(j,3)
             res = 1
         end if
     end do

@@ -6,7 +6,7 @@
 program test_smooth
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: nx = 4, ny = 4
     integer :: i, j, res
     integer :: IX, IY

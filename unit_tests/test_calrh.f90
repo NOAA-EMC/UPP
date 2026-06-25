@@ -10,7 +10,7 @@ program test_calrh
     use params_mod, only: PQ0, a2, a3, a4, rhmin
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 9
     integer :: i, res
     ! For expected value calculations

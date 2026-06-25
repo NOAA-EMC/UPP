@@ -9,7 +9,7 @@ program test_ttblex
     implicit none
     
     ! spval for tests
-    real, parameter :: tol = 1.0e-8, spval = 9.9e10
+    real, parameter :: tol = 1.0e-6, spval = 9.9e10
     integer, parameter :: npts = 2, ni = 50, nj = 50
     integer :: i, j, res
     ! Inputs

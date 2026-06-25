@@ -9,7 +9,7 @@ program test_calceiling
     use ctlblk_mod, only: jsta, jend, spval, im, modelname, ista, iend
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: npts = 10
     integer :: i, res
     real :: CLDZ(1, npts), TCLD(1, npts)

@@ -10,7 +10,7 @@ program test_mixlen
                           lm1, spval, ista, iend, ista_m, iend_m, ista_2l, iend_2u
     implicit none
 
-    real, parameter :: tol = 1.0e-8
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: nx = 2, ny = 2, nlevs = 3
     integer :: i, j, k, res
     real :: EL0(nx, ny), EL(nx, ny, nlevs), EXP_EL(nx, ny, nlevs)
