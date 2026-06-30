@@ -13,14 +13,15 @@
       use netcdf
       use iso_fortran_env, only: int64
       use vrbls3d, only: t,zmid,q,uh,vh,q,omga
-      use vrbls2d, only: tshltr,u10,v10,slp,acprec
+      use vrbls2d, only: tshltr,u10,v10,slp,acprec,f
       use ctlblk_mod, only: me,im,jm,lm,ista,iend,jsta,jend,ista_2l,iend_2u,jsta_2l, jend_2u, &
               spval, gdsdegr, idat, sdat, ihrst, imin, ifhr, ifmin, &
               tprec, tclod, trdlw, trdsw, tsrfc, tmaxmin, global, &
               ista_2l, iend_2u, jsta_2l, jend_2u, iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, &
               dxval, dyval
-      use masks, only:gdlat, gdlon
+      use masks, only: gdlat, gdlon
+      use params_mod, only: dtr
 !----------------------------------------------------------------------------------------------
       implicit none
       INCLUDE "mpif.h"
@@ -53,7 +54,7 @@
       dxval=0.25*gdsdegr !dlon as 0.25 degree
       dyval=0.25*gdsdegr !dlat as 0.25 degree
       gridtype='A'
-      !global=.true.
+      global=.true.
 
 
 !-----read lat/lon------------
@@ -161,6 +162,13 @@
 
       varname='vertical_velocity'
       call read_netcdf_3d(ncid,varname,omga(ista_2l,jsta_2l,1),lm)
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=ista,iend
+          f(i,j)=1.454441e-4*sin(gdlat(i,j)*dtr) ! 2*omeg*sin(phi)
+        enddo
+      enddo
 
       deallocate(glat1d,glon1d,plevel)
 

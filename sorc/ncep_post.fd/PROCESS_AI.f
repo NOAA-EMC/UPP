@@ -14,7 +14,7 @@
       use mpi, only: mpi_wtime
       use ctlblk_mod, only: ista, iend, jsta, jend, datapd, fld_info, &
               spval, grib, me, im, jm, lm, cfld, ntlfld, spl, tprec, ifmin, &
-              ifhr
+              ifhr, ista_2l, iend_2u, jsta_2l, jend_2u
       use vrbls3d, only: t, zmid, q, uh, vh, q, omga
       use vrbls2d, only: tshltr, u10, v10, slp, acprec
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
@@ -26,9 +26,9 @@
       logical log1
       real, allocatable :: grid1(:,:),grid2(:,:),grid3(:,:)
 
-      allocate(grid1(ista:iend,jsta:jend))
-      allocate(grid2(ista:iend,jsta:jend))
-      allocate(grid3(ista:iend,jsta:jend))
+      allocate(grid1(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(grid2(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(grid3(ista_2l:iend_2u,jsta_2l:jend_2u))
 
       cfld=0
       grid1=spval
@@ -220,7 +220,7 @@
               grid3(i,j)=spval
             enddo
           enddo
-!          call calvor(grid1,grid2,grid3)
+          call calvor(grid1,grid2,grid3)
           if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=iavblfld(iget(021))

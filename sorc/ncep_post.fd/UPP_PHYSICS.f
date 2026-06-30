@@ -1826,7 +1826,7 @@
       CALL EXCH(UWND)
       CALL EXCH(VWND)
 !
-      IF (MODELNAME == 'GFS' .or. global) THEN
+      IF (MODELNAME == 'GFS' .or. global .or. MODELNAME == 'AIGFS') THEN
         CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
         CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
 

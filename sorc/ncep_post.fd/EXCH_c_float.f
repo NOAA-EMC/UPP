@@ -66,7 +66,7 @@
 !
 !  for global model apply cyclic boundary condition
 
-      IF(MODELNAME == 'GFS') then
+      IF(MODELNAME == 'GFS' .or. MODELNAME == 'AIGFS') then
         if(ifirst .le.  0 .and. me .eq. 0) print *,'  CYCLIC BC APPLIED'
         if(ileft .eq. MPI_PROC_NULL)  iwest=1         ! get eastern bc from western boundary of full domain
         if(iright .eq. MPI_PROC_NULL)  ieast=1        ! get western bc from eastern boundary of full domain
