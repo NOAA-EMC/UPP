@@ -130,38 +130,38 @@
 
 !-----read 2D fields--------------
       varname='2m_temperature'
-      call read_netcdf_2d(ncid,varname,tshltr(ista_2l,jsta_2l))
+      call read_netcdf_2d(ncid,varname,tshltr(ista:iend,jsta:jend))
 
       varname='10m_u_component_of_wind'
-      call read_netcdf_2d(ncid,varname,u10(ista_2l,jsta_2l))
+      call read_netcdf_2d(ncid,varname,u10(ista:iend,jsta:jend))
 
       varname='10m_v_component_of_wind'
-      call read_netcdf_2d(ncid,varname,v10(ista_2l,jsta_2l))
+      call read_netcdf_2d(ncid,varname,v10(ista:iend,jsta:jend))
 
       varname='mean_sea_level_pressure'
-      call read_netcdf_2d(ncid,varname,slp(ista_2l,jsta_2l))
+      call read_netcdf_2d(ncid,varname,slp(ista:iend,jsta:jend))
 
       varname='total_precipitation_6hr'
-      call read_netcdf_2d(ncid,varname,acprec(ista_2l,jsta_2l))
+      call read_netcdf_2d(ncid,varname,acprec(ista:iend,jsta:jend))
 
 !-----read 3D fields--------------
       varname='temperature'
-      call read_netcdf_3d(ncid,varname,t(ista_2l,jsta_2l,1),lm)
+      call read_netcdf_3d(ncid,varname,t(ista:iend,jsta:jend,1:lm),lm)
 
       varname='geopotential'
-      call read_netcdf_3d(ncid,varname,zmid(ista_2l,jsta_2l,1),lm)
+      call read_netcdf_3d(ncid,varname,zmid(ista:iend,jsta:jend,1:lm),lm)
 
       varname='specific_humidity'
-      call read_netcdf_3d(ncid,varname,q(ista_2l,jsta_2l,1),lm)
+      call read_netcdf_3d(ncid,varname,q(ista:iend,jsta:jend,1:lm),lm)
 
       varname='u_component_of_wind'
-      call read_netcdf_3d(ncid,varname,uh(ista_2l,jsta_2l,1),lm)
+      call read_netcdf_3d(ncid,varname,uh(ista:iend,jsta:jend,1:lm),lm)
 
       varname='v_component_of_wind'
-      call read_netcdf_3d(ncid,varname,vh(ista_2l,jsta_2l,1),lm)
+      call read_netcdf_3d(ncid,varname,vh(ista:iend,jsta:jend,1:lm),lm)
 
       varname='vertical_velocity'
-      call read_netcdf_3d(ncid,varname,omga(ista_2l,jsta_2l,1),lm)
+      call read_netcdf_3d(ncid,varname,omga(ista:iend,jsta:jend,1:lm),lm)
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -185,7 +185,7 @@
       subroutine read_netcdf_3d(ncid,varname,buf,lm)
 
       use netcdf
-      use ctlblk_mod, only : me,ista,iend,jsta,jend,spval,jsta_2l,jend_2u,ista_2l,iend_2u 
+      use ctlblk_mod, only : me,ista,iend,jsta,jend,spval
       use params_mod, only : small
       use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
       implicit none
@@ -193,7 +193,7 @@
 
       character(len=*),intent(in) :: varname
       integer,intent(in) :: ncid,lm
-      real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real,intent(out)   :: buf(ista:iend,jsta:jend,lm)
       integer            :: varid,iret,ii,jj,i,j,l,kk
       integer            :: start(3), count(3), stride(3)
       real,parameter     :: spval_netcdf=9.99e+20
@@ -247,7 +247,7 @@
       subroutine read_netcdf_2d(ncid,varname,buf)
 
       use netcdf
-      use ctlblk_mod, only : me,ista,iend,jsta,jend,spval,jsta_2l,jend_2u,ista_2l,iend_2u
+      use ctlblk_mod, only : me,ista,iend,jsta,jend,spval
       use params_mod, only : small
       use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
       implicit none
@@ -255,7 +255,7 @@
 
       character(len=*),intent(in) :: varname
       integer,intent(in) :: ncid
-      real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
+      real,intent(out)   :: buf(ista:iend,jsta:jend)
       integer            :: varid,iret,ii,jj,i,j,l,kk
       integer            :: start(2), count(2), stride(3)
       real,parameter     :: spval_netcdf=9.99e+20
