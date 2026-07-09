@@ -29,8 +29,8 @@ function(create_mpi_test name num_procs)
 
   add_test(
     NAME ${name}_np_${num_procs}
-    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs}
-            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${name}_np_${num_procs}> ${MPIEXEC_POSTFLAGS}
+    #COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs}
+    #        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${name}_np_${num_procs}> ${MPIEXEC_POSTFLAGS}
   )
   set_tests_properties(${name}_np_${num_procs} PROPERTIES PROCESSORS ${num_procs})
 endfunction()
@@ -107,9 +107,8 @@ if(BUILD_WITH_NEMSIO)
 endif()
 
 # The following tests require MPI to run.
-#create_mpi_test(test_allgetherv 1)
-#create_mpi_test(test_allgetherv 2)
-create_test(test_allgetherv)
+create_mpi_test(test_allgetherv 1)
+create_mpi_test(test_allgetherv 2)
 
 # Copy test data files
 copy_test_data(ref_table_case1.txt)
