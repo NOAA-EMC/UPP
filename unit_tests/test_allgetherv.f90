@@ -22,7 +22,7 @@ program test_allgetherv
         end subroutine ALLGETHERV
     end interface
 
-    !call MPI_INIT(ierr)
+    call MPI_INIT(ierr)
     !mpi_comm_comp = MPI_COMM_WORLD
     !call MPI_COMM_SIZE(mpi_comm_comp, num_procs, ierr)
     !call MPI_COMM_RANK(mpi_comm_comp, me, ierr)
@@ -50,7 +50,7 @@ program test_allgetherv
 
     call ALLGETHERV(GRID1)
 
-    !call MPI_FINALIZE(ierr)
+    call MPI_FINALIZE(ierr)
 
     res = 0
     do i = ista, iend
