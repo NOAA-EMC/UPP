@@ -23,6 +23,8 @@ program test_allgetherv
     call MPI_COMM_SIZE(mpi_comm_comp, num_procs, ierr)
     call MPI_COMM_RANK(mpi_comm_comp, me, ierr)
 
+    print *, "Running test_allgetherv on process ", me, " of ", num_procs
+    
     im = 4
     jm = 4 * num_procs
 
