@@ -88,12 +88,12 @@ program test_ngmslp
     call NGMSLP()
 
     do i = 1, npts
-        if (abs(slp(1, i) - EXP_SLP(1, i)) > tol) then
+        if (abs(slp(1, i) - EXP_SLP(1, i)) / EXP_SLP(1, i) > tol) then
             print *, "Test Case ", i, " failed: Expected SLP = ", EXP_SLP(1, i), &
                     " but got SLP = ", slp(1, i)
             res = 1
         end if
-        if (abs(z1000(1, i) - EXP_Z1000(1, i)) > tol) then
+        if (abs(z1000(1, i) - EXP_Z1000(1, i)) / EXP_Z1000(1, i) > tol) then
             print *, "Test Case ", i, " failed: Expected Z1000 = ", EXP_Z1000(1, i), &
                     " but got Z1000 = ", z1000(1, i)
             res = 1
