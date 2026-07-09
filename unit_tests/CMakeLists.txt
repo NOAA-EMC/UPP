@@ -24,14 +24,13 @@ endfunction()
 # This function builds, links, and runs a Fortran test program using MPI with a specified number of processes.
 function(create_mpi_test name num_procs)
   add_executable(${name}_np_${num_procs} ${name}.f90)
-  target_link_libraries(${name}_np_${num_procs} PRIVATE upp::upp MPI::MPI_Fortran)
+  target_link_libraries(${name}_np_${num_procs} PRIVATE upp::upp)
   set_target_properties(${name}_np_${num_procs} PROPERTIES LINKER_LANGUAGE Fortran)
 
   add_test(
     NAME ${name}_np_${num_procs}
-    COMMAND ${name}_np_${num_procs}
-    #COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs}
-    #        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${name}_np_${num_procs}> ${MPIEXEC_POSTFLAGS}
+    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${name}_np_${num_procs}> ${MPIEXEC_POSTFLAGS}
   )
   set_tests_properties(${name}_np_${num_procs} PROPERTIES PROCESSORS ${num_procs})
 endfunction()
