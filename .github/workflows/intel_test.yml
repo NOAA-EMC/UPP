@@ -13,13 +13,13 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
-    env:
-      CC: mpicx
-      FC: mpiifx
-      CXX: mpiicpx
-      I_MPI_CC: icx
-      I_MPI_F90: ifx
-      I_MPI_CXX: icpx
+    #env:
+    #  CC: mpicx
+    #  FC: mpiifx
+    #  CXX: mpiicpx
+    #  I_MPI_CC: icx
+    #  I_MPI_F90: ifx
+    #  I_MPI_CXX: icpx
 
     steps:
       - name: "Install Intel"
