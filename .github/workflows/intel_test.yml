@@ -13,6 +13,9 @@ concurrency:
 jobs:
   Intel:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compilers: ["oneapi", "classic"]
     #env:
     #  CC: mpicx
     #  FC: mpiifx
@@ -26,9 +29,9 @@ jobs:
         uses: NOAA-EMC/ci-install-intel-toolkit@develop
         with:
           oneapi-version: 2023.2.1
-          compiler-setup: oneapi
+          compiler-setup: ${{ matrix.compilers }}
           install-mpi: true
-          mpi-wrapper-setup: oneapi
+          mpi-wrapper-setup: ${{ matrix.compilers }}
           
       - name: install-dependencies
         run: |
