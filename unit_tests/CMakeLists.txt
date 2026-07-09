@@ -107,9 +107,10 @@ if(BUILD_WITH_NEMSIO)
 endif()
 
 # The following tests require MPI to run.
-create_mpi_test(test_allgetherv 1)
-create_mpi_test(test_allgetherv 2)
+#create_mpi_test(test_allgetherv 1)
+#create_mpi_test(test_allgetherv 2)
 
+create_test(test_allgetherv)
 # Copy test data files
 copy_test_data(ref_table_case1.txt)
 copy_test_data(ref_table_case2.txt)

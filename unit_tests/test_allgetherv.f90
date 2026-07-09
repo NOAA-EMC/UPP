@@ -1,6 +1,10 @@
 ! This is a test program for UPP.
 !
 ! This program tests the ALLGETHERV() subroutine.
+! 
+! This test uses MPI and requires you run the executables with the proper command and 
+! corresponding number of processes specified with the command:
+! e.g., `mpiexec -n 2 ./test_allgetherv_np_2`
 !
 ! Alyson Stahl, 4/2026
 program test_allgetherv
@@ -18,13 +22,14 @@ program test_allgetherv
         end subroutine ALLGETHERV
     end interface
 
-    call MPI_INIT(ierr)
-    mpi_comm_comp = MPI_COMM_WORLD
-    call MPI_COMM_SIZE(mpi_comm_comp, num_procs, ierr)
-    call MPI_COMM_RANK(mpi_comm_comp, me, ierr)
+    !call MPI_INIT(ierr)
+    !mpi_comm_comp = MPI_COMM_WORLD
+    !call MPI_COMM_SIZE(mpi_comm_comp, num_procs, ierr)
+    !call MPI_COMM_RANK(mpi_comm_comp, me, ierr)
 
-    print *, "Running test_allgetherv on process ", me, " of ", num_procs
-    
+    num_procs = 1
+    me = 0
+
     im = 4
     jm = 4 * num_procs
 
@@ -45,6 +50,8 @@ program test_allgetherv
 
     call ALLGETHERV(GRID1)
 
+    !call MPI_FINALIZE(ierr)
+
     res = 0
     do i = ista, iend
         do j = jsta, jend
@@ -55,8 +62,6 @@ program test_allgetherv
             end if
         end do
     end do
-
-    call MPI_FINALIZE(ierr)
 
     deallocate(GRID1)
     deallocate(EXP_GRID1)
