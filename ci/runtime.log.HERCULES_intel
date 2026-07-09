@@ -1,5 +1,6 @@
 sfs_test 00:01:20
 aqm_test 00:00:30
+aigfs_test 00:00:30
 nmmb_test 00:03:00
 gefsv12_test 00:01:00
 gefsv13_test 00:02:00
