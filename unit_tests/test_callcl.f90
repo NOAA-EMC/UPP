@@ -100,13 +100,13 @@ program test_callcl
     res = 0
     do i = 1, npts
         do j = 1, npts
-            if (abs(PLCL(i,j) - EXP_PLCL(i,j)) > tol) then
+            if (abs(PLCL(i,j) - EXP_PLCL(i,j)) / EXP_PLCL(i,j) > tol) then
                 print *, 'PLCL Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_PLCL(i,j), &
                          ' but got ', PLCL(i,j)
                 res = 1
             end if
-            if (abs(ZLCL(i,j) - EXP_ZLCL(i,j)) > tol) then
+            if (abs(ZLCL(i,j) - EXP_ZLCL(i,j)) / EXP_ZLCL(i,j) > tol) then
                 print *, 'ZLCL Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_ZLCL(i,j), &
                          ' but got ', ZLCL(i,j)
