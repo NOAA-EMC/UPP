@@ -14,15 +14,9 @@ jobs:
   Intel:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         compilers: ["oneapi", "classic"]
-    #env:
-    #  CC: mpicx
-    #  FC: mpiifx
-    #  CXX: mpiicpx
-    #  I_MPI_CC: icx
-    #  I_MPI_F90: ifx
-    #  I_MPI_CXX: icpx
 
     steps:
       - name: "Install Intel"
