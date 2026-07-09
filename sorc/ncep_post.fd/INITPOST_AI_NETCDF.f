@@ -1,13 +1,21 @@
 !> @file
-!> @brief initpost_ai_netcdf() initializes post for run.
+!> @brief initpost_ai_netcdf() initializes post for AIGFS model.
 !>
-!> This routine initializes constants and variables from AI models
+!> @author Wen Meng @date 2026-06-26
+!>
+!> This routine initializes constants and read variables from AI models
+!>
 !> ### Program History Log
 !> Date | Programmer | Comments
 !> -----|------------|---------
 !> 2026-06-26 | Wen Meng | Initial.
 !>
 !> @author Wen Meng @date 2026-06-26
+!----------------------------------------------------------------------
+!> @brief initializes constants and read variables from AI models
+!> @param[in] ncid integer netCDF ID
+!> @param[in] idate integer inilitial date 
+!----------------------------------------------------------------------
       subroutine initpost_ai_netcdf(ncid,idate)
 
       use netcdf
