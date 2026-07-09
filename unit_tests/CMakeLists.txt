@@ -29,6 +29,7 @@ function(create_mpi_test name num_procs)
 
   add_test(
     NAME ${name}_np_${num_procs}
+    COMMAND ${name}_np_${num_procs}
     #COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs}
     #        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${name}_np_${num_procs}> ${MPIEXEC_POSTFLAGS}
   )
