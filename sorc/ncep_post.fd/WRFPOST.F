@@ -172,6 +172,7 @@
 !
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
+      character    :: fhr*3
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,gtg_on,method_blsn,popascal &
                      ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files, capecin_2m   &
                      , synthetic_cfr
@@ -180,7 +181,7 @@
                      ,fileNameFlux,fileNameFlat, fhr
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
-      character cgar*1,cdum*4,line*10, fhr*3
+      character cgar*1,cdum*4,line*10
 !
 !------------------------------------------------------------------------------
 !     START HERE
