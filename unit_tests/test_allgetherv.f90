@@ -23,12 +23,9 @@ program test_allgetherv
     end interface
 
     call MPI_INIT(ierr)
-    !mpi_comm_comp = MPI_COMM_WORLD
-    !call MPI_COMM_SIZE(mpi_comm_comp, num_procs, ierr)
-    !call MPI_COMM_RANK(mpi_comm_comp, me, ierr)
-
-    num_procs = 1
-    me = 0
+    mpi_comm_comp = MPI_COMM_WORLD
+    call MPI_COMM_SIZE(mpi_comm_comp, num_procs, ierr)
+    call MPI_COMM_RANK(mpi_comm_comp, me, ierr)
 
     im = 4
     jm = 4 * num_procs
@@ -50,8 +47,6 @@ program test_allgetherv
 
     call ALLGETHERV(GRID1)
 
-    call MPI_FINALIZE(ierr)
-
     res = 0
     do i = ista, iend
         do j = jsta, jend
@@ -62,6 +57,8 @@ program test_allgetherv
             end if
         end do
     end do
+
+    call MPI_FINALIZE(ierr)
 
     deallocate(GRID1)
     deallocate(EXP_GRID1)
