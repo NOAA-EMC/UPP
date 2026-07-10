@@ -67,7 +67,7 @@
         endif
       endif
 
-!-----SEAL LEVEL PRESSURE
+!-----SEA LEVEL PRESSURE
       if(iget(105)>0) then
         do j=jsta,jend
           do i=ista,iend

@@ -84,7 +84,7 @@ FH2=$(printf "%02d" "$fhr")
 mv PRS.GrbF${FH2} aigfs.t${cyc}z.pres.f${FH3}.grib2
 mv SFC.GrbF${FH2} aigfs.t${cyc}z.sfc.f${FH3}.grib2
 
-# SFS post processing generates 1 file
+# AIGFS post processing generates 2 file
 filelist="aigfs.t${cyc}z.pres.f${FH3}.grib2 \
 	  aigfs.t${cyc}z.sfc.f${FH3}.grib2"
 
