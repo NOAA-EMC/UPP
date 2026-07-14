@@ -1115,6 +1115,15 @@
         end do
       endif
 
+! compute pmid from averaged two layer pint
+      do l=lm,1,-1
+        do j=jsta,jend
+          do i=1,im
+            pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))
+          enddo
+        enddo
+      enddo
+
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !     Compute omega
