@@ -79,7 +79,7 @@
       use vrbls3d,    only: zmid, uh, vh, u, v, zint
       use vrbls2d,    only: fis, u10, v10
       use masks,      only: lmv
-      use params_mod, only: g
+      use params_mod, only: g, small
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
                             lm, im, jm, me
@@ -442,12 +442,13 @@
                 DU2 = UH(I,J,L)-UH(I,J,L-1)
                 DV1 = VH(I,J,L+1)-VH(I,J,L)
                 DV2 = VH(I,J,L)-VH(I,J,L-1)
-                HELI(I,J,N) = ((VH(I,J,L)-VST(I,J))*                      &
-                               (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
-                            -  (UH(I,J,L)-UST(I,J))*                      &
-                               (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
-                               *DZ/(DZ1+DZ2)+HELI(I,J,N) 
-
+                if(abs(DZ1)>small .and. abs(DZ2)>small) then
+                  HELI(I,J,N) = ((VH(I,J,L)-VST(I,J))*                      &
+                                 (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
+                              -  (UH(I,J,L)-UST(I,J))*                      &
+                                 (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
+                                 *DZ/(DZ1+DZ2)+HELI(I,J,N)
+                END IF
 !	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
 !	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
               ENDIF
