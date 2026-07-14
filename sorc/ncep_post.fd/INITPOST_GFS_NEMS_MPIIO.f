@@ -941,8 +941,8 @@
             js = fldst + (j-jsta)*im
             do i=1,im
               zint(i,j,ll)=zint(i,j,ll+1)+abs(tmp(i+js))
-              if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
-                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/abs(tmp(i+js)) 
+!              if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
+!                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/abs(tmp(i+js))
             enddo
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
