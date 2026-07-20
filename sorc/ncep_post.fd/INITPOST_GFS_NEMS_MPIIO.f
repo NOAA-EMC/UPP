@@ -941,8 +941,8 @@
             js = fldst + (j-jsta)*im
             do i=1,im
               zint(i,j,ll)=zint(i,j,ll+1)+abs(tmp(i+js))
-!              if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
-!                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/abs(tmp(i+js))
+              if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
+                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/abs(tmp(i+js)) 
             enddo
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
@@ -1114,15 +1114,6 @@
           ,pint(ii,jj,l)
         end do
       endif
-
-! compute pmid from averaged two layer pint
-      do l=lm,1,-1
-        do j=jsta,jend
-          do i=1,im
-            pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))
-          enddo
-        enddo
-      enddo
 
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
