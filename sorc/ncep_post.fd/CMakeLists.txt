@@ -96,6 +96,7 @@ list(APPEND LIB_SRC
     PMICRPH.f
     POLEAVG.f
     PROCESS.f
+    PROCESS_AI.f
     READ_xml.f
     retrieve_index.f
     RHGRD.f
@@ -153,6 +154,7 @@ list(APPEND EXE_SRC
     INITPOST.F
     INITPOST_MPAS.F
     INITPOST_NETCDF.f
+    INITPOST_AI_NETCDF.f
     WRFPOST.F
     getIVariableN.f
     getVariable.f

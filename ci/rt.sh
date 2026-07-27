@@ -93,7 +93,7 @@ check_for_dash() {
 }
 
 # Space required at start and and of string for pattern matching in check_valid_tests
-valid_tests=' sfs aqm gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip gcafs rrfs gfs '
+valid_tests=' sfs aqm aigfs gefsv12 gefsv13 nmmb rap hrrr hafs 3drtma mpas mpas_hfip gcafs rrfs gfs '
 
 check_valid_tests() {
    local tests=${@}

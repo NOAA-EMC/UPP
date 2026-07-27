@@ -31,7 +31,7 @@ for job_id in $jobid_list; do
      runtime_fmt=$(echo "$info" | cut -d"|" -f3)
      jobname=$(echo "$info" | cut -d"|" -f2)
 
-     runtime_b=$(grep "^${jobname}" "${runtime_log}" | awk '{print $2}')
+     runtime_b=$(grep -w "^${jobname}" "${runtime_log}" | awk '{print $2}')
      printf "%-10s %-16s %-10s %s\n" "$runtime_fmt" "$jobname" "baseline:" "$runtime_b"
      msg="Runtime: $jobname $runtime_fmt -- baseline ${runtime_b}"
      postmsg "$logfile" "$msg"
