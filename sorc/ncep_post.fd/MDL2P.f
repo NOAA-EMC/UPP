@@ -46,6 +46,7 @@
 !> 2025-11-17 | W Meng          | Correct variable allocation
 !> 2025-11-19 | W Meng          | Relocate dxm calculation
 !> 2026-01-06 | K Asmar			| Add convective wind gust calculation
+!> 2026-07-28 | J Kenyon        | Add ice- and water-friendly aerosols (QQNWFA, QQNIFA)
 !>
 !> @author T Black W/NP2 @date 1999-09-23
 !--------------------------------------------------------------------------------------
@@ -61,7 +62,8 @@
                          COARSEPM, EBB
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
-                         QQNW, QQNI, QQNR, QQNG, RLWTT, RSWTT, VDIFFTT, TCUCN, &
+                         QQNW, QQNI, QQNR, QQNG, QQNWFA, QQNIFA,               &
+                         RLWTT, RSWTT, VDIFFTT, TCUCN,                         &
                          TCUCNS, TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,&
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
@@ -137,9 +139,11 @@
 !  QQNW1 - number concentration of cloud drops
 !  QQNI1 - number concentration of ice particles
 !  QQNR1 - number concentration of rain particles
+!  QQNWFA1 - number concentration of water-friendly aerosols
+!  QQNIFA1 - number concentration of ice-friendly aerosols
 !
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
-      ,                                      FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1, QQNG1
+      ,                       FRIME, RAD, HAINES, QQNW1, QQNI1, QQNR1, QQNG1, QQNWFA1, QQNIFA1
 
       REAL SDUMMY(IM,2)
 
@@ -398,6 +402,8 @@
               QQNI1(I,J)    = SPVAL
               QQNR1(I,J)    = SPVAL
               QQNG1(I,J)    = SPVAL
+              QQNWFA1(I,J)  = SPVAL
+              QQNIFA1(I,J)  = SPVAL
 
               if (gtg_interpolation) then
                  GTGSL(I,J)    = SPVAL
@@ -499,6 +505,10 @@
                  QQNR1(I,J) = MAX(QQNR1(I,J),zero)          ! Rain number concentration
                  IF(QQNG(I,J,1)    < SPVAL) QQNG1(I,J) = QQNG(I,J,1)
                  QQNG1(I,J) = MAX(QQNG1(I,J),zero)          ! Graupel number concentration
+                 IF(QQNWFA(I,J,1)    < SPVAL) QQNWFA1(I,J) = QQNWFA(I,J,1)
+                 QQNWFA1(I,J) = MAX(QQNWFA1(I,J),zero)      ! Water-friendly aerosol number concentration
+                 IF(QQNIFA(I,J,1)    < SPVAL) QQNIFA1(I,J) = QQNIFA(I,J,1)
+                 QQNIFA1(I,J) = MAX(QQNIFA1(I,J),zero)      ! Ice-friendly aerosol number concentration
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
@@ -757,6 +767,14 @@
                  IF(QQNG(I,J,LL) < SPVAL .AND. QQNG(I,J,LL-1) < SPVAL)         &
                    QQNG1(I,J) = QQNG(I,J,LL) + (QQNG(I,J,LL)-QQNG(I,J,LL-1))*FACT
                    QQNG1(I,J) = MAX(QQNG1(I,J),zero)      ! Graupel number concentration
+
+                 IF(QQNWFA(I,J,LL) < SPVAL .AND. QQNWFA(I,J,LL-1) < SPVAL)         &
+                   QQNWFA1(I,J) = QQNWFA(I,J,LL) + (QQNWFA(I,J,LL)-QQNWFA(I,J,LL-1))*FACT
+                   QQNWFA1(I,J) = MAX(QQNWFA1(I,J),zero)      ! Water-friendly aerosol number concentration
+
+                 IF(QQNIFA(I,J,LL) < SPVAL .AND. QQNIFA(I,J,LL-1) < SPVAL)         &
+                   QQNIFA1(I,J) = QQNIFA(I,J,LL) + (QQNIFA(I,J,LL)-QQNIFA(I,J,LL-1))*FACT
+                   QQNIFA1(I,J) = MAX(QQNIFA1(I,J),zero)      ! Ice-friendly aerosol number concentration
 
                  IF(TTND(I,J,LL) < SPVAL .AND. TTND(I,J,LL-1) < SPVAL)        &
                    RAD(I,J) = TTND(I,J,LL) + (TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
@@ -1072,6 +1090,8 @@
                  QQNI1(I,J) = 0.
                  QQNR1(I,J) = 0.
                  QQNG1(I,J) = 0.
+                 QQNWFA1(I,J) = 0.
+                 QQNIFA1(I,J) = 0.
                  RAD(I,J)   = 0.
                  O3SL(I,J)  = O3(I,J,LLMH)
                  IF(CFR(I,J,1)<SPVAL)CFRSL(I,J) = 0.
@@ -2375,6 +2395,44 @@
                  do i=1,iend-ista+1
                   ii=ista+i-1
                    datapd(i,j,cfld) = QQNG1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for water-friendly aerosols on isobaric surfaces
+         IF (IGET(1029) > 0) THEN
+          IF (LVLS(LP,IGET(1029)) > 0) THEN
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1029))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1029))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNWFA1(ii,jj)
+                 enddo
+               enddo
+             endif
+          ENDIF
+         ENDIF
+!
+!---  Number concentration for ice-friendly aerosols on isobaric surfaces
+         IF (IGET(1030) > 0) THEN
+          IF (LVLS(LP,IGET(1030)) > 0) THEN
+             if(grib == 'grib2')then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(1030))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(1030))
+!$omp parallel do private(i,j,ii,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,iend-ista+1
+                  ii=ista+i-1
+                   datapd(i,j,cfld) = QQNIFA1(ii,jj)
                  enddo
                enddo
              endif
