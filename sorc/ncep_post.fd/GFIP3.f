@@ -1673,7 +1673,7 @@ contains
     real :: severity
     integer :: k, n
 
-    real :: moistInt
+    ! moistInt: module member
 
     iseverity(:) = 0.0
 
@@ -1963,9 +1963,9 @@ contains
     tempAdj = 0.0
     cttAdj  = 0.0
     pcAdj   = 0.0
+
     ! ctt, cloudTopDist, lowestCloud, deltaZ: module member (cloud info)
     call cal_DampingFactors(scenario, t, pc, tempAdj, cttAdj, pcAdj)
-  
     severity = (weights(1) * dqInt + weights(2) * dzInt + &
                 weights(3) * vvInt + weights(4) * moistInt + &
                 weights(5) * ice_pot) / &
@@ -2224,6 +2224,8 @@ contains
        condAdj = cldBaseDist_map(deltaZ)
        ! For no precipitation, condAdj is 0.0
        condAdj = condAdj * prcpCondensate_map(pc, scenario)
+    else
+         condAdj=0.0
     end if
 
     return
