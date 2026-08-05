@@ -59,7 +59,7 @@ fileName='$homedir/data_in/gefsv13/gefs.t${cyc}z.atmf${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
-MODELNAME='FV3R'
+MODELNAME='GFS'
 fileNameFlux='$homedir/data_in/gefsv13/gefs.t${cyc}z.sfcf${fhr}.nc'
 /
 &NAMPGB
