@@ -21,6 +21,10 @@
 !>  2025-07-25 | Jaymes Kenyon | Add "earth_radius" namelist option
 !>  2025-12-16 | Ben Blake  | Add capecin_2m logical option
 !>  2026-03-04 | Gang Zhao  | Add synthetic_cfr logical option to switch on/off the synthetic scheme for Cloud-fraction added by Jaymes Kenyon for HRRR-3DRTMA in Nov 2025.
+!>  2026-07-23 | Gang Zhao  | Add i_cch260_rtma integer option to control the selection of the cloud base height (CLDZ)
+!>                          | which is used in the calculation of field 260 for Cloud Ceiling Height (CCH) in 3DRTMA run
+!>                          | = 0 (default) CLDZ is computed with original algorithm (convective + grid-scale; Ferrier, Feb '02)
+!>                          | = 1 CLDZ is computed with GSD legacy cloud ceiling algorithm (used for field 408)
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK CTLBLK
 !> Sets default parameters that are used throughout the UPP code
@@ -80,6 +84,7 @@
   logical :: method_blsn   !< Turn on blowing snow effect on visibility diagnostic
   logical :: capecin_2m = .false. !< Turn on option to calculate CAPE and CIN using 2-m fields
   logical :: synthetic_cfr = .false. !< Turn on option to enable the synthetic cloud fraction scheme for HRRR-3DRTMA
+  integer :: i_cch260_rtma = 0       !< using original Ferrier's scheme to compute cloud base height for field 260 (only used for 3DRTMA)
 !
   logical :: SIGMA      !< No longer used/supported.
   logical :: RUN        !< No longer used/supported.

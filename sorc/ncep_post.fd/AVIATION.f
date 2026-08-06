@@ -493,10 +493,13 @@
 !> @param[inout] CEILING CEILING HEIGHT from surface (m)
 !>     
 !> @author Binbin Zhou NCEP/EMC  @date 2005-08-18       
+!> @modification history:
+!>    2026-07-24 | Gang Zhao      | using height above sea level for RTMA
       SUBROUTINE CALCEILING (CLDZ,TCLD,CEILING)
       USE vrbls2d, only: fis
       use params_mod, only: small, gi
-      use ctlblk_mod, only: jsta, jend, spval, im, modelname, ista, iend
+      use ctlblk_mod, only: jsta, jend, spval, im, modelname, ista, iend,       &
+                            submodelname
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -513,7 +516,7 @@
           IF(ABS(TCLD(I,J)-SPVAL) <= SMALL) THEN
             CEILING(I,J)=SPVAL
           ELSE IF(TCLD(I,J) >= 50.) THEN
-            if(MODELNAME == 'RAPR')then
+            if(MODELNAME == 'RAPR' .AND. SUBMODELNAME /= 'RTMA')then
               CEILING(I,J) = CLDZ(I,J) - FIS(I,J)*GI
             else
               CEILING(I,J) = CLDZ(I,J) ! for RAP/HRRR   - FIS(I,J)*GI
