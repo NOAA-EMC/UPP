@@ -45,7 +45,7 @@
 !> 2026-07-23 | Gang Zhao                 | Add i_cch260_rtma integer option to control the selection of the cloud base height (CLDZ)
 !>                                        | which is used in the calculation of field 260 for Cloud Ceiling Height (CCH) in 3DRTMA run
 !>                                        | = 0 (default) CLDZ is computed with original algorithm (convective + grid-scale; Ferrier, Feb '02)
-!>                                        | = 1 CLDZ is computed with GSD legacy cloud ceiling alrorithm (used for field 408)
+!>                                        | = 1 CLDZ is computed with GSD legacy cloud ceiling algorithm (used for field 408)
 !> @author Mike Baldwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
