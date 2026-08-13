@@ -44,6 +44,7 @@
 !> 2025-12-16 | Ben Blake                 | Add capecin_2m option to calculate CAPE and CIN with 2-m fields
 !> 2026-03-04 | Gang Zhao                 | Add synthetic_cfr logical option to switch on/off the synthetic scheme for Cloud-fraction added by Jaymes Kenyon for HRRR-3DRTMA in Nov 2025.
 !> 2026-04-22 | Alyson Stahl              | Fix type mismatch warnings for gcc compiler by swapping 'INCLUDE mpif.h' with 'use mpi'.
+!> 2026-06-26 | Wen Meng                  | Add capacity to process AI models
 !> @author Mike Baldwin NSSL/SPC @date 2002-06-18
 !---------------------------------------------------------------------
 !> @return wrfpost
@@ -130,7 +131,7 @@
       use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
               spldef, modelname, ihrst, lsmdef,vtimeunits, earth_radius,                             &
-              tprec, pthresh, datahandle, im, jm, lm,                                                &
+              tprec, pthresh, datahandle, im, jm, lm, ifhr,                                          &
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global, imp_physics,          &
               ista, iend, ista_m, iend_m, ista_2l, iend_2u,                                          &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
@@ -166,17 +167,18 @@
       integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,ncid2d,varid
       integer      :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                       iunitd3d,iyear,imn,iday,LCNTRL,ieof
-      integer      :: iostatusAER
+      integer      :: iostatusAER, idate(8)
       logical      :: popascal
 !
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
+      character    :: fhr*3
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,gccpp_on, nasa_on,gtg_on,method_blsn,popascal &
                      ,hyb_sigp,rdaod,d2d_chem, aqf_on,slrutah_on, vtimeunits,numx,write_ifi_debug_files, capecin_2m   &
                      , synthetic_cfr
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME,earth_radius &
-                     ,fileNameFlux,fileNameFlat
+                     ,fileNameFlux,fileNameFlat, fhr
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -258,6 +260,18 @@
  114    format(a8)
  120    format(a5)
  121    format(a4)
+
+! Retrieve initial forecast date
+        IF(MODELNAME == 'AIGFS') THEN
+          idate=0
+          idate(1)=iyear
+          idate(2)=imn
+          idate(3)=iday
+          idate(5)=ihrst
+          idate(5)=ihrst
+          read(fhr,301) ifhr
+ 301      format(i3)
+        ENDIF
 
 !KaYee: Read in GFS/FV3 runs in Fortran Namelist Format.
       if(grib=='grib2') then
@@ -420,6 +434,48 @@
           END IF
 
           call ext_ncd_ioclose ( DataHandle, Status )
+         ELSEIF(MODELNAME == 'AIGFS') THEN
+! Read dimension values from GFS AI model output
+           spval = 9.99e20
+           Status = nf90_open(trim(fileName),IOR(NF90_NOWRITE,NF90_MPIIO), &
+               ncid3d,comm=mpi_comm_world,info=mpi_info_null)
+           if ( Status /= 0 ) then
+             print*,'error opening ',fileName, ' Status = ', Status
+             stop
+           endif
+           Status = nf90_inq_dimid(ncid3d,'lon',varid)
+           if ( Status /= 0 ) then
+             print*,Status,varid
+             stop
+           endif
+           Status = nf90_inquire_dimension(ncid3d,varid,len=im)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+           Status = nf90_inq_dimid(ncid3d,'lat',varid)
+           if ( Status /= 0 ) then
+             print*,Status,varid
+             stop
+           endif
+           Status = nf90_inquire_dimension(ncid3d,varid,len=jm)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          Status = nf90_inq_dimid(ncid3d,'level',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=lm)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          LP1=LM+1
+          LM1=LM+1
+          IM_JM = IM*JM
          ELSE
 ! use parallel netcdf lib directly to read FV3 output in netCDF
           spval = 9.99e20
@@ -603,6 +659,8 @@
           ELSE IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
 ! use parallel netcdf library to read output directly
             CALL INITPOST_NETCDF(ncid2d,ncid3d)
+          ELSE IF (MODELNAME == 'AIGFS') THEN
+            CALL INITPOST_AI_NETCDF(ncid3d,idate)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
             STOP 9998
@@ -672,38 +730,37 @@
 !        LEVELS AND TO WHICH GRID TO INTERPOLATE DATA TO.
 !        VARIABLE IEOF/=0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
 !
-!                      --------    grib1 processing  ---------------
 !                                 ------------------
-!        if (grib == "grib1") then !DO NOT REVERT TO GRIB1. GRIB1 NOT SUPPORTED ANYMORE
-!          IEOF = 0
-!          do while (ieof == 0)
-!            CALL READCNTRL(kth,IEOF)
-!            IF(ME == 0)THEN
-!              WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ', 'IEOF=',IEOF
-!            ENDIF
-!
-!           PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
-!           WE GO THROUGH THE FOLLOWING STEPS:
-!             (1) COMPUTE FIELD IF NEED BE
-!             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
-!
-!            if (ieof == 0) then
-!              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-!              IF(ME == 0)THEN
-!                WRITE(6,*)' '
-!                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
-!              ENDIF
-!            endif
-!
-!           PROCESS NEXT GRID.
-!
-!          enddo
 !                      --------    grib2 processing  ---------------
 !                                 ------------------
-!        elseif (grib == "grib2") then
         if (me==0) write(*,*) ' in WRFPOST OUTFORM= ',grib
         if (me==0) write(*,*) '  GRIB1 IS NOT SUPPORTED ANYMORE'    
         if (grib == "grib2") then
+          if (MODELNAME == 'AIGFS') then
+             do npset=1, num_pset
+             if (me==0) write(*,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
+             CALL SET_OUTFLDS(kth,th,kpv,pv)
+             if (me==0) write(*,*)' in WRFPOST size datapd',size(datapd)
+             if(allocated(datapd)) deallocate(datapd)
+             allocate(datapd(1:iend-ista+1,1:jend-jsta+1,nrecout+100))
+             do k=1,nrecout+100
+             do j=1,jend+1-jsta
+             do i =1,iend+1-ista
+               datapd(i,j,k) = 0.
+             enddo
+             enddo
+             enddo
+             call get_postfilename(post_fname)
+             if (me==0) write(*,*)'post_fname=',trim(post_fname)
+             call PROCESS_AI
+             call mpi_barrier(mpi_comm_comp,ierr)
+             call gribit2(post_fname)
+             deallocate(datapd)
+             deallocate(fld_info)
+             enddo !end npset
+          
+
+          else !Process non-AI models
           do while (npset < num_pset)
             npset = npset+1
             if (me==0) write(*,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
@@ -750,7 +807,8 @@
 !
           enddo
 
-        endif
+          endif ! MODELNAME == 'AIGFS'
+        endif ! grib == "grib2"
 !     
 !-------
         call grib_info_finalize()

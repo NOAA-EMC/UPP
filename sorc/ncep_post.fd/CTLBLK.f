@@ -23,6 +23,7 @@
 !>  2025-11-13 | Eric James | Increase number of pressure levels to enable additional isobaric output in global MPAS
 !>  2025-12-16 | Ben Blake  | Add capecin_2m logical option
 !>  2026-03-04 | Gang Zhao  | Add synthetic_cfr logical option to switch on/off the synthetic scheme for Cloud-fraction added by Jaymes Kenyon for HRRR-3DRTMA in Nov 2025.
+!>  2026-06-26 | Wen Meng   | Change MODELNAME from character 4 to 5
 !-----------------------------------------------------------------------
 !> @defgroup CTLBLK CTLBLK
 !> Sets default parameters that are used throughout the UPP code
@@ -53,7 +54,7 @@
   character(len=256) :: fileNameAER                !< Name of GFS aersol file
   character(len=256) :: fileNameFlat               !< Input configuration text file defining the requested fields.
   character(len=19)  :: DateStr                    !< Time stamp being processed (e.g., 2022-08-02_19:00:00).
-  character(len=4)   :: MODELNAME                  !< Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF).
+  character(len=5)   :: MODELNAME                  !< Model name used by UPP internally (e.g., FV3R for LAM, GFS for GFS, NCAR for WRF).
   character(len=4)   :: SUBMODELNAME               !< Name of submodel for output differing from parent domain; used to treat a subset of model output in a special way; typically used only for outputting RTMA-specific fields now; previously used with HWRF and NMM to identify and process moving nests.
   character(len=8)   :: FULLMODELNAME              !< No longer used/supported.
   character(len=20)  :: IOFORM                     !< Input file format.

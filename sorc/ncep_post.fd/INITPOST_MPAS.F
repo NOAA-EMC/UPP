@@ -44,7 +44,9 @@
 !>                           | PT_tmp3d, SLLEVEL_tmp, and SLDPTH_tmp arrays
 !> 2026-04-30 | Eric James   | Add smoke_fine tracer,  biomass burning
 !>                           | emissions, FRP, and hourly wildfire potential for MPAS
-!>
+!> 2026-07-21 | Eric James   | Update reading of AOD for MPAS: AOD is output as a 2D variable from MPAS/MPASSIT.  
+!>                           | Also add outputting of second Mie-based AOD output for testing in MPAS
+
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
       SUBROUTINE INITPOST_MPAS
@@ -53,7 +55,7 @@
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
               qqr, qqs, qqi, qqg, qqnw, qqni, qqnr, qqng, cwm, qqw, qqi, qqr, qqs, extcof55,&
               q2, zint, zmid, ttnd, cfr, cfr_raw, qc_bl, REF_10CM,                 &
-              qqnwfa,qqnifa,taod5503d,aextc55,el_pbl
+              qqnwfa,qqnifa,el_pbl
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,      &
               sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max, w_mean, refd_max, &
               up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16,            &
@@ -72,7 +74,7 @@
               acgraup, acfrain,                                                    &
               graupelnc, albedo, rswin, rswout, swdnbc, swddnic,                   &
               swddifc, swupbc, swupt, czen, czmean, rlwin, lwdnbc, lwupbc,         &
-              rainnc_bucket, taod5502d, aerasy2d, aerssa2d, lwp, iwp,              &
+              rainnc_bucket, taod5502d, taod5502d_simple, aerasy2d, aerssa2d, lwp, iwp,&
               sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout, alwtoa, aswtoa, &
               tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx, snopcx,       &
               sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc, tsnow,       &
@@ -482,7 +484,6 @@
 
 ! extinction coef for aerosol
       extcof55=0.
-      aextc55=0.
       
       VarName='QCLOUD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
@@ -922,27 +923,27 @@
       ENDIF  ! IF(MODELNAME == 'RAPR')THEN
 
 !
-! E. James - 8 Dec 2017: this is for HRRR-smoke; it needs to be after ZINT
-! is defined.
+! E. James - 21 Jul 2026: In MPAS, AOD is calculated in model and is
+! output as a 2-D field.  AOD550_SIMPLE is the original calculation used
+! in HRRR and RRFSv1.  AOD550 is the new Mie calculation (for testing).
 !
-      VarName='AOD3D_SMOKE'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
-        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            taod5503d ( i, j, l ) = dum3d ( i, j, l )
-            dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
-            aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+      VarName='AOD550_SIMPLE'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+      DO J=Jsta,jend
+      DO I=1,IM
+            taod5502d_simple ( i, j ) = dummy ( i, j )
+      END DO
+      END DO
 
-            if( me==0 .and. i==im/2 .and. j==(jsta+jend)/2 ) then
-              print*,'sample TAOD5503D= ',i,j,l,TAOD5503D( i, j, l )
-              print*,'sample dz= ',dz
-              print*,'sample AEXTC55= ',i,j,l,AEXTC55( i, j, l )
-            endif
-        end do
-       end do
-      end do
+      VarName='AOD550'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+      DO J=Jsta,jend
+      DO I=1,IM
+            taod5502d ( i, j ) = dummy ( i, j )
+      END DO
+      END DO
 
 ! get 3-d soil variables
       VarName='SMOIS'
@@ -2288,16 +2289,6 @@ endif  ! 1==2
        do j = jsta_2l, jend_2u
         do i = 1, im
              HWP ( i, j ) = dummy ( i, j )
-        end do
-       end do
-
-      VarName='TAOD5502D'
-! Total aerosol optical depth
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
-       IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            TAOD5502D ( i, j ) = dummy ( i, j )
         end do
        end do
 

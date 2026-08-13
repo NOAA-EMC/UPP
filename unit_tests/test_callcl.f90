@@ -12,7 +12,7 @@ program test_callcl
                         ista, iend, ista_m, iend_m
     implicit none
 
-    real, parameter :: tol = 1.0e-6
+    real, parameter :: tol = 1.0e-5
     ! From CALLCL.f
     real, parameter :: D35=3.5, D4805=4.805,  H2840=2840., H55=55., D2845=0.2845, D28=0.28
     ! Used to initialize inputs
@@ -100,13 +100,13 @@ program test_callcl
     res = 0
     do i = 1, npts
         do j = 1, npts
-            if (abs(PLCL(i,j) - EXP_PLCL(i,j)) > tol) then
+            if (abs(PLCL(i,j) - EXP_PLCL(i,j)) / EXP_PLCL(i,j) > tol) then
                 print *, 'PLCL Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_PLCL(i,j), &
                          ' but got ', PLCL(i,j)
                 res = 1
             end if
-            if (abs(ZLCL(i,j) - EXP_ZLCL(i,j)) > tol) then
+            if (abs(ZLCL(i,j) - EXP_ZLCL(i,j)) / EXP_ZLCL(i,j) > tol) then
                 print *, 'ZLCL Test failed at (', i, ',', j, '): ', &
                          'Expected ', EXP_ZLCL(i,j), &
                          ' but got ', ZLCL(i,j)

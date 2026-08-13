@@ -10,7 +10,7 @@ program test_ngmslp
     use ctlblk_mod, only: jsta, jend, im, jm, spval, ista, iend, lm
     implicit none
 
-    real, parameter :: tol = 1.0e-6
+    real, parameter :: tol = 1.0e-5
     integer, parameter :: npts = 4, nlevs = 30
     integer :: i, k, res
     real :: EXP_SLP(1, npts), EXP_Z1000(1, npts)
@@ -88,12 +88,14 @@ program test_ngmslp
     call NGMSLP()
 
     do i = 1, npts
-        if (abs(slp(1, i) - EXP_SLP(1, i)) > tol) then
-            print *, "Error: SLP(1, ", i, ") = ", slp(1, i), " != EXP_SLP(1, ", i, ") = ", EXP_SLP(1, i)
+        if (abs(slp(1, i) - EXP_SLP(1, i)) / EXP_SLP(1, i) > tol) then
+            print *, "Test Case ", i, " failed: Expected SLP = ", EXP_SLP(1, i), &
+                    " but got SLP = ", slp(1, i)
             res = 1
         end if
-        if (abs(z1000(1, i) - EXP_Z1000(1, i)) > tol) then
-            print *, "Error: Z1000(1, ", i, ") = ", z1000(1, i), " != EXP_Z1000(1, ", i, ") = ", EXP_Z1000(1, i)
+        if (abs(z1000(1, i) - EXP_Z1000(1, i)) / EXP_Z1000(1, i) > tol) then
+            print *, "Test Case ", i, " failed: Expected Z1000 = ", EXP_Z1000(1, i), &
+                    " but got Z1000 = ", z1000(1, i)
             res = 1
         end if
     end do

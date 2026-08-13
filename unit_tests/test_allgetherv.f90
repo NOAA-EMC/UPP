@@ -1,6 +1,10 @@
 ! This is a test program for UPP.
 !
 ! This program tests the ALLGETHERV() subroutine.
+! 
+! This test uses MPI and requires you run the executables with the proper command and 
+! corresponding number of processes specified with the command:
+! e.g., `mpiexec -n 2 ./test_allgetherv_np_2`
 !
 ! Alyson Stahl, 4/2026
 program test_allgetherv

@@ -75,6 +75,7 @@
 !!   25-07-15 | J Duda | Read/process hourly-maximum composite reflectivity
 !!   25-03-23 | E James  | Add computation of aerosol layer height top and bottom
 !!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028
+!!   26-07-21 | E James  | Switch PBL height from Ri-based to THV-based (MYNN) for MPAS fields PBL wind and VRATE
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3978,6 +3979,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               !-- Regardless of model, assign / calculate PBLRI (PBL height based on Richardson number)
               IF(MODELNAME  ==  'GFS')THEN
                 PBLRI=PBLH
+              ELSE IF (MODELNAME == 'RAPR' .and. SUBMODELNAME == 'MPAS')THEN
+                CALL CALPBL(PBLRI,'THV')
               ELSE
                 CALL CALPBL(PBLRI,'RI')
               END IF

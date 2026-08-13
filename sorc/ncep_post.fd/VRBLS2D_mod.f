@@ -220,6 +220,7 @@
       ,SWUPBC(:,:) &          !< Clear-sky surface upwelling shortwave flux
       ,SWUPT(:,:) &           !< Upward shortwave flux at top of atmosphere
       ,TAOD5502D(:,:) &       !< Total aerosol optical depth at 550 nm
+      ,TAOD5502D_SIMPLE(:,:) &!< Total aerosol optical depth at 550 nm (alternate calculation)
       ,AERASY2D(:,:) &        !< Aerosol asymmetry parameter
       ,AERSSA2D(:,:) &        !< Aerosol single-scattering albedo
       ,MEAN_FRP(:,:) &        !< Instantaneous mean fire radiative power

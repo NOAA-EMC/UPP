@@ -93,6 +93,8 @@
 !> 2026-03-09 | Eric James        | Add column-integrated total dust and mass-weighted aerosol centroid
 !>                                     height, and scale FRP to be in Watts (consistent with GRIB2
 !>                                     field definition).
+!> 2026-07-21 | Eric James        | Modify MPAS AOD treatment to directly output 2D field from MPASSIT, and add a second
+!>                                |    AOD Mie calculation output for MPAS
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -121,7 +123,7 @@
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
-                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, HWP,        &
+                         TAOD5502D, TAOD5502D_SIMPLE, AERSSA2D, AERASY2D, MEAN_FRP, HWP,&
                          LWP, IWP, AVGCPRATE, EMDUST,                         &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
                          du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,   &
@@ -471,15 +473,52 @@
 !     
 !     E. James - 8 Dec 2017
 !     TOTAL COLUMN AOD (TAOD553D FROM HRRR-SMOKE)
-!
+!     21 Jul 2026
+!     In MPAS, AOD is computed in the model and output as a 2D field.
+!     There is also a second AOD calculation (for testing) under
+!     variable 715, named AOD_ON_SURFACE (Mie calculation).
       IF (IGET(735) > 0) THEN
-       IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R') THEN
+       IF (MODELNAME == 'RAPR' .and. SUBMODELNAME == 'MPAS') then
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            IF (TAOD5502D_SIMPLE(I,J)<spval) THEN
+              GRID1(I,J) = TAOD5502D_SIMPLE(I,J)
+            ELSE
+              GRID1(I,J) = spval
+            ENDIF
+          ENDDO
+        ENDDO
+       ELSE IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R') THEN
          CALL CALPW(GRID1(ista:iend,jsta:jend),19)
          CALL BOUND(GRID1,D00,H99999)
        ENDIF
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(735))
+!$omp parallel do private(i,j,ii,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,iend-ista+1
+              ii=ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+
+      IF (IGET(715) > 0) THEN
+        DO J=JSTA,JEND
+          DO I=ISTA,IEND
+            IF (TAOD5502D(I,J)<spval) THEN
+              GRID1(I,J) = TAOD5502D(I,J)
+            ELSE
+              GRID1(I,J) = spval
+            ENDIF
+          ENDDO
+        ENDDO
+        if(grib == "grib2" )then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(715))
 !$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -4605,19 +4644,19 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         ENDIF
       END IF !aqf_on
 
-      !2D AEROSOL OPTICAL DEPTH AT 550 NM
-      IF (IGET(715)>0) THEN
-         DO J=JSTA,JEND
-           DO I=ISTA,IEND
-             grid1(i,j)=taod5502d(i,j)
-           ENDDO
-         ENDDO
-         if(grib=="grib2" )then
-           cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(715))
-           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
-         endif
-      ENDIF
+!      !2D AEROSOL OPTICAL DEPTH AT 550 NM
+!      IF (IGET(715)>0) THEN
+!         DO J=JSTA,JEND
+!           DO I=ISTA,IEND
+!             grid1(i,j)=taod5502d(i,j)
+!           ENDDO
+!         ENDDO
+!         if(grib=="grib2" )then
+!           cfld=cfld+1
+!           fld_info(cfld)%ifld=IAVBLFLD(IGET(715))
+!           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+!         endif
+!      ENDIF
    
       !AEROSOL ASYMMETRY FACTOR
       IF (IGET(716)>0) THEN

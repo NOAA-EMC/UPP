@@ -855,6 +855,11 @@
        </param>
 
        <param>
+           <shortname>AOD_ON_SURFACE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
            <shortname>SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
            <scale>5.0</scale>
        </param>
@@ -872,6 +877,25 @@
        <param>
            <shortname>BIOMASS_BURNING_EMISSIONS</shortname>
            <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>UGRD_ON_PLANETARY_BOUND_LYR</shortname>
+           <pname>UGRD</pname>
+           <scale>-4.0</scale>
+       </param>
+
+       <param>
+           <shortname>VGRD_ON_PLANETARY_BOUND_LYR</shortname>
+           <pname>VGRD</pname>
+           <scale>-4.0</scale>
+       </param>
+
+       <param>
+           <shortname>VRATE_ON_PLANETARY_BOUND_LYR</shortname>
+           <pname>VRATE</pname>
+           <table_info>NCEP</table_info>
+           <scale>3.0</scale>
        </param>
 
        <param>
