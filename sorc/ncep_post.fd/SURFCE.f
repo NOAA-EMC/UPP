@@ -67,6 +67,7 @@
 !> 2025-10-21 | J Kenyon   | For ID 434 (BUCKET_APCP_ON_SURFACE), remove the assumption (and the hard coding)
 !>                         | of a 1-h accumulation interval
 !> 2026-03-20 | J Kenyon   | Add reciprocal of the Obukhov length (1/L)
+!> 2026-07-29 | E James    | Switch to use 2-m T and Td for 2-m RH in MPAS
 !>
 !> @note
 !> USAGE:    CALL SURFCE
@@ -1779,10 +1780,10 @@
 !        SHELTER LEVEL RELATIVE HUMIDITY AND APPARENT TEMPERATURE
          IF (IGET(114) > 0 .OR. IGET(808) > 0) THEN
            allocate(q1d(ista:iend,jsta:jend))
-!$omp parallel do private(i,j,llmh)
+!$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=ISTA,IEND
-               IF(MODELNAME=='RAPR')THEN
+               IF(MODELNAME=='RAPR' .and. SUBMODELNAME/='MPAS')THEN
                  LLMH = NINT(LMH(I,J))
 !                P1D(I,J)=PINT(I,J,LLMH+1)
                  P1D(I,J) = PMID(I,J,LLMH)

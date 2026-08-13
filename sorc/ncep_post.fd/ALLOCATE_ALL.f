@@ -723,6 +723,7 @@
       allocate(swupbc(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(swupt(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(taod5502d(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(taod5502d_simple(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(aerasy2d(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(aerssa2d(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(lwp(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -745,6 +746,7 @@
           swupbc(i,j)=spval
           swupt(i,j)=spval
           taod5502d(i,j)=spval
+          taod5502d_simple(i,j)=spval
           aerasy2d(i,j)=spval
           aerssa2d(i,j)=spval
           lwp(i,j)=spval

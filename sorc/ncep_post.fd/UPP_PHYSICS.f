@@ -40,6 +40,7 @@
 !> 2024-11-21 | K. Asmar, J. Meng, G. Vandenberghe | CALCHIPSI
 !> 2024-12-12 | Jesse Meng | CALSLR_UUTAH2     
 !> 2025-05-05 | Ben Blake  | Add sanity checks for RRFSv1 implementation
+!> 2026-07-29 | Eric James | Switch to use CALRH_NAM for MPAS
 !>
 !> @author Jesse Meng @date 2020-05-20
   module upp_physics
@@ -76,14 +77,14 @@
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
-      use ctlblk_mod, only: ista, iend, jsta, jend, MODELNAME
+      use ctlblk_mod, only: ista, iend, jsta, jend, MODELNAME, SUBMODELNAME
       implicit none
 
       REAL,dimension(ista:iend,jsta:jend),intent(in)    :: P1,T1
       REAL,dimension(ista:iend,jsta:jend),intent(inout) :: Q1
       REAL,dimension(ista:iend,jsta:jend),intent(out)   :: RH
 
-      IF(MODELNAME == 'RAPR')THEN
+      IF(MODELNAME == 'RAPR' .and. SUBMODELNAME /= 'MPAS')THEN
          CALL CALRH_GSD(P1,T1,Q1,RH)
       ELSE
          CALL CALRH_NAM(P1,T1,Q1,RH)
