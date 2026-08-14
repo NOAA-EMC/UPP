@@ -53,6 +53,7 @@ ALL_TXT= \
   ./rrfs/postxconfig-NT-rrfs_firewx_f00.txt \
   ./rrfs/postxconfig-NT-rrfs_firewx_f01.txt \
   ./mpas/postxconfig-NT-rrfs_mpas.txt \
+  ./mpas/postxconfig-NT-rrfs_mpas_L55.txt \
   ./mpas/postxconfig-NT-rrfs_mpas_L65.txt \
   ./mpas/postxconfig-NT-hfip_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas.txt \
