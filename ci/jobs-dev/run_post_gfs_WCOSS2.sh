@@ -37,8 +37,8 @@ postmsg "$logfile" "$msg"
 export POSTGPEXEC=$svndir/exec/upp.x
 
 # specify forecast start time and hour
-export startdate=2025012600
-export fhr=006
+export startdate=2026081800
+export fhr=012
 export cyc=`echo $startdate |cut -c9-10`
 
 # specify your running and output directory
@@ -54,12 +54,12 @@ export HH=`echo $NEWDATE | cut -c9-10`
 
 cat > itag <<EOF
 &model_inputs
-fileName='$homedir/data_in/gfs/gfs.t${cyc}z.atmf${fhr}.nc'
+fileName='$homedir/data_in/gfs/gfs.t${cyc}z.atm.f${fhr}.nc'
 IOFORM='netcdf'
 grib='grib2'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='GFS'
-fileNameFlux='$homedir/data_in/gfs/gfs.t${cyc}z.sfcf${fhr}.nc'
+fileNameFlux='$homedir/data_in/gfs/gfs.t${cyc}z.sfc.f${fhr}.nc'
 /
 &NAMPGB
 KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,rdaod=.true.,
@@ -101,14 +101,14 @@ ${APRUN} ${POSTGPEXEC} < itag > outpost_gfs_goes_${NEWDATE}
 fhr=$((10#$fhr))
 FH3=$(printf "%03d" "$fhr")
 FH2=$(printf "%02d" "$fhr")
-mv GFSPRS.GrbF${FH2} gfs.t${cyc}z.master.grb2f${FH3}
-mv GFSFLX.GrbF${FH2} gfs.t${cyc}z.sfluxgrbf${FH3}.grib2
-mv GFSGOES.GrbF${FH2} gfs.t${cyc}z.special.grb2f${FH3}
+mv GFSPRS.GrbF${FH2} gfs.t${cyc}z.master.f${FH3}.grib2
+mv GFSFLX.GrbF${FH2} gfs.t${cyc}z.sflux.f${FH3}.grib2
+mv GFSGOES.GrbF${FH2} gfs.t${cyc}z.master-goes.f${FH3}.grib2
 
 # GFS post processing generates 3 files
-filelist="gfs.t${cyc}z.master.grb2f${FH3} \
-          gfs.t${cyc}z.sfluxgrbf${FH3}.grib2 \
-          gfs.t${cyc}z.special.grb2f${FH3} "
+filelist="gfs.t${cyc}z.master.f${FH3}.grib2 \
+          gfs.t${cyc}z.sflux.f${FH3}.grib2 \
+          gfs.t${cyc}z.master-goes.f${FH3}.grib2 "
 
 for file in $filelist; do
 

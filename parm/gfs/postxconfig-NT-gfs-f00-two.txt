@@ -401,7 +401,7 @@ O3MR_ON_ISOBARIC_SFC
 1
 tmpl4_0
 O3MR
-NCEP
+?
 ?
 isobaric_sfc
 0
@@ -653,7 +653,7 @@ REFC_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFC
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -1241,7 +1241,7 @@ SOILL_ON_DEPTH_BEL_LAND_SFC
 1
 tmpl4_0
 SOILL
-NCEP
+?
 ?
 depth_bel_land_sfc
 4
@@ -1283,7 +1283,7 @@ CNWAT_ON_SURFACE
 1
 tmpl4_0
 CNWAT
-NCEP
+?
 ?
 surface
 0
@@ -1367,7 +1367,7 @@ PEVPR_ON_SURFACE
 1
 tmpl4_0
 PEVPR
-NCEP
+?
 ?
 surface
 0
@@ -1493,7 +1493,7 @@ WILT_ON_SURFACE
 1
 tmpl4_0
 WILT
-NCEP
+?
 ?
 surface
 0
@@ -1577,7 +1577,7 @@ GFS_LFTX_ON_SURFACE
 1
 tmpl4_0
 LFTX
-NCEP
+?
 ?
 surface
 0
@@ -1619,7 +1619,7 @@ GFS_4LFTX_ON_SURFACE
 1
 tmpl4_0
 4LFTX
-NCEP
+?
 ?
 surface
 0
@@ -2039,7 +2039,7 @@ USTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 USTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -2081,7 +2081,7 @@ VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 VSTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -2123,7 +2123,7 @@ INST_CRAIN_ON_SURFACE
 1
 tmpl4_0
 CRAIN
-NCEP
+?
 ?
 surface
 0
@@ -2165,7 +2165,7 @@ Categorical snow on surface
 1
 tmpl4_0
 CSNOW
-NCEP
+?
 ?
 surface
 0
@@ -2207,7 +2207,7 @@ Categorical ice pellets on surface
 1
 tmpl4_0
 CICEP
-NCEP
+?
 ?
 surface
 0
@@ -2249,7 +2249,7 @@ Categorical freezing rain on surface
 1
 tmpl4_0
 CFRZR
-NCEP
+?
 ?
 surface
 0
@@ -2417,7 +2417,7 @@ FRICV_ON_SURFACE
 1
 tmpl4_0
 FRICV
-NCEP
+?
 ?
 surface
 0
@@ -2753,7 +2753,7 @@ VWSH_ON_TROPOPAUSE
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 tropopause
 0
@@ -4223,7 +4223,7 @@ HPBL_ON_SURFACE
 1
 tmpl4_0
 HPBL
-NCEP
+?
 ?
 surface
 0
@@ -4937,7 +4937,7 @@ VWSH_ON_POT_VORT_SFC
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 pot_vort_sfc
 8
@@ -5147,7 +5147,7 @@ SUNSD_ON_SURFACE
 1
 tmpl4_0
 SUNSD
-NCEP
+?
 ?
 surface
 0
@@ -6113,7 +6113,7 @@ REFD_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -6155,7 +6155,7 @@ REFD_ON_HYBRID_LVL
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 hybrid_lvl
 0
@@ -7011,7 +7011,7 @@ SOILL_ON_DEPTH_BEL_LAND_SFC
 1
 tmpl4_0
 SOILL
-NCEP
+?
 ?
 depth_bel_land_sfc
 4
@@ -7053,7 +7053,7 @@ CNWAT_ON_SURFACE
 1
 tmpl4_0
 CNWAT
-NCEP
+?
 ?
 surface
 0
@@ -7137,7 +7137,7 @@ PEVPR_ON_SURFACE
 1
 tmpl4_0
 PEVPR
-NCEP
+?
 ?
 surface
 0
@@ -7263,7 +7263,7 @@ WILT_ON_SURFACE
 1
 tmpl4_0
 WILT
-NCEP
+?
 ?
 surface
 0
@@ -7389,7 +7389,7 @@ INST_DSWRF_ON_SURFACE
 1
 tmpl4_0
 DSWRF
-NCEP
+?
 ?
 surface
 0
@@ -7431,7 +7431,7 @@ INST_DLWRF_ON_SURFACE
 1
 tmpl4_0
 DLWRF
-NCEP
+?
 ?
 surface
 0
@@ -7473,7 +7473,7 @@ INST_USWRF_ON_SURFACE
 1
 tmpl4_0
 USWRF
-NCEP
+?
 ?
 surface
 0
@@ -7515,7 +7515,7 @@ INST_ULWRF_ON_SURFACE
 1
 tmpl4_0
 ULWRF
-NCEP
+?
 ?
 surface
 0
@@ -7767,7 +7767,7 @@ FRICV_ON_SURFACE
 1
 tmpl4_0
 FRICV
-NCEP
+?
 ?
 surface
 0
@@ -7809,7 +7809,7 @@ SFEXC_ON_SURFACE
 1
 tmpl4_0
 SFEXC
-NCEP
+?
 ?
 surface
 0
@@ -7935,7 +7935,7 @@ INST_GFLUX_ON_SURFACE
 1
 tmpl4_0
 GFLUX
-NCEP
+?
 ?
 surface
 0
@@ -8103,7 +8103,7 @@ HPBL_ON_SURFACE
 1
 tmpl4_0
 HPBL
-NCEP
+?
 ?
 surface
 0
@@ -8187,7 +8187,7 @@ SUNSD_ON_SURFACE
 1
 tmpl4_0
 SUNSD
-NCEP
+?
 ?
 surface
 0
