@@ -53,6 +53,7 @@ ALL_TXT= \
   ./rrfs/postxconfig-NT-rrfs_firewx_f00.txt \
   ./rrfs/postxconfig-NT-rrfs_firewx_f01.txt \
   ./mpas/postxconfig-NT-rrfs_mpas.txt \
+  ./mpas/postxconfig-NT-rrfs_mpas_L55.txt \
   ./mpas/postxconfig-NT-rrfs_mpas_L65.txt \
   ./mpas/postxconfig-NT-hfip_mpas.txt \
   ./mpas/postxconfig-NT-global_mpas.txt \
@@ -103,6 +104,7 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 ./rrfs/postxconfig-NT-rrfs_firewx_f00.txt: ./rrfs/rrfs_postcntrl_firewx_f00.xml post_avblflds.xml
 ./rrfs/postxconfig-NT-rrfs_firewx_f01.txt: ./rrfs/rrfs_postcntrl_firewx_f01.xml post_avblflds.xml
 ./mpas/postxconfig-NT-rrfs_mpas.txt: ./mpas/rrfs_mpas_postcntrl.xml   post_avblflds.xml
+./mpas/postxconfig-NT-rrfs_mpas_L55.txt:  ./mpas/rrfs_mpas_postcntrl_L55.xml  post_avblflds.xml
 ./mpas/postxconfig-NT-rrfs_mpas_L65.txt:  ./mpas/rrfs_mpas_postcntrl_L65.xml  post_avblflds.xml
 ./mpas/postxconfig-NT-hfip_mpas.txt:   ./mpas/hfip_mpas_postcntrl.xml   post_avblflds.xml
 ./mpas/postxconfig-NT-global_mpas.txt: ./mpas/global_mpas_postcntrl.xml post_avblflds.xml

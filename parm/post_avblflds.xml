@@ -8760,5 +8760,23 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>1029</post_avblfldidx>
+       <shortname>NCWFA_ON_ISOBARIC_SFC</shortname>
+       <pname>PMTF</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1030</post_avblfldidx>
+       <shortname>NCIFA_ON_ISOBARIC_SFC</shortname>
+       <pname>PMTC</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>
