@@ -53,7 +53,7 @@ jobs:
       - name: install-dependencies-with-spack
         if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
-          git clone -c feature.manyFiles=true https://github.com/NOAA-EMC/spack.git
+          git clone -c feature.manyFiles=true https://github.com/spack/spack.git
           source spack/share/spack/setup-env.sh
           spack env create upp-env UPP/ci/spack.yaml
           spack env activate upp-env
