@@ -66,7 +66,7 @@
       integer I,J,LLMH,L
       real HTSFC,PSFC,TSFC,QSFC,QSAT,RHSFC,DELZ,DELT,DELQ,DELALP,     &
            DELZP,ZL,DZABV,QFRZ,ALPL,ALPH,ALPFRZ,PFRZ,QSFRZ,RHZ,ZU,    &
-           DZFR,ES
+           DZFR,ES,FRAC
 !     
 !*********************************************************************
 !     START FRZLVL.
@@ -83,7 +83,7 @@
 
       DO J=JSTA,JEND
       DO I=ISTA,IEND
-         HTSFC    = FIS(I,J)*GI
+         HTSFC    = FIS(I,J)*GI ! hgtsfc from model
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00
          ZFRZ(I,J)  = HTSFC
@@ -99,14 +99,25 @@
 ! Per AWC's request, use 2m T instead of skin T so that freezing level
 ! would be above ground more often
          IF(TSHLTR(I,J)/=SPVAL .AND. PSHLTR(I,J)/=SPVAL)THEN
-          TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+          TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA  !convert from potential T 
          ELSE
 ! GFS analysis does not have flux file to retrieve TSFC from	 
 	  TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
 	 END IF  
          IF (TSFC<=TFRZ) THEN
+             ZL = HTSFC+2
+
+             DELT = T(I,J,LLMH)-TSFC
+             IF (ABS(DELT) > 1.0E-6) THEN
+               FRAC = (TFRZ-TSFC)/DELT
+               FRAC = MAX(0.0,MIN(1.0,FRAC))
+             ELSE
+               FRAC = 0.0
+             END IF
+             ZFRZ(I,J) = ZL + FRAC*DELZ
+
 !            ZFRZ(I,J) = HTSFC+(TSFC-TFRZ)/D0065
-	    ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
+!wm	    ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
 !	    IF(SM(I,J)/=SPVAL .AND. QZ0(I,J)/=SPVAL .AND.      &
 !      	      QS(I,J)/=SPVAL)THEN
 !             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
@@ -133,12 +144,13 @@
             RHSFC   = AMIN1(RHSFC,1.0)
             RHFRZ(I,J)= RHSFC
             PFRZL(I,J)= PSFC
+            ZFRZ(I,J)  = AMAX1(0.0, ZFRZ(I,J)) !Fix for underground ZFRZ
             CYCLE 
          ENDIF
 !     
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
 !
-         DO 10 L = LLMH,1,-1
+         DO L = LLMH,1,-1
             IF (T(I,J,L)<=TFRZ) THEN
                IF (L<LLMH) THEN
                   DELZ = ZMID(I,J,L)-ZMID(I,J,L+1)
@@ -223,9 +235,9 @@
 !               RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
 !               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
-               EXIT             
+               EXIT !Break out of L loop             
             ENDIF
- 10      CONTINUE
+         ENDDO  !L loop
       ENDDO
       ENDDO
 !     
