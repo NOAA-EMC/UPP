@@ -2880,7 +2880,7 @@ REFC_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFC
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -3006,7 +3006,7 @@ REFD_ON_ISOTHERMAL
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 isothermal
 0
@@ -4602,7 +4602,7 @@ GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -4644,7 +4644,7 @@ GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km
 1
 tmpl4_0
 REFD
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
