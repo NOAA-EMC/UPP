@@ -50,7 +50,6 @@ jobs:
           key: spack-${{ runner.os }}-${{ env.cache_key }}-${{ hashFiles('UPP/ci/spack.yaml') }}
 
       # Install dependencies using Spack
-      # Adding comment after workflow enabled
       - name: install-dependencies-with-spack
         if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
