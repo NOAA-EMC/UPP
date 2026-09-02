@@ -113,7 +113,8 @@
 !        CHECK IF ISOTHERM LEVEL IS AT THE GROUND.
 !     
          IF (LICE==LLMH.AND.TSFC<=ISOTHERM) THEN
-            ZFRZ(I,J) = HTSFC+2.0+(TSFC-ISOTHERM)/D0065
+!wm            ZFRZ(I,J) = HTSFC+2.0+(TSFC-ISOTHERM)/D0065
+            ZFRZ(I,J) = HTSFC+2.0
             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
             IF(QSHLTR(I,J)/=SPVAL)THEN
              PSFC=PSHLTR(I,J)
@@ -230,6 +231,7 @@
          ELSE
                RHFRZ(I,J) = spval
                ZFRZ(I,J)  = spval
+               PFRZL(I,J)  = spval
          ENDIF
       ENDDO
       ENDDO

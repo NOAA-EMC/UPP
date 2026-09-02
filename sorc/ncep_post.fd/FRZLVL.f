@@ -37,6 +37,8 @@
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
 !> 2021-10-15 |JESSE MENG    | 2D DECOMPOSITION
 !> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
+!> 2026-09-03 | Wen Meng     | Set freezing height to 2m MSL when T2m is below freezing 
+!> 2026-09-03 | Wen Meng     | Update old fortran intrinsic functions, AMAX1, AMIN1, ALOG
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !-----------------------------------------------------------------------------
@@ -66,23 +68,27 @@
       integer I,J,LLMH,L
       real HTSFC,PSFC,TSFC,QSFC,QSAT,RHSFC,DELZ,DELT,DELQ,DELALP,     &
            DELZP,ZL,DZABV,QFRZ,ALPL,ALPH,ALPFRZ,PFRZ,QSFRZ,RHZ,ZU,    &
-           DZFR,ES,FRAC
+           DZFR,ES
 !     
 !*********************************************************************
 !     START FRZLVL.
 !
 !
+!     INITIALIZE ARRAYS.
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         ZFRZ(I,J)=SPVAL
+         RHFRZ(I,J)=SPVAL
+         PFRZL(I,J)=SPVAL
+      ENDDO
+      ENDDO
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !     
-!!$omp  parallel do                                                   &
-!    & private(i,j,alpfrz,alph,alpl,delalp,delq,delt,delz,            &
-!    &         delzp,dzabv,dzfr,htsfc,l,llmh,psfc,qfrz,               &
-!    &         qsat,qsfc,qsfrz,rhsfc,rhz,tsfc,                        &
-!    &         zl,zu)
 
       DO J=JSTA,JEND
       DO I=ISTA,IEND
+         IF(FIS(I,J)==SPVAL) CYCLE  !Restrict undefined grids in computation
          HTSFC    = FIS(I,J)*GI ! hgtsfc from model
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00
@@ -99,25 +105,16 @@
 ! Per AWC's request, use 2m T instead of skin T so that freezing level
 ! would be above ground more often
          IF(TSHLTR(I,J)/=SPVAL .AND. PSHLTR(I,J)/=SPVAL)THEN
-          TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA  !convert from potential T 
+          TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA  !convert from theta
          ELSE
 ! GFS analysis does not have flux file to retrieve TSFC from	 
 	  TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
 	 END IF  
          IF (TSFC<=TFRZ) THEN
-             ZL = HTSFC+2
-
-             DELT = T(I,J,LLMH)-TSFC
-             IF (ABS(DELT) > 1.0E-6) THEN
-               FRAC = (TFRZ-TSFC)/DELT
-               FRAC = MAX(0.0,MIN(1.0,FRAC))
-             ELSE
-               FRAC = 0.0
-             END IF
-             ZFRZ(I,J) = ZL + FRAC*DELZ
 
 !            ZFRZ(I,J) = HTSFC+(TSFC-TFRZ)/D0065
-!wm	    ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
+!           ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
+            ZFRZ(I,J) = HTSFC+2.0
 !	    IF(SM(I,J)/=SPVAL .AND. QZ0(I,J)/=SPVAL .AND.      &
 !      	      QS(I,J)/=SPVAL)THEN
 !             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
@@ -140,11 +137,10 @@
 	    END IF 
 !
             RHSFC   = QSFC/QSAT
-            RHSFC   = AMAX1(0.01,RHSFC)
-            RHSFC   = AMIN1(RHSFC,1.0)
+            RHSFC   = MAX(0.01,RHSFC)
+            RHSFC   = MIN(RHSFC,1.0)
             RHFRZ(I,J)= RHSFC
             PFRZL(I,J)= PSFC
-            ZFRZ(I,J)  = AMAX1(0.0, ZFRZ(I,J)) !Fix for underground ZFRZ
             CYCLE 
          ENDIF
 !     
@@ -161,11 +157,11 @@
                   DZABV = ZFRZ(I,J)-ZL
                   DELQ  = Q(I,J,L)-Q(I,J,L+1)
                   QFRZ  = Q(I,J,L+1) + DELQ/DELZ*DZABV
-                  QFRZ  = AMAX1(0.0,QFRZ)
+                  QFRZ  = MAX(0.0,QFRZ)
 !     
 !
-                  ALPL   = ALOG(PMID(I,J,L+1))
-                  ALPH   = ALOG(PMID(I,J,L))
+                  ALPL   = LOG(PMID(I,J,L+1))
+                  ALPH   = LOG(PMID(I,J,L))
                   ALPFRZ = ALPL + (ALPH-ALPL)/DELZ*DZABV
                   PFRZ   = EXP(ALPFRZ)
                   PFRZL(I,J)  = PFRZ
@@ -179,8 +175,8 @@
                   END IF
 !     
                   RHZ      = QFRZ/QSFRZ
-                  RHZ      = AMAX1(0.01,RHZ)
-                  RHZ      = AMIN1(RHZ,1.0)
+                  RHZ      = MAX(0.01,RHZ)
+                  RHZ      = MIN(RHZ,1.0)
                   RHFRZ(I,J) = RHZ
 !     
                ELSE
@@ -205,10 +201,10 @@
                   END IF                  
                   DELQ    = Q(I,J,L)-QSFC
                   QFRZ    = QSFC + DELQ/DELZ*DZABV
-                  QFRZ    = AMAX1(0.0,QFRZ)
+                  QFRZ    = MAX(0.0,QFRZ)
 !     
-                  ALPH    = ALOG(PMID(I,J,L))
-                  ALPL    = ALOG(PSFC)
+                  ALPH    = LOG(PMID(I,J,L))
+                  ALPL    = LOG(PSFC)
                   DELALP  = ALPH-ALPL
                   ALPFRZ  = ALPL + DELALP/DELZ*DZABV
                   PFRZ    = EXP(ALPFRZ)
@@ -224,8 +220,8 @@
                   END IF
 !
                   RHZ     = QFRZ/QSFRZ
-                  RHZ     = AMAX1(0.01,RHZ)
-                  RHZ     = AMIN1(RHZ,1.0)
+                  RHZ     = MAX(0.01,RHZ)
+                  RHZ     = MIN(RHZ,1.0)
                   RHFRZ(I,J)= RHZ
                ENDIF
 !     
@@ -234,7 +230,7 @@
 !
 !               RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
 !               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
-               ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
+               ZFRZ(I,J)  = MAX(0.0,ZFRZ(I,J))
                EXIT !Break out of L loop             
             ENDIF
          ENDDO  !L loop
