@@ -37,6 +37,8 @@
 !> 2021-10-15 | JESSE MENG   | 2D DECOMPOSITION
 !> 2021-07-28 | W. Meng      | Restrict compuatation from undefined grids
 !> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
+!> 2026-09-03 | Wen Meng     | Set freezing height to 2m MSL when T2m is below freezing
+!> 2026-09-03 | Wen Meng     | Update old fortran intrinsic functions, AMAX1, AMIN1, ALOG
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !-------------------------------------------------------------------------------
@@ -135,8 +137,8 @@
             END IF
 !
             RHSFC   = QSFC/QSAT
-            RHSFC   = AMAX1(0.01,RHSFC)
-            RHSFC   = AMIN1(RHSFC,1.0)
+            RHSFC   = MAX(0.01,RHSFC)
+            RHSFC   = MIN(RHSFC,1.0)
             RHFRZ(I,J)= RHSFC
 !     
 !        OTHERWISE, LOCATE THE ISOTHERM LEVEL ALOFT.
@@ -151,7 +153,7 @@
                   DZABV = ZFRZ(I,J)-ZL
                   DELQ  = Q(I,J,L)-Q(I,J,L+1)
                   QFRZ  = Q(I,J,L+1) + DELQ/DELZ*DZABV
-                  QFRZ  = AMAX1(0.0,QFRZ)
+                  QFRZ  = MAX(0.0,QFRZ)
 !     
                   ALPL   = ALPINT(I,J,L+2)
                   ALPH   = ALPINT(I,J,L)
@@ -172,8 +174,8 @@
 !                  QSFRZ  = PQ0/PFRZ
 !     
                   RHZ      = QFRZ/QSFRZ
-                  RHZ      = AMAX1(0.01,RHZ)
-                  RHZ      = AMIN1(RHZ,1.0)
+                  RHZ      = MAX(0.01,RHZ)
+                  RHZ      = MIN(RHZ,1.0)
                   RHFRZ(I,J) = RHZ
 !     
          ELSE
@@ -199,10 +201,10 @@
                   END IF
                   DELQ    = Q(I,J,L)-QSFC
                   QFRZ    = QSFC + DELQ/DELZ*DZABV
-                  QFRZ    = AMAX1(0.0,QFRZ)
+                  QFRZ    = MAX(0.0,QFRZ)
 !     
                   ALPH    = ALPINT(I,J,L)
-                  ALPL    = ALOG(PSFC)
+                  ALPL    = LOG(PSFC)
                   DELALP  = ALPH-ALPL
                   ALPFRZ  = ALPL + DELALP/DELZ*DZABV
                   PFRZ    = EXP(ALPFRZ)
@@ -217,17 +219,17 @@
                   END IF
 !
                   RHZ     = QFRZ/QSFRZ
-                  RHZ     = AMAX1(0.01,RHZ)
-                  RHZ     = AMIN1(RHZ,1.0)
+                  RHZ     = MAX(0.01,RHZ)
+                  RHZ     = MIN(RHZ,1.0)
                   RHFRZ(I,J)= RHZ
          ENDIF
 !     
 !              BOUND ISOTHERM LEVEL RH.  ISOTHERM LEVEL HEIGHT IS
 !              MEASURED WITH RESPECT TO MEAN SEA LEVEL.
 !
-               RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
-               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
-               ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
+               RHFRZ(I,J) = MAX(0.01,RHFRZ(I,J))
+               RHFRZ(I,J) = MIN(RHFRZ(I,J),1.00)
+               ZFRZ(I,J)  = MAX(0.0,ZFRZ(I,J))
          ELSE
                RHFRZ(I,J) = spval
                ZFRZ(I,J)  = spval
