@@ -60,7 +60,7 @@ jobs:
           sudo apt install cmake
           spack external find
           spack add mpich@3.4.2
-          spack add doxygen
+          spack add doxygen@1.17.0
           spack concretize
           spack install -v --fail-fast --dirty
           spack clean --all
