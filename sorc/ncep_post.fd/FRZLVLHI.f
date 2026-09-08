@@ -1,0 +1,199 @@
+!> @file
+!> @brief Subroutine that computes FRZING LVL, Z and RH.
+!>
+!> This routine computes the freezing level height and relative
+!> humidity at this level for each mass point on the ETA grid.
+!> The computed freezing level height is the mean sea level
+!> height. At each mass point we move up from the surface to  
+!> find the first ETA layer where the temperature is less than
+!> 273.16K. Vertical interpolation in temperature to the freezing 
+!> temperature gives the freezing level height. Pressure and   
+!> specific humidity are interpolated to this level and along with
+!> the temperature provide the freezing level relative humidity.
+!> If the surface (skin) temperature is below freezing, the routine
+!> uses surface based fields to compute the relative humidity.
+!> 
+!> Note that in posting freezing level data the LFM look-alike file
+!> (IE, GRID 26), we pack 273.15K as the freezing temperature. All 
+!> other output grids use 273.16K.
+!>
+!> @param[out] ZFRZ Above ground level freezing height.
+!> @param[out] RHFRZ Relative humidity at freezing level.
+!> @param[out] PFRZL pressure at freezing level.
+!> 
+!> ### Program History Log
+!> Date | Programmer | Comments
+!> -----|------------|---------
+!> 1992-12-22 | Russ Treadon | Initial
+!> 1993-06-05 | Russ Treadon | Corrected freezing level heights to be with respect to mean sea level, not above ground level
+!> 1998-06-15 | T Black      | Conversion from 1-D to 2-D
+!> 1998-08-17 | Mike Baldwin | Compute RH over ice if necessary
+!> 1998-12-22 | Mike Baldwin | Back out RH over ice
+!> 2000-01-04 | Jim Tuccillo | MPI version           
+!> 2001-10-25 | H Chuang     | Modified to process hybrid model output
+!> 2002-01-15 | Mike Baldwin | WRF version
+!> 2010-08-27 | T. Smirnova  | Added PFRZL to the output
+!> 2019-10-30 | Bo Cui       | Remove "GOTO" statement
+!> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
+!> 2021-10-15 |JESSE MENG    | 2D DECOMPOSITION
+!> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
+!> 2026-05-22 | Chris Hill   | Alternative downward level search
+!>
+!> @author Russ Treadon W/NP2 @date 1992-12-22
+!-----------------------------------------------------------------------------
+!> FRZLVL() Subroutine that computes FRZING LVL, Z and RH.
+!> 
+!> @param[out] ZFRZ real Above ground level freezing height.
+!> @param[out] RHFRZ real Relative humidity at freezing level.
+!> @param[out] PFRZL real Pressure at freezing level.
+!>
+      SUBROUTINE FRZLVLHI(ZFRZ,RHFRZ,PFRZL)
+
+!     
+!     
+      use vrbls3d, only: pint, t, zmid, q, pmid
+      use vrbls2d, only: fis, tshltr, pshltr, qshltr
+      use masks, only: lmh
+      use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4
+      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, ista, iend
+      use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
+      use upp_physics, only: FPVSNEW
+
+      implicit none
+!
+!     DECLARE VARIABLES.
+!     
+      REAL,PARAMETER::PCAP=300.0E2
+      REAL,dimension(ista:iend,jsta:jend) :: RHFRZ, ZFRZ, PFRZL
+      integer I,J,LLMH,L,LL,LTOP
+      real HTSFC,PSFC,TSFC,QSFC,QSAT,RHSFC,DELZ,DELT,DELQ,DELALP,     &
+           DELZP,ZL,DZABV,QFRZ,ALPL,ALPH,ALPFRZ,PFRZ,QSFRZ,RHZ,ZU,    &
+           DZFR,ES
+!     
+!*********************************************************************
+!     START FRZLVL.
+!
+!
+!     
+!     LOOP OVER HORIZONTAL GRID.
+!     
+!!$omp  parallel do                                                   &
+!    & private(i,j,alpfrz,alph,alpl,delalp,delq,delt,delz,            &
+!    &         delzp,dzabv,dzfr,htsfc,l,llmh,psfc,qfrz,               &
+!    &         qsat,qsfc,qsfrz,rhsfc,rhz,tsfc,                        &
+!    &         zl,zu)
+
+      DO J=JSTA,JEND
+      DO I=ISTA,IEND
+         HTSFC    = FIS(I,J)*GI
+         LLMH     = NINT(LMH(I,J))
+         RHFRZ(I,J) = D00
+         ZFRZ(I,J)  = HTSFC
+         PSFC    = PINT(I,J,LLMH+1)
+         PFRZL(I,J) = PSFC
+!     
+!        LOCATE THE FREEZING LEVEL ALOFT.
+!
+         LTOP=1
+         DO LL = 1,LLMH
+            IF(PINT(I,J,LL)>=PCAP) THEN
+             LTOP=LL
+             EXIT
+            ENDIF
+         ENDDO  ! loop LL
+         DO L = LTOP,LLMH
+            IF (T(I,J,L)>TFRZ) THEN
+               IF (L<LLMH) THEN
+                  DELZ = ZMID(I,J,L-1)-ZMID(I,J,L)
+                  ZL   = ZMID(I,J,L)
+                  DELT = T(I,J,L-1)-T(I,J,L)
+                  ZFRZ(I,J) = ZL + (TFRZ-T(I,J,L))/DELT*DELZ
+!     
+                  DZABV = ZFRZ(I,J)-ZL
+                  DELQ  = Q(I,J,L-1)-Q(I,J,L)
+                  QFRZ  = Q(I,J,L) + DELQ/DELZ*DZABV
+                  QFRZ  = AMAX1(0.0,QFRZ)
+!     
+!
+                  ALPL   = ALOG(PMID(I,J,L))
+                  ALPH   = ALOG(PMID(I,J,L-1))
+                  ALPFRZ = ALPL + (ALPH-ALPL)/DELZ*DZABV
+                  PFRZ   = EXP(ALPFRZ)
+                  PFRZL(I,J)  = PFRZ
+		  IF(MODELNAME == 'GFS' .OR.MODELNAME == 'RAPR')THEN
+	            ES=FPVSNEW(TFRZ)
+	            ES=MIN(ES,PFRZ)
+	            QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
+	          ELSE 
+                    QSFRZ=PQ0/PFRZ    &
+                     *EXP(A2*(TFRZ-A3)/(TFRZ-A4))
+                  END IF
+!     
+                  RHZ      = QFRZ/QSFRZ
+                  RHZ      = AMAX1(0.01,RHZ)
+                  RHZ      = AMIN1(RHZ,1.0)
+                  RHFRZ(I,J) = RHZ
+!     
+               ELSE
+!            Determine freezing level near the ground.
+                  ZU      = ZMID(I,J,L)
+                  ZL      = HTSFC+2.0
+                  DELZ    = ZU-ZL
+                  IF(TSHLTR(I,J)/=SPVAL .AND. PSHLTR(I,J)/=SPVAL)THEN
+                   TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+                  ELSE
+! GFS analysis does not have flux file to retrieve TSFC from
+                   TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
+                  END IF 
+                  DELT    = T(I,J,L)-TSFC
+                  ZFRZ(I,J) = ZL + (TFRZ-TSFC)/DELT*DELZ
+!     
+                  DZABV   = ZFRZ(I,J)-ZL
+! GFS does not output QS
+                  IF(QSHLTR(I,J)/=SPVAL)THEN
+                   QSFC=QSHLTR(I,J)
+                  ELSE
+                   QSFC=Q(I,J,LM)
+                  END IF                  
+                  DELQ    = Q(I,J,L)-QSFC
+                  QFRZ    = QSFC + DELQ/DELZ*DZABV
+                  QFRZ    = AMAX1(0.0,QFRZ)
+!     
+                  ALPH    = ALOG(PMID(I,J,L))
+                  ALPL    = ALOG(PSFC)
+                  DELALP  = ALPH-ALPL
+                  ALPFRZ  = ALPL + DELALP/DELZ*DZABV
+                  PFRZ    = EXP(ALPFRZ)
+!
+                  PFRZL(I,J)  = PFRZ
+		  IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
+	            ES=FPVSNEW(TFRZ)
+	            ES=MIN(ES,PFRZ)
+	            QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
+	          ELSE 
+                    QSFRZ=PQ0/PFRZ   &
+                     *EXP(A2*(TFRZ-A3)/(TFRZ-A4))
+                  END IF
+!
+                  RHZ     = QFRZ/QSFRZ
+                  RHZ     = AMAX1(0.01,RHZ)
+                  RHZ     = AMIN1(RHZ,1.0)
+                  RHFRZ(I,J)= RHZ
+               ENDIF
+!     
+!              BOUND FREEZING LEVEL RH.  FREEZING LEVEL HEIGHT IS
+!              MEASURED WITH RESPECT TO MEAN SEA LEVEL.
+!
+!               RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
+!               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
+               ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
+               EXIT             
+            ENDIF
+         ENDDO    ! loop L
+      ENDDO       ! loop I
+      ENDDO       ! loop J
+!     
+!     END OF ROUTINE.
+!     
+      RETURN
+      END
