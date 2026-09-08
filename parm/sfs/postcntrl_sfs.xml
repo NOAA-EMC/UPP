@@ -63,7 +63,6 @@
 
     <param>
        <shortname>O3MR_ON_ISOBARIC_SFC</shortname>
-       <table_info>NCEP</table_info>
        <level>1. 2. 4. 7. 10. 20. 40. 70. 100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 20000. 25000. 30000. 35000. 40000.</level>
        <scale>5.0</scale>       
     </param>
@@ -190,7 +189,6 @@
 
     <param>
        <shortname>SOILL_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <table_info>NCEP</table_info>
        <scale_fact_fixed_sfc1>2 2 2 2 </scale_fact_fixed_sfc1>
        <level>0. 10. 40. 100.</level>
        <scale_fact_fixed_sfc2>2 2 2 2 </scale_fact_fixed_sfc2>
@@ -200,7 +198,6 @@
 
     <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>1.0</scale>
     </param>
 
@@ -211,7 +208,6 @@
 
     <param>
        <shortname>PEVPR_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>6.0</scale>
     </param>
 
@@ -228,7 +224,6 @@
 
     <param>
        <shortname>WILT_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
        <bit_map_flag>yes</bit_map_flag>
     </param>
@@ -242,13 +237,11 @@
 
     <param>
        <shortname>GFS_LFTX_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>GFS_4LFTX_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
@@ -290,7 +283,6 @@
 
     <param>
        <shortname>AVE_CPRAT_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
     </param>
 
@@ -326,7 +318,6 @@
 
     <param>
        <shortname>AVE_DSWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
@@ -374,37 +365,31 @@
 
     <param>
        <shortname>AVE_DLWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>AVE_USWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>AVE_DSWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
     
     <param>
        <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
@@ -420,7 +405,6 @@
 
     <param>
        <shortname>FRICV_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
     </param>
 
@@ -431,7 +415,6 @@
 
     <param>
        <shortname>AVE_GFLUX_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
     </param>
 
@@ -491,7 +474,6 @@
 
     <param>
        <shortname>VWSH_ON_TROPOPAUSE</shortname>
-       <table_info>NCEP</table_info>
        <scale>3.0</scale>
     </param>
 
@@ -542,7 +524,6 @@
 
     <param>
        <shortname>HPBL_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>6.0</scale>
     </param>
 
@@ -633,7 +614,6 @@
 
     <param>
        <shortname>VWSH_ON_POT_VORT_SFC</shortname>
-       <table_info>NCEP</table_info>
        <scale_fact_fixed_sfc1>9 9 9 9 9 9 9 9</scale_fact_fixed_sfc1>
        <level>500. -500. 1000. -1000. 1500. -1500. 2000. -2000.</level>
        <scale>3.0</scale>
@@ -641,19 +621,16 @@
 
     <param>
        <shortname>AVE_CWORK_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <table_info>NCEP</table_info>
        <scale>4.0</scale>
     </param>
 
     <param>
        <shortname>AVE_U-GWD_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>5.0</scale>
     </param>
 
     <param>
        <shortname>AVE_V-GWD_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>5.0</scale>
     </param>
 
@@ -674,7 +651,6 @@
 
     <param>
        <shortname>SUNSD_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
        <scale>5.0</scale>
     </param>
 
