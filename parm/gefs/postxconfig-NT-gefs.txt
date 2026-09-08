@@ -401,7 +401,7 @@ O3MR_ON_ISOBARIC_SFC
 1
 tmpl4_0
 O3MR
-NCEP
+?
 ?
 isobaric_sfc
 0
@@ -1031,7 +1031,7 @@ SOILL_ON_DEPTH_BEL_LAND_SFC
 1
 tmpl4_0
 SOILL
-NCEP
+?
 ?
 depth_bel_land_sfc
 4
@@ -1073,7 +1073,7 @@ CNWAT_ON_SURFACE
 1
 tmpl4_0
 CNWAT
-NCEP
+?
 ?
 surface
 0
@@ -1157,7 +1157,7 @@ PEVPR_ON_SURFACE
 1
 tmpl4_0
 PEVPR
-NCEP
+?
 ?
 surface
 0
@@ -1283,7 +1283,7 @@ WILT_ON_SURFACE
 1
 tmpl4_0
 WILT
-NCEP
+?
 ?
 surface
 0
@@ -1367,7 +1367,7 @@ GFS_LFTX_ON_SURFACE
 1
 tmpl4_0
 LFTX
-NCEP
+?
 ?
 surface
 0
@@ -1409,7 +1409,7 @@ GFS_4LFTX_ON_SURFACE
 1
 tmpl4_0
 4LFTX
-NCEP
+?
 ?
 surface
 0
@@ -1829,7 +1829,7 @@ USTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 USTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -1871,7 +1871,7 @@ VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 VSTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -2039,7 +2039,7 @@ AVE_CRAIN_ON_SURFACE
 1
 tmpl4_8
 CRAIN
-NCEP
+?
 AVE
 surface
 0
@@ -2081,7 +2081,7 @@ average Categorical snow on surface
 1
 tmpl4_8
 CSNOW
-NCEP
+?
 AVE
 surface
 0
@@ -2123,7 +2123,7 @@ average Categorical ice pellets on surface
 1
 tmpl4_8
 CICEP
-NCEP
+?
 AVE
 surface
 0
@@ -2165,7 +2165,7 @@ average Categorical freezing rain on surface
 1
 tmpl4_8
 CFRZR
-NCEP
+?
 AVE
 surface
 0
@@ -2249,7 +2249,7 @@ AVE_CPRAT_ON_SURFACE
 1
 tmpl4_8
 CPRAT
-NCEP
+?
 AVE
 surface
 0
@@ -2585,7 +2585,7 @@ AVE_DSWRF_ON_SURFACE
 1
 tmpl4_8
 DSWRF
-NCEP
+?
 AVE
 surface
 0
@@ -2711,7 +2711,7 @@ AVE_DLWRF_ON_SURFACE
 1
 tmpl4_8
 DLWRF
-NCEP
+?
 AVE
 surface
 0
@@ -2753,7 +2753,7 @@ AVE_USWRF_ON_SURFACE
 1
 tmpl4_8
 USWRF
-NCEP
+?
 AVE
 surface
 0
@@ -2795,7 +2795,7 @@ AVE_ULWRF_ON_SURFACE
 1
 tmpl4_8
 ULWRF
-NCEP
+?
 AVE
 surface
 0
@@ -2837,7 +2837,7 @@ AVE_USWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_8
 USWRF
-NCEP
+?
 AVE
 top_of_atmos
 0
@@ -2879,7 +2879,7 @@ AVE_ULWRF_ON_TOP_OF_ATMOS
 1
 tmpl4_8
 ULWRF
-NCEP
+?
 AVE
 top_of_atmos
 0
@@ -3005,7 +3005,7 @@ FRICV_ON_SURFACE
 1
 tmpl4_0
 FRICV
-NCEP
+?
 ?
 surface
 0
@@ -3089,7 +3089,7 @@ AVE_GFLUX_ON_SURFACE
 1
 tmpl4_8
 GFLUX
-NCEP
+?
 AVE
 surface
 0
@@ -3593,7 +3593,7 @@ VWSH_ON_TROPOPAUSE
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 tropopause
 0
@@ -5063,7 +5063,7 @@ HPBL_ON_SURFACE
 1
 tmpl4_0
 HPBL
-NCEP
+?
 ?
 surface
 0
@@ -5819,7 +5819,7 @@ REFC_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 REFC
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -6323,7 +6323,7 @@ VWSH_ON_POT_VORT_SFC
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 pot_vort_sfc
 8
@@ -6407,7 +6407,7 @@ AVE_CWORK_ON_ENTIRE_ATMOS_SINGLE_LYR
 1
 tmpl4_8
 CWORK
-NCEP
+?
 AVE
 entire_atmos_single_lyr
 0
@@ -6449,7 +6449,7 @@ AVE_U-GWD_ON_SURFACE
 1
 tmpl4_8
 U-GWD
-NCEP
+?
 AVE
 surface
 0
@@ -6491,7 +6491,7 @@ AVE_V-GWD_ON_SURFACE
 1
 tmpl4_8
 V-GWD
-NCEP
+?
 AVE
 surface
 0
@@ -6743,7 +6743,7 @@ RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR
 1
 tmpl4_0
 RETOP
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -6785,7 +6785,7 @@ SUNSD_ON_SURFACE
 1
 tmpl4_0
 SUNSD
-NCEP
+?
 ?
 surface
 0
