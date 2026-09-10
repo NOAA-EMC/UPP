@@ -230,6 +230,8 @@
                RHFRZ(I,J) = MAX(0.01,RHFRZ(I,J))
                RHFRZ(I,J) = MIN(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = MAX(0.0,ZFRZ(I,J))
+               ZFRZ(I,J)  = MAX(HTSFC+2.0,ZFRZ(I,J))
+
          ELSE
                RHFRZ(I,J) = spval
                ZFRZ(I,J)  = spval
