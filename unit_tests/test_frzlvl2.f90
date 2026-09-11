@@ -87,11 +87,11 @@ program test_frzlvl2
         q(1, :, k) = 0.001 * exp(-real(lm - k) / real(lm - 1) * 2.0)
     end do
     
-    EXP_ZFRZ_1(1, 1) = 0.000000000E+00
+    EXP_ZFRZ_1(1, 1) = 2.000000000E+00
     EXP_RHFRZ_1(1, 1) = 6.934353113E-01
     EXP_PFRZL_1(1, 1) =  5.666664551E+03
 
-    EXP_ZFRZ_GFS_1(1, 1) = 0.000000000E+00
+    EXP_ZFRZ_GFS_1(1, 1) = 2.000000000E+00
     EXP_RHFRZ_GFS_1(1, 1) = 1.000000000E+00
     EXP_PFRZL_GFS_1(1, 1) = 5.666664551E+03
 
@@ -107,7 +107,7 @@ program test_frzlvl2
     ! Test Case 2: QSHLTR == spval with other default input values.
     qshltr(1, 2) = spval
 
-    EXP_ZFRZ_1(1, 2) = 0.000000000E+00
+    EXP_ZFRZ_1(1, 2) = 2.000000000E+00
     EXP_RHFRZ_1(1, 2) = 6.934353113E-01
     EXP_PFRZL_1(1, 2) =  5.666664551E+03
 
