@@ -53,14 +53,14 @@ jobs:
       - name: install-dependencies-with-spack
         if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
-          git clone -c feature.manyFiles=true https://github.com/NOAA-EMC/spack.git
+          git clone -c feature.manyFiles=true https://github.com/spack/spack.git
           source spack/share/spack/setup-env.sh
           spack env create upp-env UPP/ci/spack.yaml
           spack env activate upp-env
           sudo apt install cmake
           spack external find
           spack add mpich@3.4.2
-          spack add doxygen
+          spack add doxygen@1.17.0
           spack concretize
           spack install -v --fail-fast --dirty
           spack clean --all

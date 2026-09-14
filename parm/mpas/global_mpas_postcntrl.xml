@@ -377,7 +377,6 @@
 
        <param>
            <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
-           <table_info>NCEP</table_info> 
            <scale>-4.0</scale>
        </param>
 
@@ -391,13 +390,11 @@
 
        <param>
            <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
-           <table_info>NCEP</table_info>
            <scale>-4.0</scale>
        </param>
 
        <param>
            <shortname>REFD_ON_ISOTHERMAL</shortname>
-           <table_info>NCEP</table_info>  
            <fixed_sfc1_type>isothermal</fixed_sfc1_type>
            <level>263.</level>
            <scale>-4.0</scale>
@@ -630,13 +627,11 @@
 
        <param>
            <shortname>GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km</shortname>
-           <table_info>NCEP</table_info>
            <scale>-4.0</scale>
        </param>
 
        <param>
            <shortname>GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km</shortname>
-           <table_info>NCEP</table_info>
            <scale>-4.0</scale>
        </param>
 
