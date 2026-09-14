@@ -359,7 +359,7 @@ O3MR_ON_ISOBARIC_SFC
 1
 tmpl4_0
 O3MR
-NCEP
+?
 ?
 isobaric_sfc
 0
@@ -989,7 +989,7 @@ SOILL_ON_DEPTH_BEL_LAND_SFC
 1
 tmpl4_0
 SOILL
-NCEP
+?
 ?
 depth_bel_land_sfc
 4
@@ -1031,7 +1031,7 @@ CNWAT_ON_SURFACE
 1
 tmpl4_0
 CNWAT
-NCEP
+?
 ?
 surface
 0
@@ -1115,7 +1115,7 @@ PEVPR_ON_SURFACE
 1
 tmpl4_0
 PEVPR
-NCEP
+?
 ?
 surface
 0
@@ -1241,7 +1241,7 @@ WILT_ON_SURFACE
 1
 tmpl4_0
 WILT
-NCEP
+?
 ?
 surface
 0
@@ -1325,7 +1325,7 @@ GFS_LFTX_ON_SURFACE
 1
 tmpl4_0
 LFTX
-NCEP
+?
 ?
 surface
 0
@@ -1367,7 +1367,7 @@ GFS_4LFTX_ON_SURFACE
 1
 tmpl4_0
 4LFTX
-NCEP
+?
 ?
 surface
 0
@@ -1787,7 +1787,7 @@ USTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 USTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -1829,7 +1829,7 @@ VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND
 1
 tmpl4_0
 VSTM
-NCEP
+?
 ?
 spec_hgt_lvl_above_grnd
 0
@@ -1997,7 +1997,7 @@ FRICV_ON_SURFACE
 1
 tmpl4_0
 FRICV
-NCEP
+?
 ?
 surface
 0
@@ -2333,7 +2333,7 @@ VWSH_ON_TROPOPAUSE
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 tropopause
 0
@@ -3803,7 +3803,7 @@ HPBL_ON_SURFACE
 1
 tmpl4_0
 HPBL
-NCEP
+?
 ?
 surface
 0
@@ -4517,7 +4517,7 @@ VWSH_ON_POT_VORT_SFC
 1
 tmpl4_0
 VWSH
-NCEP
+?
 ?
 pot_vort_sfc
 8
@@ -4727,7 +4727,7 @@ SUNSD_ON_SURFACE
 1
 tmpl4_0
 SUNSD
-NCEP
+?
 ?
 surface
 0
