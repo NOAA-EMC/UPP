@@ -63,6 +63,7 @@ program test_severity_maps
   call test_convect_totals_map(res)
   if (res .ne. 0) stop 26
   
+  call test_
   print *, "SUCCESS!"
 
 contains
@@ -1238,10 +1239,37 @@ contains
 
   subroutine test_moisture_map_cond(res)
     integer, intent(out) :: res
+    real :: rh, liqCond, iceCond, pres, t
+    real :: expected, calculated
+    rh = 85.0
+    liqCond = 0.102
+    iceCond = 0.102
+    pres = 77503.5
+    t = 270.0
+    expected = 0.625
+
+    calculated = moisture_map_cond(rh, liqCond, iceCond, pres, t)
+    if (abs(calculated - expected) > tol) then
+      print *, "moisture_map_cond() failed: expected ", expected, " but got ", calculated
+      res = 1
+    end if
   end subroutine test_moisture_map_cond
 
   subroutine test_moisture_map_cwat(res)
     integer, intent(out) :: res
+    real :: rh, cwat, pres, t
+    real :: expected, calculated
+    rh = 85.0
+    cwat = 0.102
+    pres = 77503.5
+    t = 270.0
+    expected = 0.625
+
+    calculated = moisture_map_cwat(rh, cwat, pres, t)
+    if (abs(calculated - expected) > tol) then
+      print *, "moisture_map_cwat() failed: expected ", expected, " but got ", calculated
+      res = 1
+    end if
   end subroutine test_moisture_map_cwat
 
 end program test_severity_maps
