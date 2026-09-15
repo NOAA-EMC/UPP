@@ -468,27 +468,27 @@ contains
 
     ! Test Case 26: Freezing precipitation scenario w/ v < 0.05
     v(26) = 0.04
-    scenario(26) = SCENARIOS%FREEZING_PRECIPITATION
+    scenario(26) = SCENARIOS%FREEZING_PRECIPITAION
     exp_pc_map_out(26) = 0.0
 
     ! Test Case 27: Freezing precipitation scenario w/ v = 0.05
     v(27) = 0.05
-    scenario(27) = SCENARIOS%FREEZING_PRECIPITATION
+    scenario(27) = SCENARIOS%FREEZING_PRECIPITAION
     exp_pc_map_out(27) = 0.0
 
     ! Test Case 28: Freezing precipitation scenario w/ 0.05 < v < 0.15
     v(28) = 0.1
-    scenario(28) = SCENARIOS%FREEZING_PRECIPITATION
+    scenario(28) = SCENARIOS%FREEZING_PRECIPITAION
     exp_pc_map_out(28) = 0.25
 
     ! Test Case 29: Freezing precipitation scenario w/ v = 0.15
     v(29) = 0.15
-    scenario(29) = SCENARIOS%FREEZING_PRECIPITATION
+    scenario(29) = SCENARIOS%FREEZING_PRECIPITAION
     exp_pc_map_out(29) = 0.5
 
     ! Test Case 30: Freezing precipitation scenario w/ v > 0.15
     v(30) = 0.2
-    scenario(30) = SCENARIOS%FREEZING_PRECIPITATION
+    scenario(30) = SCENARIOS%FREEZING_PRECIPITAION
     exp_pc_map_out(30) = 0.5
 
     ! Test Case 31: Convection scenario w/ v < 0.05 (Should return 0 for all v)
