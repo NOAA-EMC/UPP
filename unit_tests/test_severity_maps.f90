@@ -10,6 +10,8 @@ program test_severity_maps
   real, parameter :: tol = 1.0e-6
   integer :: res
   
+  res = 0
+  
   call test_twp_map(res)
   if (res .ne. 0) stop 10
 
