@@ -63,7 +63,12 @@ program test_severity_maps
   call test_convect_totals_map(res)
   if (res .ne. 0) stop 26
   
-  call test_
+  call test_moisture_map_cond(res)
+  if (res .ne. 0) stop 27
+
+  call test_moisture_map_cwat(res)
+  if (res .ne. 0) stop 28
+
   print *, "SUCCESS!"
 
 contains
