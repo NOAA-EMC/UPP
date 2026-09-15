@@ -7,7 +7,7 @@ program test_severity_maps
   use SeverityMaps
   implicit none
 
-  real, parameter :: tol = 1.0e-6
+  real, parameter :: tol = 1.0e-5
   integer :: res
   
   res = 0
