@@ -39,8 +39,8 @@ program test_icing_severity
     call test_cold_rain(res)
     ! if (res .ne. 0) stop 60
 
-    ! ! Test Case 7: Warm precipitation scenario.
-    ! call test_warm_precip(res)
+    ! Test Case 7: Warm precipitation scenario.
+    call test_warm_precip(res)
     ! if (res .ne. 0) stop 70
 
     ! ! Test Case 8: Freezing precipitation scenario.
@@ -107,7 +107,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -176,7 +176,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -236,7 +236,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -296,7 +296,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -349,13 +349,14 @@ contains
         clouds%ctt(1) = 255.15
 
         expected = 0.0
+        expected(3) = 0.413246214
 
         call icing_sev(imp_physics, hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
              ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, iseverity)
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -414,7 +415,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -473,7 +474,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
@@ -532,7 +533,7 @@ contains
 
         do i = 1, nz
             if (abs(iseverity(i) - expected(i)) > tol) then
-                print *, "icing_sev() failed for test case ", i, ": expected ", &
+                print *, "icing_sev() failed at index ", i, ": expected ", &
                       expected(i), " but got ", iseverity(i)
                 res = 1
             end if
