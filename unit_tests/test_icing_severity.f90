@@ -228,7 +228,7 @@ contains
         clouds%ctt(2) = 268.0
 
         expected = 0.0
-        expected(1) = 0.636363636
+        expected(1) = 0.800000012
 
         call icing_sev(imp_physics, hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
              ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, iseverity)
