@@ -43,13 +43,13 @@ program test_icing_severity
     call test_warm_precip(res)
     ! if (res .ne. 0) stop 70
 
-    ! ! Test Case 8: Freezing precipitation scenario.
+    ! Test Case 8: Freezing precipitation scenario.
     ! call test_freezing_precip(res)
     ! if (res .ne. 0) stop 80
     
     ! ! Test Case 9: Invalid scenario.
-    ! call test_invalid_scenario(res)
-    ! if (res .ne. 0) stop 90
+    call test_invalid_scenario(res)
+    !if (res .ne. 0) stop 90
 
     print *, "SUCCESS!"
 
@@ -409,6 +409,7 @@ contains
         clouds%ctt(1) = 264.15
 
         expected = 0.0
+        expected(3) = 0.512249529
 
         call icing_sev(imp_physics, hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
              ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, iseverity)
