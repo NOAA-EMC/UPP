@@ -44,7 +44,7 @@ program test_icing_severity
     ! if (res .ne. 0) stop 70
 
     ! Test Case 8: Freezing precipitation scenario.
-    ! call test_freezing_precip(res)
+    call test_freezing_precip(res)
     ! if (res .ne. 0) stop 80
     
     ! ! Test Case 9: Invalid scenario.
