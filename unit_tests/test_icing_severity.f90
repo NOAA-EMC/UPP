@@ -55,7 +55,7 @@ program test_icing_severity
 
 contains
     subroutine test_convection(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -63,8 +63,6 @@ contains
         real :: iseverity(nz), expected(nz)
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
-
-        res = 0
 
         imp_physics = 98
         hgt = (/ 3000.0, 2200.0, 1400.0, 800.0 /)
@@ -117,7 +115,7 @@ contains
     end subroutine test_convection
 
     subroutine test_precip_below_warmnose(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         ! This test is intended to check the branch where
         ! "elseif(isClassicPrcpBlwWmn(prcpType, k))" = True
         ! 
@@ -126,7 +124,7 @@ contains
     end subroutine test_precip_below_warmnose
 
     subroutine test_precip_above_warmnose(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -186,7 +184,7 @@ contains
     end subroutine test_precip_above_warmnose
 
     subroutine test_no_precip(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -195,41 +193,42 @@ contains
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
 
-        res = 0
-
         imp_physics = 11
-        hgt = (/ 3000.0, 1800.0, 914.4, 0.0 /)
-        rh = (/ 85.0, 95.0, 100.0, 90.0 /)
-        t = (/ 270.0, 270.0, 270.0, 271.0 /)
-        pres = (/ 70000.0, 76000.0, 82000.0, 88000.0 /)
-        vv = (/ -0.10, -0.15, -0.25, -0.05 /)
-        liqCond = (/ 0.20, 0.40, 0.60, 0.10 /)
-        iceCond = (/ 0.10, 0.20, 0.40, 0.05 /)
-        twp = (/ 100.0, 150.0, 200.0, 80.0 /)
-        ice_pot = (/ 0.0, 0.0, 0.50, 0.0 /)
+        hgt = (/ 6000.0, 4171.2, 2500.0, 1200.0 /)
+        rh = (/ 100.0, 85.0, 92.0, 90.0 /)
+        t = (/ 270.0, 268.0, 266.0, 271.0 /)
+        pres = (/ 50000.0, 56000.0, 78000.0, 85000.0 /)
+        vv = (/ -0.25, -0.05, -0.10, -0.05 /)
+        liqCond = (/ 1.00, 0.10, 0.30, 0.15 /)
+        iceCond = (/ 1.00, 0.05, 0.20, 0.10 /)
+        twp = (/ 150.0, 120.0, 90.0, 60.0 /)
+        ice_pot = (/ 0.50, 0.0, 0.0, 0.0 /)
 
         hcprcp = 0.0
-        cape = 200.0
+        cape = 100.0
         lx = 2.0
-        kx = 18.0
-        tott = 20.0
-        pc = 0.02
+        kx = 15.0
+        tott = 18.0
+        pc = 0.0
         prcpType = PRECIPS%NONE
 
         allocate(clouds%layerQ(nz))
-        clouds%nLayers = 1
+        clouds%nLayers = 2
         clouds%wmnIdx = -1
         clouds%avv = -0.10
-        clouds%layerQ = (/ 0.10, 0.20, 0.50, 0.10 /)
+        clouds%layerQ = (/ 1.00, 0.10, 0.20, 0.10 /)
         clouds%topIdx = 0
         clouds%baseIdx = 0
         clouds%ctt = 0.0
-        clouds%topIdx(1) = 2
-        clouds%baseIdx(1) = 4
-        clouds%ctt(1) = 270.0
+        clouds%topIdx(1) = 1
+        clouds%baseIdx(1) = 2
+        clouds%ctt(1) = 265.0
+        clouds%topIdx(2) = 3
+        clouds%baseIdx(2) = 4
+        clouds%ctt(2) = 268.0
 
         expected = 0.0
-        expected(3) = 0.61428571
+        expected(1) = 0.636363636
 
         call icing_sev(imp_physics, hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
              ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, iseverity)
@@ -246,7 +245,7 @@ contains
     end subroutine test_no_precip
 
     subroutine test_snow(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -254,8 +253,6 @@ contains
         real :: iseverity(nz), expected(nz)
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
-
-        res = 0
 
         imp_physics = 98
         hgt = (/ 7000.0, 5500.0, 1828.8, 0.0 /)
@@ -306,7 +303,7 @@ contains
     end subroutine test_snow
 
     subroutine test_cold_rain(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -314,8 +311,6 @@ contains
         real :: iseverity(nz), expected(nz)
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
-
-        res = 0
 
         imp_physics = 98
         hgt = (/ 4500.0, 3000.0, 1500.0, 0.0 /)
@@ -366,7 +361,7 @@ contains
     end subroutine test_cold_rain
 
     subroutine test_warm_precip(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -374,8 +369,6 @@ contains
         real :: iseverity(nz), expected(nz)
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
-
-        res = 0
 
         imp_physics = 98
         hgt = (/ 4000.0, 2600.0, 1200.0, 0.0 /)
@@ -426,7 +419,7 @@ contains
     end subroutine test_warm_precip
 
     subroutine test_freezing_precip(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -434,8 +427,6 @@ contains
         real :: iseverity(nz), expected(nz)
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
-
-        res = 0
 
         imp_physics = 98
         hgt = (/ 4200.0, 2800.0, 1300.0, 0.0 /)
@@ -486,7 +477,7 @@ contains
     end subroutine test_freezing_precip
 
     subroutine test_invalid_scenario(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: nz = 4
         integer :: imp_physics, prcpType, i
         real :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
@@ -494,8 +485,6 @@ contains
         real :: iseverity(nz), expected(nz)
         real :: hcprcp, cape, lx, kx, tott, pc
         type(clouds_t) :: clouds
-
-        res = 0
 
         imp_physics = 98
         hgt = (/ 1000.0, 750.0, 500.0, 250.0 /)

@@ -74,7 +74,7 @@
 contains
 
     subroutine test_twp_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 16
         real :: v(ntests)
         integer :: scenario(ntests)
@@ -172,7 +172,7 @@ contains
     end subroutine test_twp_map
 
     subroutine test_t_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 30
         real :: v(ntests)
         integer :: scenario(ntests)
@@ -342,7 +342,7 @@ contains
     end subroutine test_t_map
 
     subroutine test_prcpCondensate_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 34
         real :: v(ntests)
         integer :: scenario(ntests)
@@ -530,7 +530,7 @@ contains
     end subroutine test_prcpCondensate_map
 
     subroutine test_deltaZ_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 30
         real :: v(ntests)
         integer :: scenario(ntests)
@@ -698,7 +698,7 @@ contains
     end subroutine test_deltaZ_map
 
     subroutine test_ctt_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 11
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -759,7 +759,7 @@ contains
     end subroutine test_ctt_map
 
     subroutine test_vv_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -796,7 +796,7 @@ contains
     end subroutine test_vv_map
 
     subroutine test_cldTopDist_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -833,7 +833,7 @@ contains
     end subroutine test_cldTopDist_map
 
     subroutine test_cldBaseDist_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -870,7 +870,7 @@ contains
     end subroutine test_cldBaseDist_map
 
     subroutine test_deltaQ_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -907,7 +907,7 @@ contains
     end subroutine test_deltaQ_map
 
     subroutine test_rh_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -944,7 +944,7 @@ contains
     end subroutine test_rh_map
 
     subroutine test_condensate_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -981,7 +981,7 @@ contains
     end subroutine test_condensate_map
 
     subroutine test_convect_t_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 15
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -1058,7 +1058,7 @@ contains
     end subroutine test_convect_t_map
 
     subroutine test_convect_qpf_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -1095,7 +1095,7 @@ contains
     end subroutine test_convect_qpf_map
 
     subroutine test_convect_cape_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -1132,7 +1132,7 @@ contains
     end subroutine test_convect_cape_map
 
     subroutine test_convect_liftedIdx_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -1169,7 +1169,7 @@ contains
     end subroutine test_convect_liftedIdx_map
 
     subroutine test_convect_kIdx_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -1206,7 +1206,7 @@ contains
     end subroutine test_convect_kIdx_map
 
     subroutine test_convect_totals_map(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         integer, parameter :: ntests = 5
         real :: v(ntests)
         real :: expected(ntests), calculated
@@ -1243,7 +1243,7 @@ contains
     end subroutine test_convect_totals_map
 
     subroutine test_moisture_map_cond(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         real :: rh, liqCond, iceCond, pres, t
         real :: expected, calculated
         rh = 85.0
@@ -1261,7 +1261,7 @@ contains
     end subroutine test_moisture_map_cond
 
     subroutine test_moisture_map_cwat(res)
-        integer, intent(out) :: res
+        integer, intent(inout) :: res
         real :: rh, cwat, pres, t
         real :: expected, calculated
         rh = 85.0
