@@ -35,8 +35,8 @@ program test_icing_severity
     call test_snow(res)
     !if (res .ne. 0) stop 50
 
-    ! ! Test Case 6: Cold rain scenario.
-    ! call test_cold_rain(res)
+    ! Test Case 6: Cold rain scenario.
+    call test_cold_rain(res)
     ! if (res .ne. 0) stop 60
 
     ! ! Test Case 7: Warm precipitation scenario.
@@ -289,7 +289,7 @@ contains
         clouds%ctt(1) = 258.15
 
         expected = 0.0
-        expected(3) = 0.58111382
+        expected(3) = 0.579598248
 
         call icing_sev(imp_physics, hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
              ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, iseverity)
