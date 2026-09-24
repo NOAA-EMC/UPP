@@ -1321,7 +1321,7 @@
 !     ***BLOCK 4:  FREEZING LEVEL Z, RH AND P.
 !     
       IF ( (IGET(062)>0).OR.(IGET(063)>0) ) THEN
-         CALL FRZLVL(Z1D,RH1D,P1D)
+         CALL FRZLVLHI(Z1D,RH1D,P1D)
 !
 !        FREEZING LEVEL HEIGHT.
          IF (IGET(062)>0) THEN
