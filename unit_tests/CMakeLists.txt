@@ -101,8 +101,13 @@ create_test(test_read_xml)
 create_test(test_esat)
 create_test(test_tdofesat)
 create_test(test_xmytw_post)
+create_test(test_cloud_layers)
+create_test(test_icing_potential)
+create_test(test_get_topo_k)
 create_test(test_derived_fields)
 create_test(test_dvdxdudy)
+create_test(test_severity_maps)
+create_test(test_icing_severity)
 
 configure_file(${PROJECT_SOURCE_DIR}/fix/hires_micro_lookup.dat
                ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)

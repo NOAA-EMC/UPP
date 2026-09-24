@@ -66,6 +66,10 @@ KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
+export e1=3
+export e2=0
+export e3=31
+
 # copy fix data
 cp ${svndir}/fix/nam_micro_lookup.dat ./eta_micro_lookup.dat
 cp ${svndir}/parm/sfs/postxconfig-NT-sfs.txt ./postxconfig-NT.txt
