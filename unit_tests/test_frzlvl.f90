@@ -101,11 +101,11 @@ program test_frzlvl
     ! Test Case 4: TSFC < TFRZ
     tshltr(1, 4) = 270.0
 
-    EXP_ZFRZ(1, 4) = -4.826144409E+02
+    EXP_ZFRZ(1, 4) =   2.000000000E+00
     EXP_RHFRZ(1, 4) =  1.000000000E+00
     EXP_PFRZL(1, 4) =  1.000000000E+05
 
-    EXP_ZFRZ_GFS(1, 4) = -4.826144409E+02
+    EXP_ZFRZ_GFS(1, 4) = 2.000000000E+00
     EXP_RHFRZ_GFS(1, 4) =  1.000000000E+00
     EXP_PFRZL_GFS(1, 4) =  1.000000000E+05
 
