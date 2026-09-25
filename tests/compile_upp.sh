@@ -30,6 +30,12 @@ set_defaults() {
     verbose_opt=""
     debug_opt=""
     compiler="intel"
+    if [[ "$MACHINE_ID" == "ursa"  || 
+	  "$MACHINE_ID" == "hercules" ||
+	  "$MACHINE_ID" == "gaeac6" ||
+          "$MACHINE_ID" == "orion" ]]; then
+       compiler="oneapi"
+    fi 
 }
 
 usage() {
