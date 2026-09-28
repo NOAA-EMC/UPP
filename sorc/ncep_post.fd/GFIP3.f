@@ -1547,7 +1547,7 @@ contains
      if (v <= 1000.0) then
         convect_cape_map = 0.0
      else if(v <= 2500.) then
-        convect_cape_map = (v - 1000.0) / 1400.
+        convect_cape_map = (v - 1000.0) / 1500.
      else
         convect_cape_map = 1.0
      end if
