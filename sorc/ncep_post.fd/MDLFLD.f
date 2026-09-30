@@ -76,6 +76,7 @@
 !!   25-03-23 | E James  | Add computation of aerosol layer height top and bottom
 !!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028
 !!   26-07-21 | E James  | Switch PBL height from Ri-based to THV-based (MYNN) for MPAS fields PBL wind and VRATE
+!!   26-09-30 | B Blake  | Use THV-based (MYNN) PBL height for calculation of PBL wind and VRATE in RRFS and MPAS
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3979,8 +3980,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               !-- Regardless of model, assign / calculate PBLRI (PBL height based on Richardson number)
               IF(MODELNAME  ==  'GFS')THEN
                 PBLRI=PBLH
-              ELSE IF (MODELNAME == 'RAPR' .and. SUBMODELNAME == 'MPAS')THEN
-                CALL CALPBL(PBLRI,'THV')
               ELSE
                 CALL CALPBL(PBLRI,'RI')
               END IF
@@ -4032,11 +4031,23 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=ista,iend
-                IF(PBLRI(I,J)<spval.and.ZINT(I,J,LM+1)<spval)THEN
-                  EGRID3(I,J) = PBLRI(I,J) + ZINT(I,J,LM+1)
+
+!       Use PBLTHV for RRFS and MPAS
+                IF ((MODELNAME  ==  'FV3R').OR. &
+                   ((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME == 'MPAS'))) THEN
+                  IF(PBLTHV(I,J)<spval.and.ZINT(I,J,LM+1)<spval)THEN
+                    EGRID3(I,J) = PBLTHV(I,J) + ZINT(I,J,LM+1)
+                  ELSE
+                    EGRID3(I,J) = spval
+                  ENDIF
                 ELSE
-                  EGRID3(I,J) = spval
+                  IF(PBLRI(I,J)<spval.and.ZINT(I,J,LM+1)<spval)THEN
+                    EGRID3(I,J) = PBLRI(I,J) + ZINT(I,J,LM+1)
+                  ELSE
+                    EGRID3(I,J) = spval
+                  ENDIF
                 ENDIF
+
                 END DO
               END DO  
 ! compute U and V separately because they are on different locations for B grid
@@ -4183,10 +4194,20 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 DO J=JSTA,JEND
                   DO I=ista,iend
 
-                    IF (PBLRI(I,J) /= SPVAL .and. EGRID3(I,J)/=SPVAL) then
-                      GRID1(I,J) = EGRID3(I,J)*PBLRI(I,J)
-                    else
-                      GRID1(I,J) = 0.
+!       Use PBLTHV for RRFS and MPAS
+                    IF ((MODELNAME  ==  'FV3R').OR. &
+                       ((MODELNAME  ==  'RAPR').AND.(SUBMODELNAME == 'MPAS'))) THEN
+                      IF (PBLTHV(I,J) /= SPVAL .and. EGRID3(I,J)/=SPVAL) then
+                        GRID1(I,J) = EGRID3(I,J)*PBLTHV(I,J)
+                      else
+                        GRID1(I,J) = 0.
+                      ENDIF
+                    ELSE
+                      IF (PBLRI(I,J) /= SPVAL .and. EGRID3(I,J)/=SPVAL) then
+                        GRID1(I,J) = EGRID3(I,J)*PBLRI(I,J)
+                      else
+                        GRID1(I,J) = 0.
+                      ENDIF
                     ENDIF
 
                   ENDDO
