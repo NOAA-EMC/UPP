@@ -76,7 +76,7 @@
 !!   25-03-23 | E James  | Add computation of aerosol layer height top and bottom
 !!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028
 !!   26-07-21 | E James  | Switch PBL height from Ri-based to THV-based (MYNN) for MPAS fields PBL wind and VRATE
-!!   26-09-30 | B Blake  | Use THV-based (MYNN) PBL height for calculation of PBL wind and VRATE in RRFS and MPAS
+!!   26-09-30 | B Blake  | Use THV-based (MYNN) PBL height for calculation of PBL wind and VRATE in RRFS
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
