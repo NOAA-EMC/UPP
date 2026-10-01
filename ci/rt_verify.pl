@@ -21,7 +21,6 @@ my $ORION_BASELINE    = '/work/noaa/epic/role-epic/orion/UPP';
 my $HERCULES_BASELINE = '/work/noaa/epic/role-epic/hercules/UPP';
 my $URSA_SUDO_PREFIX  = 'sudo su - role.epic -c';
 my $MSU_SUDO_PREFIX   = 'sudo -u role-epic sh -c';
-#my $WORK_DIR_PATTERN  = '^work-upp-([A-Z]*)-(intel[a-z]*)$';
 my $WORK_DIR_PATTERN  = '^work-upp-([A-Z]*)-(oneapi)$';
 my $REL_LOG_DIR_PATH  = '../tests/logs';
 my $RUNTIME_PATTERN   = '([a-z0-9]+)_test ([0-9:]{8}) -- baseline ([0-9:]{8})$';
