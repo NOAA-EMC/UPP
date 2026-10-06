@@ -37,7 +37,7 @@
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
 !> 2021-10-15 |JESSE MENG    | 2D DECOMPOSITION
 !> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
-!> 2026-09-03 | Wen Meng     | Set freezing height to 2m MSL when T2m is below freezing 
+!> 2026-09-03 | Wen Meng     | Set freezing height to surface when T2m is below freezing 
 !> 2026-09-03 | Wen Meng     | Update old fortran intrinsic functions, AMAX1, AMIN1, ALOG
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
@@ -114,7 +114,7 @@
 
 !            ZFRZ(I,J) = HTSFC+(TSFC-TFRZ)/D0065
 !           ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
-            ZFRZ(I,J) = HTSFC+2.0
+            ZFRZ(I,J) = HTSFC
 !	    IF(SM(I,J)/=SPVAL .AND. QZ0(I,J)/=SPVAL .AND.      &
 !      	      QS(I,J)/=SPVAL)THEN
 !             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)

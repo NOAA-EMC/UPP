@@ -37,7 +37,7 @@
 !> 2021-10-15 | JESSE MENG   | 2D DECOMPOSITION
 !> 2021-07-28 | W. Meng      | Restrict compuatation from undefined grids
 !> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
-!> 2026-09-03 | Wen Meng     | Set freezing height to 2m MSL when T2m is below freezing
+!> 2026-09-03 | Wen Meng     | Set freezing height to surface when T2m is below freezing
 !> 2026-09-03 | Wen Meng     | Update old fortran intrinsic functions, AMAX1, AMIN1, ALOG
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
@@ -116,7 +116,7 @@
 !     
          IF (LICE==LLMH.AND.TSFC<=ISOTHERM) THEN
 !wm            ZFRZ(I,J) = HTSFC+2.0+(TSFC-ISOTHERM)/D0065
-            ZFRZ(I,J) = HTSFC+2.0
+            ZFRZ(I,J) = HTSFC
             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
             IF(QSHLTR(I,J)/=SPVAL)THEN
              PSFC=PSHLTR(I,J)
@@ -230,7 +230,7 @@
                RHFRZ(I,J) = MAX(0.01,RHFRZ(I,J))
                RHFRZ(I,J) = MIN(RHFRZ(I,J),1.00)
                !ZFRZ(I,J)  = MAX(0.0,ZFRZ(I,J))
-               ZFRZ(I,J)  = MAX(HTSFC+2.0,ZFRZ(I,J))
+               ZFRZ(I,J)  = MAX(HTSFC,ZFRZ(I,J))
 
          ELSE
                RHFRZ(I,J) = spval
