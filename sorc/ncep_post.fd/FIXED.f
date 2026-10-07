@@ -17,6 +17,7 @@
 !!   20-03-25  JESSE MENG   - remove grib1
 !!   21-04-01  JESSE MENG   - computation on defined points only
 !!   21-10-15  JESSE MENG   - 2D DECOMPOSITION
+!!   26-10-02  Wen Meng     - Set sea ice points to water points for land-sea mask
 !!     
 !! USAGE:    CALL FIXED
 !!   INPUT ARGUMENT LIST:
@@ -112,7 +113,8 @@
              GRID1(I,J) = SPVAL
               IF(SM(I,J)   /= SPVAL) GRID1(I,J) = 1. - SM(I,J)
               If(MODELNAME == 'GFS' .or. MODELNAME == 'FV3R')then
-               IF(SICE(I,J) /= SPVAL .AND. SICE(I,J) > 0.0)GRID1(I,J)=0.
+               !Set sea ice points to water points
+               IF(GRID1(I,J) > 1.0)GRID1(I,J)=0.
               else 
                IF(SICE(I,J) /= SPVAL .AND. SICE(I,J) > 0.1)GRID1(I,J)=0.
               end if

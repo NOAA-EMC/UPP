@@ -69,6 +69,7 @@
 !> 2025-09-11 | Jili Dong     | Read in surface specific humidity from history
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !> 2026-03-09 | Eric James    | Add reading in of total dust emissions.
+!> 2026-10-02 | Wen Meng      | Replace sm with landfrac to mask all land grids for sice
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -1760,6 +1761,11 @@
         enddo
       enddo
 
+      ! land fraction
+      VarName='lfrac'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,landfrac)
+
 ! sea ice mask 
 
       VarName    = 'icec'
@@ -1767,18 +1773,11 @@
       spval,VarName,sice)
      if(debugprint)print*,'sample ',VarName,' = ',sice(isa,jsa)
 
-!      where(sice /=spval .and. sice >=1.0)sm=0.0 !sea ice has sea
-!      mask=0
-! GFS flux files have land points with non-zero sea ice, per Iredell,
-! these
-! points have sea ice changed to zero, i.e., trust land mask more than
-! sea ice
-!     where(sm/=spval .and. sm==0.0)sice=0.0 !specify sea ice=0 at land
-
+!    Mask all land grids 
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=ista,iend
-          if (sm(i,j) /= spval .and. sm(i,j) == 0.0) sice(i,j) = 0.0
+          if (landfrac(i,j) /= spval .and. landfrac(i,j) == 1.0) sice(i,j) = 0.0
         enddo
       enddo
 
@@ -2156,11 +2155,6 @@
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,mxsnal)
 
-! land fraction
-      VarName='lfrac'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
-      spval,VarName,landfrac)
-     
 ! GFS probably does not use sigt4, set it to sig*t^4
 !$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
