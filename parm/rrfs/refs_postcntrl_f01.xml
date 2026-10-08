@@ -563,17 +563,7 @@
        <param>
        <shortname>BUCKET_SNOWFALL_ON_SURFACE</shortname>
        <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>BUCKET_GRAUPEL_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
-       
-       <param>
-       <shortname>BUCKET_FRAIN_ON_SURFACE</shortname>
-       <scale>6.0</scale>
-       </param>
+       </param> 
 
        <param>
        <shortname>ACM_SNOM_ON_SURFACE</shortname>
@@ -588,24 +578,24 @@
        </param>
 
        <param>
-       <shortname>GSD_CSNOW_ON_SURFACE</shortname>
+       <shortname>CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CICEP_ON_SURFACE</shortname>
+       <shortname>CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CFRZR_ON_SURFACE</shortname>
+       <shortname>CFRZR_ON_SURFACE</shortname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
+       <shortname>INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
        <scale>1.0</scale>
        </param>
