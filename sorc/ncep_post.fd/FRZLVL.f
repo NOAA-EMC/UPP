@@ -37,6 +37,7 @@
 !> 2020-11-10 | Jesse Meng   | Use UPP_PHYSICS module
 !> 2021-10-15 |JESSE MENG    | 2D DECOMPOSITION
 !> 2026-03-27 | Alyson Stahl | Remove shared DO termination labels
+!> 2026-06-26 | Jesse Meng   | Search FRZLVL from top down and no extrapolation below ground
 !>
 !> @author Russ Treadon W/NP2 @date 1992-12-22
 !-----------------------------------------------------------------------------
@@ -72,7 +73,7 @@
 !     START FRZLVL.
 !
 !
-!     
+!
 !     LOOP OVER HORIZONTAL GRID.
 !     
 !!$omp  parallel do                                                   &
@@ -89,56 +90,14 @@
          ZFRZ(I,J)  = HTSFC
          PSFC    = PINT(I,J,LLMH+1)
          PFRZL(I,J) = PSFC
-!     
-!        CHECK IF FREEZING LEVEL IS AT THE GROUND.
-!     
-!         IF(SM(I,J)/=SPVAL .AND. THZ0(I,J)/=SPVAL .AND.        &
-!      	   THS(I,J)/=SPVAL)THEN
-!          TSFC = (SM(I,J)*THZ0(I,J)+(1.-SM(I,J))*THS(I,J))     &
-!      	    *(PINT(I,J,NINT(LMH(I,J))+1)/P1000)**CAPA
-! Per AWC's request, use 2m T instead of skin T so that freezing level
-! would be above ground more often
-         IF(TSHLTR(I,J)/=SPVAL .AND. PSHLTR(I,J)/=SPVAL)THEN
-          TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
-         ELSE
-! GFS analysis does not have flux file to retrieve TSFC from	 
-	  TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
-	 END IF  
-         IF (TSFC<=TFRZ) THEN
-!            ZFRZ(I,J) = HTSFC+(TSFC-TFRZ)/D0065
-	    ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
-!	    IF(SM(I,J)/=SPVAL .AND. QZ0(I,J)/=SPVAL .AND.      &
-!      	      QS(I,J)/=SPVAL)THEN
-!             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
-! GFS does not output QS		   
-!            ELSE IF(QSHLTR(I,J)/=SPVAL)THEN
-	    IF(QSHLTR(I,J)/=SPVAL)THEN
-	     PSFC=PSHLTR(I,J)
-             QSFC=QSHLTR(I,J)
-	    ELSE
-	     QSFC=Q(I,J,LM)
-	     PSFC=PMID(I,J,LM)  
-            END IF  
+
 !
-            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'RAPR')THEN
-	     ES=FPVSNEW(TSFC)
-	     ES=MIN(ES,PSFC)
-	     QSAT=CON_EPS*ES/(PSFC+CON_EPSM1*ES)
-	    ELSE 
-             QSAT=PQ0/PSFC*EXP(A2*(TSFC-A3)/(TSFC-A4))
-	    END IF 
+! SCAN FROM TOP DOWN (L = 1 TO LLMH)
+! find the LOWEST freezing level, DO NOT "EXIT"
+! loop continually overwrite the outputs so the lowest 
+! (last found) level is final
 !
-            RHSFC   = QSFC/QSAT
-            RHSFC   = AMAX1(0.01,RHSFC)
-            RHSFC   = AMIN1(RHSFC,1.0)
-            RHFRZ(I,J)= RHSFC
-            PFRZL(I,J)= PSFC
-            CYCLE 
-         ENDIF
-!     
-!        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
-!
-         DO 10 L = LLMH,1,-1
+         DO L = 1, LLMH
             IF (T(I,J,L)<=TFRZ) THEN
                IF (L<LLMH) THEN
                   DELZ = ZMID(I,J,L)-ZMID(I,J,L+1)
@@ -157,11 +116,11 @@
                   ALPFRZ = ALPL + (ALPH-ALPL)/DELZ*DZABV
                   PFRZ   = EXP(ALPFRZ)
                   PFRZL(I,J)  = PFRZ
-		  IF(MODELNAME == 'GFS' .OR.MODELNAME == 'RAPR')THEN
-	            ES=FPVSNEW(TFRZ)
-	            ES=MIN(ES,PFRZ)
-	            QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
-	          ELSE 
+                  IF(MODELNAME == 'GFS' .OR.MODELNAME == 'RAPR')THEN
+                    ES=FPVSNEW(TFRZ)
+                    ES=MIN(ES,PFRZ)
+                    QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
+                  ELSE 
                     QSFRZ=PQ0/PFRZ    &
                      *EXP(A2*(TFRZ-A3)/(TFRZ-A4))
                   END IF
@@ -178,7 +137,7 @@
                   IF(TSHLTR(I,J)/=SPVAL .AND. PSHLTR(I,J)/=SPVAL)THEN
                    TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
                   ELSE
-! GFS analysis does not have flux file to retrieve TSFC from
+! GFS analysis does not have flux file to retrieve TSFC from 
                    TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
                   END IF 
                   DELT    = T(I,J,L)-TSFC
@@ -202,11 +161,11 @@
                   PFRZ    = EXP(ALPFRZ)
 !
                   PFRZL(I,J)  = PFRZ
-		  IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
-	            ES=FPVSNEW(TFRZ)
-	            ES=MIN(ES,PFRZ)
-	            QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
-	          ELSE 
+                  IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
+                    ES=FPVSNEW(TFRZ)
+                    ES=MIN(ES,PFRZ)
+                    QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
+                  ELSE 
                     QSFRZ=PQ0/PFRZ   &
                      *EXP(A2*(TFRZ-A3)/(TFRZ-A4))
                   END IF
@@ -223,9 +182,58 @@
 !               RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
 !               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
-               EXIT             
+!               EXIT !DO NOT EXIT, CONTINUE SCAN TO LLMH
             ENDIF
- 10      CONTINUE
+         ENDDO  ! End L loop
+         
+!
+!        CHECK IF FREEZING LEVEL IS AT THE GROUND.
+!
+!         IF(SM(I,J)/=SPVAL .AND. THZ0(I,J)/=SPVAL .AND.        &
+!          THS(I,J)/=SPVAL)THEN
+!          TSFC = (SM(I,J)*THZ0(I,J)+(1.-SM(I,J))*THS(I,J))     &
+!           *(PINT(I,J,NINT(LMH(I,J))+1)/P1000)**CAPA
+! Per AWC's request, use 2m T instead of skin T so that freezing level
+! would be above ground more often
+         IF(TSHLTR(I,J)/=SPVAL .AND. PSHLTR(I,J)/=SPVAL)THEN
+          TSFC=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+         ELSE
+! GFS analysis does not have flux file to retrieve TSFC from
+          TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
+         END IF 
+         IF (TSFC<=TFRZ) THEN
+!            ZFRZ(I,J) = HTSFC+(TSFC-TFRZ)/D0065
+!            ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
+            ZFRZ(I,J) = HTSFC+2.0
+!           IF(SM(I,J)/=SPVAL .AND. QZ0(I,J)/=SPVAL .AND.      &
+!             QS(I,J)/=SPVAL)THEN
+!             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
+! GFS does not output QS
+!            ELSE IF(QSHLTR(I,J)/=SPVAL)THEN
+            IF(QSHLTR(I,J)/=SPVAL)THEN
+               PSFC=PSHLTR(I,J)
+               QSFC=QSHLTR(I,J)
+            ELSE
+               QSFC=Q(I,J,LM)
+               PSFC=PMID(I,J,LM)  
+            END IF  
+!
+            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'RAPR')THEN
+               ES=FPVSNEW(TSFC)
+               ES=MIN(ES,PSFC)
+               QSAT=CON_EPS*ES/(PSFC+CON_EPSM1*ES)
+            ELSE 
+               QSAT=PQ0/PSFC*EXP(A2*(TSFC-A3)/(TSFC-A4))
+            END IF 
+!
+            RHSFC   = QSFC/QSAT
+            RHSFC   = AMAX1(0.01,RHSFC)
+            RHSFC   = AMIN1(RHSFC,1.0)
+            RHFRZ(I,J)= RHSFC
+            PFRZL(I,J)= PSFC
+            CYCLE            
+         ENDIF
+!         
       ENDDO
       ENDDO
 !     
