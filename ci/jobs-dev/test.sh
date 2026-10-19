@@ -187,7 +187,7 @@ rrfs() {
       ;;
       URSA)
          export N_TASKS='--ntasks 240'
-         export TASKS_PER_NODE='--tasks-per-node 48'
+         export TASKS_PER_NODE='--tasks-per-node 24'
       ;;
    esac
 
