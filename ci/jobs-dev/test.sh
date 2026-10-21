@@ -62,7 +62,7 @@ gefsv13() {
 gfs() {
    case $machine in
       ORION|HERCULES)
-         export NODES='-N 3'
+         export NODES='-N 4'
          export N_TASKS_PER_NODE='--ntasks-per-node=40'
       ;;
       URSA)
@@ -109,8 +109,8 @@ hrrr() {
 
    # Same settings for all machines, unlike most tests
    export WTIME=00:20:00
-   export NODES=2
-   export N_TASKS_PER_NODE=24
+   export NODES=3
+   export N_TASKS_PER_NODE=40
 
 }
 
