@@ -222,17 +222,17 @@ program test_frzlvl2
 
     EXP_ZFRZ_1(1,7) = spval 
     EXP_RHFRZ_1(1,7) = spval 
-    EXP_PFRZL_1(1,7) = 0.0
+    EXP_PFRZL_1(1,7) = spval
 
     EXP_ZFRZ_2(1,7) = spval 
     EXP_RHFRZ_2(1,7) = spval 
-    EXP_PFRZL_2(1,7) = 0.0
+    EXP_PFRZL_2(1,7) = spval
     EXP_ZFRZ_GFS_1(1,7) = spval 
     EXP_RHFRZ_GFS_1(1,7) = spval 
-    EXP_PFRZL_GFS_1(1,7) = 0.0
+    EXP_PFRZL_GFS_1(1,7) = spval
     EXP_ZFRZ_GFS_2(1,7) = spval 
     EXP_RHFRZ_GFS_2(1,7) = spval 
-    EXP_PFRZL_GFS_2(1,7) = 0.0
+    EXP_PFRZL_GFS_2(1,7) = spval
 
     print *, "Testing FRZLVL2() with modelname != 'GFS' and ISOTHERM < TSFC..."
     res = 0

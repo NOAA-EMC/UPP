@@ -698,7 +698,7 @@
 
        <param>
            <shortname>HGT_ON_HGHST_TROP_FRZ_LVL</shortname>
-           <scale>3.0</scale>
+           <scale>5.0</scale>
        </param>
 
        <param>
@@ -819,7 +819,7 @@
 
        <param>
           <shortname>HGT_ON_SURFACE</shortname>
-          <scale>-5.0</scale>
+          <scale>5.0</scale>
        </param>
 
        <param>
