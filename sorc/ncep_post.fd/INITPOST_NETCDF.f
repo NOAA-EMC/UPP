@@ -70,6 +70,7 @@
 !> 2025-10-07 | Chris Hill    | Add capability to calculate and store cosine of solar zenith angle.
 !> 2026-03-09 | Eric James    | Add reading in of total dust emissions.
 !> 2026-10-02 | Wen Meng      | Replace sm with landfrac to mask all land grids for sice
+!> 2026-10-20 | Ben Blake     | Add annual min/max vegetation fraction
 !>
 !> @author Hui-Ya Chuang @date 2016-03-04
 !----------------------------------------------------------------------
@@ -120,7 +121,7 @@
               dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb,no3cb,nh4cb,&
               pwat, hwp, aqm_aod550, ltg1_max,ltg2_max,ltg3_max, hail_maxhailcast, &
               smoke_ave, dust_ave, coarsepm_ave, wspd10umax, wspd10vmax, f10m, &
-              mean_frp, emdust
+              mean_frp, emdust, shdmin, shdmax
       use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -2313,8 +2314,18 @@
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',vegfrc(isa,jsa)
-      
-! GFS doesn not yet output soil layer thickness, assign SLDPTH to be the same as nam
+
+! annual minimum vegetation fraction
+      VarName='shdmin'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,shdmin)
+
+! annual maximum vegetation fraction
+      VarName='shdmax'
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,shdmax)
+
+! GFS does not yet output soil layer thickness, assign SLDPTH to be the same as nam
 
          SLDPTH(1) = 0.10
          SLDPTH(2) = 0.3
@@ -2338,9 +2349,9 @@
        END IF
      
       Status=nf90_inq_varid(ncid2d,'zsoil',varid)
-      if(Status/=0)then !read soil avriables in 2D
+      if(Status/=0)then !read soil variables in 2D
  
-! liquid volumetric soil mpisture in fraction using nemsio
+! liquid volumetric soil moisture in fraction using nemsio
       VarName='soill1'
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sh2o(ista_2l,jsta_2l,1))
