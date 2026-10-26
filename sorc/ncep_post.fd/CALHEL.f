@@ -252,8 +252,13 @@
     
             IF (DZABV >= D500 .AND. DZABV < D1000 .AND.               &
                 L <= lv .AND. L1(I,J) <= L2(I,J)) THEN
-               U1(I,J)   = U(I,J,L)
-               V1(I,J)   = V(I,J,L)
+               IF (MODELNAME == 'FV3R') THEN
+                 U1(I,J)   = UH(I,J,L)
+                 V1(I,J)   = VH(I,J,L)
+               ELSE
+                 U1(I,J)   = U(I,J,L)
+                 V1(I,J)   = V(I,J,L)
+               ENDIF
                HGT1(I,J) = DZABV
                L1(I,J)   = L 
             ENDIF
