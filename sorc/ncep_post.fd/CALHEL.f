@@ -353,7 +353,7 @@
             VMEAN(I,J) = V1(I,J)
           ELSE IF(L1(I,J) == 0 .AND. L2(I,J) > 0) THEN
             UMEAN(I,J) = U2(I,J)
-            VMEAN(I,J) = U2(I,J)
+            VMEAN(I,J) = V2(I,J)
           ELSE
             UMEAN(I,J) = 0.0
             VMEAN(I,J) = 0.0
