@@ -46,12 +46,14 @@
 !>                           | emissions, FRP, and hourly wildfire potential for MPAS
 !> 2026-07-21 | Eric James   | Update reading of AOD for MPAS: AOD is output as a 2D variable from MPAS/MPASSIT.  
 !>                           | Also add outputting of second Mie-based AOD output for testing in MPAS
+!> 2027-09-22 | Eric James   | Read in dust and coarse dust from MPAS in order to allow correct 
+!>                             calculation of aerosol layer heights.
 
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
       SUBROUTINE INITPOST_MPAS
 
-      use vrbls4d, only: dust, smoke, ebb
+      use vrbls4d, only: dust, smoke, ebb, fv3dust, coarsepm
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
               qqr, qqs, qqi, qqg, qqnw, qqni, qqnr, qqng, cwm, qqw, qqi, qqr, qqs, extcof55,&
               q2, zint, zmid, ttnd, cfr, cfr_raw, qc_bl, REF_10CM,                 &
@@ -1108,19 +1110,28 @@
         end do
        end do
       end do
-!!
-!! E. James - 8 Dec 2017: tracer_2a is anthropogenic aerosol, not used
-!!
-!     VarName='tracer_2a'
-!      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        & 
-!         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!      do l=1,lm
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            SMOKE ( i, j, l, 2) = dum3d ( i, j, l )
-!        end do
-!       end do
-!      end do
+
+     VarName='DUST_FINE'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        & 
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      do l = 1,lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            FV3DUST ( i, j, l, 1) = dum3d ( i, j, l )
+        end do
+       end do
+      end do
+
+     VarName='COARSEPM'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        & 
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      do l = 1,lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            COARSEPM ( i, j, l, 1) = dum3d ( i, j, l )
+        end do
+       end do
+      end do
 
 ! CRA DUST FROM WRF-CHEM
 if(1==2) then

@@ -95,6 +95,7 @@
 !>                                     field definition).
 !> 2026-07-21 | Eric James        | Modify MPAS AOD treatment to directly output 2D field from MPASSIT, and add a second
 !>                                |    AOD Mie calculation output for MPAS
+!> 2026-10-21 | Ben Blake         | Fix lifted index (lftx) calculation for RRFS
 !>
 !> @author Russ Treadon W/NP2 @date 1993-08-30
 !---------------------------------------------------------------------------------
@@ -291,7 +292,7 @@
 !
         CALL OTLIFT(EGRID1)
 !
-        IF(MODELNAME == 'RAPR') THEN
+        IF(MODELNAME == 'RAPR' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=ISTA,IEND
