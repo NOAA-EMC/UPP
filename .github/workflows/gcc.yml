@@ -40,18 +40,18 @@ jobs:
             path: UPP
 
       # Cache spack, compiler and dependencies
-      # - name: cache-env
-      #   id: cache-env
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       spack
-      #       ~/.spack
-      #     key: spack-${{ runner.os }}-${{ env.cache_key }}-${{ hashFiles('UPP/ci/spack.yaml') }}
+      - name: cache-env
+        id: cache-env
+        uses: actions/cache@v4
+        with:
+          path: |
+            spack
+            ~/.spack
+          key: spack-${{ runner.os }}-${{ env.cache_key }}-${{ hashFiles('UPP/ci/spack.yaml') }}
 
       # Install dependencies using Spack
       - name: install-dependencies-with-spack
-        #if: steps.cache-env.outputs.cache-hit != 'true'
+        if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
           git clone -c feature.manyFiles=true https://github.com/spack/spack.git
           source spack/share/spack/setup-env.sh
