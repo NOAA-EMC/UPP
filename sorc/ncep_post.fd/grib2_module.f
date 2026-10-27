@@ -560,6 +560,7 @@
     integer ierr,ifhrorig,ihr_start
     integer gefs1,gefs2,gefs3,gefs_status
     integer refs1,refs2,refs3,refs_status
+    integer sfs1,sfs2,sfs3,sfs_status
     character(len=4) cdum
     integer perturb_num,num_ens_fcst,e1_type
 !
@@ -645,6 +646,45 @@
     endif
 !
 !----------------------------------------------------------------------------------------
+! Find out if the Post is being run for the SFS model
+! Check if gen_proc is sfs
+    sfs_status=0
+    if(trim(pset%gen_proc)=='sfs') then
+      call getenv('e1',cdum)
+      read(cdum,'(I4)',iostat=sfs_status)sfs1
+      e1_type=sfs1
+
+      if(sfs_status /= 0) print *, &
+      "SFS Run: Could not read e1 envir. var, User needs to set in script"
+
+      call getenv('e2',cdum)
+      read(cdum,'(I4)',iostat=sfs_status)sfs2
+      perturb_num=sfs2
+
+      if(sfs_status /= 0) print *, &
+      "SFS Run: Could not read e2 envir. var, User needs to set in script"
+
+      call getenv('e3',cdum)
+      read(cdum,'(I4)',iostat=sfs_status)sfs3
+      num_ens_fcst=sfs3
+
+      if(sfs_status /= 0) print *, &
+      "SFS Run: Could not read e3 envir. var, User needs to set in script"
+
+!      print*,'SFS env var ',e1_type,perturb_num,num_ens_fcst
+
+      ! Set pdstmpl to tmpl4_1 or tmpl4_11
+!      print *, "Processing for SFS and default setting is tmpl4_1 and tmpl4_11"
+      if (trim(pset%param(nprm)%pdstmpl)=='tmpl4_0') then
+        pset%param(nprm)%pdstmpl='tmpl4_1'
+      elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
+        pset%param(nprm)%pdstmpl='tmpl4_11'
+      elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_48') then
+        pset%param(nprm)%pdstmpl='tmpl4_49'     
+      endif
+    endif
+!
+!----------------------------------------------------------------------------------------
 ! Feed input keys for GRIB2 Section 0 and 1 and get outputs from arrays listsec0 and listsec1
 !
        call g2sec0(idisc,listsec0)
@@ -675,8 +715,9 @@
                pset%sigreftime,nint(sdat(3)),nint(sdat(1)),nint(sdat(2)),ihrst,imin, &
                isec,pset%prod_status,pset%data_type,listsec1)
 !jw : set sect1(2) to 0 to compare with cnvgrb grib file
-! For GEFS and REFS runs we need to set the section 1 values for Grib2
-       if(trim(pset%gen_proc)=='gefs'.or.trim(pset%gen_proc)=='refs') then
+! For GEFS, REFS and SFS runs we need to set the section 1 values for Grib2
+       if(trim(pset%gen_proc)=='gefs'.or.trim(pset%gen_proc)=='refs' &
+         .or. trim(pset%gen_proc)=='sfs') then
          listsec1(2)=2
 ! Settings below for control (1 or 2) vs perturbed (3 or 4) ensemble forecast
          if(e1_type==1.or.e1_type==2) then
