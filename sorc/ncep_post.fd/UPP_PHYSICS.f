@@ -1378,11 +1378,6 @@
       DO J=JSTA,JEND
         DO I=ISTA,IEND
           IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
-          IF (ITYPE  > 2) THEN
-            IF (T(I,J,LCL(I,J)) < 263.15) THEN
-              THUNDER(I,J) = .FALSE.
-            ENDIF
-          ENDIF
 
           ! Limit LCL to prevent out-of-bounds accesses later
           LCL(I,J) = max(min(LCL(I,J),LM-1),1)
