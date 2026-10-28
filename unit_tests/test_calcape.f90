@@ -2,9 +2,6 @@
 !
 ! This program tests the CALCAPE() subroutine.
 !
-! This test program does not cover the ITYPE > 2 scenario because it does not 
-! work properly.
-!
 ! Alyson Stahl, 8/2026
 program test_calcape
     use upp_physics, only: CALCAPE

@@ -805,11 +805,6 @@
       DO J=JSTA,JEND
         DO I=ISTA,IEND
           IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
-          IF (ITYPE  > 2) THEN
-            IF (T(I,J,LCL(I,J)) < 263.15) THEN
-              THUNDER(I,J) = .FALSE.
-            ENDIF
-          ENDIF
         ENDDO
       ENDDO
 !-----------------------------------------------------------------------
