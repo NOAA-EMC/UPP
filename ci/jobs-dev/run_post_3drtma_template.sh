@@ -29,8 +29,6 @@ date
 module purge
 module use ${svndir}/modulefiles
 module load $(echo "${machine}" | tr '[:upper:]' '[:lower:]')_${compiler}
-module load wgrib2/3.6.0
-module load prod_util/2.1.1
 module list
 
 msg="Starting 3drtma test"
