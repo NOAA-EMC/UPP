@@ -29,6 +29,7 @@
 !> 2019-10-30 | Bo Cui          | Remove "goto" statement
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !> 2022-10-07 | Tracy Hertneky  | Add left mover for storm motion in SH
+!> 2026-10-26 | Ben Blake       | Fix calculation of 0-1 km shear for RRFS
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
 ! -----------------------------------------------------------------------------------
@@ -53,7 +54,8 @@
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
                             lm, im, jm, me, spval,  &
-                            ista, iend, ista_m, iend_m, ista_2l, iend_2u
+                            ista, iend, ista_m, iend_m, ista_2l, iend_2u, &
+                            modelname
       use gridspec_mod, only: gridtype
       use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -237,16 +239,26 @@
             ENDIF
 ! CRA
             IF (DZABV >= D1000 .AND. DZABV <= D1500 .AND.  L <= lv) THEN
-               U2(I,J)   = U(I,J,L)
-               V2(I,J)   = V(I,J,L)
+               IF (MODELNAME == 'FV3R') THEN
+                 U2(I,J)   = UH(I,J,L)
+                 V2(I,J)   = VH(I,J,L)
+               ELSE
+                 U2(I,J)   = U(I,J,L)
+                 V2(I,J)   = V(I,J,L)
+               ENDIF
                HGT2(I,J) = DZABV
                L2(I,J)   = L 
             ENDIF
     
             IF (DZABV >= D500 .AND. DZABV < D1000 .AND.               &
                 L <= lv .AND. L1(I,J) <= L2(I,J)) THEN
-               U1(I,J)   = U(I,J,L)
-               V1(I,J)   = V(I,J,L)
+               IF (MODELNAME == 'FV3R') THEN
+                 U1(I,J)   = UH(I,J,L)
+                 V1(I,J)   = VH(I,J,L)
+               ELSE
+                 U1(I,J)   = U(I,J,L)
+                 V1(I,J)   = V(I,J,L)
+               ENDIF
                HGT1(I,J) = DZABV
                L1(I,J)   = L 
             ENDIF
@@ -341,7 +353,7 @@
             VMEAN(I,J) = V1(I,J)
           ELSE IF(L1(I,J) == 0 .AND. L2(I,J) > 0) THEN
             UMEAN(I,J) = U2(I,J)
-            VMEAN(I,J) = U2(I,J)
+            VMEAN(I,J) = V2(I,J)
           ELSE
             UMEAN(I,J) = 0.0
             VMEAN(I,J) = 0.0
