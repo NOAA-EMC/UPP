@@ -1414,7 +1414,9 @@
 
 !       SUSO = SPVAL
         if (gocart_on .or. gccpp_on) then
-        VarName='sulf'
+          VarName='so4'
+          Status=nf90_inq_varid(ncid3d,trim(VarName),varid)
+          if (Status /= nf90_noerr) VarName='sulf'   ! older files use 'sulf'
         endif
 
         if (nasa_on) then
