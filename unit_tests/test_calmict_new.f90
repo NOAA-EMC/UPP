@@ -12,7 +12,7 @@ program test_calmict_new
             massi, cn0r0, mdimin, xmimax, mdimax, NLImax 
     implicit none
 
-    real, parameter :: tol = 1.0e-5
+    real, parameter :: tol = 1.0e-6
     integer, parameter :: ntests = 15
     !
     integer :: i, res
@@ -427,7 +427,8 @@ program test_calmict_new
                      " but got ", DBZC1(1,i)
             res = 1
         end if
-        if (abs(NLICE1(1,i) - EXP_NLICE1(1,i)) > tol) then
+        ! Using relative tolerance for NLICE1
+        if (abs(NLICE1(1,i) - EXP_NLICE1(1,i))/EXP_NLICE1(1,i) > tol) then
             print *, "Test case ", i, " failed for NLICE1: Expected ", EXP_NLICE1(1,i), &
                      " but got ", NLICE1(1,i)
             res = 1
