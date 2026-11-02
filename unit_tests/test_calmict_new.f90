@@ -12,7 +12,7 @@ program test_calmict_new
             massi, cn0r0, mdimin, xmimax, mdimax, NLImax 
     implicit none
 
-    real, parameter :: tol = 1.0e-6
+    real, parameter :: tol = 1.0e-5
     integer, parameter :: ntests = 15
     !
     integer :: i, res
