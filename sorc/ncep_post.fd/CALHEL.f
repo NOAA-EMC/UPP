@@ -239,7 +239,7 @@
             ENDIF
 ! CRA
             IF (DZABV >= D1000 .AND. DZABV <= D1500 .AND.  L <= lv) THEN
-               IF (MODELNAME == 'FV3R') THEN
+               IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
                  U2(I,J)   = UH(I,J,L)
                  V2(I,J)   = VH(I,J,L)
                ELSE
@@ -252,7 +252,7 @@
     
             IF (DZABV >= D500 .AND. DZABV < D1000 .AND.               &
                 L <= lv .AND. L1(I,J) <= L2(I,J)) THEN
-               IF (MODELNAME == 'FV3R') THEN
+               IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
                  U1(I,J)   = UH(I,J,L)
                  V1(I,J)   = VH(I,J,L)
                ELSE
