@@ -106,8 +106,12 @@ create_test(test_icing_potential)
 create_test(test_get_topo_k)
 create_test(test_derived_fields)
 create_test(test_dvdxdudy)
+create_test(test_icing_algo)
+create_test(test_calcape)
 create_test(test_severity_maps)
 create_test(test_icing_severity)
+create_test(test_calmict_old)
+create_test(test_calmict_new)
 
 configure_file(${PROJECT_SOURCE_DIR}/fix/hires_micro_lookup.dat
                ${CMAKE_CURRENT_BINARY_DIR}/eta_micro_lookup.dat COPYONLY)
