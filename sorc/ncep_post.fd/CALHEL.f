@@ -29,6 +29,7 @@
 !> 2019-10-30 | Bo Cui          | Remove "goto" statement
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !> 2022-10-07 | Tracy Hertneky  | Add left mover for storm motion in SH
+!> 2026-10-26 | Ben Blake       | Update calculation of 0-1 km shear for RRFS, MPAS
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
 ! -----------------------------------------------------------------------------------
@@ -46,7 +47,7 @@
       SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 
 !
-      use vrbls3d,    only: zmid, uh, vh, u, v, zint
+      use vrbls3d,    only: zmid, uh, vh, zint
       use vrbls2d,    only: fis, u10, v10
       use masks,      only: lmv, gdlat
       use params_mod, only: g
@@ -237,16 +238,16 @@
             ENDIF
 ! CRA
             IF (DZABV >= D1000 .AND. DZABV <= D1500 .AND.  L <= lv) THEN
-               U2(I,J)   = U(I,J,L)
-               V2(I,J)   = V(I,J,L)
+               U2(I,J)   = UH(I,J,L)
+               V2(I,J)   = VH(I,J,L)
                HGT2(I,J) = DZABV
                L2(I,J)   = L 
             ENDIF
     
             IF (DZABV >= D500 .AND. DZABV < D1000 .AND.               &
                 L <= lv .AND. L1(I,J) <= L2(I,J)) THEN
-               U1(I,J)   = U(I,J,L)
-               V1(I,J)   = V(I,J,L)
+               U1(I,J)   = UH(I,J,L)
+               V1(I,J)   = VH(I,J,L)
                HGT1(I,J) = DZABV
                L1(I,J)   = L 
             ENDIF
@@ -341,7 +342,7 @@
             VMEAN(I,J) = V1(I,J)
           ELSE IF(L1(I,J) == 0 .AND. L2(I,J) > 0) THEN
             UMEAN(I,J) = U2(I,J)
-            VMEAN(I,J) = U2(I,J)
+            VMEAN(I,J) = V2(I,J)
           ELSE
             UMEAN(I,J) = 0.0
             VMEAN(I,J) = 0.0
