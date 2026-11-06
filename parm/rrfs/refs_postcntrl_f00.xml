@@ -380,7 +380,7 @@
        <table_info>NCEP</table_info>
         <scale>6.0</scale>
        </param>
-
+ 
        <param>
        <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>TMP</pname>
@@ -562,25 +562,25 @@
        </param>
 
        <param>
-       <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
+       <shortname>INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CSNOW_ON_SURFACE</shortname>
+       <shortname>CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CICEP_ON_SURFACE</shortname>
+       <shortname>CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CFRZR_ON_SURFACE</shortname>
+       <shortname>CFRZR_ON_SURFACE</shortname>
        <pname>CFRZR</pname>
        <scale>1.0</scale>
        </param>
@@ -1599,24 +1599,24 @@
        </param>
 
        <param>
-       <shortname>GSD_CSNOW_ON_SURFACE</shortname>
+       <shortname>CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CICEP_ON_SURFACE</shortname>
+       <shortname>CICEP_ON_SURFACE</shortname>
        <pname>CICEP</pname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_CFRZR_ON_SURFACE</shortname>
+       <shortname>CFRZR_ON_SURFACE</shortname>
        <scale>1.0</scale>
        </param>
 
        <param>
-       <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
+       <shortname>INST_CRAIN_ON_SURFACE</shortname>
        <pname>CRAIN</pname>
        <scale>1.0</scale>
        </param>
@@ -1758,6 +1758,27 @@
        <pname>SMREF</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>DPT_ON_HYBRID_LVL</shortname>
+       <pname>DPT</pname>
+       <level>1.</level>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>SPFH_ON_HYBRID_LVL</shortname>
+       <pname>SPFH</pname>
+       <level>1.</level>
+       <scale>7.0</scale>
+       </param>
+       
+       <param>
+       <shortname>HGT_ON_HYBRID_LVL</shortname>
+       <pname>HGT</pname>
+       <level>1.</level>
+       <scale>4.0</scale>
        </param>
 
        <param>
