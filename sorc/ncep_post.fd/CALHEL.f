@@ -54,8 +54,7 @@
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
                             lm, im, jm, me, spval,  &
-                            ista, iend, ista_m, iend_m, ista_2l, iend_2u, &
-                            modelname
+                            ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
       use exch_upp_mod, only: exch
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
