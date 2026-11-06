@@ -29,7 +29,7 @@
 !> 2019-10-30 | Bo Cui          | Remove "goto" statement
 !> 2021-09-02 | Bo Cui          | Decompose UPP in X direction          
 !> 2022-10-07 | Tracy Hertneky  | Add left mover for storm motion in SH
-!> 2026-10-26 | Ben Blake       | Fix calculation of 0-1 km shear for RRFS
+!> 2026-10-26 | Ben Blake       | Update calculation of 0-1 km shear for RRFS, MPAS
 !>   
 !> @author Michael Baldwin W/NP2 @date 1994-08-22
 ! -----------------------------------------------------------------------------------
@@ -47,7 +47,7 @@
       SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 
 !
-      use vrbls3d,    only: zmid, uh, vh, u, v, zint
+      use vrbls3d,    only: zmid, uh, vh, zint
       use vrbls2d,    only: fis, u10, v10
       use masks,      only: lmv, gdlat
       use params_mod, only: g
@@ -239,26 +239,16 @@
             ENDIF
 ! CRA
             IF (DZABV >= D1000 .AND. DZABV <= D1500 .AND.  L <= lv) THEN
-               IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
-                 U2(I,J)   = UH(I,J,L)
-                 V2(I,J)   = VH(I,J,L)
-               ELSE
-                 U2(I,J)   = U(I,J,L)
-                 V2(I,J)   = V(I,J,L)
-               ENDIF
+               U2(I,J)   = UH(I,J,L)
+               V2(I,J)   = VH(I,J,L)
                HGT2(I,J) = DZABV
                L2(I,J)   = L 
             ENDIF
     
             IF (DZABV >= D500 .AND. DZABV < D1000 .AND.               &
                 L <= lv .AND. L1(I,J) <= L2(I,J)) THEN
-               IF (MODELNAME == 'FV3R' .OR. MODELNAME == 'GFS') THEN
-                 U1(I,J)   = UH(I,J,L)
-                 V1(I,J)   = VH(I,J,L)
-               ELSE
-                 U1(I,J)   = U(I,J,L)
-                 V1(I,J)   = V(I,J,L)
-               ENDIF
+               U1(I,J)   = UH(I,J,L)
+               V1(I,J)   = VH(I,J,L)
                HGT1(I,J) = DZABV
                L1(I,J)   = L 
             ENDIF
