@@ -46,9 +46,11 @@
 !>                           | emissions, FRP, and hourly wildfire potential for MPAS
 !> 2026-07-21 | Eric James   | Update reading of AOD for MPAS: AOD is output as a 2D variable from MPAS/MPASSIT.  
 !>                           | Also add outputting of second Mie-based AOD output for testing in MPAS
-!> 2027-09-22 | Eric James   | Read in dust and coarse dust from MPAS in order to allow correct 
-!>                             calculation of aerosol layer heights.
-
+!> 2026-09-22 | Eric James   | Read in dust and coarse dust from MPAS in order to allow correct 
+!>                           | calculation of aerosol layer heights.
+!> 2026-11-09 | Jaymes Kenyn | Update the initial assignment of ZINT, now obtained from geopotential, rather 
+!>                           | than from geopotential height. 
+!>             
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
 
       SUBROUTINE INITPOST_MPAS
@@ -768,14 +770,13 @@
        end do
 
 ! Geopotential height of model interfacial levels
-!  (J Kenyon, 6 Aug 2025):
-!  Here, "PHB" and "PH" represent base-state and perturbation
-!  arrays, respectively. Note that in INITPOST.F (used for WRF-ARW),
-!  the PHB/PH arrays represented geopotential (units of m2 s-2). As
-!  of this writing, these arrays in MPAS applications now represent
-!  geopotential height (units of m). Note also that for some
-!  applications (e.g., RAPR), the resulting ZINT array is adjusted
-!  using the hypsometric equation (further below).
+!  (J Kenyon, 9 Nov 2026):
+!  Here, "PHB" and "PH" represent the base-state and perturbation
+!  geopotential arrays, respectively (units of m2 s-2). These arrays are
+!  added, then divided by G, to obtain geopotential height (units
+!  of m).  Note also that for some applications (e.g., RAPR), the 
+!  resulting ZINT array is adjusted using the hypsometric equation 
+!  (further below).
       VarName='PHB'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
@@ -792,7 +793,7 @@
       DO L=1,LM+1
         DO I=1,IM
          DO J=JS,JE
-          ZINT(I,J,L)=ZINT(I,J,L)+DUM3D(I,J,L)
+          ZINT(I,J,L)=(ZINT(I,J,L)+DUM3D(I,J,L))/G
          ENDDO
         ENDDO
       ENDDO
