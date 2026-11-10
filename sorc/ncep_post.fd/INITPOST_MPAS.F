@@ -48,7 +48,7 @@
 !>                           | Also add outputting of second Mie-based AOD output for testing in MPAS
 !> 2026-09-22 | Eric James   | Read in dust and coarse dust from MPAS in order to allow correct 
 !>                           | calculation of aerosol layer heights.
-!> 2026-11-09 | Jaymes Kenyn | Update the initial assignment of ZINT, now obtained from geopotential, rather 
+!> 2026-11-09 | Jaymes Kenyon| Update the initial assignment of ZINT, now obtained from geopotential, rather 
 !>                           | than from geopotential height. 
 !>             
 !> @author Jaymes Kenyon (GSL) @date 2024-08-14
@@ -776,7 +776,7 @@
 !  added, then divided by G, to obtain geopotential height (units
 !  of m).  Note also that for some applications (e.g., RAPR), the 
 !  resulting ZINT array is adjusted using the hypsometric equation 
-!  (further below).
+!  (farther below).
       VarName='PHB'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
