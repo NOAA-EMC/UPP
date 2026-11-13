@@ -460,7 +460,7 @@ contains
 
     subroutine test_idecid_8(res)
         integer, intent(inout) :: res
-        integer, parameter :: ntests = 3
+        integer, parameter :: ntests = 5
         integer, parameter :: nlevs = 3
         !
         integer :: IDECID, L, J
