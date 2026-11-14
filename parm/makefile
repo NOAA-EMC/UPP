@@ -8,6 +8,7 @@
 # 2025/05       Jaymes Kenyon : Adding files for MPAS applications
 # 2025/05       Ben Blake : Updating files for RRFSv1
 # 2025/07       Wen Meng : Add GCAFS
+# 2026/11       Wen Meng : Add ufschem
 
 SHELL=/bin/sh
 PERL=/usr/bin/perl
@@ -64,6 +65,8 @@ ALL_TXT= \
   postxconfig-NT-wps.txt \
   ./gcafs/postxconfig-NT-gcafs.txt \
   ./gcafs/postxconfig-NT-gcafs-f00.txt \
+  ./ufschem/postxconfig-NT-gcafs.txt \
+  ./ufschem/postxconfig-NT-gcafs-f00.txt \
   ./3drtma/postxconfig-NT-3drtma.txt \
   ./arafs/postxconfig-NT-arafs.txt \
   ./aigfs/postxconfig-NT-aigfs.txt
@@ -116,6 +119,8 @@ postxconfig-NT-rap.txt:              rap_postcntrl.xml              post_avblfld
 postxconfig-NT-wps.txt:        postcntrl_wps.xml        post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
 ./gcafs/postxconfig-NT-gcafs-f00.txt: ./gcafs/postcntrl_gcafs_f00.xml post_avblflds.xml
+./ufschem/postxconfig-NT-gcafs.txt: ./gcafs/postcntrl_gcafs.xml post_avblflds.xml
+./ufschem/postxconfig-NT-gcafs-f00.txt: ./gcafs/postcntrl_gcafs_f00.xml post_avblflds.xml
 ./3drtma/postxconfig-NT-3drtma.txt: ./3drtma/3drtma_postcntrl.xml post_avblflds.xml
 ./arafs/postxconfig-NT-arafs.txt: ./arafs/postcntrl_arafs.xml post_avblflds.xml
 ./aigfs/postxconfig-NT-aigfs.txt: ./aigfs/postcntrl_aigfs.xml post_avblflds.xml

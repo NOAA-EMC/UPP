@@ -50,7 +50,7 @@ contains
         integer, dimension(1,ny) :: l1d
         real, dimension(1,ny)  :: p1d, t1d
         real, dimension(1,ny) :: q1d, cape, cins, pparc, zeql, thund
-        real, dimension(1,ny) :: exp_q1d, exp_cape, exp_cins, exp_pparc, exp_zeql, exp_thund
+        real, dimension(1,ny) :: exp_cape, exp_cins, exp_pparc, exp_zeql, exp_thund
         integer :: j, k
 
         ista = 1
@@ -142,28 +142,44 @@ contains
         zeql = spval
         thund = spval
 
-        exp_q1d = q1d
+        exp_cape = 0.0
+        exp_cape(1,1) = 3353.06250
+
+        exp_cins = 0.0
+        exp_cins(1,1) = -168.409164
+
+        exp_pparc = 80000.0
+        exp_pparc(1,1) = 95000.0
+
+        exp_zeql = 1000.0
+        exp_zeql(1,1) = 6500.0
+
+        exp_thund = 0.0
+        exp_thund(1,1) = 1.0
 
         call CALCAPE(itype, dpbnd, p1d, t1d, q1d, l1d, cape, cins, pparc, zeql, thund)
 
         do j = 1, ny
-            print *, "cape(1,", j, ") = ", cape(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "cins(1,", j, ") = ", cins(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "pparc(1,", j, ") = ", pparc(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "zeql(1,", j, ") = ", zeql(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "thund(1,", j, ") = ", thund(1,j)
+            if (abs(cape(1,j) - exp_cape(1,j)) > tol) then
+                print *, "calcape(): cape(1,", j, ") = ", cape(1,j), " expected = ", exp_cape(1,j)
+                res = 1
+            end if
+            if (abs(cins(1,j) - exp_cins(1,j)) > tol) then
+                print *, "calcape(): cins(1,", j, ") = ", cins(1,j), " expected = ", exp_cins(1,j)
+                res = 1
+            end if
+            if (abs(pparc(1,j) - exp_pparc(1,j)) > tol) then
+                print *, "calcape(): pparc(1,", j, ") = ", pparc(1,j), " expected = ", exp_pparc(1,j)
+                res = 1
+            end if
+            if (abs(zeql(1,j) - exp_zeql(1,j)) > tol) then
+                print *, "calcape(): zeql(1,", j, ") = ", zeql(1,j), " expected = ", exp_zeql(1,j)
+                res = 1
+            end if
+            if (abs(thund(1,j) - exp_thund(1,j)) > tol) then
+                print *, "calcape(): thund(1,", j, ") = ", thund(1,j), " expected = ", exp_thund(1,j)
+                res = 1
+            end if
         end do
 
         deallocate(pmid)
@@ -187,7 +203,7 @@ contains
         integer, dimension(1,ny) :: l1d
         real, dimension(1,ny)  :: p1d, t1d
         real, dimension(1,ny) :: q1d, cape, cins, pparc, zeql, thund
-        real, dimension(1,ny) :: exp_q1d, exp_cape, exp_cins, exp_pparc, exp_zeql, exp_thund
+        real, dimension(1,ny) :: exp_cape, exp_cins, exp_pparc, exp_zeql, exp_thund
         integer :: j, k
 
         ista = 1
@@ -280,26 +296,48 @@ contains
         zeql = spval
         thund = spval
 
+        exp_cape = 0.0
+        exp_cape(1,1) = 3345.55468750
+        exp_cape(1,4) = 11649.57617188
+
+        exp_cins = 0.0
+        exp_cins(1,1) = -169.46633911
+        exp_cins(1,2) = -18.98240089
+        exp_cins(1,5) = -3764.44213867
+
+        exp_pparc = 50000.0
+
+        exp_zeql = 1000.0
+        exp_zeql(1,1) = 6500.0
+        exp_zeql(1,4) = 6500.0
+
+        exp_thund = 0.0
+        exp_thund(1,1) = 1.0
+        exp_thund(1,4) = 1.0
+        
         call CALCAPE(itype, dpbnd, p1d, t1d, q1d, l1d, cape, cins, pparc, zeql, thund)
 
         do j = 1, ny
-            print *, "cape(1,", j, ") = ", cape(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "cins(1,", j, ") = ", cins(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "pparc(1,", j, ") = ", pparc(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "zeql(1,", j, ") = ", zeql(1,j)
-        end do
-
-        do j = 1, ny
-            print *, "thund(1,", j, ") = ", thund(1,j)
+            if (abs(cape(1,j) - exp_cape(1,j)) > tol) then
+                print *, "calcape(): cape(1,", j, ") = ", cape(1,j), " expected = ", exp_cape(1,j)
+                res = 1
+            end if
+            if (abs(cins(1,j) - exp_cins(1,j)) > tol) then
+                print *, "calcape(): cins(1,", j, ") = ", cins(1,j), " expected = ", exp_cins(1,j)
+                res = 1
+            end if
+            if (abs(pparc(1,j) - exp_pparc(1,j)) > tol) then
+                print *, "calcape(): pparc(1,", j, ") = ", pparc(1,j), " expected = ", exp_pparc(1,j)
+                res = 1
+            end if
+            if (abs(zeql(1,j) - exp_zeql(1,j)) > tol) then
+                print *, "calcape(): zeql(1,", j, ") = ", zeql(1,j), " expected = ", exp_zeql(1,j)
+                res = 1
+            end if
+            if (abs(thund(1,j) - exp_thund(1,j)) > tol) then
+                print *, "calcape(): thund(1,", j, ") = ", thund(1,j), " expected = ", exp_thund(1,j)
+                res = 1
+            end if
         end do
 
         deallocate(pmid)
