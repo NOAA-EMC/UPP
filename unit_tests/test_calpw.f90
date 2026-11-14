@@ -25,33 +25,83 @@ program test_calpw
     end interface
 
     res = 0
+
     call test_idecid_le_1(res)
-    ! call test_idecid_2(res)
-    ! call test_idecid_3(res)
-    ! call test_idecid_4(res)
-    ! call test_idecid_5(res)
-    ! call test_idecid_6(res)
-    ! call test_idecid_7(res)
-    ! call test_idecid_8(res)
-    ! call test_idecid_9(res)
-    ! call test_idecid_10(res)
-    ! call test_idecid_11(res)
-    ! call test_idecid_12(res)
-    ! call test_idecid_13(res)
-    ! call test_idecid_14(res)
-    ! call test_idecid_15(res)
-    ! call test_idecid_17(res)
-    ! call test_idecid_18(res)
-    ! call test_idecid_19(res)
-    ! call test_idecid_20(res)
-    ! call test_idecid_21(res)
-    ! call test_idecid_22(res)
-    ! call test_idecid_23(res)
-    ! call test_idecid_24(res)
-    ! call test_idecid_25(res)
+    if (res .ne. 0) stop 1
+
+    call test_idecid_2(res)
+    if (res .ne. 0) stop 2
+    
+    call test_idecid_3(res)
+    if (res .ne. 0) stop 3
+
+    call test_idecid_4(res)
+    if (res .ne. 0) stop 4
+
+    call test_idecid_5(res)
+    if (res .ne. 0) stop 5
+
+    call test_idecid_6(res)
+    if (res .ne. 0) stop 6
+
+    call test_idecid_7(res)
+    if (res .ne. 0) stop 7
+
+    call test_idecid_8(res)
+    if (res .ne. 0) stop 8
+
+    call test_idecid_9(res)
+    if (res .ne. 0) stop 9
+
+    call test_idecid_10(res)
+    if (res .ne. 0) stop 10
+
+    call test_idecid_11(res)
+    if (res .ne. 0) stop 11
+
+    call test_idecid_12(res)
+    if (res .ne. 0) stop 12
+
+    call test_idecid_13(res)
+    if (res .ne. 0) stop 13
+
+    call test_idecid_14(res)
+    if (res .ne. 0) stop 14
+
+    call test_idecid_15(res)
+    if (res .ne. 0) stop 15
+
+    call test_idecid_16(res)
+    if (res .ne. 0) stop 16
+
+    call test_idecid_17(res)
+    if (res .ne. 0) stop 17
+
+    call test_idecid_18(res)
+    if (res .ne. 0) stop 18
+
+    call test_idecid_19(res)
+    if (res .ne. 0) stop 19
+
+    call test_idecid_20(res)
+    if (res .ne. 0) stop 20
+
+    call test_idecid_21(res)
+    if (res .ne. 0) stop 21
+
+    call test_idecid_22(res)
+    if (res .ne. 0) stop 22
+
+    call test_idecid_23(res)
+    if (res .ne. 0) stop 23
+
+    call test_idecid_24(res)
+    if (res .ne. 0) stop 24
+
+    call test_idecid_25(res)
+    if (res .ne. 0) stop 25
 
     print *, 'SUCCESS!'
-
 contains
     subroutine test_idecid_le_1(res)
         integer, intent(inout) :: res
@@ -79,7 +129,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -96,8 +146,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 1. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 1. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -109,8 +159,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID < 1. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID < 1. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -149,7 +199,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -163,8 +213,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 2. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 2. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -203,7 +253,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -217,8 +267,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 3. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 3. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -257,7 +307,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -271,8 +321,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 4. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 4. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -311,7 +361,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -325,8 +375,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 5. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 5. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -365,7 +415,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 122.324158
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -379,8 +429,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 6. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 6. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -423,7 +473,7 @@ contains
         end do
 
         ! Test Case 1: Representative case for T < TFRZ. No spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 24.4648285
 
         ! Test Case 2: Representative case for T >= TFRZ. No spval input or output.
         t(1,2,:) = tfrz + 10.0
@@ -445,8 +495,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 7. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 7. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -491,7 +541,7 @@ contains
         end do
 
         ! Test Case 1: Representative case for T > TFRZ. No spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 18.3486233 
 
         ! Test Case 2: Representative case for T <= TFRZ. No spval input or output.
         t(1,2,:) = tfrz - 10.0
@@ -513,8 +563,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 8. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 8. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -555,7 +605,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 6.11620760 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -569,8 +619,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 9. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 9. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -609,7 +659,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = -3.05810380   
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -623,8 +673,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 10. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 10. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -663,7 +713,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -677,8 +727,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 11. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 11. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -717,7 +767,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = -15.2905197
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -731,8 +781,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 12. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 12. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -771,7 +821,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 1.22324157 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -785,8 +835,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 13. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 13. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -831,7 +881,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 68.0761795 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -845,8 +895,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 14. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 14. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -894,7 +944,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 5716.08154
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -908,8 +958,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 15. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 15. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -948,7 +998,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 15.2905197 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -962,8 +1012,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 16. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 16. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1002,7 +1052,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 73394.4922 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1016,8 +1066,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 17. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 17. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1056,7 +1106,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 3.05810390E-05
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1066,8 +1116,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 18. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 18. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1104,7 +1154,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) =  0.300000012 
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1118,8 +1168,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 19. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 19. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1157,7 +1207,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 30581.0391
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1171,8 +1221,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 20. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 20. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1211,7 +1261,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 107033.641
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1225,8 +1275,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 21. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 21. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1265,7 +1315,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 3.05810390E-05
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1275,8 +1325,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 22. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 22. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1315,7 +1365,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 3.05810390E-05
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1325,8 +1375,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 23. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 23. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1367,7 +1417,7 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 6.11620781E-05
 
         ! Test Case 2: PINT >= spval
         pint(1,2,:) = spval
@@ -1377,8 +1427,8 @@ contains
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 24. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 24. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
@@ -1391,7 +1441,7 @@ contains
 
     subroutine test_idecid_25(res)
         integer, intent(inout) :: res
-        integer, parameter :: ntests = 2
+        integer, parameter :: ntests = 3
         integer, parameter :: nlevs = 3
         !
         integer :: IDECID, L, J
@@ -1409,11 +1459,13 @@ contains
 
         allocate(coarsepm(ista:iend, jsta:jend, 1:lm, 1))
         allocate(fv3dust(ista:iend, jsta:jend, 1:lm, 1))
+        allocate(smoke(ista:iend, jsta:jend, 1:lm, 1))
         allocate(pint(ista:iend, jsta:jend, 1:lm+1))
         allocate(zmid(ista:iend, jsta:jend, 1:lm))
         allocate(htm(ista:iend, jsta:jend, 1:lm))
 
         fv3dust = 10.0
+        smoke = 10.0
         coarsepm = 10.0
         htm = 1.0
         do L = 1, lm+1
@@ -1424,54 +1476,33 @@ contains
         end do
 
         ! Test Case 1: Representative case with no spval input or output.
-        EXP_PW(1,1) = 0.0
+        EXP_PW(1,1) = 2000.0
 
-        ! Test Case 2: PINT >= spval
-        pint(1,2,:) = spval
+        ! Test Case 2: COLMD <= 0.000001
+        smoke(1,2,:,1) = 0.0
+        fv3dust(1,2,:,1) = 0.0
+        coarsepm(1,2,:,1) = 0.0
         EXP_PW(1,2) = spval
+
+        ! Test Case 3: PINT >= spval
+        pint(1,3,:) = spval
+        EXP_PW(1,3) = spval
 
         call CALPW(PW, IDECID)
 
         do J = 1, ntests
             if (abs(PW(1,J) - EXP_PW(1,J)) > tol) then
-                print *,  "Test case ", J, " failed for IDECID == 25. Expected PW = ", PW(1,J), &
-                        "but got PW = ", PW
+                print *,  "Test case ", J, " failed for IDECID == 25. Expected PW = ", &
+                            EXP_PW(1,J), "but got PW = ", PW(1,J)
                 res = 1
             end if
         end do
 
         deallocate(coarsepm)
         deallocate(fv3dust)
+        deallocate(smoke)
         deallocate(zmid)
         deallocate(pint)
         deallocate(htm)
     end subroutine test_idecid_25
-
-    subroutine test_idecid_undefined(res)
-        integer, intent(inout) :: res
-        integer, parameter :: ntests = 3
-        integer, parameter :: nlevs = 3
-        !
-        integer :: IDECID, L, J
-        real :: PW(1,1:ntests), EXP_PW(1,1:ntests)
-
-        IDECID = 26
-        PW = 0.0
-
-        ista = 1
-        iend = 1
-        jsta = 1
-        jend = ntests
-        lm = nlevs
-        spval = 9.9e10
-
-        allocate(pint(ista:iend, jsta:jend, 1:lm+1))
-        allocate(htm(ista:iend, jsta:jend, 1:lm))
-
-        htm = 1.0
-        do L = 1, lm+1
-            pint(:,:,L) = 70000.0 + 10000.0 * (L - 1)
-        end do
-
-    end subroutine test_idecid_undefined
 end program test_calpw
