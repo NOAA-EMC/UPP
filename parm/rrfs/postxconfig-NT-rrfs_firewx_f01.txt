@@ -1,5 +1,5 @@
 3
-232
+230
 211
 28
 PRSLEV
@@ -3940,9 +3940,9 @@ surface
 ?
 ?
 ?
-407
-GSD_INST_CRAIN_ON_SURFACE
-GSD_instant precipitation type on surface
+160
+INST_CRAIN_ON_SURFACE
+?
 1
 tmpl4_0
 CRAIN
@@ -3982,9 +3982,9 @@ surface
 ?
 ?
 ?
-559
-GSD_CSNOW_ON_SURFACE
-GSD_Categorical snow on surface
+551
+CSNOW_ON_SURFACE
+Categorical snow on surface
 1
 tmpl4_0
 CSNOW
@@ -4024,9 +4024,9 @@ surface
 ?
 ?
 ?
-560
-GSD_CICEP_ON_SURFACE
-GSD_Categorical ice pellets on surface
+552
+CICEP_ON_SURFACE
+Categorical ice pellets on surface
 1
 tmpl4_0
 CICEP
@@ -4066,9 +4066,9 @@ surface
 ?
 ?
 ?
-561
-GSD_CFRZR_ON_SURFACE
-GSD_Categorical freezing rain on surface
+553
+CFRZR_ON_SURFACE
+Categorical freezing rain on surface
 1
 tmpl4_0
 CFRZR
@@ -12104,90 +12104,6 @@ surface
 ?
 ?
 ?
-775
-BUCKET_GRAUPEL_ON_SURFACE
-bucket graupel precipitation on surface
-1
-tmpl4_8
-FROZR
-NCEP
-ACM
-surface
-0
-?
-0
-?
-?
-0
-?
-0
-?
-?
-?
-?
-0
-0.0
-0
-0.0
-?
-0
-0.0
-0
-0.0
-0
-0.0
-0
-0.0
-1
-6.0
-0
-0
-0
-?
-?
-?
-1003
-BUCKET_FRAIN_ON_SURFACE
-?
-1
-tmpl4_8
-FRZR
-NCEP
-ACM
-surface
-0
-?
-0
-?
-?
-0
-?
-0
-?
-?
-?
-?
-0
-0.0
-0
-0.0
-?
-0
-0.0
-0
-0.0
-0
-0.0
-0
-0.0
-1
-6.0
-0
-0
-0
-?
-?
-?
 121
 ACM_SNOM_ON_SURFACE
 ?
@@ -12272,9 +12188,9 @@ surface
 ?
 ?
 ?
-559
-GSD_CSNOW_ON_SURFACE
-GSD_Categorical snow on surface
+551
+CSNOW_ON_SURFACE
+Categorical snow on surface
 1
 tmpl4_0
 CSNOW
@@ -12314,9 +12230,9 @@ surface
 ?
 ?
 ?
-560
-GSD_CICEP_ON_SURFACE
-GSD_Categorical ice pellets on surface
+552
+CICEP_ON_SURFACE
+Categorical ice pellets on surface
 1
 tmpl4_0
 CICEP
@@ -12356,9 +12272,9 @@ surface
 ?
 ?
 ?
-561
-GSD_CFRZR_ON_SURFACE
-GSD_Categorical freezing rain on surface
+553
+CFRZR_ON_SURFACE
+Categorical freezing rain on surface
 1
 tmpl4_0
 CFRZR
@@ -12398,9 +12314,9 @@ surface
 ?
 ?
 ?
-407
-GSD_INST_CRAIN_ON_SURFACE
-GSD_instant precipitation type on surface
+160
+INST_CRAIN_ON_SURFACE
+?
 1
 tmpl4_0
 CRAIN
