@@ -610,7 +610,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         .OR. MODELNAME == 'RAPR' & ! (RAPR includes WRF-ARW and MPAS eras)
         .OR. MODELNAME == 'FV3R' &
         .OR. MODELNAME == 'GFS') &
-        .and. (imp_physics==8 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB, RAPR, FV3R or GFS + THOMPSON
+        .and. (imp_physics==8 .or. imp_physics==88 .or. imp_physics==17 .or. imp_physics==18))THEN !NMMB, RAPR, FV3R or GFS + THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=ista,iend
@@ -665,7 +665,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          ENDDO         !--- End DO I
         ENDDO
 
-        IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
+        IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 88 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
 !tgs - non-Thompson schemes
 !$omp parallel do private(i,j,l,curefl,fctr,dens,llmh,lctop,delz,ze_nc)
          DO L=1,LM
@@ -1361,7 +1361,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! Chuang Feb 2015: use Thompson reflectivity direct output for all
 ! models 
 ! 
-               IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
+               IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 88 .or. IMP_PHYSICS == 28) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=ista,iend
@@ -3201,7 +3201,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     COMPOSITE RADAR REFLECTIVITY (maximum dBZ in each column)
 !
       IF (IGET(252) > 0) THEN
-        IF(IMP_PHYSICS /= 8 .and. IMP_PHYSICS /= 28) THEN
+        IF(IMP_PHYSICS /= 8 .and. IMP_PHYSICS /= 88 .and. IMP_PHYSICS /= 28) THEN
 !$omp parallel do private(i,j,l)
           DO J=JSTA,JEND
             DO I=ista,iend
@@ -3217,7 +3217,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-          IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
+          IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 88 .or. IMP_PHYSICS == 28) THEN
 !NMMB does not have composite radar ref in model output
            IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
               MODELNAME=='NCAR'.or.  MODELNAME=='FV3R' .or. &
@@ -3446,7 +3446,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! Use unipost reflectivity diagnostic otherwise
 !
       IF (IGET(768) > 0) THEN
-        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 88 .or. IMP_PHYSICS == 28)) THEN
           DO J=JSTA,JEND
             DO I=ista,iend
               GRID1(I,J) = -999.
@@ -3721,7 +3721,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 88 .or. IMP_PHYSICS == 28)) THEN
           GRID1 = -20.0
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
@@ -3756,7 +3756,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 88 .or. IMP_PHYSICS == 28)) THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=ista,iend
@@ -3807,7 +3807,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! Chuang: use Thompson reflectivity direct output for all
 ! models 
 ! 
-         IF(IMP_PHYSICS==8 .or. IMP_PHYSICS==28) THEN 
+         IF(IMP_PHYSICS==8 .or. IMP_PHYSICS==88 .or. IMP_PHYSICS==28) THEN 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
            DO I=ista,iend
@@ -4365,7 +4365,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !changed from SPVAL to -5000. to distinguish missing grids and undetected 
 !           GRID1(I,J) = SPVAL      	      
             GRID1(I,J) = -5000.  !undetected initially         
-            IF(IMP_PHYSICS == 8.)then ! If Thompson MP
+            IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 88)then ! If Thompson or TEMPO MP
               DO L=1,NINT(LMH(I,J))
                 IF(REF_10CM(I,J,L) > 18.3) then
                   GRID1(I,J) = ZMID(I,J,L)
