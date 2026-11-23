@@ -72,8 +72,8 @@ cp ${svndir}/parm/params_grib2_tbl_new ./params_grib2_tbl_new
 # get crtm fix files
 for what in \
     "FASTEM4.MWwater" "FASTEM5.MWwater" "FASTEM6.MWwater" "NPOESS.IRice" "NPOESS.IRland" \
-    "NPOESS.IRsnow" "Nalli.IRwater" "abi_gr" "ahi_himawari8" "amsre_aqua" \
-    "ssmis_f17" "ssmis_f18" "tmi_trmm" ; do
+    "NPOESS.IRsnow" "Nalli.IRwater" "abi_gr" "ahi_himawari8" \
+    "ssmis_f17" "ssmis_f18" ; do
   for coef in Spc Tau ; do
     file="${CRTM_FIX}/${what}.${coef}Coeff.bin"
     if [[ -s "$file" ]] ; then
