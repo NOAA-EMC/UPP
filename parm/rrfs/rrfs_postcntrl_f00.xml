@@ -1472,7 +1472,7 @@
        <param>
        <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>REFD</pname>
-       <level>1000. 4000.</level>
+       <level>4000. 1000.</level>
        <scale>4.0</scale>
        </param>
 
