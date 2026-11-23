@@ -27,25 +27,10 @@ the instructions in the `spack-stack wiki <https://github.com/JCSDA/spack-stack/
 Common Modules
 ----------------
 
-As of August 8, 2025, the UPP uses the following `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`_ from spack-stack: 
-
-.. code-block:: console
-
-   hdf5 1.14.3
-   netcdf-c 4.9.2
-   netcdf-fortran 4.6.1
-   jasper 2.0.32
-   libpng 1.6.37
-   zlib 1.2.13
-   g2 3.5.1
-   g2tmpl 1.13.0
-   bacio 2.4.1
-   ip 5.1.0
-   crtm 2.4.0.1
-   w3emc 2.10.0
-   nemsio 2.5.4
-   sigio 2.3.3
-   wrf-io 1.2.0
+The UPP uses certain `common modules <https://github.com/NOAA-EMC/UPP/blob/develop/modulefiles/upp_common.lua>`_ from spack-stack, 
+including ``bacio``, ``crtm``, ``g2``, ``g2tmpl``, ``ip``, ``hdf5``, ``jasper``, ``libpng``, ``nemsio``, ``netcdf-c``, 
+``netcdf-fortran``, ``sigio``, ``w3emc``, ``wrf-io``, and ``zlib``. See ``upp_common.lua`` for the most common versions 
+currently in use. 
 
 Individual machines may subsequently load slightly different versions. The most updated list of modules for a given machine can be viewed `in each machine's modulefile <https://github.com/NOAA-EMC/UPP/tree/develop/modulefiles>`__. 
 Users on non-Tier-1 systems should look at the modulefile for the system 
@@ -55,13 +40,17 @@ whose architecture most closely resembles their own system's architecture to det
 Obtaining and Installing UPP
 ============================
 
-Building and running UPP v11.0.0 has been tested and is supported on the following pre-configured platforms.
+Building and running the UPP ``develop`` branch is tested and supported on the following pre-configured platforms: 
+
+* Ursa
+* Hercules
+* Orion
+
+UPP v11.0.0 has been tested and is supported on the following pre-configured platforms.
 
 +---------------+----------------------+
 | System        | Compiler and Version |
 +===============+======================+
-| NOAA Hera     | Intel 18.0.5.274     |
-+---------------+----------------------+
 | NOAA Orion    | Intel 2018.4         |
 +---------------+----------------------+
 
