@@ -31,21 +31,23 @@ As of August 8, 2025, the UPP uses the following `common modules <https://github
 
 .. code-block:: console
 
-   hdf5 1.14.3
-   netcdf-c 4.9.2
+   jasper         4.2.4
+   zlib           1.2.13
+   libpng         1.6.37
+   hdf5           1.14.5
+   netcdf-c       4.9.2
    netcdf-fortran 4.6.1
-   jasper 2.0.32
-   libpng 1.6.37
-   zlib 1.2.13
-   g2 3.5.1
-   g2tmpl 1.13.0
-   bacio 2.4.1
-   ip 5.1.0
-   crtm 2.4.0.1
-   w3emc 2.10.0
-   nemsio 2.5.4
-   sigio 2.3.3
-   wrf-io 1.2.0
+   bacio          2.6.0
+   crtm           3.1.3
+   g2             3.5.1
+   g2tmpl         1.17.0
+   ip             5.4.0
+   w3emc          2.13.0
+   nemsio         2.5.5
+   sigio          2.3.3
+   wrf-io         1.3.0
+   wgrib2         3.8.0
+   prod_util      2.1.2
 
 Individual machines may subsequently load slightly different versions. The most updated list of modules for a given machine can be viewed `in each machine's modulefile <https://github.com/NOAA-EMC/UPP/tree/develop/modulefiles>`__. 
 Users on non-Tier-1 systems should look at the modulefile for the system 
