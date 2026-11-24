@@ -344,7 +344,7 @@
         n_clouds=2 ! GFS uses Zhao scheme
      else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
         n_clouds=6  ! change to 6 cloud types because microwave is sensitive to density
-     else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 &
+     else if(imp_physics==8 .or. imp_physics==88 .or. imp_physics==6 .or. imp_physics==2 &
         .or. imp_physics==28 .or. imp_physics==11)then
         n_clouds=5
      else
@@ -683,7 +683,7 @@
               atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
       	      atmosphere(1)%cloud(6)%n_layers = lm
               atmosphere(1)%cloud(6)%Type = HAIL_CLOUD
-           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
+           else if(imp_physics==8 .or. imp_physics==88 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
             .or. imp_physics==11)then
               atmosphere(1)%cloud(1)%n_layers = lm
               atmosphere(1)%cloud(1)%Type = WATER_CLOUD
@@ -1040,7 +1040,7 @@
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. & 
+                          else if(imp_physics==8 .or. imp_physics==88 .or. imp_physics==6 .or. imp_physics==2 .or. & 
                                   imp_physics==28 .or. imp_physics==11)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
@@ -1588,7 +1588,7 @@
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. &
+                          else if(imp_physics==8 .or. imp_physics==88 .or. imp_physics==6 .or. imp_physics==2 .or. &
                                   imp_physics==28 .or.  imp_physics==11)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
