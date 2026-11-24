@@ -2270,14 +2270,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>265</post_avblfldidx>
-       <shortname>SBT122_ON_TOP_OF_ATMOS_FROM_LWRAD</shortname>
-       <pname>SBT122</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>5.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>266</post_avblfldidx>
        <shortname>AVE_ALBDO_ON_SURFACE</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
