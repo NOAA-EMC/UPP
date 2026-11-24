@@ -438,12 +438,6 @@
        </param>
 
        <param>
-       <shortname>SPFH_ON_SURFACE</shortname>
-       <pname>SPFH</pname>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>TMP_ON_SURFACE</shortname>
        <pname>TMP</pname>
        <scale>4.0</scale>
@@ -992,12 +986,6 @@
        </param>
 
        <param>
-       <shortname>ACM_PEVAP_ON_SURFACE</shortname>
-       <pname>PEVAP</pname>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
        <shortname>INST_SHTFL_ON_SURFACE</shortname>
        <pname>SHTFL</pname>
        <scale>4.0</scale>
@@ -1409,18 +1397,6 @@
        </param>
 
        <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_BOT_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_TOP_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>VGTYP_ON_SURFACE</shortname>
        <pname>VGTYP</pname>
        <table_info>NCEP</table_info>
@@ -1490,13 +1466,6 @@
        <pname>SMREF</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>PEVPR_ON_SURFACE</shortname>
-       <pname>PEVPR</pname>
-       <table_info>NCEP</table_info>
-       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1875,12 +1844,6 @@
        </param>
 
        <param>
-       <shortname>SPFH_ON_SURFACE</shortname>
-       <pname>SPFH</pname>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
@@ -2084,13 +2047,6 @@
        </param>
 
        <param>
-       <shortname>PEVPR_ON_SURFACE</shortname>
-       <pname>PEVPR</pname>
-       <table_info>NCEP</table_info>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>SBSNO_ON_SURFACE</shortname>
        <pname>SBSNO</pname>
        <table_info>NCEP</table_info>
@@ -2133,12 +2089,6 @@
        <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <pname>SNOHF</pname>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
-       <shortname>ACM_PEVAP_ON_SURFACE</shortname>
-       <pname>PEVAP</pname>
        <scale>4.0</scale>
        </param>
 
@@ -2289,16 +2239,6 @@
        <pname>MINRH</pname>
        <table_info>NCEP</table_info>
        <scale>-2.0</scale>
-       </param>
-
-       <param>
-       <shortname>AOD_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>HWP_ON_SURFACE</shortname>
-       <scale>5.0</scale>
        </param>
 
        <param>
@@ -2526,18 +2466,6 @@
        <shortname>TMP_ON_CLOUD_TOP</shortname>
        <pname>TMP</pname>
        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_BOT_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-       
-       <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_TOP_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
        </param>
 
        <param>
