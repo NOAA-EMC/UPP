@@ -456,12 +456,6 @@
        </param>
 
        <param>
-       <shortname>SPFH_ON_SURFACE</shortname>
-       <pname>SPFH</pname>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>TMP_ON_SURFACE</shortname>
        <pname>TMP</pname>
        <scale>4.0</scale>
@@ -1200,18 +1194,6 @@
        </param>
 
        <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_BOT_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_TOP_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>VGTYP_ON_SURFACE</shortname>
        <pname>VGTYP</pname>
        <table_info>NCEP</table_info>
@@ -1281,13 +1263,6 @@
        <pname>SMREF</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>PEVPR_ON_SURFACE</shortname>
-       <pname>PEVPR</pname>
-       <table_info>NCEP</table_info>
-       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1558,12 +1533,6 @@
        </param>
 
        <param>
-       <shortname>SPFH_ON_SURFACE</shortname>
-       <pname>SPFH</pname>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
@@ -1667,13 +1636,6 @@
        <shortname>HGT_ON_LWST_LVL_OF_WET_BULB_ZERO</shortname>
        <pname>HGT</pname>
        <scale>-5.0</scale>
-       </param>
-
-       <param>
-       <shortname>PEVPR_ON_SURFACE</shortname>
-       <pname>PEVPR</pname>
-       <table_info>NCEP</table_info>
-       <scale>6.0</scale>
        </param>
 
        <param>
@@ -2103,18 +2065,6 @@
        <shortname>TMP_ON_CLOUD_TOP</shortname>
        <pname>TMP</pname>
        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_BOT_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-       
-       <param>
-       <shortname>PRES_ON_GRID_SCALE_CLOUD_TOP_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
        </param>
 
        <param>
