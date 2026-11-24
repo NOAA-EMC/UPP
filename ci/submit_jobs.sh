@@ -3,6 +3,7 @@
 # This script is used to submit test jobs on R&D machines.
 # # Wen Meng  05/2025  First version.
 # # Ben Blake 04/2026  Remove RRFS IFI support
+# # Sam Trahan 11/2026 Added MPAS RRFS IFI support
 # ##########################################################################
 
 export jobid_list=""
@@ -17,7 +18,7 @@ done
 
 #Run additional ifi tests
 if [[ "$have_ifi" == "yes" && "$disable_ifi" == "no" ]] ; then
-  for model in hrrr; do
+  for model in hrrr mpas_rrfs; do
     cp "$svndir/ci/jobs-dev/run_post_${model}_ifi_${machine}.sh" .
     job_id=$(sbatch --parsable -A "$accnr" "run_post_${model}_ifi_${machine}.sh")
     jobid_list="${jobid_list} $job_id" 
