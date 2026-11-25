@@ -39,6 +39,7 @@
 !> 2022-11-16 | Eric James     | Adding calculation of vertically integrated dust from RRFS
 !> 2023-02-23 | Eric James     | Adding vertically integrated coarse PM from RRFS
 !> 2026-03-09 | Eric James     | Adding aerosol mass-weighted centroid height
+!> 2026-11-25 | Eric James     | Increasing threshold for outputting centroid height
 !>     
 !> @author Russ Treadon W/NP2 @date 1992-12-24
 !-----------------------------------------------------------------------
