@@ -355,7 +355,7 @@
             IF (IDECID == 19) THEN
              PW(I,J) = PW(I,J) + Qdum(I,J)
             ELSE IF (IDECID == 25) THEN
-             IF (COLMD(I,J) > 0.000001) THEN
+             IF (COLMD(I,J) > 0.000002) THEN
                IF (COLMD2(I,J) < 0.5*COLMD(I,J) .and. COLMD2(I,J) + &
                  Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L) > 0.5*COLMD(I,J)) THEN
                  PW(I,J) = ZMID(I,J,L)
