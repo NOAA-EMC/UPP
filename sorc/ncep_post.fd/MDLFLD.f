@@ -77,6 +77,7 @@
 !!   26-03-23 | J Kenyon | Add mixing length (computed within model) as parm 1028
 !!   26-07-21 | E James  | Switch PBL height from Ri-based to THV-based (MYNN) for MPAS fields PBL wind and VRATE
 !!   26-09-30 | B Blake  | Use THV-based (MYNN) PBL height for calculation of PBL wind and VRATE in RRFS
+!!   26-11-25 | E James  | Simplifying the aerosol layer height calculation
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -3509,15 +3510,16 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           DO I=ista,iend
             GRID1(I,J) = spval
             GRID2(I,J) = spval
-            DO L=1,NINT(LMH(I,J))
+            LLMH = NINT(LMH(I,J))
+            DO L=1,LLMH
               IF (SMOKE(I,J,L,1) + FV3DUST(I,J,L,1) + COARSEPM(I,J,L,1)>=1.0) THEN
                  GRID1(I,J)=ZMID(I,J,L)
                  EXIT
               ENDIF
             ENDDO
-            DO L=1,NINT(LMH(I,J))+1
-              IF (SMOKE(I,J,NINT(LMH(I,J))-L,1) + FV3DUST(I,J,NINT(LMH(I,J))-L,1) + COARSEPM(I,J,NINT(LMH(I,J))-L,1)>=1.0) THEN
-                 GRID2(I,J)=ZMID(I,J,NINT(LMH(I,J))-L)
+            DO L=LLMH,1,-1
+              IF (SMOKE(I,J,L,1) + FV3DUST(I,J,L,1) + COARSEPM(I,J,L,1)>=1.0) THEN
+                 GRID2(I,J)=ZMID(I,J,L)
                  EXIT
               ENDIF
             ENDDO
